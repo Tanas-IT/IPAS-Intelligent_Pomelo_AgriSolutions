@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel
 
         public string? ProcessName { get; set; }
 
-        public string? ProcessStyleName { get; set; }
+        public string? MasterTypeName { get; set; }
 
         public virtual ICollection<ProcessDataInSubProcessModel> ListSubProcessData { get; set; } = new List<ProcessDataInSubProcessModel>();
 

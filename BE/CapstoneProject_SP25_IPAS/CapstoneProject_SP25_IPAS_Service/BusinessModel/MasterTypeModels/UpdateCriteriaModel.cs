@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.CriteriaTypeModels
+namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 {
-    public class AddCriteriaModel
+    public class UpdateCriteriaModel
     {
+        public int CriteriaId { get; set; }
         public string? CriteriaName { get; set; }
 
         public string? CriteriaDescription { get; set; }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.GoogleUserInfo;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Mail;
@@ -690,7 +689,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 authClaims.Add(new Claim("UserId", user.UserId.ToString()));
                 authClaims.Add(new Claim("Status", user.Status.ToString()));
-                authClaims.Add(new Claim("AvatarURL", user.AvatarURL));
                 authClaims.Add(new Claim("FullName", user.FullName));
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
@@ -715,7 +713,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                      new Claim("UserId", user.UserId.ToString()),
                      new Claim("Status", user.Status.ToString()),
                      new Claim("FullName", user.FullName),
-                     new Claim("AvatarURL", user.AvatarURL),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
               };
             }
@@ -730,7 +727,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                      new Claim("UserId", user.UserId.ToString()),
                      new Claim("Status", user.Status.ToString()),
                      new Claim("FullName", user.FullName),
-                     new Claim("AvatarURL", user.AvatarURL),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
             }

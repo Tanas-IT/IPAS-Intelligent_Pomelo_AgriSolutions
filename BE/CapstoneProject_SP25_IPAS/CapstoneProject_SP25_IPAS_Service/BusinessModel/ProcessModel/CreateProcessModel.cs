@@ -19,12 +19,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 
         public int? FarmId { get; set; }
 
-        public int? ProcessStyleId { get; set; }
+        public int? MasterTypeId { get; set; }
 
         public int? GrowthStageID { get; set; }
 
         [DefaultValue(new[] { "{SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, ProcessStyleId: 0}" })]
         public List<string>? ListSubProcess { get; set; }
-        public List<IFormFile>? ListProcessData { get; set; }
+        public IFormFile? ProcessData { get; set; }
     }
 }

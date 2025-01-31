@@ -1,5 +1,4 @@
-﻿using CapstoneProject_SP25_IPAS_Service.BusinessModel.CriteriaTypeModels;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,12 +20,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 
         public int? FarmId { get; set; }
 
-        public int? ProcessStyleId { get; set; }
+        public int? MasterTypeId { get; set; }
 
         public int? GrowthStageID { get; set; }
 
         [DefaultValue(new[] { "{SubProcessId: 0, SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, ProcessStyleId: 0}" })]
         public List<string>? ListUpdateSubProcess { get; set; } = new List<string>();
-        public List<IFormFile>? ListUpdateProcessData { get; set; } = new List<IFormFile>();
+        public IFormFile? UpdateProcessData { get; set; }
     }
 }
