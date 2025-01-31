@@ -29,17 +29,25 @@ public partial class Farm
 
     public string? Status { get; set; }
 
-    public string? Province { get; set; }
-
-    public string? District { get; set; }
-
-    public string? Ward { get; set; }
-
     public double? Length { get; set; }
 
     public double? Width { get; set; }
 
     public string? Description { get; set; }
+
+    public string? District { get; set; }
+
+    public string? Ward { get; set; }
+
+    public string? Province { get; set; }
+
+    public string? LandOwnershipCertificate { get; set; }
+
+    public string? OperatingLicense { get; set; }
+
+    public string? LandLeaseAgreement { get; set; }
+
+    public string? PesticideUseLicense { get; set; }
 
     public virtual ICollection<FarmCoordination> FarmCoordinations { get; set; } = new List<FarmCoordination>();
 
@@ -47,7 +55,6 @@ public partial class Farm
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
-
     public virtual ICollection<UserFarm> UserFarms { get; set; } = new List<UserFarm>();
+    public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
 }

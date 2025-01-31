@@ -9,22 +9,23 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
-    public class UserFarmRepository : GenericRepository<UserFarm>, IUserFarmRepository
+    public class MasterTypeRepository : GenericRepository<MasterType>, IMasterTypeRepository
     {
         private readonly IpasContext _context;
-        public UserFarmRepository(IpasContext context) : base(context)
+
+        public MasterTypeRepository(IpasContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<int> getRoleOfUserInFarm(int userId, int farmId)
+        public async Task<List<MasterType>> GetMasterTypeByName(string name)
         {
-            var getUserFarm = await _context.UserFarms.FirstOrDefaultAsync(x => x.UserId == userId && x.FarmId == farmId);
-            if (getUserFarm != null)
+            var getMasterTypeByName = await  _context.MasterTypes.Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
+            if(getMasterTypeByName.Count() > 0)
             {
-                return getUserFarm.RoleId ?? -1;
+                return getMasterTypeByName;
             }
-            return -1;
+            return null;
         }
     }
 }

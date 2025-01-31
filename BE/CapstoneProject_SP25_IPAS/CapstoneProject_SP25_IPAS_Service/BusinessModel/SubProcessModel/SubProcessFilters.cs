@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel
         [FromQuery(Name = "filter-process-name")]
         public string? ProcessName { get; set; }
         [FromQuery(Name = "filter-process-type")]
-        public string? ProcessType { get; set; }
+        public string? MasterType { get; set; }
 
         [FromQuery(Name = "filter-create-date-from")]
         public DateTime? createDateFrom { get; set; }

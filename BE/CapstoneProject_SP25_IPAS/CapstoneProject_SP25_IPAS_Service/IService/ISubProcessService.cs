@@ -24,6 +24,5 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetSubProcessByName(string subProcessName);
 
-        public Task<BusinessResult> GetSubProcessDataByID(int subProcessId);
     }
 }

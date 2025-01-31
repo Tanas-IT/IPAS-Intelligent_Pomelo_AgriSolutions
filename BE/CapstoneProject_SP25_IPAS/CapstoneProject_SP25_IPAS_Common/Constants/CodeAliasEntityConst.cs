@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
     {
         public static string USER = "USR";
         public static string FARM = "FARM";
-        public static string CRITERIA_TYPE = "CTT";
+        public static string MASTER_TYPE = "MTT";
         public static string PARTNER = "PTR";
         public static string PLANT_LOT = "PLT";
         public static string PROCESS = "PRC";
