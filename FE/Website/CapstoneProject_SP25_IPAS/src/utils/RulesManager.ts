@@ -3,8 +3,7 @@ export class RulesManager {
     return [
       { required: true, message: "Please input your email!" },
       {
-        pattern:
-          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|int|mil|coop|aero|museum)$/,
+        pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
         message: "Please enter a valid email!",
       },
     ];

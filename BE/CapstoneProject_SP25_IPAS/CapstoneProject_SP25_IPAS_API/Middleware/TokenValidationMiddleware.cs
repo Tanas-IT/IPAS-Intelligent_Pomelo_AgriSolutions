@@ -27,28 +27,33 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                         var expirationDate = jwtToken.ValidTo;
                         if (expirationDate < DateTime.UtcNow)
                         {
-                            var response = new BaseResponse
-                            {
-                                StatusCode = StatusCodes.Status401Unauthorized,
-                                Message = "Token is expired!",
-                                Data = null,
-                                IsSuccess = false
-                            };
-                            context.Response.ContentType = "application/json";
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+                            await RespondWithUnauthorized(context, "Token is expired!");
                             return;
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    context.Response.StatusCode = 401; // Unauthorized
-                    await context.Response.WriteAsync("Invalid Token");
+                    await RespondWithUnauthorized(context, "Invalid Token!");
                     return;
                 }
             }
             await _next(context);
+        }
+
+        private async Task RespondWithUnauthorized(HttpContext context, string message)
+        {
+            var response = new BaseResponse
+            {
+                StatusCode = StatusCodes.Status401Unauthorized,
+                Message = message,
+                Data = null,
+                IsSuccess = false
+            };
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
         }
     }
 }

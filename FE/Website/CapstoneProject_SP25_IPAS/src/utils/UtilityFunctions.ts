@@ -1,6 +1,9 @@
 import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
+import { jwtDecode } from "jwt-decode";
+import { DecodedToken } from "@/types";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -190,12 +193,18 @@ export const formatDateAndTime = (date: Date): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };
 
+export const getRoleId = (): string => {
+  const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+  if (!accessToken) return "";
+  return jwtDecode<DecodedToken>(accessToken).roleId;
+};
+
 export const getRoleName = (roleId: number): string => {
   if (roleId === UserRole.Admin) {
     return "Quản trị viên";
-  } else if (roleId === UserRole.BrandManager) {
+  } else if (roleId === UserRole.Employee) {
     return "Quản lý thương hiệu";
-  } else if (roleId === UserRole.BranchManager) {
+  } else if (roleId === UserRole.Manager) {
     return "Quản lý chi nhánh";
   }
   return UserRole[roleId] ? `Vai trò: ${UserRole[roleId]}` : "Vai trò không xác định";
@@ -205,23 +214,6 @@ export const formatTime = (time: number) => {
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-};
-
-export const translateDemographics = (demographics: string): string => {
-  const [gender, time] = demographics.split(", ") as [string, string];
-
-  const genderMap: { [key: string]: string } = {
-    Male: "Nam",
-    Female: "Nữ",
-  };
-
-  const timeMap: { [key: string]: string } = {
-    Morning: "Buổi Sáng",
-    Afternoon: "Buổi Trưa",
-    Evening: "Buổi Chiều",
-  };
-
-  return `${genderMap[gender] || "Không xác định"}, ${timeMap[time] || "Không xác định"}`;
 };
 
 export const addOneMonthToDate = (date: Date): string => {

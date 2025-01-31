@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_RFT_CODE = 200;
         public static string SUCCESS_RFT_MSG = "Refresh Token successfully";
         public static int SUCCESS_REGISTER_CODE = 200;
-        public static string SUCCESS_REGISTER_MSG = "Register success. You can login now";
+        public static string SUCCESS_REGISTER_MSG = "You have successfully registered! Welcome aboard";
         public static int SUCCESS_SOFT_DELETE_USER_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_USER_MSG = "Soft Delete User Success";
         public static int SUCCESS_BANNED_USER_CODE = 200;
@@ -166,7 +166,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_GROWTHSTAGE_CODE = 200;
         public static string SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE = "Get all GrowthStage success";
         #endregion
-       
+
 
         #region ProcessStyle code
         public static int SUCCESS_GET_PROCESS_STYLE_BY_ID_CODE = 200;
@@ -313,9 +313,9 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region SubProcess Fail code
         public static int FAIL_CREATE_SUB_PROCESS_CODE = 500;
         public static string FAIL_CREATE_SUB_PROCESS_MESSAGE = "Create sub process failed";
-        public static int FAIL_UPDATE_SUB_PROCESS_CODE = 500;          
+        public static int FAIL_UPDATE_SUB_PROCESS_CODE = 500;
         public static string FAIL_UPDATE_SUB_PROCESS_MESSAGE = "Update sub process failed";
-        public static int FAIL_DELETE_SUB_PROCESS_CODE = 500;          
+        public static int FAIL_DELETE_SUB_PROCESS_CODE = 500;
         public static string FAIL_DELETE_SUB_PROCESS_MESSAGE = "Delete sub process failed";
         public static int FAIL_SOFT_DELETE_SUB_PROCESS_CODE = 500;
         public static string FAIL_SOFT_DELETE_SUB_PROCESS_MESSAGE = "Soft delete sub process failed";
@@ -385,28 +385,28 @@ namespace CapstoneProject_SP25_IPAS_Common
 
         #region UserService
         public static int WARNING_ACCOUNT_BANNED_CODE = 400;
-        public static string WARNING_ACCOUNT_BANNED_MSG = "Your account is banned";
+        public static string WARNING_ACCOUNT_BANNED_MSG = "Your account has been banned. Contact support for further details";
         public static int WARNING_ACCOUNT_DELETED_CODE = 400;
-        public static string WARNING_ACCOUNT_DELETED_MSG = "Your account is deleted";
-        public static int WARNING_PASSWORD_INCORRECT_CODE = 401;
+        public static string WARNING_ACCOUNT_DELETED_MSG = "Your account has been deleted. Contact support for further details";
+        public static int WARNING_PASSWORD_INCORRECT_CODE = 400;
         public static string WARNING__PASSWORD_INCORRECT_MSG = "Password is not correct";
-        public static int WARNING_SIGN_IN_CODE = 404;
+        public static int WARNING_SIGN_IN_CODE = 400;
         public static string WARNING_SIGN_IN_MSG = "Account does not exist. Please try again!";
-        public static int WARNING_RFT_NOT_EXIST_CODE = 404;
+        public static int WARNING_RFT_NOT_EXIST_CODE = 400;
         public static string WARNING_RFT_NOT_EXIST_MSG = "Refresh token does not exist in system";
         public static int WARNING_ACCOUNT_IS_EXISTED_CODE = 400;
-        public static string WARNING_ACCOUNT_IS_EXISTED_MSG = "Account is existed";
+        public static string WARNING_ACCOUNT_IS_EXISTED_MSG = "Email is already registered";
         public static int WARNING_ROLE_IS_NOT_EXISTED_CODE = 400;
         public static string WARNING_ROLE_IS_NOT_EXISTED_MSG = "Role does not existed";
-        public static int WARNING_BANNED_USER_CODE = 404;
+        public static int WARNING_BANNED_USER_CODE = 400;
         public static string WARNING_BANNED_USER_MSG = "User does not existed or is banned";
-        public static int WARNING_RESET_PASSWORD_CODE = 404;
+        public static int WARNING_RESET_PASSWORD_CODE = 400;
         public static string WARNING_RESET_PASSWORD_MSG = "Account does not exist or otp incorrect";
         public static int WARNING_CHECK_MAIL_REGISTER_CODE = 400;
         public static string WARNING_CHECK_MAIL_REGISER_MSG = "Email and OTP are required";
-        public static int WARNING_USER_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_USER_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_USER_DOES_NOT_EXIST_MSG = "User does not existed";
-        public static int WARNING_GET_ALL_USER_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_ALL_USER_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_ALL_USER_DOES_NOT_EXIST_MSG = "Does not have any user";
         #endregion
         #region PlantLot

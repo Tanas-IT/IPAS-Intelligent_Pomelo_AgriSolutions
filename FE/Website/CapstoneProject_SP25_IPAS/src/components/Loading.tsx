@@ -1,10 +1,15 @@
+import { Flex, Spin } from "antd";
 import React from "react";
-import { bouncy } from "ldrs";
-
-bouncy.register();
 
 const Loading: React.FC = () => {
-  return <l-bouncy size="45" speed="1.75" color="#5D5FEF"></l-bouncy>;
+  return (
+    <Flex style={{ justifyContent: "center", alignContent: "center" }}>
+      <Spin
+        style={{ height: "100vh", justifyContent: "center", alignContent: "center" }}
+        size="large"
+      />
+    </Flex>
+  );
 };
 
 export default Loading;

@@ -1,13 +1,21 @@
 @use "@/styles/variables.scss" as vars;
 
 .header {
-  align-items: center;
-  padding: 0 20px;
   width: 100%;
+  position: fixed;
+  z-index: 9998;
+  padding: 0 18rem 0 20px;
+  align-items: center;
   height: 70px;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 10px;
   background-color: vars.$color_header_bg;
   border-bottom: 1px solid vars.$color_second;
+  transition: 0.5s;
+
+  &.collapsed {
+    padding-right: 6rem;
+  }
 
   .content {
     width: 100%;
@@ -27,7 +35,6 @@
 
     .dateWrapper {
       align-items: center;
-      justify-content: center;
       gap: 8px;
 
       .dateIcon {
@@ -73,7 +80,7 @@
 
     .profileContainer {
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
       cursor: pointer;
       transition: 0.3s;
       border-radius: 8px;

@@ -104,6 +104,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("Cors");
 app.UseMiddleware<TokenValidationMiddleware>();
 app.UseMiddleware<AccountStatusMiddleware>();
 //app.UseMiddleware<AuthorizeMiddleware>();
@@ -111,7 +112,6 @@ app.UseMiddleware<AccountStatusMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("Cors");
 app.MapControllers();
 
 app.Run();

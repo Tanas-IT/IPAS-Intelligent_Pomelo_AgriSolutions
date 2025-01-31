@@ -1,20 +1,29 @@
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const useToastMessage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const flag = useRef(false);
 
   useEffect(() => {
-    const toastMessage = location.state?.toastMessage;
-    if (toastMessage && !flag.current) {
+    if (!location.state) return;
+
+    const { toastMessage, warningMessage } = location.state;
+
+    if (toastMessage) {
       toast.success(toastMessage, { autoClose: 2500 });
-      flag.current = true;
-      navigate(location.pathname, { replace: true });
+    } else if (warningMessage) {
+      toast.error(warningMessage, { autoClose: 2500 });
     }
-  }, [location.state, navigate, location.pathname]);
+
+    // Chỉ gọi navigate nếu location.state không rỗng
+    if (toastMessage || warningMessage) {
+      setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 100); // Delay nhỏ để tránh lỗi throttle
+    }
+  }, [location, navigate]);
 };
 
 export default useToastMessage;

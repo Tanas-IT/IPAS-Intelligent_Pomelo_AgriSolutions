@@ -7,7 +7,7 @@ import "@/App.css";
 import { PATHS } from "@/routes";
 import { useSidebarStore } from "@/stores";
 import { ActiveMenu, MenuItem } from "@/types";
-import { useStyle } from "@/hooks";
+import { useLogout } from "@/hooks";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -212,6 +212,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
   ];
+
+  const handleLogout = useLogout();
 
   menuItems = mergeActivePaths(menuItems);
 
@@ -431,6 +433,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           style={{
             justifyContent: !isExpanded ? "center" : undefined,
           }}
+          onClick={handleLogout}
         >
           <Tooltip title={!isExpanded ? "Logout Account" : ""} placement="right">
             <Icons.logout className={style.logoutIcon} />

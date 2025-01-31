@@ -8,6 +8,8 @@ import { GoogleLoginButton } from "@/components";
 import { DATE_FORMAT, RulesManager } from "@/utils";
 import dayjs from "dayjs";
 import { authService } from "@/services";
+import { toast } from "react-toastify";
+import { PATHS } from "@/routes";
 
 interface Props {
   toggleForm: () => void;
@@ -42,14 +44,17 @@ const SignUp: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         values.dateOfBirth = values.dateOfBirth.format("YYYY-MM-DD");
       setIsLoading(true);
       var result = await authService.sendOTP(values.email);
-      setTimeout(() => {
-        if (result.statusCode === 200) {
-          setIsLoading(false);
-          navigate("/sign-up/otp", { state: { type: "sign-up", values, otp: result.data.otpHash } });
-        }
-      }, 500);
+      if (result.statusCode === 200) {
+        navigate(PATHS.AUTH.SIGN_UP_OTP, {
+          state: { type: "sign-up", values, otp: result.data.otpHash },
+        });
+      } else if (result.statusCode === 400) {
+        toast.error(result.message);
+      }
     } catch (error) {
       console.error("Error in handleSignUp:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,7 +141,7 @@ const SignUp: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
               hasFeedback
             >
               <DatePicker
-                placeholder="Date of Birth"
+                placeholder="DD/MM/YYYY"
                 format={DATE_FORMAT}
                 style={{ width: "100%", fontSize: "16px" }}
                 className={`${styles.customInput}`}

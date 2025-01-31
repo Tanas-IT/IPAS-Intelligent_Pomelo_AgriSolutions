@@ -1,11 +1,13 @@
-
 export const PATHS = {
   // Authentication
   AUTH: {
     LANDING: "/",
     LOGIN: "/auth",
+    LOGIN2: "/auth?mode=sign-in",
+    Register: "/auth?mode=sign-up",
     FORGOT_PASSWORD: "/forgot-password",
     FORGOT_PASSWORD_OTP: "/forgot-password/otp",
+    FORGOT_PASSWORD_RESET: "/forgot-password/new-password",
     SIGN_UP_OTP: "/sign-up/otp",
   },
 

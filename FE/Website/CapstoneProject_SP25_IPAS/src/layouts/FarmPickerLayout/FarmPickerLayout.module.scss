@@ -1,25 +1,5 @@
-@use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
 
 .layout {
-  background-color: vars.$color_bg_main;
-  overflow: hidden;
-  flex: 1;
-
-  .contentWrapper {
-    // width: 100%;
-
-    .content {
-      flex-direction: column;
-      flex: 1;
-      margin: 12px 24px;
-      overflow: auto;
-    }
-  }
-
-  .footer {
-    text-align: center;
-  }
-  .active {
-    font-weight: bold;
-  }
+  @include shared.layout;
 }

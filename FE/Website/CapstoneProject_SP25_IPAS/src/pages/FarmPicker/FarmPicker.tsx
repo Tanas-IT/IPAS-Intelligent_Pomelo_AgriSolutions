@@ -4,12 +4,10 @@ import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { CustomButton } from "@/components";
-import { useToastMessage } from "@/hooks";
 const Text = Typography;
 
 function FarmPicker() {
   const navigate = useNavigate();
-  useToastMessage();
   const handleCardClick = () => {
     navigate(PATHS.DASHBOARD);
   };

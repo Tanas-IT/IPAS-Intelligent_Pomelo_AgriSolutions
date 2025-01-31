@@ -3,12 +3,14 @@ import { Input, Button, Form, Divider, Flex } from "antd";
 import style from "./SignIn.module.scss";
 import { GoogleCredentialResponse } from "@react-oauth/google";
 import { GoogleLoginButton } from "@/components";
-import { useStyle } from "@/hooks";
-import { RulesManager } from "@/utils";
+import { useLocalStorage, useStyle } from "@/hooks";
+import { getRoleId, RulesManager } from "@/utils";
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
+
+import { UserRole } from "@/constants";
 
 interface Props {
   toggleForm: () => void;
@@ -33,17 +35,29 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
       setIsLoading(true);
       const result = await authService.login(values.email, values.password);
       const toastMessage = result.message;
-      setTimeout(() => {
-        setIsLoading(false);
-        if (result.statusCode === 200) {
+      if (result.statusCode === 200) {
+        const { saveAuthData } = useLocalStorage();
+        const accessToken = result.data.authenModel.accessToken;
+        const loginResponse = {
+          accessToken: accessToken,
+          refreshToken: result.data.authenModel.refreshToken,
+          fullName: result.data.fullname,
+          avatar: result.data.avatar,
+        };
+        saveAuthData(loginResponse);
+        const roleId = getRoleId();
+
+        if (roleId === UserRole.User.toString())
           navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
-        } else {
-          toast.error(toastMessage);
-        }
-      }, 1500);
+        if (roleId === UserRole.Admin.toString())
+          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+      } else if (result.statusCode === 400) {
+        toast.error(toastMessage);
+      }
     } catch (error) {
-      setIsLoading(false);
       console.error("Error submitting form:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,7 +93,7 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         </div>
 
         <Flex className={style.forgetWrapper}>
-          <a href="/forgot-password" className={style["forgetpw"]}>
+          <a href={PATHS.AUTH.FORGOT_PASSWORD} className={style["forgetpw"]}>
             Forgot Password?
           </a>
         </Flex>

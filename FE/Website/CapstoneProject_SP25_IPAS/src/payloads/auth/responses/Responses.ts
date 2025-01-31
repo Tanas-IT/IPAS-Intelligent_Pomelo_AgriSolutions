@@ -1,8 +1,11 @@
-export interface UserAuthResponse {
+interface Auth {
   accessToken: string;
   refreshToken: string;
+}
+interface UserAuthResponse {
+  authenModel: Auth;
   avatar: string;
-  fullName: string;
+  fullname: string;
 }
 
 export interface LoginResponse extends UserAuthResponse {}

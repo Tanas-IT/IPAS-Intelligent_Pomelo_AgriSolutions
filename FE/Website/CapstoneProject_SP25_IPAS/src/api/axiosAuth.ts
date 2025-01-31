@@ -1,11 +1,7 @@
-import {
-  convertKeysToCamelCase,
-  convertKeysToKebabCase,
-  convertQueryParamsToKebabCase,
-  handleApiError,
-} from "@/utils";
-import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { toast } from "react-toastify";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { PATHS } from "@/routes";
+import { handleApiError } from "@/utils";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 const API_HOST = import.meta.env.VITE_API_HOST;
 const API_PORT = import.meta.env.VITE_API_PORT;
@@ -26,18 +22,13 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
     (config: InternalAxiosRequestConfig) => {
       config.headers = config.headers || {};
 
-      const accessToken = localStorage.getItem("AccessToken");
-      // if (accessToken) {
-      //   config.headers.Authorization = `Bearer ${accessToken}`;
-      // }
-
-      // if (config.data) {
-      //   config.data = convertKeysToKebabCase(config.data);
-      // }
-
-      // if (config.params) {
-      //   config.params = convertQueryParamsToKebabCase(config.params);
-      // }
+      const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+      if (!accessToken?.trim()) {
+        localStorage.clear();
+        window.location.href = PATHS.AUTH.LANDING;
+      } else {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
 
       return config;
     },
