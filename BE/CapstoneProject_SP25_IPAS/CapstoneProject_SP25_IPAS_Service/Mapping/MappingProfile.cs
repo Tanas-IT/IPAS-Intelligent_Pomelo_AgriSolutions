@@ -15,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessStyleModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -78,6 +79,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Criteria, CriteriaModel>()
                 //.ForMember(dest => dest.CriteriaType, opt => opt.MapFrom(src => src.CriteriaType))
                 .ReverseMap();
+
+            CreateMap<MasterType, MasterTypeModel>().ReverseMap();
         }
     }
 }
