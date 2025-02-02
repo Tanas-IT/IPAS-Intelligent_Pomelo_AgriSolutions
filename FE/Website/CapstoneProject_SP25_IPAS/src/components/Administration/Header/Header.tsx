@@ -6,14 +6,16 @@ import style from "./Header.module.scss";
 import { getCurrentDate, getRoleName } from "@/utils";
 import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks";
+import { useLocalStorage } from "@/hooks";
+import { useSidebarStore } from "@/stores";
 
 interface HeaderProps {
   isDefault?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
-  const { getAuthData } = useAuth();
+  const { isExpanded } = useSidebarStore();
+  const { getAuthData } = useLocalStorage();
   const authData = getAuthData();
 
   const menuItems = [
@@ -52,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
   ].filter((noti) => noti !== null);
 
   return (
-    <Flex className={style.header}>
+    <Flex className={`${style.header} ${!isExpanded && style.collapsed}`}>
       <Flex className={style.content}>
         <Flex className={style.leftSection}>
           <Text className={style.welcomeMessage}>Welcome back, {authData.fullName}</Text>

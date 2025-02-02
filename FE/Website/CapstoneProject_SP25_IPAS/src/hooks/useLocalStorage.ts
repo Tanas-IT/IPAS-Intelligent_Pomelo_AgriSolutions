@@ -1,7 +1,7 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
 import { useState } from "react";
 
-const useAuth = () => {
+const useLocalStorage = () => {
   const getAuthData = () => {
     // Lấy dữ liệu từ localStorage, trả về đối tượng
     const authData = {
@@ -38,4 +38,4 @@ const useAuth = () => {
   };
 };
 
-export default useAuth;
+export default useLocalStorage;

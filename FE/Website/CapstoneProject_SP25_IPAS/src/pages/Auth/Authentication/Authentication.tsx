@@ -7,10 +7,11 @@ import { GoogleCredentialResponse, GoogleOAuthProvider } from "@react-oauth/goog
 import { authService } from "@/services";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
-import { useAuth, useAuthRedirect, useToastMessage } from "@/hooks";
+import { useLocalStorage, useToastMessage } from "@/hooks";
+import { getRoleId } from "@/utils";
+import { UserRole } from "@/constants";
 
 function Authentication() {
-  // useAuthRedirect();
   useToastMessage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,9 +26,11 @@ function Authentication() {
       var result = await authService.loginGoogle(response.credential);
 
       if (result.statusCode === 200) {
-        const { saveAuthData } = useAuth();
+        const { saveAuthData } = useLocalStorage();
+        const accessToken = result.data.authenModel.accessToken;
+
         const loginResponse = {
-          accessToken: result.data.authenModel.accessToken,
+          accessToken: accessToken,
           refreshToken: result.data.authenModel.refreshToken,
           fullName: result.data.fullname,
           avatar: result.data.avatar,
@@ -35,7 +38,12 @@ function Authentication() {
 
         saveAuthData(loginResponse);
         const toastMessage = result.message;
-        navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        const roleId = getRoleId();
+
+        if (roleId === UserRole.User.toString())
+          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        if (roleId === UserRole.Admin.toString())
+          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
       } else {
         toast.error(result.message);
       }

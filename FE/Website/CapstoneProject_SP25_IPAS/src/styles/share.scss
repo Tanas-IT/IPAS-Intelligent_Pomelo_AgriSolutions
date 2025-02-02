@@ -1,9 +1,28 @@
 @use "@/styles/variables.scss" as vars;
 
-@mixin container {
-  width: 100%;
-  flex-direction: column;
+@mixin layout {
   overflow: hidden;
+  background-color: vars.$color_bg_main;
+
+  .contentWrapper {
+    margin-top: 4.2rem;
+    .content {
+      flex-direction: column;
+      margin: 12px 32px;
+      min-height: 70vh;
+    }
+  }
+
+  .footerWrapper {
+    margin-top: 4rem;
+  }
+  .active {
+    font-weight: bold;
+  }
+}
+
+@mixin container {
+  flex-direction: column;
 
   .headerWrapper {
     justify-content: space-between;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const useAuthRedirect = (): boolean => {
+const useRequireAuth = (): boolean => {
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ const useAuthRedirect = (): boolean => {
     const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
 
     if (!accessToken && !refreshToken) {
-      toast.warning("You do not have permission to access this resource");
+      toast.error("Please log in to access this page.");
       navigate(PATHS.AUTH.LANDING);
     } else {
       setIsAuthChecked(true);
@@ -23,4 +23,4 @@ const useAuthRedirect = (): boolean => {
   return isAuthChecked;
 };
 
-export default useAuthRedirect;
+export default useRequireAuth;

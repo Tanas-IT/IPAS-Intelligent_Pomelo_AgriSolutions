@@ -1,6 +1,9 @@
 import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
+import { jwtDecode } from "jwt-decode";
+import { DecodedToken } from "@/types";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -188,6 +191,12 @@ export const formatDate = (date: Date): string => {
 
 export const formatDateAndTime = (date: Date): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
+};
+
+export const getRoleId = (): string => {
+  const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+  if (!accessToken) return "";
+  return jwtDecode<DecodedToken>(accessToken).roleId;
 };
 
 export const getRoleName = (roleId: number): string => {

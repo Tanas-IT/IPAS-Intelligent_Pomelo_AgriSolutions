@@ -19,22 +19,4 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "require-corp",
     },
   },
-  build: {
-    // Tăng giới hạn kích thước chunk cảnh báo (KB)
-    chunkSizeWarningLimit: 1000, // 1000 KB (hoặc giá trị bạn muốn)
-
-    rollupOptions: {
-      output: {
-        // Thủ công chia các thư viện thành chunk riêng biệt
-        manualChunks(id) {
-          if (id.includes("node_modules/react")) {
-            return "react-vendor"; // Chia react thành một chunk riêng
-          }
-          if (id.includes("node_modules/lodash")) {
-            return "lodash-vendor"; // Chia lodash thành một chunk riêng
-          }
-        },
-      },
-    },
-  },
 });

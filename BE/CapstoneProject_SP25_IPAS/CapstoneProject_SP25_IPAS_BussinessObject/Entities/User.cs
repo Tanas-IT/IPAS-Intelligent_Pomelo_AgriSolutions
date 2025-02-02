@@ -30,21 +30,24 @@ public partial class User
     public DateTime? DeleteDate { get; set; }
 
     public string? Status { get; set; }
-    public string? Address { get; set; }
 
     public int? IsDependency { get; set; }
 
     public int? RoleId { get; set; }
 
     public string? AvatarURL { get; set; }
+
     public string? Otp { get; set; }
+
     public DateTime? ExpiredOtpTime { get; set; }
+
+    public string? Address { get; set; }
+
+    public int? RemainDays { get; set; }
 
     public virtual ICollection<ChatRoom> ChatRooms { get; set; } = new List<ChatRoom>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-
-    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
@@ -52,7 +55,8 @@ public partial class User
 
     public virtual ICollection<TaskFeedback> TaskFeedbacks { get; set; } = new List<TaskFeedback>();
 
-    public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
-
     public virtual ICollection<UserFarm> UserFarms { get; set; } = new List<UserFarm>();
+
+    public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

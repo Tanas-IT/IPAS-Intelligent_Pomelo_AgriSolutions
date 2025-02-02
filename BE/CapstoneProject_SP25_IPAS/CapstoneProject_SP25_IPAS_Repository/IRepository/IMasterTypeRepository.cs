@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
-    public interface ICriteriaTypeRepository
+    public interface IMasterTypeRepository
     {
-        public Task<List<CriteriaType>> GetCriteriaTypeByName(string criteriaTypeName);
+        public Task<List<MasterType>> GetMasterTypeByName(string name);
     }
 }

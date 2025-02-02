@@ -3,14 +3,13 @@ import { Input, Button, Form, Divider, Flex } from "antd";
 import style from "./SignIn.module.scss";
 import { GoogleCredentialResponse } from "@react-oauth/google";
 import { GoogleLoginButton } from "@/components";
-import { useAuth, useStyle, useToastMessage } from "@/hooks";
-import { RulesManager } from "@/utils";
+import { useLocalStorage, useStyle } from "@/hooks";
+import { getRoleId, RulesManager } from "@/utils";
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
-import { DecodedToken } from "@/types";
+
 import { UserRole } from "@/constants";
 
 interface Props {
@@ -37,7 +36,7 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
       const result = await authService.login(values.email, values.password);
       const toastMessage = result.message;
       if (result.statusCode === 200) {
-        const { saveAuthData } = useAuth();
+        const { saveAuthData } = useLocalStorage();
         const accessToken = result.data.authenModel.accessToken;
         const loginResponse = {
           accessToken: accessToken,
@@ -46,7 +45,7 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
           avatar: result.data.avatar,
         };
         saveAuthData(loginResponse);
-        const roleId = jwtDecode<DecodedToken>(accessToken).roleId;
+        const roleId = getRoleId();
 
         if (roleId === UserRole.User.toString())
           navigate(PATHS.FARM_PICKER, { state: { toastMessage } });

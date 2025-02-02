@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useAuth from "./useAuth";
+import useLocalStorage from "./useLocalStorage";
 import { PATHS } from "@/routes";
 import { authService } from "@/services";
 
 const useLogout = () => {
   const navigate = useNavigate();
-  const { getAuthData, clearAuthData } = useAuth();
+  const { getAuthData, clearAuthData } = useLocalStorage();
 
   const handleLogout = async () => {
     const authData = getAuthData();

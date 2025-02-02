@@ -11,7 +11,7 @@ import {
   Weather,
   ResetPassword,
 } from "@/pages";
-import { FarmPickerLayout, GuestLayout, HeaderOnly, ManagementLayout } from "@/layouts";
+import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
 
 interface RouteItem {
@@ -24,15 +24,20 @@ interface RouteItem {
 export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.LANDING, component: Landing, layout: GuestLayout },
   { path: PATHS.FARM_PICKER, component: FarmPicker, layout: FarmPickerLayout },
-  { path: PATHS.AUTH.LOGIN, component: Authentication, layout: null },
-  { path: PATHS.AUTH.FORGOT_PASSWORD, component: ForgetPassword, layout: null },
-  { path: PATHS.AUTH.FORGOT_PASSWORD_OTP, component: OTP, layout: null, props: { type: "reset" } },
+  { path: PATHS.AUTH.LOGIN, component: Authentication, layout: EmptyLayout },
+  { path: PATHS.AUTH.FORGOT_PASSWORD, component: ForgetPassword, layout: EmptyLayout },
+  {
+    path: PATHS.AUTH.FORGOT_PASSWORD_OTP,
+    component: OTP,
+    layout: EmptyLayout,
+    props: { type: "reset" },
+  },
   {
     path: PATHS.AUTH.FORGOT_PASSWORD_RESET,
     component: ResetPassword,
-    layout: null,
+    layout: EmptyLayout,
   },
-  { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: null, props: { type: "sign-up" } },
+  { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },

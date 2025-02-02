@@ -4,9 +4,9 @@ import { Button, Col, Form, Input, Row, Typography } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/services";
-import { formatToISO8601, hashOtp } from "@/utils";
+import { hashOtp } from "@/utils";
 import { RegisterRequest } from "@/payloads";
-import { useAuth } from "@/hooks";
+import { useLocalStorage } from "@/hooks";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 
@@ -110,7 +110,7 @@ function OTP() {
 
       var result = await authService.register(registerRequest);
       if (result.statusCode === 200) {
-        const { saveAuthData } = useAuth();
+        const { saveAuthData } = useLocalStorage();
         const registerResponse = {
           accessToken: result.data.authenModel.accessToken,
           refreshToken: result.data.authenModel.refreshToken,

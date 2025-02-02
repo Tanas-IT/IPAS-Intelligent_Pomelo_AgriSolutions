@@ -1,25 +1,35 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import style from "./ManagementLayout.module.scss";
-import { HeaderAdmin, Loading, SidebarAdmin } from "@/components";
+import { Footer, HeaderAdmin, Loading, SidebarAdmin } from "@/components";
 import { Breadcrumb, Flex, Layout } from "antd";
-import { Link, useLocation } from "react-router-dom";
-import { isValidBreadcrumb } from "@/utils";
-import { useAuthRedirect } from "@/hooks";
-const { Content, Footer } = Layout;
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getRoleId, isValidBreadcrumb } from "@/utils";
+import { useRequireAuth } from "@/hooks";
+import { UserRole } from "@/constants";
+import { PATHS } from "@/routes";
+const { Header, Content } = Layout;
 
 interface ManagementLayoutProps {
   children: ReactNode;
 }
 
 const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
-  const isAuthChecked = useAuthRedirect();
+  const isTokenChecked = useRequireAuth();
+  const [isUser, setIsUser] = useState<boolean>(false);
 
-  if (!isAuthChecked) {
-    return <Loading />;
-  }
+  useEffect(() => {
+    const roleId = getRoleId();
+    if (roleId === UserRole.User.toString()) {
+      setIsUser(true);
+      navigate(PATHS.FARM_PICKER);
+    }
+  }, [navigate]);
+
+  if (!isTokenChecked || isUser) return <Loading />;
 
   const breadcrumbItems = pathnames
     .filter((path) => !isValidBreadcrumb(path))
@@ -35,7 +45,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
     });
 
   return (
-    <Flex>
+    <Flex className={style.mainContainer}>
       <SidebarAdmin />
       <Layout className={style.layout}>
         <HeaderAdmin />
@@ -45,9 +55,9 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
             {children}
           </Flex>
         </Content>
-        <Footer className={style.footer}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+        <div className={style.footerWrapper}>
+          <Footer isManagement={true} />
+        </div>
       </Layout>
     </Flex>
   );

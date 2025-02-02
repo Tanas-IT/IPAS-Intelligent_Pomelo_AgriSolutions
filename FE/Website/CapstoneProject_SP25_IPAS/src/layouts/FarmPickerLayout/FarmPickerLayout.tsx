@@ -1,22 +1,34 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import style from "./FarmPickerLayout.module.scss";
 import { Flex, Layout } from "antd";
-import { HeaderAdmin, Loading, SidebarAdmin } from "@/components";
-import { useAuthRedirect, useToastMessage } from "@/hooks";
-const { Content, Footer } = Layout;
+import { Footer, HeaderAdmin, Loading, SidebarAdmin } from "@/components";
+import { useRequireAuth, useToastMessage } from "@/hooks";
+import { UserRole } from "@/constants";
+import { getRoleId } from "@/utils";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/routes";
+const { Content } = Layout;
 
 interface FarmPickerLayoutProps {
   children: ReactNode;
 }
 
 const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
-  const isAuthChecked = useAuthRedirect();
+  const navigate = useNavigate();
   useToastMessage();
+  const isTokenChecked = useRequireAuth();
+  const [isUser, setIsUser] = useState<boolean>(true);
 
-  if (!isAuthChecked) {
-    return <Loading />;
-  }
+  useEffect(() => {
+    const roleId = getRoleId();
+    if (roleId !== UserRole.User.toString()) {
+      setIsUser(false);
+      navigate(PATHS.DASHBOARD);
+    }
+  }, []);
+
+  if (!isTokenChecked || !isUser) return <Loading />;
 
   return (
     <Flex>
@@ -26,9 +38,9 @@ const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
         <Content className={style.contentWrapper}>
           <Flex className={style.content}>{children}</Flex>
         </Content>
-        <Footer className={style.footer}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+        <div className={style.footerWrapper}>
+          <Footer isManagement={true} />
+        </div>
       </Layout>
     </Flex>
   );

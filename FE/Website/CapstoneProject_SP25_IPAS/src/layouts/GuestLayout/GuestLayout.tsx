@@ -2,8 +2,8 @@ import React, { ReactNode } from "react";
 import { Layout } from "antd";
 
 import style from "./GuestLayout.module.scss";
-import { Footer, HeaderGuest } from "@/components";
-import { useAuthRedirect, useToastFromLocalStorage, useToastMessage } from "@/hooks";
+import { Footer, HeaderGuest, Loading } from "@/components";
+import { useRedirectAuth, useToastFromLocalStorage, useToastMessage } from "@/hooks";
 
 const { Content } = Layout;
 
@@ -12,9 +12,12 @@ interface GuestLayoutProps {
 }
 
 const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
-  // useAuthRedirect();
+  const isAuthenticated = useRedirectAuth();
   useToastMessage();
   useToastFromLocalStorage();
+
+  if (isAuthenticated) return <Loading />;
+
   return (
     <Layout>
       {/* container */}
