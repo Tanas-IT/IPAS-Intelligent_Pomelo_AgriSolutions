@@ -69,14 +69,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
            
         }
 
-        public static class CriteriaType
+        public static class MasterType
         {
-            public const string createCriteriaType = Base + "/criteriaTypes";
-            public const string getCriteriaTypeById = Base + "/criteriaTypes/get-criteriaType-by-id/{id}";
-            public const string getCriteriaTypeWithPagination = Base + "/criteriaTypes";
-            public const string permanenlyDelete = Base + "/criteriaTypes/delete-permanenly/{id}";
-            public const string updateCriteriaTypeInfo = Base + "/criteriaTypes/update-criteriaType-info";
-            public const string getCriteriaTypeByName = Base + "/criteriaTypes/get-criteriaType-by-name/{name}";
+            public const string createMasterType = Base + "/masterTypes";
+            public const string getMasterTypeById = Base + "/masterTypes/get-masterType-by-id/{id}";
+            public const string getMasterTypeWithPagination = Base + "/masterTypes";
+            public const string permanenlyDelete = Base + "/masterTypes/delete-permanenly/{id}";
+            public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
+            public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
         }
         public static class Criteria
         {
