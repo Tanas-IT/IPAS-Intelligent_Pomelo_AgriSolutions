@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        [HttpGet(APIRoutes.LandPlot.getLandPlotById + "{landplot-id}", Name = "getLandPlotByIdAsync")]
+        [HttpGet(APIRoutes.LandPlot.getLandPlotById + "/{landplot-id}", Name = "getLandPlotByIdAsync")]
         public async Task<IActionResult> GetLantPlotByIdAsync([FromRoute(Name = "landplot-id")] int landplotId)
         {
             var result = await _landPlotService.GetLandPlotById(landplotId);

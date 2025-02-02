@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<LandPlot, LandPlotModel>()
                 .ForMember(dest => dest.LandPlotCoordinations, opt => opt.MapFrom(src => src.LandPlotCoordinations))
-                //.ForMember(dest => dest.LandRows, opt => opt.MapFrom(src => src.LandRows))
+                .ForMember(dest => dest.LandRows, opt => opt.MapFrom(src => src.LandRows))
                 //.ForMember(dest => dest.Plans, opt => opt.MapFrom(src => src.Plans))
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ReverseMap();
@@ -88,6 +88,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Criteria, CriteriaModel>()
                 //.ForMember(dest => dest.CriteriaType, opt => opt.MapFrom(src => src.CriteriaType))
                 .ReverseMap();
+
+            CreateMap<LandRow, LandRowModel>()
+                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
+                .ReverseMap();
+
+            CreateMap<Plant, PlantModel>()
+                .ReverseMap();
+
         }
     }
 }

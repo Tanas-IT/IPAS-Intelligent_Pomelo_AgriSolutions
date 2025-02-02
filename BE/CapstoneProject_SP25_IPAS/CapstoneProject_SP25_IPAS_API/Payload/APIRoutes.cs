@@ -154,5 +154,15 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class LandRow
+        {
+            public const string prefix = Base + "/landRows";
+            public const string createLandRow = prefix + "";
+            public const string deleteLandRow = prefix + "";
+            public const string updateLandRowInfo = prefix + "";
+            public const string getLandRowById = prefix + "";
+            public const string getLandRowOfPlot = prefix + "/getLandRowsOfPlot";
+        }
+
     }
 }

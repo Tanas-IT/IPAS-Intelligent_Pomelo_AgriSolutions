@@ -166,8 +166,6 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_GROWTHSTAGE_CODE = 200;
         public static string SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE = "Get all GrowthStage success";
         #endregion
-
-
         #region ProcessStyle code
         public static int SUCCESS_GET_PROCESS_STYLE_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PROCESS_STYLE_BY_ID_MESSAGE = "Get process style by id success";
@@ -180,7 +178,6 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_PROCESS_STYLE_CODE = 200;
         public static string SUCCESS_GET_ALL_PROCESS_STYLE_MESSAGE = "Get all process style success";
         #endregion
-
         #region Process code
         public static int SUCCESS_GET_PROCESS_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PROCESS_BY_ID_MESSAGE = "Get process by id success";
@@ -199,7 +196,6 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_SOFT_DELETE_PROCESS_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_PROCESS_MESSAGE = "Soft delete process success";
         #endregion
-
         #region SubProcess code
         public static int SUCCESS_GET_SUB_PROCESS_BY_ID_CODE = 200;
         public static string SUCCESS_GET_SUB_PROCESS_BY_ID_MESSAGE = "Get sub process by id success";
@@ -217,6 +213,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_SUB_PROCESS_MESSAGE = "Get all sub process success";
         public static int SUCCESS_SOFT_DELETE_SUB_PROCESS_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_SUB_PROCESS_MESSAGE = "Soft delete sub process success";
+        #endregion
+        #region Land Row
+        public static int SUCCESS_CREATE_ONE_LANDROW_OF_FARM_CODE = 200;
+        public static string SUCCESS_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create one landrow success";
+        public static int SUCCESS_DELETE_ONE_ROW_CODE = 200;
+        public static string SUCCESS_DELETE_ONE_ROW_MSG = "Delete row success";
+        public static int SUCCESS_UPDATE_ONE_ROW_CODE = 200;
+        public static string SUCCESS_UPDATE_ONE_ROW_MSG = "Update row success";
+        public static int SUCCESS_GET_ROW_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_ROW_BY_ID_MSG = "Get row by id success";
+        public static int SUCCESS_GET_ROWS_SUCCESS_CODE = 200;
+        public static string SUCCESS_GET_ROWS_SUCCESS_MSG = "Get rows success";
+        public static string SUCCESS_GET_ROWS_EMPTY_MSG = "No resource was found";
         #endregion
         #endregion
 
@@ -374,6 +383,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_GROWTHSTAGE_CODE = 500;
         public static string FAIL_GET_GROWTHSTAGE_MESSAGE = "Get GrowthStage failed";
         #endregion
+        #region
+        public static int FAIL_CREATE_ONE_LANDROW_OF_FARM_CODE = 400;
+        public static string FAIL_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create landrow fail, please try again";
+        #endregion
         #endregion
 
         #region WARNING
@@ -410,7 +423,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_ALL_USER_DOES_NOT_EXIST_MSG = "Does not have any user";
         #endregion
         #region PlantLot
-        public static int WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG = "Does not have any plant lot";
         public static int WARNING_CREATE_MANY_PLANT_FROM_PLANT_LOT_CODE = 400;
         public static string WARNING_CREATE_MANY_PLANT_FROM_PLANT_LOT_MSG = "Some criteria does not pass. Please check all criteria again";
@@ -463,6 +476,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_SUB_PROCESS_DOES_NOT_EXIST_MSG = "Does not have any sub process";
         public static int WARNING_GET_PROCESS_DATA_OF_SUB_PROCESS_NOT_EXIST_CODE = 404;
         public static string WARNING_GET_PROCESS_DATA_OF_SUB_PROCESS_NOT_EXIST_MSG = "Does not have any data of this sub process";
+        #endregion
+
+        #region LandRow
+        public static int WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE = 400;
+        public static string WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG = "Lenght or width of row larger than land plot";
+        public static int WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_CODE = 400;
+        public static string WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG = "Total area was user larger than area of landplot";
+        public static int WARNING_ROW_NOT_EXIST_CODE = 400;
+        public static string WARNING_ROW_NOT_EXIST_MSG = "This row not exist";
         #endregion
         #endregion
     }

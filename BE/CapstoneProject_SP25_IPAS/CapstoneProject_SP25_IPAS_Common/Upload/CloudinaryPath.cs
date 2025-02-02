@@ -10,13 +10,12 @@ namespace CapstoneProject_SP25_IPAS_Common.Upload
     {
         #region farm
         public static string FARM = "farm";
-
         public static string FARM_LOGO = FARM + "/Logo";
         #endregion
 
         #region User
         public static string USER = "user";
-        public static string USER_AVARTAR = USER + "avatar";
+        public static string USER_AVARTAR = USER + "/avatar";
         #endregion
     }
 }
