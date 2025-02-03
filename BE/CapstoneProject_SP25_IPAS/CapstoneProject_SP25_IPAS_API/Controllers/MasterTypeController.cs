@@ -1,32 +1,31 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessStyleModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
-using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProcessStyleController : ControllerBase
+    public class MasterTypeController : ControllerBase
     {
-        private readonly IProcessStyleService _processStyleService;
 
-        public ProcessStyleController(IProcessStyleService processStyleService)
+        private readonly IMasterTypeService _masterTypeService;
+        public MasterTypeController(IMasterTypeService masterTypeService)
         {
-            _processStyleService = processStyleService;
+            _masterTypeService = masterTypeService;
         }
 
-        [HttpGet(APIRoutes.ProcessStyle.getProcessStyleWithPagination, Name = "getAllProcessStylePaginationAsync")]
-        public async Task<IActionResult> GetAllProcessStyle(PaginationParameter paginationParameter)
+        [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
+        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _processStyleService.GetAllProcessStylePagination(paginationParameter);
+                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,12 +39,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.ProcessStyle.getProcessStyleById, Name = "getProcessStyleByIdAsync")]
-        public async Task<IActionResult> GetProcessStyleById([FromRoute] int id)
+        [HttpGet(APIRoutes.MasterType.getMasterTypeById, Name = "getMasterTypeById")]
+        public async Task<IActionResult> GetMasterTypeById([FromRoute] int id)
         {
             try
             {
-                var result = await _processStyleService.GetProcessStyleByID(id);
+                var result = await _masterTypeService.GetMasterTypeByID(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -59,12 +58,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.ProcessStyle.createProcessStyle, Name = "createProcessStyleAsync")]
-        public async Task<IActionResult> CreateProcessStyle([FromBody] CreateProcessStyleModel createProcessStyleModel)
+        [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
+        public async Task<IActionResult> GetMasterTypeByName([FromRoute] string name)
         {
             try
             {
-                var result = await _processStyleService.CreateProcessStyle(createProcessStyleModel);
+                var result = await _masterTypeService.GetMasterTypeByName(name);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -78,12 +77,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.ProcessStyle.updateProcessStyleInfo, Name = "updateProcessStyleAsync")]
-        public async Task<IActionResult> UpdateProcessStyle([FromBody] UpdateProcessStyleModel updateProcessStyleModel)
+        [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
+        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeModel createMasterTypeModel)
         {
             try
             {
-                var result = await _processStyleService.UpdateProcessStyleInfo(updateProcessStyleModel);
+                var result = await _masterTypeService.CreateMasterType(createMasterTypeModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -97,12 +96,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.ProcessStyle.permanenlyDelete, Name = "permenlyDeleteProcessStyle")]
-        public async Task<IActionResult> DeletProcessStyle([FromRoute] int id)
+        [HttpPut(APIRoutes.MasterType.updateMasterTypeInfo, Name = "updateMasterType")]
+        public async Task<IActionResult> UpdateMasterType([FromBody] UpdateMasterTypeModel updateMasterTypeModel)
         {
             try
             {
-                var result = await _processStyleService.PermanentlyDeleteProcessStyle(id);
+                var result = await _masterTypeService.UpdateMasterTypeInfo(updateMasterTypeModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -115,5 +114,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpDelete(APIRoutes.MasterType.permanenlyDelete, Name = "deleteMasterType")]
+        public async Task<IActionResult> DeleteMasterType([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _masterTypeService.PermanentlyDeleteMasterType(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 }
