@@ -15,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessStyleModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -50,9 +51,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<UserFarm, UserFarmModel>()
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User)) 
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName)) 
                 .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
-                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
+                .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
                 .ReverseMap();
 
 
@@ -85,7 +88,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Plant, PlantModel>()
                 .ReverseMap();
-
+            CreateMap<MasterType, MasterTypeModel>()
+                .ForMember(dest => dest.Criteria, opt => opt.MapFrom(src => src.Criteria))
+                .ReverseMap();
         }
     }
 }

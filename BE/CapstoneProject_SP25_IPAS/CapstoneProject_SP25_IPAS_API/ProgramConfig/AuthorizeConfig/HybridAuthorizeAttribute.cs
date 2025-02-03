@@ -67,7 +67,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig
                 var _farmService = context.HttpContext.RequestServices.GetService<IFarmService>();
                 var userFarm = await _farmService.GetUserFarmRole(farmId: farmId.Value, userId: userId);
 
-                if (userFarm == null || !_allowedFarmRoles.Contains(userFarm.Role.RoleName))
+                if (userFarm == null || !(_allowedFarmRoles!.Contains(userFarm.RoleName)))
                 {
                     context.Result = new ForbidResult();
                 }

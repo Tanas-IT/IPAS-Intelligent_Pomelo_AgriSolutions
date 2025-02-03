@@ -39,6 +39,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    if (createRequest.LandRow.Length > createRequest.Length)
+                        return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
+                    if (createRequest.LandRow.Width > createRequest.Width)
+                        return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
 
                     var landplotCreateEntity = new LandPlot()
                     {
@@ -54,7 +58,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     landplotCreateEntity.Status = FarmStatus.Active.ToString();
                     landplotCreateEntity.CreateDate = DateTime.Now;
                     landplotCreateEntity.UpdateDate = DateTime.Now;
+                    var numberRowInPlot = CalculateRowsInPlot(createRequest.Length, createRequest.LandRow.Length, 0);
+                    for (int i = 0; i < numberRowInPlot; i++)
+                    {
+                        var landRow = new LandRow()
+                        {
+                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW), 
+                            RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
+                            Length = createRequest.LandRow.Length,
+                            Width = createRequest.LandRow.Width,
+                            Distance = createRequest.LandRow.Distance,
+                            Direction = createRequest.LandRow.Direction,
+                            Status = LandRowStatus.Active.ToString(),
+                            CreateDate = DateTime.Now,
+                        };
 
+                        landplotCreateEntity.LandRows.Add(landRow);
+                    }
                     if (createRequest.LandPlotCoordinations?.Any() == true)
                     {
                         foreach (var coordination in createRequest.LandPlotCoordinations)
@@ -67,7 +87,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
                         }
                     }
-                    // chua co add them UserFarm
 
                     await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
                     int result = await _unitOfWork.SaveAsync();
@@ -255,5 +274,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        private int CalculateRowsInPlot(double landPlotLength, double rowWidth, double? distanceRow)
+        {
+            
+            double spacing = distanceRow ?? 0;
+            int numRows = (int)((landPlotLength + spacing) / (rowWidth + spacing));
+
+            return numRows;
+        }
+
     }
 }
