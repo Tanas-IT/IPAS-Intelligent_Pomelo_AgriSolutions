@@ -299,7 +299,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
                     }
-                    if (updatePlantLotRequestModel.GoodPlant > 0)
+                    if (updatePlantLotRequestModel.GoodPlant  > 0)
                     {
                         checkExistPlantLot.LastQuantity = checkExistPlantLot.LastQuantity - updatePlantLotRequestModel.GoodPlant;
                     }

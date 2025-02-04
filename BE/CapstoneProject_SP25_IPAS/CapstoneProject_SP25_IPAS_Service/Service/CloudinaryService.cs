@@ -326,6 +326,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        public async Task<Stream> DownloadImageFromUrlAsync(string imageUrl)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetAsync(imageUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsStreamAsync();
+                }
+                throw new Exception("Failed to download image from URL.");
+            }
+        }
+
+        public async Task<string> UploadImageAsync(Stream fileStream, string fileName, string? folder)
+        {
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(fileName, fileStream),
+                Folder = folder
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return uploadResult.SecureUrl.ToString();
+            }
+            else
+            {
+                throw new Exception($"Image upload failed: {uploadResult.Error?.Message}");
             }
         }
     }
