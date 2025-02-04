@@ -1,17 +1,27 @@
-import React, { useEffect } from "react";
-import { Input, Button, Form, Space, Divider } from "antd";
-import { FaGoogle } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { Input, Button, Form, Divider, Flex } from "antd";
 import style from "./SignIn.module.scss";
-import GoogleButton from "react-google-button";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-import { useStyle } from "@/hooks";
+import { GoogleCredentialResponse } from "@react-oauth/google";
+import { GoogleLoginButton } from "@/components";
+import { useLocalStorage, useStyle } from "@/hooks";
+import { getRoleId, RulesManager } from "@/utils";
+import { authService } from "@/services";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/routes";
+import { toast } from "react-toastify";
+
+import { UserRole } from "@/constants";
 
 interface Props {
   toggleForm: () => void;
   isSignUp: boolean;
+  handleGoogleLoginSuccess: (response: GoogleCredentialResponse) => Promise<void>;
 }
 
-const SignIn: React.FC<Props> = ({ toggleForm, isSignUp }) => {
+const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSuccess }) => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const { styles } = useStyle();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -20,70 +30,89 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp }) => {
     }
   }, [isSignUp, form]);
 
-  const handleSignInGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      console.log("Google Sign-In Success:", tokenResponse);
-    },
-    onError: () => {
-      console.error("Google Sign-In Failed");
-    },
-  });
+  const handleSubmit = async (values: any) => {
+    try {
+      setIsLoading(true);
+      const result = await authService.login(values.email, values.password);
+      const toastMessage = result.message;
+      if (result.statusCode === 200) {
+        const { saveAuthData } = useLocalStorage();
+        const accessToken = result.data.authenModel.accessToken;
+        const loginResponse = {
+          accessToken: accessToken,
+          refreshToken: result.data.authenModel.refreshToken,
+          fullName: result.data.fullname,
+          avatar: result.data.avatar,
+        };
+        saveAuthData(loginResponse);
+        const roleId = getRoleId();
 
-  const handleGoogleButtonClick = () => {
-    handleSignInGoogle();
+        if (roleId === UserRole.User.toString())
+          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        if (roleId === UserRole.Admin.toString())
+          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+      } else if (result.statusCode === 400) {
+        toast.error(toastMessage);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const { styles } = useStyle();
-  console.log('mệt', styles.customInput);
-
 
   return (
     <div
       className={`${style["form-container"]} ${style["sign-in"]} ${isSignUp ? style.hidden : ""}`}
     >
-      <Form form={form} name="sign_in" initialValues={{ remember: true }} layout="vertical">
+      <Form
+        name="sign_in"
+        form={form}
+        onFinish={handleSubmit}
+        initialValues={{ remember: true }}
+        layout="vertical"
+      >
         <h1 className={style.formTitle}>Sign In</h1>
 
         <div className={style["inputGroup"]}>
-          <Form.Item
-            name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              {
-                pattern:
-                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|int|mil|coop|aero|museum)$/,
-                message: "Please enter a valid email!",
-              },
-            ]}
-            // hasFeedback
-            // validateStatus="error"
-            // help="Should be combination of numbers & alphabets"
-          >
+          <Form.Item name="email" rules={RulesManager.getEmailRules()} hasFeedback>
             <Input
-              placeholder="Email" style={{ fontSize: "16px", backgroundColor: "white", borderRadius: "6px", border: "1px solid #d9d9d9" }} />
+              placeholder="Email"
+              style={{
+                fontSize: "16px",
+                backgroundColor: "white",
+                borderRadius: "6px",
+                border: "1px solid #d9d9d9",
+              }}
+            />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
+          <Form.Item name="password" rules={RulesManager.getPasswordRules()} hasFeedback>
             <Input.Password placeholder="Password" className={`${styles.customInput}`} />
           </Form.Item>
         </div>
 
-        <a href="/forgot-password" className={style["forgetpw"]}>
-          Forgot Password?
-        </a>
+        <Flex className={style.forgetWrapper}>
+          <a href={PATHS.AUTH.FORGOT_PASSWORD} className={style["forgetpw"]}>
+            Forgot Password?
+          </a>
+        </Flex>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block style={{ backgroundColor: "#326E2F" }}>
+          <Button
+            loading={isLoading}
+            type="primary"
+            htmlType="submit"
+            block
+            className={style.btn_signin}
+          >
             Sign In
           </Button>
         </Form.Item>
 
         <Divider>OR</Divider>
 
-        <GoogleButton style={{ width: "auto" }} onClick={handleGoogleButtonClick} />
+        <GoogleLoginButton onSuccess={handleGoogleLoginSuccess} />
       </Form>
     </div>
   );

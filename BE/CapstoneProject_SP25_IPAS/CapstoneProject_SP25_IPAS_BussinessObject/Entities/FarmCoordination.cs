@@ -7,6 +7,8 @@ public partial class FarmCoordination
 {
     public int FarmCoordinationId { get; set; }
 
+    public string? FarmCoordinationCode { get; set; }
+
     public double? Longitude { get; set; }
 
     public double? Lagtitude { get; set; }

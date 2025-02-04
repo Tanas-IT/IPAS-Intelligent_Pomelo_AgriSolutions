@@ -1,54 +1,73 @@
+@use "@/styles/variables.scss" as vars;
+
 .container {
-    padding: 40px;
-    background-color: #ffffff;
-    height: 100vh;
-  }
+  background-color: vars.$color_bg_auth;
+  padding: 40px;
+  height: 100vh;
+  overflow: auto;
+}
+
+.form {
+  text-align: center;
+}
+
+.otpImg {
+  mix-blend-mode: multiply;
+}
 
 .verifyBtn {
-    background: linear-gradient(108deg, #BCD379 0%, #326E2F 100%);
-    animation-duration: 0s !important;
+  background: vars.$color_btn_auth;
+  animation-duration: 0s !important;
 
-    &:hover {
-        animation-duration: 0s !important;
-        background: #cad3af !important;
-        color: #326E2F !important;
-        border: #326E2F !important;
-
-    }
+  &:hover {
+    background: vars.$color_btn_auth !important;
+    border: transparent !important;
+    opacity: 0.8;
+  }
 }
 
 .resendButton {
-    background-color: #f0f0f0;
-    border-color: #d9d9d9;
+  background-color: #f0f0f0 !important;
+  border-color: #d9d9d9 !important;
+  color: inherit !important;
 
-    &:hover {
-        background-color: #e6e6e6;
-        border-color: #bfbfbf;
-    }
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .timer {
-    color: red;
+  color: red;
 }
 
 .timerContainer {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.inputOpt {
+  margin-bottom: 30px !important;
+  input {
+    padding: 10px;
+    padding-inline: 10px !important;
+  }
 }
 
 .back {
-    display: inline-block;
-    color: #d9d9d9;
-    font-size: 16px;
-    text-decoration: none;
-    transition: color 0.3s ease;
-    width: 100%;
-    text-align: center;
-  
+  display: inline-block;
+  color: #1d4e23;
+  font-size: 16px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  width: 100%;
+  text-align: center;
+
+  a {
     &:hover {
       color: #1d4e23;
       text-decoration: underline;
     }
   }
+}

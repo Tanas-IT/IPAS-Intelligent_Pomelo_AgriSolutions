@@ -76,24 +76,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpGet(APIRoutes.SubProcess.getProcessDataOfSubProcess, Name = "getProcessDataOfSubProcessAsync")]
-        public async Task<IActionResult> GetProcessDataOfSubProcess([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _subProcessService.GetSubProcessDataByID(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
+       
         [HttpPost(APIRoutes.SubProcess.createSubProcess, Name = "createSubProcessAsync")]
         public async Task<IActionResult> CreateSubProcess([FromForm] CreateSubProcessModel createSubProcessModel)
         {

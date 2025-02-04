@@ -8,7 +8,6 @@ const Text = Typography;
 
 function FarmPicker() {
   const navigate = useNavigate();
-
   const handleCardClick = () => {
     navigate(PATHS.DASHBOARD);
   };

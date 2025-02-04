@@ -22,7 +22,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var getUserFarm = await _context.UserFarms.FirstOrDefaultAsync(x => x.UserId == userId && x.FarmId == farmId);
             if (getUserFarm != null)
             {
-                return getUserFarm.RoleId;
+                return getUserFarm.RoleId ?? -1;
             }
             return -1;
         }

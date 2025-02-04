@@ -1,17 +1,11 @@
 ﻿using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
-using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using System.Security.Claims;
 using CapstoneProject_SP25_IPAS_Service.Payloads.Request;
 using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.GoogleUser;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -141,6 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[Authorize(Roles = "User")]
         [HttpPost(APIRoutes.Authentication.Logout, Name = "Logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenModel removeRefreshTokenModel)
         {

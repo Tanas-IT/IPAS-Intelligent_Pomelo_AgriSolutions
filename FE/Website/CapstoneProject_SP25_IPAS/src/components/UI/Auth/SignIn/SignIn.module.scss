@@ -1,3 +1,4 @@
+@use "@/styles/variables.scss" as vars;
 
 .container {
   background-color: #fff;
@@ -10,6 +11,10 @@
   // min-height: 480px;
   width: 100%;
   height: 100vh;
+
+  span {
+    font-size: 14px !important;
+  }
 }
 
 .container p {
@@ -17,10 +22,6 @@
   line-height: 20px;
   letter-spacing: 0.3px;
   margin: 20px 0;
-}
-
-.container span {
-  font-size: 12px;
 }
 
 .container a {
@@ -34,7 +35,7 @@
   background-color: #512da8;
   color: #fff;
   font-size: 12px;
-  padding: 10px 45px;
+  // padding: 10px 45px;
   border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 600;
@@ -81,8 +82,13 @@
   margin-top: 50px;
 }
 
+.forgetWrapper {
+  justify-content: flex-end;
+}
+
 .forgetpw {
   display: block;
+  width: 40%;
   margin-top: 30px;
   font-size: 14px;
   color: #512da8;
@@ -214,4 +220,8 @@
 
 .container.active .toggle-right {
   transform: translateX(200%);
+}
+
+.btn_signin {
+  background-color: vars.$color_btn_auth;
 }

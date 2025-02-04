@@ -1,11 +1,6 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@use "@/styles/variables.scss" as vars;
 
 body {
-  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,7 +9,7 @@ body {
 }
 
 .container {
-  background-color: #fff;
+  background-color: vars.$color_bg_auth;
   border-radius: 30px;
   position: relative;
   overflow: hidden;
@@ -30,28 +25,34 @@ body {
 }
 
 .container span {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .container a {
   color: #333;
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none;
   margin: 15px 0 10px;
 }
 
 .container button {
-  background-color: #512da8;
+  background: vars.$color_btn_auth;
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   padding: 10px 45px;
   border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
   margin-top: 10px;
   cursor: pointer;
+  outline: transparent !important;
+
+  &:hover {
+    background: vars.$color_btn_auth !important;
+    color: #fff !important;
+    opacity: 0.8;
+  }
 }
 
 .container button.hidden {
@@ -62,9 +63,9 @@ body {
 .container input {
   background-color: #eee;
   border: none;
-  margin: 8px 0;
+  margin: 4px 0;
   padding: 10px 15px;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 8px;
   width: 100%;
   outline: none;
@@ -105,13 +106,15 @@ body {
 }
 
 @keyframes move {
-  0%, 49.99% {
-      opacity: 0;
-      z-index: 1;
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
   }
-  50%, 100% {
-      opacity: 1;
-      z-index: 5;
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
   }
 }
 
@@ -148,7 +151,7 @@ body {
 }
 
 .toggle {
-  background: linear-gradient(to right, #BCD379, #afe707);
+  background: linear-gradient(to right, #bcd379, #afe707);
   position: relative;
   height: 100%;
   width: 200%;
@@ -172,7 +175,6 @@ body {
   z-index: 1;
   pointer-events: none;
 }
-
 
 .container.active .toggle {
   transform: translateX(50%);

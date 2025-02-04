@@ -24,8 +24,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> SoftDeleteProcess(int processId);
 
         public Task<BusinessResult> GetProcessByName(string processName);
-
-        public Task<BusinessResult> GetProcessDataByID(int processId);
         public Task<BusinessResult> InsertManyProcess(List<CreateProcessModel> listCreateProcessModel);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.GoogleUserInfo;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Mail;
@@ -36,6 +35,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using Google.Apis.Auth;
 using System.Security.Cryptography;
 using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -124,7 +124,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Email = createAccountModel.Email,
                         UserCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.USER),
                         FullName = createAccountModel.FullName,
-                        Status = "Active",
+                        Status = nameof(UserStatus.Active),
                         RoleId = (int)createAccountModel.Role,
                         IsDelete = false,
                         CreateDate = DateTime.Now,
@@ -314,7 +314,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_ACCOUNT_DELETED_CODE, Const.WARNING_ACCOUNT_DELETED_MSG);
                         }
                         _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
-                        string accessToken = await GenerateAccessToken(email, existUser,-1,-1);
+                        string accessToken = await GenerateAccessToken(email, existUser, -1, -1);
 
                         _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
                         string refreshToken = await GenerateRefreshToken(email, null, tokenValidityInDays, -1, -1);
@@ -329,16 +329,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             ExpiredDate = DateTime.Now.AddDays(tokenValidityInDays)
                         });
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_LOGIN_CODE, Const.SUCCESS_LOGIN_MSG, new AuthenModel()
+                        return new BusinessResult(Const.SUCCESS_LOGIN_CODE, Const.SUCCESS_LOGIN_MSG, new
                         {
-                            AccessToken = accessToken,
-                            RefreshToken = refreshToken,
+                            AuthenModel = new AuthenModel()
+                            {
+                                AccessToken = accessToken,
+                                RefreshToken = refreshToken
+                            },
+                            Avatar = existUser.AvatarURL,
+                            Fullname = existUser.FullName,
                         });
                     }
                     else
-                    {
                         return new BusinessResult(Const.WARNING_PASSWORD_INCORRECT_CODE, Const.WARNING__PASSWORD_INCORRECT_MSG);
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -348,6 +351,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
 
         public async Task<BusinessResult> Logout(string refreshToken)
         {
@@ -420,10 +424,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         CreateDate = DateTime.Now,
                                         ExpiredDate = checkExistRefreshToken.ExpiredDate
                                     });
-                                    return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new AuthenModel
+                                    return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new
                                     {
-                                        AccessToken = newAccessToken,
-                                        RefreshToken = newRefreshToken
+                                        AuthenModel = new AuthenModel
+                                        {
+                                            AccessToken = newAccessToken,
+                                            RefreshToken = newRefreshToken
+                                        },
+                                        Avartar = existUser.AvatarURL,
+                                        Fullname = existUser.FullName,
                                     });
 
                                 }
@@ -458,7 +467,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FullName = model.FullName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        AvatarURL = model.Avatar ?? "",
+                        Gender = model.Gender,
+                        PhoneNumber = model.Phone,
+                        Dob = model.Dob,
                         Status = "Active",
                         IsDelete = false,
                     };
@@ -472,7 +483,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         newUser.Password = PasswordHelper.HashPassword(model.Password);
                     }
-                    var role = await _unitOfWork.RoleRepository.GetRoleById((int)model.Role);
+                    var role = await _unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.USER);
                     if (role != null)
                     {
                         newUser.RoleId = role.RoleId;
@@ -481,9 +492,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
                     }
+
                     await _unitOfWork.UserRepository.AddUserAsync(newUser);
+                    _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
+                    string accessToken = await GenerateAccessToken(newUser.Email, newUser, -1, -1);
+
+                    _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
+                    string refreshToken = await GenerateRefreshToken(newUser.Email, null, tokenValidityInDays, -1, -1);
+
+                    await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
+                    {
+                        UserId = newUser.UserId,
+                        RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
+                        RefreshTokenValue = refreshToken,
+                        CreateDate = DateTime.Now,
+                        ExpiredDate = DateTime.Now.AddDays(tokenValidityInDays)
+                    });
                     await transaction.CommitAsync();
-                    return new BusinessResult(Const.SUCCESS_REGISTER_CODE, Const.SUCCESS_REGISTER_MSG);
+                    return new BusinessResult(Const.SUCCESS_REGISTER_CODE, Const.SUCCESS_REGISTER_MSG, new
+                    {
+                        AuthenModel = new AuthenModel()
+                        {
+                            AccessToken = accessToken,
+                            RefreshToken = refreshToken
+                        },
+                        Avatar = newUser.AvatarURL,
+                        Fullname = newUser.FullName,
+                    });
 
                 }
                 catch (Exception ex)
@@ -641,7 +676,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 authClaims.Add(new Claim("email", email));
                 //authClaims.Add(new Claim("role", role.RoleName));
-                if(getRoleInFarm == null)
+                if (getRoleInFarm == null)
                 {
                     authClaims.Add(new Claim("roleId", role.RoleId.ToString()));
                     authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName));
@@ -651,12 +686,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     authClaims.Add(new Claim("roleId", getRoleInFarm.RoleId.ToString()));
                     authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName));
                     authClaims.Add(new Claim("farmId", farmId.ToString()));
-                   
+
                 }
                 authClaims.Add(new Claim("UserId", user.UserId.ToString()));
                 authClaims.Add(new Claim("Status", user.Status.ToString()));
-                authClaims.Add(new Claim("AvatarURL", user.AvatarURL));
-                authClaims.Add(new Claim("FullName", user.FullName));
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
             }
@@ -672,15 +705,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var authClaims = new List<Claim>();
             if (getRoleInFarm == null)
             {
-              authClaims = new List<Claim>
+                authClaims = new List<Claim>
               {
                      new Claim("email", email),
                      new Claim("role", role.RoleName),
                      new Claim("roleId", role.RoleId.ToString()),
                      new Claim("UserId", user.UserId.ToString()),
                      new Claim("Status", user.Status.ToString()),
-                     new Claim("FullName", user.FullName),
-                     new Claim("AvatarURL", user.AvatarURL),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
               };
             }
@@ -694,12 +725,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                      new Claim("farmId", farmId.ToString()),
                      new Claim("UserId", user.UserId.ToString()),
                      new Claim("Status", user.Status.ToString()),
-                     new Claim("FullName", user.FullName),
-                     new Claim("AvatarURL", user.AvatarURL),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
             }
-               
+
             JwtSecurityToken refreshToken = null;
             if (beginTimeRefreshToken != null)
             {
@@ -772,7 +801,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string sendOtp = await CreateOtpRegisterAsync(email);
             return new BusinessResult(Const.SUCCESS_SEND_OTP_RESET_PASSWORD_CODE, Const.SUCCESS_SEND_OTP_RESET_PASSWORD_USER_MSG, new RegisterSendOtpResponse()
             {
-                OtpHashSHA256 = sendOtp
+                otpHash = sendOtp
             });
         }
 
@@ -997,11 +1026,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Email = userInfo.Email,
                                 UserCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.USER),
                                 FullName = userInfo.Name,
-                                Status = "Active",
+                                Status = nameof(UserStatus.Active),
                                 IsDelete = false,
                                 CreateDate = DateTime.Now,
                                 UpdateDate = DateTime.Now,
-                                AvatarURL = userInfo.Picture ?? "",
+                                AvatarURL = userInfo.Picture ?? _configuration["SystemDefault:AvatarDefault"],
                                 Gender = "",
                                 PhoneNumber = "",
                                 Dob = null
@@ -1016,20 +1045,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
                             }
                             await _unitOfWork.UserRepository.AddUserAsync(newUser);
+                            _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes1);
+                            string accessToken1 = await GenerateAccessToken(newUser.Email, newUser, -1, -1);
+
+                            _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays1);
+                            string refreshToken1 = await GenerateRefreshToken(newUser.Email, null, tokenValidityInDays1, -1, -1);
+
+
+                            await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
+                            {
+                                UserId = newUser.UserId,
+                                RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
+                                RefreshTokenValue = refreshToken1,
+                                CreateDate = DateTime.Now,
+                                ExpiredDate = DateTime.Now.AddDays(tokenValidityInDays1)
+                            });
                             await transaction.CommitAsync();
-                            return new BusinessResult(Const.SUCCESS_REGISTER_CODE, Const.SUCCESS_REGISTER_MSG);
+                            return new BusinessResult(Const.SUCCESS_LOGIN_CODE, Const.SUCCESS_LOGIN_MSG, new
+                            {
+                                AuthenModel = new AuthenModel()
+                                {
+                                    AccessToken = accessToken1,
+                                    RefreshToken = refreshToken1
+                                },
+                                Avatar = newUser.AvatarURL,
+                                Fullname = newUser.FullName,
+                            });
                         }
                         // nếu người dùng bị ban
-                        if (existUser.Status!.ToLower().Equals("Banned".ToLower()) || existUser.IsDelete == true)
+                        if (existUser.Status!.ToLower().Equals(nameof(UserStatus.Banned).ToLower()) || existUser.IsDelete == true)
                         {
                             return new BusinessResult(Const.WARNING_ACCOUNT_BANNED_CODE, Const.WARNING_ACCOUNT_BANNED_MSG);
                         }
                         // nếu tồn tại
                         _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
-                        string accessToken = await GenerateAccessToken(userInfo.Email, existUser,-1,-1);
+                        string accessToken = await GenerateAccessToken(userInfo.Email, existUser, -1, -1);
 
                         _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
-                        string refreshToken = await GenerateRefreshToken(userInfo.Email, null, tokenValidityInDays,-1,-1);
+                        string refreshToken = await GenerateRefreshToken(userInfo.Email, null, tokenValidityInDays, -1, -1);
 
 
                         await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
@@ -1041,13 +1094,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             ExpiredDate = DateTime.Now.AddDays(tokenValidityInDays)
                         });
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_LOGIN_CODE, Const.SUCCESS_LOGIN_MSG, new AuthenModel()
+                        return new BusinessResult(Const.SUCCESS_LOGIN_CODE, Const.SUCCESS_LOGIN_MSG, new
                         {
-                            AccessToken = accessToken,
-                            RefreshToken = refreshToken,
+                            AuthenModel = new AuthenModel()
+                            {
+                                AccessToken = accessToken,
+                                RefreshToken = refreshToken
+                            },
+                            Avatar = existUser.AvatarURL,
+                            Fullname = existUser.FullName,
                         });
                     }
-
                 }
             }
             catch (Exception ex)

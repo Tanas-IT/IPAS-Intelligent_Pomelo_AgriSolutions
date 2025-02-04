@@ -31,8 +31,6 @@ public partial class LandPlot
 
     public string? TargetMarket { get; set; }
 
-    public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
-
     public virtual Farm? Farm { get; set; }
 
     public virtual ICollection<LandPlotCoordination> LandPlotCoordinations { get; set; } = new List<LandPlotCoordination>();

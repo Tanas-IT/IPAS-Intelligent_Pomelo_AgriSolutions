@@ -19,8 +19,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel
         [Required(ErrorMessage = "Full name is required!")]
         [Display(Name = "Full name")]
         public string FullName { get; set; } = "";
-        public string Avatar { get; set; } = "";
+        public string Gender { get; set; } = "";
+        public string Phone { get; set; } = "";
+        public DateTime Dob { get; set; } = new DateTime();
 
-        public RoleEnum Role { get; set; }
     }
 }

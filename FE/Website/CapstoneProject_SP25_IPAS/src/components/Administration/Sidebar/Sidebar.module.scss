@@ -2,16 +2,16 @@
 
 .sidebarWrapper {
   transition: 0.5s;
+  position: sticky;
+  max-height: 100vh;
+  top: 0;
+  z-index: 9999;
   .sidebar {
     height: 100vh;
-    user-select: none;
-    position: sticky;
-    top: 0;
     flex-direction: column;
-
     .logo {
       width: 100%;
-      min-height: 69.5px;
+      min-height: 70px;
       align-items: center;
       transition: transform 1s ease-out;
       padding: 0 12px;
@@ -145,7 +145,7 @@
     .profile {
       align-items: center;
       padding: 10px;
-      height: 40px;
+      height: 50px;
       cursor: pointer;
       transition: background-color 0.3s;
       margin-top: auto;

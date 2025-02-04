@@ -69,14 +69,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
            
         }
 
-        public static class CriteriaType
+        public static class MasterType
         {
-            public const string createCriteriaType = Base + "/criteriaTypes";
-            public const string getCriteriaTypeById = Base + "/criteriaTypes/get-criteriaType-by-id/{id}";
-            public const string getCriteriaTypeWithPagination = Base + "/criteriaTypes";
-            public const string permanenlyDelete = Base + "/criteriaTypes/delete-permanenly/{id}";
-            public const string updateCriteriaTypeInfo = Base + "/criteriaTypes/update-criteriaType-info";
-            public const string getCriteriaTypeByName = Base + "/criteriaTypes/get-criteriaType-by-name/{name}";
+            public const string createMasterType = Base + "/masterTypes";
+            public const string getMasterTypeById = Base + "/masterTypes/get-masterType-by-id/{id}";
+            public const string getMasterTypeWithPagination = Base + "/masterTypes";
+            public const string permanenlyDelete = Base + "/masterTypes/delete-permanenly/{id}";
+            public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
+            public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
         }
         public static class Criteria
         {
@@ -131,27 +131,27 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
 
         public static class Process
         {
-            public const string createProcess = Base + "/processs";
-            public const string createManyProcess = Base + "/processs/create-many";
-            public const string getProcessById = Base + "/processs/get-process-by-id/{id}";
-            public const string getProcessWithPagination = Base + "/processs";
-            public const string permanenlyDelete = Base + "/processs/delete-permanenly/{id}";
-            public const string softDeleteProcess = Base + "/processs/soft-delete/{id}";
-            public const string updateProcessInfo = Base + "/processs/update-process-info";
-            public const string getProcessByName = Base + "/processs/get-process-by-name/{name}";
-            public const string getProcessDataOfProcess = Base + "/processs/{id}/processData";
+            public const string createProcess = Base + "/processes";
+            public const string createManyProcess = Base + "/processes/create-many";
+            public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
+            public const string getProcessWithPagination = Base + "/processes";
+            public const string permanenlyDelete = Base + "/processes/delete-permanenly/{id}";
+            public const string softDeleteProcess = Base + "/processes/soft-delete/{id}";
+            public const string updateProcessInfo = Base + "/processes/update-process-info";
+            public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
+            public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
         }
 
         public static class SubProcess
         {
-            public const string createSubProcess = Base + "/subProcesss";
-            public const string getSubProcessById = Base + "/subProcesss/get-subProcess-by-id/{id}";
-            public const string getSubProcessWithPagination = Base + "/subProcesss";
-            public const string permanenlyDelete = Base + "/subProcesss/delete-permanenly/{id}";
-            public const string softDeleteSubProcess = Base + "/subProcesss/soft-delete/{id}";
-            public const string updateSubProcessInfo = Base + "/subProcesss/update-subProcess-info";
-            public const string getSubProcessByName = Base + "/subProcesss/get-subProcess-by-name/{name}";
-            public const string getProcessDataOfSubProcess = Base + "/subProcesss/{id}/processData";
+            public const string createSubProcess = Base + "/subProcesses";
+            public const string getSubProcessById = Base + "/subProcesses/get-subProcesses-by-id/{id}";
+            public const string getSubProcessWithPagination = Base + "/subProcesses";
+            public const string permanenlyDelete = Base + "/subProcesses/delete-permanenly/{id}";
+            public const string softDeleteSubProcess = Base + "/subProcesses/soft-delete/{id}";
+            public const string updateSubProcessInfo = Base + "/subProcesses/update-subProcesses-info";
+            public const string getSubProcessByName = Base + "/subProcesses/get-subProcesses-by-name/{name}";
+            public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
     }

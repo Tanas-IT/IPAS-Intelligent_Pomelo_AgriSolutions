@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> ApplyCriteriasForPlants(PlantCriteriaCreateRequest plantCriteriaCreateRequest);
 
-        public Task<BusinessResult> DeleteCriteriaForPlant(int plantId, int criteriaId);
+        public Task<BusinessResult> UpdateCriteriaForPlant(int plantId, int criteriaId);
 
         public Task<BusinessResult> CheckCriteriaForPlant(CheckPlantCriteriaRequest checkPlantCriteriaRequest);
     }

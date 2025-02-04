@@ -6,9 +6,9 @@ import { useEffect } from "react";
 function User() {
   const { setSidebarState } = useSidebarStore();
 
-  useEffect(() => {
-    setSidebarState(false); // Đóng sidebar
-  }, []);
+  // useEffect(() => {
+  //   setSidebarState(false); // Đóng sidebar
+  // }, []);
 
   return (
     <Flex className={style.container}>

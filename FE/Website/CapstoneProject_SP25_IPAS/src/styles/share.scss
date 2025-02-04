@@ -1,9 +1,28 @@
 @use "@/styles/variables.scss" as vars;
 
-@mixin container {
-  width: 100%;
-  flex-direction: column;
+@mixin layout {
   overflow: hidden;
+  background-color: vars.$color_bg_main;
+
+  .contentWrapper {
+    margin-top: 4.2rem;
+    .content {
+      flex-direction: column;
+      margin: 12px 32px;
+      min-height: 70vh;
+    }
+  }
+
+  .footerWrapper {
+    margin-top: 4rem;
+  }
+  .active {
+    font-weight: bold;
+  }
+}
+
+@mixin container {
+  flex-direction: column;
 
   .headerWrapper {
     justify-content: space-between;
@@ -36,6 +55,51 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;
+    }
+  }
+}
+
+@mixin forgetPasswordContainer {
+  background-color: vars.$color_bg_auth;
+  padding: 20px;
+  min-height: 100vh;
+
+  .gifImage {
+    mix-blend-mode: multiply;
+    width: 100%;
+    height: auto;
+  }
+
+  .inputField {
+    padding: 10px;
+    margin: 10x 0px;
+  }
+
+  .btn {
+    background: vars.$color_btn_auth;
+    color: white;
+    margin-top: 10px;
+
+    &:hover {
+      background: vars.$color_btn_auth !important;
+      color: white !important;
+      border: transparent !important;
+      opacity: 0.8;
+    }
+  }
+
+  .back {
+    display: inline-block;
+    color: #1d4e23;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    width: 100%;
+    text-align: center;
+
+    &:hover {
+      color: #1d4e23;
+      text-decoration: underline;
     }
   }
 }

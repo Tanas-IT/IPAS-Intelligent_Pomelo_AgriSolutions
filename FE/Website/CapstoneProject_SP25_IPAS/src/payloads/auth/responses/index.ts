@@ -1,1 +1,1 @@
-export * from "./LoginResponse";
+export * from "./Responses";

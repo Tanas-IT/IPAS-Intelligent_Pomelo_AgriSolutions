@@ -40,8 +40,8 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                     {
                         var response = new BaseResponse
                         {
-                            StatusCode = StatusCodes.Status403Forbidden,
-                            Message = "Your account is banned. Please contact to admin to know detail.",
+                            StatusCode = StatusCodes.Status401Unauthorized,
+                            Message = "Your account has been banned. Contact support for further details",
                             Data = null,
                             IsSuccess = false
                         };

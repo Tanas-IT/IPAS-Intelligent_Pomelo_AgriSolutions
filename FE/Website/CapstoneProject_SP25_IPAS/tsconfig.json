@@ -21,12 +21,11 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src"],
-  "files": [
-    "client.d.ts"
-  ]
+  "files": ["client.d.ts"]
 }

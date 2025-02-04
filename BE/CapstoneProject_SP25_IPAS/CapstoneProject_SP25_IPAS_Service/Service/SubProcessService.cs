@@ -48,32 +48,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UpdateDate = DateTime.Now,
                         ProcessId = createSubProcessModel.ProcessId,
                         ParentSubProcessId = createSubProcessModel.ParentSubProcessId,
-                        ProcessStyleId = createSubProcessModel.ProcessStyleId,
+                        MasterTypeId = createSubProcessModel.MasterTypeId,
                         SubProcessName = createSubProcessModel.SubProcessName,
                         IsDefault = false,
                         IsActive = createSubProcessModel.IsActive,
                         IsDeleted = false
                     };
-                    if (createSubProcessModel.ListSubProcessData != null)
+                    if (createSubProcessModel.SubProcessData != null)
                     {
-                        foreach (var newData in createSubProcessModel.ListSubProcessData)
+                        var getLink = "";
+                        if (IsImageFile(createSubProcessModel.SubProcessData))
                         {
-                            var getLink = "";
-                            if (IsImageFile(newData))
-                            {
-                                getLink = await _cloudinaryService.UploadImageAsync(newData, "subProcess/data");
-                            }
-                            else
-                            {
-                                getLink = await _cloudinaryService.UploadVideoAsync(newData, "subProcess/data");
-                            }
-                            newSubProcess.ProcessData.Add(new ProcessData()
-                            {
-                                ResourceUrl = getLink,
-                                CreateDate = DateTime.Now,
-                                ProcessDataCode = NumberHelper.GenerateRandomCode("PCD")
-                            });
+                            getLink = await _cloudinaryService.UploadImageAsync(createSubProcessModel.SubProcessData, "subProcess/data");
                         }
+                        else
+                        {
+                            getLink = await _cloudinaryService.UploadVideoAsync(createSubProcessModel.SubProcessData, "subProcess/data");
+                        }
+                        newSubProcess.ResourceUrl = getLink;
                     }
                     await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
 
@@ -122,7 +114,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         filter = filter.And(x => x.SubProcessCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.SubProcessName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.ProcessStyle.ProcessStyleName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Process.ProcessName.ToLower().Contains(paginationParameter.Search.ToLower()));
                     }
                 }
@@ -144,9 +136,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (subProcessFilters.isActive != null)
                     filter = filter.And(x => x.IsActive == subProcessFilters.isActive);
-                if (subProcessFilters.ProcessType != null)
+                if (subProcessFilters.MasterType != null)
                 {
-                    filter = filter.And(x => x.ProcessStyle.ProcessStyleName.Contains(subProcessFilters.ProcessType));
+                    filter = filter.And(x => x.MasterType.MasterTypeName.Contains(subProcessFilters.MasterType));
                 }
 
                 if (subProcessFilters.ProcessName != null)
@@ -174,11 +166,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.SubProcessName)
                                    : x => x.OrderBy(x => x.SubProcessName)) : x => x.OrderBy(x => x.SubProcessName);
                         break;
-                    case "processstylename":
+                    case "mastertypename":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.ProcessStyle.ProcessStyleName)
-                                   : x => x.OrderBy(x => x.ProcessStyle.ProcessStyleName)) : x => x.OrderBy(x => x.ProcessStyle.ProcessStyleName);
+                                   ? x => x.OrderByDescending(x => x.MasterType.MasterTypeName)
+                                   : x => x.OrderBy(x => x.MasterType.MasterTypeName)) : x => x.OrderBy(x => x.MasterType.MasterTypeName);
                         break;
                     case "processname":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -226,7 +218,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderBy(x => x.ProcessId);
                         break;
                 }
-                string includeProperties = "ProcessStyle,ProcessData,Process";
+                string includeProperties = "MasterType,Process";
                 var entities = await _unitOfWork.SubProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<SubProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<SubProcessModel>>(entities).ToList();
@@ -252,7 +244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, "ProcessStyle,ProcessData,Process");
+                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, "MasterType,Process");
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<SubProcessModel>(getProcess);
@@ -271,7 +263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessName.ToLower().Contains(subProcessName.ToLower()), "ProcessStyle,ProcessData,Process");
+                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessName.ToLower().Contains(subProcessName.ToLower()), "MasterType,Process");
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<SubProcessModel>(getProcess);
@@ -286,45 +278,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetSubProcessDataByID(int subProcessId)
-        {
-            try
-            {
-                var checkExist = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, "ProcessData");
-                if (checkExist == null)
-                {
-                    return new BusinessResult(Const.WARNING_GET_SUB_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_SUB_PROCESS_DOES_NOT_EXIST_MSG);
-                }
-                var processData = checkExist.ProcessData.ToList();
-                if (processData.Count() > 0)
-                {
-                    return new BusinessResult(Const.SUCCESS_GET_PROCESS_DATA_OF_SUB_PROCESS_CODE, Const.SUCCESS_GET_PROCESS_DATA_OF_SUB_PROCESS_MESSAGE, processData); ;
-                }
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DATA_OF_SUB_PROCESS_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DATA_OF_SUB_PROCESS_NOT_EXIST_MSG);
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
         public async Task<BusinessResult> PermanentlyDeleteSubProcess(int subProcessId)
         {
             try
             {
-                string includeProperties = "Process,ProcessData,ProcessStyle";
+                string includeProperties = "Process,MasterType";
                 var deleteSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, includeProperties);
 
-                foreach (var data in deleteSubProcess.ProcessData.ToList())
+                var data = deleteSubProcess.ResourceUrl;
+                if (data != null)
                 {
-                    _unitOfWork.ProcessDataRepository.Delete(data);
-                    if (IsImageLink(data.ResourceUrl))
+                    if (IsImageLink(data))
                     {
-                        await _cloudinaryService.DeleteImageByUrlAsync(data.ResourceUrl);
+                        await _cloudinaryService.DeleteImageByUrlAsync(data);
                     }
                     else
                     {
-                        await _cloudinaryService.DeleteVideoByUrlAsync(data.ResourceUrl);
+                        await _cloudinaryService.DeleteVideoByUrlAsync(data);
                     }
                 }
                 await _unitOfWork.SaveAsync();
@@ -347,7 +317,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == updateSubProcessModel.SubProcessId, "ProcessData");
+                var checkExistSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == updateSubProcessModel.SubProcessId, "");
                 if (checkExistSubProcess != null)
                 {
                     if (updateSubProcessModel.SubProcessName != null)
@@ -370,47 +340,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistSubProcess.ProcessId = updateSubProcessModel.ProcessId;
                     }
-                    if (updateSubProcessModel.ProcessStyleId != null)
+                    if (updateSubProcessModel.MasterTypeId != null)
                     {
-                        checkExistSubProcess.ProcessStyleId = updateSubProcessModel.ProcessStyleId;
+                        checkExistSubProcess.MasterTypeId = updateSubProcessModel.MasterTypeId;
                     }
                     if (updateSubProcessModel.ParentSubProcessId != null)
                     {
                         checkExistSubProcess.ParentSubProcessId = updateSubProcessModel.ParentSubProcessId;
                     }
-                    var processData = checkExistSubProcess.ProcessData.ToList();
-                    if(updateSubProcessModel.ListUpdateSubProcessData != null && updateSubProcessModel.ListUpdateSubProcessData.Count > 0)
+                    var data = checkExistSubProcess.ResourceUrl;
+                    var newData = updateSubProcessModel.UpdateSubProcessData;
+                    if (newData != null)
                     {
-                        foreach (var oldData in processData)
+                        if (data != null)
                         {
-                            if (IsImageLink(oldData.ResourceUrl))
+                            if (IsImageLink(data))
                             {
-                                await _cloudinaryService.DeleteImageByUrlAsync(oldData.ResourceUrl);
+                                await _cloudinaryService.DeleteImageByUrlAsync(data);
                             }
                             else
                             {
-                                await _cloudinaryService.DeleteVideoByUrlAsync(oldData.ResourceUrl);
+                                await _cloudinaryService.DeleteVideoByUrlAsync(data);
                             }
-                            checkExistSubProcess.ProcessData.Remove(oldData);
                         }
-                        foreach (var newData in updateSubProcessModel.ListUpdateSubProcessData)
+                        var getLink = "";
+                        if (IsImageFile(newData))
                         {
-                            var getLink = "";
-                            if (IsImageFile(newData))
-                            {
-                                getLink = await _cloudinaryService.UploadImageAsync(newData, "subProcess/data");
-                            }
-                            else
-                            {
-                                getLink = await _cloudinaryService.UploadVideoAsync(newData, "subProcess/data");
-                            }
-                            checkExistSubProcess.ProcessData.Add(new ProcessData()
-                            {
-                                ResourceUrl = getLink,
-                                CreateDate = DateTime.Now,
-                                ProcessDataCode = NumberHelper.GenerateRandomCode("PCD")
-                            });
+                            getLink = await _cloudinaryService.UploadImageAsync(newData, "subProcess/data");
                         }
+                        else
+                        {
+                            getLink = await _cloudinaryService.UploadVideoAsync(newData, "subProcess/data");
+                        }
+                        checkExistSubProcess.ResourceUrl = getLink;
                     }
                     checkExistSubProcess.UpdateDate = DateTime.Now;
                     var result = await _unitOfWork.SaveAsync();

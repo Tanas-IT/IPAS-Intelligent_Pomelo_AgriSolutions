@@ -9,13 +9,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.CriteriaTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessStyleModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -56,31 +56,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ReverseMap();
 
-            CreateMap<CriteriaType, CriteriaTypeModel>()
-                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
-                .ForMember(dest => dest.ListCriteria, opt => opt.MapFrom(src => src.Criteria))
-                .ReverseMap();
 
             CreateMap<Partner, PartnerModel>()
                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName)).ReverseMap();
 
             CreateMap<GrowthStage, GrowthStageModel>().ReverseMap();
-            CreateMap<ProcessStyle, ProcessStyleModel>().ReverseMap();
             CreateMap<SubProcessInProcessModel, SubProcess>().ReverseMap();
-            CreateMap<ProcessDataInProcessModel, ProcessData>().ReverseMap();
-            CreateMap<ProcessDataInSubProcessModel, ProcessData>().ReverseMap();
             CreateMap<Process, ProcessModel>()
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm.FarmName))
-                 .ForMember(dest => dest.ProcessStyleName, opt => opt.MapFrom(src => src.ProcessStyle.ProcessStyleName))
+                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                  .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
-                 .ForMember(dest => dest.ListProcessData, opt => opt.MapFrom(src => src.ProcessData.Where(x => x.ProcessId == src.ProcessId)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId)))
                 .ReverseMap();
 
             CreateMap<SubProcess, SubProcessModel>()
                 .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process.ProcessName))
-                .ForMember(dest => dest.ProcessStyleName, opt => opt.MapFrom(src => src.ProcessStyle.ProcessStyleName))
-                .ForMember(dest => dest.ListSubProcessData, opt => opt.MapFrom(src => src.ProcessData.Where(x => x.SubProcessId == src.SubProcessId)))
+                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                .ReverseMap();
 
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();
@@ -88,6 +79,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Criteria, CriteriaModel>()
                 //.ForMember(dest => dest.CriteriaType, opt => opt.MapFrom(src => src.CriteriaType))
                 .ReverseMap();
+
+            CreateMap<MasterType, MasterTypeModel>().ReverseMap();
         }
     }
 }

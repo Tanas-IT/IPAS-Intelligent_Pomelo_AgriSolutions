@@ -1,24 +1,54 @@
-import React, { useState } from "react";
 import style from "./Authentication.module.scss";
-import { Input, Button, Space } from "antd";
-import { FaBeer } from "react-icons/fa";
+import { Button } from "antd";
 import { SignIn, SignUp } from "@/components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { logo } from "@/assets/images/images";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleCredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
+import { authService } from "@/services";
+import { PATHS } from "@/routes";
+import { toast } from "react-toastify";
+import { useLocalStorage, useToastMessage } from "@/hooks";
+import { getRoleId } from "@/utils";
+import { UserRole } from "@/constants";
 
 function Authentication() {
+  useToastMessage();
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const isSignUp = params.get("mode") === "sign-up";
-  console.log("Authentication", isSignUp);
-
   const toggleForm = () => {
     navigate(`/auth?mode=${isSignUp ? "sign-in" : "sign-up"}`);
   };
 
-  const CLIENT_ID = "371296278442-ju9qs5mv0toa7qijjgfsfj0n7lu9kmi5.apps.googleusercontent.com";
+  const handleGoogleLoginSuccess = async (response: GoogleCredentialResponse) => {
+    if (response.credential) {
+      var result = await authService.loginGoogle(response.credential);
+
+      if (result.statusCode === 200) {
+        const { saveAuthData } = useLocalStorage();
+        const accessToken = result.data.authenModel.accessToken;
+
+        const loginResponse = {
+          accessToken: accessToken,
+          refreshToken: result.data.authenModel.refreshToken,
+          fullName: result.data.fullname,
+          avatar: result.data.avatar,
+        };
+
+        saveAuthData(loginResponse);
+        const toastMessage = result.message;
+        const roleId = getRoleId();
+
+        if (roleId === UserRole.User.toString())
+          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        if (roleId === UserRole.Admin.toString())
+          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+      } else {
+        toast.error(result.message);
+      }
+    }
+  };
 
   return (
     <div className={`${style.container} ${isSignUp ? style.active : ""}`} id="container">
@@ -36,9 +66,17 @@ function Authentication() {
           alt="IPAS Logo"
         />
       </a>
-      <GoogleOAuthProvider clientId={CLIENT_ID}>
-        <SignUp toggleForm={toggleForm} isSignUp={isSignUp} />
-        <SignIn toggleForm={toggleForm} isSignUp={isSignUp} />
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID}>
+        <SignUp
+          toggleForm={toggleForm}
+          isSignUp={isSignUp}
+          handleGoogleLoginSuccess={handleGoogleLoginSuccess}
+        />
+        <SignIn
+          toggleForm={toggleForm}
+          isSignUp={isSignUp}
+          handleGoogleLoginSuccess={handleGoogleLoginSuccess}
+        />
       </GoogleOAuthProvider>
       ,{/* Toggle */}
       <div className={style["toggle-container"]}>

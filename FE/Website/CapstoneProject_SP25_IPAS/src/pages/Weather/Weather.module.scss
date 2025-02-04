@@ -1,300 +1,294 @@
 @use "@/styles/variables.scss" as vars;
 
 .container {
-    background-color: #D3F0E5;
+  background-color: #d3f0e5;
 
-    .weatherDetails {
-        // margin-top: 10px;
-    
-        div {
-            padding: 10px 25px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-    
-            p {
-                margin: 0;
-                font-size: 14px;
-            }
-    
-            h3 {
-                font-size: 18px;
-                white-space: nowrap;
-            }
-    
-            &:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-            }
-        }
-    
-        $colors: #1B2340, #BEF05F, #ffffff;
-        $text-colors: #ffffff, #000000, #000000;
-    
-        // Apply colors dynamically using nth-child
-        @for $i from 1 through length($colors) {
-            div:nth-child(#{$i}) {
-                background-color: nth($colors, $i);
-                color: nth($text-colors, $i);
-            }
-        }
+  .weatherDetails {
+    // margin-top: 10px;
+
+    div {
+      padding: 10px 25px;
+      border-radius: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      h3 {
+        font-size: 18px;
+        white-space: nowrap;
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+      }
     }
-    
-    .weatherIcon {
+
+    $colors: #1b2340, #bef05f, #ffffff;
+    $text-colors: #ffffff, #000000, #000000;
+
+    // Apply colors dynamically using nth-child
+    // @for $i from 1 through length($colors) {
+    //   div:nth-child(#{$i}) {
+    //     background-color: nth($colors, $i);
+    //     color: nth($text-colors, $i);
+    //   }
+    // }
+  }
+
+  .weatherIcon {
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .mainValue {
+    font-size: 35px;
+  }
+
+  .card {
+    background-size: cover;
+    background-position: center;
+    padding: 30px;
+    border-radius: 10px;
+    flex: 1;
+  }
+
+  .temperature {
+    padding: 0px;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 300;
+    }
+
+    .rowContainer {
+      position: relative;
+      height: 250px;
+      left: 8%;
+      margin-top: 40px;
+      margin-left: auto;
+      display: flex;
+      gap: 20px;
+
+      .chart {
+        position: absolute;
+        top: -70px;
+        // left: 0%;
+        width: 80%;
+        height: 100%;
+        z-index: 2;
+        // margin-right: 20%;
+      }
+
+      .todayCard {
+        text-align: center;
+        position: relative;
+        z-index: 1;
         background-color: #ffffff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 25px;
-        height: 25px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .mainValue {
-        font-size: 35px;
-    }
-    
-    .card {
-        background-size: cover;
-        background-position: center;
-        padding: 30px;
-        border-radius: 10px;
-        flex: 1;
-    }
-    
-    .temperature {
-        padding: 0px;
-    
-        h2 {
-            font-size: 20px;
-            font-weight: 300;
-        }
-
-        .rowContainer {
-            position: relative;
-            height: 250px;
-            left: 8%;
-            margin-top: 40px;
-            margin-left: auto;
-            display: flex;
-            gap: 20px;
-        
-            .chart {
-                position: absolute;
-                top: -70px;
-                // left: 0%;
-                width: 80%;
-                height: 100%;
-                z-index: 2;
-                // margin-right: 20%;
-            }
-    
-            .todayCard {
-                text-align: center;
-                position: relative;
-                z-index: 1;
-                background-color: #ffffff;
-                border-radius: 8px;
-                padding: "0px";
-                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-                min-width: 80px;
-                height: 200px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: "8px";
-            
-                .icon {
-                    font-size: 24px;
-                    margin-bottom: 8px
-                }
-            
-                .temp {
-                    font-size: 18px;
-                    white-space: "nowrap";
-                    margin-bottom: auto;
-                    flex-grow: 1;
-                }
-            
-                .time {
-                    // white-space: "nowrap";
-                    font-size: 10px;
-                    margin-top: 20px;
-                    margin-bottom: 8px;
-                    top: 20px;
-                    color: vars.$color_text_detail;
-                    flex-shrink: 0;
-                }
-            }
-        }
-    }
-    
-    // .todayCard {
-    //     text-align: center;
-    //     position: relative;
-    //     z-index: 1;
-    //     background-color: #ffffff;
-    //     border-radius: 8px;
-    //     padding: "0px";
-    //     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    //     min-width: 80px;
-    //     height: 200px;
-    //     display: flex;
-    //     flex-direction: column;
-    //     align-items: center;
-    //     gap: "8px";
-    
-    //     .icon {
-    //         font-size: 24px;
-    //         margin-bottom: 8px
-    //     }
-    
-    //     .temp {
-    //         font-size: 18px;
-    //         white-space: "nowrap";
-    //         margin-bottom: auto;
-    //         flex-grow: 1;
-    //     }
-    
-    //     .time {
-    //         // white-space: "nowrap";
-    //         font-size: 10px;
-    //         margin-top: 20px;
-    //         margin-bottom: 8px;
-    //         top: 20px;
-    //         color: vars.$color_text_detail;
-    //         flex-shrink: 0;
-    //     }
-    // }
-    
-    // .rowContainer {
-    //     position: relative;
-    //     height: 250px;
-    //     left: -10%;
-    //     margin-top: 20px;
-    
-    //     .chart {
-    //         position: absolute;
-    //         top: -70px;
-    //         left: 17%;
-    //         width: 67%;
-    //         height: 100%;
-    //         z-index: 2
-    //     }
-
-    //     .todayCard {
-    //         text-align: center;
-    //         position: relative;
-    //         z-index: 1;
-    //         background-color: #ffffff;
-    //         border-radius: 8px;
-    //         padding: "0px";
-    //         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    //         min-width: 80px;
-    //         height: 200px;
-    //         display: flex;
-    //         flex-direction: column;
-    //         align-items: center;
-    //         gap: "8px";
-        
-    //         .icon {
-    //             font-size: 24px;
-    //             margin-bottom: 8px
-    //         }
-        
-    //         .temp {
-    //             font-size: 18px;
-    //             white-space: "nowrap";
-    //             margin-bottom: auto;
-    //             flex-grow: 1;
-    //         }
-        
-    //         .time {
-    //             // white-space: "nowrap";
-    //             font-size: 10px;
-    //             margin-top: 20px;
-    //             margin-bottom: 8px;
-    //             top: 20px;
-    //             color: vars.$color_text_detail;
-    //             flex-shrink: 0;
-    //         }
-    //     }
-    // }
-    
-    .customSegment .ant-segmented-item {
-        font-size: 16px;
-        padding: 10px 20px;
-      }
-      
-      .customSegment .ant-segmented-item-selected {
-        background-color: #ff7300 !important;  // Màu cam khi chọn
-        color: white;  // Màu chữ trắng khi chọn
-      }
-      
-      .customSegment .ant-segmented-item:hover {
-        background-color: #ff7300 !important;  // Màu cam khi hover
-        color: white;
-      }
-      
-      .boyImageContainer {
-        flex: 0.6;
-        background-size: cover;
-        background-position: center;
-        border-radius: 15px;
-        padding: 20px 40px;
+        border-radius: 8px;
+        padding: "0px";
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        min-width: 80px;
+        height: 200px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        // margin: 20px;
-        width: "80%";
-      }
+        align-items: center;
+        gap: "8px";
 
-      .rightSidebar {
-        background-color: vars.$color_bg_detail;
-        padding: 16px;
-        margin-left: 10px;
-        border-radius: 10px;
-        width: 100%;
-      }
-      
-      .title {
-        font-size: 18px;
-        margin-bottom: 16px;
-      }
-      
-      .todayItem {
-        text-align: center;
-      
-        div {
-          margin: 4px 0;
+        .icon {
+          font-size: 24px;
+          margin-bottom: 8px;
         }
-      }
-      
-      .weekSection {
-        margin-top: 24px;
-      }
-      
-      .weekHeader {
-        margin-bottom: 16px;
-      
-        .weekControls {
-          font-size: 16px;
-        }
-      }
-      
-      .weekItem {
-        width: 100%;
-      
-        .tempText {
+
+        .temp {
           font-size: 18px;
+          white-space: "nowrap";
+          margin-bottom: auto;
+          flex-grow: 1;
+        }
+
+        .time {
+          // white-space: "nowrap";
+          font-size: 10px;
+          margin-top: 20px;
+          margin-bottom: 8px;
+          top: 20px;
+          color: vars.$color_text_detail;
+          flex-shrink: 0;
         }
       }
+    }
+  }
+
+  // .todayCard {
+  //     text-align: center;
+  //     position: relative;
+  //     z-index: 1;
+  //     background-color: #ffffff;
+  //     border-radius: 8px;
+  //     padding: "0px";
+  //     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  //     min-width: 80px;
+  //     height: 200px;
+  //     display: flex;
+  //     flex-direction: column;
+  //     align-items: center;
+  //     gap: "8px";
+
+  //     .icon {
+  //         font-size: 24px;
+  //         margin-bottom: 8px
+  //     }
+
+  //     .temp {
+  //         font-size: 18px;
+  //         white-space: "nowrap";
+  //         margin-bottom: auto;
+  //         flex-grow: 1;
+  //     }
+
+  //     .time {
+  //         // white-space: "nowrap";
+  //         font-size: 10px;
+  //         margin-top: 20px;
+  //         margin-bottom: 8px;
+  //         top: 20px;
+  //         color: vars.$color_text_detail;
+  //         flex-shrink: 0;
+  //     }
+  // }
+
+  // .rowContainer {
+  //     position: relative;
+  //     height: 250px;
+  //     left: -10%;
+  //     margin-top: 20px;
+
+  //     .chart {
+  //         position: absolute;
+  //         top: -70px;
+  //         left: 17%;
+  //         width: 67%;
+  //         height: 100%;
+  //         z-index: 2
+  //     }
+
+  //     .todayCard {
+  //         text-align: center;
+  //         position: relative;
+  //         z-index: 1;
+  //         background-color: #ffffff;
+  //         border-radius: 8px;
+  //         padding: "0px";
+  //         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  //         min-width: 80px;
+  //         height: 200px;
+  //         display: flex;
+  //         flex-direction: column;
+  //         align-items: center;
+  //         gap: "8px";
+
+  //         .icon {
+  //             font-size: 24px;
+  //             margin-bottom: 8px
+  //         }
+
+  //         .temp {
+  //             font-size: 18px;
+  //             white-space: "nowrap";
+  //             margin-bottom: auto;
+  //             flex-grow: 1;
+  //         }
+
+  //         .time {
+  //             // white-space: "nowrap";
+  //             font-size: 10px;
+  //             margin-top: 20px;
+  //             margin-bottom: 8px;
+  //             top: 20px;
+  //             color: vars.$color_text_detail;
+  //             flex-shrink: 0;
+  //         }
+  //     }
+  // }
+
+  .customSegment .ant-segmented-item {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
+
+  .customSegment .ant-segmented-item-selected {
+    background-color: #ff7300 !important; // Màu cam khi chọn
+    color: white; // Màu chữ trắng khi chọn
+  }
+
+  .customSegment .ant-segmented-item:hover {
+    background-color: #ff7300 !important; // Màu cam khi hover
+    color: white;
+  }
+
+  .boyImageContainer {
+    flex: 0.6;
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    padding: 20px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    // margin: 20px;
+    width: "80%";
+  }
+
+  .rightSidebar {
+    background-color: vars.$color_bg_detail;
+    padding: 16px;
+    margin-left: 10px;
+    border-radius: 10px;
+    width: 100%;
+  }
+
+  .title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .todayItem {
+    text-align: center;
+
+    div {
+      margin: 4px 0;
+    }
+  }
+
+  .weekSection {
+    margin-top: 24px;
+  }
+
+  .weekHeader {
+    margin-bottom: 16px;
+
+    .weekControls {
+      font-size: 16px;
+    }
+  }
+
+  .weekItem {
+    width: 100%;
+
+    .tempText {
+      font-size: 18px;
+    }
+  }
 }
-
-
-  
-
-  
-  

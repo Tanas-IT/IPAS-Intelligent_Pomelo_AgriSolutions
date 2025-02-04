@@ -4,6 +4,7 @@ import style from "./PlantList.module.scss";
 import dayjs from "dayjs";
 import { useStyle } from "@/hooks";
 import { FilterFooter, TagRender } from "@/components";
+import { DATE_FORMAT } from "@/utils";
 
 const { RangePicker } = DatePicker;
 
@@ -52,7 +53,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
         <Flex className={style.section}>
           <label className={style.title}>Create Date:</label>
           <RangePicker
-            format="DD/MM/YYYY"
+            format={DATE_FORMAT}
             value={[
               filters.createDateFrom ? dayjs(filters.createDateFrom) : null,
               filters.createDateTo ? dayjs(filters.createDateTo) : null,

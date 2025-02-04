@@ -22,3 +22,4 @@ export { default as ReviewSection } from "@/components/Guest/ReviewSection/Revie
 export { default as FeatureSection } from "@/components/Guest/FeatureSection/FeatureSection";
 export { default as SignIn } from "@/components/UI/Auth/SignIn/SignIn";
 export { default as SignUp } from "@/components/UI/Auth/SignUp/SignUp";
+export { default as GoogleLoginButton } from "@/components/UI/Auth/GoogleLoginButton/GoogleLoginButton";

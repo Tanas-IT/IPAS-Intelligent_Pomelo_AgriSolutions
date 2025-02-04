@@ -1,13 +1,14 @@
-import { convertKeysToCamelCase, convertKeysToKebabCase, convertQueryParamsToKebabCase } from "@/utils";
-import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { toast } from "react-toastify";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { PATHS } from "@/routes";
+import { handleApiError } from "@/utils";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
 const API_HOST = import.meta.env.VITE_API_HOST;
 const API_PORT = import.meta.env.VITE_API_PORT;
 const API_DEVELOPMENT = import.meta.env.VITE_API_DEVELOPMENT;
 const API_DEPLOY = import.meta.env.VITE_API_DEPLOY;
 
-const BASE_URL = API_DEVELOPMENT === "true" ? `${API_HOST}:${API_PORT}/api` : `${API_DEPLOY}`;
+const BASE_URL = API_DEVELOPMENT === "true" ? `${API_HOST}:${API_PORT}/ipas` : `${API_DEPLOY}`;
 
 const createAxiosInstance = (contentType: string): AxiosInstance => {
   const instance = axios.create({
@@ -21,19 +22,12 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
     (config: InternalAxiosRequestConfig) => {
       config.headers = config.headers || {};
 
-      const accessToken = localStorage.getItem("AccessToken");
-      // if (accessToken) {
-      //   config.headers.Authorization = `Bearer ${accessToken}`;
-      // }
-
-      
-
-      if (config.data) {
-        config.data = convertKeysToKebabCase(config.data);
-      }
-
-      if (config.params) {
-        config.params = convertQueryParamsToKebabCase(config.params);
+      const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+      if (!accessToken?.trim()) {
+        localStorage.clear();
+        window.location.href = PATHS.AUTH.LANDING;
+      } else {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
 
       return config;
@@ -42,49 +36,8 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
   );
 
   instance.interceptors.response.use(
-    (response: AxiosResponse) => {
-      if (response.data) {
-        response.data = convertKeysToCamelCase(response.data);
-      }
-      return response;
-    },
-
-    async (error) => {
-      if (error.message === "Network Error" && !error.response) {
-        toast.error("Lỗi mạng, vui lòng kiểm tra kết nối!");
-      }
-
-      const originalRequest = error.config;
-
-      if (error.response) {
-        const { status, data } = error.response;
-
-        if (status === 403) {
-          toast.error("Bạn không có quyền truy cập vào tài nguyên này");
-        }
-
-        if (status === 401) {
-          const authMessage = data?.Message;
-
-          if (authMessage?.includes("Token đã hết hạn!")) {
-            // Uncomment and implement refreshToken logic if needed
-            // const newAccessToken = await AuthenticationService.refreshToken();
-            // if (newAccessToken) {
-            //   originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            //   return instance(originalRequest);
-            // } else {
-            //   toast.error("Token đã hết hạn. Vui lòng đăng nhập lại.");
-            //   localStorage.clear();
-            //   window.location.href = "/login";
-            // }
-          } else {
-            toast.error("Bạn không được phép truy cập trang này");
-          }
-        }
-      }
-
-      return Promise.reject(error);
-    },
+    (response) => response,
+    (error) => handleApiError(error),
   );
 
   return instance;

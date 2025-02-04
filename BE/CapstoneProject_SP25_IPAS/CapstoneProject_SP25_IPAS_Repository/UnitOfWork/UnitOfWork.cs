@@ -32,17 +32,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private PlantLotRepository _plantLotRepo;
         private PlantRepository _plantRepo;
         private FarmCoordinationRepository _farmCoordinationRepo;
-        private CriteriaTypeRepository _criteriaTypeRepo;
+        private MasterTypeRepository _masterTypeRepo;
         private CriteriaRepository _criteriaRepo;
         private PartnerRepository _partnerRepo;
         private GrowthStageRepository _growthStageRepo;
-        private ProcessStyleRepository _processStyleRepo;
         private ProcessRepository _processRepo;
         private SubProcessRepository _subProcessRepo;
-        private ProcessDataRepository _processDataRepo;
         private LandPlotRepository _landPlotRepo;
         private LandPlotCoordinationRepository _landPlotCoordinationRepo;
         private PlantCriteriaRepository _plantCriteriaRepo;
+        private LandRowRepository _landRowRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -59,19 +58,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _userFarmRepo = new UserFarmRepository(context);
             _plantLotRepo = new PlantLotRepository(context);
             _plantRepo = new PlantRepository(context);
-            _criteriaTypeRepo = new CriteriaTypeRepository(context);
+            _masterTypeRepo = new MasterTypeRepository(context);
             _criteriaRepo = new CriteriaRepository(context);
             _partnerRepo = new PartnerRepository(context);
             _growthStageRepo = new GrowthStageRepository(context);
-            _processStyleRepo = new ProcessStyleRepository(context);
             _processRepo = new ProcessRepository(context);
             _subProcessRepo = new SubProcessRepository(context);
-            _processDataRepo = new ProcessDataRepository(context);
             _configuration = configuration;
             _farmCoordinationRepo = new FarmCoordinationRepository(context);
             _landPlotRepo = new LandPlotRepository(context);
             _landPlotCoordinationRepo = new LandPlotCoordinationRepository(context);
             _planRepo = new PlanRepository(context);
+            _landRowRepo = new LandRowRepository(context);
         }
 
         private bool disposed = false;
@@ -309,15 +307,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public CriteriaTypeRepository CriteriaTypeRepository
+        public MasterTypeRepository MasterTypeRepository
         {
             get
             {
-                if (_criteriaTypeRepo == null)
+                if (_masterTypeRepo == null)
                 {
-                    this._criteriaTypeRepo = new CriteriaTypeRepository(_context);
+                    this._masterTypeRepo = new MasterTypeRepository(_context);
                 }
-                return _criteriaTypeRepo;
+                return _masterTypeRepo;
             }
         }
 
@@ -381,17 +379,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public ProcessStyleRepository ProcessStyleRepository
-        {
-            get
-            {
-                if (_processStyleRepo == null)
-                {
-                    this._processStyleRepo = new ProcessStyleRepository(_context);
-                }
-                return _processStyleRepo;
-            }
-        }
 
         public SubProcessRepository SubProcessRepository
         {
@@ -405,15 +392,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public ProcessDataRepository ProcessDataRepository
+
+        public LandRowRepository LandRowRepository
         {
             get
             {
-                if (_processDataRepo == null)
+                if (_landRowRepo == null)
                 {
-                    this._processDataRepo = new ProcessDataRepository(_context);
+                    this._landRowRepo = new LandRowRepository(_context);
                 }
-                return _processDataRepo;
+                return _landRowRepo;
             }
         }
     }

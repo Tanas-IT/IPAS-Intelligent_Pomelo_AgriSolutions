@@ -4,16 +4,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 using System.Text;
-using CapstoneProject_SP25_IPAS_Repository.Repository;
-using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
-using AutoMapper;
-using CapstoneProject_SP25_IPAS_Service.Mapping;
 using CapstoneProject_SP25_IPAS_Common.Mail;
 using CapstoneProject_SP25_IPAS_API.Middleware;
-using System.Text.Json;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,16 +83,20 @@ builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
           .AllowAnyMethod();
 }));
 // add  json option to avoid cycle when return
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.WriteIndented = false;
-});
-
+//builder.Services.AddControllers().AddJsonOptions(options =>
+//{
+//    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//    options.JsonSerializerOptions.WriteIndented = false;
+//});
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
 // add mail settings
 builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
-
 
 
 var app = builder.Build();
@@ -104,6 +104,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("Cors");
 app.UseMiddleware<TokenValidationMiddleware>();
 app.UseMiddleware<AccountStatusMiddleware>();
 //app.UseMiddleware<AuthorizeMiddleware>();
@@ -111,7 +112,6 @@ app.UseMiddleware<AccountStatusMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

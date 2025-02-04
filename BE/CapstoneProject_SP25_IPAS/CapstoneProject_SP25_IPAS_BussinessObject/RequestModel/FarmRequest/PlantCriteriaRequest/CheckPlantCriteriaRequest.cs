@@ -10,5 +10,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
     {
         public int PlantId { get; set; }
         public List<CriteriaData> criteriaDatas { get; set; } = new List<CriteriaData>();
+        public int CriteriaTypeId { get; set; }
     }
 }

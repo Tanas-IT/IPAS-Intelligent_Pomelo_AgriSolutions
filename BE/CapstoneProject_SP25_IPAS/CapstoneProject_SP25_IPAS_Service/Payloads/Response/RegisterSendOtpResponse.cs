@@ -9,7 +9,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Payloads.Response
 {
     public class RegisterSendOtpResponse
     {
-        [JsonPropertyName("Otp-hash-sha256-base64")]
-        public string OtpHashSHA256 { get; set; }
+        public string otpHash { get; set; }
     }
 }

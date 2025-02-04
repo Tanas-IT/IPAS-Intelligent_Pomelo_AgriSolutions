@@ -25,6 +25,8 @@ public partial class GraftedPlant
 
     public int? PlanId { get; set; }
 
+    public int? PlantLotId { get; set; }
+
     public virtual ICollection<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; } = new List<CriteriaGraftedPlant>();
 
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
@@ -32,8 +34,6 @@ public partial class GraftedPlant
     public virtual Plan? Plan { get; set; }
 
     public virtual Plant? Plant { get; set; }
-
-    public int? PlantLotID { get; set; }
 
     public virtual PlantLot? PlantLot { get; set; }
 }
