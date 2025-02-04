@@ -30,6 +30,7 @@ public partial class Plant
     public int? MasterTypeId { get; set; }
 
     public string? ImageUrl { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? LandRowId { get; set; }
 

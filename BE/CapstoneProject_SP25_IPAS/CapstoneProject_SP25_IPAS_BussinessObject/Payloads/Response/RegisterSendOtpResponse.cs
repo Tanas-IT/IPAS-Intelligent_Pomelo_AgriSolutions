@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.Payloads.Response
+namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response
 {
     public class RegisterSendOtpResponse
     {

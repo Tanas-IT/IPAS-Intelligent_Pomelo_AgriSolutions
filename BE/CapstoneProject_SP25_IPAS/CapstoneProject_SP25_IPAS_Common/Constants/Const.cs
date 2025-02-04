@@ -102,19 +102,33 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_UPDATE_FARM_LOGO_CODE = 200;
         public static string SUCCESS_UPDATE_FARM_LOGO_MSG = "Update farm success";
         #endregion
-        #region CriteriaType code
-        public static int SUCCESS_GET_CRITERIA_TYPE_BY_ID_CODE = 200;
-        public static string SUCCESS_GET_CRITERIA_TYPE_BY_ID_MESSAGE = "Get criteria type by id success";
-        public static int SUCCESS_GET_CRITERIA_TYPE_BY_NAME_CODE = 200;
-        public static string SUCCESS_GET_CRITERIA_TYPE_BY_NAME_MESSAGE = "Get criteria type by name success";
-        public static int SUCCESS_CREATE_CRITERIA_TYPE_CODE = 200;
-        public static string SUCCESS_CREATE_CRITERIA_TYPE_MESSAGE = "Create criteria type success";
-        public static int SUCCESS_UPDATE_CRITERIA_TYPE_CODE = 200;
-        public static string SUCCESS_UPDATE_CRITERIA_TYPE_MESSAGE = "Update criteria type success";
-        public static int SUCCESS_DELETE_CRITERIA_TYPE_CODE = 200;
-        public static string SUCCESS_DELETE_CRITERIA_TYPE_MESSAGE = "Delete criteria type success";
-        public static int SUCCESS_GET_ALL_CRITERIA_TYPE_CODE = 200;
-        public static string SUCCESS_GET_ALL_CRITERIA_TYPE_MESSAGE = "Get all criteria type success";
+        #region MasterType code
+        public static int SUCCESS_GET_MASTER_TYPE_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_MASTER_TYPE_BY_ID_MESSAGE = "Get master type by id success";
+        public static int SUCCESS_GET_MASTER_TYPE_BY_NAME_CODE = 200;
+        public static string SUCCESS_GET_MASTER_TYPE_BY_NAME_MESSAGE = "Get master type by name success";
+        public static int SUCCESS_CREATE_MASTER_TYPE_CODE = 200;
+        public static string SUCCESS_CREATE_MASTER_TYPE_MESSAGE = "Create master type success";
+        public static int SUCCESS_UPDATE_MASTER_TYPE_CODE = 200;
+        public static string SUCCESS_UPDATE_MASTER_TYPE_MESSAGE = "Update master type success";
+        public static int SUCCESS_DELETE_MASTER_TYPE_CODE = 200;
+        public static string SUCCESS_DELETE_MASTER_TYPE_MESSAGE = "Delete master type success";
+        public static int SUCCESS_GET_ALL_MASTER_TYPE_CODE = 200;
+        public static string SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE = "Get all master type success";
+        #endregion
+        #region MasterTypeDetail code
+        public static int SUCCESS_GET_MASTER_TYPE_DETAIL_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_MASTER_TYPE_DETAIL_BY_ID_MESSAGE = "Get master type detail by id success";
+        public static int SUCCESS_GET_MASTER_TYPE_DETAIL_BY_NAME_CODE = 200;
+        public static string SUCCESS_GET_MASTER_TYPE_DETAIL_BY_NAME_MESSAGE = "Get master type detail by name success";
+        public static int SUCCESS_CREATE_MASTER_TYPE_DETAIL_CODE = 200;
+        public static string SUCCESS_CREATE_MASTER_TYPE_DETAIL_MESSAGE = "Create master type detail success";
+        public static int SUCCESS_UPDATE_MASTER_TYPE_DETAIL_CODE = 200;
+        public static string SUCCESS_UPDATE_MASTER_TYPE_DETAIL_MESSAGE = "Update master type detail success";
+        public static int SUCCESS_DELETE_MASTER_TYPE_DETAIL_CODE = 200;
+        public static string SUCCESS_DELETE_MASTER_TYPE_DETAIL_MESSAGE = "Delete master type detail success";
+        public static int SUCCESS_GET_ALL_MASTER_TYPE_DETAIL_CODE = 200;
+        public static string SUCCESS_GET_ALL_MASTER_TYPE_DETAIL_MESSAGE = "Get all master type detail success";
         #endregion
         #region Criteria
         public static int SUCCESS_UPDATE_CRITERIA_CODE = 200;
@@ -273,15 +287,26 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_CREATE_MANY_PLANT_BECAUSE_CRITERIA_INVALID_MESSAGE = "Some criteria invalid";
         #endregion
 
-        #region CriteriaType Fail code
-        public static int FAIL_CREATE_CRITERIA_TYPE_CODE = 500;
-        public static string FAIL_CREATE_CRITERIA_TYPE_MESSAGE = "Create criteria type failed";
-        public static int FAIL_UPDATE_CRITERIA_TYPE_CODE = 500;
-        public static string FAIL_UPDATE_CRITERIA_TYPE_MESSAGE = "Update criteria type failed";
-        public static int FAIL_DELETE_CRITERIA_TYPE_CODE = 500;
-        public static string FAIL_DELETE_CRITERIA_TYPE_MESSAGE = "Delete criteria type failed";
-        public static int FAIL_GET_CRITERIA_TYPE_CODE = 500;
-        public static string FAIL_GET_CRITERIA_TYPE_MESSAGE = "Get criteria type failed";
+        #region MasterType Fail code
+        public static int FAIL_CREATE_MASTER_TYPE_CODE = 500;
+        public static string FAIL_CREATE_MASTER_TYPE_MESSAGE = "Create master type failed";
+        public static int FAIL_UPDATE_MASTER_TYPE_CODE = 500;
+        public static string FAIL_UPDATE_MASTER_TYPE_MESSAGE = "Update master type failed";
+        public static int FAIL_DELETE_MASTER_TYPE_CODE = 500;
+        public static string FAIL_DELETE_MASTER_TYPE_MESSAGE = "Delete master type failed";
+        public static int FAIL_GET_MASTER_TYPE_CODE = 500;
+        public static string FAIL_GET_MASTER_TYPE_MESSAGE = "Get master type failed";
+        #endregion
+
+        #region MasterTypeDetail Fail code
+        public static int FAIL_CREATE_MASTER_TYPE_DETAIL_CODE = 500;
+        public static string FAIL_CREATE_MASTER_TYPE_DETAIL_MESSAGE = "Create master type detail failed";
+        public static int FAIL_UPDATE_MASTER_TYPE_DETAIL_CODE = 500;
+        public static string FAIL_UPDATE_MASTER_TYPE_DETAIL_MESSAGE = "Update master type detail failed";
+        public static int FAIL_DELETE_MASTER_TYPE_DETAIL_CODE = 500;
+        public static string FAIL_DELETE_MASTER_TYPE_DETAIL_MESSAGE = "Delete master type detail failed";
+        public static int FAIL_GET_MASTER_TYPE_DETAIL_CODE = 500;
+        public static string FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE = "Get master type detail failed";
         #endregion
 
         #region ProcessStyle Fail code
@@ -416,9 +441,14 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_MANY_PLANT_FROM_PLANT_LOT_MSG = "Some criteria does not pass. Please check all criteria again";
         #endregion
 
-        #region CriteriaType
-        public static int WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_CODE = 404;
-        public static string WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_MSG = "Does not have any criteria type";
+        #region MasterType
+        public static int WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE = 404;
+        public static string WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG = "Does not have any master type";
+        #endregion
+
+        #region MasterTypeDetail
+        public static int WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE = 404;
+        public static string WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG = "Does not have any master type detail";
         #endregion
 
         #region FarmService

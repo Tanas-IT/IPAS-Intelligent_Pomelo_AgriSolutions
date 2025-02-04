@@ -7,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
@@ -54,9 +55,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await transaction.CommitAsync();
                     if (checkInsertMasterType > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_CREATE_CRITERIA_TYPE_CODE, Const.SUCCESS_CREATE_CRITERIA_TYPE_MESSAGE, true);
+                        return new BusinessResult(Const.SUCCESS_CREATE_MASTER_TYPE_CODE, Const.SUCCESS_CREATE_MASTER_TYPE_MESSAGE, true);
                     }
-                    return new BusinessResult(Const.FAIL_CREATE_CRITERIA_TYPE_CODE, Const.FAIL_CREATE_CRITERIA_TYPE_MESSAGE, false);
+                    return new BusinessResult(Const.FAIL_CREATE_MASTER_TYPE_CODE, Const.FAIL_CREATE_MASTER_TYPE_MESSAGE, false);
                 }
                 catch (Exception ex)
                 {
@@ -75,9 +76,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if(listMasterType.Count() > 0)
                 {
                     var listMasterTypeModel = _mapper.Map<List<MasterTypeModel>>(listMasterType);
-                    return new BusinessResult(Const.SUCCESS_GET_CRITERIA_TYPE_BY_NAME_CODE, Const.SUCCESS_GET_CRITERIA_TYPE_BY_NAME_MESSAGE, listMasterTypeModel);
+                    return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_MESSAGE, listMasterTypeModel);
                 }
-                return new BusinessResult(Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_MSG);
+                return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
             }
             catch (Exception ex)
             {
@@ -85,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter)
         {
             try
             {
@@ -120,21 +121,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       || x.TypeName.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
                 }
+
+                if (masterTypeFilter.createDateFrom.HasValue || masterTypeFilter.createDateTo.HasValue)
+                {
+                    if (!masterTypeFilter.createDateFrom.HasValue || !masterTypeFilter.createDateTo.HasValue)
+                    {
+                        return new BusinessResult(Const.WARNING_MISSING_DATE_FILTER_CODE, Const.WARNING_MISSING_DATE_FILTER_MSG);
+                    }
+
+                    if (masterTypeFilter.createDateFrom.Value > masterTypeFilter.createDateTo.Value)
+                    {
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+                    }
+                    filter = filter.And(x => x.CreateDate >= masterTypeFilter.createDateFrom &&
+                                             x.CreateDate <= masterTypeFilter.createDateTo);
+                }
+
+                if (masterTypeFilter.isActive != null)
+                    filter = filter.And(x => x.IsActive == masterTypeFilter.isActive);
+                if (masterTypeFilter.isDelete != null)
+                    filter = filter.And(x => x.IsDelete == masterTypeFilter.isDelete);
+                if (masterTypeFilter.MasterTypeName != null)
+                {
+                    filter = filter.And(x => x.MasterTypeName.Contains(masterTypeFilter.MasterTypeName));
+                }
+
+                if (masterTypeFilter.TypeName != null)
+                {
+                    filter = filter.And(x => x.TypeName.Contains(masterTypeFilter.TypeName));
+                }
+                if (masterTypeFilter.CreateBy != null)
+                {
+                    filter = filter.And(x => x.CreateBy.Contains(masterTypeFilter.CreateBy));
+                }
                 switch (paginationParameter.SortBy)
                 {
-                    case "masterTypeid":
+                    case "mastertypeid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.MasterTypeId)
                                    : x => x.OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.MasterTypeId);
                         break;
-                    case "masterTypecode":
+                    case "mastertypecode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.MasterTypeCode)
                                    : x => x.OrderBy(x => x.MasterTypeCode)) : x => x.OrderBy(x => x.MasterTypeCode);
                         break;
-                    case "masterTypename":
+                    case "mastertypename":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.MasterTypeName)
@@ -194,11 +228,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_CRITERIA_TYPE_CODE, Const.SUCCESS_GET_ALL_CRITERIA_TYPE_MESSAGE, pagin);
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_MASTER_TYPE_CODE, Const.SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE, pagin);
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_MSG, new PageEntity<MasterTypeModel>());
+                    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG, new PageEntity<MasterTypeModel>());
                 }
             }
             catch (Exception ex)
@@ -216,9 +250,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if(MasterType != null)
                 {
                     var result = _mapper.Map<MasterTypeModel>(MasterType);
-                    return new BusinessResult(Const.SUCCESS_GET_CRITERIA_TYPE_BY_ID_CODE, Const.SUCCESS_GET_CRITERIA_TYPE_BY_ID_MESSAGE, result);
+                    return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_ID_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_ID_MESSAGE, result);
                 }
-                return new BusinessResult(Const.FAIL_CREATE_CRITERIA_TYPE_CODE, Const.FAIL_CREATE_CRITERIA_TYPE_MESSAGE);
+                return new BusinessResult(Const.FAIL_CREATE_MASTER_TYPE_CODE, Const.FAIL_CREATE_MASTER_TYPE_MESSAGE);
 
             }
             catch (Exception ex)
@@ -278,11 +312,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.SaveAsync();
                     if(result > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_DELETE_CRITERIA_TYPE_CODE, Const.SUCCESS_DELETE_CRITERIA_TYPE_MESSAGE, result > 0);
+                        return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE, Const.SUCCESS_DELETE_MASTER_TYPE_MESSAGE, result > 0);
                     }
-                    return new BusinessResult(Const.FAIL_DELETE_CRITERIA_TYPE_CODE, Const.FAIL_DELETE_CRITERIA_TYPE_MESSAGE, false);
+                    return new BusinessResult(Const.FAIL_DELETE_MASTER_TYPE_CODE, Const.FAIL_DELETE_MASTER_TYPE_MESSAGE, false);
                 }
-                return new BusinessResult(Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_MSG);
+                return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
 
             }
             catch (Exception ex)
@@ -327,17 +361,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_CRITERIA_TYPE_CODE, Const.SUCCESS_UPDATE_CRITERIA_TYPE_MESSAGE, checkExistMasterType);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_MASTER_TYPE_CODE, Const.SUCCESS_UPDATE_MASTER_TYPE_MESSAGE, checkExistMasterType);
                     }
                     else
                     {
-                        return new BusinessResult(Const.FAIL_UPDATE_CRITERIA_TYPE_CODE, Const.FAIL_UPDATE_CRITERIA_TYPE_MESSAGE, false);
+                        return new BusinessResult(Const.FAIL_UPDATE_MASTER_TYPE_CODE, Const.FAIL_UPDATE_MASTER_TYPE_MESSAGE, false);
                     }
 
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_CRITERIA_TYPE_DOES_NOT_EXIST_MSG);
+                    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                 }
             }
             catch (Exception ex)

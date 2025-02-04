@@ -7,12 +7,6 @@ GO
 USE [IPAS]
 GO
 
--- ipas.dbo.Crop definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.Crop;
-
 CREATE TABLE ipas.dbo.Crop (
 	CropID int IDENTITY(1,1) NOT NULL,
 	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -302,6 +296,7 @@ CREATE TABLE ipas.dbo.LandRow (
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandPlotID int NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__LandRow__0E72A6FAD7B08F4C PRIMARY KEY (LandRowID),
 	CONSTRAINT FK__LandRow__LandPlo__22751F6C FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE
 );
@@ -430,6 +425,8 @@ CREATE TABLE ipas.dbo.Plant (
 	MasterTypeID int NULL,
 	ImageURL nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandRowID int NULL,
+	IsDeleted bit NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
 	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
 	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
@@ -564,6 +561,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__SubProce__F054A88CD66E5A59 PRIMARY KEY (SubProcessID),
 	CONSTRAINT FK__SubProces__Proce__3CF40B7E FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT SubProcess_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
@@ -977,15 +975,15 @@ VALUES
     ('FRUIT_DEVELOPMENT', N'Phát triển quả', 61, 96),  
     ('HARVEST', N'Thu hoạch', 97, 120);
 GO
-INSERT INTO ipas.dbo.CriteriaType (CriteriaTypeCode, CriteriaTypeName, GrowthStageID)
+INSERT INTO [dbo].MasterType (MasterTypeCode, MasterTypeName, isActive)
 VALUES
-    ('CT001', N'Đánh giá chất lượng đất', 1),
-    ('CT002', N'Đánh giá nguồn nước', 2),
-    ('CT003', N'Tiêu chuẩn phân bón', 3),
-    ('CT004', N'Quy trình chăm sóc', 4),
-    ('CT005', N'Tiêu chuẩn thu hoạch', 7);
+    ('MTT001', N'Đánh giá chất lượng đất', 1),
+    ('MTT002', N'Đánh giá nguồn nước', 0),
+    ('MTT003', N'Tiêu chuẩn phân bón', 1),
+    ('MTT004', N'Quy trình chăm sóc', 0),
+    ('MTT005', N'Tiêu chuẩn thu hoạch', 1);
 GO
-INSERT INTO ipas.dbo.Criteria (CriteriaCode, CriteriaName, CriteriaDescription, Priority, isActive, CriteriaTypeID, isChecked)
+INSERT INTO [dbo].Criteria (CriteriaCode, CriteriaName, CriteriaDescription, Priority, isActive, MasterTypeID, isChecked)
 VALUES
     ('CR001', N'Độ pH của đất', N'Độ pH của đất phải nằm trong khoảng từ 5.5 - 6.5 để đảm bảo cây phát triển tốt.', 1, 1, 1, 0),
     ('CR002', N'Hàm lượng hữu cơ', N'Đất phải có hàm lượng hữu cơ tối thiểu là 2% để cung cấp dinh dưỡng cho cây.', 2, 1, 1, 1),

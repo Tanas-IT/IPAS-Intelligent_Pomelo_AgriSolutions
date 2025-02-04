@@ -154,5 +154,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class MasterTypeDetail
+        {
+            public const string createMasterTypeDetail = Base + "/masterTypeDetails";
+            public const string getMasterTypeDetailById = Base + "/masterTypeDetails/get-masterTypeDetail-by-id/{id}";
+            public const string getMasterTypeDetailWithPagination = Base + "/masterTypeDetails";
+            public const string permanenlyDelete = Base + "/masterTypeDetails/delete-permanenly/{id}";
+            public const string updateMasterTypeDetailInfo = Base + "/masterTypeDetails/update-masterTypeDetail-info";
+            public const string getMasterTypeDetailByName = Base + "/masterTypeDetails/get-masterTypeDetail-by-name/{name}";
+        }
     }
 }

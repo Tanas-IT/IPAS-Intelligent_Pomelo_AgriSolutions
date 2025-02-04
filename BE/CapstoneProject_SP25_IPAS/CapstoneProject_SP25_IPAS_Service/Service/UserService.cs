@@ -34,8 +34,8 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using Google.Apis.Auth;
 using System.Security.Cryptography;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

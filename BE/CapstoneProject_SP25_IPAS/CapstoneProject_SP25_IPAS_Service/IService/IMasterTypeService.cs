@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetMasterTypeByID(int MasterTypeId);
 
-        public Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter);
 
         public Task<BusinessResult> CreateMasterType(CreateMasterTypeModel createMasterTypeModel);
 

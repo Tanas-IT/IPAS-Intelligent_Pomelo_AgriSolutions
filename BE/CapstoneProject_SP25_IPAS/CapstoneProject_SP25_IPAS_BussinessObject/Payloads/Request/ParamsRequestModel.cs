@@ -1,4 +1,4 @@
-﻿namespace CapstoneProject_SP25_IPAS_Service.Payloads.Request
+﻿namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request
 {
     public class ParamsRequestModel
     {
