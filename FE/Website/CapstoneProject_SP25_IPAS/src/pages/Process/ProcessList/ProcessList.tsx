@@ -1,21 +1,24 @@
 import { Flex } from "antd";
-import style from "./PlantList.module.scss";
+import style from "./ProcessList.module.scss";
 import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
 import { useFetchData } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
-import { userService } from "@/services";
-import PlantFilter from "./PlantFilter";
-import { plantColumns } from "./PlantColumns";
+import { processService, userService } from "@/services";
+import { GetProcess } from "@/payloads/process";
+import { processColumns } from "./ProcessColumns";
+import ActionMenuProcess from "@/components/UI/ActionMenu/ActionMenuProcess/ActionMenuProcess";
+import ProcessFilter from "./ProcessFilter";
 import { TableTitle } from "./TableTitle";
 
 
-function PlantList() {
+function ProcessList() {
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
     growthStages: [] as string[],
+    processTypes: [] as string[],
     status: [] as string[],
   });
 
@@ -35,9 +38,9 @@ function PlantList() {
     handleSearch,
     isLoading,
     isInitialLoad,
-  } = useFetchData<GetPlant>({
+  } = useFetchData<GetProcess>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      userService.getUsers(page, limit, sortField, sortDirection, searchValue, "21", filters),
+      processService.getProcesses(page, limit, sortField, sortDirection, searchValue, "21", filters),
   });
 
   useEffect(() => {
@@ -57,12 +60,13 @@ function PlantList() {
       createDateFrom: "",
       createDateTo: "",
       growthStages: [],
+      processTypes: [],
       status: [],
     });
   };
 
   const filterContent = (
-    <PlantFilter
+    <ProcessFilter
       filters={filters}
       updateFilters={updateFilters}
       onClear={handleClear}
@@ -70,67 +74,70 @@ function PlantList() {
     />
   );
 
-  const fakeData: GetPlant[] = [
+  const fakeData: GetProcess[] = [
     {
-      userCode: "USR001",
-      userId: 1,
-      fullname: "Nguyễn Văn A",
-      userName: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
-      phone: "0123456789",
-      roleId: 2,
+      processId: 1,
+      processCode: "P-001",
+      processName: "Planting Process for Pomelo Tree",
+      isDefault: true,
       isActive: true,
-      status: 1,
+      createDate: new Date("2023-01-01"),
+      updateDate: new Date("2023-12-01"),
+      isDeleted: false,
+      farmName: "F-001",
+      processStyleName: "ST-001",
+      growthStageName: "GS-001",
     },
     {
-      userCode: "USR002",
-      userId: 2,
-      fullname: "Trần Thị B",
-      userName: "tranthib",
-      phone: "0987654321",
-      roleId: 3,
+      processId: 2,
+      processCode: "P-002",
+      processName: "Caring Process for Pomelo Tree",
+      isDefault: false,
+      isActive: true,
+      createDate: new Date("2022-11-15"),
+      updateDate: new Date("2023-10-10"),
+      isDeleted: false,
+      farmName: "F-002",
+      processStyleName: "ST-002",
+      growthStageName: "GS-002",
+    },
+    {
+      processId: 3,
+      processCode: "P-003",
+      processName: "Harvesting Process for Pomelo Tree",
+      isDefault: false,
       isActive: false,
-      status: 0,
+      createDate: new Date("2022-06-20"),
+      updateDate: new Date("2023-09-30"),
+      isDeleted: true,
+      farmName: "F-003",
+      processStyleName: "ST-003",
+      growthStageName: "GS-003",
     },
     {
-      userCode: "USR003",
-      userId: 3,
-      fullname: "Lê Văn C",
-      userName: "levanc",
-      phone: "0912345678",
-      roleId: 1,
-      isActive: true,
-      status: 1,
-    },
-    {
-      userCode: "USR004",
-      userId: 4,
-      fullname: "Phạm Thị D",
-      userName: "phamthid",
-      phone: "0932123456",
-      roleId: 4,
+      processId: 4,
+      processCode: "P-004",
+      processName: "Grafting Process for Pomelo Tree",
+      isDefault: true,
       isActive: false,
-      status: 2,
-    },
-    {
-      userCode: "USR005",
-      userId: 5,
-      fullname: "Hoàng Văn E",
-      userName: "hoangvane",
-      phone: "0909123456",
-      roleId: 2,
-      isActive: true,
-      status: 1,
-    },
+      createDate: new Date("2023-05-10"),
+      updateDate: new Date("2023-11-05"),
+      isDeleted: false,
+      farmName: "F-004",
+      processStyleName: "ST-004",
+      growthStageName: "GS-004",
+    }
   ];
+  
 
   return (
     <Flex className={style.container}>
-      <SectionTitle title="Plant Management" totalRecords={totalRecords} />
+      <SectionTitle title="Process Management" totalRecords={totalRecords} />
       <Flex className={style.table}>
         <Table
-          columns={plantColumns}
+          columns={processColumns}
           rows={fakeData}
-          rowKey="userCode"
+          rowKey="processCode"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
@@ -139,9 +146,9 @@ function PlantList() {
           rowsPerPage={rowsPerPage}
           isLoading={false}
           isInitialLoad={isInitialLoad}
-          caption="Bảng quản lý người dùng"
-          notifyNoData="Không có người dùng để hiển thị"
-          renderAction={(plant: GetPlant) => <ActionMenuPlant id={plant.userId} />}
+          caption="Process Management Table"
+          notifyNoData="No data to display"
+          renderAction={(process: GetProcess) => <ActionMenuProcess id={process.processId} />}
         />
 
         <NavigationDot
@@ -157,4 +164,4 @@ function PlantList() {
   );
 }
 
-export default PlantList;
+export default ProcessList;

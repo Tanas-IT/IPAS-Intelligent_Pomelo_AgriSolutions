@@ -120,7 +120,7 @@ const useStyle = createStyles(({ css }) => {
       .ant-input .ant-input-outlined,
       input {
         font-size: 16px !important;
-  }
+      }
     `,
     customPlaceholder: css`
       .ant-select-selection-placeholder {
@@ -130,15 +130,30 @@ const useStyle = createStyles(({ css }) => {
     customSlick: css`
       .slick-next, .slick-prev {
         z-index: 2;
-  }
+      }
 
       .slick-next:before, .slick-prev:before {
         font-size: 20px;
         line-height: 1;
         opacity: 0.75;
         color: #20461e;
-  }
-`
+      }
+    `,
+    customSwitch: css`
+
+      .ant-switch-handle:before {
+        background-color: ${primaryColor};
+      }
+
+      .ant-switch-inner .ant-switch-inner-checked,
+      .ant-switch-inner .ant-switch-inner-unchecked {
+        color: ${primaryColor};
+      }
+    `,
+    customButton: css`
+      .ant-modal-footer >.ant-btn+.ant-btn {
+        background-color: ${primaryColor};
+       }`,
 
   };
 });

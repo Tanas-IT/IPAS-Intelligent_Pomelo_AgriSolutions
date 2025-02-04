@@ -15,12 +15,12 @@ export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
         <Searchbar onSearch={onSearch} />
         <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
           <>
-            <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => {}} />
+            <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => { }} />
           </>
         </Popover>
       </Flex>
       <Flex className={style.sectionRight}>
-        <CustomButton label="Add New Plant" icon={<Icons.plus />} handleOnClick={() => {}} />
+        <CustomButton label="Add New Plant" icon={<Icons.plus />} handleOnClick={() => { }} />
       </Flex>
     </Flex>
   );
