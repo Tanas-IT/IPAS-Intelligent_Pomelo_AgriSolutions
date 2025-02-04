@@ -1,0 +1,116 @@
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  background-color: vars.$color_bg_detail;
+  overflow: hidden;
+  padding: 10px 24px;
+  margin-top: 8px;
+  height: 100vh;
+
+  .containerWrapper {
+    width: 100%;
+
+
+  }
+}
+
+.contentSectionTitleLeft {
+  align-items: center;
+  gap: 3rem;
+
+  .title {
+    font-size: 24px;
+  }
+
+  .iconTag {
+    font-size: 24px;
+  }
+
+  .statusTag {
+    padding: 4px 24px;
+    margin: 0;
+    border-radius: 8px;
+    font-weight: bold;
+    border: transparent;
+  }
+
+  .normal {
+    width: fit-content;
+    text-align: center;
+    background-color: vars.$color_second;
+    color: vars.$color_primary;
+  }
+
+  .issue {
+    width: fit-content;
+    text-align: center;
+    background-color: vars.$color_selected_bg_delete;
+    color: vars.$color_selected_delete;
+  }
+
+  .addButton {
+    margin-left: auto;
+  }
+}
+
+.extraContent {
+  margin-right: 5vw;
+  cursor: pointer;
+
+  .backIcon {
+    font-size: 1.5rem;
+  }
+}
+
+.divider {
+  margin: 10px 0;
+  border-block-start: 1px solid vars.$color_divider;
+}
+
+.buttonGroup {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+
+  .confirmButton {
+    background-color: vars.$color_text_btn;
+    color: vars.$color_bg_detail;
+  }
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+  .descDelete {
+    font-size: 16px;
+    color: vars.$color_text_detail;
+    text-align: center;
+  }
+
+  .confirmTitle {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .icon {
+    font-size: 56px;
+    color: vars.$color_icon_warning;
+    margin-bottom: 12px;
+  }
+}
+
+.yesButton {
+  background-color: vars.$color_yes_btn;
+  color: white;
+}
+
+.noButton {
+  background-color: vars.$color_no_btn;
+  color: white;
+}
