@@ -40,7 +40,9 @@ public partial class Plant
     public virtual MasterType? MasterType { get; set; }
     public virtual LandRow? LandRow { get; set; }
 
-    public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
+    public virtual ICollection<PlantCriteria> PlantCriterias { get; set; } = new List<PlantCriteria>();
 
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
+
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

@@ -51,6 +51,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ICriteriaRepository, CriteriaRepository>();
             services.AddScoped<ILandPlotRepository, LandPlotRepository>();
             services.AddScoped<ILandRowRepository, LandRowRepository>();
+            services.AddScoped<IPlantGrowthHistoryRepository, PlantGrowthHistoryRepository>();
+
             // Register servicies
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMailService, MailService>();
@@ -66,6 +68,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IPlanService, PlanService>();
             services.AddScoped<ILandPlotService, LandPlotService>();
             services.AddScoped<ILandRowService, LandRowService>();
+            services.AddScoped<IPlantService, PlantService>();
+            services.AddScoped<IPlantGrowthHistoryService, PlantGrowthHistoryService>();
+
             services.AddHttpClient();
 
         }

@@ -35,7 +35,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public int? LandPlotId { get; set; }
 
-        public virtual LandPlot? LandPlot { get; set; }
+        public virtual LandPlotModel? LandPlot { get; set; }
 
         public virtual ICollection<PlantModel> Plants { get; set; } = new List<PlantModel>();
     }

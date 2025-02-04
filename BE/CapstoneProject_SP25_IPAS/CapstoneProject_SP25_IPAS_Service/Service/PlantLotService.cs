@@ -291,7 +291,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(updatePlantLotRequestModel.PlantLotID);
                 if(checkExistPlantLot != null)
                 {
-                    if(updatePlantLotRequestModel.PartnerID != null)
+                    if(updatePlantLotRequestModel.PartnerID > 0)
                     {
                         checkExistPlantLot.PartnerId = updatePlantLotRequestModel.PartnerID;
                     }
@@ -299,7 +299,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
                     }
-                    if (updatePlantLotRequestModel.GoodPlant != null)
+                    if (updatePlantLotRequestModel.GoodPlant  > 0)
                     {
                         checkExistPlantLot.LastQuantity = checkExistPlantLot.LastQuantity - updatePlantLotRequestModel.GoodPlant;
                     }

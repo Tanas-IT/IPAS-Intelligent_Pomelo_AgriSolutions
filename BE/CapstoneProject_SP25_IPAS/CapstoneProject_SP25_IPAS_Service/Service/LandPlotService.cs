@@ -39,9 +39,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    if (createRequest.LandRow.Length > createRequest.Length)
+                    if (createRequest.RowLength > createRequest.PlotLength)
                         return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
-                    if (createRequest.LandRow.Width > createRequest.Width)
+                    if (createRequest.RowWidth > createRequest.PlotWidth)
                         return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
 
                     var landplotCreateEntity = new LandPlot()
@@ -50,25 +50,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TargetMarket = createRequest.TargetMarket,
                         Area = createRequest.Area,
                         SoilType = createRequest.SoilType,
-                        Length = createRequest.Length,
-                        Width = createRequest.Width,
+                        Length = createRequest.PlotLength,
+                        Width = createRequest.PlotWidth,
                         Description = createRequest.Description
                     };
                     landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
                     landplotCreateEntity.Status = FarmStatus.Active.ToString();
                     landplotCreateEntity.CreateDate = DateTime.Now;
                     landplotCreateEntity.UpdateDate = DateTime.Now;
-                    var numberRowInPlot = CalculateRowsInPlot(createRequest.Length, createRequest.LandRow.Length, 0);
+                    var numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowLength, 0);
                     for (int i = 0; i < numberRowInPlot; i++)
                     {
                         var landRow = new LandRow()
                         {
                             LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW), 
                             RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
-                            Length = createRequest.LandRow.Length,
-                            Width = createRequest.LandRow.Width,
-                            Distance = createRequest.LandRow.Distance,
-                            Direction = createRequest.LandRow.Direction,
+                            Length = createRequest.RowLength,
+                            Width = createRequest.RowWidth,
+                            Distance = createRequest.DistanceInRow,
+                            Direction = createRequest.RowDirection,
+                            TreeAmount = createRequest.TreeAmountInRow,
                             Status = LandRowStatus.Active.ToString(),
                             CreateDate = DateTime.Now,
                         };

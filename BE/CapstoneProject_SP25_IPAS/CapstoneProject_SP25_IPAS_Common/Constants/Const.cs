@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string APIEndPoint = "https://localhost:7111";
         #region Error Codes
 
-        public static int ERROR_EXCEPTION = 400;
+        public static int ERROR_EXCEPTION = 500;
         public static string FAIL_TO_SAVE_TO_DATABASE = "Save to database fail";
         #endregion
 
@@ -227,6 +227,36 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ROWS_SUCCESS_MSG = "Get rows success";
         public static string SUCCESS_GET_ROWS_EMPTY_MSG = "No resource was found";
         #endregion
+        #region Plant
+        public static int SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_PLANT_IN_FARM_PAGINATION_MSG = "Get plant in farm success.";
+        public static int SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_MSG = "Get plant in land plot success.";
+        public static int SUCCESS_GET_PLANT_BY_ID_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_PLANT_BY_ID_PAGINATION_MSG = "Get plant success.";
+        public static int SUCCESS_UPDATE_PLANT_CODE = 200;
+        public static string SUCCESS_UPDATE_PLANT_MSG = "Update plant success";
+        public static int SUCCESS_DELETE_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_PLANT_MSG = "Delete plant success";
+        public static int SUCCESS_DELETE_MULTIPLE_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_MULTIPLE_PLANTS_MSG = "Delete multiple plant success";
+        public static int SUCCESS_CREATE_PLANT_CODE = 200;
+        public static string SUCCESS_CREATE_PLANT_MSG = "Create plant success";
+        #endregion
+        #region PlantGrowthHistory
+        public static int SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE = 200;
+        public static string SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG = "Get all plant growth history success";
+        public static int SUCCESS_GET_PLANT_HISTORY_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_PLANT_BY_ID_MSG = "Get plant growth history success";
+        public static int SUCCESS_UPDATE_PLANT_GROWTH_CODE = 200;
+        public static string SUCCESS_UPDATE_PLANT_GROWTH_MSG = "Update plant growth success";
+        public static int SUCCESS_DELETE_PLANT_GROWTH_CODE = 200;
+        public static string SUCCESS_DELETE_PLANT_GROWTH_MSG = "Delete plant growth success";
+        public static int SUCCESS_DELETE_MULTIPLE_PLANT_GROWTH_CODE = 200;
+        public static string SUCCESS_DELETE_MULTIPLE_PLANTS_GROWTH_MSG = "Delete multiple plant growth success";
+        public static int SUCCESS_CREATE_PLANT_GROWTH_CODE = 200;
+        public static string SUCCESS_CREATE_PLANT_GROWTH_MSG = "Create plant growth success";
+        #endregion
         #endregion
 
         #region FAIL
@@ -383,9 +413,26 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_GROWTHSTAGE_CODE = 500;
         public static string FAIL_GET_GROWTHSTAGE_MESSAGE = "Get GrowthStage failed";
         #endregion
-        #region
+        #region LandRow
         public static int FAIL_CREATE_ONE_LANDROW_OF_FARM_CODE = 400;
         public static string FAIL_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create landrow fail, please try again";
+        #endregion
+        #region Plant
+        public static int FAIL_CREATE_PLANT_CODE = 400;
+        public static string FAIL_CREATE_PLANT_MSG = "Create Plant fail";
+        public static int FAIL_DELETE_PLANT_CODE = 400;
+        public static string FAIL_DELETE_PLANT_MSG = "Delete plant fail";
+        public static int FAIL_UPDATE_PLANT_CODE = 400;
+        public static string FAIL_UPDATE_PLANT_MSG = "Update plant fail";
+        #endregion
+
+        #region plant growth history
+        public static int FAIL_CREATE_PLANT_GROWTH_HISTORY_CODE = 400;
+        public static string FAIL_CREATE_PLANT_GROWTH_HISTORY_MSG = "Create Plant growth history fail";
+        public static int FAIL_DELETE_PLANT_GROWTH_HISTORY_CODE = 400;
+        public static string FAIL_DELETE_PLANT_GROWTH_HISTORY_MSG = "Delete plant growth history fail";
+        public static int FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE = 400;
+        public static string FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG = "Update plant growth history fail";
         #endregion
         #endregion
 
@@ -395,7 +442,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_INVALID_LOGIN_MSG = "UserName or Password is wrong";
         public static int WARNING_INVALID_REFRESH_TOKEN_CODE = 400;
         public static string WARNING_INVALID_REFRESH_TOKEN_MSG = "Refresh Token is expired time. Please log out";
-
+        public static int WARNING_VALUE_INVALID_CODE = 500;
+        public static string WARNING_VALUE_INVALID_MSG = "Value invalid";
         #region UserService
         public static int WARNING_ACCOUNT_BANNED_CODE = 400;
         public static string WARNING_ACCOUNT_BANNED_MSG = "Your account has been banned. Contact support for further details";
@@ -422,6 +470,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_GET_ALL_USER_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_ALL_USER_DOES_NOT_EXIST_MSG = "Does not have any user";
         #endregion
+
         #region PlantLot
         public static int WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG = "Does not have any plant lot";
@@ -489,6 +538,22 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG = "Total area was user larger than area of landplot";
         public static int WARNING_ROW_NOT_EXIST_CODE = 400;
         public static string WARNING_ROW_NOT_EXIST_MSG = "This row not exist";
+        #endregion
+
+        #region Plant
+        public static int WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE = 200;
+        public static string WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG = "Get plant in farm empty.";
+        public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
+        public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
+        #endregion
+
+        #region Plant Growth History
+        public static int WARNING_PLANT_GROWTH_NOT_EXIST_CODE = 400;
+        public static string WARNING_PLANT_GROWTH_NOT_EXIST_MSG = "Plant growth history not exist.";
+        public static int WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE = 200;
+        public static string WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG = "Get plant growth history empty.";
         #endregion
         #endregion
     }

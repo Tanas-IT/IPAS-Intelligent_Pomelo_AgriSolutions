@@ -37,6 +37,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public int? LandRowId { get; set; }
 
+        public int? RowIndex { get; set; }
+
+        public string? LandPlotName { get; set; }
+
+        public string? MasterTypeName { get; set; }
+
         //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
         //public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
@@ -47,5 +53,15 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         //public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
 
         //public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
+        //public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
+
+        public List<CriteriaSummaryModel> CriteriaSummary { get; set; } = new();
+    }
+
+    public class CriteriaSummaryModel
+    {
+        public string CriteriaType { get; set; }
+        public int CheckedCount { get; set; }
+        public int TotalCount { get; set; }
     }
 }

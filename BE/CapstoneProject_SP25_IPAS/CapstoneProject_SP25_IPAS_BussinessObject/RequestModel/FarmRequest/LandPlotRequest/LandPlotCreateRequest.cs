@@ -16,9 +16,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         [Required]
         public double Area { get; set; }
         [Required]
-        public double Length { get; set; }
+        public double PlotLength { get; set; }
         [Required]
-        public double Width { get; set; }
+        public double PlotWidth { get; set; }
         public string? SoilType { get; set; }
 
         public string? Description { get; set; }
@@ -27,8 +27,16 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
 
         public string? TargetMarket { get; set; }
 
-        public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
+        public int TreeAmountInRow { get; set; }
         [Required]
-        public LandRowCreateRequest LandRow = new LandRowCreateRequest();
+        public double DistanceInRow { get; set; }
+        [Required]
+        public double RowLength { get; set; }
+        [Required]
+        public double RowWidth { get; set; }
+        public string? RowDirection { get; set; }
+
+        //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
+        public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
     }
 }
