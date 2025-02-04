@@ -63,9 +63,11 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Resource
         {
             public const string uploadImage = Base + "/resource/upload-image";
+            public const string uploadResource = Base + "/resource/upload";
             public const string uploadvideo = Base + "/resource/upload-video";
             public const string deleteImageByURL = Base + "/resource/delete-image-by-url";
             public const string deleteVideoByURL = Base + "/resource/delete-video-by-url";
+            public const string deleteResourceByURL = Base + "/resource/delete";
            
         }
 

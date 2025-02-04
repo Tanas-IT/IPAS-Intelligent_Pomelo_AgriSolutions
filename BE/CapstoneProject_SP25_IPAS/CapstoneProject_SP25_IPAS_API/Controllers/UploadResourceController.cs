@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var linkURL = await _cloudinaryService.UploadImageAsync(uploadImageFile, null);
-                if(linkURL != null)
+                if (linkURL != null)
                 {
                     return Ok(new BusinessResult(Const.SUCCESS_UPLOAD_IMAGE_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, linkURL));
                 }
@@ -51,13 +51,35 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPost(APIRoutes.Resource.uploadResource, Name = "uploadResource")]
+        //[Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> UploadResourceToCloudinary(IFormFile uploadResourceFile)
+        {
+            try
+            {
+                var result = await _cloudinaryService.UploadResourceAsync(uploadResourceFile, null);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+
+                return BadRequest(response);
+            }
+        }
+
         [HttpDelete(APIRoutes.Resource.deleteImageByURL, Name = "deleteImageByURL")]
         public async Task<IActionResult> DeleteImageByURL([FromBody] DeleteImageURLModel deleteImageURLModel)
         {
             try
             {
                 var result = await _cloudinaryService.DeleteImageByUrlAsync(deleteImageURLModel.ImageURL);
-                if(result)
+                if (result)
                 {
                     return Ok(new BusinessResult(Const.SUCCESS_DELETE_IMAGE_CODE, Const.SUCCESS_DELETE_IMAGE_MESSAGE, true));
                 }
@@ -65,6 +87,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return Ok(new BusinessResult(Const.FAIL_DELETE_IMAGE_CODE, Const.FAIL_DELETE_IMAGE_MESSAGE, false));
                 }
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.Resource.deleteResourceByURL, Name = "deleteResourceByURL")]
+        public async Task<IActionResult> DeleteResourceByURL([FromBody] DeleteReousceURLModel deleteResourceURLModel)
+        {
+            try
+            {
+                var result = await _cloudinaryService.DeleteResourceByUrlAsync(deleteResourceURLModel.ResourceURL);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -91,7 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var videoUrl = await _cloudinaryService.UploadVideoAsync(uploadVideoFile, null);
-                if(videoUrl != null)
+                if (videoUrl != null)
                 {
                     return Ok(new BusinessResult(Const.SUCCESS_UPLOAD_VIDEO_CODE, Const.SUCCESS_UPLOAD_VIDEO_MESSAGE, videoUrl));
                 }
@@ -113,12 +157,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpDelete(APIRoutes.Resource.deleteVideoByURL, Name = "deleteVideoByURL")]
-        public async Task<IActionResult> DeleteVideoByURL([FromBody] DeleteVideoURLModel deleteVideoURLModel) 
+        public async Task<IActionResult> DeleteVideoByURL([FromBody] DeleteVideoURLModel deleteVideoURLModel)
         {
             try
             {
                 var result = await _cloudinaryService.DeleteVideoByUrlAsync(deleteVideoURLModel.VideoURL);
-                if(result)
+                if (result)
                 {
                     return Ok(new BusinessResult(Const.SUCCESS_DELETE_VIDEO_CODE, Const.SUCCESS_DELETE_VIDEO_MESSAGE, result));
                 }

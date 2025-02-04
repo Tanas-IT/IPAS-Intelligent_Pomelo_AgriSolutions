@@ -23,6 +23,11 @@
         public string ImageURL { get; set; }
     }
 
+    public class DeleteReousceURLModel
+    {
+        public string ResourceURL { get; set; }
+    }
+
     public class DeleteVideoURLModel
     {
         public string VideoURL { get; set; }

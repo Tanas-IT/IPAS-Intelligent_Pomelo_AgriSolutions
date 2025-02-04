@@ -1,4 +1,5 @@
-﻿using CloudinaryDotNet.Actions;
+﻿using CapstoneProject_SP25_IPAS_Service.Base;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<bool> DeleteVideoByUrlAsync(string url);
         public Task<bool> UpdateImageAsync(IFormFile file, string existingUrl);
         public Task<bool> UpdateVideoAsync(IFormFile file, string existingUrl);
+        public Task<BusinessResult> UploadResourceAsync(IFormFile file, string? folder);
+        public Task<BusinessResult> DeleteResourceByUrlAsync(string url);
 
     }
 }
