@@ -10,6 +10,8 @@ import {
   PlantDetails,
   Weather,
   ResetPassword,
+  ProcessList,
+  ProcessDetails,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -43,6 +45,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
+  { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
+  { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

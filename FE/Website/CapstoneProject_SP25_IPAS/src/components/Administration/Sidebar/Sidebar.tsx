@@ -94,6 +94,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
     {
+      key: "Process Management",
+      label: "Process Management",
+      icon: <Icons.process />,
+      to: PATHS.PROCESS.PROCESS_LIST,
+      activePaths: [PATHS.PROCESS.PROCESS_LIST, PATHS.PROCESS.PROCESS_DETAIL],
+      category: "Main",
+      isView: !isDefault,
+    },
+    {
       key: "Farm Management",
       label: "Farm Management",
       icon: <Icons.farms />,
