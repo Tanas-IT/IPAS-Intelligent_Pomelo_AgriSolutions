@@ -15,9 +15,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int UserId { get; set; }
 
         public int RoleId { get; set; }
+        public string? RoleName { get; set; }
+        public string? FarmName { get; set; }
+        public string? FullName { get; set; }
         public virtual FarmModel Farm { get; set; } = null!;
 
         public virtual UserModel User { get; set; } = null!;
-        public virtual RoleModel Role { get; set; } = null!;
+        //public virtual RoleModel Role { get; set; } = null!;
     }
 }

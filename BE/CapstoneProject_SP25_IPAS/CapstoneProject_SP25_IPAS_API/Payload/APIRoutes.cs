@@ -154,5 +154,36 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class LandRow
+        {
+            public const string prefix = Base + "/landRows";
+            public const string createLandRow = prefix + "";
+            public const string deleteLandRow = prefix + "";
+            public const string updateLandRowInfo = prefix + "";
+            public const string getLandRowById = prefix + "";
+            public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+        }
+
+        public static class Plant
+        {
+            public const string prefix = Base + "/plants";
+            public const string createPlant = prefix + "";
+            public const string deletePlant = prefix + "";
+            public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
+            public const string updatePlantInfo = prefix + "";
+            public const string getPlantById = prefix + "";
+            public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
+            public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+        }
+
+        public static class PlantGrowthHistory
+        {
+            public const string prefix = Base + "/plant-growth-history";
+            public const string createPlantGrowthHistory = prefix + "";
+            public const string deletePlantGrowthHistory = prefix + "";
+            public const string updatePlantGrowthHistoryInfo = prefix + "";
+            public const string getPlantGrowthHistoryById = prefix + "";
+            public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
+        }
     }
 }

@@ -42,6 +42,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private LandPlotCoordinationRepository _landPlotCoordinationRepo;
         private PlantCriteriaRepository _plantCriteriaRepo;
         private LandRowRepository _landRowRepo;
+        public PlantGrowthHistoryRepository _plantGrowthHistoryRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -70,6 +71,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _landPlotCoordinationRepo = new LandPlotCoordinationRepository(context);
             _planRepo = new PlanRepository(context);
             _landRowRepo = new LandRowRepository(context);
+            _plantGrowthHistoryRepo = new PlantGrowthHistoryRepository(context);
         }
 
         private bool disposed = false;
@@ -402,6 +404,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._landRowRepo = new LandRowRepository(_context);
                 }
                 return _landRowRepo;
+            }
+        }
+
+        public PlantGrowthHistoryRepository PlantGrowthHistoryRepository
+        {
+            get
+            {
+                if (_plantGrowthHistoryRepo == null)
+                {
+                    this._plantGrowthHistoryRepo = new PlantGrowthHistoryRepository(_context);
+                }
+                return _plantGrowthHistoryRepo;
             }
         }
     }

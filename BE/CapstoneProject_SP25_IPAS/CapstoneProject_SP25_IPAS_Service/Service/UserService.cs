@@ -391,8 +391,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 SecurityToken validatedToken;
                 var principal = handler.ValidateToken(jwtToken, validationParameters, out validatedToken);
                 var email = principal.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Value;
-                var roleInFarm = int.Parse(principal.Claims.FirstOrDefault(x => x.Type == "role").Value);
-                var farmId = int.Parse(principal.Claims.FirstOrDefault(x => x.Type == "farmId").Value);
+                //var roleInFarm = int.Parse(principal.Claims.FirstOrDefault(x => x.Type == "roleId")!.Value);
+                //var farmId = int.Parse(principal.Claims.FirstOrDefault(x => x.Type == "farmId").Value);
+                int? roleInFarm = null;
+                if (int.TryParse(principal.Claims.FirstOrDefault(x => x.Type == "roleId")?.Value, out int parsedRoleInFarm))
+                {
+                    roleInFarm = parsedRoleInFarm;
+                }
+
+                int? farmId = null;
+                if (int.TryParse(principal.Claims.FirstOrDefault(x => x.Type == "farmId")?.Value, out int parsedFarmId))
+                {
+                    farmId = parsedFarmId;
+                }
                 if (email != null)
                 {
                     if (principal != null)
@@ -410,10 +421,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
                                 {
-                                    var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm, farmId);
+                                    var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 
-                                    var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm, farmId);
+                                    var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
 
                                     await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
@@ -1021,6 +1032,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             //lay thong tin user tu token gg
                             //var userInfoGG = await FetchGoogleUserInfoAsync(googleToken);
+                            string avatarUrl = "";
+                            if (string.IsNullOrEmpty(userInfo.Picture))
+                            {
+                                userInfo.Picture = _configuration["SystemDefault:AvatarDefault"]!;
+                                avatarUrl = userInfo.Picture!;
+                            }
+                            else
+                            {
+                                // Nếu ảnh không phải ảnh mặc định, thì tải lên Cloudinary
+                                //if (avatarUrl != _configuration["SystemDefault:AvatarDefault"])
+                                //{
+                                using (var imageStream = await _cloudinaryService.DownloadImageFromUrlAsync(userInfo.Picture!))
+                                {
+                                    avatarUrl = await _cloudinaryService.UploadImageAsync(imageStream, $"avatar_{Guid.NewGuid()}.jpg", CloudinaryPath.USER_AVARTAR);
+                                }
+                                //}
+                            }
+
                             User newUser = new User()
                             {
                                 Email = userInfo.Email,
@@ -1030,7 +1059,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDelete = false,
                                 CreateDate = DateTime.Now,
                                 UpdateDate = DateTime.Now,
-                                AvatarURL = userInfo.Picture ?? _configuration["SystemDefault:AvatarDefault"],
+                                AvatarURL = avatarUrl,
                                 Gender = "",
                                 PhoneNumber = "",
                                 Dob = null

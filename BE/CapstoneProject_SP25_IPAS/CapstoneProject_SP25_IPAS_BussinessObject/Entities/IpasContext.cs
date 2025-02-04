@@ -908,7 +908,7 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.CriteriaId)
                 .HasConstraintName("FK__CriteriaT__Crite__37703C52");
 
-            entity.HasOne(d => d.Plant).WithMany(p => p.PlantCriteria)
+            entity.HasOne(d => d.Plant).WithMany(p => p.PlantCriterias)
                 .HasForeignKey(d => d.PlantId)
                 .HasConstraintName("FK__CriteriaT__Plant__367C1819");
         });

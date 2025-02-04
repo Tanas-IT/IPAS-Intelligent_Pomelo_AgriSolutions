@@ -11,4 +11,10 @@ namespace CapstoneProject_SP25_IPAS_Common.ObjectStatus
         Active,
         Inactive,
     }
+    
+    public enum LandRowStatus
+    {
+        Active,
+        Inactive,
+    }
 }
