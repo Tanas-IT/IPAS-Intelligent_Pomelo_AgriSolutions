@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace CapstoneProject_SP25_IPAS_Service.Payloads.Request
+namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request
 {
     public class AccountRequestModel
     {

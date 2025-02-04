@@ -1,31 +1,50 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MasterTypeController : ControllerBase
+    public class MasterTypeDetailController : ControllerBase
     {
+        private readonly IMasterTypeDetailService _masterTypeDetailService;
 
-        private readonly IMasterTypeService _masterTypeService;
-        public MasterTypeController(IMasterTypeService masterTypeService)
+        public MasterTypeDetailController(IMasterTypeDetailService masterTypeDetailService)
         {
-            _masterTypeService = masterTypeService;
+            _masterTypeDetailService = masterTypeDetailService;
         }
 
-        [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
-        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter)
+        [HttpGet(APIRoutes.MasterTypeDetail.getMasterTypeDetailWithPagination, Name = "getAllMasterTypeDetail")]
+        public async Task<IActionResult> GetAllMasterTypeDetail(PaginationParameter paginationParameter, MasterTypeDetailFilter masterTypeDetailFilter)
         {
             try
             {
-                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter, masterTypeFilter);
+                var result = await _masterTypeDetailService.GetAllMasterTypeDetailPagination(paginationParameter, masterTypeDetailFilter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        [HttpGet(APIRoutes.MasterTypeDetail.getMasterTypeDetailById, Name = "getMasterTypeDetailById")]
+        public async Task<IActionResult> GetMasterTypeDetailById([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _masterTypeDetailService.GetMasterTypeDetailByID(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,12 +58,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.MasterType.getMasterTypeById, Name = "getMasterTypeById")]
-        public async Task<IActionResult> GetMasterTypeById([FromRoute] int id)
+        [HttpGet(APIRoutes.MasterTypeDetail.getMasterTypeDetailByName, Name = "getMasterTypeDetailByName")]
+        public async Task<IActionResult> GetMasterTypeDetailByName([FromRoute] string name)
         {
             try
             {
-                var result = await _masterTypeService.GetMasterTypeByID(id);
+                var result = await _masterTypeDetailService.GetMasterTypeDetailByName(name);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -58,12 +77,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
-        public async Task<IActionResult> GetMasterTypeByName([FromRoute] string name)
+        [HttpPost(APIRoutes.MasterTypeDetail.createMasterTypeDetail, Name = "createMasterTypeDetail")]
+        public async Task<IActionResult> CreateMasterTypeDetail([FromBody] CreateMasterTypeDetailModel createMasterTypeDetailModel)
         {
             try
             {
-                var result = await _masterTypeService.GetMasterTypeByName(name);
+                var result = await _masterTypeDetailService.CreateMasterTypeDetail(createMasterTypeDetailModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -77,12 +96,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
-        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeModel createMasterTypeModel)
+        [HttpPut(APIRoutes.MasterTypeDetail.updateMasterTypeDetailInfo, Name = "updateMasterTypeDetail")]
+        public async Task<IActionResult> UpdateMasterTypeDetail([FromBody] UpdateMasterTypeDetailModel updateMasterTypeDetailModel)
         {
             try
             {
-                var result = await _masterTypeService.CreateMasterType(createMasterTypeModel);
+                var result = await _masterTypeDetailService.UpdateMasterTypeDetailInfo(updateMasterTypeDetailModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -96,31 +115,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.MasterType.updateMasterTypeInfo, Name = "updateMasterType")]
-        public async Task<IActionResult> UpdateMasterType([FromBody] UpdateMasterTypeModel updateMasterTypeModel)
+        [HttpDelete(APIRoutes.MasterTypeDetail.permanenlyDelete, Name = "deleteMasterTypeDetail")]
+        public async Task<IActionResult> DeleteMasterTypeDetail([FromRoute] int id)
         {
             try
             {
-                var result = await _masterTypeService.UpdateMasterTypeInfo(updateMasterTypeModel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
-
-        [HttpDelete(APIRoutes.MasterType.permanenlyDelete, Name = "deleteMasterType")]
-        public async Task<IActionResult> DeleteMasterType([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _masterTypeService.PermanentlyDeleteMasterType(id);
+                var result = await _masterTypeDetailService.PermanentlyDeleteMasterTypeDetail(id);
                 return Ok(result);
             }
             catch (Exception ex)

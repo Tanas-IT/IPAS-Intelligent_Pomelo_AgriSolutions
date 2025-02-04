@@ -3,7 +3,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;

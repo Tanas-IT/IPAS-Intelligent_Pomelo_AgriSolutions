@@ -9,7 +9,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using System;

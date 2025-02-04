@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criteria");
 
                     if (masterType == null)
-                        return new BusinessResult(Const.FAIL_GET_CRITERIA_TYPE_CODE, Const.FAIL_GET_CRITERIA_TYPE_MESSAGE);
+                        return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
 
                     // Chuyển danh sách hiện có thành Dictionary để tra cứu nhanh**
                     var existingCriteriaDict = masterType.Criteria.ToDictionary(c => c.CriteriaId);

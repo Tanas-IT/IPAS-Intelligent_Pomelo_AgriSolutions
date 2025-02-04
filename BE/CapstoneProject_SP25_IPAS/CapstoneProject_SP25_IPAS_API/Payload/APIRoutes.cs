@@ -63,10 +63,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Resource
         {
             public const string uploadImage = Base + "/resource/upload-image";
+            public const string uploadResource = Base + "/resource/upload";
             public const string uploadvideo = Base + "/resource/upload-video";
             public const string deleteImageByURL = Base + "/resource/delete-image-by-url";
             public const string deleteVideoByURL = Base + "/resource/delete-video-by-url";
-           
+            public const string deleteResourceByURL = Base + "/resource/delete";
+
         }
 
         public static class MasterType
@@ -154,6 +156,15 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class MasterTypeDetail
+        {
+            public const string createMasterTypeDetail = Base + "/masterTypeDetails";
+            public const string getMasterTypeDetailById = Base + "/masterTypeDetails/get-masterTypeDetail-by-id/{id}";
+            public const string getMasterTypeDetailWithPagination = Base + "/masterTypeDetails";
+            public const string permanenlyDelete = Base + "/masterTypeDetails/delete-permanenly/{id}";
+            public const string updateMasterTypeDetailInfo = Base + "/masterTypeDetails/update-masterTypeDetail-info";
+            public const string getMasterTypeDetailByName = Base + "/masterTypeDetails/get-masterTypeDetail-by-name/{name}";
+        }
         public static class LandRow
         {
             public const string prefix = Base + "/landRows";
