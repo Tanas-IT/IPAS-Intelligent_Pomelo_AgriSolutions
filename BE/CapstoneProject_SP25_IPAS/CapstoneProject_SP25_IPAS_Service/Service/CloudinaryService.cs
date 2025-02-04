@@ -326,6 +326,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
         public async Task<Stream> DownloadImageFromUrlAsync(string imageUrl)
         {
             using (HttpClient client = new HttpClient())

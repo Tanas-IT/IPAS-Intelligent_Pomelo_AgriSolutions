@@ -68,7 +68,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteImageByURL = Base + "/resource/delete-image-by-url";
             public const string deleteVideoByURL = Base + "/resource/delete-video-by-url";
             public const string deleteResourceByURL = Base + "/resource/delete";
-           
+
         }
 
         public static class MasterType
@@ -164,6 +164,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/masterTypeDetails/delete-permanenly/{id}";
             public const string updateMasterTypeDetailInfo = Base + "/masterTypeDetails/update-masterTypeDetail-info";
             public const string getMasterTypeDetailByName = Base + "/masterTypeDetails/get-masterTypeDetail-by-name/{name}";
+        }
         public static class LandRow
         {
             public const string prefix = Base + "/landRows";

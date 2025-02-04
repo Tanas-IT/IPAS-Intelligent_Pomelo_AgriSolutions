@@ -2,7 +2,7 @@
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRowRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
