@@ -77,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
               authData.avatar !== "null" &&
               authData.avatar !== "undefined" &&
               authData.avatar.trim() !== "" ? (
-                <Avatar size={50} shape="square" src={authData.avatar} />
+                <Avatar crossOrigin="anonymous" size={50} shape="square" src={authData.avatar} />
               ) : (
                 <Avatar size={50} shape="square" icon={<UserOutlined />} />
               )}

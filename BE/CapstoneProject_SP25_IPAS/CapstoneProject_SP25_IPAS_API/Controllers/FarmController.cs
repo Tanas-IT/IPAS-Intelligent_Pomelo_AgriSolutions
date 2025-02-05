@@ -8,6 +8,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -43,9 +44,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HybridAuthorize("Admin,User", "Manager")]
-        [HttpGet(APIRoutes.Farm.getFarmById , Name = "getFarmByIdAsync")]
+        [HttpGet(APIRoutes.Farm.getFarmById, Name = "getFarmByIdAsync")]
         public async Task<IActionResult> GetFarmByIdAsync([FromQuery(Name = "farmId")] int farmId)
-       {
+        {
             try
             {
 
@@ -63,7 +64,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Farm.getAllFarmOfUser , Name = "getAllFarmOfUserAsync")]
+        //[Authorize(Roles = "User")]
+        [HttpGet(APIRoutes.Farm.getAllFarmOfUser, Name = "getAllFarmOfUserAsync")]
         public async Task<IActionResult> GetAllFarmOfUserAsync([FromQuery] int userId)
         {
             try
@@ -108,7 +110,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.Farm.updateFarmInfo, Name = "updateFarmInfoAsync")]
-        public async Task<IActionResult> UpdateFarmInfoAsync([FromBody]FarmUpdateRequest farmUpdateModel)
+        public async Task<IActionResult> UpdateFarmInfoAsync([FromBody] FarmUpdateRequest farmUpdateModel)
         {
             try
             {
@@ -193,11 +195,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.Farm.updateFarmLogo, Name = "updateFarmLogoAsync")]
-        public async Task<IActionResult> UpdateFarmLogoAsync([FromForm] int farmId, IFormFile farmLogo )
+        public async Task<IActionResult> UpdateFarmLogoAsync([FromForm] int farmId, IFormFile farmLogo)
         {
             try
             {
-                var result = await _farmService.UpdateFarmLogo( farmId: farmId, LogoURL: farmLogo);
+                var result = await _farmService.UpdateFarmLogo(farmId: farmId, LogoURL: farmLogo);
                 return Ok(result);
             }
             catch (Exception ex)

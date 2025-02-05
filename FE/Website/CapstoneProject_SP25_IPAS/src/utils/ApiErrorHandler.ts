@@ -19,15 +19,15 @@ export const handleApiError = async (error: any) => {
         const message = error.response.data.Message;
         if (message.includes("Token is expired!")) {
           console.log("Token is expired");
-          // const originalRequest = error.config;
-          // try {
-          //   const newAccessToken = await authService.refreshToken();
-          //   console.log(newAccessToken);
-          //   originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          //   return axios(originalRequest);
-          // } catch (error) {
-          //   redirectToHomeWithMessage("Your session has expired, please log in again");
-          // }
+          const originalRequest = error.config;
+          try {
+            const newAccessToken = await authService.refreshToken();
+            console.log(newAccessToken);
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return axios(originalRequest);
+          } catch (error) {
+            redirectToHomeWithMessage("Your session has expired, please log in again");
+          }
         } else {
           redirectToHomeWithMessage("", false);
         }

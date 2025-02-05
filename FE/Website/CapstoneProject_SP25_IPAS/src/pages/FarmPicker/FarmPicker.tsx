@@ -22,6 +22,8 @@ function FarmPicker() {
     navigate(PATHS.DASHBOARD);
   };
 
+  
+
   const farmsData: Farm[] = [
     // {
     //   id: 1,
@@ -60,6 +62,8 @@ function FarmPicker() {
     //   image: Images.logo,
     // },
   ];
+
+
 
   if (farmsData.length === 0) {
     return (

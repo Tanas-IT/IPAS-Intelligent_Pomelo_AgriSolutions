@@ -916,54 +916,45 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 GO
 INSERT INTO [dbo].[Farm] ([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Farm A', '123 Green Lane, District 1, Province X', 'https://example.com/logoA.png', 'Ward 1', 'Province X', 'District 1', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
-('F002', 'Farm B', '456 Blue Avenue, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F003', 'Farm C', '789 Binh Duong, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F004', 'Farm D', '910 Dong Nai, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F005', 'Farm E', '911 Long An, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F006', 'Farm F', '159 Can Gio, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F007', 'Farm G', '567 Tien Giang, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F008', 'Farm H', '789 Kien Giang, District 3, Province Z', 'https://example.com/logoC.png', 'Ward 3', 'Province Z', 'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+('F001', 'Nam Hue Tan Trieu Pomelo', '133/17 Hương Lộ 9', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Tân Bình', 'Đồng Nai', 'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
+('F002', 'Farm B', '456 Blue Avenue, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F003', 'Farm C', '789 Binh Duong, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F004', 'Farm D', '910 Dong Nai, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F005', 'Farm E', '911 Long An, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F006', 'Farm F', '159 Can Gio, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F007', 'Farm G', '567 Tien Giang, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F008', 'Farm H', '789 Kien Giang, District 3, Province Z', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 3', 'Province Z', 'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
 GO
 INSERT INTO [dbo].[FarmCoordination] ([Longitude], [Lagtitude], [FarmID])
 VALUES
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
+(106.786528, 10.9965, 1),  -- Coordinates for Nam Hue Tan Trieu Pomelo
 (107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(108.6297, 12.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3);  -- Coordinates for Farm c
+(108.6297, 12.8231, 3);  -- Coordinates for Farm c
+
 GO
 INSERT INTO [dbo].[Role] ([RoleName], [isSystem])
 VALUES
 ('Admin', 1),
-('User', 1),
-('Owner', 0),
-('Manager', 0),
-('Employee', 0);
+('User', 2),
+('Owner', 3),
+('Manager', 4),
+('Employee', 5);
 GO
 INSERT INTO [dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDelete], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar1.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar2.png', NULL, NULL, 2),
-('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
+('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2);
 ;
 GO
 INSERT INTO [dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
 VALUES 
-(1,1,3),
-(1,2,4),
-(1,3,5),
-(1,4,5);
+(1,3,3),
+(2,3,4),
+(3,3,5),
+(4,3,5);
 GO
 INSERT INTO [dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd])  
 VALUES  

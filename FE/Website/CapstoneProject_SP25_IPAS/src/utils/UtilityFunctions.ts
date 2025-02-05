@@ -199,6 +199,12 @@ export const getRoleId = (): string => {
   return jwtDecode<DecodedToken>(accessToken).roleId;
 };
 
+export const getUserId = (): string => {
+  const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+  if (!accessToken) return "";
+  return jwtDecode<DecodedToken>(accessToken).UserId;
+};
+
 export const getRoleName = (roleId: number): string => {
   if (roleId === UserRole.Admin) {
     return "Quản trị viên";
