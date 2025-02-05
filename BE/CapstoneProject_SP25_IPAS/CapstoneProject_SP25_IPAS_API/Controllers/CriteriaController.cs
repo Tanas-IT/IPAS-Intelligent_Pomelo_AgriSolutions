@@ -19,8 +19,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _criteriaService = criteriaService;
         }
 
-        [HttpGet(APIRoutes.Criteria.getCriteriaById, Name = "getCriteriaById")]
-        public async Task<IActionResult> GetCriteriaById([FromRoute] int id)
+        [HttpGet(APIRoutes.Criteria.getCriteriaById + "/{criteria-id}", Name = "getCriteriaById")]
+        public async Task<IActionResult> GetCriteriaById([FromRoute(Name = "criteria-id")] int id)
         {
             try
             {
@@ -68,6 +68,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
             catch (Exception ex)
             {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Criteria.getCriteriaOfPlantById + "/{plant-id}", Name = "getCriteriaOfPlantById")]
+        public async Task<IActionResult> GetCriteriaOfPlantById([FromRoute(Name = "plant-id")] int id)
+        {
+            try
+            {
+                var result = await _criteriaService.GetCriteriaOfPlant(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
                 var response = new BaseResponse()
                 {
                     StatusCode = StatusCodes.Status400BadRequest,

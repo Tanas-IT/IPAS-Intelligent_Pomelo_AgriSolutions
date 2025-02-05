@@ -9,6 +9,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IPlantCriteriaRepository
     {
-        //public Task<IEnumerable<IGrouping<int?, PlantCriteria>>> GetAllCriteriaOfPlantNoPaging(int plantId);
+        public Task<IEnumerable<PlantCriteria>> GetAllCriteriaOfPlantNoPaging(int plantId);
     }
 }
