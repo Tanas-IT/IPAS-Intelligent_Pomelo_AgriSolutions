@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
 
   const handleNavigation = (to?: string) => {
     if (to) {
-      navigate(to);
+      navigate(to.startsWith("/") ? to : `/${to}`);
     }
   };
 
@@ -103,8 +103,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Farm Information",
           label: "Farm Information",
           icon: Images.radius,
-          to: PATHS.FARM.FARM_LIST,
-          activePaths: [],
+          to: PATHS.FARM.FARM_INFO,
+          activePaths: [PATHS.FARM.FARM_INFO],
         },
         {
           key: "Manage Plots and Rows",

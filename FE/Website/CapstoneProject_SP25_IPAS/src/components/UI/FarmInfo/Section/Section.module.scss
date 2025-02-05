@@ -1,0 +1,28 @@
+@use "@/styles/variables.scss" as vars;
+
+.contentSection {
+  justify-content: space-between;
+
+  .contentSectionLeft {
+    width: 30%;
+    flex-direction: column;
+    align-items: flex-start;
+    .sectionTitle {
+      font-weight: bold;
+    }
+    .subTitle {
+      font-size: 12px;
+      color: vars.$color_selected;
+    }
+  }
+  .contentSectionRight {
+    width: 100%;
+    padding: 18px;
+    border: 1px solid rgb(234, 236, 240);
+    box-shadow: rgba(16, 24, 40, 0.1) 0px 1px 3px, rgba(16, 24, 40, 0.06) 0px 1px 2px;
+    border-radius: 12px;
+    flex-direction: column;
+    // justify-content: center;
+    gap: 12px;
+  }
+}
