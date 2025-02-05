@@ -147,6 +147,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
         public static int SUCCES_CHECK_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_CHECK_PLANT_CRITERIA_MSG = "Check criteria of plant success";
+        public static int SUCCES_GET_PLANT_CRITERIA_CODE = 200;
+        public static string SUCCES_GET_PLANT_CRITERIA_MSG = "Get criteria of plant success";
         #endregion
         #region landplot
         public static int SUCCESS_GET_ALL_LANDPLOT_IN_FARM_CODE = 200;
@@ -397,19 +399,20 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region
         public static int FAIL_CREATE_CRITERIA_CODE = 500;
         public static string FAIL_CREATE_CRITERIA_MESSAGE = "Create criteria failed";
-        public static int FAIL_GET_CRITERIA__BY_ID_CODE = 500;
+        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 500;
         public static string FAIL_GET_CRITERIA_BY_ID_MSG = "Get criteria failed";
         public static int FAIL_UPDATE_CRITERIA_CODE = 500;
         public static string FAIL_UPDATE_CRITERIA_MSG = "Update criteria type failed";
         #endregion
         #region Plant-Criteria Fail code
-        public static int FAIL_PLANTS_REQUEST_EMPTY_CODE = 500;
+        public static int FAIL_PLANTS_REQUEST_EMPTY_CODE = 400;
         public static string FAIL_PLANT_REQUEST_EMPTY_MSG = "You not select any plant";
-        public static int FAIL_CRITERIA_REQUEST_EMPTY_CODE = 500;
+        public static int FAIL_CRITERIA_REQUEST_EMPTY_CODE = 400;
         public static string FAIL_CRITERIA_REQUEST_EMPTY_MSG = "You not select any Criteria";
-        public static int FAIL_APPLY_LIST_CRITERIA_PLANTS_CODE = 500;
-        public static string FAIL_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
+        public static int FAIL_APPLY_LIST_CRITERIA_PLANTS_CODE = 400;
+        public static string FAIL_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants fail";
         #endregion
+
         #region Farm Fail code
         public static int FAIL_CREATE_FARM_CODE = 500;
         public static string FAIL_CREATE_FARM_MSG = "Create farm have server error";
@@ -426,6 +429,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_DELETE_FARM_LANDPLOT_CODE = 500;
         public static string FAIL_DELETE_FARM_LANDPLOT_MSG = "Delete landplot of farm have server error";
         #endregion
+
         #region Partner Fail code
         public static int FAIL_CREATE_PARTNER_CODE = 500;
         public static string FAIL_CREATE_PARTNER_MESSAGE = "Create partner failed";
@@ -436,6 +440,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PARTNER_CODE = 500;
         public static string FAIL_GET_PARTNER_MESSAGE = "Get partner failed";
         #endregion
+
         #region GrowthStage Fail code
         public static int FAIL_CREATE_GROWTHSTAGE_CODE = 500;
         public static string FAIL_CREATE_GROWTHSTAGE_MESSAGE = "Create GrowthStage failed";
@@ -446,10 +451,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_GROWTHSTAGE_CODE = 500;
         public static string FAIL_GET_GROWTHSTAGE_MESSAGE = "Get GrowthStage failed";
         #endregion
+
         #region LandRow
         public static int FAIL_CREATE_ONE_LANDROW_OF_FARM_CODE = 400;
         public static string FAIL_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create landrow fail, please try again";
         #endregion
+
         #region Plant
         public static int FAIL_CREATE_PLANT_CODE = 400;
         public static string FAIL_CREATE_PLANT_MSG = "Create Plant fail";
@@ -467,6 +474,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE = 400;
         public static string FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG = "Update plant growth history fail";
         #endregion
+
         #endregion
 
         #region WARNING
@@ -536,7 +544,7 @@ namespace CapstoneProject_SP25_IPAS_Common
 
         #endregion
 
-        #region CriteriaType
+        #region Partner
         public static int WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE = 404;
         public static string WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG = "Does not have any partner";
         #endregion
@@ -593,6 +601,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE = 200;
         public static string WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG = "Get plant growth history empty.";
         #endregion
+
+        #region Plant Criteria
+        public static int WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE = 400;
+        public static string WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG = "Do not have any resource";
+        #endregion
+
         #endregion
     }
 }

@@ -84,7 +84,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/criterias";
             public const string updateListCriteriaType = prefix + "/update-list-criteria";
-            public const string getCriteriaById = prefix + "/get-criteriaType-by-id/{id}";
+            public const string getCriteriaById = prefix + "";
+            public const string getCriteriaOfPlantById = prefix + "/get-criteria-of-plant";
             public const string updateCriteriaInfo = prefix + "/update-criteria-info";
         }
 
