@@ -1,7 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

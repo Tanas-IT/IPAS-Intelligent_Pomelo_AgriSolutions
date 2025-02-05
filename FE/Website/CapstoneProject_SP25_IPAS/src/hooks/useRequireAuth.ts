@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES } from "@/constants";
 import { PATHS } from "@/routes";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ const useRequireAuth = (): boolean => {
     const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
 
     if (!accessToken && !refreshToken) {
-      toast.error("Please log in to access this page.");
+      toast.error(MESSAGES.LOGIN_REQUIRED);
       navigate(PATHS.AUTH.LANDING);
     } else {
       setIsAuthChecked(true);

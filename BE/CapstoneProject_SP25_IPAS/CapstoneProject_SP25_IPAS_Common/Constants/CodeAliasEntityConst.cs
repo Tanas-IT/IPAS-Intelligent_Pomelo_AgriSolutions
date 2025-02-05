@@ -18,6 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string GROWTHSTAGE = "GRS";
         public static string PROCESS_STYLE = "PCS";
         public static string LANDPLOT = "LAPL";
+        public static string MASTER_TYPE_DETAIL = "MTD";
         public static string LANDROW = "LARO";
         public static string PLANT_GROWTH_HISTORY = "PLGH";
     }

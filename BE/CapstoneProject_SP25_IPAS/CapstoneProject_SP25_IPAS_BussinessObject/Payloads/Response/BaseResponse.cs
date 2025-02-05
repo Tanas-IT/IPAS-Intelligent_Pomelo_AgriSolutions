@@ -1,4 +1,4 @@
-﻿namespace CapstoneProject_SP25_IPAS_Service.Payloads.Response
+﻿namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response
 {
     public class BaseResponse
     {

@@ -849,6 +849,10 @@ public partial class IpasContext : DbContext
                .HasForeignKey(d => d.AssignorId)
                .OnDelete(DeleteBehavior.Cascade)
                .HasConstraintName("FK_Plan_Plan");
+
+            entity.HasOne(d => d.Crop).WithMany(p => p.Plans)
+              .HasForeignKey(d => d.CropId)
+              .HasConstraintName("FK_Plan_Crop");
         });
 
         modelBuilder.Entity<Plant>(entity =>

@@ -7,9 +7,7 @@ $color_bg_search: #f4f7fe;
 $color_btn_auth: linear-gradient(108deg, #bcd379 0%, #326e2f 100%);
 $color_bg_auth: #f8f7f0;
 
-
 $color_sidebar_text_inactive: #333333;
-$color_selected: #555;
 $color_selected: #555;
 $color_selected_delete: #991919;
 $color_selected_bg_delete: #fee2e2;
@@ -38,7 +36,9 @@ $color_divider: #e2e8f0;
 
 $color-text: #2c2c2e;
 $color_text_detail: #757575;
-$color_text_btn: #326E2F;
+$color_border_btn_cancel: #d9d9d9;
+
+$color_text_btn: #326e2f;
 $color_yes_btn: blue;
 $color_no_btn: red;
 $color_icon_warning: #faad14;

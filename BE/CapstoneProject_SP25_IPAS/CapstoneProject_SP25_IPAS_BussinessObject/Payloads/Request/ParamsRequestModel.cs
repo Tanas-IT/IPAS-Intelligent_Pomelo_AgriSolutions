@@ -1,4 +1,4 @@
-﻿namespace CapstoneProject_SP25_IPAS_Service.Payloads.Request
+﻿namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request
 {
     public class ParamsRequestModel
     {
@@ -21,6 +21,11 @@
     public class DeleteImageURLModel
     {
         public string ImageURL { get; set; }
+    }
+
+    public class DeleteReousceURLModel
+    {
+        public string ResourceURL { get; set; }
     }
 
     public class DeleteVideoURLModel

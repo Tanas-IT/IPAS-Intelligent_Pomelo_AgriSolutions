@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES } from "@/constants";
 import { PATHS } from "@/routes";
 import { authService } from "@/services";
 import axios from "axios";
@@ -12,7 +12,7 @@ export const handleApiError = async (error: any) => {
   };
 
   if (error.message === "Network Error" && !error.response) {
-    toast.error("Network error, please check your connection!");
+    toast.error(MESSAGES.NETWORK_ERROR);
   } else if (error.response) {
     switch (error.response.status) {
       case 401:
@@ -37,14 +37,14 @@ export const handleApiError = async (error: any) => {
         if (errorStatusCode === 401) {
           redirectToHomeWithMessage(error.response.data.Message);
         } else {
-          redirectToHomeWithMessage("You do not have permission to access this resource");
+          redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
         }
         break;
       default:
-        toast.error("An error occurred");
+        toast.error(MESSAGES.ERROR_OCCURRED);
     }
   } else {
-    toast.error("An unexpected error occurred. Please try again later.");
+    toast.error(MESSAGES.UNEXPECTED_ERROR);
   }
   return Promise.reject(error);
 };

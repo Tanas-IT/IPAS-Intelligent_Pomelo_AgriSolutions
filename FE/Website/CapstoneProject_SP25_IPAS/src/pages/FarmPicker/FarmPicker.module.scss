@@ -1,14 +1,29 @@
 @use "@/styles/variables.scss" as vars;
 
+.emptyContainer {
+  justify-content: center;
+  align-items: center;
+  margin-top: 7rem;
+  .empty {
+    width: 50%;
+    .emptyDescription {
+      font-size: 1.2vw;
+      color: vars.$color_selected;
+    }
+  }
+}
+
 .container {
   flex-direction: column;
-  align-items: flex-end;
   row-gap: 20px;
 
   .headerWrapper {
+    justify-content: flex-end;
+    align-items: flex-end;
     margin-right: 20px;
   }
   .contentWrapper {
+    width: 100%;
     justify-content: space-between;
     align-items: center;
     .cardWrapper {
@@ -27,35 +42,42 @@
           }
         }
 
-        .cardInfo {
-          padding: 0 16px;
-          flex-direction: column;
-          gap: 22px;
-          .farmDetails {
+        .cardInfoWrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          .cardInfo {
+            width: 100%;
+            padding: 0 16px;
             flex-direction: column;
-            .farmName {
-              color: vars.$color_primary;
-              font-size: 20px;
+            gap: 22px;
+            .farmDetails {
+              flex-direction: column;
+              .farmName {
+                color: vars.$color_primary;
+                font-size: 20px;
+              }
+              .address {
+                color: vars.$color_primary;
+              }
             }
-            .address {
-              color: vars.$color_primary;
-            }
-          }
-          .creationInfo {
-            justify-content: space-between;
-            align-items: center;
-            .label {
-              color: vars.$color_create_at;
-            }
-            .date {
-              font-size: 16px;
-              color: vars.$color_primary;
+            .creationInfo {
+              justify-content: space-between;
+              align-items: center;
+              .label {
+                color: vars.$color_create_at;
+              }
+              .date {
+                font-size: 16px;
+                color: vars.$color_primary;
+              }
             }
           }
         }
 
         .statusTag {
           padding: 2px 12px;
+          font-size: 14px;
           margin: 0;
           border-radius: 20px;
           font-weight: bold;
