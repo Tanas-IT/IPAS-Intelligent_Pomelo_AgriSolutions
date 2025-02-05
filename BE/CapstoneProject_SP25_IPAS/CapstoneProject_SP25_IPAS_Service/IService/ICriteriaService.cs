@@ -13,6 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetCriteriaById(int criteriaId);
         public Task<BusinessResult> UpdateListCriteriaInType(ListCriteriaUpdateRequest listCriteriaUpdateRequest);
         public Task<BusinessResult> UpdateOneCriteriaInType(CriteriaUpdateRequest criteriaUpdateRequests);
+        public Task<BusinessResult> GetCriteriaOfPlant(int plantId);
 
     }
 }

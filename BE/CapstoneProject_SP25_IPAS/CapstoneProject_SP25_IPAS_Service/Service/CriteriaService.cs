@@ -100,7 +100,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var criteria = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteriaId);
-                if (criteria == null) return new BusinessResult(Const.FAIL_GET_CRITERIA__BY_ID_CODE, Const.FAIL_GET_CRITERIA_BY_ID_MSG);
+                if (criteria == null) return new BusinessResult(Const.FAIL_GET_CRITERIA_BY_ID_CODE, Const.FAIL_GET_CRITERIA_BY_ID_MSG);
                 var result = _mapper.Map<CriteriaModel>(criteria);
                 return new BusinessResult(Const.SUCCESS_GET_CRITERIA_BY_ID_CODE, Const.SUCCESS_GET_CRITERIA_BY_ID_MSG, result);
             }
@@ -118,7 +118,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     var criteria = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteriaUpdateRequests.CriteriaId);
-                    if (criteria == null) return new BusinessResult(Const.FAIL_GET_CRITERIA__BY_ID_CODE, Const.FAIL_GET_CRITERIA_BY_ID_MSG);
+                    if (criteria == null) return new BusinessResult(Const.FAIL_GET_CRITERIA_BY_ID_CODE, Const.FAIL_GET_CRITERIA_BY_ID_MSG);
                     criteria.CriteriaName = criteriaUpdateRequests.CriteriaName;
                     criteria.CriteriaDescription = criteriaUpdateRequests.CriteriaDescription;
                     criteria.Priority = criteriaUpdateRequests.Priority;
@@ -138,6 +138,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
+            }
+        }
+
+        public async Task<BusinessResult> GetCriteriaOfPlant(int plantId)
+        {
+            try
+            {
+                if (plantId <= 0)
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
+                var criteriaByType = await _unitOfWork.PlantCriteriaRepository.GetAllCriteriaOfPlantNoPaging(plantId);
+                if (!criteriaByType.Any())
+                {
+                    return new BusinessResult(Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
+                }
+                var groupedData = criteriaByType
+                       .Where(pc => pc.Criteria.MasterType != null) // Lọc các tiêu chí có MasterType
+                       .GroupBy(pc => pc.Criteria.MasterType) // Nhóm theo MasterType
+                       .Select(group => new 
+                       {
+                           MasterTypeId = group.Key.MasterTypeId,
+                           MasterTypeName = group.Key.MasterTypeName,
+                           CriteriaList = group.Select(pc => new
+                           {
+                               PlantId = pc.PlantId,
+                               Priority = pc.Priority,
+                               CriteriaId = pc.Criteria.CriteriaId,
+                               CriteriaName = pc.Criteria.CriteriaName,
+                               IsChecked = pc.IsChecked
+                           }).ToList()
+                       })
+                       .ToList();
+
+                //var mappedResult = _mapper.Map<List<PlantCriteriaModel>>(groupedData);
+                return new BusinessResult(Const.SUCCES_GET_PLANT_CRITERIA_CODE, Const.SUCCES_GET_PLANT_CRITERIA_MSG, groupedData);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }
