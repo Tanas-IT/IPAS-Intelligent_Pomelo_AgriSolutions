@@ -1,5 +1,6 @@
 :root {
   --color-selection: #a8e6a3;
+  --primary-color: #20461e;
 }
 
 #root {
@@ -34,6 +35,15 @@ body {
 *::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
+}
+
+input:hover,
+textarea:hover,
+input:focus,
+textarea:focus {
+  border-color: var(--primary-color) !important;
+  outline: none;
+  box-shadow: none !important;
 }
 
 .ant-menu-inline {

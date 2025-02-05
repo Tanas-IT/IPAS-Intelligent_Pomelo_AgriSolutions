@@ -1,0 +1,164 @@
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  background-color: vars.$color_bg_detail;
+  flex-direction: column;
+  padding: 10px 24px;
+  margin-top: 40px;
+  position: relative;
+  padding-top: 50px;
+
+  .header {
+    justify-content: flex-start;
+
+    .logo {
+      position: absolute;
+      top: -80px;
+      width: 120px;
+      height: auto;
+      border: 5px solid white;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      background-color: white;
+      z-index: 1;
+    }
+
+    .farmInfo {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-left: 140px;
+      margin-top: -40px;
+
+      .farmName {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .ownerInfo {
+        align-items: center;
+        gap: 4px;
+        color: vars.$color_selected;
+
+        .divider {
+          background-color: #ccc;
+          height: 16px;
+        }
+
+        .ownerName {
+          gap: 4px;
+        }
+
+        .ownerContact {
+          justify-content: center;
+          align-items: center;
+          gap: 4px;
+          svg {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+
+  .containerWrapper {
+    margin-top: 40px;
+    width: 100%;
+
+    .iconTab {
+      margin-inline-end: -4px;
+    }
+    .titleTab {
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .contentWrapper {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding-bottom: 20px;
+
+      .form {
+        // width: 70%;
+        .row {
+          flex-direction: row;
+          gap: 20px;
+        }
+      }
+      .formLogo {
+        width: 70%;
+        justify-content: flex-start;
+        align-items: flex-end;
+        gap: 20px;
+        .iconEdit {
+          font-size: 20px;
+          cursor: pointer;
+          &:hover {
+            opacity: 0.9;
+          }
+        }
+        .uploadWrapper {
+          width: 70%;
+        }
+        .logo {
+          width: 120px;
+          height: 120px;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+        .uploadIcon {
+          svg {
+            width: 30px;
+            height: 30px;
+            color: vars.$color_primary;
+          }
+        }
+      }
+
+      .formDocument {
+        width: 100%;
+        justify-content: space-between;
+        align-items: flex-end;
+        .iconEdit {
+          font-size: 20px;
+          cursor: pointer;
+          &:hover {
+            opacity: 0.9;
+          }
+        }
+        .imageWrapper {
+          gap: 20px;
+          flex-wrap: wrap;
+
+          .image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+          }
+        }
+      }
+
+      .contentSectionFooter {
+        width: 100%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+      }
+
+      .divider {
+        margin: 0;
+        border-block-start: 1px solid vars.$color_divider;
+      }
+
+      .contentSectionBody {
+        width: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 24px;
+      }
+    }
+  }
+}

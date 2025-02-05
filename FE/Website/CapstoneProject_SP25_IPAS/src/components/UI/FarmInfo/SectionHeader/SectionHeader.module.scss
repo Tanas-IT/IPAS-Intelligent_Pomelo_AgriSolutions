@@ -1,0 +1,35 @@
+@use "@/styles/variables.scss" as vars;
+
+.contentSectionHeader {
+  width: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .contentSectionTitle {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+
+    .iconEdit {
+      font-size: 20px;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+    .contentSectionTitleLeft {
+      align-items: center;
+      gap: 3rem;
+      .title {
+        font-weight: bold;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .subTitle {
+    font-size: 12px;
+    color: vars.$color_selected;
+  }
+}

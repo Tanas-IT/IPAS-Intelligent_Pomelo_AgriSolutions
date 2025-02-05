@@ -5,8 +5,8 @@ import { Footer, HeaderAdmin, Loading, SidebarAdmin } from "@/components";
 import { Breadcrumb, Flex, Layout } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getRoleId, isValidBreadcrumb } from "@/utils";
-import { useRequireAuth } from "@/hooks";
-import { UserRole } from "@/constants";
+import { useRequireAuth, useToastFromLocalStorage, useToastMessage } from "@/hooks";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
 import { PATHS } from "@/routes";
 const { Header, Content } = Layout;
 
@@ -15,6 +15,8 @@ interface ManagementLayoutProps {
 }
 
 const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
+  useToastMessage();
+  useToastFromLocalStorage();
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
@@ -25,6 +27,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
     const roleId = getRoleId();
     if (roleId === UserRole.User.toString()) {
       setIsUser(true);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, MESSAGES.NO_PERMISSION);
       navigate(PATHS.FARM_PICKER);
     }
   }, [navigate]);

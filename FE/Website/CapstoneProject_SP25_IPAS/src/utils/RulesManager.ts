@@ -8,7 +8,6 @@ export class RulesManager {
       },
     ];
   }
-
   // Phương thức để lấy quy tắc cho password
   static getPasswordRules() {
     return [
@@ -23,7 +22,6 @@ export class RulesManager {
       },
     ];
   }
-
   static getFullNameRules() {
     return [
       { required: true, message: "Please input your full name!" },
@@ -42,10 +40,25 @@ export class RulesManager {
       },
     ];
   }
-  static getDOBRules() {
-    return [{ required: true, message: "Please select your date of birth" }];
+  static getDOBRules = () => [{ required: true, message: "Please select your date of birth!" }];
+  static getGenderRules = () => [{ required: true, message: "Please select your gender!" }];
+
+  // Rules cho FarmForm
+  static getFarmNameRules = () => [{ required: true, message: "Farm Name is required!" }];
+  static getFarmDescriptionRules = () => [
+    { required: true, message: "Description cannot be empty!" },
+  ];
+  static getProvinceRules = () => [{ required: true, message: "Please select a province/city!" }];
+  static getDistrictRules = () => [{ required: true, message: "Please select a district!" }];
+  static getWardRules = () => [{ required: true, message: "Please select a ward!" }];
+  static getAddressRules = () => [{ required: true, message: "Address cannot be empty!" }];
+
+  static getAreaRules() {
+    return [
+      { required: true, message: "Please input the area!" },
+      { pattern: /^[0-9]+$/, message: "Area must be a valid number!" },
+    ];
   }
-  static getGenderRules() {
-    return [{ required: true, message: "Please select your gender" }];
-  }
+  static getSoilTypeRules = () => [{ required: true, message: "Soil Type is required!" }];
+  static getClimateZoneRules = () => [{ required: true, message: "Climate Zone is required!" }];
 }

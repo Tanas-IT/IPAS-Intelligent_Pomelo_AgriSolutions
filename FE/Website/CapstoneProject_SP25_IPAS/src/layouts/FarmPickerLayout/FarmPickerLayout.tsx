@@ -3,7 +3,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import style from "./FarmPickerLayout.module.scss";
 import { Flex, Layout } from "antd";
 import { Footer, HeaderAdmin, Loading, SidebarAdmin } from "@/components";
-import { useRequireAuth, useToastMessage } from "@/hooks";
+import { useRequireAuth, useToastFromLocalStorage, useToastMessage } from "@/hooks";
 import { UserRole } from "@/constants";
 import { getRoleId } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,7 @@ interface FarmPickerLayoutProps {
 
 const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
+  useToastFromLocalStorage();
   useToastMessage();
   const isTokenChecked = useRequireAuth();
   const [isUser, setIsUser] = useState<boolean>(true);
