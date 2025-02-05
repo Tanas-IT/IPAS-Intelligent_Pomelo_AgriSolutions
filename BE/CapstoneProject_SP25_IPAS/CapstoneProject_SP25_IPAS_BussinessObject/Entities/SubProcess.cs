@@ -25,11 +25,13 @@ public partial class SubProcess
 
     public int? ProcessId { get; set; }
 
-    public int? ProcessStyleId { get; set; }
+    public int? MasterTypeId { get; set; }
+
+    public string? ResourceUrl { get; set; }
+
+    public string? Input { get; set; }
+
+    public virtual MasterType? MasterType { get; set; }
 
     public virtual Process? Process { get; set; }
-
-    public virtual ICollection<ProcessData> ProcessData { get; set; } = new List<ProcessData>();
-
-    public virtual ProcessStyle? ProcessStyle { get; set; }
 }

@@ -10,3 +10,5 @@ export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
 export { default as Weather } from "@/pages/Weather/Weather";
+export { default as ProcessList } from "@/pages/Process/ProcessList/ProcessList";
+export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/ProcessDetails";

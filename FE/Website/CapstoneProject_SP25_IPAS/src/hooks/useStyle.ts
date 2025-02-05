@@ -128,12 +128,6 @@ const useStyle = createStyles(({ css }) => {
       input {
         font-size: 16px !important;
       }
-      .ant-input-outlined:hover,
-      .ant-input-outlined:focus-within {
-        border-color: ${primaryColor} !important;
-        outline: none;
-        box-shadow: none !important;
-      }
     `,
     customInput2: css`
       .ant-input-outlined:hover,
@@ -160,6 +154,21 @@ const useStyle = createStyles(({ css }) => {
         line-height: 1;
         opacity: 0.75;
         color: #20461e;
+      }
+    `,
+    customSwitch: css`
+      .ant-switch-handle:before {
+        background-color: ${primaryColor};
+      }
+
+      .ant-switch-inner .ant-switch-inner-checked,
+      .ant-switch-inner .ant-switch-inner-unchecked {
+        color: ${primaryColor};
+      }
+    `,
+    customButton: css`
+      .ant-modal-footer > .ant-btn + .ant-btn {
+        background-color: ${primaryColor};
       }
     `,
   };

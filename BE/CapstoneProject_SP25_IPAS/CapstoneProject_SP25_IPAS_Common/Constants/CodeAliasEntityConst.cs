@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
     {
         public static string USER = "USR";
         public static string FARM = "FARM";
-        public static string CRITERIA_TYPE = "CTT";
+        public static string MASTER_TYPE = "MTT";
         public static string PARTNER = "PTR";
         public static string PLANT_LOT = "PLT";
         public static string PROCESS = "PRC";
@@ -18,5 +18,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string GROWTHSTAGE = "GRS";
         public static string PROCESS_STYLE = "PCS";
         public static string LANDPLOT = "LAPL";
+        public static string MASTER_TYPE_DETAIL = "MTD";
+        public static string LANDROW = "LARO";
+        public static string PLANT_GROWTH_HISTORY = "PLGH";
     }
 }

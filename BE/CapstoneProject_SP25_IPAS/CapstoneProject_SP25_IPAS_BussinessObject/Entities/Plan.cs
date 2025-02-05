@@ -35,8 +35,6 @@ public partial class Plan
 
     public int? AssignorId { get; set; }
 
-    public int? TypeWorkId { get; set; }
-
     public string? PesticideName { get; set; }
 
     public double? MaxVolume { get; set; }
@@ -47,26 +45,26 @@ public partial class Plan
 
     public int? CropId { get; set; }
 
-    public int? GrowthStageID { get; set; }
+    public int? GrowthStageId { get; set; }
 
-    public virtual GrowthStage? GrowthStage { get; set; }
-    public int? PlantLotID { get; set; }
+    public int? PlantLotId { get; set; }
 
-    public virtual PlantLot? PlantLot { get; set; }
+    public bool? IsDelete { get; set; }
 
-    public virtual User? Assignor { get; set; }
+    public int? MasterTypeId { get; set; }
 
     public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
-
-    public virtual Crop? Crop { get; set; }
 
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual LandPlot? LandPlot { get; set; }
 
-    public virtual Plant? Plant { get; set; }
+    public virtual MasterType? MasterType { get; set; }
+
+    public virtual PlantLot? PlantLot { get; set; }
 
     public virtual Process? Process { get; set; }
-
-    public virtual TypeWork? TypeWork { get; set; }
+    public virtual GrowthStage? GrowthStage { get; set; }
+    public virtual User? User { get; set; }
+    public virtual Crop? Crop { get; set; }
 }

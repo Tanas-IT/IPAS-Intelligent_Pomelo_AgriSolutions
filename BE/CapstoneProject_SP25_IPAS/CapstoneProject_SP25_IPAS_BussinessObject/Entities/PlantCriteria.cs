@@ -10,6 +10,7 @@ public partial class PlantCriteria
     public int CriteriaId { get; set; }
 
     public bool? IsChecked { get; set; }
+
     public int? Priority { get; set; }
 
     public virtual Criteria Criteria { get; set; } = null!;

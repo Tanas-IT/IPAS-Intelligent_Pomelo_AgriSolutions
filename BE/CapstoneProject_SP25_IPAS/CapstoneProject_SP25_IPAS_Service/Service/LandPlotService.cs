@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlot;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -40,6 +39,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    if (createRequest.RowLength > createRequest.PlotLength)
+                        return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
+                    if (createRequest.RowWidth > createRequest.PlotWidth)
+                        return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
 
                     var landplotCreateEntity = new LandPlot()
                     {
@@ -47,15 +50,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TargetMarket = createRequest.TargetMarket,
                         Area = createRequest.Area,
                         SoilType = createRequest.SoilType,
-                        Length = createRequest.Length,
-                        Width = createRequest.Width,
+                        Length = createRequest.PlotLength,
+                        Width = createRequest.PlotWidth,
                         Description = createRequest.Description
                     };
                     landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
                     landplotCreateEntity.Status = FarmStatus.Active.ToString();
                     landplotCreateEntity.CreateDate = DateTime.Now;
                     landplotCreateEntity.UpdateDate = DateTime.Now;
+                    var numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowLength, 0);
+                    for (int i = 0; i < numberRowInPlot; i++)
+                    {
+                        var landRow = new LandRow()
+                        {
+                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW), 
+                            RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
+                            Length = createRequest.RowLength,
+                            Width = createRequest.RowWidth,
+                            Distance = createRequest.DistanceInRow,
+                            Direction = createRequest.RowDirection,
+                            TreeAmount = createRequest.TreeAmountInRow,
+                            Status = LandRowStatus.Active.ToString(),
+                            CreateDate = DateTime.Now,
+                        };
 
+                        landplotCreateEntity.LandRows.Add(landRow);
+                    }
                     if (createRequest.LandPlotCoordinations?.Any() == true)
                     {
                         foreach (var coordination in createRequest.LandPlotCoordinations)
@@ -68,7 +88,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
                         }
                     }
-                    // chua co add them UserFarm
 
                     await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
                     int result = await _unitOfWork.SaveAsync();
@@ -256,5 +275,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        private int CalculateRowsInPlot(double landPlotLength, double rowWidth, double? distanceRow)
+        {
+            
+            double spacing = distanceRow ?? 0;
+            int numRows = (int)((landPlotLength + spacing) / (rowWidth + spacing));
+
+            return numRows;
+        }
+
     }
 }

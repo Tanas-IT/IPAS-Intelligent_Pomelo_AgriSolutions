@@ -4,15 +4,9 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Criteri
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.CriteriaTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -34,13 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 try
                 {
-                    var criteriaType = await _unitOfWork.CriteriaTypeRepository.GetByCondition(x => x.CriteriaTypeId == listUpdate.criteriaTypeId, "Criteria");
+                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criteria");
 
-                    if (criteriaType == null)
-                        return new BusinessResult(Const.FAIL_GET_CRITERIA_TYPE_CODE, Const.FAIL_GET_CRITERIA_TYPE_MESSAGE);
+                    if (masterType == null)
+                        return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
 
                     // Chuyển danh sách hiện có thành Dictionary để tra cứu nhanh**
-                    var existingCriteriaDict = criteriaType.Criteria.ToDictionary(c => c.CriteriaId);
+                    var existingCriteriaDict = masterType.Criteria.ToDictionary(c => c.CriteriaId);
 
                     // Tạo danh sách xử lý
                     var criteriaToUpdate = new List<Criteria>();
@@ -68,14 +62,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CriteriaDescription = request.CriteriaDescription,
                                 Priority = request.Priority,
                                 IsActive = true,
-                                CriteriaTypeId = listUpdate.criteriaTypeId
+                                MasterTypeId = listUpdate.MasterTypeId
                             };
                             criteriaToAdd.Add(newCriteria);
                         }
                     }
 
                     // Tìm các phần tử cần xóa (không có trong danh sách cập nhật
-                    var criteriaToRemove = criteriaType.Criteria.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
+                    var criteriaToRemove = masterType.Criteria.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
 
                     // Thực hiện các thao tác với EF
                     if (criteriaToUpdate.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToUpdate);
@@ -87,8 +81,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var criteriaOfterUpdate = await _unitOfWork.CriteriaTypeRepository.GetByCondition(x => x.CriteriaTypeId == listUpdate.criteriaTypeId, "Criteria");
-                        var afterUpdate = _mapper.Map<CriteriaTypeModel>(criteriaOfterUpdate);
+                        var criteriaOfterUpdate = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criteria");
+                        var afterUpdate = _mapper.Map<MasterTypeModel>(criteriaOfterUpdate);
                         return new BusinessResult(Const.SUCCESS_UPDATE_CRITERIA_CODE, Const.SUCCESS_UPDATE_CRITERIA_MSG, afterUpdate);
                     }
                     return new BusinessResult(Const.FAIL_UPDATE_CRITERIA_CODE, Const.FAIL_UPDATE_CRITERIA_MSG);

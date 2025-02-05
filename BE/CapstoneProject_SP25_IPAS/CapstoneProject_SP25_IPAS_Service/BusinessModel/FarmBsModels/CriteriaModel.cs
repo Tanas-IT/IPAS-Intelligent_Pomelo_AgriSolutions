@@ -1,5 +1,4 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.CriteriaTypeModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         //public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 
-        public virtual CriteriaTypeModel? CriteriaType { get; set; }
+        //public virtual MasterTypeModels? CriteriaType { get; set; }
 
         //public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
     }

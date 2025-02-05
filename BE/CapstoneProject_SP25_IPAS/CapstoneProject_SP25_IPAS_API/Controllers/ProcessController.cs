@@ -2,7 +2,7 @@
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,25 +59,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Process.getProcessDataOfProcess, Name = "getProcessDataOfProcessAsync")]
-        public async Task<IActionResult> GetProcessDataOfProcess([FromRoute] int id)
-        {
-            try
-            {
-                var result = await _processService.GetProcessDataByID(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
+       
 
         [HttpGet(APIRoutes.Process.getProcessById, Name = "getProcessByIdAsync")]
         public async Task<IActionResult> GetProcessByIdAsync([FromRoute] int id)

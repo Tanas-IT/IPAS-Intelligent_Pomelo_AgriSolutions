@@ -63,20 +63,22 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Resource
         {
             public const string uploadImage = Base + "/resource/upload-image";
+            public const string uploadResource = Base + "/resource/upload";
             public const string uploadvideo = Base + "/resource/upload-video";
             public const string deleteImageByURL = Base + "/resource/delete-image-by-url";
             public const string deleteVideoByURL = Base + "/resource/delete-video-by-url";
-           
+            public const string deleteResourceByURL = Base + "/resource/delete";
+
         }
 
-        public static class CriteriaType
+        public static class MasterType
         {
-            public const string createCriteriaType = Base + "/criteriaTypes";
-            public const string getCriteriaTypeById = Base + "/criteriaTypes/get-criteriaType-by-id/{id}";
-            public const string getCriteriaTypeWithPagination = Base + "/criteriaTypes";
-            public const string permanenlyDelete = Base + "/criteriaTypes/delete-permanenly/{id}";
-            public const string updateCriteriaTypeInfo = Base + "/criteriaTypes/update-criteriaType-info";
-            public const string getCriteriaTypeByName = Base + "/criteriaTypes/get-criteriaType-by-name/{name}";
+            public const string createMasterType = Base + "/masterTypes";
+            public const string getMasterTypeById = Base + "/masterTypes/get-masterType-by-id/{id}";
+            public const string getMasterTypeWithPagination = Base + "/masterTypes";
+            public const string permanenlyDelete = Base + "/masterTypes/delete-permanenly/{id}";
+            public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
+            public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
         }
         public static class Criteria
         {
@@ -154,5 +156,45 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class MasterTypeDetail
+        {
+            public const string createMasterTypeDetail = Base + "/masterTypeDetails";
+            public const string getMasterTypeDetailById = Base + "/masterTypeDetails/get-masterTypeDetail-by-id/{id}";
+            public const string getMasterTypeDetailWithPagination = Base + "/masterTypeDetails";
+            public const string permanenlyDelete = Base + "/masterTypeDetails/delete-permanenly/{id}";
+            public const string updateMasterTypeDetailInfo = Base + "/masterTypeDetails/update-masterTypeDetail-info";
+            public const string getMasterTypeDetailByName = Base + "/masterTypeDetails/get-masterTypeDetail-by-name/{name}";
+        }
+        public static class LandRow
+        {
+            public const string prefix = Base + "/landRows";
+            public const string createLandRow = prefix + "";
+            public const string deleteLandRow = prefix + "";
+            public const string updateLandRowInfo = prefix + "";
+            public const string getLandRowById = prefix + "";
+            public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+        }
+
+        public static class Plant
+        {
+            public const string prefix = Base + "/plants";
+            public const string createPlant = prefix + "";
+            public const string deletePlant = prefix + "";
+            public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
+            public const string updatePlantInfo = prefix + "";
+            public const string getPlantById = prefix + "";
+            public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
+            public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+        }
+
+        public static class PlantGrowthHistory
+        {
+            public const string prefix = Base + "/plant-growth-history";
+            public const string createPlantGrowthHistory = prefix + "";
+            public const string deletePlantGrowthHistory = prefix + "";
+            public const string updatePlantGrowthHistoryInfo = prefix + "";
+            public const string getPlantGrowthHistoryById = prefix + "";
+            public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
+        }
     }
 }

@@ -152,7 +152,7 @@ function PlantList() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
-          isLoading={isLoading}
+          isLoading={false}
           isInitialLoad={isInitialLoad}
           caption="Plant Management Board"
           notifyNoData="No plants to display"

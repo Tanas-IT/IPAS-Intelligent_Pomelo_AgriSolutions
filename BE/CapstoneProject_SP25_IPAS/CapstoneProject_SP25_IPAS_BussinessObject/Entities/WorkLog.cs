@@ -21,9 +21,7 @@ public partial class WorkLog
 
     public int? HarvestHistoryId { get; set; }
 
-    public int? CropId { get; set; }
-
-    public virtual Crop? Crop { get; set; }
+    public int? WarningId { get; set; }
 
     public virtual HarvestHistory? HarvestHistory { get; set; }
 
@@ -32,6 +30,8 @@ public partial class WorkLog
     public virtual ICollection<TaskFeedback> TaskFeedbacks { get; set; } = new List<TaskFeedback>();
 
     public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
+
+    public virtual Warning? Warning { get; set; }
 
     public virtual ICollection<WorkLogResource> WorkLogResources { get; set; } = new List<WorkLogResource>();
 }

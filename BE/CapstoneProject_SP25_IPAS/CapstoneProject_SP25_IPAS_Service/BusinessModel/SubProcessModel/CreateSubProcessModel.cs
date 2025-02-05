@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel
 
         public int? ProcessId { get; set; }
 
-        public int? ProcessStyleId { get; set; }
-        public List<IFormFile>? ListSubProcessData { get; set; }
+        public int? MasterTypeId { get; set; }
+        public IFormFile? SubProcessData { get; set; }
     }
 }

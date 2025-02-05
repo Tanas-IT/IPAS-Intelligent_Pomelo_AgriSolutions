@@ -1,8 +1,12 @@
-﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -15,8 +19,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     public class CloudinaryService : ICloudinaryService
     {
         private readonly Cloudinary _cloudinary;
+        private readonly IConfiguration _configuration;
 
-        public CloudinaryService(IOptions<CloudinarySettings> config)
+        public CloudinaryService(IOptions<CloudinarySettings> config, IConfiguration configuration)
         {
             var account = new Account(
                 config.Value.CloudName,
@@ -25,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             );
 
             _cloudinary = new Cloudinary(account);
+            _configuration = configuration;
         }
 
         public async Task<bool> DeleteImageByUrlAsync(string url)
@@ -262,6 +268,96 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch
             {
                 return false;
+            }
+        }
+
+        public bool IsImageFile(IFormFile file)
+        {
+            string[] validImageTypes = { "image/jpeg", "image/png", "image/gif" };
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+            string contentType = file.ContentType.ToLower();
+            string extension = Path.GetExtension(file.FileName)?.ToLower();
+
+            return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
+        }
+        public bool IsImageLink(string url)
+        {
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            return url.Contains("/image/") && validImageExtensions.Contains(Path.GetExtension(url).ToLower());
+        }
+
+        public async Task<BusinessResult> UploadResourceAsync(IFormFile file, string? folder)
+        {
+            var getLink = "";
+            try
+            {
+                if (IsImageFile(file))
+                {
+                    getLink = await UploadImageAsync(file, folder);
+                }
+                else
+                {
+                    getLink = await UploadVideoAsync(file, folder);
+                }
+                return new BusinessResult(Const.SUCCESS_UPLOAD_RESOURCE_CODE, Const.SUCCESS_UPLOAD_RESOURCE_MESSAGE, getLink);
+            }
+            catch (Exception ex)
+            {
+                getLink = _configuration["SystemDefault:ResourceDefault"];
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message, getLink);
+            }
+        }
+
+        public async Task<BusinessResult> DeleteResourceByUrlAsync(string url)
+        {
+            try
+            {
+                if (IsImageLink(url))
+                {
+                    await DeleteImageByUrlAsync(url);
+                }
+                else
+                {
+                    await DeleteVideoByUrlAsync(url);
+                }
+                return new BusinessResult(Const.SUCCESS_DELETE_RESOURCE_CODE, Const.SUCCESS_DELETE_RESOURCE_MESSAGE, true);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+        public async Task<Stream> DownloadImageFromUrlAsync(string imageUrl)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetAsync(imageUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsStreamAsync();
+                }
+                throw new Exception("Failed to download image from URL.");
+            }
+        }
+
+        public async Task<string> UploadImageAsync(Stream fileStream, string fileName, string? folder)
+        {
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(fileName, fileStream),
+                Folder = folder
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return uploadResult.SecureUrl.ToString();
+            }
+            else
+            {
+                throw new Exception($"Image upload failed: {uploadResult.Error?.Message}");
             }
         }
     }

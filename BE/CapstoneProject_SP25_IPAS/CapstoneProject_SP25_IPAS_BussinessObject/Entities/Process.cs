@@ -23,19 +23,19 @@ public partial class Process
 
     public int? FarmId { get; set; }
 
-    public int? ProcessStyleId { get; set; }
+    public int? GrowthStageId { get; set; }
 
+    public int? MasterTypeId { get; set; }
+
+    public string? ResourceUrl { get; set; }
+
+    public string? Input { get; set; }
+
+    public virtual MasterType? MasterType { get; set; }
     public virtual Farm? Farm { get; set; }
-
-    public int? GrowthStageID { get; set; }
-
     public virtual GrowthStage? GrowthStage { get; set; }
 
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
-
-    public virtual ICollection<ProcessData> ProcessData { get; set; } = new List<ProcessData>();
-
-    public virtual ProcessStyle? ProcessStyle { get; set; }
 
     public virtual ICollection<SubProcess> SubProcesses { get; set; } = new List<SubProcess>();
 }

@@ -27,28 +27,23 @@ public partial class Plant
 
     public string? Description { get; set; }
 
-    public int? CultivarId { get; set; }
+    public int? MasterTypeId { get; set; }
 
     public string? ImageUrl { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? LandRowId { get; set; }
-
-    public virtual Cultivar? Cultivar { get; set; }
 
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 
-    public virtual ICollection<Plant> InversePlantReference { get; set; } = new List<Plant>();
-
+    public virtual MasterType? MasterType { get; set; }
     public virtual LandRow? LandRow { get; set; }
 
-    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
-
-    public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
+    public virtual ICollection<PlantCriteria> PlantCriterias { get; set; } = new List<PlantCriteria>();
 
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
 
-
-    public virtual Plant? PlantReference { get; set; }
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

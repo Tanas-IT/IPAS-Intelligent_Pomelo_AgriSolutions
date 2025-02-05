@@ -33,9 +33,7 @@ public partial class Crop
 
     public virtual ICollection<HarvestHistory> HarvestHistories { get; set; } = new List<HarvestHistory>();
 
+    public virtual ICollection<LandPlotCrop> LandPlotCrops { get; set; } = new List<LandPlotCrop>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
-    public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
-
-    public virtual ICollection<LandPlotCrop> LandPlotCrops { get; set; } = new List<LandPlotCrop>();
 }

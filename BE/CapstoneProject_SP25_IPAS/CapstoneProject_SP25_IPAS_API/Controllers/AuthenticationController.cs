@@ -1,11 +1,11 @@
-﻿using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
+﻿using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Mvc;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Request;
 using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.GoogleUser;
 using Microsoft.AspNetCore.Authorization;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {

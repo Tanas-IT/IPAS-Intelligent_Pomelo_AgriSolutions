@@ -1,8 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlot;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        [HttpGet(APIRoutes.LandPlot.getLandPlotById + "{landplot-id}", Name = "getLandPlotByIdAsync")]
+        [HttpGet(APIRoutes.LandPlot.getLandPlotById + "/{landplot-id}", Name = "getLandPlotByIdAsync")]
         public async Task<IActionResult> GetLantPlotByIdAsync([FromRoute(Name = "landplot-id")] int landplotId)
         {
             var result = await _landPlotService.GetLandPlotById(landplotId);

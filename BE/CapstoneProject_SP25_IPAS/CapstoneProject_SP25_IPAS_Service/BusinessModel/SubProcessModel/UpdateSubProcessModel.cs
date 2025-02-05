@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel
         public bool? IsActive { get; set; }
         public bool? IsDeleted { get; set; }
         public int? ProcessId { get; set; }
-        public int? ProcessStyleId { get; set; }
-        public List<IFormFile>? ListUpdateSubProcessData { get; set; } = new List<IFormFile>();
+        public int? MasterTypeId { get; set; }
+        public IFormFile? UpdateSubProcessData { get; set; }
     }
 }

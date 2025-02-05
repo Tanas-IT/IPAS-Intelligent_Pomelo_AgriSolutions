@@ -53,8 +53,10 @@ export {
 export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
-export { TiWeatherPartlySunny as weather } from "react-icons/ti";
+export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
 export { FaWind as wind } from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";
 export { BsCloudRainFill as cloudRain } from "react-icons/bs";
-export { IoIosSunny as sunny } from "react-icons/io";
+export { IoIosSunny as sunny, IoMdCloseCircleOutline  as close, IoIosWarning as warning } from "react-icons/io";
+export { GrCycle as process } from "react-icons/gr";
+// export { TbListDetails as detail } from "react-icons/tb";

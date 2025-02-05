@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 
         public string? FarmName { get; set; }
 
-        public string? ProcessStyleName { get; set; }
+        public string? MasterTypeName { get; set; }
 
         public string? GrowthStageName { get; set; }
 
