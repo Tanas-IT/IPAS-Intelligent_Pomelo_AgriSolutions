@@ -83,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
               )}
               <Flex className={`${style.profileInfo}`}>
                 <Text className={style.profileName}>{authData.fullName}</Text>
-                {!isDefault && <Text className={style.profileRole}>{getRoleName(Number(1))}</Text>}
+                {!isDefault && <Text className={style.profileRole}>{getRoleName()}</Text>}
               </Flex>
               <Icons.arrowDropDownLine className={style.dropdownIcon} />
             </Flex>

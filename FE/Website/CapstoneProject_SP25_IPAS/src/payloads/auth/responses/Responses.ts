@@ -15,3 +15,10 @@ export interface RegisterResponse extends UserAuthResponse {}
 export interface OtpResponse {
   otpHash: string;
 }
+
+export interface TokenInFarm {
+  accessToken: string;
+  refreshToken: string;
+  farmLogo: string;
+  farmName: string;
+}

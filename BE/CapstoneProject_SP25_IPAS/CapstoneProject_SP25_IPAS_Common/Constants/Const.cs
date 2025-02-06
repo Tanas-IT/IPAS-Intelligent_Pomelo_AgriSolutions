@@ -101,6 +101,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_DELETE_SOFTED_FARM_CODE = 200;
         public static string SUCCESS_DELETE_SOFTED_FARM_MSG = "Delete farm softed success";
         public static int SUCCESS_GET_ALL_FARM_OF_USER_CODE = 200;
+        public static int SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_CODE = 400;
         public static string SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG = "No farm was found";
         public static string SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG = "Get all farm of user success.";
         public static int SUCCESS_UPDATE_FARM_LOGO_CODE = 200;

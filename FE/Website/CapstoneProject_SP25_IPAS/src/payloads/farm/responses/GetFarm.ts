@@ -25,7 +25,7 @@ interface GetFarmPicker {
   province: string;
   district: string;
   ward: string;
-  createdAt: string;
+  createdAt: Date;
   status: "Active" | "Inactive";
   logoUrl: string;
 }

@@ -205,15 +205,20 @@ export const getUserId = (): string => {
   return jwtDecode<DecodedToken>(accessToken).UserId;
 };
 
-export const getRoleName = (roleId: number): string => {
+export const getRoleName = (): string => {
+  const roleId = Number(getRoleId());
   if (roleId === UserRole.Admin) {
-    return "Quản trị viên";
-  } else if (roleId === UserRole.Employee) {
-    return "Quản lý thương hiệu";
+    return "Administrator";
+  } else if (roleId === UserRole.User) {
+    return "User";
+  } else if (roleId === UserRole.Owner) {
+    return "Farm Owner";
   } else if (roleId === UserRole.Manager) {
-    return "Quản lý chi nhánh";
+    return "Farm Manager";
+  } else if (roleId === UserRole.Employee) {
+    return "Farm Employee";
   }
-  return UserRole[roleId] ? `Vai trò: ${UserRole[roleId]}` : "Vai trò không xác định";
+  return UserRole[roleId] ? `Role: ${UserRole[roleId]}` : "undefined";
 };
 
 export const formatTime = (time: number) => {

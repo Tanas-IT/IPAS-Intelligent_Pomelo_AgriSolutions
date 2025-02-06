@@ -8,7 +8,7 @@ export const handleApiError = async (error: any) => {
   const redirectToHomeWithMessage = (message: string, hasMessage: boolean = true) => {
     localStorage.clear();
     if (hasMessage) localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, message);
-    window.location.href = PATHS.AUTH.LANDING;
+    window.location.href = PATHS.AUTH.LOGIN;
   };
 
   if (error.message === "Network Error" && !error.response) {
@@ -18,15 +18,14 @@ export const handleApiError = async (error: any) => {
       case 401:
         const message = error.response.data.Message;
         if (message.includes("Token is expired!")) {
-          console.log("Token is expired");
           const originalRequest = error.config;
-          try {
-            const newAccessToken = await authService.refreshToken();
-            console.log(newAccessToken);
+          const result = await authService.refreshToken();
+          if (result.statusCode === 200) {
+            const newAccessToken = result.data.authenModel.accessToken;
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
-          } catch (error) {
-            redirectToHomeWithMessage("Your session has expired, please log in again");
+          } else if (result.statusCode === 500) {
+            redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
           }
         } else {
           redirectToHomeWithMessage("", false);
@@ -39,6 +38,9 @@ export const handleApiError = async (error: any) => {
         } else {
           redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
         }
+        break;
+      case 400:
+        toast.error(MESSAGES.BAD_REQUEST);
         break;
       default:
         toast.error(MESSAGES.ERROR_OCCURRED);

@@ -50,7 +50,7 @@ function FarmInfo() {
           <h2 className={style.farmName}>Tan Trieu Pomelo Farm</h2>
           <Flex className={style.ownerInfo}>
             <Flex className={style.ownerName}>
-              <label> Owned by</label>
+              <label>Owned by</label>
               <strong>Le Quang Dung</strong>
             </Flex>
             <Divider type="vertical" className={style.divider} />

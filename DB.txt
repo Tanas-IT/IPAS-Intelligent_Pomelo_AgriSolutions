@@ -914,16 +914,41 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
 GO
-INSERT INTO [dbo].[Farm] ([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
+INSERT INTO [dbo].[Farm] 
+([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Nam Hue Tan Trieu Pomelo', '133/17 Hương Lộ 9', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Tân Bình', 'Đồng Nai', 'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
-('F002', 'Farm B', '456 Blue Avenue, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F003', 'Farm C', '789 Binh Duong, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F004', 'Farm D', '910 Dong Nai, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F005', 'Farm E', '911 Long An, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F006', 'Farm F', '159 Can Gio, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F007', 'Farm G', '567 Tien Giang, District 2, Province Y', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F008', 'Farm H', '789 Kien Giang, District 3, Province Z', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg?fbclid=IwY2xjawIQaR9leHRuA2FlbQIxMAABHR_2pgZ7DnGMaZWtV2A9STQPHV59vNLWJmYxz55oOwZ42KL3zz2K3_Rz4Q_aem_0ONBZUqxlc8t43e-KczM3g', 'Ward 3', 'Province Z', 'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Tân Bình', N'Đồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
+
+('F002', 'Farm B', N'456 Blue Avenue', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F003', 'Farm C', N'789 Binh Duong', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F004', 'Farm D', N'910 Dong Nai', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F005', 'Farm E', N'911 Long An', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F006', 'Farm F', N'159 Can Gio', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F007', 'Farm G', N'567 Tien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F008', 'Farm H', N'789 Kien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+
 GO
 INSERT INTO [dbo].[FarmCoordination] ([Longitude], [Lagtitude], [FarmID])
 VALUES

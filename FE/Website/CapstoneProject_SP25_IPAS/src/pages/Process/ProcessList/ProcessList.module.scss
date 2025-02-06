@@ -5,44 +5,41 @@
   @include shared.container;
 }
 
-  input,
-  label,
-  span {
-    font-size: 16px !important;
-  }
-  .title {
-    color: vars.$color_primary !important;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
+// input,
+// label,
+// span {
+//   font-size: 16px !important;
+// }
+.title {
+  color: vars.$color_primary !important;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
 
-  .titleModal {
-    font-size: 20px;
-    font-weight: lighter;
-  }
+.titleModal {
+  font-size: 20px;
+  font-weight: lighter;
+}
 
-  .section {
-    max-width: 24vw;
+.section {
+  max-width: 24vw;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+.sectionStatus {
+  flex-direction: row;
+  margin-bottom: 10px;
+  .statusGroup {
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-left: 10px;
   }
-  .sectionStatus {
-    flex-direction: row;
-    margin-bottom: 10px;
-    .statusGroup {
-      flex-direction: column;
-      margin-left: 10px;
-    }
-  }
+}
 
 .btnAdd {
-  background-color: #BCD379;
+  background-color: #bcd379;
 
   &:hover {
     background-color: #b8c39b;
     color: #fff;
   }
 }
-
-
-

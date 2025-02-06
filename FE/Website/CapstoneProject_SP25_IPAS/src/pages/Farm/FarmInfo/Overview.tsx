@@ -6,7 +6,14 @@ import { Province, District, GetFarm, Ward } from "@/payloads";
 import { getDefaultFarm, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { thirdService } from "@/services";
-import { EditActions, FormInput, Section, SectionHeader, SelectInput } from "@/components";
+import {
+  EditActions,
+  FormInput,
+  MapAddress,
+  Section,
+  SectionHeader,
+  SelectInput,
+} from "@/components";
 
 function Overview() {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,6 +25,10 @@ function Overview() {
   const [cities, setCities] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number }>({
+    latitude: 10.9965,
+    longitude: 106.786528,
+  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
   const formFieldNames = {
@@ -236,6 +247,35 @@ function Overview() {
         </Section>
 
         <Divider className={style.divider} />
+        <Section title="Farm Characteristics" subtitle="Update your farm's environmental details.">
+          <Form layout="vertical" className={style.form} form={form}>
+            <Flex className={style.row}>
+              <FormInput
+                label="Area (m²)"
+                name={formFieldNames.area}
+                rules={RulesManager.getAreaRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm area"
+              />
+              <FormInput
+                label="Soil Type"
+                name={formFieldNames.soilType}
+                rules={RulesManager.getSoilTypeRules()}
+                isEditing={isEditing}
+                placeholder="Enter soil type"
+              />
+              <FormInput
+                label="Climate Zone"
+                name={formFieldNames.climateZone}
+                rules={RulesManager.getClimateZoneRules()}
+                isEditing={isEditing}
+                placeholder="Enter climate zone"
+              />
+            </Flex>
+          </Form>
+        </Section>
+
+        <Divider className={style.divider} />
         <Section title="Address" subtitle="Update your address details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
@@ -276,34 +316,8 @@ function Overview() {
                 placeholder="Enter your detailed address (House number, street...)"
               />
             </Flex>
-          </Form>
-        </Section>
-
-        <Divider className={style.divider} />
-        <Section title="Farm Characteristics" subtitle="Update your farm's environmental details.">
-          <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <FormInput
-                label="Area (m²)"
-                name={formFieldNames.area}
-                rules={RulesManager.getAreaRules()}
-                isEditing={isEditing}
-                placeholder="Enter the farm area"
-              />
-              <FormInput
-                label="Soil Type"
-                name={formFieldNames.soilType}
-                rules={RulesManager.getSoilTypeRules()}
-                isEditing={isEditing}
-                placeholder="Enter soil type"
-              />
-              <FormInput
-                label="Climate Zone"
-                name={formFieldNames.climateZone}
-                rules={RulesManager.getClimateZoneRules()}
-                isEditing={isEditing}
-                placeholder="Enter climate zone"
-              />
+              <MapAddress longitude={coordinates.longitude} latitude={coordinates.latitude} />
             </Flex>
           </Form>
         </Section>
