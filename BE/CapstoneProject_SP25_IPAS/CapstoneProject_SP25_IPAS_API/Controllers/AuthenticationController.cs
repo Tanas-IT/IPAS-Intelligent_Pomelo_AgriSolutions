@@ -251,6 +251,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        [HttpPut(APIRoutes.Authentication.UpdateRoleInToken, Name = "updateRoleInToken")]
+        public async Task<IActionResult> UpdateRoleInToken([FromBody] RefreshTokenModel updateRoleInToken)
+        {
+            try
+            {
+                var result = await _userService.UpdateTokenOfUser(updateRoleInToken.RefreshToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 }
 

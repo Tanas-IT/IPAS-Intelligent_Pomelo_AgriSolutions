@@ -1310,5 +1310,87 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> UpdateTokenOfUser(string jwtToken)
+        {
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
+            var handler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = authSigningKey,
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["JWT:ValidIssuer"],
+                ValidateAudience = true,
+                ValidAudience = _configuration["JWT:ValidAudience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+            };
+            try
+            {
+                SecurityToken validatedToken;
+                var principal = handler.ValidateToken(jwtToken, validationParameters, out validatedToken);
+                var email = principal.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress").Value;
+                if (email != null)
+                {
+                    if (principal != null)
+                    {
+                        var existUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(email);
+                        if (existUser != null)
+                        {
+                            var checkExistRefreshToken = await _unitOfWork.RefreshTokenRepository.GetRefrshTokenByRefreshTokenValue(jwtToken);
+                            if (checkExistRefreshToken == null)
+                            {
+                                return new BusinessResult(Const.WARNING_RFT_NOT_EXIST_CODE, Const.WARNING_RFT_NOT_EXIST_MSG);
+
+                            }
+                            else
+                            {
+                                if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
+                                {
+                                    _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
+                                    string accessToken = await GenerateAccessToken(email, existUser, -1, -1);
+
+                                    _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
+                                    string refreshToken = await GenerateRefreshToken(email, null, tokenValidityInDays, -1, -1);
+
+
+                                    await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
+                                    {
+                                        UserId = existUser.UserId,
+                                        RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
+                                        RefreshTokenValue = refreshToken,
+                                        CreateDate = DateTime.Now,
+                                        ExpiredDate = DateTime.Now.AddDays(tokenValidityInDays)
+                                    });
+                                    return new BusinessResult(Const.SUCCESS_UPDATE_TOKEN_CODE, Const.SUCCESS_UPDATE_TOKEN_MESSAGE, new
+                                    {
+                                        AuthenModel = new AuthenModel()
+                                        {
+                                            AccessToken = accessToken,
+                                            RefreshToken = refreshToken
+                                        },
+                                        Avatar = existUser.AvatarURL,
+                                        Fullname = existUser.FullName,
+                                    });
+
+                                }
+                                else
+                                {
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(jwtToken);
+                                    return new BusinessResult(Const.WARNING_INVALID_REFRESH_TOKEN_CODE, Const.WARNING_INVALID_REFRESH_TOKEN_MSG);
+                                }
+                            }
+                        }
+                    }
+                }
+                return new BusinessResult(Const.WARNING_SIGN_IN_CODE, Const.WARNING_SIGN_IN_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

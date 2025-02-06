@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
-    public interface IPlanRepository
+    public interface IWorkLogRepository
     {
-        public Task<int> GetLastPlanSequence();
     }
 }

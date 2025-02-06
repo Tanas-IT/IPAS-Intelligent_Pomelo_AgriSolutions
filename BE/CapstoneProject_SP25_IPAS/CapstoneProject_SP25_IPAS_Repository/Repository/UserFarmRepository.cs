@@ -26,5 +26,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
             return -1;
         }
+
+        public async Task<int> updateRoleOfUserInFarm(int userId, int newRoleId, int farmId)
+        {
+            var getUserFarm = await _context.UserFarms.FirstOrDefaultAsync(x => x.UserId == userId && x.FarmId == farmId);
+            if (getUserFarm != null)
+            {
+                getUserFarm.RoleId = newRoleId;
+                var result = await _context.SaveChangesAsync();  
+                return newRoleId;
+            }
+            return -1;
+        }
     }
 }

@@ -68,6 +68,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_USER_BY_ROLE_MESSAGE = "Get all user by role success";
         public static int SUCCESS_UPDATE_USER_CODE = 200;
         public static string SUCCESS_UPDATE_MESSAGE = "Update user success";
+        public static int SUCCESS_UPDATE_TOKEN_CODE = 200;
+        public static string SUCCESS_UPDATE_TOKEN_MESSAGE = "Update token success";
         #endregion
         #region PlantLotService code
         public static int SUCCESS_GET_PLANT_LOT_BY_ID_CODE = 200;
@@ -275,6 +277,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_PLANT_GROWTH_CODE = 200;
         public static string SUCCESS_CREATE_PLANT_GROWTH_MSG = "Create plant growth success";
         #endregion
+
+        #region Plan
+        public static int SUCCESS_GET_ALL_PLAN_CODE = 200;
+        public static string SUCCESS_GET_ALL_PLAN_MSG = "Get all plan success";
+        public static int SUCCESS_GET_PLAN_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_PLAN_BY_ID_MSG = "Get plan success";
+        public static int SUCCESS_UPDATE_PLAN_CODE = 200;
+        public static string SUCCESS_UPDATE_PLAN_MSG = "Update plan success";
+        public static int SUCCESS_DELETE_PLAN_CODE = 200;
+        public static string SUCCESS_DELETE_PLAN_MSG = "Delete plan success";
+        public static int SUCCESS_CREATE_PLAN_CODE = 200;
+        public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
+        #endregion
         #endregion
 
         #region FAIL
@@ -467,6 +482,17 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE = 400;
         public static string FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG = "Update plant growth history fail";
         #endregion
+
+        #region Plan Fail code
+        public static int FAIL_CREATE_PLAN_CODE = 500;
+        public static string FAIL_CREATE_PLAN_MESSAGE = "Create plan failed";
+        public static int FAIL_UPDATE_PLAN_CODE = 500;
+        public static string FAIL_UPDATE_PLAN_MESSAGE = "Update plan failed";
+        public static int FAIL_DELETE_PLAN_CODE = 500;
+        public static string FAIL_DELETE_PLAN_MESSAGE = "Delete plan failed";
+        public static int FAIL_GET_PLAN_CODE = 500;
+        public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
+        #endregion
         #endregion
 
         #region WARNING
@@ -592,6 +618,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_PLANT_GROWTH_NOT_EXIST_MSG = "Plant growth history not exist.";
         public static int WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE = 200;
         public static string WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG = "Get plant growth history empty.";
+        #endregion
+        #region Plan History
+        public static int WARNING_GET_PLAN_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_PLAN_NOT_EXIST_MSG = "Plan not exist.";
+        public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
+        public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
         #endregion
     }
