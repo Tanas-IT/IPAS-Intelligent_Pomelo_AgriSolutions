@@ -11,3 +11,7 @@ export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails"
 export { default as Weather } from "@/pages/Weather/Weather";
 export { default as ProcessList } from "@/pages/Process/ProcessList/ProcessList";
 export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/ProcessDetails";
+export { default as PlanList } from "@/pages/Plan/PlanList/PlanList";
+export { default as PlanDetail } from "@/pages/Plan/PlanDetails/PlanDetail";
+export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
+export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";

@@ -40,4 +40,15 @@
     font-size: 20px;
     font-weight: lighter;
   }
+
+
+
+  .btnAdd {
+    background-color: vars.$color_second;
+
+    &:hover {
+      background-color: #b8c39b;
+      color: #fff;
+    }
+  }
 }
