@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/farms";
             public const string createFarm = prefix + "";
-            public const string getFarmById = prefix + "/get-farm-by-id";
+            public const string getFarmById = prefix + "";
             public const string getAllFarmOfUser = prefix + "/get-farm-of-user";
             public const string getFarmWithPagination = prefix + "";
             public const string permanenlyDelete = prefix + "/delete-permanenly";

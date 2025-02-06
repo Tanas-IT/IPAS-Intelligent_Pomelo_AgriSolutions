@@ -916,7 +916,7 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 GO
 INSERT INTO [dbo].[Farm] ([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Farm A', '123 Green Lane, District 1, Province X', 'https://example.com/logoA.png', 'Ward 1', 'Province X', 'District 1', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 'https://example.com/logoA.png', N'Tân Bình', N'Đồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 ('F002', 'Farm B', '456 Blue Avenue, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 ('F003', 'Farm C', '789 Binh Duong, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 ('F004', 'Farm D', '910 Dong Nai, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
@@ -953,7 +953,7 @@ INSERT INTO [dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gende
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar1.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar2.png', NULL, NULL, 2),
-('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
+('abcfarm@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2);
 ;

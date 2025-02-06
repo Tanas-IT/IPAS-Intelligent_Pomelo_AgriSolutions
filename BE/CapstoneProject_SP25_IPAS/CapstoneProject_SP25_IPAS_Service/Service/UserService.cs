@@ -690,17 +690,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getRoleInFarm == null)
                 {
                     authClaims.Add(new Claim("roleId", role.RoleId.ToString()));
-                    authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                    authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName!));
                 }
                 else
                 {
                     authClaims.Add(new Claim("roleId", getRoleInFarm.RoleId.ToString()));
-                    authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName));
+                    authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName!));
                     authClaims.Add(new Claim("farmId", farmId.ToString()));
 
                 }
                 authClaims.Add(new Claim("UserId", user.UserId.ToString()));
-                authClaims.Add(new Claim("Status", user.Status.ToString()));
+                authClaims.Add(new Claim("Status", user.Status!.ToString()));
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
             }

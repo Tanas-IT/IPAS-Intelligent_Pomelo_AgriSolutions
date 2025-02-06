@@ -17,6 +17,7 @@ using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -37,10 +38,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Farm, FarmModel>()
             .ForMember(dest => dest.FarmCoordinations, opt => opt.MapFrom(src => src.FarmCoordinations))
-            //.ForMember(dest => dest.LandPlots, opt => opt.MapFrom(src => src.LandPlots))
+            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.UserFarms.FirstOrDefault(x => x.RoleId == (int)RoleEnum.OWNER)!.User))
             //.ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders))
             //.ForMember(dest => dest.Processes, opt => opt.MapFrom(src => src.Processes))
-            .ForMember(dest => dest.UserFarms, opt => opt.MapFrom(src => src.UserFarms))
+            //.ForMember(dest => dest.UserFarms, opt => opt.MapFrom(src => src.UserFarms))
             .ReverseMap();
             CreateMap<FarmCoordination, FarmCoordinationModel>();
 
@@ -53,9 +54,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<UserFarm, UserFarmModel>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
-                .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
+                //.ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
                 .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
-                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
+                //.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
                 .ReverseMap();
 
@@ -80,15 +81,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();
 
             CreateMap<Criteria, CriteriaModel>()
-                .ForMember(dest => dest.MasterType, opt => opt.MapFrom(src => src.MasterType))
+                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                 .ReverseMap();
 
             CreateMap<MasterType, MasterTypeModel>().ReverseMap();
             CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
 
             CreateMap<LandRow, LandRowModel>()
-                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
-                .ForMember(dest => dest.LandPlot, opt => opt.MapFrom(src => src.LandPlot))
+                //.ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
+                .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ReverseMap();
 
             CreateMap<Plant, PlantModel>()
