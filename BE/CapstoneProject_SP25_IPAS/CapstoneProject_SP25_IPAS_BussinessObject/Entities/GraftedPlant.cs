@@ -36,4 +36,6 @@ public partial class GraftedPlant
     public virtual Plant? Plant { get; set; }
 
     public virtual PlantLot? PlantLot { get; set; }
+
+    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }

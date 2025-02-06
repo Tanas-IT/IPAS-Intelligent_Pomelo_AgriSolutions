@@ -37,7 +37,6 @@ public partial class Plant
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
-
     public virtual MasterType? MasterType { get; set; }
     public virtual LandRow? LandRow { get; set; }
 

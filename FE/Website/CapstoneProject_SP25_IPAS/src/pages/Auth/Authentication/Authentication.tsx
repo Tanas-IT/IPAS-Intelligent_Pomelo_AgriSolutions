@@ -1,6 +1,6 @@
 import style from "./Authentication.module.scss";
 import { Button } from "antd";
-import { SignIn, SignUp } from "@/components";
+import { Loading, SignIn, SignUp } from "@/components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { logo } from "@/assets/images/images";
 import { GoogleCredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
@@ -10,11 +10,13 @@ import { toast } from "react-toastify";
 import { useLocalStorage, useToastMessage } from "@/hooks";
 import { getRoleId } from "@/utils";
 import { UserRole } from "@/constants";
+import { useState } from "react";
 
 function Authentication() {
   useToastMessage();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const params = new URLSearchParams(location.search);
   const isSignUp = params.get("mode") === "sign-up";
   const toggleForm = () => {
@@ -22,33 +24,40 @@ function Authentication() {
   };
 
   const handleGoogleLoginSuccess = async (response: GoogleCredentialResponse) => {
-    if (response.credential) {
-      var result = await authService.loginGoogle(response.credential);
+    try {
+      if (response.credential) {
+        setIsLoading(true);
+        var result = await authService.loginGoogle(response.credential);
 
-      if (result.statusCode === 200) {
-        const { saveAuthData } = useLocalStorage();
-        const accessToken = result.data.authenModel.accessToken;
+        if (result.statusCode === 200) {
+          const { saveAuthData } = useLocalStorage();
+          const accessToken = result.data.authenModel.accessToken;
 
-        const loginResponse = {
-          accessToken: accessToken,
-          refreshToken: result.data.authenModel.refreshToken,
-          fullName: result.data.fullname,
-          avatar: result.data.avatar,
-        };
+          const loginResponse = {
+            accessToken: accessToken,
+            refreshToken: result.data.authenModel.refreshToken,
+            fullName: result.data.fullname,
+            avatar: result.data.avatar,
+          };
 
-        saveAuthData(loginResponse);
-        const toastMessage = result.message;
-        const roleId = getRoleId();
+          saveAuthData(loginResponse);
+          const toastMessage = result.message;
+          const roleId = getRoleId();
 
-        if (roleId === UserRole.User.toString())
-          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
-        if (roleId === UserRole.Admin.toString())
-          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
-      } else {
-        toast.error(result.message);
+          if (roleId === UserRole.User.toString())
+            navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+          if (roleId === UserRole.Admin.toString())
+            navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+        } else {
+          toast.error(result.message);
+        }
       }
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className={`${style.container} ${isSignUp ? style.active : ""}`} id="container">

@@ -16,3 +16,22 @@ export interface GetFarm {
   soilType: string;
   climateZone: string;
 }
+
+interface GetFarmPicker {
+  farmCode: string;
+  farmId: number;
+  farmName: string;
+  address: string;
+  province: string;
+  district: string;
+  ward: string;
+  createdAt: Date;
+  status: "Active" | "Inactive";
+  logoUrl: string;
+}
+
+export interface UserFarm {
+  roleId: string;
+  roleName: string;
+  farm: GetFarmPicker;
+}

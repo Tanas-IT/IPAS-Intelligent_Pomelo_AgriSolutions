@@ -53,13 +53,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var resource in historyCreateRequest.PlantResources)
                         {
                             var cloudinaryUrl = await _cloudinaryService.UploadImageAsync(resource.ResourceUrl, CloudinaryPath.PLANT_GROWTH_HISTORY);
-                            var plantResource = new PlantResource()
-                            {
-                                ResourceUrl = cloudinaryUrl,
-                                ResourceType = resource.ResourceType,
-                                PlantGrowthHistory = plantGrowthHistoryEntity
-                            };
-                            plantGrowthHistoryEntity.PlantResources.Add(plantResource);
+                            //var plantResource = new PlantResource()
+                            //{
+                            //    ResourceUrl = cloudinaryUrl,
+                            //    ResourceType = resource.ResourceType,
+                            //    PlantGrowthHistory = plantGrowthHistoryEntity
+                            //};
+                            //plantGrowthHistoryEntity.PlantResources.Add(plantResource);
                         }
                     }
 
@@ -133,16 +133,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (plantGrowthHistory == null)
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                     // If the plant has an image associated, delete it from Cloudinary or another storage service
-                    foreach (var resource in plantGrowthHistory.PlantResources)
-                    {
-                        if (!string.IsNullOrEmpty(resource.ResourceUrl))
-                        {
-                            if (resource.ResourceType!.Equals("image"))
-                                await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
+                    //foreach (var resource in plantGrowthHistory.PlantResources)
+                    //{
+                    //    if (!string.IsNullOrEmpty(resource.ResourceUrl))
+                    //    {
+                    //        if (resource.ResourceType!.Equals("image"))
+                    //            await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
 
-                            await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
-                        }
-                    }
+                    //        await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
+                    //    }
+                    //}
 
                     // Delete the plant entity
                     _unitOfWork.PlantGrowthHistoryRepository.Delete(plantGrowthHistory);

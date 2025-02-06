@@ -44,7 +44,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             // Xác định các tham số xoá ảnh
-            var deletionParams = new DeletionParams(publicId);
+            var deletionParams = new DeletionParams(publicId) 
+            {
+                Invalidate = true
+            };
 
             // Thực hiện lệnh xoá trên Cloudinary
             var result = await _cloudinary.DestroyAsync(deletionParams);
@@ -78,7 +81,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             var deletionParams = new DeletionParams(publicId)
             {
-                ResourceType = ResourceType.Video
+                ResourceType = ResourceType.Video,
+                Invalidate = true
             };
 
             // Thực hiện lệnh xoá trên Cloudinary

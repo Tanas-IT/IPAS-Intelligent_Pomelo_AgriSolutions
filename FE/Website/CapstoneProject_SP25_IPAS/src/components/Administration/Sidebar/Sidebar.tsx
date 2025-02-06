@@ -1,4 +1,4 @@
-import { Avatar, Divider, Flex, Layout, Menu, Tooltip, Typography } from "antd";
+import { Avatar, Divider, Flex, Layout, Menu, Popover, Tooltip, Typography } from "antd";
 import style from "./Sidebar.module.scss";
 import { Icons, Images } from "@/assets";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -8,6 +8,7 @@ import { PATHS } from "@/routes";
 import { useSidebarStore } from "@/stores";
 import { ActiveMenu, MenuItem } from "@/types";
 import { useLogout } from "@/hooks";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -391,6 +392,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     );
   };
 
+  const profileContent = (
+    <Flex className={style.popupContainer}>
+      <Flex className={style.popupNav}>
+        <Flex className={style.popupSubNav}>
+          <Text>Back to Farm Picker</Text>
+        </Flex>
+      </Flex>
+    </Flex>
+  );
+
   return (
     <Sider
       width={isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED}
@@ -401,20 +412,43 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     >
       <Flex className={style.sidebar}>
         {/* Header */}
-        <Flex>
-          <Flex
-            className={style.logo}
-            style={{
-              justifyContent: !isExpanded ? "center" : undefined,
-            }}
-          >
-            <Avatar src={isDefault ? Images.logo : Images.react} className={style.avatar} />
-            {isExpanded && (
-              <Text className={style.logoText}>
-                {isDefault ? "Intelligent Pomelo AgriSolutions" : "Tan Trieu Pomelo"}
-              </Text>
-            )}
-          </Flex>
+        <Flex className={`${style.profileWrapper} ${!isDefault && style.cursor}`}>
+          {!isDefault && (
+            <Popover content={profileContent} trigger="click" placement="bottom" color="#f0f0f0">
+              <Flex
+                className={style.logo}
+                style={{
+                  justifyContent: !isExpanded ? "center" : undefined,
+                }}
+              >
+                <Avatar
+                  crossOrigin="anonymous"
+                  src={localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_LOGO)}
+                  className={style.avatar}
+                />
+                {isExpanded && (
+                  <Text className={style.logoText}>
+                    {localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_NAME)}
+                  </Text>
+                )}
+                <Icons.arrowDropDownLine className={style.dropdownIcon} />
+              </Flex>
+            </Popover>
+          )}
+          {isDefault && (
+            <Flex
+              className={style.logo}
+              style={{
+                justifyContent: !isExpanded ? "center" : undefined,
+              }}
+            >
+              <Avatar crossOrigin="anonymous" src={Images.logo} className={style.avatar} />
+              {isExpanded && (
+                <Text className={style.logoText}>{"Intelligent Pomelo AgriSolutions"}</Text>
+              )}
+            </Flex>
+          )}
+
           <Icons.arrowForward
             className={style.arrowSidebar}
             onClick={toggleSidebar}

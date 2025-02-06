@@ -16,6 +16,7 @@
 .container {
   flex-direction: column;
   row-gap: 20px;
+  margin-top: 12px;
 
   .headerWrapper {
     justify-content: flex-end;
@@ -30,6 +31,11 @@
       width: 100%;
       .card {
         width: 100%;
+        min-height: 100%;
+
+        .cardContent {
+          justify-content: flex-start;
+        }
 
         .cardImgWrapper {
           display: flex;
@@ -48,9 +54,14 @@
           align-items: center;
           .cardInfo {
             width: 100%;
-            padding: 0 16px;
+            padding: 0 8px;
             flex-direction: column;
-            gap: 22px;
+            gap: 16px;
+            article {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
             .farmDetails {
               flex-direction: column;
               .farmName {
@@ -83,11 +94,11 @@
           font-weight: bold;
           border: transparent;
         }
-        .statusTag.employee {
+        .statusTag.other {
           width: fit-content;
           text-align: center;
-          background-color: vars.$color_bg_tag_employee;
-          color: vars.$color_tag_employee;
+          background-color: vars.$color_bg_tag_other;
+          color: vars.$color_tag_other;
         }
         .statusTag.owner {
           width: fit-content;
