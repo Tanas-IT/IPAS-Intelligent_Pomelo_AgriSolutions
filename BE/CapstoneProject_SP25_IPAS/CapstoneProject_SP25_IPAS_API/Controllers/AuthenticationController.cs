@@ -135,7 +135,6 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[Authorize(Roles = "User")]
         [HttpPost(APIRoutes.Authentication.Logout, Name = "Logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenModel removeRefreshTokenModel)
         {

@@ -1,14 +1,23 @@
 @use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
 
 .sidebarWrapper {
   transition: 0.5s;
   position: sticky;
   max-height: 100vh;
   top: 0;
-  z-index: 9999;
+  z-index: 12;
   .sidebar {
     height: 100vh;
     flex-direction: column;
+
+    .profileWrapper {
+      justify-content: center;
+      align-items: center;
+    }
+    .profileWrapper.cursor {
+      cursor: pointer;
+    }
     .logo {
       width: 100%;
       min-height: 70px;
@@ -22,11 +31,14 @@
         flex-shrink: 0;
         width: 40px;
         height: 40px;
+        img {
+          object-fit: contain;
+        }
       }
 
       .logoText {
         margin-left: 10px;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: bold;
         overflow: hidden;
         min-width: 200px;
@@ -170,6 +182,16 @@
       }
     }
   }
+  .dropdownIcon {
+    margin-left: -30px;
+    width: 40px;
+    height: 40px;
+    color: vars.$color_dropdown;
+  }
+}
+
+.popupContainer {
+  @include shared.popupContainer;
 }
 
 .menuItem {

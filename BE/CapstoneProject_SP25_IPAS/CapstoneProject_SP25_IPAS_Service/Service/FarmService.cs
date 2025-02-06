@@ -114,10 +114,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetAllFarmOfUser(int userId)
         {
             Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDelete != true;
-            string includeProperties = "Farm";
+            string includeProperties = "Farm,Role";
             var userFarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
             if (!userFarm.Any())
-                return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
             var result = _mapper.Map<List<UserFarmModel>>(userFarm);
             return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG, result);
         }

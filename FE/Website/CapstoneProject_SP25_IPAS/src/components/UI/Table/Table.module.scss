@@ -46,6 +46,8 @@
   }
 
   .selectedRow {
-    background-color: vars.$color_selected_row;
+    td {
+      background-color: vars.$color_selected_row;
+    }
   }
 }

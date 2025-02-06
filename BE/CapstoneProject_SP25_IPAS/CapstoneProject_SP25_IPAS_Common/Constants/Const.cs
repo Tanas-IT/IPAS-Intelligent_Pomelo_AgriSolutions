@@ -625,6 +625,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
         public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
+        #region Plant Criteria
+        public static int WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE = 400;
+        public static string WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG = "Do not have any resource";
+        #endregion
         #endregion
     }
 }
