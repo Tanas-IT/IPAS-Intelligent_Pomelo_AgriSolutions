@@ -149,6 +149,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
         public static int SUCCES_CHECK_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_CHECK_PLANT_CRITERIA_MSG = "Check criteria of plant success";
+        public static int SUCCES_GET_PLANT_CRITERIA_CODE = 200;
+        public static string SUCCES_GET_PLANT_CRITERIA_MSG = "Get criteria of plant success";
         #endregion
         #region landplot
         public static int SUCCESS_GET_ALL_LANDPLOT_IN_FARM_CODE = 200;
@@ -412,7 +414,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region
         public static int FAIL_CREATE_CRITERIA_CODE = 500;
         public static string FAIL_CREATE_CRITERIA_MESSAGE = "Create criteria failed";
-        public static int FAIL_GET_CRITERIA__BY_ID_CODE = 500;
+        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 500;
         public static string FAIL_GET_CRITERIA_BY_ID_MSG = "Get criteria failed";
         public static int FAIL_UPDATE_CRITERIA_CODE = 500;
         public static string FAIL_UPDATE_CRITERIA_MSG = "Update criteria type failed";
