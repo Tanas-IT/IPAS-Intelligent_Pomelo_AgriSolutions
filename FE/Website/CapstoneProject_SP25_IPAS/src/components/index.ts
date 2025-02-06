@@ -28,3 +28,5 @@ export { default as FormInput } from "@/components/UI//FormInput/FormInput";
 export { default as EditActions } from "@/components/UI/FarmInfo/EditActions/EditActions";
 export { default as Section } from "@/components/UI/FarmInfo/Section/Section";
 export { default as SectionHeader } from "@/components/UI/FarmInfo/SectionHeader/SectionHeader";
+export { default as MapAddress } from "@/components/UI/MapAddress/MapAddress";
+
