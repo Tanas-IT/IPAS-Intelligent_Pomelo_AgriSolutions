@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
 {
-    public class Resource
+    public partial class Resource
     {
         public int ResourceID { get; set; }
 
