@@ -53,6 +53,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ILandRowRepository, LandRowRepository>();
             services.AddScoped<IMasterTypeDetailRepostiory, MasterTypeDetailRepostiory>();
             services.AddScoped<IPlantGrowthHistoryRepository, PlantGrowthHistoryRepository>();
+            services.AddScoped<ICarePlanScheduleRepository, CarePlanScheduleRepository>();
+            services.AddScoped<IWorkLogRepository, WorkLogRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();

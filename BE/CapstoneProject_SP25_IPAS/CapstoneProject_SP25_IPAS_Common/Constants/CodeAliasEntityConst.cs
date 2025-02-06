@@ -21,5 +21,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string MASTER_TYPE_DETAIL = "MTD";
         public static string LANDROW = "LARO";
         public static string PLANT_GROWTH_HISTORY = "PLGH";
+        public static string PLAN = "PLAN";
     }
 }

@@ -17,6 +17,7 @@ using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -116,11 +117,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<PlantGrowthHistory, PlantGrowthHistoryModel>()
-                .ForMember(dest => dest.PlantResources, opt => opt.MapFrom(src => src.PlantResources))
+                //.ForMember(dest => dest.PlantResources, opt => opt.MapFrom(src => src.PlantResources))
                 .ReverseMap();
 
-            CreateMap<PlantResource, PlantResourceModel>()
-                .ReverseMap();
+            //CreateMap<PlantResource, PlantResourceModel>()
+            //    .ReverseMap();
+
+            CreateMap<Plan, PlanModel>()
+               .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User.FullName))
+               .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
+               .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot.PlantLotName))
+               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+               .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process.ProcessName))
+               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
+               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
+               .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+               .ReverseMap();
         }
     }
 }

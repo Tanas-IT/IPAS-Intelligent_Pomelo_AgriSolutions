@@ -22,6 +22,5 @@ public partial class PlantGrowthHistory
     public string? IssueName { get; set; }
 
     public virtual Plant? Plant { get; set; }
-
-    public virtual ICollection<PlantResource> PlantResources { get; set; } = new List<PlantResource>();
+    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }

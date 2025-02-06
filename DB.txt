@@ -302,6 +302,29 @@ CREATE TABLE ipas.dbo.LandRow (
 );
 
 
+-- ipas.dbo.LegalDocument definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.LegalDocument;
+
+CREATE TABLE ipas.dbo.LegalDocument (
+	LegalDocumentID int IDENTITY(1,1) NOT NULL,
+	LegalDocumentCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentType nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentName nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IssueDate datetime NULL,
+	ExpiredDate datetime NULL,
+	Status nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateAt datetime NULL,
+	UpdateAt datetime NULL,
+	FarmID int NULL,
+	CONSTRAINT LegalDocument_PK PRIMARY KEY (LegalDocumentID),
+	CONSTRAINT LegalDocument_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
+);
+
+
 -- ipas.dbo.MasterTypeDetails definition
 
 -- Drop table
@@ -491,26 +514,6 @@ CREATE TABLE ipas.dbo.PlantLot (
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_PlantLot_FK FOREIGN KEY (PlantLotReferenceID) REFERENCES ipas.dbo.PlantLot(PlantLotID)
-);
-
-
--- ipas.dbo.PlantResource definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.PlantResource;
-
-CREATE TABLE ipas.dbo.PlantResource (
-	PlanResourceID int IDENTITY(1,1) NOT NULL,
-	PlanResourceCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceType nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	PlantGrowthHistoryID int NULL,
-	CONSTRAINT PK__PlantRes__1974A137217179D1 PRIMARY KEY (PlanResourceID),
-	CONSTRAINT FK_PlantResource_PlantGrowthHistory FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID) ON DELETE CASCADE
 );
 
 
@@ -714,6 +717,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
+	CONSTRAINT Plan_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID),
 	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
 );
 
@@ -750,6 +754,7 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	StarTime datetime NULL,
 	EndTime datetime NULL,
 	CarePlanID int NULL,
+	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
 	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
@@ -837,30 +842,11 @@ CREATE TABLE ipas.dbo.WorkLog (
 	ScheduleID int NULL,
 	HarvestHistoryID int NULL,
 	WarningID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
 	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
 	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
-);
-
-
--- ipas.dbo.WorkLogResource definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.WorkLogResource;
-
-CREATE TABLE ipas.dbo.WorkLogResource (
-	WorkLogResourceID int IDENTITY(1,1) NOT NULL,
-	WorkLogResourceCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceType nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	WorkLogID int NULL,
-	CONSTRAINT PK__WorkLogR__2EE578CA467DABB5 PRIMARY KEY (WorkLogResourceID),
-	CONSTRAINT FK__WorkLogRe__WorkL__29221CFB FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
 
 
@@ -877,6 +863,33 @@ CREATE TABLE ipas.dbo.CriteriaGraftedPlant (
 	CONSTRAINT PK__Criteria__47DA559824FE7603 PRIMARY KEY (GraftedPlantID,CriteriaID),
 	CONSTRAINT FK__CriteriaG__Crite__55F4C372 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
 	CONSTRAINT FK__CriteriaG__Graft__55009F39 FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.Resource definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.Resource;
+
+CREATE TABLE ipas.dbo.Resource (
+	ResourceID int IDENTITY(1,1) NOT NULL,
+	ResourceCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ResourceURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	WorkLogID int NULL,
+	PlantGrowthHistoryID int NULL,
+	LegalDocumentID int NULL,
+	GraftedPlantID int NULL,
+	CONSTRAINT Resource_PK PRIMARY KEY (ResourceID),
+	CONSTRAINT Resource_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
+	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
+	CONSTRAINT Resource_WorkLog_FK FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID)
 );
 
 
