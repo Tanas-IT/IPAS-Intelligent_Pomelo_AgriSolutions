@@ -1,3 +1,4 @@
+using MailKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -279,7 +280,6 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_PLANT_GROWTH_CODE = 200;
         public static string SUCCESS_CREATE_PLANT_GROWTH_MSG = "Create plant growth success";
         #endregion
-
         #region Plan
         public static int SUCCESS_GET_ALL_PLAN_CODE = 200;
         public static string SUCCESS_GET_ALL_PLAN_MSG = "Get all plan success";
@@ -291,6 +291,18 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_DELETE_PLAN_MSG = "Delete plan success";
         public static int SUCCESS_CREATE_PLAN_CODE = 200;
         public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
+        #endregion
+        #region Legal Document
+        public static int SUCCESS_CREATE_LEGAL_DOCUMENT_CODE = 200;
+        public static string SUCCESS_CREATE_LEGAL_DOCUMENT_MSG = "Create document success";
+        public static int SUCCESS_UPDATE_LEGAL_DOCUMENT_CODE = 200;
+        public static string SUCCESS_UPDATE_LEGAL_DOCUMENT_MSG = "Update document success";
+        public static int SUCCESS_DELETE_LEGAL_DOCUMENT_CODE = 200;
+        public static string SUCCESS_DELETE_LEGAL_DOCUMENT_MSG = "Delete document success";
+        public static int SUCCESS_GET_LEGAL_DOCUMENT_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_LEGAL_DOCUMENT_BY_ID_MSG = "Get document success";
+        public static int SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
+        public static string SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm success";
         #endregion
         #endregion
 
@@ -495,6 +507,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PLAN_CODE = 500;
         public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
         #endregion
+
+        #region Legal document
+        public static int FAIL_CREATE_LEGAL_DOCUMENT_CODE = 400;
+        public static string FAIL_CREATE_LEGAL_DOCUMENT_MSG = "Create document Fail";
+        public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 200;
+        public static string FAIL_UPDATE_LEGAL_DOCUMENT_MSG = "Update document fail";
+        public static int FAIL_DELETE_LEGAL_DOCUMENT_CODE = 200;
+        public static string FAIL_DELETE_LEGAL_DOCUMENT_MSG = "Delete document fail";
+        public static int FAIL_GET_LEGAL_DOCUMENT_BY_ID_CODE = 200;
+        public static string FAIL_GET_LEGAL_DOCUMENT_BY_ID_MSG = "Get document fail";
+        public static int FAIL_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
+        public static string FAIL_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm fail";
+        #endregion
         #endregion
 
         #region WARNING
@@ -621,15 +646,24 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE = 200;
         public static string WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG = "Get plant growth history empty.";
         #endregion
+
         #region Plan History
         public static int WARNING_GET_PLAN_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLAN_NOT_EXIST_MSG = "Plan not exist.";
         public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
         public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
+
         #region Plant Criteria
         public static int WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE = 400;
         public static string WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG = "Do not have any resource";
+        #endregion
+
+        #region Legal Document 
+        public static int WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE = 400;
+        public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
+        public static int WARNING_GET_DOCUMENT_EMPTY_CODE = 200;
+        public static string WARNING_GET_DOCUMENT_EMPTY_MSG = "Get document empty.";
         #endregion
         #endregion
     }

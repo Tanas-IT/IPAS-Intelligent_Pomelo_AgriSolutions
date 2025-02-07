@@ -11,6 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Upload
         #region farm
         public static string FARM = "farm";
         public static string FARM_LOGO = FARM + "/Logo";
+        public static string FARM_LEGAL_DOCUMENT = FARM + "/legal-document";
         #endregion
 
         #region User
@@ -23,5 +24,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Upload
         public static string PLANT_IMAGE = PLANT + "/image";
         public static string PLANT_GROWTH_HISTORY = PLANT + "/growth-history";
         #endregion
+
     }
 }

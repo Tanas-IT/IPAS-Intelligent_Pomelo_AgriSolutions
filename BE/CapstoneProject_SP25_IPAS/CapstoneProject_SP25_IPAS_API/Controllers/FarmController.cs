@@ -148,30 +148,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.Farm.updateFarmCoordination, Name = "updateFarmCooridinationAsync")]
-        public async Task<IActionResult> UpdateFarmCoorAsync([FromBody] UpdateFarmCoordinationRequest updateFarmCoordinationRequest)
-        {
-            try
-            {
-                if(!updateFarmCoordinationRequest.FarmId.HasValue)
-                 updateFarmCoordinationRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!ModelState.IsValid || !updateFarmCoordinationRequest.FarmId.HasValue)
-                {
-                    return BadRequest(ModelState);
-                }
-                var result = await _farmService.UpdateFarmCoordination(farmId: updateFarmCoordinationRequest.FarmId.Value, farmCoordinationUpdate: updateFarmCoordinationRequest.FarmUpdateModel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
+        //[HttpPut(APIRoutes.Farm.updateFarmCoordination, Name = "updateFarmCooridinationAsync")]
+        //public async Task<IActionResult> UpdateFarmCoorAsync([FromBody] UpdateFarmCoordinationRequest updateFarmCoordinationRequest)
+        //{
+        //    try
+        //    {
+        //        if(!updateFarmCoordinationRequest.FarmId.HasValue)
+        //         updateFarmCoordinationRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+        //        if (!ModelState.IsValid || !updateFarmCoordinationRequest.FarmId.HasValue)
+        //        {
+        //            return BadRequest(ModelState);
+        //        }
+        //        var result = await _farmService.UpdateFarmCoordination(farmId: updateFarmCoordinationRequest.FarmId.Value, farmCoordinationUpdate: updateFarmCoordinationRequest.FarmUpdateModel);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var response = new BaseResponse()
+        //        {
+        //            StatusCode = StatusCodes.Status400BadRequest,
+        //            Message = ex.Message
+        //        };
+        //        return BadRequest(response);
+        //    }
+        //}
 
         [HttpDelete(APIRoutes.Farm.softedDeleteFarm + "/{farm-id}", Name = "softedDeleteFarmAsync")]
         public async Task<IActionResult> SoftDeleteFarmAsync([FromRoute(Name = "farm-id")] int farmId)
@@ -213,7 +213,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.Farm.updateFarmLogo, Name = "updateFarmLogoAsync")]
-        public async Task<IActionResult> UpdateFarmLogoAsync([FromForm] IFormFile farmLogo)
+        public async Task<IActionResult> UpdateFarmLogoAsync([FromForm] FarmLogoUpdateRequest farmLogo)
         {
             try
             {
@@ -222,7 +222,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest();
                 }
-                var result = await _farmService.UpdateFarmLogo(farmId: farmId.Value, LogoURL: farmLogo);
+                var result = await _farmService.UpdateFarmLogo(farmId: farmId.Value, LogoURL: farmLogo.FarmLogo);
                 return Ok(result);
             }
             catch (Exception ex)

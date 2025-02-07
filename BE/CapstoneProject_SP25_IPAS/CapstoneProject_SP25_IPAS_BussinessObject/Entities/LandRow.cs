@@ -31,6 +31,7 @@ public partial class LandRow
 
     public int? LandPlotId { get; set; }
 
+    public int? FarmId { get; set; }
     public virtual LandPlot? LandPlot { get; set; }
 
     public virtual ICollection<Plant> Plants { get; set; } = new List<Plant>();
