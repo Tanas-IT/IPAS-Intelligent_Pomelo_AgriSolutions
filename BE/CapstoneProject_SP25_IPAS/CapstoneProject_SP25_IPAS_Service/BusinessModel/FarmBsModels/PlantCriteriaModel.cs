@@ -19,8 +19,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? CriteriaName { get; set; }
 
-        public virtual CriteriaModel Criteria { get; set; } = null!;
+        //public virtual CriteriaModel Criteria { get; set; } = null!;
 
-        public virtual PlantModel Plant { get; set; } = null!;
+        //public virtual PlantModel Plant { get; set; } = null!;
     }
 }

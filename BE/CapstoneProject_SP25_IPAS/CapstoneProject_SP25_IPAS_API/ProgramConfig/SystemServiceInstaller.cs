@@ -74,6 +74,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IMasterTypeDetailService, MasterTypeDetailService>();
             services.AddScoped<IPlantService, PlantService>();
             services.AddScoped<IPlantGrowthHistoryService, PlantGrowthHistoryService>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             services.AddHttpClient();
 

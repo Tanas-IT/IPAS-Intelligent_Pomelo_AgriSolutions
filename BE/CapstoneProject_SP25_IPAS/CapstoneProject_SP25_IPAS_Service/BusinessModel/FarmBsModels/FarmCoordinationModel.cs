@@ -11,7 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
     {
         public int FarmCoordinationId { get; set; }
 
-        public string? FarmCoordinationCode { get; set; }
+        //public string? FarmCoordinationCode { get; set; }
 
         public double? Longitude { get; set; }
 

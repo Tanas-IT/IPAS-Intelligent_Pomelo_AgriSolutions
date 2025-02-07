@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public bool? IsDelete { get; set; }
 
         public string? Status { get; set; }
+        public string? Province { get; set; }
         public string? District { get; set; }
         public string? Ward { get; set; }
 
@@ -41,15 +43,17 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? Description { get; set; }
 
-        public virtual ICollection<FarmCoordinationModel> FarmCoordinations { get; set; } = new List<FarmCoordinationModel>();
+        public UserModel? Owner { get; set; }
 
-        public virtual ICollection<LandPlotModel> LandPlots { get; set; } = new List<LandPlotModel>();
+        public ICollection<FarmCoordinationModel> FarmCoordinations { get; set; } = new List<FarmCoordinationModel>();
+
+        //public ICollection<LandPlotModel> LandPlots { get; set; } = new List<LandPlotModel>();
 
         //public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
         //public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
 
-        public virtual ICollection<UserFarmModel> UserFarms { get; set; } = new List<UserFarmModel>();
+        //public ICollection<UserFarmModel> UserFarms { get; set; } = new List<UserFarmModel>();
     }
 }
 

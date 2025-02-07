@@ -1,4 +1,5 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -54,9 +55,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var farm = await _context.Farms
                 .Where(x => x.FarmId == farmId && x.IsDelete == false)
-                .Include(x => x.UserFarms)
+                .Include(x => x.UserFarms.Where(x => x.RoleId == (int)RoleEnum.OWNER))
                 .ThenInclude(x => x.User)
-                .Include( x => x.LandPlots)
+                .ThenInclude(x => x.Role)
+                //.Include( x => x.LandPlots)
                 //.Include(x => x.Processes)
                 .Include(x => x.FarmCoordinations)
                 .FirstOrDefaultAsync();
