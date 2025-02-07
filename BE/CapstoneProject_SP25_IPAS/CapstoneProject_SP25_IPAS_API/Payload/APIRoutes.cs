@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string forgetPasswordConfirm = Base + "/forget-password/confirm";
             public const string forgetPasswordNewPassword = Base + "/forget-password/new-password";
             public const string ValidateRoleUserInFarm = Base + "/validate-role-in-farm";
-            public const string UpdateRoleInToken = Base + "/update-role-in-roken";
+            public const string UpdateRoleInToken = Base + "/update-role-out-farm";
         }
 
         public static class Partner

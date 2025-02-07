@@ -15,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -30,11 +31,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IConfiguration _configuration;
+        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _configuration = configuration;
         }
 
         public async Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateRequest, int userid)
@@ -75,6 +78,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         // gan va push len cloudinary
                         var logoUrlCloudinary = await _cloudinaryService.UploadImageAsync(farmCreateRequest.LogoUrl, CloudinaryPath.FARM_LOGO);
                         farmCreateEntity.LogoUrl = logoUrlCloudinary;
+                    }
+                    else
+                    {
+                        farmCreateEntity.LogoUrl = _configuration["SystemDefault:ResourceDefault"];
                     }
 
                     // chua co add them UserFarm
@@ -364,17 +371,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdateFarmLogo(int farmId, IFormFile logoFile)
         {
-            var farm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId);
-            if (farm == null)
+            try
             {
-                return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                {
+                    var farm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId);
+                    if (farm == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                    }
+                    bool result = false;
+                    if (string.IsNullOrEmpty(farm.LogoUrl) || farm.LogoUrl.Equals(_configuration["SystemDefault:ResourceDefault"]) || farm.LogoUrl.Equals(_configuration["SystemDefault:AvatarDefault"]))
+                    {
+                        farm.LogoUrl = await _cloudinaryService.UploadImageAsync(logoFile, CloudinaryPath.FARM_LOGO);
+                        _unitOfWork.FarmRepository.Update(farm);
+                        result = await _unitOfWork.SaveAsync() > 0 ? true : false;
+                    }
+                    else
+                    {
+                        result = await _cloudinaryService.UpdateImageAsync(file: logoFile, farm.LogoUrl!);
+                    }
+
+                    if (result)
+                    {
+                        await transaction.CommitAsync();
+                        var mapResult = _mapper.Map<FarmModel>(farm);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_LOGO_CODE, Const.SUCCESS_UPDATE_FARM_LOGO_MSG, mapResult);
+                    }
+                    else return new BusinessResult(Const.FAIL_UPDATE_FARM_LOGO_CODE, Const.FAIL_UPDATE_FARM_LOGO_MSG);
+                }
             }
-            var result = await _cloudinaryService.UpdateImageAsync(file: logoFile, farm.LogoUrl);
-            if (result)
+            catch (Exception ex)
             {
-                return new BusinessResult(Const.SUCCESS_UPDATE_FARM_LOGO_CODE, Const.SUCCESS_UPDATE_FARM_LOGO_MSG, farm);
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
-            else return new BusinessResult(Const.FAIL_UPDATE_FARM_LOGO_CODE, Const.FAIL_UPDATE_FARM_LOGO_MSG);
 
         }
 
