@@ -15,20 +15,20 @@ import {
   SelectInput,
 } from "@/components";
 
-function Overview() {
+interface OverviewProps {
+  farm: GetFarm;
+  setFarm: React.Dispatch<React.SetStateAction<GetFarm>>;
+}
+
+const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [initialFarmDetails, setInitialFarmDetails] = useState<GetFarm>(getDefaultFarm);
   const [logo, setLogo] = useState<{ logo: File | null; logoUrl: string }>({
     logo: null,
-    logoUrl: initialFarmDetails.logoUrl || "",
+    logoUrl: farm.logoUrl || "",
   });
-  const [cities, setCities] = useState<Province[]>([]);
+  const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number }>({
-    latitude: 10.9965,
-    longitude: 106.786528,
-  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
   const formFieldNames = {
@@ -112,7 +112,7 @@ function Overview() {
     try {
       setIsLoading(true);
       const provinceData = await thirdService.fetchCities();
-      setCities(provinceData);
+      setProvinces(provinceData);
 
       const provinceId = getIdByName(provinceData, form.getFieldValue(formFieldNames.province));
 
@@ -144,7 +144,7 @@ function Overview() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.setFieldsValue(initialFarmDetails); // Cập nhật lại form
+    form.setFieldsValue(farm); // Cập nhật lại form
   };
 
   const handleSave = async () => {
@@ -183,13 +183,14 @@ function Overview() {
   const handleRemove = () => {
     setLogo({
       logo: null,
-      logoUrl: initialFarmDetails.logoUrl,
+      logoUrl: farm.logoUrl,
     });
   };
 
   useEffect(() => {
-    form.setFieldsValue(initialFarmDetails);
-  }, []);
+    form.setFieldsValue(farm);
+    setLogo((prev) => ({ ...prev, logoUrl: farm.logoUrl }));
+  }, [farm]);
 
   return (
     <Flex className={style.contentWrapper}>
@@ -225,7 +226,7 @@ function Overview() {
         <Divider className={style.divider} />
         <Section title="Farm Logo" subtitle="Update your farm logo.">
           <Flex className={style.formLogo}>
-            <Image className={style.logo} src={logo.logoUrl} />
+            <Image crossOrigin="anonymous" className={style.logo} src={logo.logoUrl} />
             {isEditing && (
               <Upload.Dragger
                 beforeUpload={beforeUpload}
@@ -283,7 +284,7 @@ function Overview() {
                 label="Province"
                 name={formFieldNames.province}
                 rules={RulesManager.getProvinceRules()}
-                options={cities.map((p) => ({ value: `${p.id}, ${p.name}`, label: p.name }))}
+                options={provinces.map((p) => ({ value: `${p.id}, ${p.name}`, label: p.name }))}
                 onChange={handleProvinceChange}
                 isEditing={isEditing}
                 isLoading={isLoading}
@@ -317,7 +318,10 @@ function Overview() {
               />
             </Flex>
             <Flex className={style.row}>
-              <MapAddress longitude={coordinates.longitude} latitude={coordinates.latitude} />
+              <MapAddress
+                longitude={farm.farmCoordinations[0].longitude}
+                latitude={farm.farmCoordinations[0].lagtitude}
+              />
             </Flex>
           </Form>
         </Section>
@@ -331,6 +335,6 @@ function Overview() {
       )}
     </Flex>
   );
-}
+};
 
 export default Overview;

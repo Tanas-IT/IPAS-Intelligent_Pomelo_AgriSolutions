@@ -1,3 +1,15 @@
+interface GetFarmCoordination {
+  farmCoordinationId: string;
+  longitude: number;
+  lagtitude: number;
+}
+
+interface Owner {
+  email: string;
+  fullName: string;
+  phoneNumber: string;
+}
+
 export interface GetFarm {
   farmCode: string;
   farmId: number;
@@ -15,23 +27,22 @@ export interface GetFarm {
   area: string;
   soilType: string;
   climateZone: string;
+  createDate: Date;
+  owner: Owner;
+  farmCoordinations: GetFarmCoordination[];
 }
 
-interface GetFarmPicker {
+export interface GetFarmPicker {
+  roleId: string;
+  roleName: string;
   farmCode: string;
   farmId: number;
   farmName: string;
-  address: string;
-  province: string;
-  district: string;
-  ward: string;
-  createdAt: Date;
-  status: "Active" | "Inactive";
-  logoUrl: string;
-}
-
-export interface UserFarm {
-  roleId: string;
-  roleName: string;
-  farm: GetFarmPicker;
+  // address: string;
+  // province: string;
+  // district: string;
+  // ward: string;
+  // createdAt: Date;
+  // status: "Active" | "Inactive";
+  // logoUrl: string;
 }
