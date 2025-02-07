@@ -52,17 +52,3 @@ export const validateUserForm = (formData: UserForm) => {
   };
   return errors;
 };
-
-// export const validatePassword = (passwordForm: PasswordForm) => {
-//   const errors = {
-//     oldPassword: passwordForm.oldPassword.value !== "" ? "" : "Mật khẩu cũ là bắt buộc",
-//     newPassword:
-//       passwordForm.newPassword.value.length >= 6 ? "" : "Mật khẩu mới phải có ít nhất 6 ký tự",
-//     confirm:
-//       passwordForm.confirm.value === passwordForm.newPassword.value
-//         ? ""
-//         : "Xác nhận mật khẩu không khớp",
-//   };
-
-//   return errors;
-// };

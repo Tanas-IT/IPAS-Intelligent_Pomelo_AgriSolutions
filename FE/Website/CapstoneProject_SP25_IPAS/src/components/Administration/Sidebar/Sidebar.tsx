@@ -5,10 +5,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import "@/App.css";
 import { PATHS } from "@/routes";
-import { useSidebarStore } from "@/stores";
+import { useFarmStore, useSidebarStore } from "@/stores";
 import { ActiveMenu, MenuItem } from "@/types";
 import { useLogout } from "@/hooks";
-import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES } from "@/constants";
+import { toast } from "react-toastify";
+import { authService } from "@/services";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -23,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
   const normalizedPathname = location.pathname.toLowerCase();
   const SIDEBAR_WIDTH_EXPANDED = 280;
   const SIDEBAR_WIDTH_COLLAPSED = 65;
+  const { farmName, farmLogo } = useFarmStore();
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>({
     parentKey: null,
     subItemKey: null,
@@ -223,6 +226,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     },
   ];
 
+  const handleBack = async () => {
+    const result = await authService.refreshTokenOutFarm();
+    if (result.statusCode === 200) {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN, result.data.authenModel.accessToken);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.authenModel.refreshToken);
+      navigate(PATHS.FARM_PICKER);
+    } else {
+      toast.error(MESSAGES.ERROR_OCCURRED);
+    }
+  };
+
   const handleLogout = useLogout();
 
   menuItems = mergeActivePaths(menuItems);
@@ -395,7 +409,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
   const profileContent = (
     <Flex className={style.popupContainer}>
       <Flex className={style.popupNav}>
-        <Flex className={style.popupSubNav}>
+        <Flex className={style.popupSubNav} onClick={handleBack}>
           <Text>Back to Farm Picker</Text>
         </Flex>
       </Flex>
@@ -421,16 +435,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
                   justifyContent: !isExpanded ? "center" : undefined,
                 }}
               >
-                <Avatar
-                  crossOrigin="anonymous"
-                  src={localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_LOGO)}
-                  className={style.avatar}
-                />
-                {isExpanded && (
-                  <Text className={style.logoText}>
-                    {localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_NAME)}
-                  </Text>
-                )}
+                <Avatar crossOrigin="anonymous" src={farmLogo} className={style.avatar} />
+                {isExpanded && <Text className={style.logoText}>{farmName}</Text>}
                 <Icons.arrowDropDownLine className={style.dropdownIcon} />
               </Flex>
             </Popover>

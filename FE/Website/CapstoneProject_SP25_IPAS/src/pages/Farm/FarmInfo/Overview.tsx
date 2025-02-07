@@ -2,10 +2,10 @@ import style from "./FarmInfo.module.scss";
 import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
-import { Province, District, GetFarm, Ward } from "@/payloads";
-import { getDefaultFarm, RulesManager } from "@/utils";
+import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
+import { RulesManager } from "@/utils";
 import { toast } from "react-toastify";
-import { thirdService } from "@/services";
+import { farmService, thirdService } from "@/services";
 import {
   EditActions,
   FormInput,
@@ -14,18 +14,20 @@ import {
   SectionHeader,
   SelectInput,
 } from "@/components";
+import { LogoState } from "@/types";
+import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { useFarmStore } from "@/stores";
 
 interface OverviewProps {
-  farm: GetFarm;
-  setFarm: React.Dispatch<React.SetStateAction<GetFarm>>;
+  farm: GetFarmInfo;
+  setFarm: React.Dispatch<React.SetStateAction<GetFarmInfo>>;
+  logo: LogoState;
+  setLogo: React.Dispatch<React.SetStateAction<LogoState>>;
 }
 
-const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
+const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [logo, setLogo] = useState<{ logo: File | null; logoUrl: string }>({
-    logo: null,
-    logoUrl: farm.logoUrl || "",
-  });
+
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -39,6 +41,8 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
     ward: "ward",
     address: "address",
     area: "area",
+    length: "length",
+    width: "width",
     soilType: "soilType",
     climateZone: "climateZone",
     logo: "logo",
@@ -144,17 +148,42 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.setFieldsValue(farm); // Cập nhật lại form
+    form.setFieldsValue(farm);
+    setLogo({ logoUrl: farm.logoUrl, logo: null });
   };
 
   const handleSave = async () => {
     await form.validateFields();
     setIsEditing(false);
-    const formValues = form.getFieldsValue();
-    console.log("Form values:", formValues);
-    console.log(logo);
+    const formValues: FarmRequest = form.getFieldsValue();
+    let logoUpdated = !!logo.logo;
+    let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[]).some(
+      (key) => formValues[key] !== farm[key],
+    );
+    try {
+      if (logoUpdated && logo.logo) {
+        var result = await farmService.updateFarmLogo(logo.logo);
+        if (result.statusCode === 200) {
+          setLogo((prev) => ({ ...prev, logo: null }));
+          useFarmStore.getState().setFarmInfo("", logo.logoUrl);
+        }
+      }
+      if (infoUpdated) {
+        var result = await farmService.updateFarmInfo(formValues);
+        if (result.statusCode === 200) {
+          setFarm((prev) => ({ ...prev, farmName: formValues.farmName }));
+          useFarmStore.getState().setFarmInfo(formValues.farmName, "");
+        } else {
+          toast.error(result.message);
+        }
+      }
 
-    toast.success("Changes saved successfully!");
+      if (logoUpdated || infoUpdated) {
+        toast.success("Changes saved successfully!");
+      }
+    } catch (e) {
+      form.setFieldsValue(farm);
+    }
   };
 
   const beforeUpload = (file: File) => {
@@ -180,12 +209,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
     return false; // Ngăn Upload tự động gửi file
   };
 
-  const handleRemove = () => {
-    setLogo({
-      logo: null,
-      logoUrl: farm.logoUrl,
-    });
-  };
+  const handleRemove = () => setLogo({ logo: null, logoUrl: farm.logoUrl });
 
   useEffect(() => {
     form.setFieldsValue(farm);
@@ -252,13 +276,6 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
               <FormInput
-                label="Area (m²)"
-                name={formFieldNames.area}
-                rules={RulesManager.getAreaRules()}
-                isEditing={isEditing}
-                placeholder="Enter the farm area"
-              />
-              <FormInput
                 label="Soil Type"
                 name={formFieldNames.soilType}
                 rules={RulesManager.getSoilTypeRules()}
@@ -271,6 +288,29 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
                 rules={RulesManager.getClimateZoneRules()}
                 isEditing={isEditing}
                 placeholder="Enter climate zone"
+              />
+            </Flex>
+            <Flex className={style.row}>
+              <FormInput
+                label="Length (m²)"
+                name={formFieldNames.length}
+                rules={RulesManager.getLengthRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm length"
+              />
+              <FormInput
+                label="Width (m²)"
+                name={formFieldNames.width}
+                rules={RulesManager.getWidthRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm width"
+              />
+              <FormInput
+                label="Area (m²)"
+                name={formFieldNames.area}
+                rules={RulesManager.getAreaRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm area"
               />
             </Flex>
           </Form>
@@ -318,10 +358,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm }) => {
               />
             </Flex>
             <Flex className={style.row}>
-              <MapAddress
-                longitude={farm.farmCoordinations[0].longitude}
-                latitude={farm.farmCoordinations[0].lagtitude}
-              />
+              <MapAddress longitude={farm.longitude} latitude={farm.latitude} />
             </Flex>
           </Form>
         </Section>
