@@ -46,12 +46,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize("Admin,User", "Manager")]
         [HttpGet(APIRoutes.Farm.getFarmById + "/{farm-id}", Name = "getFarmByIdAsync")]
-        public async Task<IActionResult> GetFarmByIdAsync([FromRoute(Name = "farm-id")] int farmId)
+        public async Task<IActionResult> GetFarmByIdAsync([FromRoute(Name = "farm-id")] int? farmId)
         {
             try
             {
-
-                var result = await _farmService.GetFarmByID(farmId);
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _farmService.GetFarmByID(farmId!.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -217,12 +220,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!ModelState.IsValid || !farmId.HasValue)
+                if (!farmLogo.FarmId.HasValue)
+                {
+                    farmLogo.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!ModelState.IsValid || !farmLogo.FarmId.HasValue)
                 {
                     return BadRequest();
                 }
-                var result = await _farmService.UpdateFarmLogo(farmId: farmId.Value, LogoURL: farmLogo.FarmLogo);
+                var result = await _farmService.UpdateFarmLogo(farmId: farmLogo.FarmId.Value, LogoURL: farmLogo.FarmLogo);
                 return Ok(result);
             }
             catch (Exception ex)

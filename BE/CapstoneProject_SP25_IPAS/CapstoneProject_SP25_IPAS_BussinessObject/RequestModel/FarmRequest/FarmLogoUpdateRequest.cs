@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
 {
     public class FarmLogoUpdateRequest
     {
+        public int? FarmId { get; set; }
         [Required]
         public IFormFile FarmLogo { get; set; }
     }
