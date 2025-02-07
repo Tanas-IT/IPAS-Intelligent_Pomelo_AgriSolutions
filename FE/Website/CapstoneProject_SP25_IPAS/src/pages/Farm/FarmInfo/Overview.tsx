@@ -15,8 +15,7 @@ import {
   SelectInput,
 } from "@/components";
 import { LogoState } from "@/types";
-import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { useFarmStore } from "@/stores";
+import { useFarmStore, useLoadingStore } from "@/stores";
 
 interface OverviewProps {
   farm: GetFarmInfo;
@@ -27,11 +26,10 @@ interface OverviewProps {
 
 const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
   const [isEditing, setIsEditing] = useState(false);
-
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isLoading, setIsLoading } = useLoadingStore();
   const [form] = Form.useForm();
   const formFieldNames = {
     farmName: "farmName",
@@ -154,13 +152,13 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
 
   const handleSave = async () => {
     await form.validateFields();
-    setIsEditing(false);
     const formValues: FarmRequest = form.getFieldsValue();
     let logoUpdated = !!logo.logo;
     let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[]).some(
       (key) => formValues[key] !== farm[key],
     );
     try {
+      setIsLoading(true);
       if (logoUpdated && logo.logo) {
         var result = await farmService.updateFarmLogo(logo.logo);
         if (result.statusCode === 200) {
@@ -183,6 +181,9 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
       }
     } catch (e) {
       form.setFieldsValue(farm);
+    } finally {
+      setIsLoading(false);
+      setIsEditing(false);
     }
   };
 
