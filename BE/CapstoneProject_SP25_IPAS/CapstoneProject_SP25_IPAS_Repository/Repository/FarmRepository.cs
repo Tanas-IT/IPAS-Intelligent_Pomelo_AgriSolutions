@@ -60,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.Role)
                 //.Include( x => x.LandPlots)
                 //.Include(x => x.Processes)
-                .Include(x => x.FarmCoordinations)
+                //.Include(x => x.FarmCoordinations)
                 .FirstOrDefaultAsync();
             return farm;
         }

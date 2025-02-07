@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
@@ -43,9 +44,15 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? Description { get; set; }
 
+        public double? Longitude { get; set; }
+
+        public double? Latitude { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public UserModel? Owner { get; set; }
 
-        public ICollection<FarmCoordinationModel> FarmCoordinations { get; set; } = new List<FarmCoordinationModel>();
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //public ICollection<FarmCoordinationModel> FarmCoordinations { get; set; } = new List<FarmCoordinationModel>();
 
         //public ICollection<LandPlotModel> LandPlots { get; set; } = new List<LandPlotModel>();
 

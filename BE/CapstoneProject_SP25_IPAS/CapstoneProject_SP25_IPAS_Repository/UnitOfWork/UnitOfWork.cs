@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private UserFarmRepository _userFarmRepo;
         private PlantLotRepository _plantLotRepo;
         private PlantRepository _plantRepo;
-        private FarmCoordinationRepository _farmCoordinationRepo;
+        //private FarmCoordinationRepository _farmCoordinationRepo;
         private MasterTypeRepository _masterTypeRepo;
         private CriteriaRepository _criteriaRepo;
         private PartnerRepository _partnerRepo;
@@ -46,6 +46,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public PlantGrowthHistoryRepository _plantGrowthHistoryRepo;
         public CarePlanScheduleRepository _carePlanScheduleRepo;
         public WorkLogRepository _workLogRepo;
+        public ResourceRepository _resourceRepo;
+        public LegalDocumentRepository _legalDocumentRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -69,7 +71,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _processRepo = new ProcessRepository(context);
             _subProcessRepo = new SubProcessRepository(context);
             _configuration = configuration;
-            _farmCoordinationRepo = new FarmCoordinationRepository(context);
+            //_farmCoordinationRepo = new FarmCoordinationRepository(context);
             _landPlotRepo = new LandPlotRepository(context);
             _landPlotCoordinationRepo = new LandPlotCoordinationRepository(context);
             _planRepo = new PlanRepository(context);
@@ -78,6 +80,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _plantGrowthHistoryRepo = new PlantGrowthHistoryRepository(context);
             _carePlanScheduleRepo = new CarePlanScheduleRepository(context);
             _workLogRepo = new WorkLogRepository(context);
+            _resourceRepo = new ResourceRepository(context);
+            _legalDocumentRepo = new LegalDocumentRepository(context);
         }
 
         private bool disposed = false;
@@ -280,17 +284,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                 return _farmRepo;
             }
         }
-        public FarmCoordinationRepository FarmCoordinationRepository
-        {
-            get
-            {
-                if (_farmCoordinationRepo == null)
-                {
-                    this._farmCoordinationRepo = new FarmCoordinationRepository(_context);
-                }
-                return _farmCoordinationRepo;
-            }
-        }
+        //public FarmCoordinationRepository FarmCoordinationRepository
+        //{
+        //    get
+        //    {
+        //        if (_farmCoordinationRepo == null)
+        //        {
+        //            this._farmCoordinationRepo = new FarmCoordinationRepository(_context);
+        //        }
+        //        return _farmCoordinationRepo;
+        //    }
+        //}
         public LandPlotRepository LandPlotRepository
         {
             get
@@ -457,6 +461,30 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._workLogRepo = new WorkLogRepository(_context);
                 }
                 return _workLogRepo;
+            }
+        }
+
+        public ResourceRepository ResourceRepository
+        {
+            get
+            {
+                if (_resourceRepo == null)
+                {
+                    this._resourceRepo = new ResourceRepository(_context);
+                }
+                return _resourceRepo;
+            }
+        }
+
+        public LegalDocumentRepository LegalDocumentRepository
+        {
+            get
+            {
+                if (_legalDocumentRepo == null)
+                {
+                    this._legalDocumentRepo = new LegalDocumentRepository(_context);
+                }
+                return _legalDocumentRepo;
             }
         }
     }

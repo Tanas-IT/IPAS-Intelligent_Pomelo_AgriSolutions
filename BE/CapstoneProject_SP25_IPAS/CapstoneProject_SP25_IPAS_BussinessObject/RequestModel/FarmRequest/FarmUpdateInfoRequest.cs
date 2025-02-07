@@ -42,5 +42,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
         public double Width { get; set; }
 
         public string? Description { get; set; }
+
+        public double? Longitude { get; set; }
+
+        public double? Latitude { get; set; }
     }
 }
