@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> UpdateFarmLogo(int farmId, IFormFile LogoURL);
 
-        public Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> farmCoordinationUpdate);
+        //public Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> farmCoordinationUpdate);
 
         public Task<UserFarmModel> GetUserFarmRole(int farmId, int userId);
     }

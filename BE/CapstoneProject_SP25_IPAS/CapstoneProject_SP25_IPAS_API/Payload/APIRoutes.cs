@@ -198,5 +198,15 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantGrowthHistoryById = prefix + "";
             public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
         }
+
+        public static class LegalDocument
+        {
+            public const string prefix = Base + "/legal-documents";
+            public const string createLegalDocument = prefix + "";
+            public const string deleteLegalDocument = prefix + "";
+            public const string updateLegalDocumentInfo = prefix + "";
+            public const string getLegalDocumentById = prefix + "";
+            public const string getAllLegalDocumentIfFarm = prefix + "/get-legal-document-of-farm";
+        }
     }
 }

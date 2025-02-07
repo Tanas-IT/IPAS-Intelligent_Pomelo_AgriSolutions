@@ -15,6 +15,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Utilities.Collections;
+using System.Reflection.Metadata;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -52,14 +54,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach (var resource in historyCreateRequest.PlantResources)
                         {
-                            var cloudinaryUrl = await _cloudinaryService.UploadImageAsync(resource.ResourceUrl, CloudinaryPath.PLANT_GROWTH_HISTORY);
-                            //var plantResource = new PlantResource()
-                            //{
-                            //    ResourceUrl = cloudinaryUrl,
-                            //    ResourceType = resource.ResourceType,
-                            //    PlantGrowthHistory = plantGrowthHistoryEntity
-                            //};
-                            //plantGrowthHistoryEntity.PlantResources.Add(plantResource);
+                            if (resource.File != null)
+                            {
+                                var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                                var plantResource = new Resource()
+                                {
+                                    ResourceURL = (string)cloudinaryUrl.Data! ?? null,
+                                    ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
+                                    FileFormat = resource.FileFormat,
+                                    CreateDate = DateTime.Now,
+                                    Description = resource.Description,
+                                };
+                                plantGrowthHistoryEntity.Resources.Add(plantResource);
+                            }
                         }
                     }
 
@@ -75,6 +82,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_PLANT_GROWTH_HISTORY_CODE, Const.FAIL_CREATE_PLANT_GROWTH_HISTORY_MSG);
                     }
                 }
@@ -91,8 +99,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    // Tìm lịch sử phát triển cây trồng theo ID
-                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetByID(historyUpdateRequest.PlantGrowthHistoryId);
+                    Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == historyUpdateRequest.PlantGrowthHistoryId;
+                    string includeProperties = "Resources";
+                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository
+                        .GetByCondition(filter: filter, includeProperties: includeProperties);
 
                     if (plantGrowthHistory == null)
                     {
@@ -104,6 +114,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     plantGrowthHistory.IssueName = historyUpdateRequest.IssueName ?? plantGrowthHistory.IssueName;
                     plantGrowthHistory.UpdateDate = DateTime.Now;
 
+                    // Lấy danh sách ảnh cũ
+                    var existingResources = plantGrowthHistory.Resources.ToList();
+                    var newResources = historyUpdateRequest.PlantResource?.Select(r => new Resource
+                    {
+                        ResourceID = r.ResourceID!.Value,
+                        ResourceURL = r.ResourceURL,
+                        FileFormat = r.FileFormat
+                    }).ToList() ?? new List<Resource>();
+
+
+                    // Xóa ảnh cũ không có trong request
+                    var resourcesToDelete = existingResources
+                .Where(old => !newResources.Any(newImg => newImg.ResourceID == old.ResourceID))
+                .ToList();
+
+                    foreach (var resource in resourcesToDelete)
+                    {
+                        if (!string.IsNullOrEmpty(resource.ResourceURL))
+                        {
+                            _ = await _cloudinaryService.DeleteResourceByUrlAsync(resource.ResourceURL);
+                        }
+                        _unitOfWork.ResourceRepository.Delete(resource);
+                    }
+
+                    // Thêm ảnh mới từ request
+                    foreach (var resource in newResources.Where(newImg => newImg.ResourceID == null))
+                    {
+                        if (!string.IsNullOrEmpty(resource.ResourceURL))
+                        {
+                            var newImg = new Resource
+                            {
+                                ResourceURL = resource.ResourceURL,
+                                ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
+                                FileFormat = resource.FileFormat,
+                                CreateDate = DateTime.UtcNow,
+                                PlantGrowthHistoryID = plantGrowthHistory.PlantGrowthHistoryId
+                            };
+                            plantGrowthHistory.Resources.Add(newImg);
+                        }
+                    }
+
                     // Cập nhật vào DB
                     _unitOfWork.PlantGrowthHistoryRepository.Update(plantGrowthHistory);
                     int result = await _unitOfWork.SaveAsync();
@@ -112,8 +163,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<PlantGrowthHistoryModel>(plantGrowthHistory);
-                        return new BusinessResult(Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE, Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG, mappedResult);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_GROWTH_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mappedResult);
                     }
+
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE, Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG);
                 }
             }
@@ -123,28 +176,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+
         public async Task<BusinessResult> deleteGrowthHistory(int plantGrowthHistoryId)
         {
             try
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(x => x.PlantGrowthHistoryId == plantGrowthHistoryId);
+                    Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == plantGrowthHistoryId;
+                    string includeProperties = "Resources";
+                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                     if (plantGrowthHistory == null)
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                     // If the plant has an image associated, delete it from Cloudinary or another storage service
-                    //foreach (var resource in plantGrowthHistory.PlantResources)
-                    //{
-                    //    if (!string.IsNullOrEmpty(resource.ResourceUrl))
-                    //    {
-                    //        if (resource.ResourceType!.Equals("image"))
-                    //            await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
-
-                    //        await _cloudinaryService.DeleteImageByUrlAsync(resource.ResourceUrl);
-                    //    }
-                    //}
-
-                    // Delete the plant entity
+                    foreach (var resource in plantGrowthHistory.Resources)
+                    {
+                        if (!string.IsNullOrEmpty(resource.ResourceURL))
+                        {
+                            _ = await _cloudinaryService.DeleteResourceByUrlAsync(resource.ResourceURL);
+                        }
+                        _unitOfWork.ResourceRepository.Delete(resource);
+                    }
                     _unitOfWork.PlantGrowthHistoryRepository.Delete(plantGrowthHistory);
                     int result = await _unitOfWork.SaveAsync();
 
@@ -153,6 +205,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_DELETE_PLANT_GROWTH_CODE, Const.SUCCESS_DELETE_PLANT_GROWTH_MSG, new { success = true });
                     }
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_DELETE_PLANT_CODE, Const.FAIL_DELETE_PLANT_MSG);
 
                 }
@@ -173,7 +226,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == plantId;
                 Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
-                string includeProperties = "PlantResources";
+                string includeProperties = "Resources";
                 var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!plantGrowthHistotys.Any())
                     return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG);
@@ -195,7 +248,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 }
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == plantGrowthHistoryId;
-                string includeProperties = "PlantResources";
+                string includeProperties = "Resources";
                 var plantGrowthHistoty = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (plantGrowthHistoty == null)
                     return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);

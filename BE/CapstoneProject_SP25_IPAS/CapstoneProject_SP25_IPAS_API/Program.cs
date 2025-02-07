@@ -93,6 +93,8 @@ builder.Services.AddControllers()
     {
         options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+
     });
 // add mail settings
 builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSettings"));

@@ -44,7 +44,13 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
 
         public string? Description { get; set; }
 
-        public ICollection<CoordinationCreateRequest>? FarmCoordinations { get; set; } = new List<CoordinationCreateRequest>();
+        [Required(ErrorMessage = "Longitude of farm is required")]
+        public double? Longitude { get; set; }
+
+        [Required(ErrorMessage = "Latitude of farm is required")]
+        public double? Latitude { get; set; }
+
+        //public ICollection<CoordinationCreateRequest>? FarmCoordinations { get; set; } = new List<CoordinationCreateRequest>();
 
     }
 }

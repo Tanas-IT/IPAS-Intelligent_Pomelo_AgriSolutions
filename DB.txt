@@ -43,6 +43,8 @@ CREATE TABLE ipas.dbo.Farm (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	IsDelete bit NULL,
+	Longitude float NULL,
+	Latitude float NULL,
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Length] float NULL,
 	Width float NULL,
@@ -50,11 +52,7 @@ CREATE TABLE ipas.dbo.Farm (
 	District nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Ward nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Province nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	LandOwnershipCertificate nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	OperatingLicense nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	LandLeaseAgreement nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PesticideUseLicense nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CONSTRAINT PK__Farm__ED7BBA991346855A PRIMARY KEY (FarmID)
+		CONSTRAINT PK__Farm__ED7BBA991346855A PRIMARY KEY (FarmID)
 );
 
 
@@ -189,15 +187,15 @@ CREATE TABLE ipas.dbo.CriteriaHarvestType (
 
 -- DROP TABLE ipas.dbo.FarmCoordination;
 
-CREATE TABLE ipas.dbo.FarmCoordination (
-	FarmCoordinationID int IDENTITY(1,1) NOT NULL,
-	FarmCoordinationCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Longitude float NULL,
-	Lagtitude float NULL,
-	FarmID int NULL,
-	CONSTRAINT PK__FarmCoor__6BD490F93070DFBF PRIMARY KEY (FarmCoordinationID),
-	CONSTRAINT FK__FarmCoord__FarmI__18B6AB08 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE
-);
+-- CREATE TABLE ipas.dbo.FarmCoordination (
+--	FarmCoordinationID int IDENTITY(1,1) NOT NULL,
+--	FarmCoordinationCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+--	Longitude float NULL,
+--	Lagtitude float NULL,
+--	FarmID int NULL,
+--	CONSTRAINT PK__FarmCoor__6BD490F93070DFBF PRIMARY KEY (FarmCoordinationID),
+--	CONSTRAINT FK__FarmCoord__FarmI__18B6AB08 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) --ON DELETE CASCADE
+--);
 
 
 -- ipas.dbo.HarvestHistory definition
