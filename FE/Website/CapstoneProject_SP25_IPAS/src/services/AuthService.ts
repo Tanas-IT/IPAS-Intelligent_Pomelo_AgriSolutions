@@ -100,11 +100,20 @@ export const refreshTokenInFarm = async (
   farmId: string | number,
 ): Promise<ApiResponse<TokenInFarm>> => {
   const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
-  const res = await axiosNoAuth.post("validate-role-in-farm", {
+  const res = await axiosAuth.axiosJsonRequest.post("validate-role-in-farm", {
     refreshToken: refreshToken,
     farmId: farmId,
   });
   const apiResponse = res.data as ApiResponse<TokenInFarm>;
+  return apiResponse;
+};
+
+export const refreshTokenOutFarm = async (): Promise<ApiResponse<LoginResponse>> => {
+  const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
+  const res = await axiosAuth.axiosJsonRequest.put("update-role-out-farm", {
+    refreshToken: refreshToken,
+  });
+  const apiResponse = res.data as ApiResponse<LoginResponse>;
   return apiResponse;
 };
 

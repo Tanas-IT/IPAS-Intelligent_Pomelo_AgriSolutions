@@ -14,7 +14,7 @@ const useLogout = () => {
       var result = await authService.logout(authData.refreshToken);
       // if (result.statusCode === 200) {
       clearAuthData();
-      navigate(PATHS.AUTH.LANDING);
+      navigate(PATHS.AUTH.LOGIN);
       // }
     }
   };

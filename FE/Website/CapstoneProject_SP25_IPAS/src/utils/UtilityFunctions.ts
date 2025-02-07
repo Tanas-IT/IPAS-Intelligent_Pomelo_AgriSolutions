@@ -205,6 +205,12 @@ export const getUserId = (): string => {
   return jwtDecode<DecodedToken>(accessToken).UserId;
 };
 
+export const getFarmId = (): string => {
+  const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+  if (!accessToken) return "";
+  return jwtDecode<DecodedToken>(accessToken).farmId;
+};
+
 export const getRoleName = (): string => {
   const roleId = Number(getRoleId());
   if (roleId === UserRole.Admin) {

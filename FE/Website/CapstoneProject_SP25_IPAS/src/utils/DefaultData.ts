@@ -1,21 +1,41 @@
 import { Images } from "@/assets";
-import { GetFarm, GetFarmDocuments } from "@/payloads";
+import { GetFarmDocuments, GetFarmInfo } from "@/payloads";
+import { LogoState } from "@/types";
 
-export const getDefaultFarm = (): GetFarm => ({
-  farmCode: "F12345",
-  farmId: 1,
-  farmName: "Tan Trieu Pomelo Farm",
-  logoUrl: Images.logo,
-  address: "123 Farm Road",
-  district: "Gò Vấp",
-  ward: "12",
-  province: "Hồ Chí Minh",
-  description:
-    "Farm ABC is dedicated to providing organic vegetables grown with care and respect for nature.",
-  area: "5000",
-  soilType: "Loamy",
-  climateZone: "Tropical",
+export const getDefaultFarm = (): GetFarmInfo => ({
+  farmCode: "",
+  farmId: 0,
+  farmName: "",
+  logo: undefined,
+  logoUrl: "",
+  address: "",
+  provinceId: "",
+  province: "",
+  districtId: "",
+  district: "",
+  wardId: "",
+  ward: "",
+  description: "",
+  area: "",
+  length: "",
+  width: "",
+  soilType: "",
+  climateZone: "",
+  createDate: new Date(),
+  status: "Inactive",
+  longitude: 0,
+  latitude: 0,
+  owner: {
+    email: "",
+    fullName: "",
+    phoneNumber: "",
+  },
 });
+
+export const defaultLogoFarm: LogoState = {
+  logo: null,
+  logoUrl: "",
+};
 
 export const defaultFarmDocuments: GetFarmDocuments = {
   landOwnershipCertificate: [],

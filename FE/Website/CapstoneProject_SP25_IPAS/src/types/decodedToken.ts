@@ -1,5 +1,6 @@
 export interface DecodedToken {
   roleId: string;
-  userId: string;
+  UserId: string;
+  farmId: string;
   [key: string]: any;
 }
