@@ -3,3 +3,8 @@ export interface Farm {
   farmName: string;
   location: string;
 }
+
+export interface LogoState {
+  logo: File | null;
+  logoUrl: string;
+}

@@ -40,6 +40,8 @@ export const handleApiError = async (error: any) => {
         }
         break;
       case 400:
+        console.log(error);
+        
         toast.error(MESSAGES.BAD_REQUEST);
         break;
       default:

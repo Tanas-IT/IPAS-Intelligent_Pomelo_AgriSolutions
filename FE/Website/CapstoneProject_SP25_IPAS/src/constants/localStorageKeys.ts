@@ -5,6 +5,5 @@ export const LOCAL_STORAGE_KEYS = {
   AVATAR: "avatar",
   FARM_NAME: "farmName",
   FARM_LOGO: "farmLogo",
-
   ERROR_MESSAGE: "errorMessage",
 };
