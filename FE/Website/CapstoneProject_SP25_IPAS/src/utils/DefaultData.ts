@@ -1,6 +1,6 @@
 import { Images } from "@/assets";
 import { GetFarmDocuments, GetFarmInfo } from "@/payloads";
-import { LogoState } from "@/types";
+import { CoordsState, LogoState } from "@/types";
 
 export const getDefaultFarm = (): GetFarmInfo => ({
   farmCode: "",
@@ -35,6 +35,11 @@ export const getDefaultFarm = (): GetFarmInfo => ({
 export const defaultLogoFarm: LogoState = {
   logo: null,
   logoUrl: "",
+};
+
+export const defaultCoordsFarm: CoordsState = {
+  longitude: 0,
+  latitude: 0,
 };
 
 export const defaultFarmDocuments: GetFarmDocuments = {

@@ -3,7 +3,7 @@ import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
 import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
-import { RulesManager } from "@/utils";
+import { defaultCoordsFarm, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
 import {
@@ -14,7 +14,7 @@ import {
   SectionHeader,
   SelectInput,
 } from "@/components";
-import { LogoState } from "@/types";
+import { CoordsState, LogoState } from "@/types";
 import { useFarmStore, useLoadingStore } from "@/stores";
 
 interface OverviewProps {
@@ -25,11 +25,12 @@ interface OverviewProps {
 }
 
 const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
+  const { isLoading, setIsLoading } = useLoadingStore();
   const [isEditing, setIsEditing] = useState(false);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const { isLoading, setIsLoading } = useLoadingStore();
+  const [coords, setCoords] = useState<CoordsState>(defaultCoordsFarm);
   const [form] = Form.useForm();
   const formFieldNames = {
     farmName: "farmName",
@@ -110,8 +111,8 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   };
 
   const handleEdit = async () => {
-    setIsEditing(true);
     try {
+      setIsEditing(true);
       setIsLoading(true);
       const provinceData = await thirdService.fetchCities();
       setProvinces(provinceData);
@@ -157,19 +158,33 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
     let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[]).some(
       (key) => formValues[key] !== farm[key],
     );
+    const isCoordsValid = coords.latitude !== 0 && coords.longitude !== 0;
+    const isCoordsUpdated =
+      isCoordsValid && (coords.latitude !== farm.latitude || coords.longitude !== farm.longitude);
     try {
       setIsLoading(true);
       if (logoUpdated && logo.logo) {
-        var result = await farmService.updateFarmLogo(logo.logo);
-        if (result.statusCode === 200) {
-          setLogo((prev) => ({ ...prev, logo: null }));
-          useFarmStore.getState().setFarmInfo("", logo.logoUrl);
+        var logoResult = await farmService.updateFarmLogo(logo.logo);
+        if (logoResult.statusCode === 200) {
+          const logoUrl = logoResult.data.logoUrl;
+          setLogo({ logo: null, logoUrl: logoUrl });
+          useFarmStore.getState().setFarmInfo("", logoUrl);
         }
       }
-      if (infoUpdated) {
-        var result = await farmService.updateFarmInfo(formValues);
+      if (infoUpdated || isCoordsUpdated) {
+        const updatedFormValues = { ...formValues };
+        if (isCoordsUpdated && coords) {
+          updatedFormValues.longitude = coords.longitude;
+          updatedFormValues.latitude = coords.latitude;
+        }
+        var result = await farmService.updateFarmInfo(updatedFormValues);
         if (result.statusCode === 200) {
-          setFarm((prev) => ({ ...prev, farmName: formValues.farmName }));
+          setFarm((prev) => ({
+            ...prev,
+            farmName: formValues.farmName,
+            longitude: coords.longitude,
+            latitude: coords.latitude,
+          }));
           useFarmStore.getState().setFarmInfo(formValues.farmName, "");
         } else {
           toast.error(result.message);
@@ -243,6 +258,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
               label="Description"
               name={formFieldNames.description}
               rules={RulesManager.getFarmDescriptionRules()}
+              type="textarea"
               isEditing={isEditing}
             />
           </Form>
@@ -277,6 +293,13 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
               <FormInput
+                label="Area (m²)"
+                name={formFieldNames.area}
+                rules={RulesManager.getAreaRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm area"
+              />
+              <FormInput
                 label="Soil Type"
                 name={formFieldNames.soilType}
                 rules={RulesManager.getSoilTypeRules()}
@@ -289,29 +312,6 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 rules={RulesManager.getClimateZoneRules()}
                 isEditing={isEditing}
                 placeholder="Enter climate zone"
-              />
-            </Flex>
-            <Flex className={style.row}>
-              <FormInput
-                label="Length (m²)"
-                name={formFieldNames.length}
-                rules={RulesManager.getLengthRules()}
-                isEditing={isEditing}
-                placeholder="Enter the farm length"
-              />
-              <FormInput
-                label="Width (m²)"
-                name={formFieldNames.width}
-                rules={RulesManager.getWidthRules()}
-                isEditing={isEditing}
-                placeholder="Enter the farm width"
-              />
-              <FormInput
-                label="Area (m²)"
-                name={formFieldNames.area}
-                rules={RulesManager.getAreaRules()}
-                isEditing={isEditing}
-                placeholder="Enter the farm area"
               />
             </Flex>
           </Form>
@@ -359,7 +359,19 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
               />
             </Flex>
             <Flex className={style.row}>
-              <MapAddress longitude={farm.longitude} latitude={farm.latitude} />
+              <Flex className={style.mapContainer}>
+                {isEditing && (
+                  <div className={style.mapNotice}>
+                    <span className={style.icon}>*</span> Click on the map to select your location.
+                  </div>
+                )}
+                <MapAddress
+                  longitude={farm.longitude}
+                  latitude={farm.latitude}
+                  isEditing={isEditing}
+                  setCoords={setCoords}
+                />
+              </Flex>
             </Flex>
           </Form>
         </Section>

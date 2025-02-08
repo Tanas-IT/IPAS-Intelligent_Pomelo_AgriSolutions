@@ -61,8 +61,6 @@ export class RulesManager {
   static getWardRules = () => this.getRequiredRules("Ward");
   static getAddressRules = () => this.getRequiredRules("Address");
   static getAreaRules = () => this.getNumberRules("Area");
-  static getLengthRules = () => this.getNumberRules("Length");
-  static getWidthRules = () => this.getNumberRules("Width");
   static getSoilTypeRules = () => this.getRequiredRules("Soil Type");
   static getClimateZoneRules = () => this.getRequiredRules("Climate Zone");
 }

@@ -21,10 +21,10 @@ export const updateFarmInfo = async (farm: FarmRequest): Promise<ApiResponse<Obj
   return apiResponse;
 };
 
-export const updateFarmLogo = async (image: File): Promise<ApiResponse<Object>> => {
+export const updateFarmLogo = async (image: File): Promise<ApiResponse<{ logoUrl: string }>> => {
   const formData = new FormData();
   formData.append("FarmLogo", image);
   const res = await axiosAuth.axiosMultipartForm.patch("farms/update-farm-logo", formData);
-  const apiResponse = res.data as ApiResponse<Object>;
+  const apiResponse = res.data as ApiResponse<{ logoUrl: string }>;
   return apiResponse;
 };
