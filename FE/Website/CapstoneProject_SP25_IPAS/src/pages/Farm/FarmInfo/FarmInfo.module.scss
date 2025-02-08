@@ -87,6 +87,18 @@
           flex-direction: row;
           gap: 20px;
         }
+        .mapContainer {
+          width: 100%;
+          flex-direction: column;
+          gap: 5px;
+          .mapNotice {
+            font-size: 12px;
+            color: vars.$color_selected;
+            .icon {
+              color: red;
+            }
+          }
+        }
       }
       .formLogo {
         width: 70%;

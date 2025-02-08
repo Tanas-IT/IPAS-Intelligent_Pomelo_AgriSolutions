@@ -6,8 +6,9 @@ interface FormInputProps {
   label: string;
   name: string;
   rules?: any[];
+  type?: "text" | "textarea";
   isEditing?: boolean;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   placeholder?: string;
 }
 
@@ -15,6 +16,7 @@ const FormInput: React.FC<FormInputProps> = ({
   label,
   name,
   rules = [],
+  type = "text", // Mặc định là text
   isEditing = true,
   onChange,
   placeholder = `Enter ${label.toLowerCase()}`,
@@ -29,7 +31,11 @@ const FormInput: React.FC<FormInputProps> = ({
       hasFeedback={isEditing}
       className={`${style.flexItem} ${styles.customInput2}`}
     >
-      <Input placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+      {type === "textarea" ? (
+        <Input.TextArea placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+      ) : (
+        <Input placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+      )}
     </Form.Item>
   );
 };
