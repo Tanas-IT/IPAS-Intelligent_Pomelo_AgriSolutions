@@ -926,42 +926,46 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 );
 GO
 INSERT INTO [dbo].[Farm] 
-([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
+([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 106.786528, 10.9965,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Tân Bình', N'Đồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 
-('F002', 'Farm B', N'456 Blue Avenue', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F002', 'Farm B', N'456 Blue Avenue', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F003', 'Farm C', N'789 Binh Duong', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F003', 'Farm C', N'789 Binh Duong', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F004', 'Farm D', N'910 Dong Nai', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F004', 'Farm D', N'910 Dong Nai', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F005', 'Farm E', N'911 Long An', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F005', 'Farm E', N'911 Long An', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F006', 'Farm F', N'159 Can Gio', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F006', 'Farm F', N'159 Can Gio', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F007', 'Farm G', N'567 Tien Giang', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F007', 'Farm G', N'567 Tien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F008', 'Farm H', N'789 Kien Giang', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738917125/a48lxahzzqnx9ff6f0pc.jpg?fbclid=IwY2xjawISpoZleHRuA2FlbQIxMAABHaaMTEUCbMvD6qCPCZCKVYBdenMytoFczVDIPs1tpBJtVLVNC010SwByKA_aem_fnJhS782k181fufPhoybxg', 
+('F008', 'Farm H', N'789 Kien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
 
 GO
-
+INSERT INTO [dbo].[FarmCoordination] ([Longitude], [Lagtitude], [FarmID])
+VALUES
+(106.786528, 10.9965, 1),  -- Coordinates for Nam Hue Tan Trieu Pomelo
+(107.6297, 11.8231, 2),  -- Coordinates for Farm B
+(108.6297, 12.8231, 3);  -- Coordinates for Farm c
 
 GO
 INSERT INTO [dbo].[Role] ([RoleName], [isSystem])
@@ -976,7 +980,7 @@ INSERT INTO [dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gende
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar1.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar2.png', NULL, NULL, 2),
-('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alex Johnson', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
+('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2);
 ;
@@ -1071,5 +1075,24 @@ VALUES
 ( 'P009', 'Potato', 9, 'Germination', 'Healthy', '2024-01-09', '2024-01-13', '2023-11-28', NULL, 'Underground tuber', 1, 'https://example.com/potato.jpg', 2),
 ( 'P010', 'Onion', 10, 'Mature', 'Moderate', '2024-01-10', '2024-01-14', '2023-11-25', NULL, 'Pungent bulb vegetable', 2, 'https://example.com/onion.jpg', 2);
 
+GO
+-- Chèn dữ liệu vào bảng LegalDocument
+INSERT INTO ipas.dbo.LegalDocument (LegalDocumentCode, LegalDocumentType, LegalDocumentName, LegalDocumentURL, IssueDate, ExpiredDate, Status, CreateAt, UpdateAt, FarmID)
+VALUES
+('LD-001', 'License', 'Organic Farming Certificate', 'https://example.com/doc1.pdf', '2023-01-10', '2025-01-10', 'Active', GETDATE(), GETDATE(), 1),
+('LD-002', 'Permit', 'Water Usage Permit', 'https://example.com/doc2.pdf', '2022-06-15', '2024-06-15', 'Active', GETDATE(), GETDATE(), 1),
+('LD-003', 'Registration', 'Land Registration Document', 'https://example.com/doc3.pdf', '2021-05-20', '2031-05-20', 'Active', GETDATE(), GETDATE(), 2),
+('LD-004', 'Certificate', 'ISO 9001 Certification', 'https://example.com/doc4.pdf', '2020-09-12', '2025-09-12', 'Expired', GETDATE(), GETDATE(), 1),
+('LD-005', 'Agreement', 'Supplier Contract', 'https://example.com/doc5.pdf', '2023-02-01', '2026-02-01', 'Active', GETDATE(), GETDATE(), 2);
+GO
+-- Chèn dữ liệu vào bảng Resource với liên kết đến LegalDocument
+INSERT INTO ipas.dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantID)
+VALUES
+('RES-001', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010443/farm/legal-document/lhhd96qnxjcbxcgh6yvy.jpg', 'Organic Farming Guidelines', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
+('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL),
+('RES-003', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010457/farm/legal-document/rhdtcktzwkbqzhe4njcc.jpg', 'Land Ownership Data', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 3, NULL),
+('RES-004', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010609/iy0c6zxgjkdx7ocmvmih.jpg', 'ISO 9001 Audit Report', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 4, NULL),
+('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 5, NULL);
+GO
 
 
