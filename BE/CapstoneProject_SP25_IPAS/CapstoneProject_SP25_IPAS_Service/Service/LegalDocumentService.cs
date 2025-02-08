@@ -32,10 +32,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<BusinessResult> createDocument(LegalDocumentCreateRequest documentCreateRequest)
+        public async Task<BusinessResult> createDocument(LegalDocumentCreateRequest documentCreateRequest, int farmId)
         {
             try
             {
+                if (farmId <= 0)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
+                }
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     // Khởi tạo đối tượng LegalDocument
@@ -46,9 +50,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LegalDocumentName = documentCreateRequest.LegalDocumentName,
                         LegalDocumentURL = documentCreateRequest.LegalDocumentURL,
                         IssueDate = documentCreateRequest.IssueDate,
-                        ExpiredDate = documentCreateRequest.ExpiryDate,
+                        ExpiredDate = documentCreateRequest.ExpiredDate,
                         CreateAt = DateTime.Now,
                         Status = nameof(FarmStatus.Active),
+                        FarmId = farmId
                     };
 
                     // Xử lý tài nguyên (hình ảnh/tài liệu) nếu có
@@ -61,9 +66,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.FARM_LEGAL_DOCUMENT);
                                 var documentResource = new Resource()
                                 {
+                                    ResourceCode = "",
                                     ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                     ResourceType = ResourceTypeConst.LEGAL_DOCUMENT,
-                                    FileFormat = resource.FileFormat,
+                                    FileFormat = FileFormatConst.IMAGE,
                                     CreateDate = DateTime.Now,
                                     Description = resource.Description,
                                 };
@@ -150,12 +156,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = x => x.LegalDocumentName!.ToLower().Contains(searchValue.ToLower()) && x.FarmId == farmId;
                                   
                 }
-                Func<IQueryable<LegalDocument>, IOrderedQueryable<LegalDocument>> orderBy = x => x.OrderByDescending(x => x.LegalDocumentType);
+                Func<IQueryable<LegalDocument>, IOrderedQueryable<LegalDocument>> orderBy = x => x.OrderByDescending(x => x.LegalDocumentId);
                 string includeProperties = "Resources";
                 var legalDocument = await _unitOfWork.LegalDocumentRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!legalDocument.Any())
                     return new BusinessResult(Const.WARNING_GET_DOCUMENT_EMPTY_CODE, Const.WARNING_GET_DOCUMENT_EMPTY_MSG);
-                var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(legalDocument);
+                var mapResult = _mapper.Map<List<LegalDocumentModel>?>(legalDocument);
                 return new BusinessResult(Const.SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_CODE, Const.SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_MSG, mapResult!);
             }
             catch (Exception ex)
@@ -186,15 +192,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> updateDocument(LegalDocumentCreateRequest historyUpdateRequest, int documentId)
+        public async Task<BusinessResult> updateDocument(LegalDocumentUpdateRequest historyUpdateRequest)
         {
             try
             {
-                if (documentId <= 0)
+                if (historyUpdateRequest.LegalDocumentId <= 0)
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<LegalDocument, bool>> filter = x => x.LegalDocumentId == documentId;
+                    Expression<Func<LegalDocument, bool>> filter = x => x.LegalDocumentId == historyUpdateRequest.LegalDocumentId;
                     string includeProperties = "Resources";
                     var legalDocument = await _unitOfWork.LegalDocumentRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
 
@@ -208,21 +214,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     legalDocument.LegalDocumentName = historyUpdateRequest.LegalDocumentName ?? legalDocument.LegalDocumentName;
                     legalDocument.LegalDocumentURL = historyUpdateRequest.LegalDocumentURL ?? legalDocument.LegalDocumentURL;
                     legalDocument.IssueDate = historyUpdateRequest.IssueDate ?? legalDocument.IssueDate;
-                    legalDocument.ExpiredDate = historyUpdateRequest.ExpiryDate ?? legalDocument.ExpiredDate;
+                    legalDocument.ExpiredDate = historyUpdateRequest.ExpiredDate ?? legalDocument.ExpiredDate;
                     legalDocument.UpdateAt = DateTime.Now;
 
                     // Lấy danh sách tài nguyên hiện tại
                     var existingResources = legalDocument.Resources.ToList();
-                    var newResources = historyUpdateRequest.Resources?.Select(r => new Resource
-                    {
-                        ResourceID = r.ResourceID!.Value,
-                        ResourceURL = r.ResourceURL,
-                        FileFormat = r.FileFormat
-                    }).ToList() ?? new List<Resource>();
+                    //var newResources = historyUpdateRequest.Resources?.Select(r => new Resource
+                    //{
+                    //    ResourceCode = "",
+                    //    //ResourceID = r.ResourceID!.Value,
+                    //    //ResourceURL = r.ResourceURL,
+                    //    ResourceType = ResourceTypeConst.LEGAL_DOCUMENT,
+                    //    FileFormat = FileFormatConst.IMAGE
+                    //}).ToList() ?? new List<Resource>();
 
                     // Xóa tài nguyên cũ không có trong request
                     var resourcesToDelete = existingResources
-                        .Where(old => !newResources.Any(newImg => newImg.ResourceID == old.ResourceID))
+                        .Where(old => !historyUpdateRequest.Resources.Any(newImg => newImg.ResourceID == old.ResourceID))
                         .ToList();
 
                     foreach (var resource in resourcesToDelete)
@@ -235,15 +243,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Thêm tài nguyên mới từ request
-                    foreach (var resource in newResources.Where(newImg => newImg.ResourceID == null))
+                    foreach (var resource in historyUpdateRequest.Resources?.Where(newImg => !newImg.ResourceID.HasValue)!)
                     {
-                        if (!string.IsNullOrEmpty(resource.ResourceURL))
+                        if (resource.File != null)
                         {
+                            var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.FARM_LEGAL_DOCUMENT);
                             var newRes = new Resource
                             {
-                                ResourceURL = resource.ResourceURL,
+                                ResourceCode = "",
+                                ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                 ResourceType = ResourceTypeConst.LEGAL_DOCUMENT,
-                                FileFormat = resource.FileFormat,
+                                FileFormat = FileFormatConst.IMAGE,
                                 CreateDate = DateTime.UtcNow,
                                 LegalDocumentID = legalDocument.LegalDocumentId
                             };
