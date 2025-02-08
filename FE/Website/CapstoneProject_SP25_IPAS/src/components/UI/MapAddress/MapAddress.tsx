@@ -11,14 +11,14 @@ interface MapAddressProps {
   latitude: number;
   longitude: number;
   isEditing?: boolean;
-  setCoords: React.Dispatch<React.SetStateAction<CoordsState>>;
+  setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
 }
 
 const MapAddress: React.FC<MapAddressProps> = ({
   latitude,
   longitude,
   isEditing = false,
-  setCoords,
+  setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
@@ -46,7 +46,7 @@ const MapAddress: React.FC<MapAddressProps> = ({
       map.on("click", (e) => {
         const { lng, lat } = e.lngLat;
         const newCoords = { longitude: lng, latitude: lat };
-        setCoords(newCoords); // Cập nhật state
+        setMarkerPosition(newCoords); // Cập nhật state
         markerRef.current?.setLngLat([lng, lat]); // Cập nhật vị trí marker
       });
     }
