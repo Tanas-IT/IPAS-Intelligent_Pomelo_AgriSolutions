@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LegalDocumentRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class LegalDocumentController : ControllerBase
     {
         private readonly ILegalDocumentService _legalDocumentService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public LegalDocumentController(ILegalDocumentService legalDocumentService)
+        public LegalDocumentController(ILegalDocumentService legalDocumentService, IJwtTokenService jwtTokenService)
         {
             _legalDocumentService = legalDocumentService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpPost(APIRoutes.LegalDocument.createLegalDocument, Name = "createLegalDocumentAsync")]
@@ -23,11 +26,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!request.FarmId.HasValue)
+                {
+                    request.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!ModelState.IsValid || !request.FarmId.HasValue)
+                {
+                    return BadRequest();
+                }
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _legalDocumentService.createDocument(request);
+                var result = await _legalDocumentService.createDocument(request, request.FarmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -36,8 +47,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.LegalDocument.updateLegalDocumentInfo + "/{document-id}", Name = "updateLegalDocumentAsync")]
-        public async Task<IActionResult> UpdateLegalDocumentAsync([FromBody] LegalDocumentCreateRequest request, [FromRoute(Name = "document-id")] int documentId)
+        [HttpPut(APIRoutes.LegalDocument.updateLegalDocumentInfo + "", Name = "updateLegalDocumentAsync")]
+        public async Task<IActionResult> UpdateLegalDocumentAsync([FromForm] LegalDocumentUpdateRequest request)
         {
             try
             {
@@ -45,7 +56,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _legalDocumentService.updateDocument(request, documentId);
+                var result = await _legalDocumentService.updateDocument(request);
                 return Ok(result);
             }
             catch (Exception ex)
