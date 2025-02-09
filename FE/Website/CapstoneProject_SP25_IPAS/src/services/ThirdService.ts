@@ -2,8 +2,8 @@ import { GOOGLE_MAP_KEY, MAP_BOX_KEY } from "@/constants";
 import { District, Province, Ward } from "@/payloads";
 import axios from "axios";
 
-// Function to fetch cities
-export const fetchCities = async () => {
+// Function to fetch provinces
+export const fetchProvinces = async () => {
   try {
     const response = await axios.get("https://esgoo.net/api-tinhthanh/1/0.htm");
     const data = response.data;
@@ -69,17 +69,18 @@ export const getCoordinatesFromAddress = async (address: string) => {
   const MAPBOX_ACCESS_TOKEN = MAP_BOX_KEY.ACCESS_TOKEN;
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
     address,
-  )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&limit=1`;
+  )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&autocomplete=false&limit=1`;
 
   try {
     const response = await fetch(url);
     const data = await response.json();
-    if (data.features.length > 0) {
-      const [longitude, latitude] = data.features[0].center;
-      return { latitude, longitude };
-    } else {
-      throw new Error("Not found coordinates");
+
+    if (data.features.length === 0) {
+      return null;
     }
+
+    const [longitude, latitude] = data.features[0].center;
+    return { latitude, longitude };
   } catch (error) {
     console.error("Error take coordinates", error);
     return null;
@@ -94,7 +95,7 @@ export const getCoordinatesFromAddress = async (address: string) => {
 
 //   try {
 //     const response = await fetch(url);
-    
+
 //     const data = await response.json();
 //     console.log(data);
 //     if (data.results.length > 0) {

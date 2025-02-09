@@ -1,8 +1,7 @@
 @use "@/styles/variables.scss" as vars;
 
-.btn {
+.baseBtn {
   font-size: 16px;
-  background-color: vars.$color_yellow_main !important;
   color: vars.$color_primary !important;
   border-color: transparent !important;
   outline: transparent !important;
@@ -11,9 +10,20 @@
   }
 }
 
+.btn {
+  @extend .baseBtn;
+  background-color: vars.$color_yellow_main !important;
+}
+
+.btnModal {
+  @extend .baseBtn;
+  background-color: vars.$color_second !important;
+}
+
 .cancelBtn {
   outline: transparent !important;
   border-color: vars.$color_border_btn_cancel !important;
+  font-size: 16px;
   &:hover {
     color: inherit !important;
     opacity: 0.8;

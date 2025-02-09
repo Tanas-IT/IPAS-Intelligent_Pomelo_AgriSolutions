@@ -8,3 +8,8 @@ export interface LogoState {
   logo: File | null;
   logoUrl: string;
 }
+
+export interface CoordsState {
+  longitude: number;
+  latitude: number;
+}

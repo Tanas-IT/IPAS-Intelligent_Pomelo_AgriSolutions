@@ -1,4 +1,4 @@
-import { Button, Divider, Input } from "antd";
+import { Input } from "antd";
 import { FC, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import style from "./Searchbar.module.scss";

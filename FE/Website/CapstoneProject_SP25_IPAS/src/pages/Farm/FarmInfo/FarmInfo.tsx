@@ -1,9 +1,9 @@
-import { Divider, Flex, Image, Tabs, TabsProps } from "antd";
+import { Divider, Flex, Image, Skeleton, Tabs, TabsProps } from "antd";
 import style from "./FarmInfo.module.scss";
 import { Icons, Images } from "@/assets";
 import { useStyle } from "@/hooks";
 import Overview from "./Overview";
-import LegalDocument from "./LegalDocument";
+import LegalDocument from "./LegalDocument/LegalDocument";
 import { useEffect, useState } from "react";
 import { GetFarmInfo } from "@/payloads";
 import { defaultLogoFarm, getDefaultFarm, getFarmId } from "@/utils";
@@ -12,12 +12,14 @@ import { LogoState } from "@/types";
 
 function FarmInfo() {
   const { styles } = useStyle();
+  const [isLoading, setIsLoading] = useState(true);
   const [farmDetails, setFarmDetails] = useState<GetFarmInfo>(getDefaultFarm);
   const [logo, setLogo] = useState<LogoState>(defaultLogoFarm);
 
   useEffect(() => {
     async function fetchFarmData() {
       try {
+        setIsLoading(true);
         const result = await farmService.getFarm(getFarmId());
         if (result.statusCode === 200) {
           setFarmDetails(result.data);
@@ -25,6 +27,8 @@ function FarmInfo() {
         }
       } catch (error) {
         console.error("Fetch data error:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchFarmData();
@@ -35,7 +39,9 @@ function FarmInfo() {
       key: "1",
       icon: <Icons.overview className={style.iconTab} />,
       label: <label className={style.titleTab}>Overview</label>,
-      children: (
+      children: isLoading ? (
+        <Skeleton active />
+      ) : (
         <Overview farm={farmDetails} setFarm={setFarmDetails} logo={logo} setLogo={setLogo} />
       ),
     },
@@ -83,7 +89,7 @@ function FarmInfo() {
       </Flex>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="1"
+        defaultActiveKey="2"
         items={items}
       />
     </Flex>
