@@ -9,10 +9,11 @@ public partial class CarePlanSchedule
 
     public string? DayOfWeek { get; set; }
     public string? DayOfMonth { get; set; }
+    public string? CustomDates { get; set; }
 
-    public DateTime? StarTime { get; set; }
+    public TimeSpan? StarTime { get; set; }
 
-    public DateTime? EndTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
 
     public int? CarePlanId { get; set; }
 

@@ -284,13 +284,30 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_PLAN_CODE = 200;
         public static string SUCCESS_GET_ALL_PLAN_MSG = "Get all plan success";
         public static int SUCCESS_GET_PLAN_BY_ID_CODE = 200;
-        public static string SUCCESS_GET_PLAN_BY_ID_MSG = "Get plan success";
+        public static string SUCCESS_GET_PLAN_BY_ID_MSG = "Get plan by id success";
+        public static int SUCCESS_GET_PLAN_BY_NAME_CODE = 200;
+        public static string SUCCESS_GET_PLAN_BY_NAME_MSG = "Get plan by name success";
         public static int SUCCESS_UPDATE_PLAN_CODE = 200;
         public static string SUCCESS_UPDATE_PLAN_MSG = "Update plan success";
         public static int SUCCESS_DELETE_PLAN_CODE = 200;
         public static string SUCCESS_DELETE_PLAN_MSG = "Delete plan success";
+        public static int SUCCESS_SOFT_DELETE_PLAN_CODE = 200;
+        public static string SUCCESS_SOFT_DELETE_PLAN_MSG = "Soft delete plan success";
         public static int SUCCESS_CREATE_PLAN_CODE = 200;
         public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
+        #endregion
+
+        #region UserWorkLog
+        public static int SUCCESS_GET_ALL_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_GET_ALL_USER_WORK_LOG_MSG = "Get all user work log success";
+        public static int SUCCESS_GET_USER_WORK_LOG_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_USER_WORK_LOG_BY_ID_MSG = "Get user work log by id success";
+        public static int SUCCESS_UPDATE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_UPDATE_USER_WORK_LOG_MSG = "Update user work log success";
+        public static int SUCCESS_DELETE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_DELETE_USER_WORK_LOG_MSG = "Delete user work log success";
+        public static int SUCCESS_CREATE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_CREATE_USER_WORK_LOG_MSG = "Create user work log success";
         #endregion
         #endregion
 
@@ -492,8 +509,21 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UPDATE_PLAN_MESSAGE = "Update plan failed";
         public static int FAIL_DELETE_PLAN_CODE = 500;
         public static string FAIL_DELETE_PLAN_MESSAGE = "Delete plan failed";
+        public static int FAIL_SOFT_DELETE_PLAN_CODE = 500;
+        public static string FAIL_SOFT_DELETE_PLAN_MESSAGE = "Soft delete plan failed";
         public static int FAIL_GET_PLAN_CODE = 500;
         public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
+        #endregion
+
+        #region User Work Log Fail code
+        public static int FAIL_CREATE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_CREATE_USER_WORK_LOG_MESSAGE = "Create user work log failed";
+        public static int FAIL_UPDATE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_UPDATE_USER_WORK_LOG_MESSAGE = "Update user work log failed";
+        public static int FAIL_DELETE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_DELETE_USER_WORK_LOG_MESSAGE = "Delete user work log failed";
+        public static int FAIL_GET_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_GET_USER_WORK_LOG_MESSAGE = "Get user work log failed";
         #endregion
         #endregion
 
@@ -622,14 +652,21 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG = "Get plant growth history empty.";
         #endregion
         #region Plan History
-        public static int WARNING_GET_PLAN_NOT_EXIST_CODE = 400;
-        public static string WARNING_GET_PLAN_NOT_EXIST_MSG = "Plan not exist.";
+        public static int WARNING_GET_PLAN_DOES_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_PLAN_DOES_NOT_EXIST_MSG = "Plan not exist.";
         public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
         public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
         #region Plant Criteria
         public static int WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE = 400;
         public static string WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG = "Do not have any resource";
+        #endregion
+
+        #region User Work Log
+        public static int SUCCESS_USER_NO_CONFLICT_SCHEDULE_CODE = 200;
+        public static string SUCCESS_USER_NO_CONFLICT_SCHEDULE_MSG = "User does not conflict schedule";
+        public static int WARNING_USER_CONFLICT_SCHEDULE_CODE = 400;
+        public static string WARNING_USER_CONFLICT_SCHEDULE_MSG = "User conflict schedule. Please select another time";
         #endregion
         #endregion
     }

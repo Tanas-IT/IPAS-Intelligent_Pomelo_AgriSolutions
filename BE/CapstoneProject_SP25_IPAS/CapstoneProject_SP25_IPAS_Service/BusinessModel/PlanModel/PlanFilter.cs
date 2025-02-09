@@ -11,6 +11,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
     {
         [FromQuery(Name = "filter-crop")]
         public string? CropName { get; set; }
+        [FromQuery(Name = "filter-plan")]
+        public string? PlanName { get; set; }
         [FromQuery(Name = "filter-assignor")]
         public string? AssignorName { get; set; }
         [FromQuery(Name = "filter-plan-detail")]

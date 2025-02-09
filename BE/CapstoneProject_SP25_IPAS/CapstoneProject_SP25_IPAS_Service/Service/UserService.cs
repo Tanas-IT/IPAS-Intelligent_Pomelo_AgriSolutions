@@ -421,6 +421,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
                                 {
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(checkExistRefreshToken.RefreshTokenValue);
                                     var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 
@@ -583,7 +584,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var uploadImageLink = await _cloudinaryService.UploadImageAsync(avatarOfUser, CloudinaryPath.USER_AVARTAR);
                 if (uploadImageLink != null)
                 {
-                    if (checkExistUser.AvatarURL != null)
+                    if (checkExistUser.AvatarURL != null && !checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:AvatarDefault"]))
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
                     }

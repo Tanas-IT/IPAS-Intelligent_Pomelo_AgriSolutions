@@ -28,6 +28,7 @@ public partial class Plan
     public string? ResponsibleBy { get; set; }
 
     public string? Frequency { get; set; }
+    public string? PlanName { get; set; }
 
     public int? PlantId { get; set; }
 
@@ -52,10 +53,11 @@ public partial class Plan
     public bool? IsDelete { get; set; }
 
     public int? MasterTypeId { get; set; }
+    public int? GraftedPlantId { get; set; }
 
     public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
 
-    public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
+    public virtual GraftedPlant? GraftedPlant { get; set; }
 
     public virtual LandPlot? LandPlot { get; set; }
 
