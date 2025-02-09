@@ -46,5 +46,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public WorkLogRepository WorkLogRepository { get; }
         public ResourceRepository ResourceRepository { get; }
         public LegalDocumentRepository LegalDocumentRepository { get; }
+        public CropRepository CropRepository { get; }
     }
 }

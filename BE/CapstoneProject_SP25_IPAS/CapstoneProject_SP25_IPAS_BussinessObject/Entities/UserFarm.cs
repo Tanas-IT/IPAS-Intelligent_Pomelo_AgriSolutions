@@ -11,6 +11,8 @@ public partial class UserFarm
 
     public int? RoleId { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual Farm Farm { get; set; } = null!;
 
     public virtual Role? Role { get; set; }
