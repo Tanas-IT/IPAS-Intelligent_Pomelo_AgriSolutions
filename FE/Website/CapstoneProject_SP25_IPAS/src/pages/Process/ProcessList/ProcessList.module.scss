@@ -5,41 +5,39 @@
   @include shared.container;
 }
 
-// input,
-// label,
-// span {
-//   font-size: 16px !important;
-// }
-.title {
-  color: vars.$color_primary !important;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
+.filterContent {
+  padding: 10px;
 
-.titleModal {
-  font-size: 20px;
-  font-weight: lighter;
-}
-
-.section {
-  max-width: 24vw;
-  flex-direction: column;
-  margin-bottom: 10px;
-}
-.sectionStatus {
-  flex-direction: row;
-  margin-bottom: 10px;
-  .statusGroup {
-    flex-direction: column;
-    margin-left: 10px;
+  input,
+  label,
+  span {
+    font-size: 16px !important;
   }
-}
 
-.btnAdd {
-  background-color: #bcd379;
+  .title {
+    color: vars.$color_primary !important;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
 
-  &:hover {
-    background-color: #b8c39b;
-    color: #fff;
+  .section {
+    max-width: 24vw;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .sectionStatus {
+    flex-direction: row;
+    margin-bottom: 10px;
+
+    .statusGroup {
+      flex-direction: column;
+      margin-left: 10px;
+    }
+  }
+
+  .titleModal {
+    font-size: 20px;
+    font-weight: lighter;
   }
 }

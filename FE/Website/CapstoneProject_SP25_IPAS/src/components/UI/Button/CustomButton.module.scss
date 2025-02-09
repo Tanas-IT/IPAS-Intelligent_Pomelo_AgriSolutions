@@ -14,6 +14,7 @@
 .cancelBtn {
   outline: transparent !important;
   border-color: vars.$color_border_btn_cancel !important;
+  font-size: 16px;
   &:hover {
     color: inherit !important;
     opacity: 0.8;
