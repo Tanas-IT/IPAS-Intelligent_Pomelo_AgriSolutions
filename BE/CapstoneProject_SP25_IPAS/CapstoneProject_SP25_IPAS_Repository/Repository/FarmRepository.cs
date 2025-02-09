@@ -54,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<Farm> GetFarmById(int farmId)
         {
             var farm = await _context.Farms
-                .Where(x => x.FarmId == farmId && x.IsDelete == false)
+                .Where(x => x.FarmId == farmId && x.IsDeleted == false)
                 .Include(x => x.UserFarms.Where(x => x.RoleId == (int)RoleEnum.OWNER))
                 .ThenInclude(x => x.User)
                 .ThenInclude(x => x.Role)

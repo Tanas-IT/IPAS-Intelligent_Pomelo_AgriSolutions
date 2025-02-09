@@ -304,6 +304,25 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
         public static string SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm success";
         #endregion
+        #region Crop
+        public static int SUCCESS_GET_CROP_CODE = 200;
+        public static string SUCCESS_GET_CROP_BY_ID_MSG = "Get crop by id success";
+        public static int SUCCESS_GET_ALL_CROP_WITH_PAGIN_CODE = 200;
+        public static string SUCCESS_GET_ALL_CROP_WITH_PAGIN_EMPTY_CODE = "Get all crop empty";
+        public static int SUCCESS_GET_CROP_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_CROP_ALL_PAGINATION_FARM_MSG = "Get all pagination crop success";
+        public static int SUCCESS_CREATE_CROP_CODE = 201;
+        public static string SUCCESS_CREATE_CROP_MSG = "Create crop success";
+        public static int SUCCESS_UPDATE_CROP_CODE = 200;
+        public static string SUCCESS_UPDATE_CROP_MSG = "Update crop success";
+        public static int SUCCESS_DELETE_PERMANENTLY_CROP_CODE = 200;
+        public static string SUCCESS_DELETE_PERMANENTLY_CROP_MSG = "Delete crop softed success";
+        public static int SUCCESS_DELETE_SOFTED_CROP_CODE = 200;
+        public static string SUCCESS_DELETE_SOFTED_CROP_MSG = "Delete crop softed success";
+        public static int SUCCESS_GET_ALL_CROP_CODE = 200;
+        public static string SUCCESS_GET_ALL_CROP_EMPTY_MSG = "No crop was found";
+        public static string SUCCESS_GET_ALL_CROP_FOUND_MSG = "Get all crop of landplot success.";
+        #endregion
         #endregion
 
         #region FAIL
@@ -511,14 +530,27 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Legal document
         public static int FAIL_CREATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_CREATE_LEGAL_DOCUMENT_MSG = "Create document Fail";
-        public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 200;
+        public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_UPDATE_LEGAL_DOCUMENT_MSG = "Update document fail";
-        public static int FAIL_DELETE_LEGAL_DOCUMENT_CODE = 200;
+        public static int FAIL_DELETE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_DELETE_LEGAL_DOCUMENT_MSG = "Delete document fail";
-        public static int FAIL_GET_LEGAL_DOCUMENT_BY_ID_CODE = 200;
+        public static int FAIL_GET_LEGAL_DOCUMENT_BY_ID_CODE = 400;
         public static string FAIL_GET_LEGAL_DOCUMENT_BY_ID_MSG = "Get document fail";
-        public static int FAIL_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
+        public static int FAIL_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 400;
         public static string FAIL_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm fail";
+        #endregion
+
+        #region Crop
+        public static int FAIL_CREATE_CROP_CODE = 400;
+        public static string FAIL_CREATE_CROP_MSG = "Create crop Fail";
+        public static int FAIL_UPDATE_CROP_CODE = 400;
+        public static string FAIL_UPDATE_CROP_MSG = "Update crop fail";
+        public static int FAIL_DELETE_CROP_CODE = 400;
+        public static string FAIL_DELETE_CROP_MSG = "Delete crop fail";
+        public static int FAIL_GET_CROP_BY_ID_CODE = 400;
+        public static string FAIL_GET_CROP_BY_ID_MSG = "Get crop fail";
+        public static int FAIL_GET_CROP_OF_FARM_CODE = 400;
+        public static string FAIL_GET_CROP_OF_FARM_MSG = "Get crop of farm fail";
         #endregion
         #endregion
 
@@ -664,6 +696,17 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
         public static int WARNING_GET_DOCUMENT_EMPTY_CODE = 200;
         public static string WARNING_GET_DOCUMENT_EMPTY_MSG = "Get document empty.";
+        #endregion
+
+        #region Crop
+        public static int WARNING_CROP_NOT_EXIST_CODE = 400;
+        public static string WARNING_CROP_NOT_EXIST_MSG = "Crop not exist";
+        public static int WARNING_CROP_OF_LANDPLOT_EMPTY_CODE = 200;
+        public static string WARNING_CROP_OF_LANDPLOT_EMPTY_MSG = "This landplot not have crop.";
+        public static int WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE = 400;
+        public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
+        public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
+        public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
         #endregion
         #endregion
     }

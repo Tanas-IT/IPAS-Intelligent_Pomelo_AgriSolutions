@@ -11,6 +11,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Features;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,10 @@ builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
 //    options.JsonSerializerOptions.WriteIndented = false;
 //});
 builder.Services.AddControllers()
+//    (options =>
+//{
+//    options.ModelBinderProviders.Insert(0, new CamelCaseModelBinderProvider());
+//})
     .AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();

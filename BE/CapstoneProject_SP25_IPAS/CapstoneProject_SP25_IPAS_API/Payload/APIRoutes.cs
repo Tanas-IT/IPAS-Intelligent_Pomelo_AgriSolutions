@@ -208,5 +208,17 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getLegalDocumentById = prefix + "";
             public const string getAllLegalDocumentIfFarm = prefix + "/get-legal-document-of-farm";
         }
+
+        public static class Crop
+        {
+            public const string prefix = Base + "/crops";
+            public const string createCrop = prefix + "";
+            public const string deletePanentlyCrop = prefix + "";
+            public const string deleteSoftedCrop = prefix + "/delete-softed";
+            public const string updateCropInfo = prefix + "";
+            public const string getCropById = prefix + "";
+            public const string getAllCropIfFarm = prefix + "/get-crop-of-farm";
+            public const string getAllCropIfLandPlot = prefix + "/get-crop-of-landplot";
+        }
     }
 }
