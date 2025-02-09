@@ -3,7 +3,7 @@ import style from "./FarmInfo.module.scss";
 import { Icons, Images } from "@/assets";
 import { useStyle } from "@/hooks";
 import Overview from "./Overview";
-import LegalDocument from "./LegalDocument";
+import LegalDocument from "./LegalDocument/LegalDocument";
 import { useEffect, useState } from "react";
 import { GetFarmInfo } from "@/payloads";
 import { defaultLogoFarm, getDefaultFarm, getFarmId } from "@/utils";
@@ -89,7 +89,7 @@ function FarmInfo() {
       </Flex>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="1"
+        defaultActiveKey="2"
         items={items}
       />
     </Flex>
