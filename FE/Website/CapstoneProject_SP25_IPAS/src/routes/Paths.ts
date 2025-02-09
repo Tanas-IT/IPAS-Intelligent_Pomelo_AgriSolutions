@@ -43,4 +43,18 @@ export const PATHS = {
   WEATHER: {
     WEATHER: "/dashboard-weather",
   },
+
+  // Plan Management
+  PLAN: {
+    PLAN_LIST: "/plans",
+    PLAN_DETAIL: "/plans/:id",
+    ADD_PLAN: "/plans/add",
+    UPDATE_PLAN: "/plans/update/:id",
+  },
+
+  //Worklog Management
+  HR: {
+    WORKLOG_CALENDAR: "/hr-management/worklogs",
+    WORKLOG_DETAIL: "/hr-management/worklogs/:id",
+  }
 };

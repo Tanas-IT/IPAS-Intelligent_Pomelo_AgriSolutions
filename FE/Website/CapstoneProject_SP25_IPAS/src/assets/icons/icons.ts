@@ -8,6 +8,7 @@ export {
   RiDeleteBin6Line as delete,
   RiArrowDropDownLine as arrowDropDownLine,
   RiSeedlingLine as seedling,
+  RiUserAddLine as addUser,
 } from "react-icons/ri";
 export {
   IoIosArrowBack as arrowBack,
@@ -20,6 +21,8 @@ export {
   MdKeyboardArrowDown as arrowDown,
   MdOutlineKeyboardBackspace as back,
   MdOutlineDescription as description,
+  MdCategory as category,
+  MdOutlineScatterPlot as lot
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -39,6 +42,7 @@ export {
   FaSortAmountUp as sort,
   FaRegEdit as edit,
   FaCloud as cloud,
+  FaCalendarAlt as calendarAlt,
 } from "react-icons/fa";
 export { PiFarm as farms, PiPlantLight as plant } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";

@@ -7,6 +7,7 @@ interface CustomButtonProps {
   icon?: React.ReactNode;
   handleOnClick?: () => void;
   isCancel?: boolean;
+  htmlType?: "button" | "submit" | "reset";
   isLoading?: boolean;
 }
 
@@ -15,6 +16,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   icon,
   handleOnClick,
   isCancel = false,
+  htmlType = "button",
   isLoading,
 }) => {
   const { isLoading: globalLoading } = useLoadingStore();
@@ -24,6 +26,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       className={` ${isCancel ? style.cancelBtn : style.btn}`}
       icon={icon}
       onClick={handleOnClick}
+      htmlType={htmlType}
       loading={!isCancel && (isLoading ?? globalLoading ?? false)} // Ưu tiên prop, nếu không có thì lấy từ store
     >
       {label}
