@@ -11,6 +11,8 @@ public partial class Crop
 
     public string? CropName { get; set; }
 
+    public int? Year { get; set; }
+
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
@@ -29,8 +31,11 @@ public partial class Crop
 
     public string? Notes { get; set; }
 
+    public bool? IsDeleted { get; set; }
+
     public double? MarketPrice { get; set; }
 
+    public int? FarmId { get; set; }
     public virtual ICollection<HarvestHistory> HarvestHistories { get; set; } = new List<HarvestHistory>();
 
     public virtual ICollection<LandPlotCrop> LandPlotCrops { get; set; } = new List<LandPlotCrop>();

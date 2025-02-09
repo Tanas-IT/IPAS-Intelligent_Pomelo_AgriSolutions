@@ -425,17 +425,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 
-                                    //var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm ?? 0, farmId ?? 0);
+                                    var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
 
-                                    //await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
-                                    //{
-                                    //    UserId = checkExistRefreshToken.UserId,
-                                    //    RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
-                                    //    RefreshTokenValue = newRefreshToken,
-                                    //    CreateDate = DateTime.Now,
-                                    //    ExpiredDate = checkExistRefreshToken.ExpiredDate
-                                    //});
+                                    await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
+                                    {
+                                        UserId = checkExistRefreshToken.UserId,
+                                        RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
+                                        RefreshTokenValue = newRefreshToken,
+                                        CreateDate = DateTime.Now,
+                                        ExpiredDate = checkExistRefreshToken.ExpiredDate
+                                    });
                                     return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new
                                     {
                                         AuthenModel = new AuthenModel

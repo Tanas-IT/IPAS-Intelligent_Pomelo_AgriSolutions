@@ -1,11 +1,12 @@
-import style from "./FarmInfo.module.scss";
+import style from "../FarmInfo.module.scss";
 import { Button, Divider, Flex, GetProp, Image, Upload, UploadFile, UploadProps } from "antd";
 import { Icons, Images } from "@/assets";
-import { EditActions, Section, SectionHeader } from "@/components";
+import { CustomButton, EditActions, Section, SectionHeader } from "@/components";
 import { useState } from "react";
 import { GetFarmDocuments } from "@/payloads";
 import { defaultFarmDocuments } from "@/utils";
 import { toast } from "react-toastify";
+import AddDocumentModal from "./AddDocumentModal";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -29,6 +30,9 @@ function LegalDocument() {
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
@@ -66,7 +70,7 @@ function LegalDocument() {
   };
 
   const handleCancel = (key: string) => {
-    setLegalDocuments(defaultFarmDocuments)
+    setLegalDocuments(defaultFarmDocuments);
     setIsEditing((prev) => ({ ...prev, [key]: false }));
   };
 
@@ -86,11 +90,14 @@ function LegalDocument() {
 
   return (
     <Flex className={style.contentWrapper}>
-      <SectionHeader
-        title="Legal Documents"
-        subtitle="Upload and manage your farm’s legal documents"
-        isDisplayEdit={false}
-      />
+      <Flex className={style.contentWrapperHeader}>
+        <SectionHeader
+          title="Legal Documents"
+          subtitle="Upload and manage your farm’s legal documents"
+          isDisplayEdit={false}
+        />
+        <CustomButton label="Add New Document" icon={<Icons.plus />} handleOnClick={showModal} />
+      </Flex>
 
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
@@ -152,6 +159,7 @@ function LegalDocument() {
           );
         })}
       </Flex>
+      <AddDocumentModal isOpen={isModalOpen} onClose={handleClose} onSave={handleSave} />
     </Flex>
   );
 }

@@ -247,6 +247,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.CropId).HasColumnName("CropID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CropActualTime).HasColumnType("datetime");
+            entity.Property(e => e.Year).HasColumnType("int");
             entity.Property(e => e.CropCode)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -264,6 +265,9 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
+
         });
 
         modelBuilder.Entity<Farm>(entity =>
@@ -290,6 +294,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.FarmName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             //entity.Property(e => e.LandLeaseAgreement).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             //entity.Property(e => e.LandOwnershipCertificate).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             //entity.Property(e => e.OperatingLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -427,7 +432,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.HarvestStatus)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-
             entity.HasOne(d => d.Crop).WithMany(p => p.HarvestHistories)
                 .HasForeignKey(d => d.CropId)
                 .OnDelete(DeleteBehavior.SetNull)
@@ -495,15 +499,15 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<LandPlotCrop>(entity =>
         {
-            entity.HasKey(e => new { e.LandPlotID, e.CropID }).HasName("PK__LandPlotCrop__995F74677DAC5");
+            entity.HasKey(e => new { e.LandPlotId, e.CropID }).HasName("PK__LandPlotCrop__995F74677DAC5");
 
             entity.ToTable("LandPlotCrop");
 
-            entity.Property(e => e.LandPlotID).HasColumnName("LandPlotID");
+            entity.Property(e => e.LandPlotId).HasColumnName("LandPlotID");
             entity.Property(e => e.CropID).HasColumnName("CropID");
 
             entity.HasOne(d => d.LandPlot).WithMany(p => p.LandPlotCrops)
-                .HasForeignKey(d => d.LandPlotID)
+                .HasForeignKey(d => d.LandPlotId)
                 .HasConstraintName("FK__LandPlotCrop__LandPlotID__41B8C09B");
 
             entity.HasOne(d => d.Crop).WithMany(p => p.LandPlotCrops)
@@ -1219,7 +1223,7 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
-
+            entity.Property(e => e.Status).HasColumnName("status");
             entity.HasOne(d => d.Farm).WithMany(p => p.UserFarms)
                 .HasForeignKey(d => d.FarmId)
                 .HasConstraintName("FK__UserFarm__FarmID__41B8C09B");

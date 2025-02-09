@@ -28,6 +28,11 @@
     }
   }
 
+  .contentSectionSub {
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .subTitle {
     font-size: 12px;
     color: vars.$color_selected;

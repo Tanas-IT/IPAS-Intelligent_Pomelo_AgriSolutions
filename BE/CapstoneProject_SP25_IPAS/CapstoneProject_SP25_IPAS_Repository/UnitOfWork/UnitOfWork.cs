@@ -48,6 +48,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public WorkLogRepository _workLogRepo;
         public ResourceRepository _resourceRepo;
         public LegalDocumentRepository _legalDocumentRepo;
+        public CropRepository _cropRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -82,6 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _workLogRepo = new WorkLogRepository(context);
             _resourceRepo = new ResourceRepository(context);
             _legalDocumentRepo = new LegalDocumentRepository(context);
+            _cropRepo = new CropRepository(context);
         }
 
         private bool disposed = false;
@@ -485,6 +487,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._legalDocumentRepo = new LegalDocumentRepository(_context);
                 }
                 return _legalDocumentRepo;
+            }
+        }
+
+        public CropRepository CropRepository
+        {
+            get
+            {
+                if (_cropRepo == null)
+                {
+                    this._cropRepo = new CropRepository(_context);
+                }
+                return _cropRepo;
             }
         }
     }

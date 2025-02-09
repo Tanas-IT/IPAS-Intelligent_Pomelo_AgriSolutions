@@ -66,6 +66,12 @@
     margin-top: 40px;
     width: 100%;
 
+    .contentWrapperHeader {
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .iconTab {
       margin-inline-end: -4px;
     }
@@ -173,5 +179,19 @@
         gap: 24px;
       }
     }
+  }
+}
+
+.modalContainer {
+  .title {
+    color: vars.$color_primary !important;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .section {
+    max-width: 24vw;
+    flex-direction: column;
+    margin-bottom: 10px;
   }
 }

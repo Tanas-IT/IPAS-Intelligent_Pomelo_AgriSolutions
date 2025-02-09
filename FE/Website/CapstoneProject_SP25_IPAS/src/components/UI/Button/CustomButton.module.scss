@@ -1,14 +1,23 @@
 @use "@/styles/variables.scss" as vars;
 
-.btn {
+.baseBtn {
   font-size: 16px;
-  background-color: vars.$color_yellow_main !important;
   color: vars.$color_primary !important;
   border-color: transparent !important;
   outline: transparent !important;
   &:hover {
     opacity: 0.9;
   }
+}
+
+.btn {
+  @extend .baseBtn;
+  background-color: vars.$color_yellow_main !important;
+}
+
+.btnModal {
+  @extend .baseBtn;
+  background-color: vars.$color_second !important;
 }
 
 .cancelBtn {
