@@ -24,3 +24,12 @@
   padding: 4px 8px;
   border-radius: 4px;
 }
+
+.customMap {
+  width: 100% !important;
+  min-height: 400px;
+}
+
+.customMap:active {
+  cursor: grabbing; // Khi nhấn giữ thì đổi thành bàn tay
+}

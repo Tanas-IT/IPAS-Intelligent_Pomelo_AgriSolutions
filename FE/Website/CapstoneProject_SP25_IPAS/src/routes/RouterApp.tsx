@@ -13,6 +13,12 @@ import {
   FarmInfo,
   ProcessList,
   ProcessDetails,
+  PlanList,
+  PlanDetail,
+  Worklog,
+  WorklogDetail,
+  AddPlan,
+  UpdatePlan,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -49,6 +55,12 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
+  { path: PATHS.PLAN.PLAN_LIST, component: PlanList, layout: ManagementLayout },
+  { path: PATHS.PLAN.PLAN_DETAIL, component: PlanDetail, layout: ManagementLayout },
+  { path: PATHS.PLAN.ADD_PLAN, component: AddPlan, layout: ManagementLayout },
+  { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
+  { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
+  { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

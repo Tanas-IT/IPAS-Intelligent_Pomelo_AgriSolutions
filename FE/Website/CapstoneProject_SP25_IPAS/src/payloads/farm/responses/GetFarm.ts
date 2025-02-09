@@ -1,4 +1,10 @@
-export interface GetFarm {
+interface Owner {
+  email: string;
+  fullName: string;
+  phoneNumber: string;
+}
+
+interface Farm {
   farmCode: string;
   farmId: number;
   farmName: string;
@@ -13,25 +19,22 @@ export interface GetFarm {
   ward: string;
   description: string;
   area: string;
+  length: string;
+  width: string;
   soilType: string;
-  climateZone: string;
-}
-
-interface GetFarmPicker {
-  farmCode: string;
-  farmId: number;
-  farmName: string;
-  address: string;
-  province: string;
-  district: string;
-  ward: string;
-  createdAt: Date;
   status: "Active" | "Inactive";
-  logoUrl: string;
+  climateZone: string;
+  createDate: Date;
+  longitude: number;
+  latitude: number;
 }
 
-export interface UserFarm {
+export interface GetFarmInfo extends Farm {
+  owner: Owner;
+}
+
+export interface GetFarmPicker {
   roleId: string;
   roleName: string;
-  farm: GetFarmPicker;
+  farm: Farm;
 }

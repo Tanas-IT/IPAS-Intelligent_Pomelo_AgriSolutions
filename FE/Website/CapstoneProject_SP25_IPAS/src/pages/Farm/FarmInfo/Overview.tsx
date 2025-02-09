@@ -2,10 +2,10 @@ import style from "./FarmInfo.module.scss";
 import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
-import { Province, District, GetFarm, Ward } from "@/payloads";
-import { getDefaultFarm, RulesManager } from "@/utils";
+import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
+import { defaultCoordsFarm, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
-import { thirdService } from "@/services";
+import { farmService, thirdService } from "@/services";
 import {
   EditActions,
   FormInput,
@@ -14,126 +14,69 @@ import {
   SectionHeader,
   SelectInput,
 } from "@/components";
+import { LogoState } from "@/types";
+import { useFarmStore, useLoadingStore } from "@/stores";
+import { useAddressLocation } from "@/hooks";
+import { farmFormFields } from "@/constants";
 
-function Overview() {
+interface OverviewProps {
+  farm: GetFarmInfo;
+  setFarm: React.Dispatch<React.SetStateAction<GetFarmInfo>>;
+  logo: LogoState;
+  setLogo: React.Dispatch<React.SetStateAction<LogoState>>;
+}
+
+const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
+  const { isLoading, setIsLoading } = useLoadingStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [initialFarmDetails, setInitialFarmDetails] = useState<GetFarm>(getDefaultFarm);
-  const [logo, setLogo] = useState<{ logo: File | null; logoUrl: string }>({
-    logo: null,
-    logoUrl: initialFarmDetails.logoUrl || "",
-  });
-  const [cities, setCities] = useState<Province[]>([]);
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [wards, setWards] = useState<Ward[]>([]);
-  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number }>({
-    latitude: 10.9965,
-    longitude: 106.786528,
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
-  const formFieldNames = {
-    farmName: "farmName",
-    description: "description",
-    province: "province",
-    district: "district",
-    ward: "ward",
-    address: "address",
-    area: "area",
-    soilType: "soilType",
-    climateZone: "climateZone",
-    logo: "logo",
-    logoUrl: "logoUrl",
-  };
-
-  const getIdByName = <T extends { id: string; name: string }>(
-    data: T[],
-    name: string,
-  ): string | undefined => {
-    return data.find((item) => item.name === name)?.id;
-  };
-
-  const handleProvinceChange = async (provinceSelected: string) => {
-    try {
-      if (provinceSelected) {
-        const provinceId = provinceSelected.split(",")[0].trim();
-        const provinceName = provinceSelected.split(",")[1].trim();
-        const districtData = await thirdService.fetchDistricts(provinceId);
-        setDistricts(districtData);
-        setWards([]);
-        form.setFieldsValue({
-          province: provinceName,
-          provinceId: provinceId,
-          district: undefined,
-          districtId: undefined,
-          ward: undefined,
-          wardId: undefined,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching districts:", error);
-    }
-  };
-
-  const handleDistrictChange = async (districtSelected: string) => {
-    try {
-      if (districtSelected) {
-        const districtId = districtSelected.split(",")[0].trim();
-        const districtName = districtSelected.split(",")[1].trim();
-        const wardData = await thirdService.fetchWards(districtId);
-
-        setWards(wardData);
-        form.setFieldsValue({
-          district: districtName,
-          ward: undefined,
-          districtId: districtId,
-          wardId: "", // Reset ward
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching wards:", error);
-    }
-  };
-
-  const handleWardChange = async (wardSelected: string) => {
-    try {
-      if (wardSelected != "") {
-        form.setFieldsValue({
-          ward: wardSelected.split(",")[1].trim(),
-          wardId: wardSelected.split(",")[0].trim(),
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching wards:", error);
-    }
-  };
+  const [initialCoords, setInitialCoords] = useState({
+    latitude: farm.latitude,
+    longitude: farm.longitude,
+  });
+  const {
+    provinces,
+    setProvinces,
+    districts,
+    setDistricts,
+    wards,
+    setWards,
+    handleProvinceChange,
+    handleDistrictChange,
+    handleWardChange,
+    handleAddressChange,
+    getIdByName,
+    markerPosition,
+    setMarkerPosition,
+  } = useAddressLocation(form, setFarm);
 
   const handleEdit = async () => {
-    setIsEditing(true);
     try {
+      setIsEditing(true);
       setIsLoading(true);
-      const provinceData = await thirdService.fetchCities();
-      setCities(provinceData);
+      const provinceData = await thirdService.fetchProvinces();
+      setProvinces(provinceData);
 
-      const provinceId = getIdByName(provinceData, form.getFieldValue(formFieldNames.province));
+      const provinceId = getIdByName(provinceData, form.getFieldValue(farmFormFields.province));
 
       let districtData: District[] = [];
       if (provinceId) {
         districtData = await thirdService.fetchDistricts(provinceId);
         setDistricts(districtData);
       }
-      const districtId = getIdByName(districtData, form.getFieldValue(formFieldNames.district));
+      const districtId = getIdByName(districtData, form.getFieldValue(farmFormFields.district));
 
       let wardData: Ward[] = [];
       if (districtId) {
         wardData = await thirdService.fetchWards(districtId);
         setWards(wardData);
       }
-      const wardId = getIdByName(wardData, form.getFieldValue(formFieldNames.ward));
+      const wardId = getIdByName(wardData, form.getFieldValue(farmFormFields.ward));
 
       form.setFieldsValue({
-        provinceId: provinceId ?? form.getFieldValue(formFieldNames.province),
-        districtId: districtId ?? form.getFieldValue(formFieldNames.district),
-        wardId: wardId ?? form.getFieldValue(formFieldNames.ward),
+        provinceId: provinceId ?? form.getFieldValue(farmFormFields.province),
+        districtId: districtId ?? form.getFieldValue(farmFormFields.district),
+        wardId: wardId ?? form.getFieldValue(farmFormFields.ward),
       });
     } catch (error) {
       console.error("Error fetching location data:", error);
@@ -144,17 +87,70 @@ function Overview() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.setFieldsValue(initialFarmDetails); // Cập nhật lại form
+    form.setFieldsValue(farm);
+    setLogo({ logoUrl: farm.logoUrl, logo: null });
+    setMarkerPosition({
+      latitude: initialCoords.latitude,
+      longitude: initialCoords.longitude,
+    });
+    setFarm((prev) => ({
+      ...prev,
+      latitude: initialCoords.latitude,
+      longitude: initialCoords.longitude,
+    }));
   };
 
   const handleSave = async () => {
     await form.validateFields();
-    setIsEditing(false);
-    const formValues = form.getFieldsValue();
-    console.log("Form values:", formValues);
-    console.log(logo);
+    const formValues: FarmRequest = form.getFieldsValue();
+    let logoUpdated = !!logo.logo;
+    let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[]).some(
+      (key) => formValues[key] != null && farm[key] != null && formValues[key] !== farm[key],
+    );
+    const isCoordsValid = markerPosition.latitude !== 0 && markerPosition.longitude !== 0;
+    const isCoordsUpdated =
+      isCoordsValid &&
+      (markerPosition.latitude !== initialCoords.latitude ||
+        markerPosition.longitude !== initialCoords.longitude);
+    try {
+      setIsLoading(true);
+      if (logoUpdated && logo.logo) {
+        var logoResult = await farmService.updateFarmLogo(logo.logo);
+        if (logoResult.statusCode === 200) {
+          const logoUrl = logoResult.data.logoUrl;
+          setLogo({ logo: null, logoUrl: logoUrl });
+          useFarmStore.getState().setFarmInfo("", logoUrl);
+        }
+      }
+      if (infoUpdated || isCoordsUpdated) {
+        const updatedFormValues = { ...formValues };
+        if (isCoordsUpdated && markerPosition) {
+          updatedFormValues.longitude = markerPosition.longitude;
+          updatedFormValues.latitude = markerPosition.latitude;
+        }
+        var result = await farmService.updateFarmInfo(updatedFormValues);
+        if (result.statusCode === 200) {
+          setFarm((prev) => ({
+            ...prev,
+            farmName: formValues.farmName,
+            longitude: isCoordsUpdated ? markerPosition.longitude : prev.longitude,
+            latitude: isCoordsUpdated ? markerPosition.latitude : prev.latitude,
+          }));
+          useFarmStore.getState().setFarmInfo(formValues.farmName, "");
+        } else {
+          toast.error(result.message);
+        }
+      }
 
-    toast.success("Changes saved successfully!");
+      if (logoUpdated || infoUpdated) {
+        toast.success("Changes saved successfully!");
+      }
+    } catch (e) {
+      form.setFieldsValue(farm);
+    } finally {
+      setIsLoading(false);
+      setIsEditing(false);
+    }
   };
 
   const beforeUpload = (file: File) => {
@@ -180,15 +176,10 @@ function Overview() {
     return false; // Ngăn Upload tự động gửi file
   };
 
-  const handleRemove = () => {
-    setLogo({
-      logo: null,
-      logoUrl: initialFarmDetails.logoUrl,
-    });
-  };
+  const handleRemove = () => setLogo({ logo: null, logoUrl: farm.logoUrl });
 
   useEffect(() => {
-    form.setFieldsValue(initialFarmDetails);
+    form.setFieldsValue(farm);
   }, []);
 
   return (
@@ -208,15 +199,16 @@ function Overview() {
           <Form layout="vertical" className={style.form} form={form}>
             <FormInput
               label="Farm Name"
-              name={formFieldNames.farmName}
+              name={farmFormFields.farmName}
               rules={RulesManager.getFarmNameRules()}
               isEditing={isEditing}
               placeholder="Enter the farm name"
             />
             <FormInput
               label="Description"
-              name={formFieldNames.description}
+              name={farmFormFields.description}
               rules={RulesManager.getFarmDescriptionRules()}
+              type="textarea"
               isEditing={isEditing}
             />
           </Form>
@@ -225,7 +217,7 @@ function Overview() {
         <Divider className={style.divider} />
         <Section title="Farm Logo" subtitle="Update your farm logo.">
           <Flex className={style.formLogo}>
-            <Image className={style.logo} src={logo.logoUrl} />
+            <Image crossOrigin="anonymous" className={style.logo} src={logo.logoUrl} />
             {isEditing && (
               <Upload.Dragger
                 beforeUpload={beforeUpload}
@@ -252,21 +244,21 @@ function Overview() {
             <Flex className={style.row}>
               <FormInput
                 label="Area (m²)"
-                name={formFieldNames.area}
+                name={farmFormFields.area}
                 rules={RulesManager.getAreaRules()}
                 isEditing={isEditing}
                 placeholder="Enter the farm area"
               />
               <FormInput
                 label="Soil Type"
-                name={formFieldNames.soilType}
+                name={farmFormFields.soilType}
                 rules={RulesManager.getSoilTypeRules()}
                 isEditing={isEditing}
                 placeholder="Enter soil type"
               />
               <FormInput
                 label="Climate Zone"
-                name={formFieldNames.climateZone}
+                name={farmFormFields.climateZone}
                 rules={RulesManager.getClimateZoneRules()}
                 isEditing={isEditing}
                 placeholder="Enter climate zone"
@@ -281,16 +273,16 @@ function Overview() {
             <Flex className={style.row}>
               <SelectInput
                 label="Province"
-                name={formFieldNames.province}
+                name={farmFormFields.province}
                 rules={RulesManager.getProvinceRules()}
-                options={cities.map((p) => ({ value: `${p.id}, ${p.name}`, label: p.name }))}
+                options={provinces.map((p) => ({ value: `${p.id}, ${p.name}`, label: p.name }))}
                 onChange={handleProvinceChange}
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
               <SelectInput
                 label="District"
-                name={formFieldNames.district}
+                name={farmFormFields.district}
                 rules={RulesManager.getDistrictRules()}
                 options={districts.map((d) => ({ value: `${d.id}, ${d.name}`, label: d.name }))}
                 onChange={handleDistrictChange}
@@ -299,7 +291,7 @@ function Overview() {
               />
               <SelectInput
                 label="Ward"
-                name={formFieldNames.ward}
+                name={farmFormFields.ward}
                 rules={RulesManager.getWardRules()}
                 options={wards.map((w) => ({ value: `${w.id}, ${w.name}`, label: w.name }))}
                 onChange={handleWardChange}
@@ -310,14 +302,27 @@ function Overview() {
             <Flex className={style.row}>
               <FormInput
                 label="Address"
-                name={formFieldNames.address}
+                name={farmFormFields.address}
                 rules={RulesManager.getAddressRules()}
                 isEditing={isEditing}
                 placeholder="Enter your detailed address (House number, street...)"
+                onChange={handleAddressChange}
               />
             </Flex>
             <Flex className={style.row}>
-              <MapAddress longitude={coordinates.longitude} latitude={coordinates.latitude} />
+              <Flex className={style.mapContainer}>
+                {isEditing && (
+                  <div className={style.mapNotice}>
+                    <span className={style.icon}>*</span> Click on the map to select your location.
+                  </div>
+                )}
+                <MapAddress
+                  longitude={farm.longitude}
+                  latitude={farm.latitude}
+                  isEditing={isEditing}
+                  setMarkerPosition={setMarkerPosition}
+                />
+              </Flex>
             </Flex>
           </Form>
         </Section>
@@ -331,6 +336,6 @@ function Overview() {
       )}
     </Flex>
   );
-}
+};
 
 export default Overview;

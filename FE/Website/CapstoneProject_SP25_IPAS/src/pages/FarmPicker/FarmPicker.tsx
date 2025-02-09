@@ -4,17 +4,17 @@ import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { CustomButton } from "@/components";
-import { UserFarm } from "@/payloads";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
 import { formatDate } from "@/utils";
 import { toast } from "react-toastify";
+import { GetFarmPicker } from "@/payloads";
 const Text = Typography;
 
 function FarmPicker() {
   const navigate = useNavigate();
-  const [farmsData, setFarmsData] = useState<UserFarm[]>([]);
+  const [farmsData, setFarmsData] = useState<GetFarmPicker[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -23,8 +23,6 @@ function FarmPicker() {
         setLoading(true);
         const result = await farmService.getFarmsOfUser();
         if (result.statusCode === 200) {
-          console.log(result.data);
-
           setFarmsData(result.data);
         } else {
           console.error("Failed to fetch farms:", result.message);
@@ -106,7 +104,7 @@ function FarmPicker() {
                       </Flex>
                       <Flex className={style.creationInfo}>
                         <Text className={style.label}>Created at:</Text>
-                        <Text className={style.date}>{formatDate(farm.farm.createdAt)}</Text>
+                        <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
                         <Tag
                           className={`${style.statusTag} ${style[farm.farm.status.toLowerCase()]}`}
                         >

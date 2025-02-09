@@ -1,4 +1,22 @@
 export class RulesManager {
+  static getRequiredRules(fieldName: string) {
+    return [{ required: true, message: `${fieldName} is required!` }];
+  }
+  static getNumberRules(fieldName: string) {
+    return [
+      { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
+      { pattern: /^(0|[1-9][0-9]*)(\.[0-9]+)?$/, message: `${fieldName} must be a valid number!` },
+    ];
+  }
+  static getTextRules(fieldName: string, min = 2, max = 50, regex = /^[a-zA-ZÀ-ỹ\s]+$/) {
+    return [
+      { required: true, message: `Please input your ${fieldName.toLowerCase()}!` },
+      {
+        pattern: regex,
+        message: `${fieldName} must be ${min} to ${max} characters and contain only letters and spaces!`,
+      },
+    ];
+  }
   static getEmailRules() {
     return [
       { required: true, message: "Please input your email!" },
@@ -22,15 +40,8 @@ export class RulesManager {
       },
     ];
   }
-  static getFullNameRules() {
-    return [
-      { required: true, message: "Please input your full name!" },
-      {
-        pattern: /^[a-zA-ZÀ-ỹ\s]{2,50}$/,
-        message: "Full name must be 2 to 50 characters and contain only letters and spaces!",
-      },
-    ];
-  }
+  static getFullNameRules = () => this.getTextRules("Full name");
+
   static getPhoneNumberRules() {
     return [
       { required: true, message: "Please input your phone number!" },
@@ -40,25 +51,16 @@ export class RulesManager {
       },
     ];
   }
-  static getDOBRules = () => [{ required: true, message: "Please select your date of birth!" }];
-  static getGenderRules = () => [{ required: true, message: "Please select your gender!" }];
-
+  static getDOBRules = () => this.getRequiredRules("Date of Birth");
+  static getGenderRules = () => this.getRequiredRules("Gender");
   // Rules cho FarmForm
-  static getFarmNameRules = () => [{ required: true, message: "Farm Name is required!" }];
-  static getFarmDescriptionRules = () => [
-    { required: true, message: "Description cannot be empty!" },
-  ];
-  static getProvinceRules = () => [{ required: true, message: "Please select a province/city!" }];
-  static getDistrictRules = () => [{ required: true, message: "Please select a district!" }];
-  static getWardRules = () => [{ required: true, message: "Please select a ward!" }];
-  static getAddressRules = () => [{ required: true, message: "Address cannot be empty!" }];
-
-  static getAreaRules() {
-    return [
-      { required: true, message: "Please input the area!" },
-      { pattern: /^[0-9]+$/, message: "Area must be a valid number!" },
-    ];
-  }
-  static getSoilTypeRules = () => [{ required: true, message: "Soil Type is required!" }];
-  static getClimateZoneRules = () => [{ required: true, message: "Climate Zone is required!" }];
+  static getFarmNameRules = () => this.getRequiredRules("Farm Name");
+  static getFarmDescriptionRules = () => this.getRequiredRules("Description");
+  static getProvinceRules = () => this.getRequiredRules("Province/City");
+  static getDistrictRules = () => this.getRequiredRules("District");
+  static getWardRules = () => this.getRequiredRules("Ward");
+  static getAddressRules = () => this.getRequiredRules("Address");
+  static getAreaRules = () => this.getNumberRules("Area");
+  static getSoilTypeRules = () => this.getRequiredRules("Soil Type");
+  static getClimateZoneRules = () => this.getRequiredRules("Climate Zone");
 }

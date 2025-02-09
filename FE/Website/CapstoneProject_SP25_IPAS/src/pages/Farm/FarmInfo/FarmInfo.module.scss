@@ -15,7 +15,8 @@
       position: absolute;
       top: -80px;
       width: 120px;
-      height: auto;
+      height: 120px;
+      object-fit: cover;
       border: 5px solid white;
       border-radius: 50%;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -85,6 +86,18 @@
         .row {
           flex-direction: row;
           gap: 20px;
+        }
+        .mapContainer {
+          width: 100%;
+          flex-direction: column;
+          gap: 5px;
+          .mapNotice {
+            font-size: 12px;
+            color: vars.$color_selected;
+            .icon {
+              color: red;
+            }
+          }
         }
       }
       .formLogo {

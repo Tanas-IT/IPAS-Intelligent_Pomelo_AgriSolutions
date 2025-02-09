@@ -5,7 +5,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export const handleApiError = async (error: any) => {
-  const redirectToHomeWithMessage = (message: string, hasMessage: boolean = true) => {
+  const redirectToHomeWithMessage = async (message: string, hasMessage: boolean = true) => {
+    const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
+    if (refreshToken) {
+      await authService.logout(refreshToken);
+    }
     localStorage.clear();
     if (hasMessage) localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, message);
     window.location.href = PATHS.AUTH.LOGIN;
@@ -22,6 +26,11 @@ export const handleApiError = async (error: any) => {
           const result = await authService.refreshToken();
           if (result.statusCode === 200) {
             const newAccessToken = result.data.authenModel.accessToken;
+            const newRefreshToken = result.data.authenModel.refreshToken;
+
+            localStorage.setItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
+            localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
           } else if (result.statusCode === 500) {

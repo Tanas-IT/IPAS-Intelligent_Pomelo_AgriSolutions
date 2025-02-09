@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -14,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -29,59 +31,65 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IConfiguration _configuration;
+        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _configuration = configuration;
         }
 
-        public async Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateModel)
+        public async Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateRequest, int userid)
         {
             try
             {
+                if (userid <= 0)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
+                }
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
 
                     var farmCreateEntity = new Farm()
                     {
-                        FarmName = farmCreateModel.FarmName,
-                        Address = farmCreateModel.Address,
-                        Area = farmCreateModel.Area,
-                        SoilType = farmCreateModel.SoilType,
-                        ClimateZone = farmCreateModel.ClimateZone,
-                        Province = farmCreateModel.Province,
-                        Ward = farmCreateModel.Ward,
-                        District = farmCreateModel.District,
-                        Length = farmCreateModel.Length,
-                        Width = farmCreateModel.Width,
-                        Description = farmCreateModel.Description
+                        FarmName = farmCreateRequest.FarmName,
+                        Address = farmCreateRequest.Address,
+                        Area = farmCreateRequest.Area,
+                        SoilType = farmCreateRequest.SoilType,
+                        ClimateZone = farmCreateRequest.ClimateZone,
+                        Province = farmCreateRequest.Province,
+                        Ward = farmCreateRequest.Ward,
+                        District = farmCreateRequest.District,
+                        Length = farmCreateRequest.Length,
+                        Width = farmCreateRequest.Width,
+                        Description = farmCreateRequest.Description,
+                        Longitude = farmCreateRequest.Longitude,
+                        Latitude = farmCreateRequest.Latitude
+
                     };
                     farmCreateEntity.FarmCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.FARM);
                     farmCreateEntity.Status = FarmStatus.Active.ToString();
                     farmCreateEntity.IsDelete = false;
                     farmCreateEntity.CreateDate = DateTime.Now;
                     farmCreateEntity.UpdateDate = DateTime.Now;
-                    if (farmCreateModel.LogoUrl != null)
+                    if (farmCreateRequest.LogoUrl != null)
                     {
                         // gan va push len cloudinary
-                        var logoUrlCloudinary = await _cloudinaryService.UploadImageAsync(farmCreateModel.LogoUrl, CloudinaryPath.FARM_LOGO);
+                        var logoUrlCloudinary = await _cloudinaryService.UploadImageAsync(farmCreateRequest.LogoUrl, CloudinaryPath.FARM_LOGO);
                         farmCreateEntity.LogoUrl = logoUrlCloudinary;
                     }
-
-                    if (farmCreateModel.FarmCoordinations?.Any() == true)
+                    else
                     {
-                        foreach (var coordination in farmCreateModel.FarmCoordinations)
-                        {
-                            var farmCoordination = new FarmCoordination()
-                            {
-                                Lagtitude = coordination.Lagtitude,
-                                Longitude = coordination.Longitude,
-                            };
-                            farmCreateEntity.FarmCoordinations.Add(farmCoordination);
-                        }
+                        farmCreateEntity.LogoUrl = _configuration["SystemDefault:ResourceDefault"];
                     }
+
                     // chua co add them UserFarm
+                    farmCreateEntity.UserFarms.Add(new UserFarm
+                    {
+                        UserId = userid,
+                        RoleId = (int)RoleEnum.OWNER,
+                    });
 
                     await _unitOfWork.FarmRepository.Insert(farmCreateEntity);
                     int result = await _unitOfWork.SaveAsync();
@@ -114,11 +122,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetAllFarmOfUser(int userId)
         {
             Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDelete != true;
-            string includeProperties = "Farm,Role";
+            string includeProperties = "Farm,Role,User";
             var userFarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
             if (!userFarm.Any())
                 return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
             var result = _mapper.Map<List<UserFarmModel>>(userFarm);
+            result.ForEach(uf =>
+            {
+                if (uf.Farm != null)
+                {
+                    uf.Farm.Owner = null;
+                }
+            });
             return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG, result);
         }
 
@@ -131,7 +146,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
-
 
                     filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDelete != true);
@@ -251,22 +265,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     Expression<Func<Farm, bool>> filter = x => x.FarmId == farmId;
-                    string includeProperties = "FarmCoordinations,UserFarms,LandPlots,Orders,Processes"; // chua co bang user farm nen chua xoa
+                    string includeProperties = "UserFarms,LandPlots,Orders,Processes"; // chua co bang user farm nen chua xoa
                     // set up them trong context moi xoa dc tat ca 1 lan
                     var farm = await _unitOfWork.FarmRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                     // xoa anh tren cloudinary
+                    if (farm == null) return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
                     if (!string.IsNullOrEmpty(farm.LogoUrl))
                     {
                         _cloudinaryService.DeleteImageByUrlAsync(farm.LogoUrl);
                     }
-                    if (farm == null) return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-
                     _unitOfWork.FarmRepository.Delete(farm);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_CODE, Const.SUCCESS_UPDATE_FARM_MSG, new { success = true });
+                        return new BusinessResult(Const.SUCCESS_DELETE_PERMANENTLY_FARM_CODE, Const.SUCCESS_DELETE_PERMANENTLY_FARM_MSG, new { success = true });
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
                 }
@@ -309,25 +323,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> UpdateFarmInfo(FarmUpdateRequest farmUpdateModel)
+        public async Task<BusinessResult> UpdateFarmInfo(FarmUpdateInfoRequest farmUpdateModel, int farmId)
         {
             try
             {
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<Farm, bool>> condition = x => x.FarmId == farmUpdateModel.FarmId && x.IsDelete != true;
-                    var farmEntityUpdate = await _unitOfWork.FarmRepository.GetByCondition(condition);
+                    //Expression<Func<Farm, bool>> condition = x => x.FarmId == farmId && x.IsDelete != true;
+                    //string includeProperties = "FarmCoordinations";
+                    var farmEntityUpdate = await _unitOfWork.FarmRepository.GetFarmById(farmId);
 
                     if (farmEntityUpdate == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     }
                     // Lấy danh sách thuộc tính từ model
-                    foreach (var prop in typeof(FarmUpdateRequest).GetProperties())
+                    foreach (var prop in typeof(FarmUpdateInfoRequest).GetProperties())
                     {
                         var newValue = prop.GetValue(farmUpdateModel);
-                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()))
+                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.ToString().Equals("string") && !newValue.ToString()!.Equals("0"))
                         {
                             var farmProp = typeof(Farm).GetProperty(prop.Name);
                             if (farmProp != null && farmProp.CanWrite)
@@ -356,86 +371,111 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdateFarmLogo(int farmId, IFormFile logoFile)
         {
-            var farm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId);
-            if (farm == null)
-            {
-                return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-            }
-            var result = await _cloudinaryService.UpdateImageAsync(file: logoFile, farm.LogoUrl);
-            if (result)
-            {
-                return new BusinessResult(Const.SUCCESS_UPDATE_FARM_LOGO_CODE, Const.SUCCESS_UPDATE_FARM_LOGO_MSG, farm);
-            }
-            else return new BusinessResult(Const.FAIL_UPDATE_FARM_LOGO_CODE, Const.FAIL_UPDATE_FARM_LOGO_MSG);
-
-        }
-
-
-        public async Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> updatedCoordinationsList)
-        {
             try
             {
-
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    // Lấy các tọa độ hiện tại
-                    Expression<Func<FarmCoordination, bool>> condition = x => x.FarmId == farmId && x.Farm.IsDelete != true;
-                    var existingCoordinationList = await _unitOfWork.FarmCoordinationRepository.GetAllNoPaging(condition);
-
-                    // Chuyển đổi danh sách thành HashSet để so sánh
-                    var existingCoordinates = existingCoordinationList
-                        .Select(x => new { Lat = x.Lagtitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
-                        .ToHashSet();
-
-                    var newCoordinates = updatedCoordinationsList
-                        .Select(x => new { Lat = x.Lagtitude, Lng = x.Longitude }) // Đổi tên key tránh lỗi trùng
-                        .ToHashSet();
-
-                    // Tìm các điểm bị xóa (có trong danh sách cũ nhưng không có trong danh sách mới)
-                    var coordinatesToDelete = existingCoordinationList
-                        .Where(x => !newCoordinates.Contains(new { Lat = x.Lagtitude!.Value, Lng = x.Longitude!.Value }))
-                        .ToList();
-
-                    // Tìm các điểm cần thêm mới (có trong danh sách mới nhưng không có trong danh sách cũ)
-                    var coordinatesToAdd = updatedCoordinationsList
-                        .Where(x => !existingCoordinates.Contains(new { Lat = x.Lagtitude, Lng = x.Longitude }))
-                        .Select(x => new FarmCoordination
-                        {
-                            FarmId = farmId,
-                            Lagtitude = x.Lagtitude,
-                            Longitude = x.Longitude
-                        })
-                        .ToList();
-
-                    // Xóa các điểm không còn tồn tại
-                    if (coordinatesToDelete.Any())
+                    var farm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId);
+                    if (farm == null)
                     {
-                        _unitOfWork.FarmCoordinationRepository.RemoveRange(coordinatesToDelete); // Sửa DeleteRange
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     }
-
-                    // Thêm các điểm mới
-                    if (coordinatesToAdd.Any())
+                    bool result = false;
+                    if (string.IsNullOrEmpty(farm.LogoUrl) || farm.LogoUrl.Equals(_configuration["SystemDefault:ResourceDefault"]) || farm.LogoUrl.Equals(_configuration["SystemDefault:AvatarDefault"]))
                     {
-                        await _unitOfWork.FarmCoordinationRepository.InsertRangeAsync(coordinatesToAdd); // Sửa InsertRangeAsync
-                    }
-
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        await transaction.CommitAsync();
-                        var resultSave = await _unitOfWork.FarmCoordinationRepository.GetAllNoPaging(x => x.FarmId == farmId);
-                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_COORDINATION_CODE, Const.SUCCESS_UPDATE_FARM_COORDINATION_MSG, resultSave);
+                        farm.LogoUrl = await _cloudinaryService.UploadImageAsync(logoFile, CloudinaryPath.FARM_LOGO);
+                        _unitOfWork.FarmRepository.Update(farm);
+                        result = await _unitOfWork.SaveAsync() > 0 ? true : false;
                     }
                     else
                     {
-                        return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
+                        result = await _cloudinaryService.UpdateImageAsync(file: logoFile, farm.LogoUrl!);
                     }
+
+                    if (result)
+                    {
+                        await transaction.CommitAsync();
+                        var mapResult = _mapper.Map<FarmModel>(farm);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_LOGO_CODE, Const.SUCCESS_UPDATE_FARM_LOGO_MSG, mapResult);
+                    }
+                    else return new BusinessResult(Const.FAIL_UPDATE_FARM_LOGO_CODE, Const.FAIL_UPDATE_FARM_LOGO_MSG);
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+
         }
+
+
+        //public async Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> updatedCoordinationsList)
+        //{
+        //    try
+        //    {
+
+        //        using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        //        {
+        //            // Lấy các tọa độ hiện tại
+        //            Expression<Func<FarmCoordination, bool>> condition = x => x.FarmId == farmId && x.Farm.IsDelete != true;
+        //            var existingCoordinationList = await _unitOfWork.FarmCoordinationRepository.GetAllNoPaging(condition);
+
+        //            // Chuyển đổi danh sách thành HashSet để so sánh
+        //            var existingCoordinates = existingCoordinationList
+        //                .Select(x => new { Lat = x.Lagtitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
+        //                .ToHashSet();
+
+        //            var newCoordinates = updatedCoordinationsList
+        //                .Select(x => new { Lat = x.Lagtitude, Lng = x.Longitude }) // Đổi tên key tránh lỗi trùng
+        //                .ToHashSet();
+
+        //            // Tìm các điểm bị xóa (có trong danh sách cũ nhưng không có trong danh sách mới)
+        //            var coordinatesToDelete = existingCoordinationList
+        //                .Where(x => !newCoordinates.Contains(new { Lat = x.Lagtitude!.Value, Lng = x.Longitude!.Value }))
+        //                .ToList();
+
+        //            // Tìm các điểm cần thêm mới (có trong danh sách mới nhưng không có trong danh sách cũ)
+        //            var coordinatesToAdd = updatedCoordinationsList
+        //                .Where(x => !existingCoordinates.Contains(new { Lat = x.Lagtitude, Lng = x.Longitude }))
+        //                .Select(x => new FarmCoordination
+        //                {
+        //                    FarmId = farmId,
+        //                    Lagtitude = x.Lagtitude,
+        //                    Longitude = x.Longitude
+        //                })
+        //                .ToList();
+
+        //            // Xóa các điểm không còn tồn tại
+        //            if (coordinatesToDelete.Any())
+        //            {
+        //                _unitOfWork.FarmCoordinationRepository.RemoveRange(coordinatesToDelete); // Sửa DeleteRange
+        //            }
+
+        //            // Thêm các điểm mới
+        //            if (coordinatesToAdd.Any())
+        //            {
+        //                await _unitOfWork.FarmCoordinationRepository.InsertRangeAsync(coordinatesToAdd); // Sửa InsertRangeAsync
+        //            }
+
+        //            var result = await _unitOfWork.SaveAsync();
+        //            if (result > 0)
+        //            {
+        //                await transaction.CommitAsync();
+        //                var resultSave = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+        //                var mapResult = _mapper.Map<FarmModel>(resultSave);
+        //                return new BusinessResult(Const.SUCCESS_UPDATE_FARM_COORDINATION_CODE, Const.SUCCESS_UPDATE_FARM_COORDINATION_MSG, mapResult);
+        //            }
+        //            else
+        //            {
+        //                return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
 
         public async Task<UserFarmModel> GetUserFarmRole(int farmId, int userId)
         {
@@ -445,7 +485,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var userfarm = await _unitOfWork.UserFarmRepository.GetByCondition(condition, "Farm,User,Role");
                 var result = _mapper.Map<UserFarmModel>(userfarm);
                 return result;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return null;
             }

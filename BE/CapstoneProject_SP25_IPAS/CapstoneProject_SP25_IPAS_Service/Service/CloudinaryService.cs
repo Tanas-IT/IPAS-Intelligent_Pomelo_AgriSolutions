@@ -37,6 +37,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             // Trích xuất publicId từ URL
             var publicId = GetPublicIdFromUrl(url);
+            if (url.Equals(_configuration["SystemDefault:ResourceDefault"]) || url.Equals("SystemDefault:AvatarDefault"))
+            {
+                return true;
+            }
 
             if (string.IsNullOrEmpty(publicId))
             {
@@ -317,6 +321,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                if (url.Equals(_configuration["SystemDefault:ResourceDefault"]) || url.Equals("SystemDefault:AvatarDefault"))
+                {
+                    return new BusinessResult(Const.SUCCESS_DELETE_RESOURCE_CODE, Const.SUCCESS_DELETE_RESOURCE_MESSAGE, true);
+                }
                 if (IsImageLink(url))
                 {
                     await DeleteImageByUrlAsync(url);

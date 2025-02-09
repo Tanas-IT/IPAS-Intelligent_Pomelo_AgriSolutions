@@ -1,4 +1,4 @@
-using CapstoneProject_SP25_IPAS_API.ProgramConfig;
+﻿using CapstoneProject_SP25_IPAS_API.ProgramConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_API.Middleware;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,11 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // 100MB
 });
 
 //Config Jwt Token
@@ -93,6 +99,8 @@ builder.Services.AddControllers()
     {
         options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+
     });
 // add mail settings
 builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSettings"));

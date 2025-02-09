@@ -41,15 +41,19 @@ public partial class Farm
 
     public string? Province { get; set; }
 
-    public string? LandOwnershipCertificate { get; set; }
+    public double? Longitude { get; set; }
 
-    public string? OperatingLicense { get; set; }
+    public double? Latitude { get; set; }
 
-    public string? LandLeaseAgreement { get; set; }
+    //public string? LandOwnershipCertificate { get; set; }
 
-    public string? PesticideUseLicense { get; set; }
+    //public string? OperatingLicense { get; set; }
 
-    public virtual ICollection<FarmCoordination> FarmCoordinations { get; set; } = new List<FarmCoordination>();
+    //public string? LandLeaseAgreement { get; set; }
+
+    //public string? PesticideUseLicense { get; set; }
+
+    //public virtual ICollection<FarmCoordination> FarmCoordinations { get; set; } = new List<FarmCoordination>();
 
     public virtual ICollection<LandPlot> LandPlots { get; set; } = new List<LandPlot>();
 

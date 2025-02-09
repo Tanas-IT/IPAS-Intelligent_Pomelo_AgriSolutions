@@ -25,12 +25,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public int? MasterTypeId { get; set; }
 
-        public virtual ICollection<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; } = new List<CriteriaGraftedPlant>();
+        public string? MasterTypeName { get; set; }
 
-        public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
+        //public virtual ICollection<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; } = new List<CriteriaGraftedPlant>();
 
-        public virtual MasterType? MasterType { get; set; }
+        //public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 
-        public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
+        //public virtual MasterType? MasterType { get; set; }
+
+        //public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
     }
 }

@@ -32,7 +32,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<Farm> Farms { get; set; }
 
-    public virtual DbSet<FarmCoordination> FarmCoordinations { get; set; }
+    //public virtual DbSet<FarmCoordination> FarmCoordinations { get; set; }
 
     public virtual DbSet<GraftedPlant> GraftedPlants { get; set; }
 
@@ -290,14 +290,14 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.FarmName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.LandLeaseAgreement).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.LandOwnershipCertificate).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.LandLeaseAgreement).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.LandOwnershipCertificate).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.OperatingLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.PesticideUseLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.LogoUrl)
                 .HasMaxLength(500)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS")
                 .HasColumnName("LogoURL");
-            entity.Property(e => e.OperatingLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PesticideUseLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Province)
                 .HasMaxLength(300)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -313,23 +313,23 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
         });
 
-        modelBuilder.Entity<FarmCoordination>(entity =>
-        {
-            entity.HasKey(e => e.FarmCoordinationId).HasName("PK__FarmCoor__6BD490F93070DFBF");
+        //modelBuilder.Entity<FarmCoordination>(entity =>
+        //{
+        //    entity.HasKey(e => e.FarmCoordinationId).HasName("PK__FarmCoor__6BD490F93070DFBF");
 
-            entity.ToTable("FarmCoordination");
+        //    entity.ToTable("FarmCoordination");
 
-            entity.Property(e => e.FarmCoordinationId).HasColumnName("FarmCoordinationID");
-            entity.Property(e => e.FarmCoordinationCode)
-                .HasMaxLength(50)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.FarmId).HasColumnName("FarmID");
+        //    entity.Property(e => e.FarmCoordinationId).HasColumnName("FarmCoordinationID");
+        //    entity.Property(e => e.FarmCoordinationCode)
+        //        .HasMaxLength(50)
+        //        .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.Property(e => e.FarmId).HasColumnName("FarmID");
 
-            entity.HasOne(d => d.Farm).WithMany(p => p.FarmCoordinations)
-                .HasForeignKey(d => d.FarmId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__FarmCoord__FarmI__18B6AB08");
-        });
+        //    entity.HasOne(d => d.Farm).WithMany(p => p.FarmCoordinations)
+        //        .HasForeignKey(d => d.FarmId)
+        //        .OnDelete(DeleteBehavior.Cascade)
+        //        .HasConstraintName("FK__FarmCoord__FarmI__18B6AB08");
+        //});
 
         modelBuilder.Entity<GraftedPlant>(entity =>
         {
@@ -1313,15 +1313,15 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<LegalDocument>(entity =>
         {
-            entity.HasKey(e => e.LegalDocumentID).HasName("PK__LegalDocument__2EE578CA467DABB5");
+            entity.HasKey(e => e.LegalDocumentId).HasName("PK__LegalDocument__2EE578CA467DABB5");
 
             entity.ToTable("LegalDocument");
 
-            entity.Property(e => e.LegalDocumentID).HasColumnName("LegalDocumentID");
+            entity.Property(e => e.LegalDocumentId).HasColumnName("LegalDocumentID");
             entity.Property(e => e.CreateAt).HasColumnType("datetime");
             entity.Property(e => e.UpdateAt).HasColumnType("datetime");
             entity.Property(e => e.IssueDate).HasColumnType("datetime");
-            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
             entity.Property(e => e.LegalDocumentCode).HasMaxLength(200).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.LegalDocumentType)
                 .HasMaxLength(300)
@@ -1338,11 +1338,11 @@ public partial class IpasContext : DbContext
               .HasMaxLength(200)
               .UseCollation("SQL_Latin1_General_CP1_CI_AS")
               .HasColumnName("Status");
-            entity.Property(e => e.FarmID).HasColumnName("FarmID");
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
           
 
             entity.HasOne(d => d.Farm).WithMany(p => p.LegalDocuments)
-                .HasForeignKey(d => d.FarmID)
+                .HasForeignKey(d => d.FarmId)
                 .HasConstraintName("FK__LegalDocument__Farm__29221CFB");
         });
 

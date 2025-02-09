@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
-    public interface IFarmCoordinationRepository
-    {
-    }
+    //public interface IFarmCoordinationRepository
+    //{
+    //}
 }
