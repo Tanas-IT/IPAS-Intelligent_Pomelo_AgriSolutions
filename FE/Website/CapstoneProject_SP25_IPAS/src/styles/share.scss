@@ -129,3 +129,19 @@
     }
   }
 }
+
+@mixin formWrapper {
+  width: 100%;
+
+  .title {
+    color: vars.$color_primary !important;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .section {
+    width: 100%;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+}

@@ -3,16 +3,16 @@ import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
 import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
-import { defaultCoordsFarm, RulesManager } from "@/utils";
+import { RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
 import {
   EditActions,
-  FormInput,
+  InputInfo,
   MapAddress,
   Section,
   SectionHeader,
-  SelectInput,
+  SelectInfo,
 } from "@/components";
 import { LogoState } from "@/types";
 import { useFarmStore, useLoadingStore } from "@/stores";
@@ -197,14 +197,14 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
       <Flex className={style.contentSectionBody}>
         <Section title="Public Profile" subtitle="This will be displayed on your profile.">
           <Form layout="vertical" className={style.form} form={form}>
-            <FormInput
+            <InputInfo
               label="Farm Name"
               name={farmFormFields.farmName}
               rules={RulesManager.getFarmNameRules()}
               isEditing={isEditing}
               placeholder="Enter the farm name"
             />
-            <FormInput
+            <InputInfo
               label="Description"
               name={farmFormFields.description}
               rules={RulesManager.getFarmDescriptionRules()}
@@ -242,21 +242,21 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Farm Characteristics" subtitle="Update your farm's environmental details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <FormInput
+              <InputInfo
                 label="Area (m²)"
                 name={farmFormFields.area}
                 rules={RulesManager.getAreaRules()}
                 isEditing={isEditing}
                 placeholder="Enter the farm area"
               />
-              <FormInput
+              <InputInfo
                 label="Soil Type"
                 name={farmFormFields.soilType}
                 rules={RulesManager.getSoilTypeRules()}
                 isEditing={isEditing}
                 placeholder="Enter soil type"
               />
-              <FormInput
+              <InputInfo
                 label="Climate Zone"
                 name={farmFormFields.climateZone}
                 rules={RulesManager.getClimateZoneRules()}
@@ -271,7 +271,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Address" subtitle="Update your address details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <SelectInput
+              <SelectInfo
                 label="Province"
                 name={farmFormFields.province}
                 rules={RulesManager.getProvinceRules()}
@@ -280,7 +280,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInput
+              <SelectInfo
                 label="District"
                 name={farmFormFields.district}
                 rules={RulesManager.getDistrictRules()}
@@ -289,7 +289,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInput
+              <SelectInfo
                 label="Ward"
                 name={farmFormFields.ward}
                 rules={RulesManager.getWardRules()}
@@ -300,7 +300,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
               />
             </Flex>
             <Flex className={style.row}>
-              <FormInput
+              <InputInfo
                 label="Address"
                 name={farmFormFields.address}
                 rules={RulesManager.getAddressRules()}

@@ -9,6 +9,7 @@ interface CustomButtonProps {
   isCancel?: boolean;
   htmlType?: "button" | "submit" | "reset";
   isLoading?: boolean;
+  isModal?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -18,12 +19,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   isCancel = false,
   htmlType = "button",
   isLoading,
+  isModal = false,
 }) => {
   const { isLoading: globalLoading } = useLoadingStore();
 
   return (
     <Button
-      className={` ${isCancel ? style.cancelBtn : style.btn}`}
+      className={`${isCancel ? style.cancelBtn : isModal ? style.btnModal : style.btn}`}
       icon={icon}
       onClick={handleOnClick}
       htmlType={htmlType}
