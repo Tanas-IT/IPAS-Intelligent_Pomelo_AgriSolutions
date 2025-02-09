@@ -3,11 +3,12 @@ export {
   AiOutlineCloseCircle as closeFail,
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
-export { CiTimer as timer, CiBoxes as box } from "react-icons/ci";
+export { CiTimer as timer, CiBoxes as box, CiMail as mail } from "react-icons/ci";
 export {
   RiDeleteBin6Line as delete,
   RiArrowDropDownLine as arrowDropDownLine,
   RiSeedlingLine as seedling,
+  RiUserAddLine as addUser,
 } from "react-icons/ri";
 export {
   IoIosArrowBack as arrowBack,
@@ -30,6 +31,8 @@ export {
   LuFilter as filter,
   LuClipboardCheck as criteria,
   LuHistory as history,
+  LuPhone as phone,
+  LuUpload as upload
 } from "react-icons/lu";
 
 export { VscRobot as robot } from "react-icons/vsc";
@@ -45,7 +48,12 @@ export { PiFarm as farms, PiPlantLight as plant } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
 export { BiShareAlt as share, BiDetail as detail } from "react-icons/bi";
 
-export { IoSettingsOutline as setting, IoLanguageOutline as language } from "react-icons/io5";
+export {
+  IoSettingsOutline as setting,
+  IoLanguageOutline as language,
+  IoDocumentTextOutline as document,
+  IoMapOutline as map,
+} from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";

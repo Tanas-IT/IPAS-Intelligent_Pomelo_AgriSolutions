@@ -7,12 +7,6 @@ GO
 USE [IPAS]
 GO
 
--- ipas.dbo.Crop definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.Crop;
-
 CREATE TABLE ipas.dbo.Crop (
 	CropID int IDENTITY(1,1) NOT NULL,
 	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -302,8 +296,32 @@ CREATE TABLE ipas.dbo.LandRow (
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandPlotID int NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__LandRow__0E72A6FAD7B08F4C PRIMARY KEY (LandRowID),
 	CONSTRAINT FK__LandRow__LandPlo__22751F6C FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.LegalDocument definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.LegalDocument;
+
+CREATE TABLE ipas.dbo.LegalDocument (
+	LegalDocumentID int IDENTITY(1,1) NOT NULL,
+	LegalDocumentCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentType nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentName nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LegalDocumentURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IssueDate datetime NULL,
+	ExpiredDate datetime NULL,
+	Status nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateAt datetime NULL,
+	UpdateAt datetime NULL,
+	FarmID int NULL,
+	CONSTRAINT LegalDocument_PK PRIMARY KEY (LegalDocumentID),
+	CONSTRAINT LegalDocument_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
 );
 
 
@@ -430,6 +448,8 @@ CREATE TABLE ipas.dbo.Plant (
 	MasterTypeID int NULL,
 	ImageURL nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandRowID int NULL,
+	IsDeleted bit NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
 	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
 	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
@@ -497,26 +517,6 @@ CREATE TABLE ipas.dbo.PlantLot (
 );
 
 
--- ipas.dbo.PlantResource definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.PlantResource;
-
-CREATE TABLE ipas.dbo.PlantResource (
-	PlanResourceID int IDENTITY(1,1) NOT NULL,
-	PlanResourceCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceType nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	PlantGrowthHistoryID int NULL,
-	CONSTRAINT PK__PlantRes__1974A137217179D1 PRIMARY KEY (PlanResourceID),
-	CONSTRAINT FK_PlantResource_PlantGrowthHistory FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID) ON DELETE CASCADE
-);
-
-
 -- ipas.dbo.Process definition
 
 -- Drop table
@@ -564,6 +564,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__SubProce__F054A88CD66E5A59 PRIMARY KEY (SubProcessID),
 	CONSTRAINT FK__SubProces__Proce__3CF40B7E FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT SubProcess_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
@@ -716,6 +717,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
+	CONSTRAINT Plan_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID),
 	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
 );
 
@@ -752,6 +754,7 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	StarTime datetime NULL,
 	EndTime datetime NULL,
 	CarePlanID int NULL,
+	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
 	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
@@ -839,30 +842,11 @@ CREATE TABLE ipas.dbo.WorkLog (
 	ScheduleID int NULL,
 	HarvestHistoryID int NULL,
 	WarningID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
 	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
 	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
-);
-
-
--- ipas.dbo.WorkLogResource definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.WorkLogResource;
-
-CREATE TABLE ipas.dbo.WorkLogResource (
-	WorkLogResourceID int IDENTITY(1,1) NOT NULL,
-	WorkLogResourceCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceType nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	WorkLogID int NULL,
-	CONSTRAINT PK__WorkLogR__2EE578CA467DABB5 PRIMARY KEY (WorkLogResourceID),
-	CONSTRAINT FK__WorkLogRe__WorkL__29221CFB FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
 
 
@@ -879,6 +863,33 @@ CREATE TABLE ipas.dbo.CriteriaGraftedPlant (
 	CONSTRAINT PK__Criteria__47DA559824FE7603 PRIMARY KEY (GraftedPlantID,CriteriaID),
 	CONSTRAINT FK__CriteriaG__Crite__55F4C372 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
 	CONSTRAINT FK__CriteriaG__Graft__55009F39 FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.Resource definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.Resource;
+
+CREATE TABLE ipas.dbo.Resource (
+	ResourceID int IDENTITY(1,1) NOT NULL,
+	ResourceCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ResourceURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	WorkLogID int NULL,
+	PlantGrowthHistoryID int NULL,
+	LegalDocumentID int NULL,
+	GraftedPlantID int NULL,
+	CONSTRAINT Resource_PK PRIMARY KEY (ResourceID),
+	CONSTRAINT Resource_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
+	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
+	CONSTRAINT Resource_WorkLog_FK FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID)
 );
 
 
@@ -916,56 +927,72 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
 GO
-INSERT INTO [dbo].[Farm] ([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
+INSERT INTO [dbo].[Farm] 
+([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Farm A', '123 Green Lane, District 1, Province X', 'https://example.com/logoA.png', 'Ward 1', 'Province X', 'District 1', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
-('F002', 'Farm B', '456 Blue Avenue, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F003', 'Farm C', '789 Binh Duong, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F004', 'Farm D', '910 Dong Nai, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F005', 'Farm E', '911 Long An, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F006', 'Farm F', '159 Can Gio, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F007', 'Farm G', '567 Tien Giang, District 2, Province Y', 'https://example.com/logoB.png', 'Ward 2', 'Province Y', 'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-('F008', 'Farm H', '789 Kien Giang, District 3, Province Z', 'https://example.com/logoC.png', 'Ward 3', 'Province Z', 'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Tân Bình', N'Đồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
+
+('F002', 'Farm B', N'456 Blue Avenue', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F003', 'Farm C', N'789 Binh Duong', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F004', 'Farm D', N'910 Dong Nai', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F005', 'Farm E', N'911 Long An', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F006', 'Farm F', N'159 Can Gio', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F007', 'Farm G', N'567 Tien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F008', 'Farm H', N'789 Kien Giang', 
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
+ N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+
 GO
 INSERT INTO [dbo].[FarmCoordination] ([Longitude], [Lagtitude], [FarmID])
 VALUES
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
-(106.6297, 10.8231, 1),  -- Coordinates for Farm A
+(106.786528, 10.9965, 1),  -- Coordinates for Nam Hue Tan Trieu Pomelo
 (107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(107.6297, 11.8231, 2),  -- Coordinates for Farm B
-(108.6297, 12.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3),  -- Coordinates for Farm c
-(107.6297, 11.8231, 3);  -- Coordinates for Farm c
+(108.6297, 12.8231, 3);  -- Coordinates for Farm c
+
 GO
 INSERT INTO [dbo].[Role] ([RoleName], [isSystem])
 VALUES
 ('Admin', 1),
-('User', 1),
-('Owner', 0),
-('Manager', 0),
-('Employee', 0);
+('User', 2),
+('Owner', 3),
+('Manager', 4),
+('Employee', 5);
 GO
 INSERT INTO [dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDelete], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar1.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar2.png', NULL, NULL, 2),
-('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
+('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2);
 ;
 GO
 INSERT INTO [dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
 VALUES 
-(1,1,3),
-(1,2,4),
-(1,3,5),
-(1,4,5);
+(1,3,3),
+(2,3,4),
+(3,3,5),
+(4,3,5);
 GO
 INSERT INTO [dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd])  
 VALUES  
@@ -977,21 +1004,78 @@ VALUES
     ('FRUIT_DEVELOPMENT', N'Phát triển quả', 61, 96),  
     ('HARVEST', N'Thu hoạch', 97, 120);
 GO
-INSERT INTO ipas.dbo.CriteriaType (CriteriaTypeCode, CriteriaTypeName, GrowthStageID)
+INSERT INTO [dbo].[MasterType] 
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate])
 VALUES
-    ('CT001', N'Đánh giá chất lượng đất', 1),
-    ('CT002', N'Đánh giá nguồn nước', 2),
-    ('CT003', N'Tiêu chuẩn phân bón', 3),
-    ('CT004', N'Quy trình chăm sóc', 4),
-    ('CT005', N'Tiêu chuẩn thu hoạch', 7);
+    ('MT001', 'Product Category', 'Category', 'Defines product categories', 0, 1, GETDATE()),
+    ('MT002', 'User Role', 'Role', 'Defines different user roles in system', 0, 1, GETDATE()),
+    ('MT003', 'Payment Method', 'Payment', 'Lists available payment methods', 0, 1, GETDATE()),
+    ('MT004', 'Shipping Method', 'Shipping', 'Lists available shipping methods', 0, 1, GETDATE()),
+    ('MT005', 'Order Status', 'Status', 'Defines various order statuses', 0, 1, GETDATE()),
+    ('MT006', 'Discount Type', 'Discount', 'Defines types of discounts available', 0, 1, GETDATE()),
+    ('MT007', 'Membership Level', 'Membership', 'Defines customer membership levels', 0, 1, GETDATE()),
+    ('MT008', 'Tax Type', 'Tax', 'Defines different types of taxes', 0, 1, GETDATE()),
+    ('MT009', 'Subscription Plan', 'Subscription', 'Lists available subscription plans', 0, 1, GETDATE()),
+    ('MT010', 'Support Ticket Status', 'Support', 'Defines statuses for customer support tickets', 0, 1, GETDATE());
 GO
-INSERT INTO ipas.dbo.Criteria (CriteriaCode, CriteriaName, CriteriaDescription, Priority, isActive, CriteriaTypeID, isChecked)
+INSERT INTO [dbo].[Criteria]
+    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked], [MasterTypeID])
 VALUES
-    ('CR001', N'Độ pH của đất', N'Độ pH của đất phải nằm trong khoảng từ 5.5 - 6.5 để đảm bảo cây phát triển tốt.', 1, 1, 1, 0),
-    ('CR002', N'Hàm lượng hữu cơ', N'Đất phải có hàm lượng hữu cơ tối thiểu là 2% để cung cấp dinh dưỡng cho cây.', 2, 1, 1, 1),
-    ('CR003', N'Chất lượng nước tưới', N'Nước tưới phải không chứa kim loại nặng và có độ pH trung tính (6-7).', 1, 1, 2, 1),
-    ('CR004', N'Loại phân bón', N'Chỉ sử dụng phân hữu cơ hoặc phân vi sinh, tránh phân hóa học gây ô nhiễm.', 1, 1, 3, 0),
-    ('CR005', N'Liều lượng phân bón', N'Bón phân theo đúng chu kỳ sinh trưởng của cây, tránh bón quá nhiều.', 2, 1, 3, 1),
-    ('CR006', N'Tưới nước', N'Tưới nước theo chu kỳ, tránh ngập úng hoặc thiếu nước kéo dài.', 3, 1, 4, 1),
-    ('CR007', N'Tiêu chuẩn thu hoạch', N'Chỉ thu hoạch khi quả đạt độ chín tối ưu (màu sắc, độ đường).', 1, 1, 5, 1);
-GO
+    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 1),
+    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1, 2),
+    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0, 3),
+    ('CR004', 'Return Policy', 'Defines product return conditions', 4, 1, 1, 4),
+    ('CR005', 'Payment Security', 'Ensures safe payment processing', 5, 1, 0, 3),
+    ('CR006', 'Product Warranty', 'Guarantees product durability', 2, 1, 1, 1),
+    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 3, 1, 0, 7),
+    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 4, 1, 1, 8),
+    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 1, 1, 0, 10),
+    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 2, 1, 1, 4);
+
+
+INSERT INTO ipas.dbo.LandPlot 
+( LandPlotCode, LandPlotName, Area, [Length], Width, SoilType, CreateDate, UpdateDate, Status, Description, FarmID, TargetMarket) 
+VALUES
+( 'LP001', 'Land Plot A', 500.0, 50.0, 10.0, 'Clay', '2024-01-01', '2024-01-05', 'Active', 'Suitable for rice farming', 1, 'Local Market'),
+( 'LP002', 'Land Plot B', 300.0, 30.0, 10.0, 'Sandy', '2024-01-02', '2024-01-06', 'Active', 'Used for vegetable cultivation', 1, 'Supermarkets'),
+( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 1, 'Export Market'),
+( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 1, 'Organic Stores'),
+( 'LP005', 'Land Plot E', 600.0, 60.0, 10.0, 'Peaty', '2024-01-05', '2024-01-09', 'Active', 'Large-scale crop production', 2, 'Food Processing Industry'),
+( 'LP006', 'Land Plot F', 450.0, 45.0, 10.0, 'Chalky', '2024-01-06', '2024-01-10', 'Inactive', 'Experimental field', 2, 'Research Institutions'),
+( 'LP007', 'Land Plot G', 550.0, 55.0, 10.0, 'Loamy', '2024-01-07', '2024-01-11', 'Active', 'High-yield production', 2, 'Supermarkets'),
+( 'LP008', 'Land Plot H', 280.0, 28.0, 10.0, 'Sandy', '2024-01-08', '2024-01-12', 'Active', 'Ideal for root vegetables', 3, 'Local Market'),
+( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution'),
+( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market');
+
+
+INSERT INTO ipas.dbo.LandRow 
+( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 
+VALUES
+( 'LR001', 1, 50, 2.5, 30.0, 5.0, 'North', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
+( 'LR002', 2, 40, 2.0, 25.0, 4.5, 'South', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
+( 'LR003', 3, 60, 3.0, 35.0, 6.0, 'East', '2024-01-03', '2024-01-07', 'Inactive', 'Row for carrots', 1),
+( 'LR004', 4, 30, 1.8, 20.0, 4.0, 'West', '2024-01-04', '2024-01-08', 'Active', 'Row for cabbage', 2),
+( 'LR005', 5, 70, 2.7, 40.0, 6.5, 'North', '2024-01-05', '2024-01-09', 'Active', 'Row for strawberries', 2),
+( 'LR006', 6, 80, 3.2, 45.0, 7.0, 'South', '2024-01-06', '2024-01-10', 'Inactive', 'Row for spinach', 2),
+( 'LR007', 7, 55, 2.2, 32.0, 5.5, 'East', '2024-01-07', '2024-01-11', 'Active', 'Row for peppers', 2),
+( 'LR008', 8, 90, 3.5, 50.0, 7.5, 'West', '2024-01-08', '2024-01-12', 'Active', 'Row for pumpkins', 2),
+( 'LR009', 9, 65, 2.9, 38.0, 6.8, 'North', '2024-01-09', '2024-01-13', 'Inactive', 'Row for potatoes', 1),
+( 'LR010', 10, 75, 3.1, 42.0, 7.2, 'South', '2024-01-10', '2024-01-14', 'Active', 'Row for onions', 1);
+
+
+INSERT INTO ipas.dbo.Plant 
+( PlantCode, PlantName, PlantIndex, GrowthStage, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID) 
+VALUES
+( 'P001', 'Tomato', 1, 'Seedling', 'Healthy', '2024-01-01', '2024-01-05', '2023-12-25', NULL, 'Cherry tomato variety', 1, 'https://example.com/tomato.jpg', 1),
+( 'P002', 'Lettuce', 2, 'Mature', 'Healthy', '2024-01-02', '2024-01-06', '2023-12-20', NULL, 'Green leafy lettuce', 2, 'https://example.com/lettuce.jpg', 1),
+( 'P003', 'Carrot', 3, 'Germination', 'Unhealthy', '2024-01-03', '2024-01-07', '2023-12-18', NULL, 'Orange root vegetable', 1, 'https://example.com/carrot.jpg', 1),
+( 'P004', 'Cabbage', 4, 'Vegetative', 'Healthy', '2024-01-04', '2024-01-08', '2023-12-15', NULL, 'Round green cabbage', 2, 'https://example.com/cabbage.jpg', 1),
+( 'P005', 'Strawberry', 5, 'Flowering', 'Moderate', '2024-01-05', '2024-01-09', '2023-12-10', NULL, 'Red juicy strawberry', 1, 'https://example.com/strawberry.jpg', 2),
+( 'P006', 'Spinach', 6, 'Harvest', 'Healthy', '2024-01-06', '2024-01-10', '2023-12-08', NULL, 'Rich in iron', 2, 'https://example.com/spinach.jpg', 2),
+( 'P007', 'Pepper', 7, 'Mature', 'Unhealthy', '2024-01-07', '2024-01-11', '2023-12-05', NULL, 'Spicy red pepper', 1, 'https://example.com/pepper.jpg', 2),
+( 'P008', 'Pumpkin', 8, 'Seedling', 'Moderate', '2024-01-08', '2024-01-12', '2023-12-01', NULL, 'Large orange pumpkin', 2, 'https://example.com/pumpkin.jpg', 2),
+( 'P009', 'Potato', 9, 'Germination', 'Healthy', '2024-01-09', '2024-01-13', '2023-11-28', NULL, 'Underground tuber', 1, 'https://example.com/potato.jpg', 2),
+( 'P010', 'Onion', 10, 'Mature', 'Moderate', '2024-01-10', '2024-01-14', '2023-11-25', NULL, 'Pungent bulb vegetable', 2, 'https://example.com/onion.jpg', 2);
+
+
+

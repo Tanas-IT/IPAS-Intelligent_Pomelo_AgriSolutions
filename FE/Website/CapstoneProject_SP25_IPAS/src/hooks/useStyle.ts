@@ -28,6 +28,11 @@ const useStyle = createStyles(({ css }) => {
           background-color: ${hoverBackground} !important;
         }
 
+        .ant-table-row-expand-icon:hover,
+        .ant-table-row-expand-icon:focus {
+          color: ${primaryColor} !important;
+        }
+
         .ant-table-footer {
           text-align: center;
           padding: 10px 16px;
@@ -65,8 +70,11 @@ const useStyle = createStyles(({ css }) => {
         color: ${primaryColor} !important;
       }
 
+      &.ant-select-focused .ant-select-selector,
       .ant-select-selector:hover {
         border-color: ${primaryColor} !important;
+        outline: none;
+        box-shadow: none !important;
       }
 
       .ant-segmented-item-label {
@@ -113,7 +121,6 @@ const useStyle = createStyles(({ css }) => {
         text-align: center;
         margin-top: 7px;
       }
-
     `,
     customInput: css`
       .ant-picker-input > input,
@@ -122,17 +129,27 @@ const useStyle = createStyles(({ css }) => {
         font-size: 16px !important;
       }
     `,
+    customInput2: css`
+      .ant-input-outlined:hover,
+      .ant-input-outlined:focus-within {
+        border-color: ${primaryColor} !important;
+        outline: none;
+        box-shadow: none !important;
+      }
+    `,
     customPlaceholder: css`
       .ant-select-selection-placeholder {
         font-size: 16px;
       }
     `,
     customSlick: css`
-      .slick-next, .slick-prev {
+      .slick-next,
+      .slick-prev {
         z-index: 2;
       }
 
-      .slick-next:before, .slick-prev:before {
+      .slick-next:before,
+      .slick-prev:before {
         font-size: 20px;
         line-height: 1;
         opacity: 0.75;
@@ -140,7 +157,6 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customSwitch: css`
-
       .ant-switch-handle:before {
         background-color: ${primaryColor};
       }
@@ -151,10 +167,10 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customButton: css`
-      .ant-modal-footer >.ant-btn+.ant-btn {
+      .ant-modal-footer > .ant-btn + .ant-btn {
         background-color: ${primaryColor};
-       }`,
-
+      }
+    `,
   };
 });
 

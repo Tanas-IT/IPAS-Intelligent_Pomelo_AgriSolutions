@@ -66,4 +66,6 @@ public partial class Plan
     public virtual Process? Process { get; set; }
     public virtual GrowthStage? GrowthStage { get; set; }
     public virtual User? User { get; set; }
+    public virtual Crop? Crop { get; set; }
+    public virtual Plant? Plant { get; set; }
 }

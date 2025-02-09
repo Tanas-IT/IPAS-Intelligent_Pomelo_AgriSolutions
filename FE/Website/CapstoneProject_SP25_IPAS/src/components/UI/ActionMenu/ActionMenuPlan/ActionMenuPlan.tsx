@@ -4,16 +4,16 @@ import ActionMenu from "../ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 
 interface ActionMenuProps {
-  id: number;
+  id: string;
   //   onEdit: (id: number, user: userUpdate) => void;
   //   onDelete: (id: number) => void;
 }
 
 const ActionMenuPlan: FC<ActionMenuProps> = ({ id }) => {
   const navigate = useNavigate();
-  const handleEditClick = async () => {
+  const handleUpdateClick = async () => {
     console.log("Edit Clicked");
-    
+    navigate(`/plans/update/${id}`);
   };
 
   const handleDetailClick = async () => {
@@ -29,7 +29,7 @@ const ActionMenuPlan: FC<ActionMenuProps> = ({ id }) => {
     {
       icon: <Icons.edit />,
       label: "Update Plan",
-      onClick: handleEditClick,
+      onClick: handleUpdateClick,
     },
     {
       icon: <Icons.delete />,

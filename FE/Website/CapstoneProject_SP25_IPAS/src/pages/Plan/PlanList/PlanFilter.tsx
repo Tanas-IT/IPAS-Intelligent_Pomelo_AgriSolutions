@@ -33,10 +33,10 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
   ];
 
   const processTypeOptions = [
-    { value: "type 1" },
-    { value: "type 2" },
-    { value: "type 3" },
-    { value: "type 4" }
+    { value: "None" },
+    { value: "Daily" },
+    { value: "Weekly" },
+    { value: "Monthly" }
   ];
 
   const isFilterEmpty = !(
@@ -83,7 +83,7 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
           />
         </Flex>
         <Flex className={style.section}>
-          <label className={style.title}>Process Type:</label>
+          <label className={style.title}>Frequency:</label>
           <Select
             mode="multiple"
             placeholder="Please select"

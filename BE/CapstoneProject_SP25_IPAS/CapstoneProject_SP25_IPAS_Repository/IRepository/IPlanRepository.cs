@@ -8,5 +8,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IPlanRepository
     {
+        public Task<int> GetLastPlanSequence();
     }
 }

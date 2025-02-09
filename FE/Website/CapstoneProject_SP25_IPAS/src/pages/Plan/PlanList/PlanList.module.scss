@@ -3,6 +3,7 @@
 
 .container {
   @include shared.container;
+
 }
 
 .filterContent {
@@ -50,5 +51,76 @@
       background-color: #b8c39b;
       color: #fff;
     }
+  }
+
+  .form {
+    background-color: #b8c39b;
+  }
+}
+
+.contentSectionBody {
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: vars.$color_bg_detail;
+  gap: 24px;
+  padding: 20px;
+
+  .form {
+    // background-color: white;
+    border-radius: 10px;
+    // background-color: vars.$color_bg_detail;
+    flex-direction: column;
+    position: relative;
+
+    .divider {
+      background-color: #ccc;
+      height: 0.5px;
+    }
+
+    .btnGroup {
+      margin-top: 15px;
+    }
+
+    .monthGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+
+      .monthDay {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: vars.$color_bg_frequency;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .active {
+        background: vars.$color_selected_days;
+        color: vars.$color_bg_detail;
+        font-weight: bold;
+      }
+    }
+
+    .createdBy {
+      margin-top: 10px;
+
+      span {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .title {
+    color: vars.$color_primary;
+  }
+
+  .backIcon {
+    cursor: pointer;
   }
 }

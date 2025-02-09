@@ -1,9 +1,10 @@
 @use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
 
 .header {
   width: 100%;
   position: fixed;
-  z-index: 9998;
+  z-index: 10;
   padding: 0 18rem 0 20px;
   align-items: center;
   height: 70px;
@@ -127,25 +128,5 @@
 }
 
 .popupContainer {
-  width: 140px;
-
-  .popupNav {
-    flex-direction: column;
-    width: 100%;
-
-    .popupSubNav {
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 8px;
-      transition: 0.3s;
-      &:hover {
-        background-color: vars.$color_second;
-        color: vars.$color_primary;
-      }
-      &:active {
-        background-color: vars.$color_second;
-        color: vars.$color_primary;
-      }
-    }
-  }
+  @include shared.popupContainer;
 }

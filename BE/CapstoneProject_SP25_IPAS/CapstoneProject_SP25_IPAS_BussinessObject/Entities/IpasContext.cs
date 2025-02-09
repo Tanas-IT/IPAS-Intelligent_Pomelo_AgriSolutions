@@ -77,7 +77,8 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<PlantLot> PlantLots { get; set; }
 
-    public virtual DbSet<PlantResource> PlantResources { get; set; }
+    public virtual DbSet<Resource> Resources { get; set; }
+    public virtual DbSet<LegalDocument> LegalDocuments { get; set; }
 
     public virtual DbSet<Process> Processes { get; set; }
 
@@ -98,8 +99,6 @@ public partial class IpasContext : DbContext
     public virtual DbSet<Warning> Warnings { get; set; }
 
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
-
-    public virtual DbSet<WorkLogResource> WorkLogResources { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -849,6 +848,14 @@ public partial class IpasContext : DbContext
                .HasForeignKey(d => d.AssignorId)
                .OnDelete(DeleteBehavior.Cascade)
                .HasConstraintName("FK_Plan_Plan");
+
+            entity.HasOne(d => d.Crop).WithMany(p => p.Plans)
+              .HasForeignKey(d => d.CropId)
+              .HasConstraintName("FK_Plan_Crop");
+
+            entity.HasOne(d => d.Plant).WithMany(p => p.Plans)
+             .HasForeignKey(d => d.PlantId)
+             .HasConstraintName("FK_Plan_Plant");
         });
 
         modelBuilder.Entity<Plant>(entity =>
@@ -908,7 +915,7 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.CriteriaId)
                 .HasConstraintName("FK__CriteriaT__Crite__37703C52");
 
-            entity.HasOne(d => d.Plant).WithMany(p => p.PlantCriteria)
+            entity.HasOne(d => d.Plant).WithMany(p => p.PlantCriterias)
                 .HasForeignKey(d => d.PlantId)
                 .HasConstraintName("FK__CriteriaT__Plant__367C1819");
         });
@@ -972,31 +979,47 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("PlantLot_PlantLot_FK");
         });
 
-        modelBuilder.Entity<PlantResource>(entity =>
+        modelBuilder.Entity<Resource>(entity =>
         {
-            entity.HasKey(e => e.PlanResourceId).HasName("PK__PlantRes__1974A137217179D1");
+            entity.HasKey(e => e.ResourceID).HasName("PK__Res__1974A137217179D1");
 
-            entity.ToTable("PlantResource");
+            entity.ToTable("Resource");
 
-            entity.Property(e => e.PlanResourceId).HasColumnName("PlanResourceID");
+            entity.Property(e => e.ResourceID).HasColumnName("ResourceID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PlanResourceCode)
-                .HasMaxLength(50)
+            entity.Property(e => e.ResourceCode)
+                .HasMaxLength(200)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PlantGrowthHistoryId).HasColumnName("PlantGrowthHistoryID");
+            entity.Property(e => e.ResourceURL).HasMaxLength(200).HasColumnName("ResourceURL");
             entity.Property(e => e.ResourceType)
                 .HasMaxLength(255)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.ResourceUrl)
+            entity.Property(e => e.FileFormat)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS")
-                .HasColumnName("ResourceURL");
+                .HasColumnName("FileFormat");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.PlantGrowthHistory).WithMany(p => p.PlantResources)
-                .HasForeignKey(d => d.PlantGrowthHistoryId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_PlantResource_PlantGrowthHistory");
+            entity.Property(e => e.WorkLogID);
+            entity.Property(e => e.LegalDocumentID);
+            entity.Property(e => e.GraftedPlantID);
+            entity.Property(e => e.PlantGrowthHistoryID);
+
+            entity.HasOne(d => d.WorkLog).WithMany(p => p.Resources)
+                .HasForeignKey(d => d.WorkLogID)
+                .HasConstraintName("FK_Resource_WorkLog");
+
+            entity.HasOne(d => d.LegalDocument).WithMany(p => p.Resources)
+               .HasForeignKey(d => d.LegalDocumentID)
+               .HasConstraintName("FK_Resource_LegalDocument");
+
+            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Resources)
+              .HasForeignKey(d => d.GraftedPlantID)
+              .HasConstraintName("FK_Resource_GraftedPlant");
+
+            entity.HasOne(d => d.PlantGrowthHistory).WithMany(p => p.Resources)
+              .HasForeignKey(d => d.PlantGrowthHistoryID)
+              .HasConstraintName("FK_Resource_PlantGrowthHistory");
         });
 
         modelBuilder.Entity<Process>(entity =>
@@ -1290,31 +1313,39 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("WorkLog_Warning_FK");
         });
 
-        modelBuilder.Entity<WorkLogResource>(entity =>
+        modelBuilder.Entity<LegalDocument>(entity =>
         {
-            entity.HasKey(e => e.WorkLogResourceId).HasName("PK__WorkLogR__2EE578CA467DABB5");
+            entity.HasKey(e => e.LegalDocumentID).HasName("PK__LegalDocument__2EE578CA467DABB5");
 
-            entity.ToTable("WorkLogResource");
+            entity.ToTable("LegalDocument");
 
-            entity.Property(e => e.WorkLogResourceId).HasColumnName("WorkLogResourceID");
-            entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.Description).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.ResourceType)
-                .HasMaxLength(255)
+            entity.Property(e => e.LegalDocumentID).HasColumnName("LegalDocumentID");
+            entity.Property(e => e.CreateAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+            entity.Property(e => e.IssueDate).HasColumnType("datetime");
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.LegalDocumentCode).HasMaxLength(200).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.LegalDocumentType)
+                .HasMaxLength(300)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.ResourceUrl)
+            entity.Property(e => e.LegalDocumentName)
+                .HasMaxLength(300)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS")
-                .HasColumnName("ResourceURL");
-            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-            entity.Property(e => e.WorkLogId).HasColumnName("WorkLogID");
-            entity.Property(e => e.WorkLogResourceCode)
-                .HasMaxLength(50)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+                .HasColumnName("LegalDocumentName");
+            entity.Property(e => e.LegalDocumentURL)
+               .HasMaxLength(300)
+               .UseCollation("SQL_Latin1_General_CP1_CI_AS")
+               .HasColumnName("LegalDocumentURL");
+            entity.Property(e => e.Status)
+              .HasMaxLength(200)
+              .UseCollation("SQL_Latin1_General_CP1_CI_AS")
+              .HasColumnName("Status");
+            entity.Property(e => e.FarmID).HasColumnName("FarmID");
+          
 
-            entity.HasOne(d => d.WorkLog).WithMany(p => p.WorkLogResources)
-                .HasForeignKey(d => d.WorkLogId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__WorkLogRe__WorkL__29221CFB");
+            entity.HasOne(d => d.Farm).WithMany(p => p.LegalDocuments)
+                .HasForeignKey(d => d.FarmID)
+                .HasConstraintName("FK__LegalDocument__Farm__29221CFB");
         });
 
         OnModelCreatingPartial(modelBuilder);

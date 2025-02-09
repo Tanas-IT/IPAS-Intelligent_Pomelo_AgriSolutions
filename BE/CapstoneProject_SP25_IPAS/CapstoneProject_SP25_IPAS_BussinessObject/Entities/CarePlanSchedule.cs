@@ -8,6 +8,7 @@ public partial class CarePlanSchedule
     public int ScheduleId { get; set; }
 
     public string? DayOfWeek { get; set; }
+    public string? DayOfMonth { get; set; }
 
     public DateTime? StarTime { get; set; }
 

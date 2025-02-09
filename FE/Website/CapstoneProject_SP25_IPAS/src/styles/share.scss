@@ -9,7 +9,7 @@
     .content {
       flex-direction: column;
       margin: 12px 32px;
-      min-height: 70vh;
+      min-height: 80vh;
     }
   }
 
@@ -100,6 +100,32 @@
     &:hover {
       color: #1d4e23;
       text-decoration: underline;
+    }
+  }
+}
+
+@mixin popupContainer {
+  width: 100%;
+
+  .popupNav {
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    gap: 4px;
+
+    .popupSubNav {
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: 0.3s;
+      &:hover {
+        background-color: vars.$color_second;
+        color: vars.$color_primary;
+      }
+      &:active {
+        background-color: vars.$color_second;
+        color: vars.$color_primary;
+      }
     }
   }
 }

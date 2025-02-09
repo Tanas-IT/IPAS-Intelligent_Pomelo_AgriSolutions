@@ -30,17 +30,19 @@ public partial class Plant
     public int? MasterTypeId { get; set; }
 
     public string? ImageUrl { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? LandRowId { get; set; }
 
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
-
     public virtual MasterType? MasterType { get; set; }
     public virtual LandRow? LandRow { get; set; }
 
-    public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
+    public virtual ICollection<PlantCriteria> PlantCriterias { get; set; } = new List<PlantCriteria>();
 
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
+
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

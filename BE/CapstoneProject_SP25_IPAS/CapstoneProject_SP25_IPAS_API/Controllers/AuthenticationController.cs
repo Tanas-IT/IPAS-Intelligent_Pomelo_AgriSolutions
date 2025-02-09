@@ -1,11 +1,11 @@
-﻿using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
+﻿using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Mvc;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Request;
 using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.GoogleUser;
 using Microsoft.AspNetCore.Authorization;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -135,7 +135,6 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[Authorize(Roles = "User")]
         [HttpPost(APIRoutes.Authentication.Logout, Name = "Logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenModel removeRefreshTokenModel)
         {
@@ -238,6 +237,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _userService.ValidateRoleOfUserInFarm(validateRoleUserInFarm.RefreshToken, validateRoleUserInFarm.FarmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+
+        [HttpPut(APIRoutes.Authentication.UpdateRoleInToken, Name = "updateRoleInToken")]
+        public async Task<IActionResult> UpdateRoleInToken([FromBody] RefreshTokenModel updateRoleInToken)
+        {
+            try
+            {
+                var result = await _userService.UpdateTokenOfUser(updateRoleInToken.RefreshToken);
                 return Ok(result);
             }
             catch (Exception ex)

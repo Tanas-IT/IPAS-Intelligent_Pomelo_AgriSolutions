@@ -6,6 +6,7 @@ export { default as OTP } from "@/pages/Auth/OTP/OTP";
 export { default as FarmPicker } from "@/pages/FarmPicker/FarmPicker";
 export { default as Dashboard } from "@/pages/Dashboard/Dashboard";
 export { default as User } from "@/pages/User/User";
+export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
 export { default as Weather } from "@/pages/Weather/Weather";
@@ -13,5 +14,7 @@ export { default as ProcessList } from "@/pages/Process/ProcessList/ProcessList"
 export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/ProcessDetails";
 export { default as PlanList } from "@/pages/Plan/PlanList/PlanList";
 export { default as PlanDetail } from "@/pages/Plan/PlanDetails/PlanDetail";
+export { default as AddPlan } from "@/pages/Plan/PlanList/AddPlan";
+export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";

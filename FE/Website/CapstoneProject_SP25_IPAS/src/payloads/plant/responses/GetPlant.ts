@@ -1,3 +1,5 @@
+import { Farm } from "@/types";
+
 export interface GetPlant {
   userCode: string;
   userId: number;
@@ -7,4 +9,5 @@ export interface GetPlant {
   roleId: number;
   isActive: boolean;
   status: number;
+  farms?: Farm[];
 }

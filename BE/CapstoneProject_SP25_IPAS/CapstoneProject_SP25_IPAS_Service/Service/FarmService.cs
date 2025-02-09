@@ -88,7 +88,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, farmCreateEntity);
+                        var mapResult = _mapper.Map<FarmModel>(farmCreateEntity);
+                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mapResult);
                     }
                     else return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
                 }
@@ -113,7 +114,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetAllFarmOfUser(int userId)
         {
             Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDelete != true;
-            string includeProperties = "Farm";
+            string includeProperties = "Farm,Role";
             var userFarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
             if (!userFarm.Any())
                 return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
@@ -132,8 +133,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
 
-                    filter = x => (x.FarmName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Address.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDelete != true);
+                    filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDelete != true);
                 }
 
                 switch (paginationParameter.SortBy)
@@ -297,7 +298,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_DELETE_SOFTED_FARM_CODE, Const.SUCCESS_DELETE_SOFTED_FARM_MSG, farm);
+                        return new BusinessResult(Const.SUCCESS_DELETE_SOFTED_FARM_CODE, Const.SUCCESS_DELETE_SOFTED_FARM_MSG, new { success = true });
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE, new { success = false });
                 }
@@ -341,7 +342,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_CODE, Const.SUCCESS_UPDATE_FARM_MSG, farmEntityUpdate);
+                        var mapResult = _mapper.Map<FarmModel>(farmEntityUpdate);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_FARM_CODE, Const.SUCCESS_UPDATE_FARM_MSG, mapResult);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
                 }

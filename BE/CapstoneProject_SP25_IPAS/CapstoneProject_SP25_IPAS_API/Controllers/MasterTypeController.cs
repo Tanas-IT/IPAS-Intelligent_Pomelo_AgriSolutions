@@ -2,7 +2,7 @@
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -21,11 +21,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
-        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter)
         {
             try
             {
-                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter);
+                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter, masterTypeFilter);
                 return Ok(result);
             }
             catch (Exception ex)

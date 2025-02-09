@@ -77,13 +77,13 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
               authData.avatar !== "null" &&
               authData.avatar !== "undefined" &&
               authData.avatar.trim() !== "" ? (
-                <Avatar size={50} shape="square" src={authData.avatar} />
+                <Avatar crossOrigin="anonymous" size={50} shape="square" src={authData.avatar} />
               ) : (
                 <Avatar size={50} shape="square" icon={<UserOutlined />} />
               )}
               <Flex className={`${style.profileInfo}`}>
                 <Text className={style.profileName}>{authData.fullName}</Text>
-                {!isDefault && <Text className={style.profileRole}>{getRoleName(Number(1))}</Text>}
+                {!isDefault && <Text className={style.profileRole}>{getRoleName()}</Text>}
               </Flex>
               <Icons.arrowDropDownLine className={style.dropdownIcon} />
             </Flex>

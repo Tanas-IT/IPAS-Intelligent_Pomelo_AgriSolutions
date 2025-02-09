@@ -10,16 +10,18 @@ import {
   PlantDetails,
   Weather,
   ResetPassword,
+  FarmInfo,
   ProcessList,
   ProcessDetails,
   PlanList,
   PlanDetail,
   Worklog,
   WorklogDetail,
+  AddPlan,
+  UpdatePlan,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
-import AddPlan from "@/pages/Plan/PlanList/AddPlan";
 
 interface RouteItem {
   path: string;
@@ -47,6 +49,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.FARM.FARM_INFO, component: FarmInfo, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
@@ -55,6 +58,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PLAN.PLAN_LIST, component: PlanList, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_DETAIL, component: PlanDetail, layout: ManagementLayout },
   { path: PATHS.PLAN.ADD_PLAN, component: AddPlan, layout: ManagementLayout },
+  { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },
 ];

@@ -1,4 +1,4 @@
-﻿using CapstoneProject_SP25_IPAS_Service.Payloads.Response;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 

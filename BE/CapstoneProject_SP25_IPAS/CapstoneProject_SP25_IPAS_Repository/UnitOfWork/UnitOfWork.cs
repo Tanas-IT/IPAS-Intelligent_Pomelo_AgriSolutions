@@ -42,6 +42,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private LandPlotCoordinationRepository _landPlotCoordinationRepo;
         private PlantCriteriaRepository _plantCriteriaRepo;
         private LandRowRepository _landRowRepo;
+        private MasterTypeDetailRepostiory _masterTypeDetailRepo;
+        public PlantGrowthHistoryRepository _plantGrowthHistoryRepo;
+        public CarePlanScheduleRepository _carePlanScheduleRepo;
+        public WorkLogRepository _workLogRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -70,6 +74,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _landPlotCoordinationRepo = new LandPlotCoordinationRepository(context);
             _planRepo = new PlanRepository(context);
             _landRowRepo = new LandRowRepository(context);
+            _masterTypeDetailRepo = new MasterTypeDetailRepostiory(context);
+            _plantGrowthHistoryRepo = new PlantGrowthHistoryRepository(context);
+            _carePlanScheduleRepo = new CarePlanScheduleRepository(context);
+            _workLogRepo = new WorkLogRepository(context);
         }
 
         private bool disposed = false;
@@ -402,6 +410,53 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._landRowRepo = new LandRowRepository(_context);
                 }
                 return _landRowRepo;
+            }
+        }
+
+        public MasterTypeDetailRepostiory MasterTypeDetailRepostiory
+        {
+            get
+            {
+                if (_masterTypeDetailRepo == null)
+                {
+                    this._masterTypeDetailRepo = new MasterTypeDetailRepostiory(_context);
+                }
+                return _masterTypeDetailRepo;
+            }
+        }
+        
+        public PlantGrowthHistoryRepository PlantGrowthHistoryRepository
+        {
+            get
+            {
+                if (_plantGrowthHistoryRepo == null)
+                {
+                    this._plantGrowthHistoryRepo = new PlantGrowthHistoryRepository(_context);
+                }
+                return _plantGrowthHistoryRepo;
+            }
+        }
+
+        public CarePlanScheduleRepository CarePlanScheduleRepository
+        {
+            get
+            {
+                if (_carePlanScheduleRepo == null)
+                {
+                    this._carePlanScheduleRepo = new CarePlanScheduleRepository(_context);
+                }
+                return _carePlanScheduleRepo;
+            }
+        }
+        public WorkLogRepository WorkLogRepository
+        {
+            get
+            {
+                if (_workLogRepo == null)
+                {
+                    this._workLogRepo = new WorkLogRepository(_context);
+                }
+                return _workLogRepo;
             }
         }
     }

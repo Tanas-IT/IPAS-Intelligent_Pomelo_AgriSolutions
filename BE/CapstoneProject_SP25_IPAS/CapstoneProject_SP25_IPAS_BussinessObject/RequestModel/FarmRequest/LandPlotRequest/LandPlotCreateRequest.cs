@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRowRequest;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,22 +11,32 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
 {
     public class LandPlotCreateRequest
     {
-        public string? LandPlotName { get; set; }
-
-        public double? Area { get; set; }
-
-        public double? Length { get; set; }
-
-        public double? Width { get; set; }
-
+        [Required]
+        public string LandPlotName { get; set; }
+        [Required]
+        public double Area { get; set; }
+        [Required]
+        public double PlotLength { get; set; }
+        [Required]
+        public double PlotWidth { get; set; }
         public string? SoilType { get; set; }
 
         public string? Description { get; set; }
-
-        public int? FarmId { get; set; }
+        [Required]
+        public int FarmId { get; set; }
 
         public string? TargetMarket { get; set; }
 
-        public virtual ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
+        public int TreeAmountInRow { get; set; }
+        [Required]
+        public double DistanceInRow { get; set; }
+        [Required]
+        public double RowLength { get; set; }
+        [Required]
+        public double RowWidth { get; set; }
+        public string? RowDirection { get; set; }
+
+        //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
+        public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
     }
 }

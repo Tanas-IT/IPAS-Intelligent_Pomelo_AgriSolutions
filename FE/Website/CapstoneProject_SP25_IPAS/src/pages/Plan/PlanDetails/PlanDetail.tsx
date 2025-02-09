@@ -6,6 +6,7 @@ import { Icons, Images } from "@/assets";
 import { CustomButton } from "@/components";
 import { ToastContainer } from "react-toastify";
 import StatusTag from "@/components/UI/StatusTag/StatusTag";
+import { useState } from "react";
 
 interface GeneralCalendarProps {
     selectedDays: number[];
@@ -38,9 +39,7 @@ function PlanDetail() {
     const selectedDaysOfMonth = [10, 31];
     const selectedDaysOfWeek = [1, 3, 5];
     const selectedDaysOfNoneType = ["06/02/2025", "16/02/2025"];
-    // const frequencyType = "none";
-    const frequencyType = "monthly";
-    // const frequencyType = "weekly";
+    const [frequencyType, setFrequencyType] = useState<string>("none");
     const numOfCompleted = 2;
     const total = 12;
 
@@ -75,8 +74,6 @@ function PlanDetail() {
         return colors[taskType] || colors.Default;
     };
 
-
-
     return (
         <div className={style.container}>
             <Flex className={style.extraContent}>
@@ -91,9 +88,6 @@ function PlanDetail() {
                     <Icons.tag className={style.iconTag} />
                 </Tooltip>
                 <Tag className={`${style.statusTag} ${style.normal}`}>Pending</Tag>
-                <div className={style.addButton}>
-                    <CustomButton label="Add Sub Process" icon={<Icons.plus />} />
-                </div>
             </Flex>
             <label className={style.subTitle}>Code: laggg</label>
 

@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<LandPlot> GetByID(int landplotId)
+        public override async Task<LandPlot> GetByID(int landplotId)
         {
             if (landplotId > 0)
             {

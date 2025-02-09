@@ -63,10 +63,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Resource
         {
             public const string uploadImage = Base + "/resource/upload-image";
+            public const string uploadResource = Base + "/resource/upload";
             public const string uploadvideo = Base + "/resource/upload-video";
             public const string deleteImageByURL = Base + "/resource/delete-image-by-url";
             public const string deleteVideoByURL = Base + "/resource/delete-video-by-url";
-           
+            public const string deleteResourceByURL = Base + "/resource/delete";
+
         }
 
         public static class MasterType
@@ -82,7 +84,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/criterias";
             public const string updateListCriteriaType = prefix + "/update-list-criteria";
-            public const string getCriteriaById = prefix + "/get-criteriaType-by-id/{id}";
+            public const string getCriteriaById = prefix + "";
+            public const string getCriteriaOfPlantById = prefix + "/get-criteria-of-plant";
             public const string updateCriteriaInfo = prefix + "/update-criteria-info";
         }
 
@@ -99,6 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string forgetPasswordConfirm = Base + "/forget-password/confirm";
             public const string forgetPasswordNewPassword = Base + "/forget-password/new-password";
             public const string ValidateRoleUserInFarm = Base + "/validate-role-in-farm";
+            public const string UpdateRoleInToken = Base + "/update-role-in-roken";
         }
 
         public static class Partner
@@ -154,5 +158,45 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfSubProcess = Base + "/subProcesses/{id}/processData";
         }
 
+        public static class MasterTypeDetail
+        {
+            public const string createMasterTypeDetail = Base + "/masterTypeDetails";
+            public const string getMasterTypeDetailById = Base + "/masterTypeDetails/get-masterTypeDetail-by-id/{id}";
+            public const string getMasterTypeDetailWithPagination = Base + "/masterTypeDetails";
+            public const string permanenlyDelete = Base + "/masterTypeDetails/delete-permanenly/{id}";
+            public const string updateMasterTypeDetailInfo = Base + "/masterTypeDetails/update-masterTypeDetail-info";
+            public const string getMasterTypeDetailByName = Base + "/masterTypeDetails/get-masterTypeDetail-by-name/{name}";
+        }
+        public static class LandRow
+        {
+            public const string prefix = Base + "/landRows";
+            public const string createLandRow = prefix + "";
+            public const string deleteLandRow = prefix + "";
+            public const string updateLandRowInfo = prefix + "";
+            public const string getLandRowById = prefix + "";
+            public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+        }
+
+        public static class Plant
+        {
+            public const string prefix = Base + "/plants";
+            public const string createPlant = prefix + "";
+            public const string deletePlant = prefix + "";
+            public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
+            public const string updatePlantInfo = prefix + "";
+            public const string getPlantById = prefix + "";
+            public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
+            public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+        }
+
+        public static class PlantGrowthHistory
+        {
+            public const string prefix = Base + "/plant-growth-history";
+            public const string createPlantGrowthHistory = prefix + "";
+            public const string deletePlantGrowthHistory = prefix + "";
+            public const string updatePlantGrowthHistoryInfo = prefix + "";
+            public const string getPlantGrowthHistoryById = prefix + "";
+            public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
+        }
     }
 }

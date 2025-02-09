@@ -18,13 +18,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        //public async Task<IEnumerable<IGrouping<int?, PlantCriteria>>> GetAllCriteriaOfPlantNoPaging(int plantId)
-        //{
-        //    var plantCriteria = await _context.PlantCriteria
-        //        .Where(x => x.PlantId == plantId)
-        //        .GroupBy(x => x.Criteria.CriteriaTypeId)
-        //        .ToListAsync();
-        //    return plantCriteria;
-        //}
+        public async Task<IEnumerable<PlantCriteria>> GetAllCriteriaOfPlantNoPaging(int plantId)
+        {
+            var plantCriteria = await _context.PlantCriteria
+                .Include(x => x.Criteria)
+                .ThenInclude(x => x.MasterType)
+                .Where(x => x.PlantId == plantId)
+                .ToListAsync();
+            return plantCriteria;
+        }
     }
 }

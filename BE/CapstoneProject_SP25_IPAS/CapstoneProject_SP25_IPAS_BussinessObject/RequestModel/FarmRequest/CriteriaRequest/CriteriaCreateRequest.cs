@@ -18,5 +18,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cri
 
         public bool? IsActive { get; set; }
 
+        //public int? MasterTypeId { get; set; }
+
     }
 }

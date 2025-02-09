@@ -29,5 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? TypeName { get; set; }
 
         public bool? IsDelete { get; set; }
+        public virtual ICollection<CriteriaModel> Criteria { get; set; } = new List<CriteriaModel>();
+
     }
 }
