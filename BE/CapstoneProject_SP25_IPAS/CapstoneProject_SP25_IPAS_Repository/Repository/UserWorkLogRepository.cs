@@ -18,13 +18,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<bool> CheckUserConflictByStartTimeSchedule(int userId, TimeSpan startTime, TimeSpan endTime)
+        public async Task<bool> CheckUserConflictByStartTimeSchedule(int userId, TimeSpan startTime, TimeSpan endTime, DateTime dateCheck)
         {
-            bool isConflicted = await _context.UserWorkLogs
-                       .Include(uwl => uwl.WorkLog)
-                       .AnyAsync(uwl => uwl.UserId == userId &&
-                                   !(endTime < uwl.WorkLog.Schedule.StarTime ||
-                                      startTime > uwl.WorkLog.Schedule.EndTime));
+           
+                bool isConflicted = await _context.UserWorkLogs
+                                            .Include(uwl => uwl.WorkLog)
+                                            .ThenInclude(wl => wl.Schedule)
+                                            .AnyAsync(uwl =>
+                                                uwl.UserId == userId &&
+                                                uwl.WorkLog.Date.Value.Date == dateCheck.Date && // Chỉ kiểm tra trong ngày
+                                                (
+                                                    // TH1: Công việc diễn ra trong cùng một ngày (không qua ngày mới)
+                                                    uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
+                                                    startTime < uwl.WorkLog.Schedule.EndTime &&
+                                                    endTime > uwl.WorkLog.Schedule.StarTime
+                                                )
+                                            );
             return isConflicted;
         }
 

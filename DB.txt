@@ -796,6 +796,7 @@ CREATE TABLE ipas.dbo.RefreshToken (
 CREATE TABLE ipas.dbo.CarePlanSchedule (
 	ScheduleID int IDENTITY(1,1) NOT NULL,
 	DayOfWeek nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(100) NULL,
 	StarTime datetime NULL,
 	EndTime datetime NULL,
 	CarePlanID int NULL,

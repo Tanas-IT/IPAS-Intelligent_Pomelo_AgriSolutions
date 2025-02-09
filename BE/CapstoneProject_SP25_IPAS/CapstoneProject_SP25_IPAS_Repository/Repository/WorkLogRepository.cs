@@ -17,6 +17,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
+        public async Task<bool> DeleteWorkLogAndUserWorkLog(WorkLog deleteWorkLog)
+        {
+            var getListUserWorkLog = await _context.UserWorkLogs.Where(x => x.WorkLogId == deleteWorkLog.WorkLogId).ToListAsync();
+             _context.UserWorkLogs.RemoveRange(getListUserWorkLog);
+            _context.WorkLogs.Remove(deleteWorkLog);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
         public async Task<List<WorkLog>> GetListWorkLogByListSchedules(List<CarePlanSchedule> schedules)
         {
             var scheduleIds = schedules.Select(s => s.ScheduleId).ToList(); // Chuyển sang List<int>
@@ -25,6 +34,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(wl => scheduleIds.Contains(wl.ScheduleId.GetValueOrDefault())) // Giờ Contains() hoạt động được
                 .ToListAsync();
             return savedWorkLogs;
+        }
+
+        public async Task<List<WorkLog>> GetListWorkLogByScheduelId(int scheduleId)
+        {
+            var result = await _context.WorkLogs.Where(x => x.ScheduleId == scheduleId).ToListAsync();
+            return result;
         }
 
         public async Task<List<WorkLog>> GetListWorkLogByWorkLogDate(WorkLog newWorkLog)

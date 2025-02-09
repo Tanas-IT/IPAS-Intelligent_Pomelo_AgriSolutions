@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.UserWorkLogModel
     public class CheckConflictScheduleModel
     {
         public int UserId { get; set; }
+        public DateTime DateCheck { get; set; }
 
         [Required]
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",

@@ -64,7 +64,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
-                        Status = createPlanModel?.Status,
+                        Status = "Active",
                         PlantLotId = createPlanModel?.PlantLotId,
                         PlantId = createPlanModel?.PlantId,
                         PlanDetail = createPlanModel?.PlanDetail,
@@ -126,6 +126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = filter.And(x => x.PlanCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PlanDetail.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.LandPlot.LandPlotName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
@@ -158,6 +159,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (planFilter.ResponsibleBy != null)
                 {
                     filter = filter.And(x => x.ResponsibleBy.Contains(planFilter.ResponsibleBy));
+                }
+                if (planFilter.Status != null)
+                {
+                    filter = filter.And(x => x.Status.Contains(planFilter.Status));
                 }
 
                 if (planFilter.CropName != null)
@@ -402,9 +407,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var deleteListCarePlanSchedule = deletePlan.CarePlanSchedules.ToList();
                 foreach (var deleteCarePlanSchedule in deleteListCarePlanSchedule)
                 {
-                    deletePlan.CarePlanSchedules.Remove(deleteCarePlanSchedule);
+                    var getListWorkLogDelete = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(deleteCarePlanSchedule.ScheduleId);
+                    foreach (var workLog in getListWorkLogDelete)
+                    {
+                         await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
+
+                    }
+                    _unitOfWork.CarePlanScheduleRepository.Delete(deleteCarePlanSchedule);
+                    await _unitOfWork.SaveAsync();
                 }
-                await _unitOfWork.SaveAsync();
                 _unitOfWork.PlanRepository.Delete(deletePlan);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
@@ -570,6 +581,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Axtive",
                     DayOfWeek = null,
                     DayOfMonth = null,
                     CustomDates = createPlanModel.CustomDates.ToString(),
@@ -589,6 +601,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -601,6 +614,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = JsonConvert.SerializeObject(createPlanModel.DayOfMonth),
                     CustomDates = null,
@@ -613,6 +627,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = JsonConvert.SerializeObject(currentDate.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -687,6 +702,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
                     CustomDates = updatePlanModel.CustomDates.ToString(),
@@ -706,6 +722,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = JsonConvert.SerializeObject(updatePlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -718,6 +735,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = JsonConvert.SerializeObject(updatePlanModel.DayOfMonth),
                     CustomDates = null,
@@ -730,6 +748,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
+                    Status = "Active",
                     DayOfWeek = JsonConvert.SerializeObject(updatePlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -922,18 +941,69 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlanById = await _unitOfWork.PlanRepository.GetByID(planId);
+                var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
                 if (getPlanById == null)
                 {
                     return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
                 }
                 getPlanById.IsDelete = true;
+                getPlanById.Status = "Stopped";
+                var listSchedule = getPlanById.CarePlanSchedules.ToList();
+                foreach ( var schedule in listSchedule )
+                {
+                    schedule.Status = "Stopped";
+                    var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
+                    foreach(var workLog in softDeleteWorkLog )
+                    {
+                        if(workLog.Date > DateTime.Now)
+                        {
+                            workLog.Status = "Stopped";
+                        }
+                    }
+                }
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
                     return new BusinessResult(Const.SUCCESS_SOFT_DELETE_PLAN_CODE, Const.SUCCESS_SOFT_DELETE_PLAN_MSG, result > 0);
                 }
                 return new BusinessResult(Const.FAIL_SOFT_DELETE_PLAN_CODE, Const.FAIL_SOFT_DELETE_PLAN_MESSAGE, false);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> UnSoftDeletePlan(int planId)
+        {
+            try
+            {
+                var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
+                if (getPlanById == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
+                }
+                getPlanById.IsDelete = false;
+                getPlanById.Status = "Active";
+                var listSchedule = getPlanById.CarePlanSchedules.ToList();
+                foreach (var schedule in listSchedule)
+                {
+                    schedule.Status = "Active";
+                    var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
+                    foreach (var workLog in softDeleteWorkLog)
+                    {
+                        if (workLog.Date > DateTime.Now)
+                        {
+                            workLog.Status = "Pending";
+                        }
+                    }
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(Const.SUCCESS_UN_SOFT_DELETE_PLAN_CODE, Const.SUCCESS_UN_SOFT_DELETE_PLAN_MSG, result > 0);
+                }
+                return new BusinessResult(Const.FAIL_UN_SOFT_DELETE_PLAN_CODE, Const.FAIL_UN_SOFT_DELETE_PLAN_MESSAGE, false);
             }
             catch (Exception ex)
             {

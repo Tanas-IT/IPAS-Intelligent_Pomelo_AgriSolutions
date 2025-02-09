@@ -10,8 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 {
     public class CreatePlanModel
     {
-        public string? Status { get; set; }
-
         public DateTime StartDate { get; set; }
 
         public DateTime EndDate { get; set; }

@@ -10,6 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface IUserWorkLogRepository
     {
         public Task<bool> CheckUserConflictSchedule(int userId, WorkLog workLog);
-        public Task<bool> CheckUserConflictByStartTimeSchedule(int userId, TimeSpan startTime, TimeSpan endTime);
+        public Task<bool> CheckUserConflictByStartTimeSchedule(int userId, TimeSpan startTime, TimeSpan endTime, DateTime dateCheck);
     }
 }

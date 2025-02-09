@@ -207,7 +207,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePlan = prefix + "/{id}";
             public const string updatePlanInfo = prefix + "";
             public const string getPlanById = prefix + "/get-plan-by-id/{id}";
-            public const string softDeletePlan = prefix + "/soft-delete-plan";
+            public const string softDeletePlan = prefix + "/soft-delete-plan/{id}";
+            public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
         }
 

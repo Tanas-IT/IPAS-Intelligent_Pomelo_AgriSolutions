@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var startTimeConvert = TimeSpan.Parse(checkConflictScheduleModel.StartTime);
                 var endTimeConvert = TimeSpan.Parse(checkConflictScheduleModel.EndTime);
-                var checkConflict = await _unitOfWork.UserWorkLogRepository.CheckUserConflictByStartTimeSchedule(checkConflictScheduleModel.UserId, startTimeConvert, endTimeConvert);
+                var checkConflict = await _unitOfWork.UserWorkLogRepository.CheckUserConflictByStartTimeSchedule(checkConflictScheduleModel.UserId, startTimeConvert, endTimeConvert, checkConflictScheduleModel.DateCheck);
                 if(!checkConflict)
                 {
                     return new BusinessResult(Const.SUCCESS_USER_NO_CONFLICT_SCHEDULE_CODE, Const.SUCCESS_USER_NO_CONFLICT_SCHEDULE_MSG, checkConflict);

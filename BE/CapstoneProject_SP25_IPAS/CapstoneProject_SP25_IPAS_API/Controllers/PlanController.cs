@@ -160,5 +160,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpDelete(APIRoutes.Plan.unSoftDeletePlan, Name = "unSoftDeletePlanAsync")]
+        public async Task<IActionResult> UnSoftDeletePlan([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _planService.UnSoftDeletePlan(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

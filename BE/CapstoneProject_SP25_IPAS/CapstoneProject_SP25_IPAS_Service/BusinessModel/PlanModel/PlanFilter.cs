@@ -28,5 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public bool? isActive { get; set; }
         [FromQuery(Name = "filter-is-delete")]
         public bool? isDelete { get; set; }
+        [FromQuery(Name = "filter-status")]
+        public string? Status { get; set; }
     }
 }

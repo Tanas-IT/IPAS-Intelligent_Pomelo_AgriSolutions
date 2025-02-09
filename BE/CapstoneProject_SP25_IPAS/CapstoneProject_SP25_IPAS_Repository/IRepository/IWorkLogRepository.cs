@@ -11,5 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<List<WorkLog>> GetListWorkLogByListSchedules(List<CarePlanSchedule> schedules);
         public Task<List<WorkLog>> GetListWorkLogByWorkLogDate(WorkLog newWorkLog);
+        public Task<List<WorkLog>> GetListWorkLogByScheduelId(int scheduleId);
+        public Task<bool> DeleteWorkLogAndUserWorkLog(WorkLog deleteWorkLog);
     }
 }

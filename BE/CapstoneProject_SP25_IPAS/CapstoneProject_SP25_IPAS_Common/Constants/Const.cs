@@ -293,6 +293,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_DELETE_PLAN_MSG = "Delete plan success";
         public static int SUCCESS_SOFT_DELETE_PLAN_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_PLAN_MSG = "Soft delete plan success";
+        public static int SUCCESS_UN_SOFT_DELETE_PLAN_CODE = 200;
+        public static string SUCCESS_UN_SOFT_DELETE_PLAN_MSG = "Un soft delete plan success";
         public static int SUCCESS_CREATE_PLAN_CODE = 200;
         public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
         #endregion
@@ -523,6 +525,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_DELETE_PLAN_MESSAGE = "Delete plan failed";
         public static int FAIL_SOFT_DELETE_PLAN_CODE = 500;
         public static string FAIL_SOFT_DELETE_PLAN_MESSAGE = "Soft delete plan failed";
+        public static int FAIL_UN_SOFT_DELETE_PLAN_CODE = 500;
+        public static string FAIL_UN_SOFT_DELETE_PLAN_MESSAGE = "Un soft delete plan failed";
         public static int FAIL_GET_PLAN_CODE = 500;
         public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
         #endregion
