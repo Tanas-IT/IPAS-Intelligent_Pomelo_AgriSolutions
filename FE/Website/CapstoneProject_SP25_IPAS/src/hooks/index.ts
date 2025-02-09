@@ -7,3 +7,4 @@ export { default as useRequireAuth } from "./useRequireAuth";
 export { default as useRedirectAuth } from "./useRedirectAuth";
 export { default as useLogout } from "./useLogout";
 export { default as useUnsavedChangesWarning } from "./useUnsavedChangesWarning";
+export { default as useAddressLocation } from "./useAddressLocation";

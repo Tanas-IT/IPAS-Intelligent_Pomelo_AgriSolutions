@@ -17,9 +17,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllFarmPagination(PaginationParameter paginationParameter);
 
-        public Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateModel);
+        public Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateModel, int userId);
 
-        public Task<BusinessResult> UpdateFarmInfo(FarmUpdateRequest farmUpdateModel);
+        public Task<BusinessResult> UpdateFarmInfo(FarmUpdateInfoRequest farmUpdateModel, int farmId);
 
         public Task<BusinessResult> SoftDeletedFarm(int farmId);
 
@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> UpdateFarmLogo(int farmId, IFormFile LogoURL);
 
-        public Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> farmCoordinationUpdate);
+        //public Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> farmCoordinationUpdate);
 
         public Task<UserFarmModel> GetUserFarmRole(int farmId, int userId);
     }

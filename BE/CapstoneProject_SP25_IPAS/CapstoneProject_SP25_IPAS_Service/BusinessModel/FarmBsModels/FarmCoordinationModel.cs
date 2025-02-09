@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 {
-    public class FarmCoordinationModel
-    {
-        public int FarmCoordinationId { get; set; }
+    //public class FarmCoordinationModel
+    //{
+    //    public int FarmCoordinationId { get; set; }
 
-        public string? FarmCoordinationCode { get; set; }
+    //    //public string? FarmCoordinationCode { get; set; }
 
-        public double? Longitude { get; set; }
+    //    public double? Longitude { get; set; }
 
-        public double? Lagtitude { get; set; }
+    //    public double? Lagtitude { get; set; }
 
-        public int? FarmId { get; set; }
+    //    public int? FarmId { get; set; }
 
-    }
+    //}
 }

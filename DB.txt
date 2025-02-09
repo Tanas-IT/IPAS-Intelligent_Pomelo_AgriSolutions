@@ -43,6 +43,8 @@ CREATE TABLE ipas.dbo.Farm (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	IsDelete bit NULL,
+	Longitude float NULL,
+	Latitude float NULL,
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Length] float NULL,
 	Width float NULL,
@@ -50,11 +52,7 @@ CREATE TABLE ipas.dbo.Farm (
 	District nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Ward nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Province nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	LandOwnershipCertificate nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	OperatingLicense nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	LandLeaseAgreement nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PesticideUseLicense nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CONSTRAINT PK__Farm__ED7BBA991346855A PRIMARY KEY (FarmID)
+		CONSTRAINT PK__Farm__ED7BBA991346855A PRIMARY KEY (FarmID)
 );
 
 
@@ -189,15 +187,15 @@ CREATE TABLE ipas.dbo.CriteriaHarvestType (
 
 -- DROP TABLE ipas.dbo.FarmCoordination;
 
-CREATE TABLE ipas.dbo.FarmCoordination (
-	FarmCoordinationID int IDENTITY(1,1) NOT NULL,
-	FarmCoordinationCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Longitude float NULL,
-	Lagtitude float NULL,
-	FarmID int NULL,
-	CONSTRAINT PK__FarmCoor__6BD490F93070DFBF PRIMARY KEY (FarmCoordinationID),
-	CONSTRAINT FK__FarmCoord__FarmI__18B6AB08 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE
-);
+-- CREATE TABLE ipas.dbo.FarmCoordination (
+--	FarmCoordinationID int IDENTITY(1,1) NOT NULL,
+--	FarmCoordinationCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+--	Longitude float NULL,
+--	Lagtitude float NULL,
+--	FarmID int NULL,
+--	CONSTRAINT PK__FarmCoor__6BD490F93070DFBF PRIMARY KEY (FarmCoordinationID),
+--	CONSTRAINT FK__FarmCoord__FarmI__18B6AB08 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) --ON DELETE CASCADE
+--);
 
 
 -- ipas.dbo.HarvestHistory definition
@@ -1077,5 +1075,24 @@ VALUES
 ( 'P009', 'Potato', 9, 'Germination', 'Healthy', '2024-01-09', '2024-01-13', '2023-11-28', NULL, 'Underground tuber', 1, 'https://example.com/potato.jpg', 2),
 ( 'P010', 'Onion', 10, 'Mature', 'Moderate', '2024-01-10', '2024-01-14', '2023-11-25', NULL, 'Pungent bulb vegetable', 2, 'https://example.com/onion.jpg', 2);
 
+GO
+-- Chèn dữ liệu vào bảng LegalDocument
+INSERT INTO ipas.dbo.LegalDocument (LegalDocumentCode, LegalDocumentType, LegalDocumentName, LegalDocumentURL, IssueDate, ExpiredDate, Status, CreateAt, UpdateAt, FarmID)
+VALUES
+('LD-001', 'License', 'Organic Farming Certificate', 'https://example.com/doc1.pdf', '2023-01-10', '2025-01-10', 'Active', GETDATE(), GETDATE(), 1),
+('LD-002', 'Permit', 'Water Usage Permit', 'https://example.com/doc2.pdf', '2022-06-15', '2024-06-15', 'Active', GETDATE(), GETDATE(), 1),
+('LD-003', 'Registration', 'Land Registration Document', 'https://example.com/doc3.pdf', '2021-05-20', '2031-05-20', 'Active', GETDATE(), GETDATE(), 2),
+('LD-004', 'Certificate', 'ISO 9001 Certification', 'https://example.com/doc4.pdf', '2020-09-12', '2025-09-12', 'Expired', GETDATE(), GETDATE(), 1),
+('LD-005', 'Agreement', 'Supplier Contract', 'https://example.com/doc5.pdf', '2023-02-01', '2026-02-01', 'Active', GETDATE(), GETDATE(), 2);
+GO
+-- Chèn dữ liệu vào bảng Resource với liên kết đến LegalDocument
+INSERT INTO ipas.dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantID)
+VALUES
+('RES-001', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010443/farm/legal-document/lhhd96qnxjcbxcgh6yvy.jpg', 'Organic Farming Guidelines', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
+('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL),
+('RES-003', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010457/farm/legal-document/rhdtcktzwkbqzhe4njcc.jpg', 'Land Ownership Data', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 3, NULL),
+('RES-004', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010609/iy0c6zxgjkdx7ocmvmih.jpg', 'ISO 9001 Audit Report', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 4, NULL),
+('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 5, NULL);
+GO
 
 

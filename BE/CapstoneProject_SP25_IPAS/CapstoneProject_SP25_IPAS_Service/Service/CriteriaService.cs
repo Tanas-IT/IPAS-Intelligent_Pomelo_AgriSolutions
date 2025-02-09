@@ -157,7 +157,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        .GroupBy(pc => pc.Criteria.MasterType) // Nhóm theo MasterType
                        .Select(group => new 
                        {
-                           MasterTypeId = group.Key.MasterTypeId,
+                           MasterTypeId = group.Key!.MasterTypeId,
                            MasterTypeName = group.Key.MasterTypeName,
                            CriteriaList = group.Select(pc => new
                            {

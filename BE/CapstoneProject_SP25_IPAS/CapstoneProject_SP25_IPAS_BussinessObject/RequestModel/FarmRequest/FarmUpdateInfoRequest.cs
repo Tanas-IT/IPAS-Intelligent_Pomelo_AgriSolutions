@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
 {
-    public class FarmUpdateRequest
+    public class FarmUpdateInfoRequest
     {
-        [Required(ErrorMessage = "FarmId are Requiered")]
-        public int FarmId { get; set; }
+        //[Required(ErrorMessage = "FarmId are Requiered")]
+        public int? FarmId { get; set; }
 
         [Required(ErrorMessage = "Farm name is required.")]
         public string FarmName { get; set; }
@@ -42,5 +42,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
         public double Width { get; set; }
 
         public string? Description { get; set; }
+
+        public double? Longitude { get; set; }
+
+        public double? Latitude { get; set; }
     }
 }

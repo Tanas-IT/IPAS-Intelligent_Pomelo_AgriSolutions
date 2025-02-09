@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,5 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         public string? Content { get; set; }
 
         public string? IssueName { get; set; }
+
+        public List<ResourceCrUpRequest> PlantResource = new();
     }
 }

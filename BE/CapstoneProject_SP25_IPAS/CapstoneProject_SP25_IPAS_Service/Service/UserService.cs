@@ -424,23 +424,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 
-                                    var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm ?? 0, farmId ?? 0);
+                                    //var newRefreshToken = await GenerateRefreshToken(email, checkExistRefreshToken.ExpiredDate, 0, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
 
-                                    await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
-                                    {
-                                        UserId = checkExistRefreshToken.UserId,
-                                        RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
-                                        RefreshTokenValue = newRefreshToken,
-                                        CreateDate = DateTime.Now,
-                                        ExpiredDate = checkExistRefreshToken.ExpiredDate
-                                    });
+                                    //await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
+                                    //{
+                                    //    UserId = checkExistRefreshToken.UserId,
+                                    //    RefreshTokenCode = NumberHelper.GenerateRandomCode("RFT"),
+                                    //    RefreshTokenValue = newRefreshToken,
+                                    //    CreateDate = DateTime.Now,
+                                    //    ExpiredDate = checkExistRefreshToken.ExpiredDate
+                                    //});
                                     return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new
                                     {
                                         AuthenModel = new AuthenModel
                                         {
                                             AccessToken = newAccessToken,
-                                            RefreshToken = newRefreshToken
+                                            RefreshToken = checkExistRefreshToken.RefreshTokenValue!
                                         },
                                         Avartar = existUser.AvatarURL,
                                         Fullname = existUser.FullName,
@@ -583,7 +583,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var uploadImageLink = await _cloudinaryService.UploadImageAsync(avatarOfUser, CloudinaryPath.USER_AVARTAR);
                 if (uploadImageLink != null)
                 {
-                    if (checkExistUser.AvatarURL != null)
+                    if (checkExistUser.AvatarURL != null ||  checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:ResourceDefault"]) || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:AvatarDefault"]))
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
                     }
@@ -690,17 +690,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getRoleInFarm == null)
                 {
                     authClaims.Add(new Claim("roleId", role.RoleId.ToString()));
-                    authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                    authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName!));
                 }
                 else
                 {
                     authClaims.Add(new Claim("roleId", getRoleInFarm.RoleId.ToString()));
-                    authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName));
+                    authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName!));
                     authClaims.Add(new Claim("farmId", farmId.ToString()));
 
                 }
                 authClaims.Add(new Claim("UserId", user.UserId.ToString()));
-                authClaims.Add(new Claim("Status", user.Status.ToString()));
+                authClaims.Add(new Claim("Status", user.Status!.ToString()));
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
             }
