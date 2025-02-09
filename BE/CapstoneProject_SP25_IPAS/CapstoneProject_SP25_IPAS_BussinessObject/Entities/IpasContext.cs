@@ -123,8 +123,8 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.DayOfWeek)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.EndTime).HasColumnType("datetime");
-            entity.Property(e => e.StarTime).HasColumnType("datetime");
+            entity.Property(e => e.EndTime).HasColumnType("time");
+            entity.Property(e => e.StarTime).HasColumnType("time");
 
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanSchedules)
                 .HasForeignKey(d => d.CarePlanId)
@@ -354,18 +354,12 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Note).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PlanId).HasColumnName("PlanID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
             entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");
             entity.Property(e => e.SeparatedDate).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-
-            entity.HasOne(d => d.Plan).WithMany(p => p.GraftedPlants)
-                .HasForeignKey(d => d.PlanId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__GraftedPl__PlanI__540C7B00");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.GraftedPlants)
                 .HasForeignKey(d => d.PlantId)
@@ -860,6 +854,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Plant).WithMany(p => p.Plans)
              .HasForeignKey(d => d.PlantId)
              .HasConstraintName("FK_Plan_Plant");
+
+            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Plans)
+             .HasForeignKey(d => d.GraftedPlantId)
+             .HasConstraintName("FK_Plan_GraftedPlant");
         });
 
         modelBuilder.Entity<Plant>(entity =>
