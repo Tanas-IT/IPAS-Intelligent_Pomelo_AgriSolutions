@@ -60,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                 var dbContext = scope.ServiceProvider.GetRequiredService<IpasContext>();
                 var farm = await dbContext.Farms.FirstOrDefaultAsync(f => f.FarmId == farmId);
 
-                if (farm == null || farm.IsDelete == true)
+                if (farm == null || farm.IsDeleted == true)
                 {
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
                     await context.Response.WriteAsync("Farm không tồn tại hoặc đã bị xóa.");

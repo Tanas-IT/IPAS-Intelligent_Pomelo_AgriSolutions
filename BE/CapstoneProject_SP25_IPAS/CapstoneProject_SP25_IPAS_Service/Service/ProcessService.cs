@@ -270,7 +270,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "GrowthStage,Farm,MasterType,ProcessData,SubProcesses");
+                var getProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "GrowthStage,Farm,MasterType,SubProcesses");
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<ProcessModel>(getProcess);

@@ -199,6 +199,31 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
         }
 
+        public static class Plan
+        {
+            public const string prefix = Base + "/plan";
+            public const string createPlan = prefix + "";
+            public const string getPlanWithPagination = prefix + "";
+            public const string deletePlan = prefix + "/{id}";
+            public const string updatePlanInfo = prefix + "";
+            public const string getPlanById = prefix + "/get-plan-by-id/{id}";
+            public const string softDeletePlan = prefix + "/soft-delete-plan/{id}";
+            public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
+            public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
+        }
+
+        public static class UserWorkLog
+        {
+            public const string prefix = Base + "/user-work-log";
+            public const string createUserWorkLog = prefix + "";
+            public const string getUserWorkLogWithPagination = prefix + "";
+            public const string deleteUserWorkLog = prefix + "/{id}";
+            public const string updateUserWorkLogInfo = prefix + "";
+            public const string getUserWorkLogById = prefix + "/get-user-work-log-by-id/{id}";
+            public const string softDeleteUserWorkLog = prefix + "/soft-delete-user-work-log";
+            public const string getUserWorkLogByName = prefix + "/get-user-work-log-by-name/{name}";
+            public const string CheckConflict = prefix + "/check-conflict-schedule";
+        }
         public static class LegalDocument
         {
             public const string prefix = Base + "/legal-documents";
@@ -207,6 +232,18 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateLegalDocumentInfo = prefix + "";
             public const string getLegalDocumentById = prefix + "";
             public const string getAllLegalDocumentIfFarm = prefix + "/get-legal-document-of-farm";
+        }
+
+        public static class Crop
+        {
+            public const string prefix = Base + "/crops";
+            public const string createCrop = prefix + "";
+            public const string deletePanentlyCrop = prefix + "";
+            public const string deleteSoftedCrop = prefix + "/delete-softed";
+            public const string updateCropInfo = prefix + "";
+            public const string getCropById = prefix + "";
+            public const string getAllCropIfFarm = prefix + "/get-crop-of-farm";
+            public const string getAllCropIfLandPlot = prefix + "/get-crop-of-landplot";
         }
     }
 }

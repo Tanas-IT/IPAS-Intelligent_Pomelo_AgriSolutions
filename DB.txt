@@ -14,13 +14,16 @@ CREATE TABLE ipas.dbo.Crop (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	CropExpectedTime datetime NULL,
+	Year int NULL,
 	CropActualTime datetime NULL,
 	HarvestSeason nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	EstimateYield float NULL,
 	ActualYield float NULL,
+	IsDeleted bit NULL,
 	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Notes nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MarketPrice float NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID)
 );
 
@@ -42,7 +45,7 @@ CREATE TABLE ipas.dbo.Farm (
 	ClimateZone nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
-	IsDelete bit NULL,
+	IsDeleted bit NULL,
 	Longitude float NULL,
 	Latitude float NULL,
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -611,6 +614,7 @@ CREATE TABLE ipas.dbo.UserFarm (
 	UserID int NOT NULL,
 	FarmID int NOT NULL,
 	RoleId int NULL,
+	Status nvarchar(50) NULL,
 	CONSTRAINT PK__UserFarm__995F77051197DAC5 PRIMARY KEY (UserID,FarmID),
 	CONSTRAINT FK__UserFarm__FarmID__41B8C09B FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE,
 	CONSTRAINT FK__UserFarm__UserID__42ACE4D4 FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
@@ -633,6 +637,49 @@ CREATE TABLE ipas.dbo.ChatRoom (
 	CreateBy int NULL,
 	CONSTRAINT PK__ChatRoom__32863919A904C9FC PRIMARY KEY (RoomID),
 	CONSTRAINT FK__ChatRoom__Create__17C286CF FOREIGN KEY (CreateBy) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.GraftedPlant definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.GraftedPlant;
+
+CREATE TABLE ipas.dbo.GraftedPlant (
+	GraftedPlantID int IDENTITY(1,1) NOT NULL,
+	GraftedPlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	SeparatedDate datetime NULL,
+	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedDate datetime NULL,
+	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlantID int NULL,
+	PlantLotID int NULL,
+	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
+	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.GraftedPlantNote definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.GraftedPlantNote;
+
+CREATE TABLE ipas.dbo.GraftedPlantNote (
+	GraftedPlantNoteID int IDENTITY(1,1) NOT NULL,
+	GraftedPlantNoteName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[Image] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantID int NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
+	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
 );
 
 
@@ -709,9 +756,13 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlantLotID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT FK__Plan__LandPlotID__1DB06A4F FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE,
+	CONSTRAINT Plan_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
@@ -749,10 +800,12 @@ CREATE TABLE ipas.dbo.RefreshToken (
 CREATE TABLE ipas.dbo.CarePlanSchedule (
 	ScheduleID int IDENTITY(1,1) NOT NULL,
 	DayOfWeek nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(100) NULL,
 	StarTime datetime NULL,
 	EndTime datetime NULL,
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CustomDates nvarchar(MAX) NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
 	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
@@ -779,75 +832,6 @@ CREATE TABLE ipas.dbo.ChatMessage (
 );
 
 
--- ipas.dbo.GraftedPlant definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.GraftedPlant;
-
-CREATE TABLE ipas.dbo.GraftedPlant (
-	GraftedPlantID int IDENTITY(1,1) NOT NULL,
-	GraftedPlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	SeparatedDate datetime NULL,
-	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedDate datetime NULL,
-	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
-	PlanID int NULL,
-	PlantLotID int NULL,
-	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
-	CONSTRAINT FK__GraftedPl__PlanI__540C7B00 FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE,
-	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
-	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
-);
-
-
--- ipas.dbo.GraftedPlantNote definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.GraftedPlantNote;
-
-CREATE TABLE ipas.dbo.GraftedPlantNote (
-	GraftedPlantNoteID int IDENTITY(1,1) NOT NULL,
-	GraftedPlantNoteName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Image] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantID int NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
-	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
-);
-
-
--- ipas.dbo.WorkLog definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.WorkLog;
-
-CREATE TABLE ipas.dbo.WorkLog (
-	WorkLogID int IDENTITY(1,1) NOT NULL,
-	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Date] datetime NULL,
-	IsConfirm bit NULL,
-	ScheduleID int NULL,
-	HarvestHistoryID int NULL,
-	WarningID int NULL,
-	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
-	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
-	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
-	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
-);
-
-
 -- ipas.dbo.CriteriaGraftedPlant definition
 
 -- Drop table
@@ -861,6 +845,31 @@ CREATE TABLE ipas.dbo.CriteriaGraftedPlant (
 	CONSTRAINT PK__Criteria__47DA559824FE7603 PRIMARY KEY (GraftedPlantID,CriteriaID),
 	CONSTRAINT FK__CriteriaG__Crite__55F4C372 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
 	CONSTRAINT FK__CriteriaG__Graft__55009F39 FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.WorkLog definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.WorkLog;
+
+CREATE TABLE ipas.dbo.WorkLog (
+	WorkLogID int IDENTITY(1,1) NOT NULL,
+	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        WorkLogName nvarchar(300) NULL,
+	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[Date] datetime NULL,
+	IsConfirm bit NULL,
+	ScheduleID int NULL,
+	HarvestHistoryID int NULL,
+	WarningID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
+	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
+	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
+	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
 );
 
 

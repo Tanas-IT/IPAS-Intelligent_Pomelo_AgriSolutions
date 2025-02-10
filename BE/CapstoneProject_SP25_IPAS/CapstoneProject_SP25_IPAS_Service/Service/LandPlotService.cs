@@ -171,7 +171,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     // Lấy các tọa độ hiện tại
-                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot.Farm.IsDelete != true;
+                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot.Farm.IsDeleted != true;
                     var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition);
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
@@ -239,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<LandPlot, bool>> condition = x => x.LandPlotId == landPlotUpdateRequest.LandPlotId && x.Farm.IsDelete != true;
+                    Expression<Func<LandPlot, bool>> condition = x => x.LandPlotId == landPlotUpdateRequest.LandPlotId && x.Farm.IsDeleted != true;
                     var landplotEntityUpdate = await _unitOfWork.LandPlotRepository.GetByCondition(condition);
 
                     if (landplotEntityUpdate == null)

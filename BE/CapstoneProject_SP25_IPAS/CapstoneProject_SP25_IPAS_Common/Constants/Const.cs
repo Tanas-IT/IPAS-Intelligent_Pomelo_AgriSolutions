@@ -284,13 +284,32 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_PLAN_CODE = 200;
         public static string SUCCESS_GET_ALL_PLAN_MSG = "Get all plan success";
         public static int SUCCESS_GET_PLAN_BY_ID_CODE = 200;
-        public static string SUCCESS_GET_PLAN_BY_ID_MSG = "Get plan success";
+        public static string SUCCESS_GET_PLAN_BY_ID_MSG = "Get plan by id success";
+        public static int SUCCESS_GET_PLAN_BY_NAME_CODE = 200;
+        public static string SUCCESS_GET_PLAN_BY_NAME_MSG = "Get plan by name success";
         public static int SUCCESS_UPDATE_PLAN_CODE = 200;
         public static string SUCCESS_UPDATE_PLAN_MSG = "Update plan success";
         public static int SUCCESS_DELETE_PLAN_CODE = 200;
         public static string SUCCESS_DELETE_PLAN_MSG = "Delete plan success";
+        public static int SUCCESS_SOFT_DELETE_PLAN_CODE = 200;
+        public static string SUCCESS_SOFT_DELETE_PLAN_MSG = "Soft delete plan success";
+        public static int SUCCESS_UN_SOFT_DELETE_PLAN_CODE = 200;
+        public static string SUCCESS_UN_SOFT_DELETE_PLAN_MSG = "Un soft delete plan success";
         public static int SUCCESS_CREATE_PLAN_CODE = 200;
         public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
+        #endregion
+
+        #region UserWorkLog
+        public static int SUCCESS_GET_ALL_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_GET_ALL_USER_WORK_LOG_MSG = "Get all user work log success";
+        public static int SUCCESS_GET_USER_WORK_LOG_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_USER_WORK_LOG_BY_ID_MSG = "Get user work log by id success";
+        public static int SUCCESS_UPDATE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_UPDATE_USER_WORK_LOG_MSG = "Update user work log success";
+        public static int SUCCESS_DELETE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_DELETE_USER_WORK_LOG_MSG = "Delete user work log success";
+        public static int SUCCESS_CREATE_USER_WORK_LOG_CODE = 200;
+        public static string SUCCESS_CREATE_USER_WORK_LOG_MSG = "Create user work log success";
         #endregion
         #region Legal Document
         public static int SUCCESS_CREATE_LEGAL_DOCUMENT_CODE = 200;
@@ -303,6 +322,25 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_LEGAL_DOCUMENT_BY_ID_MSG = "Get document success";
         public static int SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
         public static string SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm success";
+        #endregion
+        #region Crop
+        public static int SUCCESS_GET_CROP_CODE = 200;
+        public static string SUCCESS_GET_CROP_BY_ID_MSG = "Get crop by id success";
+        public static int SUCCESS_GET_ALL_CROP_WITH_PAGIN_CODE = 200;
+        public static string SUCCESS_GET_ALL_CROP_WITH_PAGIN_EMPTY_CODE = "Get all crop empty";
+        public static int SUCCESS_GET_CROP_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_CROP_ALL_PAGINATION_FARM_MSG = "Get all pagination crop success";
+        public static int SUCCESS_CREATE_CROP_CODE = 201;
+        public static string SUCCESS_CREATE_CROP_MSG = "Create crop success";
+        public static int SUCCESS_UPDATE_CROP_CODE = 200;
+        public static string SUCCESS_UPDATE_CROP_MSG = "Update crop success";
+        public static int SUCCESS_DELETE_PERMANENTLY_CROP_CODE = 200;
+        public static string SUCCESS_DELETE_PERMANENTLY_CROP_MSG = "Delete crop softed success";
+        public static int SUCCESS_DELETE_SOFTED_CROP_CODE = 200;
+        public static string SUCCESS_DELETE_SOFTED_CROP_MSG = "Delete crop softed success";
+        public static int SUCCESS_GET_ALL_CROP_CODE = 200;
+        public static string SUCCESS_GET_ALL_CROP_EMPTY_MSG = "No crop was found";
+        public static string SUCCESS_GET_ALL_CROP_FOUND_MSG = "Get all crop of landplot success.";
         #endregion
         #endregion
 
@@ -504,21 +542,48 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UPDATE_PLAN_MESSAGE = "Update plan failed";
         public static int FAIL_DELETE_PLAN_CODE = 500;
         public static string FAIL_DELETE_PLAN_MESSAGE = "Delete plan failed";
+        public static int FAIL_SOFT_DELETE_PLAN_CODE = 500;
+        public static string FAIL_SOFT_DELETE_PLAN_MESSAGE = "Soft delete plan failed";
+        public static int FAIL_UN_SOFT_DELETE_PLAN_CODE = 500;
+        public static string FAIL_UN_SOFT_DELETE_PLAN_MESSAGE = "Un soft delete plan failed";
         public static int FAIL_GET_PLAN_CODE = 500;
         public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
         #endregion
 
+        #region User Work Log Fail code
+        public static int FAIL_CREATE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_CREATE_USER_WORK_LOG_MESSAGE = "Create user work log failed";
+        public static int FAIL_UPDATE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_UPDATE_USER_WORK_LOG_MESSAGE = "Update user work log failed";
+        public static int FAIL_DELETE_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_DELETE_USER_WORK_LOG_MESSAGE = "Delete user work log failed";
+        public static int FAIL_GET_USER_WORK_LOG_CODE = 500;
+        public static string FAIL_GET_USER_WORK_LOG_MESSAGE = "Get user work log failed";
+        #endregion
         #region Legal document
         public static int FAIL_CREATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_CREATE_LEGAL_DOCUMENT_MSG = "Create document Fail";
-        public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 200;
+        public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_UPDATE_LEGAL_DOCUMENT_MSG = "Update document fail";
-        public static int FAIL_DELETE_LEGAL_DOCUMENT_CODE = 200;
+        public static int FAIL_DELETE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_DELETE_LEGAL_DOCUMENT_MSG = "Delete document fail";
-        public static int FAIL_GET_LEGAL_DOCUMENT_BY_ID_CODE = 200;
+        public static int FAIL_GET_LEGAL_DOCUMENT_BY_ID_CODE = 400;
         public static string FAIL_GET_LEGAL_DOCUMENT_BY_ID_MSG = "Get document fail";
-        public static int FAIL_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
+        public static int FAIL_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 400;
         public static string FAIL_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm fail";
+        #endregion
+
+        #region Crop
+        public static int FAIL_CREATE_CROP_CODE = 400;
+        public static string FAIL_CREATE_CROP_MSG = "Create crop Fail";
+        public static int FAIL_UPDATE_CROP_CODE = 400;
+        public static string FAIL_UPDATE_CROP_MSG = "Update crop fail";
+        public static int FAIL_DELETE_CROP_CODE = 400;
+        public static string FAIL_DELETE_CROP_MSG = "Delete crop fail";
+        public static int FAIL_GET_CROP_BY_ID_CODE = 400;
+        public static string FAIL_GET_CROP_BY_ID_MSG = "Get crop fail";
+        public static int FAIL_GET_CROP_OF_FARM_CODE = 400;
+        public static string FAIL_GET_CROP_OF_FARM_MSG = "Get crop of farm fail";
         #endregion
         #endregion
 
@@ -648,8 +713,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Plan History
-        public static int WARNING_GET_PLAN_NOT_EXIST_CODE = 400;
-        public static string WARNING_GET_PLAN_NOT_EXIST_MSG = "Plan not exist.";
+        public static int WARNING_GET_PLAN_DOES_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_PLAN_DOES_NOT_EXIST_MSG = "Plan not exist.";
         public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
         public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
@@ -659,11 +724,28 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG = "Do not have any resource";
         #endregion
 
+        #region User Work Log
+        public static int SUCCESS_USER_NO_CONFLICT_SCHEDULE_CODE = 200;
+        public static string SUCCESS_USER_NO_CONFLICT_SCHEDULE_MSG = "User does not conflict schedule";
+        public static int WARNING_USER_CONFLICT_SCHEDULE_CODE = 400;
+        public static string WARNING_USER_CONFLICT_SCHEDULE_MSG = "User conflict schedule. Please select another time";
+        #endregion
         #region Legal Document 
         public static int WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE = 400;
         public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
         public static int WARNING_GET_DOCUMENT_EMPTY_CODE = 200;
         public static string WARNING_GET_DOCUMENT_EMPTY_MSG = "Get document empty.";
+        #endregion
+
+        #region Crop
+        public static int WARNING_CROP_NOT_EXIST_CODE = 400;
+        public static string WARNING_CROP_NOT_EXIST_MSG = "Crop not exist";
+        public static int WARNING_CROP_OF_LANDPLOT_EMPTY_CODE = 200;
+        public static string WARNING_CROP_OF_LANDPLOT_EMPTY_MSG = "This landplot not have crop.";
+        public static int WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE = 400;
+        public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
+        public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
+        public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
         #endregion
         #endregion
     }
