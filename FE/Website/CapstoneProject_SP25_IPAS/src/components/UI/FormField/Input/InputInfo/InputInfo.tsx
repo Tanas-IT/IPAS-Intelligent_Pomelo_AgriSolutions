@@ -1,10 +1,11 @@
 import { Input, Form } from "antd";
 import style from "./InputInfo.module.scss";
 import { useStyle } from "@/hooks";
+import { formatDate } from "@/utils";
 
 interface InputInfoProps {
   label: string;
-  name: string;
+  name?: string;
   rules?: any[];
   type?: "text" | "textarea";
   isEditing?: boolean;

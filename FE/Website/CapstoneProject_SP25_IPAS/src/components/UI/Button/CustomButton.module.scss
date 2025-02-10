@@ -1,4 +1,5 @@
 @use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
 
 .baseBtn {
   font-size: 16px;
@@ -21,11 +22,5 @@
 }
 
 .cancelBtn {
-  outline: transparent !important;
-  border-color: vars.$color_border_btn_cancel !important;
-  font-size: 16px;
-  &:hover {
-    color: inherit !important;
-    opacity: 0.8;
-  }
+  @include shared.cancelBtn;
 }
