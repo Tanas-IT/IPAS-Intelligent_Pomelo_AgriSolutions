@@ -21,7 +21,7 @@ const ModalForm = ({
   children,
   isEdit = false,
   cancelLabel = "Cancel",
-  saveLabel = "Save Changes",
+  saveLabel,
 }: ModalFormProps) => {
   return (
     <Modal

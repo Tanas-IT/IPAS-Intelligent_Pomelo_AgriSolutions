@@ -18,6 +18,7 @@ const SelectInfo: React.FC<SelectInfoProps> = ({
   rules = [],
   options,
   onChange,
+  isEditing = false,
   isLoading = false,
 }) => {
   const { styles } = useStyle();
@@ -29,6 +30,7 @@ const SelectInfo: React.FC<SelectInfoProps> = ({
         options={options}
         showSearch
         onChange={onChange}
+        disabled={!isEditing}
         loading={isLoading}
       />
     </Form.Item>

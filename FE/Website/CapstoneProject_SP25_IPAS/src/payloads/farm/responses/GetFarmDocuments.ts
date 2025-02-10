@@ -1,10 +1,13 @@
+interface documentResources {
+  resourceID: string;
+  resourceCode: string;
+  resourceURL: string;
+}
+
 export interface GetFarmDocuments {
-  landOwnershipCertificate?: File[];
-  landOwnershipCertificateUrls: string[];
-  operatingLicense?: File[];
-  operatingLicenseUrls: string[];
-  landLeaseAgreement?: File[];
-  landLeaseAgreementUrls: string[];
-  pesticideUseLicense?: File[];
-  pesticideUseLicenseUrls: string[];
+  legalDocumentId: string;
+  legalDocumentCode: string;
+  legalDocumentType: string;
+  legalDocumentName: string;
+  resources: documentResources[];
 }

@@ -3,7 +3,7 @@ import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
 import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
-import { RulesManager } from "@/utils";
+import { formatDateAndTime, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
 import {
@@ -30,6 +30,12 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   const { isLoading, setIsLoading } = useLoadingStore();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+  const updateFormValues = () => {
+    form.setFieldsValue({
+      ...farm,
+      createDate: formatDateAndTime(farm.createDate),
+    });
+  };
   const [initialCoords, setInitialCoords] = useState({
     latitude: farm.latitude,
     longitude: farm.longitude,
@@ -87,7 +93,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.setFieldsValue(farm);
+    updateFormValues();
     setLogo({ logoUrl: farm.logoUrl, logo: null });
     setMarkerPosition({
       latitude: initialCoords.latitude,
@@ -146,7 +152,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         toast.success("Changes saved successfully!");
       }
     } catch (e) {
-      form.setFieldsValue(farm);
+      updateFormValues();
     } finally {
       setIsLoading(false);
       setIsEditing(false);
@@ -179,7 +185,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   const handleRemove = () => setLogo({ logo: null, logoUrl: farm.logoUrl });
 
   useEffect(() => {
-    form.setFieldsValue(farm);
+    updateFormValues();
   }, []);
 
   return (
@@ -197,13 +203,17 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
       <Flex className={style.contentSectionBody}>
         <Section title="Public Profile" subtitle="This will be displayed on your profile.">
           <Form layout="vertical" className={style.form} form={form}>
-            <InputInfo
-              label="Farm Name"
-              name={farmFormFields.farmName}
-              rules={RulesManager.getFarmNameRules()}
-              isEditing={isEditing}
-              placeholder="Enter the farm name"
-            />
+            <Flex className={style.row}>
+              <InputInfo
+                label="Farm Name"
+                name={farmFormFields.farmName}
+                rules={RulesManager.getFarmNameRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm name"
+              />
+              <InputInfo label="Create Date" name={farmFormFields.createDate} isEditing={false} />
+            </Flex>
+
             <InputInfo
               label="Description"
               name={farmFormFields.description}
