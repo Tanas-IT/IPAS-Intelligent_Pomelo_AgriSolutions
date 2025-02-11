@@ -16,12 +16,14 @@ export interface FarmRequest {
   climateZone: string;
 }
 
-interface createDocumentResources {
+interface DocumentResource {
+  resourceID: string;
   file: File;
 }
 
-export interface CreateFarmDocumentRequest {
+export interface FarmDocumentRequest {
+  LegalDocumentId: string;
   legalDocumentType: string;
   legalDocumentName: string;
-  resources: createDocumentResources[];
+  resources: DocumentResource[];
 }

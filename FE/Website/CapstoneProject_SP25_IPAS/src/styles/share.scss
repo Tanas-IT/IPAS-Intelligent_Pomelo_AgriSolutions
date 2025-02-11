@@ -130,32 +130,27 @@
   }
 }
 
-@mixin formWrapper {
+@mixin formSection {
   width: 100%;
-  margin-bottom: 20px;
-  .formSection {
-    width: 100%;
+  flex-direction: column;
+  input,
+  select,
+  span {
+    font-size: 16px;
+  }
+  .formSectionTitle {
     flex-direction: column;
 
-    input,
-    select,
-    span {
+    .formTitle {
       font-size: 16px;
+      color: vars.$color_primary !important;
+      font-weight: bold;
     }
-    .formSectionTitle {
-      flex-direction: column;
 
-      .formTitle {
-        font-size: 16px;
-        color: vars.$color_primary !important;
-        font-weight: bold;
-      }
-
-      .formDescription {
-        font-size: 12px;
-        color: vars.$color_role_name;
-        margin-bottom: 4px;
-      }
+    .formDescription {
+      font-size: 12px;
+      color: vars.$color_role_name;
+      margin-bottom: 4px;
     }
   }
 }

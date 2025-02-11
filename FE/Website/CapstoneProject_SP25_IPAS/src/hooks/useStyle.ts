@@ -171,6 +171,13 @@ const useStyle = createStyles(({ css }) => {
         background-color: ${primaryColor};
       }
     `,
+    customUpload: css`
+      .ant-upload.ant-upload-select {
+        &:hover {
+          border-color: ${primaryColor} !important;
+        }
+      }
+    `,
   };
 });
 

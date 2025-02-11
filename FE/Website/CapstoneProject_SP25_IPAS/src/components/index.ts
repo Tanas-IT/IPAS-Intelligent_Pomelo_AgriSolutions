@@ -8,7 +8,8 @@ export { default as SectionTitle } from "@/components/UI/SectionTitle/SectionTit
 export { default as Table } from "@/components/UI/Table/Table";
 export { default as Tooltip } from "@/components/UI/Tooltip/Tooltip";
 export { default as TagRender } from "@/components/UI/Tag/CustomTag";
-export { default as Searchbar } from "@/components/UI/Searchbar/Searchbar";
+export { default as Searchbar } from "@/components/UI/Search/Searchbar/Searchbar";
+export { default as SearchHeader } from "@/components/UI/Search/SearchHeader/SearchHeader";
 export { default as CustomButton } from "@/components/UI/Button/CustomButton";
 export { default as ActionBar } from "@/components/UI/ActionBar/ActionBar";
 export { default as ActionMenu } from "@/components/UI/ActionMenu/ActionMenu/ActionMenu";
