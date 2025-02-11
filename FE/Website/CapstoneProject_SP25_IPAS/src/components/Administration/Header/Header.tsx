@@ -8,6 +8,7 @@ import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks";
 import { useSidebarStore } from "@/stores";
+import { SearchHeader } from "@/components";
 
 interface HeaderProps {
   isDefault?: boolean;
@@ -64,6 +65,9 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
           </Flex>
         </Flex>
         <Flex className={`${style.rightSection} ${isDefault ? style.paddingRight : ""}`}>
+          <Flex className={style.searchWrapper}>
+            <SearchHeader onSearch={(e) => e} />
+          </Flex>
           <Flex className={style.notificationWrapper}>
             {notifications.map((noti, index) => (
               <Popover key={index} content={noti.content} trigger="click" placement="bottomRight">

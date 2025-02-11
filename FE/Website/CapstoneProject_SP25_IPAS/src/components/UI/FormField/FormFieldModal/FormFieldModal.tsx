@@ -1,10 +1,9 @@
 import { useStyle } from "@/hooks";
-import { Select, Form, Flex, FormInstance, DatePicker, Input } from "antd";
+import { Select, Form, Flex, DatePicker, Input } from "antd";
 import style from "./FormFieldModal.module.scss";
 import { Dayjs } from "dayjs";
 
 interface FormFieldModalProps {
-  form?: FormInstance;
   label: string;
   description?: string;
   name: string;
@@ -12,7 +11,6 @@ interface FormFieldModalProps {
   type?: "text" | "textarea" | "date" | "select";
   options?: { value: string; label: string }[];
   readonly?: boolean;
-  value?: string;
   onChange?: (value: any) => void;
   isLoading?: boolean;
   isSearch?: boolean;
@@ -20,7 +18,6 @@ interface FormFieldModalProps {
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
-  form,
   label,
   description,
   name,
@@ -28,7 +25,6 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   type = "text",
   options = [],
   readonly = false,
-  value,
   onChange,
   isLoading = false,
   isSearch = true,
@@ -42,10 +38,10 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "textarea":
         return (
           <Input.TextArea
-            value={value}
             placeholder={placeholder}
             onChange={onChange}
             readOnly={readonly}
+            maxLength={500}
           />
         );
       case "date":
@@ -56,41 +52,40 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             placeholder={`Select ${label.toLowerCase()}`}
             className={`${styles.customSelect}`}
             options={options}
-            value={value}
             showSearch={isSearch}
             loading={isLoading}
-            onChange={(value) => {
-              form?.setFieldsValue({ [name]: value });
-              onChange?.(value);
-            }}
+            onChange={onChange}
           />
         );
       default:
         return (
-          <Input value={value} placeholder={placeholder} onChange={onChange} readOnly={readonly} />
+          <Input
+            placeholder={placeholder}
+            onChange={onChange}
+            readOnly={readonly}
+            maxLength={255}
+          />
         );
     }
   };
 
   return (
-    <Form.Item
-      name={name}
-      rules={rules}
-      hasFeedback
-      className={`${style.formWrapper} ${
-        type === "text" || type === "textarea" ? styles.customInput2 : ""
-      }`}
-    >
-      <Flex className={style.formSection}>
-        <Flex className={style.formSectionTitle}>
-          <label className={style.formTitle}>
-            {label} {isRequired && <span style={{ color: "red" }}>*</span>}
-          </label>
-          {description && <span className={style.formDescription}>{description}</span>}
-        </Flex>
-        {renderInput()}
+    <Flex className={style.formSection}>
+      <Flex className={style.formSectionTitle}>
+        <label className={style.formTitle}>
+          {label} {isRequired && <span style={{ color: "red" }}>*</span>}
+        </label>
+        {description && <span className={style.formDescription}>{description}</span>}
       </Flex>
-    </Form.Item>
+      <Form.Item
+        name={name}
+        rules={rules}
+        hasFeedback
+        className={`${type === "text" || type === "textarea" ? styles.customInput2 : ""}`}
+      >
+        {renderInput()}
+      </Form.Item>
+    </Flex>
   );
 };
 

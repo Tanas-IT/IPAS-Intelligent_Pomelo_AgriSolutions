@@ -936,7 +936,7 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 GO
 
 INSERT INTO [dbo].[Farm] 
-([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDelete], [Status], [Length], [Width], [Description])
+([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
 ('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 106.786528, 10.9965,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 

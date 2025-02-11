@@ -91,7 +91,7 @@ function FarmInfo() {
       </Flex>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="2"
+        defaultActiveKey="1"
         items={items}
       />
     </Flex>

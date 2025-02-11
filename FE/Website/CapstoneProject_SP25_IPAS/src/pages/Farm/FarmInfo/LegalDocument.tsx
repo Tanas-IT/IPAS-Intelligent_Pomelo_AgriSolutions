@@ -3,7 +3,7 @@ import { Divider, Empty, Flex, Image } from "antd";
 import { Icons } from "@/assets";
 import { ConfirmModal, CustomButton, LoadingSkeleton, Section, SectionHeader } from "@/components";
 import { useEffect, useState } from "react";
-import { CreateFarmDocumentRequest, GetFarmDocuments } from "@/payloads";
+import { FarmDocumentRequest, GetFarmDocuments } from "@/payloads";
 import { getFarmId } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService } from "@/services";
@@ -13,13 +13,9 @@ import DocumentModal from "./DocumentModal/DocumentModal";
 function LegalDocument() {
   const [isLoading, setIsLoading] = useState(true);
   const [legalDocuments, setLegalDocuments] = useState<GetFarmDocuments[]>([]);
-  const [isEditing, setIsEditing] = useState<Record<string, boolean>>({});
   const addModal = useModal<GetFarmDocuments>();
-  const {
-    modalState: deleteModal,
-    showModal: showDeleteModal,
-    hideModal: hideDeleteModal,
-  } = useModal<{ docId: string }>();
+  const deleteConfirmModal = useModal<{ docId: string }>();
+  const updateConfirmModal = useModal<{ doc: FarmDocumentRequest }>();
 
   const fetchFarmDocumentsData = async () => {
     try {
@@ -40,10 +36,11 @@ function LegalDocument() {
   }, []);
 
   const handleDelete = async () => {
-    if (!deleteModal.data?.docId) return;
+    const docId = deleteConfirmModal.modalState.data?.docId;
+    if (!docId) return;
     try {
       setIsLoading(true);
-      var result = await farmService.deleteFarmDocuments(deleteModal.data.docId);
+      var result = await farmService.deleteFarmDocuments(docId);
       if (result.statusCode === 200) {
         toast.success(result.message);
         await fetchFarmDocumentsData();
@@ -52,15 +49,58 @@ function LegalDocument() {
       }
     } finally {
       setIsLoading(false);
-      hideDeleteModal();
+      deleteConfirmModal.hideModal();
     }
   };
 
-  const handleEdit = (doc: GetFarmDocuments) => {
-    console.log(doc);
+  const handleUpdateConfirm = (doc: FarmDocumentRequest) => {
+    const oldDoc = legalDocuments.find((d) => d.legalDocumentId === doc.LegalDocumentId);
+    if (!oldDoc) return;
+
+    // Lấy danh sách resourceID từ oldDoc và doc
+    const oldResourceIds = oldDoc.resources.map((r) => r.resourceID);
+    const newResourceIds = doc.resources.map((r) => r.resourceID);
+
+    // Kiểm tra nếu có file mới được thêm
+    const hasNewFile = doc.resources.some((r) => r.file);
+
+    // Kiểm tra nếu resourceID cũ bị mất
+    const hasRemovedResource = oldResourceIds.some((id) => !newResourceIds.includes(id));
+
+    // So sánh dữ liệu
+    const isChanged =
+      oldDoc.legalDocumentType !== doc.legalDocumentType ||
+      oldDoc.legalDocumentName !== doc.legalDocumentName ||
+      hasNewFile || // Nếu có file mới
+      hasRemovedResource; // Nếu có resource bị xóa
+
+    if (isChanged) {
+      updateConfirmModal.showModal({ doc });
+    } else {
+      addModal.hideModal();
+    }
   };
 
-  const handleAdd = async (doc: CreateFarmDocumentRequest) => {
+  const handleUpdate = async () => {
+    const doc = updateConfirmModal.modalState.data?.doc;
+    if (!doc) return;
+    try {
+      setIsLoading(true);
+      var result = await farmService.updateFarmDocuments(doc);
+      if (result.statusCode === 200) {
+        toast.success(result.message);
+        await fetchFarmDocumentsData();
+      } else {
+        toast.error(result.message);
+      }
+    } finally {
+      setIsLoading(false);
+      addModal.hideModal();
+      updateConfirmModal.hideModal();
+    }
+  };
+
+  const handleAdd = async (doc: FarmDocumentRequest) => {
     try {
       setIsLoading(true);
       var result = await farmService.createFarmDocuments(doc);
@@ -121,7 +161,7 @@ function LegalDocument() {
                 <Flex gap={14}>
                   <Icons.delete
                     className={style.iconEdit}
-                    onClick={() => showDeleteModal({ docId: doc.legalDocumentId })}
+                    onClick={() => deleteConfirmModal.showModal({ docId: doc.legalDocumentId })}
                   />
                   <Icons.edit className={style.iconEdit} onClick={() => addModal.showModal(doc)} />
                 </Flex>
@@ -136,20 +176,30 @@ function LegalDocument() {
       <DocumentModal
         isOpen={addModal.modalState.visible}
         onClose={addModal.hideModal}
-        onSave={addModal.modalState.data ? handleEdit : handleAdd}
+        onSave={addModal.modalState.data ? handleUpdateConfirm : handleAdd}
         documentData={addModal.modalState.data}
       />
 
       {/* Confirm Delete Modal */}
       <ConfirmModal
-        visible={deleteModal.visible}
+        visible={deleteConfirmModal.modalState.visible}
         onConfirm={handleDelete}
-        onCancel={hideDeleteModal}
+        onCancel={deleteConfirmModal.hideModal}
         title="Delete Document?"
         description="Are you sure you want to delete this document? This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
         isDanger={true}
+      />
+      {/* Confirm Update Modal */}
+      <ConfirmModal
+        visible={updateConfirmModal.modalState.visible}
+        onConfirm={handleUpdate}
+        onCancel={updateConfirmModal.hideModal}
+        title="Update Document?"
+        description="Are you sure you want to update this document? This action cannot be undone."
+        confirmText="Save Changes"
+        cancelText="Cancel"
       />
     </Flex>
   );

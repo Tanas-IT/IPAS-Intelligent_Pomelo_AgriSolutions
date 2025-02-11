@@ -33,9 +33,19 @@ const InputInfo: React.FC<InputInfoProps> = ({
       className={`${style.formWrapper} ${styles.customInput2}`}
     >
       {type === "textarea" ? (
-        <Input.TextArea placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+        <Input.TextArea
+          placeholder={placeholder}
+          onChange={onChange}
+          readOnly={!isEditing}
+          maxLength={500}
+        />
       ) : (
-        <Input placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+        <Input
+          placeholder={placeholder}
+          onChange={onChange}
+          readOnly={!isEditing}
+          maxLength={255}
+        />
       )}
     </Form.Item>
   );

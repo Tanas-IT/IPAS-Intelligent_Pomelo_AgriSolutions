@@ -20,20 +20,15 @@ const SectionWrapper = ({
   children,
 }: SectionWrapperProps) => {
   return (
-    <Form.Item
-      name={name}
-      valuePropName={valuePropName}
-      rules={rules}
-      className={style.formWrapper}
-    >
-      <Flex className={style.formSection}>
-        <Flex className={style.formSectionTitle}>
-          <label className={style.formTitle}>{title}</label>
-          {description && <span className={style.formDescription}>{description}</span>}
-        </Flex>
-        {children}
+    <Flex className={style.formSection}>
+      <Flex className={style.formSectionTitle}>
+        <label className={style.formTitle}>{title}</label>
+        {description && <span className={style.formDescription}>{description}</span>}
       </Flex>
-    </Form.Item>
+      <Form.Item name={name} valuePropName={valuePropName} rules={rules}>
+        {children}
+      </Form.Item>
+    </Flex>
   );
 };
 
