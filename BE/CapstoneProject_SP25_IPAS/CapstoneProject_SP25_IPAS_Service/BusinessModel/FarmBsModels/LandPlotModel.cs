@@ -41,8 +41,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public virtual ICollection<LandPlotCoordinationModel> LandPlotCoordinations { get; set; } = new List<LandPlotCoordinationModel>();
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public virtual ICollection<LandRowModel> LandRows { get; set; } = new List<LandRowModel>();
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //public virtual ICollection<LandRowModel> LandRows { get; set; } = new List<LandRowModel>();
 
         //public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 

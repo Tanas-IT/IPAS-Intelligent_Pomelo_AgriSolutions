@@ -14,6 +14,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cro
 
         public string? CropName { get; set; }
 
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
         public int Year { get; set; }
 
         public DateTime? CropExpectedTime { get; set; }
