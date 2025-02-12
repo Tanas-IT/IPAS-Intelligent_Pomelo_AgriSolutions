@@ -17,6 +17,9 @@ import HeaderContentAppend from './HeaderContentAppend'
 import style from "./Worklog.module.scss"
 import "./customScheduleX.scss"
 import WorklogFilter from './WorklogFilter/WorklogFilter'
+import { useModal } from '@/hooks'
+import { CreateWorklogRequest } from '@/payloads/worklog'
+import WorklogModal from './WorklogModal/WorklogModal'
 
 
 function Worklog() {
@@ -31,6 +34,7 @@ function Worklog() {
     type: [] as string[],
     plan: [] as string[],
   });
+  const addModal = useModal<CreateWorklogRequest>();
 
   const updateFilters = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -85,7 +89,7 @@ function Worklog() {
 
   }
 
-  const handleOpenAdd = () => {
+  const handleAdd = () => {
 
   }
 
@@ -106,9 +110,14 @@ function Worklog() {
           // timeGridEvent: CustomTimeGridEvent,
           // dateGridEvent: CustomDateGridEvent,
           headerContentRightAppend: () => (
-            <HeaderContentAppend filterContent={filterContent} handleOpenAdd={handleOpenAdd} />
+            <HeaderContentAppend filterContent={filterContent} addModal={addModal} />
           )
         }} />
+      <WorklogModal
+        isOpen={addModal.modalState.visible}
+        onClose={addModal.hideModal}
+        onSave={handleAdd}
+      />
     </div>
   )
 }

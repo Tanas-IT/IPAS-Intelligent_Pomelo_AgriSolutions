@@ -4,11 +4,15 @@ import { Button, Flex, Popover } from "antd"
 import WorklogFilter from "./WorklogFilter/WorklogFilter";
 
 interface HeaderContentAppendProps {
-    handleOpenAdd: () => void;
+    addModal: {
+        showModal: () => void;
+        hideModal: () => void;
+        modalState: { visible: boolean };
+    };
     filterContent: JSX.Element;
 }
 
-const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, handleOpenAdd }) => {
+const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {
 
     return (
         <Flex gap={10}>
@@ -20,7 +24,7 @@ const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent
             <CustomButton
                 label="Add New Task"
                 icon={<Icons.plus />}
-                handleOnClick={handleOpenAdd}
+                handleOnClick={() => addModal.showModal()}
             />
         </Flex>
     )

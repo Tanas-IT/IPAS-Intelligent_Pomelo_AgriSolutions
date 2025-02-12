@@ -65,4 +65,12 @@ export class RulesManager {
   static getClimateZoneRules = () => this.getRequiredRules("Climate Zone");
   static getDocumentRules = () => this.getRequiredRules("Document Name");
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
+
+
+  static getWorklogNameRules = () => this.getRequiredRules("Task Name");
+  static getCropRules = () => this.getRequiredRules("Crop");
+  static getLandPlotRules = () => this.getRequiredRules("Land Plot");
+  static getWorklogTypeRules = () => this.getRequiredRules("Worklog Type");
+  static getProcessRules = () => this.getRequiredRules("Process");
+  static getTimeRules = () => this.getRequiredRules("Time");
 }
