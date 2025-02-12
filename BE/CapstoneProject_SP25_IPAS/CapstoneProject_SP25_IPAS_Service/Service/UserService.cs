@@ -421,6 +421,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
                                 {
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(checkExistRefreshToken.RefreshTokenValue);
                                     var newAccessToken = await GenerateAccessToken(email, existUser, roleInFarm ?? 0, farmId ?? 0);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 

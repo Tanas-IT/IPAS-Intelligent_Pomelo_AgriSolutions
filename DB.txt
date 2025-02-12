@@ -642,6 +642,49 @@ CREATE TABLE ipas.dbo.ChatRoom (
 );
 
 
+-- ipas.dbo.GraftedPlant definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.GraftedPlant;
+
+CREATE TABLE ipas.dbo.GraftedPlant (
+	GraftedPlantID int IDENTITY(1,1) NOT NULL,
+	GraftedPlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	SeparatedDate datetime NULL,
+	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedDate datetime NULL,
+	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlantID int NULL,
+	PlantLotID int NULL,
+	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
+	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.GraftedPlantNote definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.GraftedPlantNote;
+
+CREATE TABLE ipas.dbo.GraftedPlantNote (
+	GraftedPlantNoteID int IDENTITY(1,1) NOT NULL,
+	GraftedPlantNoteName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[Image] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantID int NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
+	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+);
+
+
 -- ipas.dbo.HarvestTypeHistory definition
 
 -- Drop table
@@ -715,9 +758,13 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlantLotID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT FK__Plan__LandPlotID__1DB06A4F FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE,
+	CONSTRAINT Plan_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
@@ -755,10 +802,12 @@ CREATE TABLE ipas.dbo.RefreshToken (
 CREATE TABLE ipas.dbo.CarePlanSchedule (
 	ScheduleID int IDENTITY(1,1) NOT NULL,
 	DayOfWeek nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(100) NULL,
 	StarTime datetime NULL,
 	EndTime datetime NULL,
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CustomDates nvarchar(MAX) NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
 	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
@@ -785,75 +834,6 @@ CREATE TABLE ipas.dbo.ChatMessage (
 );
 
 
--- ipas.dbo.GraftedPlant definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.GraftedPlant;
-
-CREATE TABLE ipas.dbo.GraftedPlant (
-	GraftedPlantID int IDENTITY(1,1) NOT NULL,
-	GraftedPlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	SeparatedDate datetime NULL,
-	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedDate datetime NULL,
-	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
-	PlanID int NULL,
-	PlantLotID int NULL,
-	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
-	CONSTRAINT FK__GraftedPl__PlanI__540C7B00 FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE,
-	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
-	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
-);
-
-
--- ipas.dbo.GraftedPlantNote definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.GraftedPlantNote;
-
-CREATE TABLE ipas.dbo.GraftedPlantNote (
-	GraftedPlantNoteID int IDENTITY(1,1) NOT NULL,
-	GraftedPlantNoteName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Image] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantID int NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
-	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
-);
-
-
--- ipas.dbo.WorkLog definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.WorkLog;
-
-CREATE TABLE ipas.dbo.WorkLog (
-	WorkLogID int IDENTITY(1,1) NOT NULL,
-	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Date] datetime NULL,
-	IsConfirm bit NULL,
-	ScheduleID int NULL,
-	HarvestHistoryID int NULL,
-	WarningID int NULL,
-	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
-	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
-	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
-	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
-);
-
-
 -- ipas.dbo.CriteriaGraftedPlant definition
 
 -- Drop table
@@ -867,6 +847,31 @@ CREATE TABLE ipas.dbo.CriteriaGraftedPlant (
 	CONSTRAINT PK__Criteria__47DA559824FE7603 PRIMARY KEY (GraftedPlantID,CriteriaID),
 	CONSTRAINT FK__CriteriaG__Crite__55F4C372 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
 	CONSTRAINT FK__CriteriaG__Graft__55009F39 FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+);
+
+
+-- ipas.dbo.WorkLog definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.WorkLog;
+
+CREATE TABLE ipas.dbo.WorkLog (
+	WorkLogID int IDENTITY(1,1) NOT NULL,
+	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        WorkLogName nvarchar(300) NULL,
+	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	[Date] datetime NULL,
+	IsConfirm bit NULL,
+	ScheduleID int NULL,
+	HarvestHistoryID int NULL,
+	WarningID int NULL,
+	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
+	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
+	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
+	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
 );
 
 
@@ -931,40 +936,43 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
 GO
+
 INSERT INTO [dbo].[Farm] 
-([FarmCode], [FarmName], [Address], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
+([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 106.786528, 10.9965,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Tân Bình', N'Đồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 
-('F002', 'Farm B', N'456 Blue Avenue', 
+('F002', 'Farm B', N'456 Blue Avenue', 107.6297, 11.8231,
+ 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg',
+ N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+
+('F003', 'Farm C', N'789 Binh Duong', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F003', 'Farm C', N'789 Binh Duong', 
+('F004', 'Farm D', N'910 Dong Nai', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F004', 'Farm D', N'910 Dong Nai', 
+('F005', 'Farm E', N'911 Long An', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F005', 'Farm E', N'911 Long An', 
+('F006', 'Farm F', N'159 Can Gio', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F006', 'Farm F', N'159 Can Gio', 
+('F007', 'Farm G', N'567 Tien Giang', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
 
-('F007', 'Farm G', N'567 Tien Giang', 
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
-
-('F008', 'Farm H', N'789 Kien Giang', 
+('F008', 'Farm H', N'789 Kien Giang', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+
+GO
 
 GO
 INSERT INTO [dbo].[Role] ([RoleName], [isSystem])
@@ -979,7 +987,7 @@ INSERT INTO [dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gende
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar1.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar2.png', NULL, NULL, 2),
-('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alice Johnson', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
+('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alex Johnson', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://example.com/avatar3.png', NULL, NULL, 2);
 ;
@@ -1088,10 +1096,10 @@ GO
 INSERT INTO ipas.dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantID)
 VALUES
 ('RES-001', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010443/farm/legal-document/lhhd96qnxjcbxcgh6yvy.jpg', 'Organic Farming Guidelines', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
-('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL),
-('RES-003', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010457/farm/legal-document/rhdtcktzwkbqzhe4njcc.jpg', 'Land Ownership Data', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 3, NULL),
-('RES-004', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010609/iy0c6zxgjkdx7ocmvmih.jpg', 'ISO 9001 Audit Report', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 4, NULL),
-('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 5, NULL);
+('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
+('RES-003', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010457/farm/legal-document/rhdtcktzwkbqzhe4njcc.jpg', 'Land Ownership Data', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
+('RES-004', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010609/iy0c6zxgjkdx7ocmvmih.jpg', 'ISO 9001 Audit Report', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL),
+('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL);
 GO
 -- Insert fake data into Crop
 INSERT INTO ipas.dbo.Crop (CropCode, CropName,StartDate, EndDate ,CreateDate, UpdateDate, CropExpectedTime, Year, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)

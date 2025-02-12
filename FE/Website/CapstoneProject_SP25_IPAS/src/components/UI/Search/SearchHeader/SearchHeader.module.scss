@@ -1,0 +1,26 @@
+@use "@/styles/variables.scss" as vars;
+
+.searchbar {
+  width: 30vw;
+  height: 46px;
+  .input {
+    font-size: 1rem;
+    background-color: vars.$color_bg_search;
+    border-radius: 999px;
+    padding: 8px 20px 8px 12px;
+    &:focus-within {
+      caret-color: vars.$color_primary;
+      border: 1.5px solid vars.$color_primary;
+    }
+    &:hover {
+      caret-color: vars.$color_primary;
+      border: 1.5px solid vars.$color_primary;
+    }
+    svg {
+      color: rgba(22, 24, 35, 0.2);
+      height: 100%;
+      width: 20px;
+      transition: 0.4s;
+    }
+  }
+}

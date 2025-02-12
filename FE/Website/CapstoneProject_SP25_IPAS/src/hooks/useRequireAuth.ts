@@ -14,7 +14,7 @@ const useRequireAuth = (): boolean => {
 
     if (!accessToken && !refreshToken) {
       toast.error(MESSAGES.LOGIN_REQUIRED);
-      navigate(PATHS.AUTH.LANDING);
+      navigate(PATHS.AUTH.LOGIN);
     } else {
       setIsAuthChecked(true);
     }

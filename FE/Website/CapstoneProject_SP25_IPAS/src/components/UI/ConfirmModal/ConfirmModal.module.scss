@@ -1,0 +1,45 @@
+@use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
+
+.modalContainer {
+  .modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .confirmDesc {
+      font-size: 16px;
+      color: vars.$color_text_detail;
+      text-align: center;
+    }
+
+    .confirmTitle {
+      font-weight: bold;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .icon {
+      font-size: 56px;
+      color: vars.$color_icon_warning;
+      margin-bottom: 12px;
+    }
+  }
+
+  .yesButton {
+    font-size: 16px;
+    border-color: transparent;
+  }
+
+  .btnNotDanger {
+    background-color: vars.$color_second !important;
+    color: vars.$color_primary !important;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .noButton {
+    @include shared.cancelBtn;
+  }
+}

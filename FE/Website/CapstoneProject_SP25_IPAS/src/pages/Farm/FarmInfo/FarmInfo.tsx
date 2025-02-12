@@ -1,14 +1,15 @@
-import { Divider, Flex, Image, Skeleton, Tabs, TabsProps } from "antd";
+import { Divider, Flex, Image, Tabs, TabsProps } from "antd";
 import style from "./FarmInfo.module.scss";
-import { Icons, Images } from "@/assets";
+import { Icons } from "@/assets";
 import { useStyle } from "@/hooks";
 import Overview from "./Overview";
-import LegalDocument from "./LegalDocument/LegalDocument";
+import LegalDocument from "./LegalDocument";
 import { useEffect, useState } from "react";
 import { GetFarmInfo } from "@/payloads";
 import { defaultLogoFarm, getDefaultFarm, getFarmId } from "@/utils";
 import { farmService } from "@/services";
 import { LogoState } from "@/types";
+import { LoadingSkeleton } from "@/components";
 
 function FarmInfo() {
   const { styles } = useStyle();
@@ -21,6 +22,7 @@ function FarmInfo() {
       try {
         setIsLoading(true);
         const result = await farmService.getFarm(getFarmId());
+
         if (result.statusCode === 200) {
           setFarmDetails(result.data);
           setLogo((prev) => ({ ...prev, logoUrl: result.data.logoUrl }));
@@ -40,7 +42,7 @@ function FarmInfo() {
       icon: <Icons.overview className={style.iconTab} />,
       label: <label className={style.titleTab}>Overview</label>,
       children: isLoading ? (
-        <Skeleton active />
+        <LoadingSkeleton rows={10} />
       ) : (
         <Overview farm={farmDetails} setFarm={setFarmDetails} logo={logo} setLogo={setLogo} />
       ),
@@ -89,7 +91,7 @@ function FarmInfo() {
       </Flex>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="2"
+        defaultActiveKey="1"
         items={items}
       />
     </Flex>

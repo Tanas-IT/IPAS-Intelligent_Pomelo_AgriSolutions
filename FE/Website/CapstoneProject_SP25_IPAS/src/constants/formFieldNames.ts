@@ -12,4 +12,12 @@ export const farmFormFields = {
   climateZone: "climateZone",
   logo: "logo",
   logoUrl: "logoUrl",
+  createDate: "createDate",
+};
+
+export const farmDocumentFormFields = {
+  documentId: "documentId",
+  documentName: "documentName",
+  documentType: "documentType",
+  documents: "documents",
 };
