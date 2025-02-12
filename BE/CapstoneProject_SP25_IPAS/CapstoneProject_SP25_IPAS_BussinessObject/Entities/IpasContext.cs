@@ -265,6 +265,8 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
 

@@ -11,6 +11,8 @@ CREATE TABLE ipas.dbo.Crop (
 	CropID int IDENTITY(1,1) NOT NULL,
 	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CropName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	StartDate datetime NULL,
+	EndDate datetime NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	CropExpectedTime datetime NULL,
@@ -1092,16 +1094,16 @@ VALUES
 ('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 5, NULL);
 GO
 -- Insert fake data into Crop
-INSERT INTO ipas.dbo.Crop (CropCode, CropName, CreateDate, UpdateDate, CropExpectedTime, Year, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
+INSERT INTO ipas.dbo.Crop (CropCode, CropName,StartDate, EndDate ,CreateDate, UpdateDate, CropExpectedTime, Year, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
 VALUES 
-(N'CRP001', N'Rice', '2023-01-10', '2023-06-15', '2023-05-01', 2023, '2023-06-10', N'Spring', 5000, 4800, 0, N'Active', N'High yield', 1200, 1),
-(N'CRP002', N'Corn', '2023-02-05', '2023-07-20', '2023-06-10', 2023, '2023-07-25', N'Summer', 3000, 2900, 0, N'Active', N'Good season', 800, 1),
-(N'CRP003', N'Wheat', '2023-03-12', '2023-08-10', '2023-07-15', 2023, '2023-08-20', N'Autumn', 4000, 3900, 0, N'Active', N'Quality harvest', 1000, 2),
-(N'CRP004', N'Barley', '2023-04-18', '2023-09-30', '2023-09-01', 2023, '2023-10-10', N'Winter', 2500, 2400, 0, N'Inactive', N'Needs better soil', 900, 2),
-(N'CRP005', N'Soybean', '2023-05-20', '2023-11-15', '2023-10-10', 2023, '2023-11-20', N'Spring', 3200, 3100, 0, N'Active', N'Great market demand', 1100, 3),
-(N'CRP006', N'Peanut', '2023-06-25', '2023-12-10', '2023-11-01', 2023, '2023-12-15', N'Summer', 2700, 2600, 0, N'Active', N'Organic crop', 1050, 3),
-(N'CRP007', N'Potato', '2023-07-30', '2024-01-05', '2023-12-20', 2024, '2024-01-10', N'Winter', 3500, 3400, 0, N'Inactive', N'Requires more nutrients', 1150, 4),
-(N'CRP008', N'Carrot', '2023-08-15', '2024-02-10', '2024-01-10', 2024, '2024-02-15', N'Autumn', 2800, 2750, 0, N'Active', N'Excellent growth rate', 950, 4);
+(N'CRP001', N'Rice', '2024-10-10', '2025-06-15', '2023-01-10', '2023-06-15', '2023-05-01', 2023, '2023-06-10', N'Spring', 5000, 4800, 0, N'Active', N'High yield', 1200, 1),
+(N'CRP002', N'Corn', '2024-10-10', '2025-06-15','2023-02-05', '2023-07-20', '2023-06-10', 2023, '2023-07-25', N'Summer', 3000, 2900, 0, N'Active', N'Good season', 800, 1),
+(N'CRP003', N'Wheat', '2024-10-10', '2025-06-15','2023-03-12', '2023-08-10', '2023-07-15', 2023, '2023-08-20', N'Autumn', 4000, 3900, 0, N'Active', N'Quality harvest', 1000, 2),
+(N'CRP004', N'Barley', '2024-10-10', '2025-06-15','2023-04-18', '2023-09-30', '2023-09-01', 2023, '2023-10-10', N'Winter', 2500, 2400, 0, N'Inactive', N'Needs better soil', 900, 2),
+(N'CRP005', N'Soybean','2024-10-10', '2025-06-15', '2023-05-20', '2023-11-15', '2023-10-10', 2023, '2023-11-20', N'Spring', 3200, 3100, 0, N'Active', N'Great market demand', 1100, 3),
+(N'CRP006', N'Peanut', '2024-10-10', '2025-06-15','2023-06-25', '2023-12-10', '2023-11-01', 2023, '2023-12-15', N'Summer', 2700, 2600, 0, N'Active', N'Organic crop', 1050, 3),
+(N'CRP007', N'Potato', '2024-10-10', '2025-06-15','2023-07-30', '2024-01-05', '2023-12-20', 2024, '2024-01-10', N'Winter', 3500, 3400, 0, N'Inactive', N'Requires more nutrients', 1150, 4),
+(N'CRP008', N'Carrot', '2024-10-10', '2025-06-15','2023-08-15', '2024-02-10', '2024-01-10', 2024, '2024-02-15', N'Autumn', 2800, 2750, 0, N'Active', N'Excellent growth rate', 950, 4);
 GO
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
 INSERT INTO ipas.dbo.LandPlotCrop (LandPlotID, CropID)
