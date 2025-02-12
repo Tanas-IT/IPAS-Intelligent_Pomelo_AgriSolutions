@@ -41,7 +41,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropIfFarm , Name = "getAllCropsOfFarm")]
+        [HttpGet(APIRoutes.Crop.getAllCropOfFarm , Name = "getAllCropsOfFarm")]
         public async Task<IActionResult> GetAllCropsOfFarmAsync([FromQuery] int? farmId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
         {
             try
@@ -64,12 +64,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropIfLandPlot, Name = "getAllCropsOfLandPlot")]
+        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlot, Name = "getAllCropsOfLandPlot")]
         public async Task<IActionResult> GetAllCropsOfLandPlotAsync([FromQuery] int? landPlotId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
         {
             try
             {
                 var result = await _cropService.getAllCropOfLandPlot(landPlotId!.Value, paginationParameter, cropFilter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Crop.getAllCropOfFarmForSelect , Name = "getAllCropsOfFarmForSelect")]
+        public async Task<IActionResult> GetAllCropsOfFarmForSelectAsync([FromQuery] int farmId, string? searchValue)
+        {
+            try
+            {
+                var result = await _cropService.getAllCropOfFarmForSelected(farmId, searchValue);
                 return Ok(result);
             }
             catch (Exception ex)

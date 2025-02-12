@@ -742,6 +742,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CROP_NOT_EXIST_MSG = "Crop not exist";
         public static int WARNING_CROP_OF_LANDPLOT_EMPTY_CODE = 200;
         public static string WARNING_CROP_OF_LANDPLOT_EMPTY_MSG = "This landplot not have crop.";
+        public static int WARNING_CROP_OF_FARM_EMPTY_CODE = 200;
+        public static string WARNING_CROP_OF_FARM_EMPTY_MSG = "This farm not have crop.";
         public static int WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE = 400;
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;

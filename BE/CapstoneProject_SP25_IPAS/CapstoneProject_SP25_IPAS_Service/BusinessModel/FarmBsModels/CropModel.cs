@@ -17,6 +17,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public string? CropName { get; set; }
 
         public int? Year { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
         public DateTime? CreateDate { get; set; }
 
         public DateTime? UpdateDate { get; set; }

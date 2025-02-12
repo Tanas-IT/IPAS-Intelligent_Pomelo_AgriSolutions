@@ -242,8 +242,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteSoftedCrop = prefix + "/delete-softed";
             public const string updateCropInfo = prefix + "";
             public const string getCropById = prefix + "";
-            public const string getAllCropIfFarm = prefix + "/get-crop-of-farm";
-            public const string getAllCropIfLandPlot = prefix + "/get-crop-of-landplot";
+            public const string getAllCropOfFarm = prefix + "/get-crop-of-farm";
+            public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
+            public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
     }
 }
