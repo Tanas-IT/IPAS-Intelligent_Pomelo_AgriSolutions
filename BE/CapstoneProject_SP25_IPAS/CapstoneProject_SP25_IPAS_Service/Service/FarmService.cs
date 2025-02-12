@@ -70,7 +70,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     farmCreateEntity.FarmCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.FARM);
                     farmCreateEntity.Status = FarmStatus.Active.ToString();
-                    farmCreateEntity.IsDelete = false;
+                    farmCreateEntity.IsDeleted = false;
                     farmCreateEntity.CreateDate = DateTime.Now;
                     farmCreateEntity.UpdateDate = DateTime.Now;
                     if (farmCreateRequest.LogoUrl != null)
@@ -99,7 +99,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var mapResult = _mapper.Map<FarmModel>(farmCreateEntity);
                         return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mapResult);
                     }
-                    else return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                        return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
+                    }
                 }
             }
             catch (Exception ex)
@@ -121,7 +125,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetAllFarmOfUser(int userId)
         {
-            Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDelete != true;
+            Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDeleted != true;
             string includeProperties = "Farm,Role,User";
             var userFarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
             if (!userFarm.Any())
@@ -148,7 +152,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDelete != true);
+                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDeleted != true);
                 }
 
                 switch (paginationParameter.SortBy)
@@ -238,7 +242,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.FarmRepository.Get(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<FarmModel>();
                 pagin.List = _mapper.Map<IEnumerable<FarmModel>>(entities).ToList();
-                Expression<Func<Farm, bool>> filterCount = x => x.IsDelete != true;
+                Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
                 pagin.TotalRecord = await _unitOfWork.FarmRepository.Count(filter: filterCount);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
@@ -299,14 +303,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<Farm, bool>> condition = x => x.FarmId == farmId && x.IsDelete != true;
+                    Expression<Func<Farm, bool>> condition = x => x.FarmId == farmId && x.IsDeleted != true;
                     var farm = await _unitOfWork.FarmRepository.GetByCondition(condition);
 
                     if (farm == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     }
-                    farm.IsDelete = true;
+                    farm.IsDeleted = true;
                     _unitOfWork.FarmRepository.Update(farm);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -481,7 +485,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<UserFarm, bool>> condition = x => x.FarmId == farmId && x.UserId == userId && x.Farm.IsDelete != true;
+                Expression<Func<UserFarm, bool>> condition = x => x.FarmId == farmId && x.UserId == userId && x.Farm.IsDeleted != true;
                 var userfarm = await _unitOfWork.UserFarmRepository.GetByCondition(condition, "Farm,User,Role");
                 var result = _mapper.Map<UserFarmModel>(userfarm);
                 return result;

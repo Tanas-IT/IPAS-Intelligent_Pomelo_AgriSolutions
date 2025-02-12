@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
     {
         public int CropID { get; set; }
 
-        public int LandPlotID { get; set; }
+        public int LandPlotId { get; set; }
 
         public virtual Crop Crop { get; set; } = null!;
 

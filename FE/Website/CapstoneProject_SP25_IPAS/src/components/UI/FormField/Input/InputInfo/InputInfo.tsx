@@ -1,10 +1,11 @@
 import { Input, Form } from "antd";
-import style from "./FormInput.module.scss";
+import style from "./InputInfo.module.scss";
 import { useStyle } from "@/hooks";
+import { formatDate } from "@/utils";
 
-interface FormInputProps {
+interface InputInfoProps {
   label: string;
-  name: string;
+  name?: string;
   rules?: any[];
   type?: "text" | "textarea";
   isEditing?: boolean;
@@ -12,7 +13,7 @@ interface FormInputProps {
   placeholder?: string;
 }
 
-const FormInput: React.FC<FormInputProps> = ({
+const InputInfo: React.FC<InputInfoProps> = ({
   label,
   name,
   rules = [],
@@ -29,15 +30,25 @@ const FormInput: React.FC<FormInputProps> = ({
       name={name}
       rules={rules}
       hasFeedback={isEditing}
-      className={`${style.flexItem} ${styles.customInput2}`}
+      className={`${style.formWrapper} ${styles.customInput2}`}
     >
       {type === "textarea" ? (
-        <Input.TextArea placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+        <Input.TextArea
+          placeholder={placeholder}
+          onChange={onChange}
+          readOnly={!isEditing}
+          maxLength={500}
+        />
       ) : (
-        <Input placeholder={placeholder} onChange={onChange} readOnly={!isEditing} />
+        <Input
+          placeholder={placeholder}
+          onChange={onChange}
+          readOnly={!isEditing}
+          maxLength={255}
+        />
       )}
     </Form.Item>
   );
 };
 
-export default FormInput;
+export default InputInfo;

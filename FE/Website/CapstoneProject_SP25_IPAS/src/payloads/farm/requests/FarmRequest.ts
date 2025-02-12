@@ -16,9 +16,14 @@ export interface FarmRequest {
   climateZone: string;
 }
 
+interface DocumentResource {
+  resourceID: string;
+  file: File;
+}
+
 export interface FarmDocumentRequest {
-  landOwnershipCertificate: File;
-  operatingLicense: File;
-  landLeaseAgreement: File;
-  pesticideUseLicense: File;
+  LegalDocumentId: string;
+  legalDocumentType: string;
+  legalDocumentName: string;
+  resources: DocumentResource[];
 }

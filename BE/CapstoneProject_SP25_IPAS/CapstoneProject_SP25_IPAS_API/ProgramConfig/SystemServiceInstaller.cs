@@ -57,6 +57,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IWorkLogRepository, WorkLogRepository>();
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
+            services.AddScoped<ICropRepository, CropRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -76,8 +77,10 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IMasterTypeDetailService, MasterTypeDetailService>();
             services.AddScoped<IPlantService, PlantService>();
             services.AddScoped<IPlantGrowthHistoryService, PlantGrowthHistoryService>();
+            services.AddScoped<IUserWorkLogService, UserWorkLogService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<ILegalDocumentService, LegalDocumentService>();
+            services.AddScoped<ICropService, CropService>();
 
             services.AddHttpClient();
 

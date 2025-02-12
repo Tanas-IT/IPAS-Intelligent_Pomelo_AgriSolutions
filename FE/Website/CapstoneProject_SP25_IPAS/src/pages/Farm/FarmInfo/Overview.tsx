@@ -3,21 +3,22 @@ import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
 import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
-import { defaultCoordsFarm, RulesManager } from "@/utils";
+import { formatDateAndTime, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
 import {
   EditActions,
-  FormInput,
+  FormFieldModal,
+  InputInfo,
   MapAddress,
   Section,
   SectionHeader,
-  SelectInput,
+  SelectInfo,
 } from "@/components";
-import { CoordsState, LogoState } from "@/types";
+import { LogoState } from "@/types";
 import { useFarmStore, useLoadingStore } from "@/stores";
-import { useDebounce } from "use-debounce";
 import { useAddressLocation } from "@/hooks";
+import { farmFormFields } from "@/constants";
 
 interface OverviewProps {
   farm: GetFarmInfo;
@@ -29,29 +30,17 @@ interface OverviewProps {
 const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
   const { isLoading, setIsLoading } = useLoadingStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [markerPosition, setMarkerPosition] = useState<CoordsState>(defaultCoordsFarm);
+  const [form] = Form.useForm();
+  const updateFormValues = () => {
+    form.setFieldsValue({
+      ...farm,
+      createDate: formatDateAndTime(farm.createDate),
+    });
+  };
   const [initialCoords, setInitialCoords] = useState({
     latitude: farm.latitude,
     longitude: farm.longitude,
   });
-  const [form] = Form.useForm();
-  const formFieldNames = {
-    farmName: "farmName",
-    description: "description",
-    province: "province",
-    district: "district",
-    ward: "ward",
-    address: "address",
-    area: "area",
-    length: "length",
-    width: "width",
-    soilType: "soilType",
-    climateZone: "climateZone",
-    logo: "logo",
-    logoUrl: "logoUrl",
-  };
-  const [addressInput, setAddressInput] = useState(form.getFieldValue(formFieldNames.address));
-  const [debouncedAddress] = useDebounce(addressInput, 500);
   const {
     provinces,
     setProvinces,
@@ -61,71 +50,12 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
     setWards,
     handleProvinceChange,
     handleDistrictChange,
+    handleWardChange,
+    handleAddressChange,
     getIdByName,
-  } = useAddressLocation(form);
-
-  const handleWardChange = async (wardSelected: string) => {
-    try {
-      if (wardSelected != "") {
-        form.setFieldsValue({
-          ward: wardSelected.split(",")[1].trim(),
-          wardId: wardSelected.split(",")[0].trim(),
-        });
-        const fullAddress = `${form.getFieldValue(
-          formFieldNames.address,
-        )}, ${wardSelected}, ${form.getFieldValue(formFieldNames.district)}, ${form.getFieldValue(
-          formFieldNames.province,
-        )}, Vietnam`;
-        const newCoords = await thirdService.getCoordinatesFromAddress(fullAddress);
-        if (newCoords) {
-          setMarkerPosition(newCoords); // Dùng để gửi API
-          setFarm((prev) => ({
-            ...prev,
-            latitude: newCoords.latitude,
-            longitude: newCoords.longitude,
-          })); // Dùng để hiển thị
-        } else {
-          toast.error("Failed to get coordinates for the new address.");
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching wards:", error);
-    }
-  };
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newAddress = e.target.value;
-    setAddressInput(newAddress);
-
-    form.setFieldValue(formFieldNames.address, newAddress);
-  };
-
-  useEffect(() => {
-    const fetchCoords = async () => {
-      if (!debouncedAddress) return;
-
-      const fullAddress = `${debouncedAddress}, ${form.getFieldValue(
-        formFieldNames.ward,
-      )}, ${form.getFieldValue(formFieldNames.district)}, ${form.getFieldValue(
-        formFieldNames.province,
-      )}, Vietnam`;
-
-      const newCoords = await thirdService.getCoordinatesFromAddress(fullAddress);
-
-      if (newCoords) {
-        setMarkerPosition(newCoords);
-        setFarm((prev) => ({
-          ...prev,
-          latitude: newCoords.latitude,
-          longitude: newCoords.longitude,
-        }));
-      } else {
-        toast.error("Failed to get coordinates for the new address.");
-      }
-    };
-
-    fetchCoords();
-  }, [debouncedAddress]);
+    markerPosition,
+    setMarkerPosition,
+  } = useAddressLocation(form, setFarm);
 
   const handleEdit = async () => {
     try {
@@ -134,26 +64,26 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
       const provinceData = await thirdService.fetchProvinces();
       setProvinces(provinceData);
 
-      const provinceId = getIdByName(provinceData, form.getFieldValue(formFieldNames.province));
+      const provinceId = getIdByName(provinceData, form.getFieldValue(farmFormFields.province));
 
       let districtData: District[] = [];
       if (provinceId) {
         districtData = await thirdService.fetchDistricts(provinceId);
         setDistricts(districtData);
       }
-      const districtId = getIdByName(districtData, form.getFieldValue(formFieldNames.district));
+      const districtId = getIdByName(districtData, form.getFieldValue(farmFormFields.district));
 
       let wardData: Ward[] = [];
       if (districtId) {
         wardData = await thirdService.fetchWards(districtId);
         setWards(wardData);
       }
-      const wardId = getIdByName(wardData, form.getFieldValue(formFieldNames.ward));
+      const wardId = getIdByName(wardData, form.getFieldValue(farmFormFields.ward));
 
       form.setFieldsValue({
-        provinceId: provinceId ?? form.getFieldValue(formFieldNames.province),
-        districtId: districtId ?? form.getFieldValue(formFieldNames.district),
-        wardId: wardId ?? form.getFieldValue(formFieldNames.ward),
+        provinceId: provinceId ?? form.getFieldValue(farmFormFields.province),
+        districtId: districtId ?? form.getFieldValue(farmFormFields.district),
+        wardId: wardId ?? form.getFieldValue(farmFormFields.ward),
       });
     } catch (error) {
       console.error("Error fetching location data:", error);
@@ -164,7 +94,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
 
   const handleCancel = () => {
     setIsEditing(false);
-    form.setFieldsValue(farm);
+    updateFormValues();
     setLogo({ logoUrl: farm.logoUrl, logo: null });
     setMarkerPosition({
       latitude: initialCoords.latitude,
@@ -223,7 +153,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         toast.success("Changes saved successfully!");
       }
     } catch (e) {
-      form.setFieldsValue(farm);
+      updateFormValues();
     } finally {
       setIsLoading(false);
       setIsEditing(false);
@@ -256,7 +186,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   const handleRemove = () => setLogo({ logo: null, logoUrl: farm.logoUrl });
 
   useEffect(() => {
-    form.setFieldsValue(farm);
+    updateFormValues();
   }, []);
 
   return (
@@ -274,16 +204,20 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
       <Flex className={style.contentSectionBody}>
         <Section title="Public Profile" subtitle="This will be displayed on your profile.">
           <Form layout="vertical" className={style.form} form={form}>
-            <FormInput
-              label="Farm Name"
-              name={formFieldNames.farmName}
-              rules={RulesManager.getFarmNameRules()}
-              isEditing={isEditing}
-              placeholder="Enter the farm name"
-            />
-            <FormInput
+            <Flex className={style.row}>
+              <InputInfo
+                label="Farm Name"
+                name={farmFormFields.farmName}
+                rules={RulesManager.getFarmNameRules()}
+                isEditing={isEditing}
+                placeholder="Enter the farm name"
+              />
+              <InputInfo label="Create Date" name={farmFormFields.createDate} isEditing={false} />
+            </Flex>
+
+            <InputInfo
               label="Description"
-              name={formFieldNames.description}
+              name={farmFormFields.description}
               rules={RulesManager.getFarmDescriptionRules()}
               type="textarea"
               isEditing={isEditing}
@@ -319,23 +253,23 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Farm Characteristics" subtitle="Update your farm's environmental details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <FormInput
+              <InputInfo
                 label="Area (m²)"
-                name={formFieldNames.area}
+                name={farmFormFields.area}
                 rules={RulesManager.getAreaRules()}
                 isEditing={isEditing}
                 placeholder="Enter the farm area"
               />
-              <FormInput
+              <InputInfo
                 label="Soil Type"
-                name={formFieldNames.soilType}
+                name={farmFormFields.soilType}
                 rules={RulesManager.getSoilTypeRules()}
                 isEditing={isEditing}
                 placeholder="Enter soil type"
               />
-              <FormInput
+              <InputInfo
                 label="Climate Zone"
-                name={formFieldNames.climateZone}
+                name={farmFormFields.climateZone}
                 rules={RulesManager.getClimateZoneRules()}
                 isEditing={isEditing}
                 placeholder="Enter climate zone"
@@ -348,27 +282,27 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Address" subtitle="Update your address details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <SelectInput
+              <SelectInfo
                 label="Province"
-                name={formFieldNames.province}
+                name={farmFormFields.province}
                 rules={RulesManager.getProvinceRules()}
                 options={provinces.map((p) => ({ value: `${p.id}, ${p.name}`, label: p.name }))}
                 onChange={handleProvinceChange}
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInput
+              <SelectInfo
                 label="District"
-                name={formFieldNames.district}
+                name={farmFormFields.district}
                 rules={RulesManager.getDistrictRules()}
                 options={districts.map((d) => ({ value: `${d.id}, ${d.name}`, label: d.name }))}
                 onChange={handleDistrictChange}
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInput
+              <SelectInfo
                 label="Ward"
-                name={formFieldNames.ward}
+                name={farmFormFields.ward}
                 rules={RulesManager.getWardRules()}
                 options={wards.map((w) => ({ value: `${w.id}, ${w.name}`, label: w.name }))}
                 onChange={handleWardChange}
@@ -377,9 +311,9 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
               />
             </Flex>
             <Flex className={style.row}>
-              <FormInput
+              <InputInfo
                 label="Address"
-                name={formFieldNames.address}
+                name={farmFormFields.address}
                 rules={RulesManager.getAddressRules()}
                 isEditing={isEditing}
                 placeholder="Enter your detailed address (House number, street...)"

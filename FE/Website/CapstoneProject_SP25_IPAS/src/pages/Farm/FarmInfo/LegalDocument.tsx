@@ -1,157 +1,206 @@
 import style from "./FarmInfo.module.scss";
-import { Button, Divider, Flex, GetProp, Image, Upload, UploadFile, UploadProps } from "antd";
-import { Icons, Images } from "@/assets";
-import { EditActions, Section, SectionHeader } from "@/components";
-import { useState } from "react";
-import { GetFarmDocuments } from "@/payloads";
-import { defaultFarmDocuments } from "@/utils";
+import { Divider, Empty, Flex, Image } from "antd";
+import { Icons } from "@/assets";
+import { ConfirmModal, CustomButton, LoadingSkeleton, Section, SectionHeader } from "@/components";
+import { useEffect, useState } from "react";
+import { FarmDocumentRequest, GetFarmDocuments } from "@/payloads";
+import { getFarmId } from "@/utils";
 import { toast } from "react-toastify";
-
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
+import { farmService } from "@/services";
+import { useModal } from "@/hooks";
+import DocumentModal from "./DocumentModal/DocumentModal";
 
 function LegalDocument() {
-  const [legalDocuments, setLegalDocuments] = useState<GetFarmDocuments>(defaultFarmDocuments);
-  const [isEditing, setIsEditing] = useState<Record<string, boolean>>({});
-  const documentFields = [
-    { key: "landOwnershipCertificate", label: "Land Ownership Certificate" },
-    { key: "operatingLicense", label: "Operating License" },
-    { key: "landLeaseAgreement", label: "Land Lease Agreement" },
-    { key: "pesticideUseLicense", label: "Pesticide Use License" },
-  ] as const;
+  const [isLoading, setIsLoading] = useState(true);
+  const [legalDocuments, setLegalDocuments] = useState<GetFarmDocuments[]>([]);
+  const addModal = useModal<GetFarmDocuments>();
+  const deleteConfirmModal = useModal<{ docId: string }>();
+  const updateConfirmModal = useModal<{ doc: FarmDocumentRequest }>();
 
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
+  const fetchFarmDocumentsData = async () => {
+    try {
+      setIsLoading(true);
+      const result = await farmService.getFarmDocuments(getFarmId());
+      if (result.statusCode === 200) {
+        setLegalDocuments(result.data);
+      }
+    } catch (error) {
+      console.error("Fetch data error:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
   };
 
-  const handleFileChange =
-    (fieldKey: keyof GetFarmDocuments) =>
-    ({ file, fileList }: { file: UploadFile; fileList: UploadFile[] }) => {
-      console.log(file);
+  useEffect(() => {
+    fetchFarmDocumentsData();
+  }, []);
 
-      if (!file?.type?.startsWith("image/") && file.status === "uploading") {
-        toast.error("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
-        return Upload.LIST_IGNORE;
+  const handleDelete = async () => {
+    const docId = deleteConfirmModal.modalState.data?.docId;
+    if (!docId) return;
+    try {
+      setIsLoading(true);
+      var result = await farmService.deleteFarmDocuments(docId);
+      if (result.statusCode === 200) {
+        toast.success(result.message);
+        await fetchFarmDocumentsData();
+      } else {
+        toast.error(result.message);
       }
+    } finally {
+      setIsLoading(false);
+      deleteConfirmModal.hideModal();
+    }
+  };
 
-      // Nếu file chưa được upload, tạo một URL tạm thời từ file
-      if (file.status === "uploading") {
-        file.preview = file.originFileObj && URL.createObjectURL(file.originFileObj);
+  const handleUpdateConfirm = (doc: FarmDocumentRequest) => {
+    const oldDoc = legalDocuments.find((d) => d.legalDocumentId === doc.LegalDocumentId);
+    if (!oldDoc) return;
+
+    // Lấy danh sách resourceID từ oldDoc và doc
+    const oldResourceIds = oldDoc.resources.map((r) => r.resourceID);
+    const newResourceIds = doc.resources.map((r) => r.resourceID);
+
+    // Kiểm tra nếu có file mới được thêm
+    const hasNewFile = doc.resources.some((r) => r.file);
+
+    // Kiểm tra nếu resourceID cũ bị mất
+    const hasRemovedResource = oldResourceIds.some((id) => !newResourceIds.includes(id));
+
+    // So sánh dữ liệu
+    const isChanged =
+      oldDoc.legalDocumentType !== doc.legalDocumentType ||
+      oldDoc.legalDocumentName !== doc.legalDocumentName ||
+      hasNewFile || // Nếu có file mới
+      hasRemovedResource; // Nếu có resource bị xóa
+
+    if (isChanged) {
+      updateConfirmModal.showModal({ doc });
+    } else {
+      addModal.hideModal();
+    }
+  };
+
+  const handleUpdate = async () => {
+    const doc = updateConfirmModal.modalState.data?.doc;
+    if (!doc) return;
+    try {
+      setIsLoading(true);
+      var result = await farmService.updateFarmDocuments(doc);
+      if (result.statusCode === 200) {
+        toast.success(result.message);
+        await fetchFarmDocumentsData();
+      } else {
+        toast.error(result.message);
       }
-
-      setLegalDocuments((prev) => ({
-        ...prev,
-        [`${fieldKey}`]: [...(prev[fieldKey] || []), file.originFileObj],
-        [`${fieldKey}Urls`]: fileList.map((file) => file.url || file.preview || ""),
-      }));
-    };
-
-  const handleEdit = (key: string) => {
-    setIsEditing((prev) => ({ ...prev, [key]: true }));
+    } finally {
+      setIsLoading(false);
+      addModal.hideModal();
+      updateConfirmModal.hideModal();
+    }
   };
 
-  const handleCancel = (key: string) => {
-    setLegalDocuments(defaultFarmDocuments)
-    setIsEditing((prev) => ({ ...prev, [key]: false }));
+  const handleAdd = async (doc: FarmDocumentRequest) => {
+    try {
+      setIsLoading(true);
+      var result = await farmService.createFarmDocuments(doc);
+      if (result.statusCode === 200) {
+        toast.success(result.message);
+        await fetchFarmDocumentsData();
+      } else {
+        toast.error(result.message);
+      }
+    } finally {
+      setIsLoading(false);
+      addModal.hideModal();
+    }
   };
 
-  const handleSave = (key: string) => {
-    // TODO: Xử lý logic lưu dữ liệu
-    toast.success(`${key} updated successfully!`);
-    setIsEditing((prev) => ({ ...prev, [key]: false }));
-    console.log(legalDocuments);
-  };
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <Icons.plus />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
-  );
+  if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
     <Flex className={style.contentWrapper}>
-      <SectionHeader
-        title="Legal Documents"
-        subtitle="Upload and manage your farm’s legal documents"
-        isDisplayEdit={false}
-      />
+      <Flex className={style.contentWrapperHeader}>
+        <SectionHeader
+          title="Legal Documents"
+          subtitle="Upload and manage your farm’s legal documents"
+          isDisplayEdit={false}
+        />
+        <CustomButton
+          label="Add New Document"
+          icon={<Icons.plus />}
+          handleOnClick={() => addModal.showModal()}
+        />
+      </Flex>
 
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
-        {documentFields.map((field) => {
-          const urls = legalDocuments[`${field.key}Urls`] || [];
-          const editing = isEditing[field.key] || false;
-
-          return (
-            <Section key={field.key} title={field.label} subtitle={`Update your ${field.label}.`}>
+        {legalDocuments.length > 0 ? (
+          legalDocuments.map((doc) => (
+            <Section
+              key={doc.legalDocumentCode}
+              title={`${doc.legalDocumentName} - ${doc.legalDocumentType}`}
+              subtitle={`Update your ${doc.legalDocumentName}.`}
+            >
               <Flex className={style.formDocument}>
-                {editing ? (
-                  <>
-                    <Upload
-                      listType="picture-card"
-                      fileList={urls.map((url, index) => ({
-                        uid: index.toString(),
-                        name: `image-${index}`,
-                        status: "done",
-                        url,
-                      }))}
-                      accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
-                      multiple={true}
-                      onPreview={handlePreview}
-                      onChange={handleFileChange(field.key)}
-                    >
-                      {urls.length >= 10 ? null : uploadButton}
-                    </Upload>
-                    {previewImage && (
+                <Flex className={style.imageWrapper}>
+                  {doc.resources.length > 0 ? (
+                    doc.resources.map((resource) => (
                       <Image
-                        wrapperStyle={{ display: "none" }}
-                        preview={{
-                          visible: previewOpen,
-                          onVisibleChange: (visible) => setPreviewOpen(visible),
-                          afterOpenChange: (visible) => !visible && setPreviewImage(""),
-                        }}
-                        src={previewImage}
+                        crossOrigin="anonymous"
+                        key={resource.resourceID}
+                        className={style.image}
+                        src={resource.resourceURL}
+                        alt={doc.legalDocumentName}
                       />
-                    )}
-                  </>
-                ) : urls.length > 0 ? (
-                  <Flex className={style.imageWrapper}>
-                    {urls.map((url, index) => (
-                      <Image key={index} className={style.image} src={url} alt={field.label} />
-                    ))}
-                  </Flex>
-                ) : (
-                  <div>No document uploaded</div>
-                )}
-                {editing ? (
-                  <EditActions
-                    handleCancel={() => handleCancel(field.key)}
-                    handleSave={() => handleSave(field.key)}
+                    ))
+                  ) : (
+                    <div>No document uploaded</div>
+                  )}
+                </Flex>
+                <Flex gap={14}>
+                  <Icons.delete
+                    className={style.iconEdit}
+                    onClick={() => deleteConfirmModal.showModal({ docId: doc.legalDocumentId })}
                   />
-                ) : (
-                  <Icons.edit className={style.iconEdit} onClick={() => handleEdit(field.key)} />
-                )}
+                  <Icons.edit className={style.iconEdit} onClick={() => addModal.showModal(doc)} />
+                </Flex>
               </Flex>
             </Section>
-          );
-        })}
+          ))
+        ) : (
+          <Empty description="No document available" />
+        )}
       </Flex>
+
+      <DocumentModal
+        isOpen={addModal.modalState.visible}
+        onClose={addModal.hideModal}
+        onSave={addModal.modalState.data ? handleUpdateConfirm : handleAdd}
+        documentData={addModal.modalState.data}
+      />
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={handleDelete}
+        onCancel={deleteConfirmModal.hideModal}
+        title="Delete Document?"
+        description="Are you sure you want to delete this document? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+      />
+      {/* Confirm Update Modal */}
+      <ConfirmModal
+        visible={updateConfirmModal.modalState.visible}
+        onConfirm={handleUpdate}
+        onCancel={updateConfirmModal.hideModal}
+        title="Update Document?"
+        description="Are you sure you want to update this document? This action cannot be undone."
+        confirmText="Save Changes"
+        cancelText="Cancel"
+      />
     </Flex>
   );
 }

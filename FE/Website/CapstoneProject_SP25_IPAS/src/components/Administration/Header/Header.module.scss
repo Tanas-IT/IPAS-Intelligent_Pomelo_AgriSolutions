@@ -54,7 +54,9 @@
   .rightSection {
     align-items: center;
     column-gap: 25px;
-
+    .searchWrapper {
+      width: 100%;
+    }
     .notificationWrapper {
       .notificationButton {
         outline: none;
@@ -80,6 +82,7 @@
     }
 
     .profileContainer {
+      width: 100%;
       align-items: center;
       justify-content: flex-end;
       cursor: pointer;

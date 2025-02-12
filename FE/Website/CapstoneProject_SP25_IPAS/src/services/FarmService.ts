@@ -1,5 +1,12 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, FarmRequest, GetFarmInfo, GetFarmPicker } from "@/payloads";
+import {
+  ApiResponse,
+  FarmDocumentRequest,
+  FarmRequest,
+  GetFarmDocuments,
+  GetFarmInfo,
+  GetFarmPicker,
+} from "@/payloads";
 import { getUserId } from "@/utils";
 
 export const getFarmsOfUser = async (): Promise<ApiResponse<GetFarmPicker[]>> => {
@@ -26,5 +33,62 @@ export const updateFarmLogo = async (image: File): Promise<ApiResponse<{ logoUrl
   formData.append("FarmLogo", image);
   const res = await axiosAuth.axiosMultipartForm.patch("farms/update-farm-logo", formData);
   const apiResponse = res.data as ApiResponse<{ logoUrl: string }>;
+  return apiResponse;
+};
+
+export const getFarmDocuments = async (
+  farmId: string,
+): Promise<ApiResponse<GetFarmDocuments[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `legal-documents/get-legal-document-of-farm/${farmId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetFarmDocuments[]>;
+  return apiResponse;
+};
+
+export const createFarmDocuments = async (
+  doc: FarmDocumentRequest,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("LegalDocumentType", doc.legalDocumentType);
+  formData.append("LegalDocumentName", doc.legalDocumentName);
+
+  if (doc.resources && doc.resources.length > 0) {
+    doc.resources.forEach((fileResource, index) => {
+      formData.append(`Resources[${index}].fileFormat`, fileResource.file.type);
+      formData.append(`Resources[${index}].file`, fileResource.file);
+    });
+  }
+  const res = await axiosAuth.axiosMultipartForm.post(`legal-documents`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteFarmDocuments = async (docId: string): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`legal-documents/${docId}`);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const updateFarmDocuments = async (
+  doc: FarmDocumentRequest,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("LegalDocumentId", doc.LegalDocumentId);
+  formData.append("LegalDocumentType", doc.legalDocumentType);
+  formData.append("LegalDocumentName", doc.legalDocumentName);
+
+  if (doc.resources && doc.resources.length > 0) {
+    doc.resources.forEach((fileResource, index) => {
+      if (fileResource.file) {
+        formData.append(`Resources[${index}].fileFormat`, fileResource.file.type);
+        formData.append(`Resources[${index}].file`, fileResource.file);
+      } else {
+        formData.append(`Resources[${index}].resourceID`, fileResource.resourceID);
+      }
+    });
+  }
+  const res = await axiosAuth.axiosMultipartForm.put(`legal-documents`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

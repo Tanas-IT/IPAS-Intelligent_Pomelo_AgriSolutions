@@ -1,8 +1,8 @@
 import { useStyle } from "@/hooks";
 import { Select, Form } from "antd";
-import style from "./SelectInput.module.scss";
+import style from "./SelectInfo.module.scss";
 
-interface SelectInputProps {
+interface SelectInfoProps {
   label: string;
   name: string;
   rules?: any[];
@@ -12,24 +12,18 @@ interface SelectInputProps {
   isLoading?: boolean;
 }
 
-const SelectInput: React.FC<SelectInputProps> = ({
+const SelectInfo: React.FC<SelectInfoProps> = ({
   label,
   name,
   rules = [],
-  isEditing = true,
   options,
   onChange,
+  isEditing = false,
   isLoading = false,
 }) => {
   const { styles } = useStyle();
   return (
-    <Form.Item
-      className={style.flexItem}
-      label={label}
-      name={name}
-      rules={rules}
-      hasFeedback={isEditing}
-    >
+    <Form.Item className={style.formWrapper} label={label} name={name} rules={rules} hasFeedback>
       <Select
         placeholder={`Select ${label.toLowerCase()}`}
         className={`${styles.customSelect}`}
@@ -43,4 +37,4 @@ const SelectInput: React.FC<SelectInputProps> = ({
   );
 };
 
-export default SelectInput;
+export default SelectInfo;

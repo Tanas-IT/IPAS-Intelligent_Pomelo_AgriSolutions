@@ -107,7 +107,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var legalDocument = await _unitOfWork.LegalDocumentRepository.GetByCondition(x => x.LegalDocumentId == documentId);
+                    string includeProperties = "Resources";
+                    var legalDocument = await _unitOfWork.LegalDocumentRepository.GetByCondition(x => x.LegalDocumentId == documentId, includeProperties: includeProperties);
                     if (legalDocument == null)
                         return new BusinessResult(Const.WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE, Const.WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG);
 

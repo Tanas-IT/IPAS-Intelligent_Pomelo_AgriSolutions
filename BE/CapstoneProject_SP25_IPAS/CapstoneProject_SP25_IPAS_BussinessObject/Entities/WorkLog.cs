@@ -10,6 +10,7 @@ public partial class WorkLog
     public string? WorkLogCode { get; set; }
 
     public string? Status { get; set; }
+    public string? WorkLogName { get; set; }
 
     public string? Notes { get; set; }
     public string? ReasonDelay { get; set; }

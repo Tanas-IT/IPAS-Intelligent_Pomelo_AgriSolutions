@@ -26,5 +26,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                  .FirstOrDefaultAsync();
             return lastPlanId;
         }
+        public async Task<Plan> GetLastPlan()
+        {
+            var lastPlanId = await _context.Plans
+                   .OrderByDescending(p => p.PlanId) // Lấy mã lớn nhất
+                   .FirstOrDefaultAsync();
+            return lastPlanId;
+        }
     }
 }
