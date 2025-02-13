@@ -23,6 +23,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
+        public async Task<BusinessResult> CheckUserConflictByStartDateAndEndDate(CheckConflictScheduleByStartDateAndEndDateModel checkConflictScheduleByStartDateAndEndDate)
+        {
+            try
+            {
+                var startTimeConvert = TimeSpan.Parse(checkConflictScheduleByStartDateAndEndDate.StartTime);
+                var endTimeConvert = TimeSpan.Parse(checkConflictScheduleByStartDateAndEndDate.EndTime);
+                var checkConflict = await _unitOfWork.UserWorkLogRepository.CheckUserConflictByStartDateAndEndDate(checkConflictScheduleByStartDateAndEndDate.UserId, startTimeConvert, endTimeConvert, checkConflictScheduleByStartDateAndEndDate.StartDate, checkConflictScheduleByStartDateAndEndDate.EndDate);
+                if (!checkConflict)
+                {
+                    return new BusinessResult(Const.SUCCESS_USER_NO_CONFLICT_SCHEDULE_CODE, Const.SUCCESS_USER_NO_CONFLICT_SCHEDULE_MSG, checkConflict);
+                }
+                return new BusinessResult(Const.WARNING_USER_CONFLICT_SCHEDULE_CODE, Const.WARNING_USER_CONFLICT_SCHEDULE_MSG, false);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
         public async Task<BusinessResult> CheckUserConflictSchedule(CheckConflictScheduleModel checkConflictScheduleModel)
         {
             try

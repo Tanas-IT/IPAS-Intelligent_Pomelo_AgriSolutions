@@ -80,6 +80,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_PLAN_CODE, Const.FAIL_CREATE_PLAN_MESSAGE, false);
                     }
                 }
@@ -153,33 +154,78 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 if (planFilter.isActive != null)
+                {
                     filter = filter.And(x => x.IsActive == planFilter.isActive);
+
+                }
                 if (planFilter.isDelete != null)
                     filter = filter.And(x => x.IsDelete == planFilter.isDelete);
                 if (planFilter.ResponsibleBy != null)
                 {
-                    filter = filter.And(x => x.ResponsibleBy.Contains(planFilter.ResponsibleBy));
+                    List<string> filterList = planFilter.ResponsibleBy.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.ResponsibleBy.ToLower().Contains(item));
+                    }
                 }
                 if (planFilter.Status != null)
                 {
-                    filter = filter.And(x => x.Status.Contains(planFilter.Status));
+                    List<string> filterList = planFilter.Status.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Status.ToLower().Contains(item));
+                    }
                 }
 
                 if (planFilter.CropName != null)
                 {
-                    filter = filter.And(x => x.Crop.CropName.Contains(planFilter.CropName));
+                    List<string> filterList = planFilter.CropName.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Crop.CropName.ToLower().Contains(item));
+                    }
                 }
                 if (planFilter.PlanDetail != null)
                 {
-                    filter = filter.And(x => x.PlanDetail.Contains(planFilter.PlanDetail));
+                    List<string> filterList = planFilter.PlanDetail.Split(',', StringSplitOptions.TrimEntries)
+                                  .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                  .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.PlanDetail.ToLower().Contains(item));
+                    }
                 }
                 if (planFilter.AssignorName != null)
                 {
-                    filter = filter.And(x => x.User.FullName.Contains(planFilter.AssignorName));
+                    List<string> filterList = planFilter.AssignorName.Split(',', StringSplitOptions.TrimEntries)
+                                 .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                 .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.User.FullName.ToLower().Contains(item));
+                    }
                 }
                 if (planFilter.PlanName != null)
                 {
-                    filter = filter.And(x => x.PlanName.Contains(planFilter.PlanName));
+                    List<string> filterList = planFilter.PlanName.Split(',', StringSplitOptions.TrimEntries)
+                                .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.PlanName.ToLower().Contains(item));
+                    }
                 }
 
                 switch (paginationParameter.SortBy)
@@ -823,7 +869,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Pending",
+                Status = "Not Started",
                 WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
                 Date = dateWork.Date.Add(schedule.StarTime.Value),
                 IsConfirm = false,

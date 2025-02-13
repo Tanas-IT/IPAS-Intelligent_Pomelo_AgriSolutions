@@ -49,6 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public ResourceRepository _resourceRepo;
         public LegalDocumentRepository _legalDocumentRepo;
         public CropRepository _cropRepo;
+        public CriteriaMasterTypeRepository _criteriaMasterTypeRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -84,6 +85,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _resourceRepo = new ResourceRepository(context);
             _legalDocumentRepo = new LegalDocumentRepository(context);
             _cropRepo = new CropRepository(context);
+            _criteriaMasterTypeRepo = new CriteriaMasterTypeRepository(context);
         }
 
         private bool disposed = false;
@@ -499,6 +501,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._cropRepo = new CropRepository(_context);
                 }
                 return _cropRepo;
+            }
+        }
+
+        public CriteriaMasterTypeRepository CriteriaMasterTypeRepository
+        {
+            get
+            {
+                if (_criteriaMasterTypeRepo == null)
+                {
+                    this._criteriaMasterTypeRepo = new CriteriaMasterTypeRepository(_context);
+                }
+                return _criteriaMasterTypeRepo;
             }
         }
     }

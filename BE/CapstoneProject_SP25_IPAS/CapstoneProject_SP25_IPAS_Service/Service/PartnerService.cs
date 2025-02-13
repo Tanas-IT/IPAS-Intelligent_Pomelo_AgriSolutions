@@ -38,7 +38,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var partner = new Partner()
                     {
                        PartnerCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PARTNER),
-                       Address = createPartnerModel.Address,
+                       Province = createPartnerModel.Province,
+                       District = createPartnerModel.District,
+                       Ward = createPartnerModel.Ward,
+                       Avatar = createPartnerModel.Avatar,
+                       Note = createPartnerModel.Note,
+                       Description = createPartnerModel.Description,
+                       Major = createPartnerModel.Major,
+                       ContactName = createPartnerModel.ContactName,
+                       BusinessField = createPartnerModel.BusinessField,
+                       PartnerName = createPartnerModel.PartnerName,
+                       Status = createPartnerModel.Status,
                        CreateDate = DateTime.Now,
                        UpdateDate = DateTime.Now,
                        Email = createPartnerModel.Email,
@@ -89,8 +99,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = x => x.PartnerCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Ward.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.District.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Description.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.BusinessField.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.ContactName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Major.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Avatar.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Role.RoleName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Address.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.Province.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.National.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Email.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
@@ -127,11 +146,59 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.Role.RoleName)
                                    : x => x.OrderBy(x => x.Role.RoleName)) : x => x.OrderBy(x => x.Role.RoleName);
                         break;
-                    case "address":
+                    case "province":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Address)
-                                   : x => x.OrderBy(x => x.Address)) : x => x.OrderBy(x => x.Address);
+                                   ? x => x.OrderByDescending(x => x.Province)
+                                   : x => x.OrderBy(x => x.Province)) : x => x.OrderBy(x => x.Province);
+                        break;
+                    case "district":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.District)
+                                   : x => x.OrderBy(x => x.District)) : x => x.OrderBy(x => x.District);
+                        break; 
+                    case "ward":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Ward)
+                                   : x => x.OrderBy(x => x.Ward)) : x => x.OrderBy(x => x.Ward);
+                        break; 
+                    case "note":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Note)
+                                   : x => x.OrderBy(x => x.Note)) : x => x.OrderBy(x => x.Note);
+                        break;  
+                    case "businessfield":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.BusinessField)
+                                   : x => x.OrderBy(x => x.BusinessField)) : x => x.OrderBy(x => x.BusinessField);
+                        break;  
+                    case "status":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Status)
+                                   : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
+                        break;  
+                    case "major":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Major)
+                                   : x => x.OrderBy(x => x.Major)) : x => x.OrderBy(x => x.Major);
+                        break;  
+                    case "contactname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ContactName)
+                                   : x => x.OrderBy(x => x.ContactName)) : x => x.OrderBy(x => x.ContactName);
+                        break;
+                    case "description":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Description)
+                                   : x => x.OrderBy(x => x.Description)) : x => x.OrderBy(x => x.Description);
                         break;
                     case "national":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -253,13 +320,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistPartner.National = updatePartnerModel.National;
                     }
-                    if (updatePartnerModel.Address != null)
+                    if (updatePartnerModel.Province != null)
                     {
-                        checkExistPartner.Address = updatePartnerModel.Address;
+                        checkExistPartner.Province = updatePartnerModel.Province;
                     }
-                    if (updatePartnerModel.Address != null)
+                    if (updatePartnerModel.District != null)
                     {
-                        checkExistPartner.Address = updatePartnerModel.Address;
+                        checkExistPartner.District = updatePartnerModel.District;
+                    }
+                    if (updatePartnerModel.Ward != null)
+                    {
+                        checkExistPartner.Ward = updatePartnerModel.Ward;
+                    }
+                    if (updatePartnerModel.ContactName != null)
+                    {
+                        checkExistPartner.ContactName = updatePartnerModel.ContactName;
+                    }
+                    if (updatePartnerModel.Note != null)
+                    {
+                        checkExistPartner.Note = updatePartnerModel.Note;
+                    }
+                    if (updatePartnerModel.Avatar != null)
+                    {
+                        checkExistPartner.Avatar = updatePartnerModel.Avatar;
+                    }
+                    if (updatePartnerModel.BusinessField != null)
+                    {
+                        checkExistPartner.BusinessField = updatePartnerModel.BusinessField;
+                    }
+                    if (updatePartnerModel.Description != null)
+                    {
+                        checkExistPartner.Description = updatePartnerModel.Description;
+                    }
+                    if (updatePartnerModel.Major != null)
+                    {
+                        checkExistPartner.Major = updatePartnerModel.Major;
+                    }
+                    if (updatePartnerModel.Status != null)
+                    {
+                        checkExistPartner.Status = updatePartnerModel.Status;
                     }
                     if (updatePartnerModel.PhoneNumber != null)
                     {

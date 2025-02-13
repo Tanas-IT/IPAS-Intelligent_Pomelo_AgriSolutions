@@ -99,6 +99,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<Warning> Warnings { get; set; }
 
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
+    public virtual DbSet<CriteriaMasterType> CriteriaMasterTypes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -231,11 +232,6 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsChecked).HasColumnName("isChecked");
-            entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
-
-            entity.HasOne(d => d.MasterType).WithMany(p => p.Criteria)
-                .HasForeignKey(d => d.MasterTypeId)
-                .HasConstraintName("Criteria_MasterType_FK");
         });
 
         modelBuilder.Entity<Crop>(entity =>
@@ -542,6 +538,7 @@ public partial class IpasContext : DbContext
             entity.ToTable("LandRow");
 
             entity.Property(e => e.LandRowId).HasColumnName("LandRowID");
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
@@ -723,7 +720,7 @@ public partial class IpasContext : DbContext
             entity.ToTable("Partner");
 
             entity.Property(e => e.PartnerId).HasColumnName("PartnerID");
-            entity.Property(e => e.Address).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Province).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(20)
@@ -869,6 +866,7 @@ public partial class IpasContext : DbContext
             entity.ToTable("Plant");
 
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
@@ -1350,6 +1348,24 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Farm).WithMany(p => p.LegalDocuments)
                 .HasForeignKey(d => d.FarmId)
                 .HasConstraintName("FK__LegalDocument__Farm__29221CFB");
+        });
+
+        modelBuilder.Entity<CriteriaMasterType>(entity =>
+        {
+            entity.HasKey(e => new { e.CriteriaId, e.MasterTypeId }).HasName("PK__Criteria_Master_Type__2F2CAR35609A834");
+
+            entity.ToTable("CriteriaMasterType");
+
+            entity.Property(e => e.CriteriaId).HasColumnName("CriteriaID");
+            entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
+
+            entity.HasOne(d => d.Criteria).WithMany(p => p.CriteriaMasterTypes)
+                .HasForeignKey(d => d.CriteriaId)
+                .HasConstraintName("FK__CriteriaMasterType__Criteria__43A51090D");
+
+            entity.HasOne(d => d.MasterType).WithMany(p => p.CriteriaMasterTypes)
+                .HasForeignKey(d => d.MasterTypeId)
+                .HasConstraintName("FK__CriteriaMasterType__Master_Type__24218C17");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -166,6 +166,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.MasterType.MasterTypeName.Contains(processFilters.MasterType));
                 }
+                if (processFilters.ProcessName != null)
+                {
+                    filter = filter.And(x => x.ProcessName.Contains(processFilters.ProcessName));
+                }
 
                 if (processFilters.GrowthStage != null)
                 {
