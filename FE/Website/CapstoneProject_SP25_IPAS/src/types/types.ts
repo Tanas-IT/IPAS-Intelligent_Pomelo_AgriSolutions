@@ -1,3 +1,5 @@
+import { GetProp, UploadProps } from "antd";
+
 export interface Farm {
   farmId: number;
   farmName: string;
@@ -13,3 +15,5 @@ export interface CoordsState {
   longitude: number;
   latitude: number;
 }
+
+export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];

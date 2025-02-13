@@ -44,11 +44,11 @@ interface CarePlanForm {
 }
 
 const allEmployees = [
-    { id: 1, name: "Alice", avatar: "https://tse1.mm.bing.net/th?id=OIP.LvEl7bxftxDEvSkWiuA6rwHaHa&pid=Api&P=0&h=220" },
-    { id: 2, name: "Bob", avatar: "https://i.pravatar.cc/40?img=2" },
-    { id: 3, name: "Charlie", avatar: "https://i.pravatar.cc/40?img=3" },
-    { id: 4, name: "David", avatar: "https://i.pravatar.cc/40?img=4" },
-    { id: 5, name: "Emma", avatar: "https://i.pravatar.cc/40?img=5" },
+    { userId: "1", fullName: "Alice", avatarURL: "" },
+    { userId: "2", fullName: "Bob", avatarURL: "" },
+    { userId: "3", fullName: "Charlie", avatarURL: "" },
+    { userId: "4", fullName: "David", avatarURL: "" },
+    { userId: "5", fullName: "Emma", avatarURL: "" },
 ];
 
 const UpdatePlan = () => {
@@ -58,7 +58,7 @@ const UpdatePlan = () => {
     const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
     const [responsibleBy, setResponsibleBy] = useState<typeof allEmployees>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [daysOfMonth, setDaysOfMonth] = useState<number[]>([]);
     const [planData, setPlanData] = useState<GetPlan>(defaultPlanData);
     const navigate = useNavigate();
@@ -95,7 +95,7 @@ const UpdatePlan = () => {
     const handleAssignMember = () => setIsModalOpen(true);
 
     const handleConfirmAssign = () => {
-        setResponsibleBy(allEmployees.filter(m => selectedIds.includes(m.id)));
+        setResponsibleBy(allEmployees.filter(m => selectedIds.includes(m.userId)));
         setIsModalOpen(false);
     };
 
@@ -282,7 +282,7 @@ const UpdatePlan = () => {
                             <Option value="harvesting">Harvesting</Option>
                         </Select>
                     </Form.Item>
-                    <AssignEmployee members={responsibleBy.filter(emp => selectedIds.includes(emp.id))} onAssign={handleAssignMember} />
+                    <AssignEmployee members={responsibleBy.filter(emp => selectedIds.includes(emp.userId))} onAssign={handleAssignMember} />
                     <Modal
                         title="Assign Members"
                         open={isModalOpen}
@@ -297,8 +297,8 @@ const UpdatePlan = () => {
                             onChange={setSelectedIds}
                         >
                             {allEmployees.map((employee) => (
-                                <Option key={employee.id} value={employee.id}>
-                                    {employee.name}
+                                <Option key={employee.userId} value={employee.userId}>
+                                    {employee.fullName}
                                 </Option>
                             ))}
                         </Select>

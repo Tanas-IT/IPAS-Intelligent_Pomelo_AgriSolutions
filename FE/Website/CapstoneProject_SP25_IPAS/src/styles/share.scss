@@ -130,18 +130,37 @@
   }
 }
 
-@mixin formWrapper {
+@mixin formSection {
   width: 100%;
-
-  .title {
-    color: vars.$color_primary !important;
-    font-weight: bold;
-    margin-bottom: 4px;
+  flex-direction: column;
+  input,
+  select,
+  span {
+    font-size: 16px;
   }
-
-  .section {
-    width: 100%;
+  .formSectionTitle {
     flex-direction: column;
-    margin-bottom: 10px;
+
+    .formTitle {
+      font-size: 16px;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+    }
+
+    .formDescription {
+      font-size: 12px;
+      color: vars.$color_role_name;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+@mixin cancelBtn {
+  outline: transparent !important;
+  border-color: vars.$color_border_btn_cancel !important;
+  font-size: 16px;
+  &:hover {
+    color: inherit !important;
+    opacity: 0.8;
   }
 }

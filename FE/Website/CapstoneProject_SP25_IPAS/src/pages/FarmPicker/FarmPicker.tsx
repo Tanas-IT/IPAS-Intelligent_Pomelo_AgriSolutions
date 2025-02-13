@@ -10,6 +10,7 @@ import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
 import { formatDate } from "@/utils";
 import { toast } from "react-toastify";
 import { GetFarmPicker } from "@/payloads";
+import { useFarmStore } from "@/stores";
 const Text = Typography;
 
 function FarmPicker() {
@@ -44,6 +45,7 @@ function FarmPicker() {
       localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.refreshToken);
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, result.data.farmName);
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, result.data.farmLogo);
+      useFarmStore.getState().setFarmInfo(result.data.farmName, result.data.farmLogo);
       navigate(PATHS.DASHBOARD);
     } else {
       toast.error(MESSAGES.ERROR_OCCURRED);

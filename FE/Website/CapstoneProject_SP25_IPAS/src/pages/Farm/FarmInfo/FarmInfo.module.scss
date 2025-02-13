@@ -155,7 +155,7 @@
             width: 100px;
             height: 100px;
             object-fit: cover;
-            border-radius: 50%;
+            border-radius: 8px;
           }
         }
       }
@@ -182,16 +182,4 @@
   }
 }
 
-.modalContainer {
-  .title {
-    color: vars.$color_primary !important;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
 
-  .section {
-    max-width: 24vw;
-    flex-direction: column;
-    margin-bottom: 10px;
-  }
-}

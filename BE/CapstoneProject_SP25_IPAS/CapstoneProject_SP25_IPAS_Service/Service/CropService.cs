@@ -7,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +37,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    if (!cropCreateRequest.FarmId.HasValue || cropCreateRequest.FarmId <= 0)
+                        return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     if (cropCreateRequest.Year < DateTime.Now.Year)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
                     if (!cropCreateRequest.LandPlotId.Any())
@@ -56,6 +59,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = nameof(FarmStatus.Active),
                         CreateDate = DateTime.UtcNow,
                         FarmId = cropCreateRequest.FarmId,
+                        StartDate = cropCreateRequest.StartDate,
+                        EndDate = cropCreateRequest.EndDate,
                         IsDeleted = false
                     };
 
@@ -118,8 +123,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var landPlotCrops = await _unitOfWork.CropRepository.GetAllCropsOfFarm(FarmId: farmId, paginationParameter: paginationParameter, cropFilter: cropFilter);
                 if (!landPlotCrops.Any())
-                    return new BusinessResult(Const.WARNING_CROP_OF_LANDPLOT_EMPTY_CODE, Const.WARNING_CROP_OF_LANDPLOT_EMPTY_MSG);
+                    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getAllCropOfFarmForSelected(int farmId, string? searchValue)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId && x.EndDate >= DateTime.Now;
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    filter = filter.And(x => x.CropName!.ToLower().Contains(searchValue.ToLower()));
+                }
+                Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
+                var landPlotCrops = await _unitOfWork.CropRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!landPlotCrops.Any())
+                    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
+                var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
+                foreach (var item in mappedResult)
+                {
+                    item.HarvestHistories = null!;
+                    item.LandPlotCrops = null!;
+                }
                 return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
             }
             catch (Exception ex)

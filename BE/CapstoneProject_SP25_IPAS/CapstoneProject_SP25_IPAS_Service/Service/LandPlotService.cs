@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using System;
@@ -52,7 +53,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         SoilType = createRequest.SoilType,
                         Length = createRequest.PlotLength,
                         Width = createRequest.PlotWidth,
-                        Description = createRequest.Description
+                        Description = createRequest.Description,
+                        FarmId = createRequest.FarmId,
                     };
                     landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
                     landplotCreateEntity.Status = FarmStatus.Active.ToString();
@@ -94,7 +96,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, landplotCreateEntity);
+                        var mappedResult = _mapper.Map<LandPlotModel>(landplotCreateEntity);
+                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mappedResult);
                     }
                     else return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
                 }
@@ -133,19 +136,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllLandPlotNoPagin(int farmId, string searchKey)
+        public async Task<BusinessResult> GetAllLandPlotNoPagin(int farmId, string? searchKey)
         {
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.LandPlotName!.ToLower().Contains(searchKey.ToLower());
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId ;
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
+            }
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.FarmId);
 
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
             if (landplotInFarm.Any())
             {
-                return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, landplotInFarm);
+                var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
+                return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG, landplotInFarm);
+                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
         }
 
@@ -157,8 +165,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (landplot == null)
                 return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
-            var result = _mapper.Map<LandPlot>(landplot);
-            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, result);
+            var mappedResult = _mapper.Map<LandPlotModel>(landplot);
+            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
 
         }
 
@@ -216,7 +224,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var resultSave = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId);
-                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, resultSave);
+                        var mappedResult = _mapper.Map<LandPlotModel>(resultSave);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, mappedResult);
                     }
                     else
                     {
@@ -265,7 +274,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, landplotEntityUpdate);
+                        var mappedResult = _mapper.Map<LandPlotModel>(landplotEntityUpdate);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, mappedResult);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
                 }

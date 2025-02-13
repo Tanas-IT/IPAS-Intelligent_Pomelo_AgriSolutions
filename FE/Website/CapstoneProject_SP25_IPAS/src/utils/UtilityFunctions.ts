@@ -2,7 +2,7 @@ import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
-import { DecodedToken } from "@/types";
+import { DecodedToken, FileType } from "@/types";
 import { LOCAL_STORAGE_KEYS } from "@/constants";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
@@ -238,3 +238,11 @@ export const addOneMonthToDate = (date: Date): string => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   return currentDate.toLocaleDateString("vi-VN");
 };
+
+export const getBase64 = (file: FileType): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });

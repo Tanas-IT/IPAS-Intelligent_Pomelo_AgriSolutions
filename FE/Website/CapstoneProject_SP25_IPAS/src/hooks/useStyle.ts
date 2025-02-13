@@ -2,6 +2,7 @@ import { createStyles } from "antd-style";
 
 const useStyle = createStyles(({ css }) => {
   const primaryColor = "#326E2F";
+  const secondColor = "#bcd379";
   const hoverBackground = "#f0fff0";
 
   return {
@@ -171,6 +172,19 @@ const useStyle = createStyles(({ css }) => {
         background-color: ${primaryColor};
       }
     `,
+    customUpload: css`
+      .ant-upload.ant-upload-select {
+        &:hover {
+          border-color: ${primaryColor} !important;
+        }
+      }
+    `,
+
+    customTimeline: css`
+      .ant-timeline-item-tail {
+        background-color: ${secondColor} !important;
+      }
+    `
   };
 });
 

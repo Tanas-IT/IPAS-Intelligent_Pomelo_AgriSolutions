@@ -8,3 +8,4 @@ export { default as useRedirectAuth } from "./useRedirectAuth";
 export { default as useLogout } from "./useLogout";
 export { default as useUnsavedChangesWarning } from "./useUnsavedChangesWarning";
 export { default as useAddressLocation } from "./useAddressLocation";
+export { default as useModal } from "./useModal";
