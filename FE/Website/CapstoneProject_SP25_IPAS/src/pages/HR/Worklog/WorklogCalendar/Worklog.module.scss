@@ -1,0 +1,8 @@
+@use "@/styles/variables.scss" as vars;
+.event {
+    cursor: pointer;
+    padding: 5px;
+    background-color: vars.$color_second;
+    color: vars.$color_primary;
+    border-left: 4px solid vars.$color_primary;
+}

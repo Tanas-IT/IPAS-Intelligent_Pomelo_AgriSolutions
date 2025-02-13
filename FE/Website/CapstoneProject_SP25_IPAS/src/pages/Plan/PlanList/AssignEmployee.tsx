@@ -6,18 +6,18 @@ import style from "./AssignMembers.module.scss";
 import { Icons } from "@/assets";
 
 interface AssignMembersProps {
-  members: { name: string; avatar: string }[];
+  members: { fullName: string; avatarURL: string; userId: string }[];
   onAssign: () => void;
 }
 
-const AssignEmployees: React.FC<AssignMembersProps> = ({ members, onAssign }) => {
+const AssignEmployee: React.FC<AssignMembersProps> = ({ members, onAssign }) => {
   return (
     <div className={style.assignMembers}>
       <span className={style.label}>Assigned to project</span>
       <div className={style.avatars}>
         {members.slice(0, 3).map((member, index) => (
-          <Tooltip title={member.name} key={index}>
-            <Avatar src={member.avatar} className={style.avatar} />
+          <Tooltip title={member.fullName} key={index}>
+            <Avatar src={member.avatarURL} className={style.avatar} />
           </Tooltip>
         ))}
         {members.length > 3 && <span className={style.more}>+{members.length - 3}</span>}
@@ -29,4 +29,4 @@ const AssignEmployees: React.FC<AssignMembersProps> = ({ members, onAssign }) =>
   );
 };
 
-export default AssignEmployees;
+export default AssignEmployee;

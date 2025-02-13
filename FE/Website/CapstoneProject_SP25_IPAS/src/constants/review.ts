@@ -17,7 +17,7 @@ const Review = [
         username: "Alice Johnson",
         role: "Owner",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=5",
+        avatarUrl: "https://tse1.mm.bing.net/th?id=OIP.LvEl7bxftxDEvSkWiuA6rwHaHa&pid=Api&P=0&h=220",
     },
     {
         id: 2,
@@ -25,7 +25,7 @@ const Review = [
         username: "Michael Smith",
         role: "Owner",
         rating: 4,
-        avatarUrl: "https://i.pravatar.cc/150?img=15",
+        avatarUrl: "https://tse1.mm.bing.net/th?id=OIP.LvEl7bxftxDEvSkWiuA6rwHaHa&pid=Api&P=0&h=220",
     },
     {
         id: 3,
@@ -33,7 +33,7 @@ const Review = [
         username: "Sophia Brown",
         role: "Owner",
         rating: 5,
-        avatarUrl: "https://i.pravatar.cc/150?img=10",
+        avatarUrl: "https://tse1.mm.bing.net/th?id=OIP.LvEl7bxftxDEvSkWiuA6rwHaHa&pid=Api&P=0&h=220",
     },
 ];
 

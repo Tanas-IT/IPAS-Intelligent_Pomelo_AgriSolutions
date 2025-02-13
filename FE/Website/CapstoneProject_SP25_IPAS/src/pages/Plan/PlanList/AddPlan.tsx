@@ -45,11 +45,11 @@ interface CarePlanForm {
 }
 
 const allEmployees = [
-    { id: 1, name: "Alice", avatar: "https://tse1.mm.bing.net/th?id=OIP.LvEl7bxftxDEvSkWiuA6rwHaHa&pid=Api&P=0&h=220" },
-    { id: 2, name: "Bob", avatar: "https://i.pravatar.cc/40?img=2" },
-    { id: 3, name: "Charlie", avatar: "https://i.pravatar.cc/40?img=3" },
-    { id: 4, name: "David", avatar: "https://i.pravatar.cc/40?img=4" },
-    { id: 5, name: "Emma", avatar: "https://i.pravatar.cc/40?img=5" },
+    { userId: "1", fullName: "Alice", avatarURL: "" },
+    { userId: "2", fullName: "Bob", avatarURL: "" },
+    { userId: "3", fullName: "Charlie", avatarURL: "" },
+    { userId: "4", fullName: "David", avatarURL: "" },
+    { userId: "5", fullName: "Emma", avatarURL: "" },
 ];
 
 const AddPlan = () => {
@@ -58,9 +58,9 @@ const AddPlan = () => {
     const [customDates, setCustomDates] = useState<[Dayjs, Dayjs] | null>(null); //chọn ngày cho frequency: none
     const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]); //chọn thứ cho frequency: weekly
     const [responsibleBy, setResponsibleBy] = useState<typeof allEmployees>([]);
-    const [assignorId, setAssignorId] = useState<string | null>(null);  // Người giao công việc
+    const [assignorId, setAssignorId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [daysOfMonth, setDaysOfMonth] = useState<number[]>([]);
     const navigate = useNavigate();
     const userId = getUserId();
@@ -83,7 +83,7 @@ const AddPlan = () => {
 
     const handleConfirmAssign = () => {
         setAssignorId(userId);
-        setResponsibleBy(allEmployees.filter(m => selectedIds.includes(m.id)));
+        setResponsibleBy(allEmployees.filter(m => selectedIds.includes(m.userId)));
         setIsModalOpen(false);
     };
 
@@ -289,8 +289,8 @@ const AddPlan = () => {
                             onChange={setSelectedIds}
                         >
                             {allEmployees.map((employee) => (
-                                <Option key={employee.id} value={employee.id}>
-                                    {employee.name}
+                                <Option key={employee.userId} value={employee.userId}>
+                                    {employee.fullName}
                                 </Option>
                             ))}
                         </Select>

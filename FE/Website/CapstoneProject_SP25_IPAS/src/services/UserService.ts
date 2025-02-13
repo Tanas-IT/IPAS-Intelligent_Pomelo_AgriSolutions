@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetPlant } from "@/payloads";
+import { ApiResponse, GetData, GetPlant, GetUser } from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getUsers = async (
@@ -23,4 +23,16 @@ export const getUsers = async (
   const res = await axiosAuth.axiosJsonRequest.get("app-users", { params });
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse.data as GetData<GetPlant>;
+};
+
+export const getUsersByRole = async ( role: string ): Promise<GetUser[]> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`users/get-all-user-by-role/${role}`);
+
+  const apiResponse = res.data as ApiResponse<GetUser[]>;
+
+  return apiResponse.data.map(({ userId, fullName, avatarURL }) => ({
+    userId,
+    fullName,
+    avatarURL,
+  }));
 };

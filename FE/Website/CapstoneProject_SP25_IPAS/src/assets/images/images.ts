@@ -11,3 +11,6 @@ export { default as snowy } from "@/assets/images/resources/snowy.png";
 export { default as sunny } from "@/assets/images/resources/sunny.png";
 export { default as airQuality } from "@/assets/images/resources/air-quality.png";
 export { default as boy } from "@/assets/images/resources/final-boy.jpg";
+export { default as weatherImg } from "@/assets/images/resources/weatherImg.png";
+export { default as imgImg } from "@/assets/images/resources/imgImg.png";
+export { default as videoImg } from "@/assets/images/resources/videoImg.png";
