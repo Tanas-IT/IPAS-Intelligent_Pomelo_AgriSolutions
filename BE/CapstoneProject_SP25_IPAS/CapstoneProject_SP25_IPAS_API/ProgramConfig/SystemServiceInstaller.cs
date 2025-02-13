@@ -58,6 +58,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
             services.AddScoped<ICropRepository, CropRepository>();
+            services.AddScoped<ITaskFeedbackRepository, TaskFeedbackRepository>();
+            services.AddScoped<ICriteriaMasterTypeRepository, CriteriaMasterTypeRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -81,6 +83,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<ILegalDocumentService, LegalDocumentService>();
             services.AddScoped<ICropService, CropService>();
+            services.AddScoped<IWorkLogService, WorkLogService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
 
             services.AddHttpClient();
 

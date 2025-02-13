@@ -11,5 +11,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IUserWorkLogService
     {
         public Task<BusinessResult> CheckUserConflictSchedule(CheckConflictScheduleModel checkConflictScheduleModel);
+        public Task<BusinessResult> CheckUserConflictByStartDateAndEndDate(CheckConflictScheduleByStartDateAndEndDateModel checkConflictScheduleByStartDateAndEndDate);
     }
 }

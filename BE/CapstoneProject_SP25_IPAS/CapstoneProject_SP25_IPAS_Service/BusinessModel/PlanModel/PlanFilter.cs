@@ -9,26 +9,26 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 {
     public class PlanFilter
     {
-        [FromQuery(Name = "filter-crop")]
+        [FromQuery(Name = "crop")]
         public string? CropName { get; set; }
-        [FromQuery(Name = "filter-plan")]
+        [FromQuery(Name = "plan")]
         public string? PlanName { get; set; }
-        [FromQuery(Name = "filter-assignor")]
+        [FromQuery(Name = "assignor")]
         public string? AssignorName { get; set; }
-        [FromQuery(Name = "filter-plan-detail")]
+        [FromQuery(Name = "planDetail")]
         public string? PlanDetail { get; set; }
-        [FromQuery(Name = "filter-responsible-by")]
+        [FromQuery(Name = "responsibleBy")]
         public string? ResponsibleBy { get; set; }
 
-        [FromQuery(Name = "filter-create-date-from")]
+        [FromQuery(Name = "createDateFrom")]
         public DateTime? createDateFrom { get; set; }
-        [FromQuery(Name = "filter-create-date-to")]
+        [FromQuery(Name = "createDateTo")]
         public DateTime? createDateTo { get; set; }
-        [FromQuery(Name = "filter-is-active")]
+        [FromQuery(Name = "isActive")]
         public bool? isActive { get; set; }
-        [FromQuery(Name = "filter-is-delete")]
+        [FromQuery(Name = "isDelete")]
         public bool? isDelete { get; set; }
-        [FromQuery(Name = "filter-status")]
+        [FromQuery(Name = "status")]
         public string? Status { get; set; }
     }
 }

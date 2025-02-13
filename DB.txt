@@ -28,6 +28,9 @@ CREATE TABLE ipas.dbo.Crop (
 );
 
 
+
+
+
 -- ipas.dbo.Farm definition
 
 -- Drop table
@@ -142,6 +145,7 @@ CREATE TABLE ipas.dbo.Warning (
 	Status nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Level] nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        AffectedStage nvarchar(MAX) NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	CONSTRAINT Warning_PK PRIMARY KEY (WarningID)
@@ -162,9 +166,7 @@ CREATE TABLE ipas.dbo.Criteria (
 	Priority int NULL,
 	isActive bit NULL,
 	isChecked bit NULL,
-	MasterTypeID int NULL,
-	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
-	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
+	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID)
 );
 
 
@@ -345,7 +347,16 @@ CREATE TABLE ipas.dbo.MasterTypeDetails (
 	CONSTRAINT MasterTypeDetails_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
 );
 
+-- DROP TABLE ipas.dbo.CriteriaMasterType;
 
+CREATE TABLE ipas.dbo.CriteriaMasterType (
+	CriteriaID int NOT NULL,
+	MasterTypeID int NOT NULL,
+	IsActive bit NULL,
+	CONSTRAINT CriteriaMasterType_PK PRIMARY KEY (CriteriaID,MasterTypeID),
+	CONSTRAINT CriteriaMasterType_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
+	CONSTRAINT CriteriaMasterType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
+);
 -- ipas.dbo.[Order] definition
 
 -- Drop table
@@ -396,13 +407,21 @@ CREATE TABLE ipas.dbo.Partner (
 	PartnerID int IDENTITY(1,1) NOT NULL,
 	PartnerCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PartnerName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Province nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Email nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	[National] nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	RoleID int NULL,
+	District nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Ward nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Major nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ContactName nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	BusinessField nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__Partner__39FD6332F826F432 PRIMARY KEY (PartnerID),
 	CONSTRAINT FK__Partner__RoleID__27F8EE98 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
 );

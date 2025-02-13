@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
@@ -137,22 +138,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                              x.CreateDate <= masterTypeFilter.createDateTo);
                 }
 
-                if (masterTypeFilter.isActive != null)
+                if (masterTypeFilter.isActive != null) 
                     filter = filter.And(x => x.IsActive == masterTypeFilter.isActive);
                 if (masterTypeFilter.isDelete != null)
                     filter = filter.And(x => x.IsDelete == masterTypeFilter.isDelete);
                 if (masterTypeFilter.MasterTypeName != null)
                 {
-                    filter = filter.And(x => x.MasterTypeName.Contains(masterTypeFilter.MasterTypeName));
+                    List<string> filterList = masterTypeFilter.MasterTypeName.Split(',', StringSplitOptions.TrimEntries)
+                               .Select(f => f.ToLower()) // Chuyển về chữ thường
+                               .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.MasterTypeName.ToLower().Contains(item));
+                    }
                 }
 
                 if (masterTypeFilter.TypeName != null)
                 {
-                    filter = filter.And(x => x.TypeName.Contains(masterTypeFilter.TypeName));
+                    List<string> filterList = masterTypeFilter.TypeName.Split(',', StringSplitOptions.TrimEntries)
+                               .Select(f => f.ToLower()) // Chuyển về chữ thường
+                               .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.TypeName.ToLower().Contains(item));
+                    }
                 }
                 if (masterTypeFilter.CreateBy != null)
                 {
-                    filter = filter.And(x => x.CreateBy.Contains(masterTypeFilter.CreateBy));
+                    List<string> filterList = masterTypeFilter.CreateBy.Split(',', StringSplitOptions.TrimEntries)
+                              .Select(f => f.ToLower()) // Chuyển về chữ thường
+                              .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.CreateBy.ToLower().Contains(item));
+                    }
                 }
                 switch (paginationParameter.SortBy)
                 {
@@ -268,9 +290,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "Criteria,CriteriaHarvestTypes,HarvestTypeHistories,MasterTypeDetails,Notifications,Plans,Plants,Processes,SubProcesses");
                 if(checkExistMasterType != null)
                 {
-                    foreach(var criteria in checkExistMasterType.Criteria.ToList())
+                    foreach(var criteria in checkExistMasterType.CriteriaMasterTypes.ToList())
                     {
-                        criteria.MasterTypeId = null;
+                        checkExistMasterType.CriteriaMasterTypes.Remove(criteria);
                     }
                     var listCriteriaHarvestTypes = checkExistMasterType.CriteriaHarvestTypes.ToList();
                     foreach (var criteriaHarvestTypes in listCriteriaHarvestTypes)
@@ -327,57 +349,63 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdateMasterTypeInfo(UpdateMasterTypeModel updateMasterTypeModel)
         {
-            try
+            using(var transaction = await _unitOfWork.BeginTransactionAsync())
             {
-                var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByID(updateMasterTypeModel.MasterTypeId);
-                if (checkExistMasterType != null)
+                try
                 {
-                    if (updateMasterTypeModel.MasterTypeName != null)
+                    var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByID(updateMasterTypeModel.MasterTypeId);
+                    if (checkExistMasterType != null)
                     {
-                        checkExistMasterType.MasterTypeName = updateMasterTypeModel.MasterTypeName;
-                    }
-                    if (updateMasterTypeModel.TypeName != null)
-                    {
-                        checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
-                    }
-                    if (updateMasterTypeModel.IsActive != null)
-                    {
-                        checkExistMasterType.IsActive = updateMasterTypeModel.IsActive;
-                    }
-                    if (updateMasterTypeModel.IsDelete != null)
-                    {
-                        checkExistMasterType.IsDelete = updateMasterTypeModel.IsDelete;
-                    }
-                    if (updateMasterTypeModel.MasterTypeDescription != null)
-                    {
-                        checkExistMasterType.MasterTypeDescription = updateMasterTypeModel.MasterTypeDescription;
-                    }
-                    if (updateMasterTypeModel.CreateBy != null)
-                    {
-                        checkExistMasterType.CreateBy = updateMasterTypeModel.CreateBy;
-                    }
-                    checkExistMasterType.UpdateDate = DateTime.Now;
-                   
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_MASTER_TYPE_CODE, Const.SUCCESS_UPDATE_MASTER_TYPE_MESSAGE, checkExistMasterType);
+                        if (updateMasterTypeModel.MasterTypeName != null)
+                        {
+                            checkExistMasterType.MasterTypeName = updateMasterTypeModel.MasterTypeName;
+                        }
+                        if (updateMasterTypeModel.TypeName != null)
+                        {
+                            checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
+                        }
+                        if (updateMasterTypeModel.IsActive != null)
+                        {
+                            checkExistMasterType.IsActive = updateMasterTypeModel.IsActive;
+                        }
+                        if (updateMasterTypeModel.IsDelete != null)
+                        {
+                            checkExistMasterType.IsDelete = updateMasterTypeModel.IsDelete;
+                        }
+                        if (updateMasterTypeModel.MasterTypeDescription != null)
+                        {
+                            checkExistMasterType.MasterTypeDescription = updateMasterTypeModel.MasterTypeDescription;
+                        }
+                        if (updateMasterTypeModel.CreateBy != null)
+                        {
+                            checkExistMasterType.CreateBy = updateMasterTypeModel.CreateBy;
+                        }
+                        checkExistMasterType.UpdateDate = DateTime.Now;
+
+                        var result = await _unitOfWork.SaveAsync();
+                        if (result > 0)
+                        {
+                            await transaction.CommitAsync();
+                            return new BusinessResult(Const.SUCCESS_UPDATE_MASTER_TYPE_CODE, Const.SUCCESS_UPDATE_MASTER_TYPE_MESSAGE, checkExistMasterType);
+                        }
+                        else
+                        {
+                            await transaction.RollbackAsync();
+                            return new BusinessResult(Const.FAIL_UPDATE_MASTER_TYPE_CODE, Const.FAIL_UPDATE_MASTER_TYPE_MESSAGE, false);
+                        }
+
                     }
                     else
                     {
-                        return new BusinessResult(Const.FAIL_UPDATE_MASTER_TYPE_CODE, Const.FAIL_UPDATE_MASTER_TYPE_MESSAGE, false);
+                        await transaction.RollbackAsync();
+                        return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                     }
-
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

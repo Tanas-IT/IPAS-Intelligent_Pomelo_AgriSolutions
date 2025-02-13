@@ -13,6 +13,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -75,8 +76,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();
 
+            CreateMap<CriteriaMasterType, CriteriaMasterTypeModel>()
+              .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
+              .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+              .ReverseMap();
+
             CreateMap<Criteria, CriteriaModel>()
-                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+                //.ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                 .ReverseMap();
 
             CreateMap<MasterType, MasterTypeModel>().ReverseMap();
@@ -90,25 +96,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Plant, PlantModel>()
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
                 .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow!.RowIndex))
-                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName))
+                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName));
                 //.ForMember(dest => dest.Plans, opt => opt.MapFrom(src => src.Plans))
-                .ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
-                    src.PlantCriterias.GroupBy(pc => pc.Criteria.MasterType)
-                    .Select(g => new
-                    {
-                        CriteriaType = g.Key!.MasterTypeName,
-                        CheckedCount = g.Count(pc => pc.IsChecked == true),
-                        TotalCount = g.Count()
-                    })
-                    .ToList()
-                    ));
+                //.ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
+                //    src.PlantCriterias.GroupBy(pc => pc.Criteria.MasterType)
+                //    .Select(g => new
+                //    {
+                //        CriteriaType = g.Key!.MasterTypeName,
+                //        CheckedCount = g.Count(pc => pc.IsChecked == true),
+                //        TotalCount = g.Count()
+                //    })
+                //    .ToList())
+                //);
 
             CreateMap<PlantCriteria, PlantCriteriaModel>()
                 .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
                 .ReverseMap();
 
+           
             CreateMap<MasterType, MasterTypeModel>()
-                .ForMember(dest => dest.Criteria, opt => opt.MapFrom(src => src.Criteria))
+                .ForMember(dest => dest.CriteriaMasterType, opt => opt.MapFrom(src => src.CriteriaMasterTypes))
                 .ReverseMap();
 
             CreateMap<PlantGrowthHistory, PlantGrowthHistoryModel>()
@@ -145,6 +152,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Crop, opt => opt.MapFrom(src => src.Crop))
                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ReverseMap();
+
+            CreateMap<TaskFeedback, TaskFeedbackModel>()
+              .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.FullName))
+              .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLog.WorkLogName))
+               .ReverseMap();
         }
     }
 }

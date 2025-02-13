@@ -28,25 +28,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 try
                 {
-                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criteria");
+                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "CriteriaMasterTypes");
 
                     if (masterType == null)
                         return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
 
                     // Chuyển danh sách hiện có thành Dictionary để tra cứu nhanh**
-                    var existingCriteriaDict = masterType.Criteria.ToDictionary(c => c.CriteriaId);
+                    var existingCriteriaDict = masterType.CriteriaMasterTypes.ToDictionary(c => c.CriteriaId);
 
                     // Tạo danh sách xử lý
                     var criteriaToUpdate = new List<Criteria>();
+                    var CriteriaMasterTypeToUpdate = new List<CriteriaMasterType>();
                     var criteriaToAdd = new List<Criteria>();
+                    var CriteriaMasterTypeToAdd = new List<CriteriaMasterType>();
                     var receivedCriteriaIds = new HashSet<int>();
+
 
                     foreach (var request in listUpdate.criteriasCreateRequests)
                     {
                         if (request.CriteriaId.HasValue && existingCriteriaDict.ContainsKey(request.CriteriaId.Value))
                         {
                             // Cập nhật dữ liệu
-                            var existingCriteria = existingCriteriaDict[request.CriteriaId.Value];
+                            var existingCriteria = await _unitOfWork.CriteriaRepository.GetByID(int.Parse(existingCriteriaDict[request.CriteriaId.Value].ToString()));
                             existingCriteria.CriteriaName = request.CriteriaName;
                             existingCriteria.CriteriaDescription = request.CriteriaDescription;
                             existingCriteria.Priority = request.Priority;
@@ -62,18 +65,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CriteriaDescription = request.CriteriaDescription,
                                 Priority = request.Priority,
                                 IsActive = true,
-                                MasterTypeId = listUpdate.MasterTypeId
                             };
                             criteriaToAdd.Add(newCriteria);
+                            await _unitOfWork.SaveAsync();
+                            var newCriteriaMasterType = new CriteriaMasterType
+                            {
+                                CriteriaId = newCriteria.CriteriaId,
+                                MasterTypeId = listUpdate.MasterTypeId
+                            };
+                            CriteriaMasterTypeToAdd.Add(newCriteriaMasterType);
                         }
                     }
 
                     // Tìm các phần tử cần xóa (không có trong danh sách cập nhật
-                    var criteriaToRemove = masterType.Criteria.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
+                    var criteriaMasterTypeToRemove = masterType.CriteriaMasterTypes.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
+                    var criteriaToRemove = new List<Criteria>();
+                    foreach (var criteria in criteriaMasterTypeToRemove)
+                    {
+                        var criteriaRemove = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteria.CriteriaId);
+                        criteriaToRemove.Add(criteriaRemove);
+                    }
 
                     // Thực hiện các thao tác với EF
                     if (criteriaToUpdate.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToUpdate);
                     if (criteriaToAdd.Any()) await _unitOfWork.CriteriaRepository.InsertRangeAsync(criteriaToAdd);
+                    if (criteriaMasterTypeToRemove.Any()) _unitOfWork.CriteriaMasterTypeRepository.RemoveRange(criteriaMasterTypeToRemove);
                     if (criteriaToRemove.Any()) _unitOfWork.CriteriaRepository.RemoveRange(criteriaToRemove);
 
                     // Luu thay đổi
@@ -152,26 +168,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
                 }
-                var groupedData = criteriaByType
-                       .Where(pc => pc.Criteria.MasterType != null) // Lọc các tiêu chí có MasterType
-                       .GroupBy(pc => pc.Criteria.MasterType) // Nhóm theo MasterType
-                       .Select(group => new 
-                       {
-                           MasterTypeId = group.Key!.MasterTypeId,
-                           MasterTypeName = group.Key.MasterTypeName,
-                           CriteriaList = group.Select(pc => new
-                           {
-                               PlantId = pc.PlantId,
-                               Priority = pc.Priority,
-                               CriteriaId = pc.Criteria.CriteriaId,
-                               CriteriaName = pc.Criteria.CriteriaName,
-                               IsChecked = pc.IsChecked
-                           }).ToList()
-                       })
-                       .ToList();
+                // Sửa hàm này nha
+                //var groupedData = criteriaByType
+                //       .Where(pc => pc.Criteria.MasterType != null) // Lọc các tiêu chí có MasterType
+                //       .GroupBy(pc => pc.Criteria.MasterType) // Nhóm theo MasterType
+                //       .Select(group => new 
+                //       {
+                //           MasterTypeId = group.Key!.MasterTypeId,
+                //           MasterTypeName = group.Key.MasterTypeName,
+                //           CriteriaList = group.Select(pc => new
+                //           {
+                //               PlantId = pc.PlantId,
+                //               Priority = pc.Priority,
+                //               CriteriaId = pc.Criteria.CriteriaId,
+                //               CriteriaName = pc.Criteria.CriteriaName,
+                //               IsChecked = pc.IsChecked
+                //           }).ToList()
+                //       })
+                //       .ToList();
 
                 //var mappedResult = _mapper.Map<List<PlantCriteriaModel>>(groupedData);
-                return new BusinessResult(Const.SUCCES_GET_PLANT_CRITERIA_CODE, Const.SUCCES_GET_PLANT_CRITERIA_MSG, groupedData);
+                return new BusinessResult(Const.SUCCES_GET_PLANT_CRITERIA_CODE, Const.SUCCES_GET_PLANT_CRITERIA_MSG, null);
             }
             catch (Exception ex)
             {

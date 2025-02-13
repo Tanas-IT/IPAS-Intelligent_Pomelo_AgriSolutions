@@ -311,6 +311,21 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_USER_WORK_LOG_CODE = 200;
         public static string SUCCESS_CREATE_USER_WORK_LOG_MSG = "Create user work log success";
         #endregion
+
+        #region WorkLog
+        public static int SUCCESS_GET_ALL_WORK_LOG_CODE = 200;
+        public static string SUCCESS_GET_ALL_WORK_LOG_MSG = "Get all work log success";
+        public static int SUCCESS_GET_WORK_LOG_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_WORK_LOG_BY_ID_MSG = "Get work log by id success";
+        public static int SUCCESS_UPDATE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_UPDATE_WORK_LOG_MSG = "Update work log success";
+        public static int SUCCESS_DELETE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_DELETE_WORK_LOG_MSG = "Delete work log success";
+        public static int SUCCESS_CREATE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_CREATE_WORK_LOG_MSG = "Create work log success";
+        public static int SUCCESS_ASSIGN_TASK_CODE = 200;
+        public static string SUCCESS_ASSIGN_TASK_MSG = "Assign task success";
+        #endregion
         #region Legal Document
         public static int SUCCESS_CREATE_LEGAL_DOCUMENT_CODE = 200;
         public static string SUCCESS_CREATE_LEGAL_DOCUMENT_MSG = "Create document success";
@@ -341,6 +356,26 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_CROP_CODE = 200;
         public static string SUCCESS_GET_ALL_CROP_EMPTY_MSG = "No crop was found";
         public static string SUCCESS_GET_ALL_CROP_FOUND_MSG = "Get all crop of landplot success.";
+        #endregion
+        #region Report
+        public static int SUCCESS_GET_CROP_CARE_REPORT_CODE = 200;
+        public static string SUCCESS_GET_CROP_CARE_REPORT_MSG = "Get crop care report success";
+        #endregion
+        #region Task Feedback
+        public static int SUCCESS_GET_ALL_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_GET_ALL_TASK_FEEDBACK_MSG = "Get all task feedback success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_ID_MSG = "Get task feedback by id success";
+        public static int SUCCESS_UPDATE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_UPDATE_TASK_FEEDBACK_MSG = "Update task feedback success";
+        public static int SUCCESS_DELETE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_DELETE_TASK_FEEDBACK_MSG = "Delete task feedback success";
+        public static int SUCCESS_CREATE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_CREATE_TASK_FEEDBACK_MSG = "Create task feedback success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_MANAGER_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_MANAGER_ID_MSG = "Get task feedback by manager id success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id success";
         #endregion
         #endregion
 
@@ -560,6 +595,18 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_USER_WORK_LOG_CODE = 500;
         public static string FAIL_GET_USER_WORK_LOG_MESSAGE = "Get user work log failed";
         #endregion
+        #region Work Log Fail code
+        public static int FAIL_CREATE_WORK_LOG_CODE = 500;
+        public static string FAIL_CREATE_WORK_LOG_MESSAGE = "Create work log failed";
+        public static int FAIL_UPDATE_WORK_LOG_CODE = 500;
+        public static string FAIL_UPDATE_WORK_LOG_MESSAGE = "Update work log failed";
+        public static int FAIL_DELETE_WORK_LOG_CODE = 500;
+        public static string FAIL_DELETE_WORK_LOG_MESSAGE = "Delete work log failed";
+        public static int FAIL_GET_WORK_LOG_CODE = 500;
+        public static string FAIL_GET_WORK_LOG_MESSAGE = "Get work log failed";
+        public static int FAIL_ASSIGN_TASK_CODE = 500;
+        public static string FAIL_ASSIGN_TASK_MESSAGE = "Assign task failed";
+        #endregion
         #region Legal document
         public static int FAIL_CREATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_CREATE_LEGAL_DOCUMENT_MSG = "Create document Fail";
@@ -584,6 +631,28 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_CROP_BY_ID_MSG = "Get crop fail";
         public static int FAIL_GET_CROP_OF_FARM_CODE = 400;
         public static string FAIL_GET_CROP_OF_FARM_MSG = "Get crop of farm fail";
+        #endregion
+
+        #region Report
+        public static int FAIL_GET_CROP_CARE_REPORT_CODE = 500;
+        public static string FAIL_GET_CROP_CARE_REPORT_MSG = "Get crop care report fail";
+        #endregion
+
+        #region Task Feedback
+        public static int FAIL_GET_ALL_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_GET_ALL_TASK_FEEDBACK_MSG = "Get all task feedback failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_ID_CODE = 500;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_ID_MSG = "Get task feedback by id failed";
+        public static int FAIL_UPDATE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_UPDATE_TASK_FEEDBACK_MSG = "Update task feedback failed";
+        public static int FAIL_DELETE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_DELETE_TASK_FEEDBACK_MSG = "Delete task feedback failed";
+        public static int FAIL_CREATE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_CREATE_TASK_FEEDBACK_MSG = "Create task feedback failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_MANAGER_ID_CODE = 500;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_MANAGER_ID_MSG = "Get task feedback by manager id failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id failed";
         #endregion
         #endregion
 
@@ -730,6 +799,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_USER_CONFLICT_SCHEDULE_CODE = 400;
         public static string WARNING_USER_CONFLICT_SCHEDULE_MSG = "User conflict schedule. Please select another time";
         #endregion
+        #region Work Log
+        public static int SUCCESS_HAS_SCHEDULE_CODE = 200;
+        public static string SUCCESS_HAS_SCHEDULE_MSG = "Get schedule success";
+        public static int WARNING_NO_SCHEDULE_CODE = 400;
+        public static string WARNING_NO_SCHEDULE_MSG = "Do not have any worklog to display on schedule";
+        #endregion
         #region Legal Document 
         public static int WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE = 400;
         public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
@@ -746,6 +821,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
         public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
+        #endregion
+
+        #region Report
+        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 400;
+        public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
+        #endregion
+        #region Task Feedback
+        public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
+        public static string WARNING_TASK_FEEDBACK_NOT_EXIST_MSG = "Task Feedback does not exist";
         #endregion
         #endregion
     }

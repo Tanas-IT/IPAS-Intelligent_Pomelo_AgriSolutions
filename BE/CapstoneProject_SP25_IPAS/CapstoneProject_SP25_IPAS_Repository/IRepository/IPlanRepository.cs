@@ -11,5 +11,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<int> GetLastPlanSequence();
         public Task<Plan> GetLastPlan();
+        public int GetTotalTrees(int landPlotId, int year);
+        public Task<List<WorkLog>> GetWorkLogs(int landPlotId, int year);
+        public Dictionary<string, int> GetTreeHealthStatus(int landPlotId);
+        public List<object> GetTreeNotes(int landPlotId);
     }
 }
