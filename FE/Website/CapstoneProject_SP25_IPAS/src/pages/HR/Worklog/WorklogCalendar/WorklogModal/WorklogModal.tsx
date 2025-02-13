@@ -3,8 +3,8 @@ import { worklogFormFields } from "@/constants";
 import { AssignEmployee } from "@/pages";
 import { GetUser } from "@/payloads";
 import { CreateWorklogRequest } from "@/payloads/worklog";
-import { userService } from "@/services";
-import { RulesManager } from "@/utils";
+import { cropService, userService } from "@/services";
+import { getFarmId, RulesManager } from "@/utils";
 import { Flex, Form, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 
@@ -19,11 +19,10 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [allEmployees, setAllEmployees] = useState<GetUser[]>([]);
     const [selectedEmployees, setSelectedEmployees] = useState<GetUser[]>([]);
-    const cropOptions = [
-        { value: "Crop 1", label: "Certificate" },
-        { value: "License", label: "License" },
-
-    ];
+    const [cropOptions, setCropOptions] = useState<{ value: string, label: string }[]>([]);
+    const [landPlotOptions, setLandPlotOptions] = useState<{ value: string, label: string }[]>([]);
+    const [typeOptions, setTypeOptions] = useState<{ value: string, label: string }[]>([]);
+    const farmId = getFarmId();
 
     const handleCancel = () => {
         onClose();
@@ -49,19 +48,25 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     useEffect(() => {
         if (isOpen) {
             fetchEmployees();
+            fetchCropOptions();
         }
     }, [isOpen]);
 
     const fetchEmployees = async () => {
-        try {
             const employees = await userService.getUsersByRole("Employee");
-            console.log('ggggggggg',employees);
-            
             setAllEmployees(employees);
-        } catch (error) {
-            console.error("Error fetching employees:", error);
-        }
     };
+
+    const fetchCropOptions = async () => {
+            const crops = await cropService.getCropsOfFarmForSelect(farmId);
+            const formattedCropOptions = crops.map((crop) => ({
+                value: crop.cropId,
+                label: crop.cropName,
+            }));
+            setCropOptions(formattedCropOptions);
+   
+    };
+    
     return (
         <ModalForm
             isOpen={isOpen}

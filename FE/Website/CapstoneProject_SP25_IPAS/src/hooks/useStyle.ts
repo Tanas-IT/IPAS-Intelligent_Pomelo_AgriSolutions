@@ -2,6 +2,7 @@ import { createStyles } from "antd-style";
 
 const useStyle = createStyles(({ css }) => {
   const primaryColor = "#326E2F";
+  const secondColor = "#bcd379";
   const hoverBackground = "#f0fff0";
 
   return {
@@ -178,6 +179,12 @@ const useStyle = createStyles(({ css }) => {
         }
       }
     `,
+
+    customTimeline: css`
+      .ant-timeline-item-tail {
+        background-color: ${secondColor} !important;
+      }
+    `
   };
 });
 

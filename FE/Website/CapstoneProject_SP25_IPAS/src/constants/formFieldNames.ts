@@ -35,3 +35,10 @@ export const worklogFormFields = {
   assignorId: "assignorId",
   type: "type"
 };
+
+export const feedbackFormFields = {
+  content: "content",
+  managerId: "managerId",
+  worklogId: "worklogId",
+  worklogStatus: "worklogStatus"
+};

@@ -73,4 +73,7 @@ export class RulesManager {
   static getWorklogTypeRules = () => this.getRequiredRules("Worklog Type");
   static getProcessRules = () => this.getRequiredRules("Process");
   static getTimeRules = () => this.getRequiredRules("Time");
+
+  static getContentFeedbackRules = () => this.getRequiredRules("Content");
+  static getStatusWorklogFeedbackRules = () => this.getRequiredRules("Status Worlog");
 }

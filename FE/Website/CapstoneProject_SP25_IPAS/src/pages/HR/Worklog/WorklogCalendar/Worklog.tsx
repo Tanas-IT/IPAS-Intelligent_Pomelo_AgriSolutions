@@ -20,10 +20,13 @@ import WorklogFilter from './WorklogFilter/WorklogFilter'
 import { useModal } from '@/hooks'
 import { CreateWorklogRequest } from '@/payloads/worklog'
 import WorklogModal from './WorklogModal/WorklogModal'
+import { useNavigate } from 'react-router-dom'
 
 
 function Worklog() {
-  const eventsService = useState(() => createEventsServicePlugin())[0]
+  const eventsService = useState(() => createEventsServicePlugin())[0];
+  const navigate = useNavigate();
+
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -65,7 +68,21 @@ function Worklog() {
       end: '2025-02-12 03:00',
       status: 'Completed',
     },
-  ]
+  ];
+
+  // const eventModal = createEventModalPlugin({
+  //   renderEventModal: ({ event, closeModal }) => (
+  //     <div className="custom-modal">
+  //       <h3>{event.title}</h3>
+  //       <p>Bắt đầu: {event.start}</p>
+  //       <p>Kết thúc: {event.end}</p>
+  //       <button onClick={closeModal}>Đóng</button>
+  //     </div>
+  //   ),
+  // });
+
+  
+
 
   const calendar = useCalendarApp({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
@@ -107,12 +124,13 @@ function Worklog() {
       <ScheduleXCalendar
         calendarApp={calendar}
         customComponents={{
-          // timeGridEvent: CustomTimeGridEvent,
+          timeGridEvent: CustomTimeGridEvent,
           // dateGridEvent: CustomDateGridEvent,
           headerContentRightAppend: () => (
             <HeaderContentAppend filterContent={filterContent} addModal={addModal} />
           )
-        }} />
+        }}
+         />
       <WorklogModal
         isOpen={addModal.modalState.visible}
         onClose={addModal.hideModal}

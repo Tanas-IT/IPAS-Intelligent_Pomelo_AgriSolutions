@@ -1,3 +1,6 @@
+import { useNavigate } from "react-router-dom"
+import style from "./Worklog.module.scss"
+
 type props = {
     calendarEvent: {
       id: string | number
@@ -8,22 +11,18 @@ type props = {
   }
   
   export default function CustomTimeGridEvent({ calendarEvent }: props) {
+    const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/hr-management/worklogs/${calendarEvent.id}`);
+  };
     return (
       <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '100%',
-          background: 'green',
-          color: 'white',
-          padding: 10,
-          borderRadius: 5,
-          border: '1px solid white',
-        }}
-      >
-        {calendarEvent.title}
-      </div>
+      onClick={handleClick}
+      className={style.event}
+    >
+      <strong>{calendarEvent.title}</strong>
+      <p>{calendarEvent.start} - {calendarEvent.end}</p>
+    </div>
     )
   }
