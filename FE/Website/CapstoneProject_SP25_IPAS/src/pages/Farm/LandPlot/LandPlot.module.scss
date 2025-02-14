@@ -1,0 +1,98 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+
+  .mapWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .mapControls {
+      width: 100%;
+      position: absolute;
+      top: 24px;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4rem;
+      z-index: 99;
+
+      .search {
+        width: 100%;
+        max-width: 20vw;
+      }
+
+      .actionBtnsWrapper {
+        gap: 20px;
+      }
+    }
+  }
+}
+
+.popupContainer {
+  flex-direction: column;
+  width: 24vw;
+  background: white;
+  border-radius: 8px;
+  .popupHeader {
+    width: 100%;
+    padding-bottom: 4px;
+    border-bottom: 1px solid vars.$color_second;
+    font-weight: bold;
+  }
+  .closeButton {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .popupBody {
+    width: 100%;
+    margin-top: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    .landPlotList {
+      width: 100%;
+    }
+    li {
+      border-block-end: 1px solid vars.$color_second;
+    }
+    .plotItemWrapper {
+      width: 100%;
+      flex-direction: row;
+      padding: 0 14px 8px 14px;
+      gap: 8px;
+      .col {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .plotItemHeader {
+        flex-direction: column;
+        color: vars.$color_primary;
+
+        .plotItemDescription {
+          font-size: 12px;
+          color: vars.$color_role_name;
+        }
+      }
+      .plotItemDetails {
+        justify-content: flex-start;
+        align-items: center;
+        gap: 12px;
+        .plotItemDetail {
+          color: vars.$color_text_detail;
+          justify-content: center;
+          align-items: center;
+          gap: 6px;
+          svg {
+            margin-bottom: 4px;
+          }
+        }
+      }
+    }
+  }
+}

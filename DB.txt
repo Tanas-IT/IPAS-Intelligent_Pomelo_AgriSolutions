@@ -1079,20 +1079,18 @@ VALUES
 ( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution'),
 ( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market');
 
-GO
-INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Lagtitude, LandPlotID)  
-VALUES  
-    ('LPC-001', 105.8412, 21.0245, 1),  
-    ('LPC-002', 106.7038, 10.7769, 1),  
-    ('LPC-003', 107.0822, 20.9666, 1),  
-    ('LPC-004', 108.2277, 16.0471, 2),  
-    ('LPC-005', 109.1962, 12.2388, 2),  
-    ('LPC-006', 110.3499, 11.9404, 2),  
-    ('LPC-007', 111.6143, 15.9917, 3),  
-    ('LPC-008', 104.9910, 11.5461, 3),  
-    ('LPC-009', 103.8565, 13.4125, 3),  
-    ('LPC-010', 102.6274, 14.0583, 4);
-GO
+INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Lagtitude, LandPlotID)
+VALUES
+    ('LPC-001', 106.78546314117068, 10.997278708395825, 1),
+    ('LPC-002', 106.78589533924475, 10.997556840012322, 1),
+    ('LPC-003', 106.78592699828585, 10.99751539287513, 1),
+    ('LPC-004', 106.78547296403684, 10.997232090171735, 1),
+    ('LPC-005', 106.78546314117068, 10.997278708395825, 1),
+    ('LPC-006', 106.7855136114656, 10.997171331485006, 1),
+    ('LPC-007', 106.78596437055711, 10.997462428171985, 1),
+    ('LPC-008', 106.78593105040267, 10.997509293796838, 1),
+    ('LPC-009', 106.78547802086456, 10.997225685284874, 1),
+    ('LPC-0010', 106.7855136114656, 10.997171331485006, 1);
 
 INSERT INTO ipas.dbo.LandRow 
 ( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 

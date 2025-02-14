@@ -39,19 +39,8 @@ export const defaultLogoFarm: LogoState = {
 };
 
 export const defaultCoordsFarm: CoordsState = {
-  longitude: 0,
-  latitude: 0,
-};
-
-export const defaultFarmDocuments: GetFarmDocuments = {
-  landOwnershipCertificate: [],
-  landOwnershipCertificateUrls: [Images.logo, Images.logo],
-  operatingLicense: [],
-  operatingLicenseUrls: [],
-  landLeaseAgreement: [],
-  landLeaseAgreementUrls: [],
-  pesticideUseLicense: [],
-  pesticideUseLicenseUrls: [],
+  longitude: 106.6825,
+  latitude: 10.7626,
 };
 
 export const defaultPlanData: GetPlan = {
@@ -84,4 +73,4 @@ export const defaultPlanData: GetPlan = {
   daysOfWeek: [1, 2, 3, 4, 5],
   daysOfMonth: [],
   customDates: [],
-}
+};

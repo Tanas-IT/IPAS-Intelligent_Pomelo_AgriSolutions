@@ -1,0 +1,55 @@
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  flex-direction: column;
+  .sectionHeader {
+    justify-content: space-between;
+    align-items: center;
+  }
+  .contentWrapper {
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 18px;
+    .row {
+      flex-direction: row;
+      gap: 32px;
+    }
+    .sectionContainer {
+      width: 100%;
+      flex-direction: column;
+      padding: 10px 24px;
+      background-color: vars.$color_bg_detail;
+      border-radius: 16px;
+    }
+    .sectionLeft {
+      @extend .sectionContainer;
+      min-width: 50vw;
+    }
+    .sectionRight {
+      @extend .sectionContainer;
+    }
+    .farmTitle {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .mapNotice {
+      font-size: 12px;
+      color: vars.$color_selected;
+      text-align: center;
+      .icon {
+        color: red;
+      }
+    }
+
+    .contentSectionFooter {
+      width: 100%;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+    }
+  }
+}

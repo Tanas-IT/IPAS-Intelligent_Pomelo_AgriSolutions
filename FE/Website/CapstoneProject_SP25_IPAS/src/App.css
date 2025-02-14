@@ -65,3 +65,8 @@ textarea:focus {
   background-color: #bcd379 !important;
   font-weight: bold;
 }
+
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
