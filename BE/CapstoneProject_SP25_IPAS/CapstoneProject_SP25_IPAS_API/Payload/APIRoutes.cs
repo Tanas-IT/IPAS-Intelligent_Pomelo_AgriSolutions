@@ -257,7 +257,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateWorkLogInfo = prefix + "";
             public const string getWorkLogById = prefix + "/get-work-log-by-id/{id}";
             public const string getWorkLogByName = prefix + "/get-work-log-by-name/{name}";
-            public const string getCalendar = prefix + "/get-calendar";
+            public const string getSchedule = prefix + "/get-schedule";
+            public const string getAllSchedule = prefix + "/get-all-schedule";
             public const string assignTask = prefix + "/assign-task";
         }
 

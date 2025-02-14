@@ -20,8 +20,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<MasterType>> GetMasterTypeByName(string name)
         {
-            var getMasterTypeByName = await  _context.MasterTypes.Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
-            if(getMasterTypeByName.Count() > 0)
+            var getMasterTypeByName = await  _context.MasterTypes.Include(x => x.CriteriaMasterTypes)
+                .ThenInclude(x => x.Criteria)
+                .Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
+            if(getMasterTypeByName != null)
             {
                 return getMasterTypeByName;
             }

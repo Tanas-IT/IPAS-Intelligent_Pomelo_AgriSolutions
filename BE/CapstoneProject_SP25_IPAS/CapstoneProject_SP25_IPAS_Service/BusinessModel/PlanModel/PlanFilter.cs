@@ -30,5 +30,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public bool? isDelete { get; set; }
         [FromQuery(Name = "status")]
         public string? Status { get; set; }
+
+        [FromQuery(Name = "growStages")]
+        public string? GrowStages { get; set; }
+        [FromQuery(Name = "processTypes")]
+        public string? ProcessTypes { get; set; }
     }
 }

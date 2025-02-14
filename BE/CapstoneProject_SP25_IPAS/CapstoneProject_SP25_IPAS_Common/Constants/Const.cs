@@ -377,6 +377,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
         public static string SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id success";
         #endregion
+        #region Schedule
+        public static int SUCCESS_GET_ALL_SCHEDULE_CODE = 200;
+        public const string SUCCESS_GET_ALL_SCHEDULE_MSG = "Get all schedule success";
+        #endregion
         #endregion
 
         #region FAIL
@@ -654,6 +658,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
         public static string FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id failed";
         #endregion
+        #region Schedule
+        public static int FAIL_GET_ALL_SCHEDULE_CODE = 500;
+        public const string FAIL_GET_ALL_SCHEDULE_MSG = "Get all schedule failed";
+        #endregion
         #endregion
 
         #region WARNING
@@ -832,6 +840,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Task Feedback
         public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
         public static string WARNING_TASK_FEEDBACK_NOT_EXIST_MSG = "Task Feedback does not exist";
+        #endregion
+        #region Schedule
+        public const string WARNING_MISSING_SCHEDULE_DATE_FILTER_MSG = "Please enter both values for the date filter (From Date and To Date).";
+        public static int WARNING_MISSING_TIME_FILTER_CODE = 400;
+        public const string WARNING_MISSING_TIME_FILTER_MSG = "Please enter both values for the time filter (from time and to time).";
+        public static int WARNING_INVALID_TIME_FILTER_CODE = 400;
+        public static string WARNING_INVALID_TIME_FILTER_MSG = "From time must greater than To time";
+        public static int WARNING_DO_NOT_HAVE_ANY_SCHEDULE_CODE = 400;
+        public static string WARNING_DO_NOT_HAVE_ANY_SCHEDULE_MSG = "Schedule does not exist";
         #endregion
         #endregion
     }

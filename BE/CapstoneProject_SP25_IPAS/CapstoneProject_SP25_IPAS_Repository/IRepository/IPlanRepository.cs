@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,5 +16,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<WorkLog>> GetWorkLogs(int landPlotId, int year);
         public Dictionary<string, int> GetTreeHealthStatus(int landPlotId);
         public List<object> GetTreeNotes(int landPlotId);
+        public Task<IEnumerable<Plan>> GetPlanWithPagination(
+           Expression<Func<Plan, bool>> filter = null!,
+           Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!,
+           int? pageIndex = null,
+           int? pageSize = null);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +17,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<bool> AssignTaskForUser(int employeeId, int workLogId);
 
         public Task<List<WorkLog>> GetCalendarEvents(int? userId = null, int? planId = null, DateTime? startDate = null, DateTime? endDate = null);
+        public Task<List<WorkLog>> GetWorkLog(Expression<Func<WorkLog, bool>> filter = null!,
+           Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!,
+           int? pageIndex = null,
+           int? pageSize = null);
 
     }
 }

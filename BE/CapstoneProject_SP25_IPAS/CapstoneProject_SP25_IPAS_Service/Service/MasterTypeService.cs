@@ -74,7 +74,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var listMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypeByName(MasterTypeName);
-                if(listMasterType.Count() > 0)
+                if(listMasterType != null && listMasterType.Count() > 0)
                 {
                     var listMasterTypeModel = _mapper.Map<List<MasterTypeModel>>(listMasterType);
                     return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_MESSAGE, listMasterTypeModel);

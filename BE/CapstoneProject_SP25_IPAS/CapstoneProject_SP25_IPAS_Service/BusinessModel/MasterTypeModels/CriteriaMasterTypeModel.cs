@@ -9,8 +9,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 {
     public class CriteriaMasterTypeModel
     {
-        public int CriteriaName { get; set; }
-        public int MasterTypeName { get; set; }
+        public string CriteriaName { get; set; }
+        public string MasterTypeName { get; set; }
         public bool IsActive { get; set; }
 
         public CriteriaModel CriteriaModel { get; set; }
