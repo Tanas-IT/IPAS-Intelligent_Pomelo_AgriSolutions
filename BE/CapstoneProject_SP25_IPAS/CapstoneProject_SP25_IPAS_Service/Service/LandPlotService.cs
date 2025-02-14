@@ -84,7 +84,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             var landplotCoordination = new LandPlotCoordination()
                             {
-                                Lagtitude = coordination.Lagtitude,
+                                Latitude = coordination.Lagtitude,
                                 Longitude = coordination.Longitude,
                             };
                             landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
@@ -185,7 +185,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
                     var existingCoordinates = existingCoordinationList
-                        .Select(x => new { Lat = x.Lagtitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
+                        .Select(x => new { Lat = x.Latitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
                         .ToHashSet();
 
                     var newCoordinates = updateRequest.CoordinationsUpdateModel
@@ -194,7 +194,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Tìm các điểm bị xóa (có trong danh sách cũ nhưng không có trong danh sách mới)
                     var coordinatesToDelete = existingCoordinationList
-                        .Where(x => !newCoordinates.Contains(new { Lat = x.Lagtitude!.Value, Lng = x.Longitude!.Value }))
+                        .Where(x => !newCoordinates.Contains(new { Lat = x.Latitude!.Value, Lng = x.Longitude!.Value }))
                         .ToList();
 
                     // Tìm các điểm cần thêm mới (có trong danh sách mới nhưng không có trong danh sách cũ)
@@ -203,7 +203,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         .Select(x => new LandPlotCoordination
                         {
                             LandPlotId = updateRequest.LandPlotId,
-                            Lagtitude = x.Lagtitude,
+                            Latitude = x.Lagtitude,
                             Longitude = x.Longitude
                         })
                         .ToList();
