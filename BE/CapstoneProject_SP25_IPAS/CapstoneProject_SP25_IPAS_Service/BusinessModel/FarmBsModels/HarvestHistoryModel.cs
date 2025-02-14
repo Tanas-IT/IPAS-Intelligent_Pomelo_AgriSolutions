@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
@@ -24,9 +25,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? CropId { get; set; }
 
         public int? FarmId { get; set; }
-        //public virtual Crop? Crop { get; set; }
 
-        //public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
+        public string? CropName { get; set; }
+
+        //public virtual Crop? Crop { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public virtual ICollection<HarvestTypeHistoryModel> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistoryModel>();
 
         //public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
     }

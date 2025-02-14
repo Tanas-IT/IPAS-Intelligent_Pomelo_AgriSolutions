@@ -133,27 +133,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllCropOfFarmForSelected(int farmId, string? searchValue)
+        public async Task<BusinessResult> getAllCropOfFarmForSelected(int cropid, string? searchValue)
         {
             try
             {
-                if (farmId <= 0)
+                if (cropid <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId && x.EndDate >= DateTime.Now;
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.CropID == cropid && x.Crop.EndDate >= DateTime.Now;
                 if (!string.IsNullOrEmpty(searchValue))
                 {
-                    filter = filter.And(x => x.CropName!.ToLower().Contains(searchValue.ToLower()));
+                    filter = filter.And(x => x.Crop.CropName!.ToLower().Contains(searchValue.ToLower()));
                 }
                 Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
-                var landPlotCrops = await _unitOfWork.CropRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                string includeProperties = "Crop";
+                var landPlotCrops = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
                 if (!landPlotCrops.Any())
                     return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
-                var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
+                var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops.Select(x => x.Crop));
                 foreach (var item in mappedResult)
                 {
                     item.HarvestHistories = null!;
                     item.LandPlotCrops = null!;
                 }
+                mappedResult.OrderBy(x => x.CropId).GroupBy(x => x.CropId);
                 return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
             }
             catch (Exception ex)

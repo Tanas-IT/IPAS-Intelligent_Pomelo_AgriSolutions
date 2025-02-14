@@ -33,7 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
-                .Where(p => p.LandRow != null && p.LandRow.LandPlot!.FarmId == farmId)
+                .Where(p => p.LandRow != null && p.LandRow.LandPlot!.FarmId == farmId && p.IsDeleted == false)
                 .AsQueryable();
 
             // search
@@ -91,7 +91,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
-                .Where(p => p.LandRow != null && p.LandRow.LandPlotId == landPlotId)
+                .Where(p => p.LandRow != null && p.LandRow.LandPlotId == landPlotId && p.IsDeleted == false)
                 .AsQueryable();
 
             // search
@@ -145,7 +145,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
              .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
-            .FirstOrDefaultAsync(p => p.PlantId == plantId);
+            .FirstOrDefaultAsync(p => p.PlantId == plantId && p.IsDeleted == false);
         }
     }
 }

@@ -342,6 +342,23 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_CROP_EMPTY_MSG = "No crop was found";
         public static string SUCCESS_GET_ALL_CROP_FOUND_MSG = "Get all crop of landplot success.";
         #endregion
+
+        #region Harvest
+        public static int SUCCESS_GET_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_HISTORY_MSG = "Get harvest by id success";
+        public static int SUCCESS_GET_ALL_HARVEST_HISTORY_WITH_PAGIN_CODE = 200;
+        public static string SUCCESS_GET_ALL_HARVEST_HISTORY_WITH_PAGIN_EMPTY_CODE = "Get all harvest empty";
+        public static int SUCCESS_GET_HARVEST_HISTORY_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_HARVEST_HISTORY_MSG = "Get all pagination harvest success";
+        public static int SUCCESS_CREATE_HARVEST_HISTORY_CODE = 201;
+        public static string SUCCESS_CREATE_HARVEST_HISTORY_MSG = "Create harvest success";
+        public static int SUCCESS_UPDATE_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_UPDATE_HARVEST_HISTORY_MSG = "Update harvest success";
+        public static int SUCCESS_DELETE_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_DELETE_HARVEST_HISTORY_MSG = "Delete harvest success";
+        public static int SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_MSG = "Get all product need harvest success";
+        #endregion
         #endregion
 
         #region FAIL
@@ -585,6 +602,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_CROP_OF_FARM_CODE = 400;
         public static string FAIL_GET_CROP_OF_FARM_MSG = "Get crop of farm fail";
         #endregion
+
+        #region Harvest
+        public static int FAIL_CREATE_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_CREATE_HARVEST_HISTORY_MSG = "Create harvest have server error";
+        public static int FAIL_UPDATE_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_UPDATE_HARVEST_HISTORY_MSG = "Harvest Update fail";
+        public static int FAIL_UPDATE_HARVEST_HISTORY_COORDINATION_CODE = 400;
+        public static string FAIL_UPDATE_HARVEST_HISTORY_COORDINATION_MSG = "Harvest update fail";
+        public static int FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_MSG = "Delete harvest permanent fail";
+        public static int FAIL_DELETE_SOFTED_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_DELETE_SOFTED_HARVEST_HISTORY_MSG = "Delete harvest softed fail";
+        #endregion
         #endregion
 
         #region WARNING
@@ -730,6 +760,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_USER_CONFLICT_SCHEDULE_CODE = 400;
         public static string WARNING_USER_CONFLICT_SCHEDULE_MSG = "User conflict schedule. Please select another time";
         #endregion
+
         #region Legal Document 
         public static int WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE = 400;
         public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
@@ -748,6 +779,23 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
         public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
+        #endregion
+
+        #region Harvest
+        public static int WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE = 400;
+        public static string WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG = "Your farm have no product to harvest, please create product in category";
+        public static int WARNING_HARVEST_MUST_IN_CROP_CODE = 400;
+        public static string WARNING_HARVEST_MUST_IN_CROP_MSG = "You must choose crop. Please try again";
+        public static int WARNING_HARVEST_DATE_IN_PAST_CODE = 400;
+        public static string WARNING_HARVEST_DATE_IN_PAST_MSG = "Your harvest date in past. Please try again";
+        public static int WARNING_HARVEST_TYPE_HISTORY_EMPTY_CODE = 400;
+        public static string WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG = "This harvest is empty";
+        public static int WARNING_HARVEST_NOT_EXIST_CODE = 400;
+        public static string WARNING_HARVEST_NOT_EXIST_MSG = "This harvest is empty";
+        public static int WARNING_GET_HARVEST_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_HARVEST_NOT_EXIST_MSG = "Harvest not exist";
+        public static int WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE = 400;
+        public static string WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG = "your product type not suitable";
         #endregion
         #endregion
     }

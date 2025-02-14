@@ -5,11 +5,13 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 
 public partial class HarvestTypeHistory
 {
+    public int HarvestTypeHistoryId { get; set; }
+
     public int MasterTypeId { get; set; }
 
     public int? PlantId { get; set; }
 
-    public int? Unit { get; set; }
+    public string? Unit { get; set; }
 
     public double? Price { get; set; }
 

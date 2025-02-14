@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
@@ -30,8 +31,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public string? MasterTypeName { get; set; }
 
         public string? GrowthStageName { get; set; }
-
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<SubProcessInProcessModel>? SubProcesses { get; set; } = new List<SubProcessInProcessModel>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<ProcessDataInProcessModel>? ListProcessData { get; set; } = new List<ProcessDataInProcessModel>();
     }
 }

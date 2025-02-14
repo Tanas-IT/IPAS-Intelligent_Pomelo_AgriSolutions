@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
@@ -11,23 +12,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CropController : ControllerBase
+    public class HarvestController : ControllerBase
     {
-        private readonly ICropService _cropService;
-        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IHarvestHistoryService _harvestHistoryService;
 
-        public CropController(ICropService cropService, IJwtTokenService jwtTokenService)
+        public HarvestController(IHarvestHistoryService harvestHistoryService)
         {
-            _cropService = cropService;
-            _jwtTokenService = jwtTokenService;
+            _harvestHistoryService = harvestHistoryService;
         }
 
-        [HttpGet(APIRoutes.Crop.getCropById + "/{crop-id}", Name = "getCropById")]
-        public async Task<IActionResult> GetCropByIdAsync([FromRoute(Name = "crop-id")] int cropId)
+        [HttpGet(APIRoutes.Harvest.getHarvestById + "/{harvest-id}", Name = "getHarvestById")]
+        public async Task<IActionResult> GetCropByIdAsync([FromRoute(Name = "harvest-id")] int harvestId)
         {
             try
             {
-                var result = await _cropService.getCrop(cropId);
+                var result = await _harvestHistoryService.getHarvestById(harvestId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -41,16 +40,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropOfFarm , Name = "getAllCropsOfFarm")]
-        public async Task<IActionResult> GetAllCropsOfFarmAsync([FromQuery] int? farmId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
+        [HttpGet(APIRoutes.Harvest.getAllHarvestPagin, Name = "getAllHarvestOfCrop")]
+        public async Task<IActionResult> GetAllCropsOfFarmAsync([FromQuery] int cropId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] HarvestFilter harvestFilter)
         {
             try
             {
-                if (!farmId.HasValue)
-                {
-                    farmId = _jwtTokenService.GetFarmIdFromToken();
-                }
-                var result = await _cropService.getAllCropOfFarm(farmId!.Value, paginationParameter, cropFilter);
+                var result = await _harvestHistoryService.getHarvestHistoryByCrop(cropId: cropId, paginationParameter:paginationParameter, filter: harvestFilter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -64,12 +59,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlot, Name = "getAllCropsOfLandPlot")]
-        public async Task<IActionResult> GetAllCropsOfLandPlotAsync([FromQuery] int? landPlotId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
+        [HttpGet(APIRoutes.Harvest.getPlantsHasHarvest , Name = "getDetailOfHarvest")]
+        public async Task<IActionResult> GetDetailOfHarvestAsync([FromQuery] int harvestId, int masterTypeId)
         {
             try
             {
-                var result = await _cropService.getAllCropOfLandPlot(landPlotId!.Value, paginationParameter, cropFilter);
+                var result = await _harvestHistoryService.getAllHistoryPlantOfHarvest(harvestId, masterTypeId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -83,16 +78,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlotForSelect , Name = "getAllCropsOfLandPlotForSelect")]
-        public async Task<IActionResult> GetAllCropsOfLandPlotForSelectAsync([FromQuery] int? landplotId, string? searchValue)
+        [HttpPost(APIRoutes.Harvest.createHarvest, Name = "createHarvest")]
+        public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest)
         {
             try
             {
-                if (!landplotId.HasValue)
-                {
-                    landplotId = _jwtTokenService.GetFarmIdFromToken();
-                }
-                var result = await _cropService.getAllCropOfFarmForSelected(landplotId!.Value, searchValue);
+                var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -106,12 +97,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.Crop.createCrop, Name = "createCrop")]
-        public async Task<IActionResult> CreateCropAsync([FromBody] CropCreateRequest cropCreateRequest)
+        [HttpPost(APIRoutes.Harvest.createHarvesTypeHistory, Name = "createHarvesTypeHistory")]
+        public async Task<IActionResult> createHarvesTypeHistory([FromBody] CreateHarvestTypeHistoryRequest harvestTypeCreateRequest)
         {
             try
             {
-                var result = await _cropService.createCrop(cropCreateRequest);
+                var result = await _harvestHistoryService.createHarvesTypeHistory(harvestTypeCreateRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -125,12 +116,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.Crop.updateCropInfo, Name = "updateCrop")]
-        public async Task<IActionResult> UpdateCropAsync([FromBody] CropUpdateInfoRequest cropUpdateRequest)
+        [HttpPut(APIRoutes.Harvest.updateHarvestInfo, Name = "updateHarvestAsync")]
+        public async Task<IActionResult> UpdateHarvestAsync([FromBody] UpdateHarvestHistoryRequest harvestUpdateRequest)
         {
             try
             {
-                var result = await _cropService.updateCrop(cropUpdateRequest);
+                var result = await _harvestHistoryService.updateHarvestHistoryInfo(harvestUpdateRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -144,12 +135,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Crop.deleteSoftedCrop + "/{crop-id}", Name = "softDeleteCrop")]
-        public async Task<IActionResult> SoftDeleteCropAsync([FromRoute(Name = "crop-id")] int cropId)
+        [HttpPut(APIRoutes.Harvest.updateHarvestTypeInfo, Name = "updateHarvestTypeInfo")]
+        public async Task<IActionResult> updateHarvestTypeInfo([FromBody] UpdateHarvesTypeHistoryRequest harvestTypeUpdateRequest)
         {
             try
             {
-                var result = await _cropService.softedDeleteCrop(cropId);
+                var result = await _harvestHistoryService.updateHarvesTypeHistory(harvestTypeUpdateRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -163,12 +154,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Crop.deletePanentlyCrop + "/{crop-id}", Name = "permanentDeleteCrop")]
-        public async Task<IActionResult> PermanentDeleteCropAsync([FromRoute(Name = "crop-id")] int cropId)
+        [HttpDelete(APIRoutes.Harvest.deletePermanentlyHarvest + "/{harvest-id}", Name = "deletePermanentlyHarvest")]
+        public async Task<IActionResult> SoftDeleteHarvestAsync([FromRoute(Name = "harvest-id")] int harvestId)
         {
             try
             {
-                var result = await _cropService.permanentlyDeleteCrop(cropId);
+                var result = await _harvestHistoryService.deleteHarvestHistory(harvestId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.Harvest.deleteHarvestType, Name = "deleteHarvestType")]
+        public async Task<IActionResult> deleteHarvestTypeAsync([FromQuery] int harvestId, int masterTypeId, int? plantId)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.deleteHarvestType(harvestId,masterTypeId, plantId);
                 return Ok(result);
             }
             catch (Exception ex)

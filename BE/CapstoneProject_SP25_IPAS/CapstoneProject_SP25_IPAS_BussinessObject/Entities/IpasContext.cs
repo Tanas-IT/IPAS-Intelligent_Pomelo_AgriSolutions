@@ -442,7 +442,7 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<HarvestTypeHistory>(entity =>
         {
-            entity.HasKey(e => new { e.MasterTypeId, e.HarvestHistoryId }).HasName("PK__HarvestT__23D39827305ED593");
+            entity.HasKey(e => new { e.HarvestTypeHistoryId }).HasName("PK__HarvestT__CAE5744A780B99C5");
 
             entity.ToTable("HarvestTypeHistory");
 
