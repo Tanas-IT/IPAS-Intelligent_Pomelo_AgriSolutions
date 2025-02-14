@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public int PlanId { get; set; }
 
         public string? Status { get; set; }
+        public string? PlanName { get; set; }
 
         public string? PlanCode { get; set; }
 
@@ -55,5 +58,15 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
 
         public string? MasterTypeName { get; set; }
+        public string? AssignedTo { get; set; }
+        public string? AvatarOfAssignor { get; set; }
+        public List<ReporterModel>? ListReporter { get; set; }
+        public string? DayOfWeek { get; set; }
+        public string? DayOfMonth { get; set; }
+        public string? CustomDates { get; set; }
+        public TimeSpan? StarTime { get; set; }
+
+        public TimeSpan? EndTime { get; set; }
+        public List<WorkLogInPlanModel>? ListWorkLog { get; set; }
     }
 }

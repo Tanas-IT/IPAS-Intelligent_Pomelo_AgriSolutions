@@ -37,5 +37,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.UserWorkLog.CheckConflictByStartDateAndEndDate, Name = "CheckConflictByStartDateAndEndDate")]
+        public async Task<IActionResult> CheckConflictSchedule([FromBody] CheckConflictScheduleByStartDateAndEndDateModel checkConflictScheduleByStartDateAndEndDateModel)
+        {
+            try
+            {
+                var result = await _userWorkLogService.CheckUserConflictByStartDateAndEndDate(checkConflictScheduleByStartDateAndEndDateModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

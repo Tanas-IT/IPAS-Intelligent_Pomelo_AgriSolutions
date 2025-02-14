@@ -25,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var crop = await _context.Crops
                 .Include(x => x.LandPlotCrops)
                 .Include(x => x.Plans)
-                .ThenInclude(x => x.CarePlanSchedules)
+                .ThenInclude(x => x.CarePlanSchedule)
                 .ThenInclude(x => x.WorkLogs)
                 .ThenInclude(x => x.UserWorkLogs)
                 .Include(x => x.HarvestHistories)

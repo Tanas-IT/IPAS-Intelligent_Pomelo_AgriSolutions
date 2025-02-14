@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using MailKit.Search;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -80,6 +81,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_PLAN_CODE, Const.FAIL_CREATE_PLAN_MESSAGE, false);
                     }
                 }
@@ -153,33 +155,101 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 if (planFilter.isActive != null)
+                {
                     filter = filter.And(x => x.IsActive == planFilter.isActive);
+
+                }
                 if (planFilter.isDelete != null)
                     filter = filter.And(x => x.IsDelete == planFilter.isDelete);
                 if (planFilter.ResponsibleBy != null)
                 {
-                    filter = filter.And(x => x.ResponsibleBy.Contains(planFilter.ResponsibleBy));
+                    List<string> filterList = planFilter.ResponsibleBy.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.ResponsibleBy.ToLower().Equals(item));
+                    }
                 }
                 if (planFilter.Status != null)
                 {
-                    filter = filter.And(x => x.Status.Contains(planFilter.Status));
+                    List<string> filterList = planFilter.Status.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Status.ToLower().Equals(item));
+                    }
                 }
 
                 if (planFilter.CropName != null)
                 {
-                    filter = filter.And(x => x.Crop.CropName.Contains(planFilter.CropName));
+                    List<string> filterList = planFilter.CropName.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Crop.CropName.ToLower().Equals(item));
+                    }
                 }
                 if (planFilter.PlanDetail != null)
                 {
-                    filter = filter.And(x => x.PlanDetail.Contains(planFilter.PlanDetail));
+                    List<string> filterList = planFilter.PlanDetail.Split(',', StringSplitOptions.TrimEntries)
+                                  .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                  .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.PlanDetail.ToLower().Contains(item));
+                    }
                 }
                 if (planFilter.AssignorName != null)
                 {
-                    filter = filter.And(x => x.User.FullName.Contains(planFilter.AssignorName));
+                    List<string> filterList = planFilter.AssignorName.Split(',', StringSplitOptions.TrimEntries)
+                                 .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                 .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.User.FullName.ToLower().Equals(item));
+                    }
                 }
                 if (planFilter.PlanName != null)
                 {
-                    filter = filter.And(x => x.PlanName.Contains(planFilter.PlanName));
+                    List<string> filterList = planFilter.PlanName.Split(',', StringSplitOptions.TrimEntries)
+                                .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.PlanName.ToLower().Equals(item));
+                    }
+                }
+
+                if (planFilter.GrowStages != null)
+                {
+                    List<string> filterList = planFilter.GrowStages.Split(',', StringSplitOptions.TrimEntries)
+                                .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.GrowthStage.GrowthStageName.ToLower().Equals(item));
+                    }
+                }
+                if (planFilter.ProcessTypes != null)
+                {
+                    List<string> filterList = planFilter.ProcessTypes.Split(',', StringSplitOptions.TrimEntries)
+                                .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Process.MasterType.MasterTypeName.ToLower().Equals(item));
+                    }
                 }
 
                 switch (paginationParameter.SortBy)
@@ -338,8 +408,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderBy(x => x.ProcessId);
                         break;
                 }
-                string includeProperties = "LandPlot,PlantLot,MasterType,Process,GrowthStage,User,Crop,Plant";
-                var entities = await _unitOfWork.PlanRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count();
@@ -364,7 +433,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "User,MasterType,LandPlot,PlantLot,Process,GrowthStage,Crop,Plant,GraftedPlant");
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
+                var getPlan = entities.FirstOrDefault(x => x.PlanId == planId);
                 if (getPlan != null)
                 {
                     var result = _mapper.Map<PlanModel>(getPlan);
@@ -383,7 +453,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanName.ToLower().Contains(planName.ToLower()), "User,MasterType,LandPlot,PlantLot,Process,GrowthStage,Crop,Plant,GraftedPlant");
+
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
+                var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()));
                 if (getPlan != null)
                 {
                     var result = _mapper.Map<PlanModel>(getPlan);
@@ -404,13 +476,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string includeProperties = "CarePlanSchedules";
                 var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
-                var deleteListCarePlanSchedule = deletePlan.CarePlanSchedules.ToList();
-                foreach (var deleteCarePlanSchedule in deleteListCarePlanSchedule)
+                var deleteCarePlanSchedule = deletePlan.CarePlanSchedule;
+                if (deleteCarePlanSchedule != null)
                 {
                     var getListWorkLogDelete = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(deleteCarePlanSchedule.ScheduleId);
                     foreach (var workLog in getListWorkLogDelete)
                     {
-                         await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
+                        await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
 
                     }
                     _unitOfWork.CarePlanScheduleRepository.Delete(deleteCarePlanSchedule);
@@ -433,7 +505,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel)
         {
-            using(var transaction = await _unitOfWork.BeginTransactionAsync())
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
@@ -559,7 +631,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
-           
+
         }
 
         private async Task<bool> GeneratePlanSchedule(Plan plan, CreatePlanModel createPlanModel)
@@ -571,7 +643,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
-            if(TimeSpan.Parse(createPlanModel.StartTime) >= TimeSpan.Parse(createPlanModel.EndTime))
+            if (TimeSpan.Parse(createPlanModel.StartTime) >= TimeSpan.Parse(createPlanModel.EndTime))
             {
                 throw new Exception("Start time must be less than End Time");
             }
@@ -581,7 +653,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 schedule = new CarePlanSchedule()
                 {
                     CarePlanId = plan.PlanId,
-                    Status = "Axtive",
+                    Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
                     CustomDates = createPlanModel.CustomDates.ToString(),
@@ -592,7 +664,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (customeDate >= currentDate && customeDate <= plan.EndDate)
                     {
-                        await GenerateWorkLogs(schedule, customeDate,createPlanModel);
+                        await GenerateWorkLogs(schedule, customeDate, createPlanModel);
                     }
                 }
             }
@@ -676,7 +748,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else if (plan.Frequency.ToLower() == "daily")
                 {
-                    await GenerateWorkLogs(schedule, currentDate,createPlanModel);
+                    await GenerateWorkLogs(schedule, currentDate, createPlanModel);
                     currentDate = currentDate.AddDays(1);
                 }
             }
@@ -801,7 +873,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else if (plan.Frequency.ToLower() == "daily")
                 {
-                    await GenerateWorkLogsForUpdate(schedule,currentDate, updatePlanModel);
+                    await GenerateWorkLogsForUpdate(schedule, currentDate, updatePlanModel);
                     currentDate = currentDate.AddDays(1);
                 }
             }
@@ -810,7 +882,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return true;
             }
             return false;
-            
+
         }
 
         private async Task<bool> GenerateWorkLogs(CarePlanSchedule schedule, DateTime dateWork, CreatePlanModel createPlanModel)
@@ -823,7 +895,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Pending",
+                Status = "Not Started",
                 WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
                 Date = dateWork.Date.Add(schedule.StarTime.Value),
                 IsConfirm = false,
@@ -901,7 +973,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string datePart = DateTime.Now.ToString("ddMMyyyy");
             string sequence = await GetNextSequenceNumber(); // Hàm lấy số thứ tự
             var getTypePlan = await _unitOfWork.MasterTypeRepository.GetByID(masterTypeId);
-            
+
             if (plantId == null && landPlotId != null)
             {
                 var landPlot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId.Value);
@@ -948,14 +1020,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 getPlanById.IsDelete = true;
                 getPlanById.Status = "Stopped";
-                var listSchedule = getPlanById.CarePlanSchedules.ToList();
-                foreach ( var schedule in listSchedule )
+                var schedule = getPlanById.CarePlanSchedule;
+                if(schedule != null)
                 {
                     schedule.Status = "Stopped";
                     var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
-                    foreach(var workLog in softDeleteWorkLog )
+                    foreach (var workLog in softDeleteWorkLog)
                     {
-                        if(workLog.Date > DateTime.Now)
+                        if (workLog.Date > DateTime.Now)
                         {
                             workLog.Status = "Stopped";
                         }
@@ -985,8 +1057,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 getPlanById.IsDelete = false;
                 getPlanById.Status = "Active";
-                var listSchedule = getPlanById.CarePlanSchedules.ToList();
-                foreach (var schedule in listSchedule)
+                var schedule = getPlanById.CarePlanSchedule;
+                if(schedule != null)
                 {
                     schedule.Status = "Active";
                     var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
