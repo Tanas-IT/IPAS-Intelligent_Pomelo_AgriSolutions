@@ -25,7 +25,7 @@ public partial class MasterType
 
     public bool? IsDelete { get; set; }
 
-    public virtual ICollection<Criteria> Criteria { get; set; } = new List<Criteria>();
+   public virtual ICollection<CriteriaMasterType> CriteriaMasterTypes { get; set; } = new List<CriteriaMasterType>();
 
     public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 

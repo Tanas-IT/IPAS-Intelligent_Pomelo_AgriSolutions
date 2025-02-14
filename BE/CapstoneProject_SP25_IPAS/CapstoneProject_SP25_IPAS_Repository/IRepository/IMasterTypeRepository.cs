@@ -10,5 +10,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface IMasterTypeRepository
     {
         public Task<List<MasterType>> GetMasterTypeByName(string name);
+
+        public Task<List<MasterType>> GetMasterTypesByTypeName(string name);
+
+        public Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName);
     }
 }

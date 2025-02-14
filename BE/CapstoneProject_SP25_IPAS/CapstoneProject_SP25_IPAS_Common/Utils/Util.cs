@@ -23,5 +23,17 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
 
             return dateTimeInterval;
         }
+
+        public static List<string> SplitByComma(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return new List<string>(); 
+            }
+
+            return input.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim()) 
+                        .ToList();
+        }
     }
 }

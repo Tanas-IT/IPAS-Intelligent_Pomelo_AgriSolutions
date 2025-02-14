@@ -9,16 +9,16 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail
 {
     public class MasterTypeDetailFilter
     {
-        [FromQuery(Name = "filter-master-type-detail-name")]
+        [FromQuery(Name = "masterTypeDetailName")]
         public string? MasterTypeDetailName { get; set; }
-        [FromQuery(Name = "filter-master-type-name")]
+        [FromQuery(Name = "masterTypeName")]
         public string? MasterTypeName { get; set; }
         public string? Value { get; set; }
-        [FromQuery(Name = "filter-type-of-value")]
+        [FromQuery(Name = "typeOfValue")]
         public string? TypeOfValue { get; set; }
-        [FromQuery(Name = "filter-foreign-key-id")]
+        [FromQuery(Name = "foreignKeyId")]
         public int? ForeignKeyId { get; set; }
-        [FromQuery(Name = "filter-foreign-table")]
+        [FromQuery(Name = "foreignTable")]
         public string? ForeignTable { get; set; }
     }
 }

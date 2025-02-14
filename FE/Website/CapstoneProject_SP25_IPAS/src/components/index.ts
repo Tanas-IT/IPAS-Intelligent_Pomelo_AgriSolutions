@@ -37,3 +37,4 @@ export { default as MapAddress } from "@/components/UI/MapAddress/MapAddress";
 export { default as MapLandPlot } from "@/components/UI/MapLandPlot/MapLandPlot";
 export { default as ModalForm } from "@/components/UI/ModalForm/ModalForm";
 export { default as ConfirmModal } from "@/components/UI/ConfirmModal/ConfirmModal";
+export { default as TimePickerInfo } from "@/components/UI/FormField/TimePicker/TimePicker";

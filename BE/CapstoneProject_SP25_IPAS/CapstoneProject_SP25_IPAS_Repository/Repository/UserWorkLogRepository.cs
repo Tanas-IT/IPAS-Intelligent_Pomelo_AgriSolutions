@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,22 +20,48 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
+        public async Task<bool> CheckUserConflictByStartDateAndEndDate(int userId, TimeSpan startTime, TimeSpan endTime, DateTime startDate, DateTime endDate)
+        {
+            return await _context.UserWorkLogs
+                                .Include(uwl => uwl.WorkLog)
+                                .ThenInclude(wl => wl.Schedule)
+                                .AnyAsync(uwl =>
+                                    uwl.UserId == userId &&
+                                    _context.Plans.Any(p =>
+                                        p.StartDate <= endDate &&  // Kế hoạch bắt đầu trước hoặc trong khoảng thời gian kiểm tra
+                                        p.EndDate >= startDate     // Kế hoạch kết thúc sau hoặc trong khoảng thời gian kiểm tra
+                                    ) &&
+                                    (
+                                        // TH1: Công việc trong cùng một ngày
+                                        (uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
+                                         startTime < uwl.WorkLog.Schedule.EndTime &&
+                                         endTime > uwl.WorkLog.Schedule.StarTime)
+
+                                        // TH2: Công việc kéo dài qua ngày mới
+                                        || (uwl.WorkLog.Schedule.StarTime > uwl.WorkLog.Schedule.EndTime &&
+                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StarTime))
+                                    )
+                                );
+        }
+
         public async Task<bool> CheckUserConflictByStartTimeSchedule(int userId, TimeSpan startTime, TimeSpan endTime, DateTime dateCheck)
         {
-           
-                bool isConflicted = await _context.UserWorkLogs
-                                            .Include(uwl => uwl.WorkLog)
-                                            .ThenInclude(wl => wl.Schedule)
-                                            .AnyAsync(uwl =>
-                                                uwl.UserId == userId &&
-                                                uwl.WorkLog.Date.Value.Date == dateCheck.Date && // Chỉ kiểm tra trong ngày
-                                                (
-                                                    // TH1: Công việc diễn ra trong cùng một ngày (không qua ngày mới)
-                                                    uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
-                                                    startTime < uwl.WorkLog.Schedule.EndTime &&
-                                                    endTime > uwl.WorkLog.Schedule.StarTime
-                                                )
-                                            );
+
+            bool isConflicted = await _context.UserWorkLogs
+                                        .Include(uwl => uwl.WorkLog)
+                                        .ThenInclude(wl => wl.Schedule)
+                                        .AnyAsync(uwl =>
+                                            uwl.UserId == userId &&
+                                            uwl.WorkLog.Date.Value.Date == dateCheck.Date && // Chỉ kiểm tra trong ngày
+                                            (
+                                                uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
+                                                startTime < uwl.WorkLog.Schedule.EndTime &&
+                                                endTime > uwl.WorkLog.Schedule.StarTime
+                                                ||
+                                           (uwl.WorkLog.Schedule.StarTime > uwl.WorkLog.Schedule.EndTime &&
+                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StarTime))
+                                            )
+                                        );
             return isConflicted;
         }
 
@@ -45,7 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(uwl => uwl.Schedule)
                         .AnyAsync(uwl => uwl.UserId == userId &&
                                      EF.Functions.DateDiffDay(uwl.WorkLog.Date, workLog.Date) == 0 &&
-                                    !(checkTimeSchedule.EndTime < uwl.WorkLog.Schedule.StarTime || 
+                                    !(checkTimeSchedule.EndTime < uwl.WorkLog.Schedule.StarTime ||
                                       checkTimeSchedule.StarTime > uwl.WorkLog.Schedule.EndTime));
             return isConflicted;
         }

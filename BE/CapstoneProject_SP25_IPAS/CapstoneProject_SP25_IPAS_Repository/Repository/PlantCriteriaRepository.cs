@@ -22,7 +22,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var plantCriteria = await _context.PlantCriteria
                 .Include(x => x.Criteria)
-                .ThenInclude(x => x.MasterType)
+               // .ThenInclude(x => x.MasterType)
                 .Where(x => x.PlantId == plantId)
                 .ToListAsync();
             return plantCriteria;

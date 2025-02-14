@@ -20,6 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region SUCCESS
+
         #region UserService
         public static int SUCCESS_LOGIN_CODE = 200;
         public static string SUCCESS_LOGIN_MSG = "Login Successfully";
@@ -72,6 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_UPDATE_TOKEN_CODE = 200;
         public static string SUCCESS_UPDATE_TOKEN_MESSAGE = "Update token success";
         #endregion
+
         #region PlantLotService code
         public static int SUCCESS_GET_PLANT_LOT_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PLANT_LOT_BY_ID_MESSAGE = "Get plant lot by id success";
@@ -86,6 +88,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_MANY_PLANT_FROM_PLANT_LOT_CODE = 200;
         public static string SUCCESS_CREATE_MANY_PLANT_FROM_PLANT_LOT_MESSAGE = "Create many plant from plant lot success";
         #endregion
+
         #region FarmService code
         public static int SUCCESS_GET_FARM_CODE = 200;
         public static string SUCCESS_FARM_GET_MSG = "Get farm by id success";
@@ -109,6 +112,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_UPDATE_FARM_LOGO_CODE = 200;
         public static string SUCCESS_UPDATE_FARM_LOGO_MSG = "Update farm success";
         #endregion
+
         #region MasterType code
         public static int SUCCESS_GET_MASTER_TYPE_BY_ID_CODE = 200;
         public static string SUCCESS_GET_MASTER_TYPE_BY_ID_MESSAGE = "Get master type by id success";
@@ -123,6 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_MASTER_TYPE_CODE = 200;
         public static string SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE = "Get all master type success";
         #endregion
+
         #region MasterTypeDetail code
         public static int SUCCESS_GET_MASTER_TYPE_DETAIL_BY_ID_CODE = 200;
         public static string SUCCESS_GET_MASTER_TYPE_DETAIL_BY_ID_MESSAGE = "Get master type detail by id success";
@@ -137,6 +142,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_MASTER_TYPE_DETAIL_CODE = 200;
         public static string SUCCESS_GET_ALL_MASTER_TYPE_DETAIL_MESSAGE = "Get all master type detail success";
         #endregion
+
         #region Criteria
         public static int SUCCESS_UPDATE_CRITERIA_CODE = 200;
         public static string SUCCESS_UPDATE_CRITERIA_MSG = "Update criteria success";
@@ -145,6 +151,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_CRITERIA_BY_ID_CODE = 200;
         public static string SUCCESS_GET_CRITERIA_BY_ID_MSG = "Get criteria by id success";
         #endregion
+
         #region Plant-Criteria
         public static int SUCCESS_APPLY_LIST_CRITERIA_PLANTS_CODE = 200;
         public static string SUCCESS_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
@@ -153,6 +160,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCES_GET_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_GET_PLANT_CRITERIA_MSG = "Get criteria of plant success";
         #endregion
+
         #region landplot
         public static int SUCCESS_GET_ALL_LANDPLOT_IN_FARM_CODE = 200;
         public static string SUCCESS_GET_ALL_LANDPLOT_IN_FARM_MSG = "Get all landplot of farm success";
@@ -163,6 +171,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_LANDPLOT_CODE = 201;
         public static string SUCCESS_CREATE_LANDPLOT_MSG = "Create landplot success";
         #endregion
+
         #region Partner code
         public static int SUCCESS_GET_PARTNER_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PARTNER_BY_ID_MESSAGE = "Get partner by id success";
@@ -177,6 +186,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_PARTNER_CODE = 200;
         public static string SUCCESS_GET_ALL_PARTNER_MESSAGE = "Get all partner success";
         #endregion
+
         #region GrowthStage code
         public static int SUCCESS_GET_GROWTHSTAGE_BY_ID_CODE = 200;
         public static string SUCCESS_GET_GROWTHSTAGE_BY_ID_MESSAGE = "Get GrowthStage by id success";
@@ -189,6 +199,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_GROWTHSTAGE_CODE = 200;
         public static string SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE = "Get all GrowthStage success";
         #endregion
+
         #region ProcessStyle code
         public static int SUCCESS_GET_PROCESS_STYLE_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PROCESS_STYLE_BY_ID_MESSAGE = "Get process style by id success";
@@ -201,6 +212,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_PROCESS_STYLE_CODE = 200;
         public static string SUCCESS_GET_ALL_PROCESS_STYLE_MESSAGE = "Get all process style success";
         #endregion
+
         #region Process code
         public static int SUCCESS_GET_PROCESS_BY_ID_CODE = 200;
         public static string SUCCESS_GET_PROCESS_BY_ID_MESSAGE = "Get process by id success";
@@ -219,6 +231,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_SOFT_DELETE_PROCESS_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_PROCESS_MESSAGE = "Soft delete process success";
         #endregion
+
         #region SubProcess code
         public static int SUCCESS_GET_SUB_PROCESS_BY_ID_CODE = 200;
         public static string SUCCESS_GET_SUB_PROCESS_BY_ID_MESSAGE = "Get sub process by id success";
@@ -237,6 +250,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_SOFT_DELETE_SUB_PROCESS_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_SUB_PROCESS_MESSAGE = "Soft delete sub process success";
         #endregion
+
         #region Land Row
         public static int SUCCESS_CREATE_ONE_LANDROW_OF_FARM_CODE = 200;
         public static string SUCCESS_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create one landrow success";
@@ -250,6 +264,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ROWS_SUCCESS_MSG = "Get rows success";
         public static string SUCCESS_GET_ROWS_EMPTY_MSG = "No resource was found";
         #endregion
+
         #region Plant
         public static int SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE = 200;
         public static string SUCCESS_GET_PLANT_IN_FARM_PAGINATION_MSG = "Get plant in farm success.";
@@ -266,6 +281,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_PLANT_CODE = 200;
         public static string SUCCESS_CREATE_PLANT_MSG = "Create plant success";
         #endregion
+
         #region PlantGrowthHistory
         public static int SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE = 200;
         public static string SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG = "Get all plant growth history success";
@@ -280,6 +296,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_PLANT_GROWTH_CODE = 200;
         public static string SUCCESS_CREATE_PLANT_GROWTH_MSG = "Create plant growth success";
         #endregion
+
         #region Plan
         public static int SUCCESS_GET_ALL_PLAN_CODE = 200;
         public static string SUCCESS_GET_ALL_PLAN_MSG = "Get all plan success";
@@ -311,6 +328,22 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_CREATE_USER_WORK_LOG_CODE = 200;
         public static string SUCCESS_CREATE_USER_WORK_LOG_MSG = "Create user work log success";
         #endregion
+
+        #region WorkLog
+        public static int SUCCESS_GET_ALL_WORK_LOG_CODE = 200;
+        public static string SUCCESS_GET_ALL_WORK_LOG_MSG = "Get all work log success";
+        public static int SUCCESS_GET_WORK_LOG_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_WORK_LOG_BY_ID_MSG = "Get work log by id success";
+        public static int SUCCESS_UPDATE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_UPDATE_WORK_LOG_MSG = "Update work log success";
+        public static int SUCCESS_DELETE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_DELETE_WORK_LOG_MSG = "Delete work log success";
+        public static int SUCCESS_CREATE_WORK_LOG_CODE = 200;
+        public static string SUCCESS_CREATE_WORK_LOG_MSG = "Create work log success";
+        public static int SUCCESS_ASSIGN_TASK_CODE = 200;
+        public static string SUCCESS_ASSIGN_TASK_MSG = "Assign task success";
+        #endregion
+
         #region Legal Document
         public static int SUCCESS_CREATE_LEGAL_DOCUMENT_CODE = 200;
         public static string SUCCESS_CREATE_LEGAL_DOCUMENT_MSG = "Create document success";
@@ -323,6 +356,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_CODE = 200;
         public static string SUCCESS_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm success";
         #endregion
+
         #region Crop
         public static int SUCCESS_GET_CROP_CODE = 200;
         public static string SUCCESS_GET_CROP_BY_ID_MSG = "Get crop by id success";
@@ -342,6 +376,48 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_CROP_EMPTY_MSG = "No crop was found";
         public static string SUCCESS_GET_ALL_CROP_FOUND_MSG = "Get all crop of landplot success.";
         #endregion
+
+        #region Harvest
+        public static int SUCCESS_GET_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_HISTORY_MSG = "Get harvest by id success";
+        public static int SUCCESS_GET_ALL_HARVEST_HISTORY_WITH_PAGIN_CODE = 200;
+        public static string SUCCESS_GET_ALL_HARVEST_HISTORY_WITH_PAGIN_EMPTY_CODE = "Get all harvest empty";
+        public static int SUCCESS_GET_HARVEST_HISTORY_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_HARVEST_HISTORY_MSG = "Get all pagination harvest success";
+        public static int SUCCESS_CREATE_HARVEST_HISTORY_CODE = 201;
+        public static string SUCCESS_CREATE_HARVEST_HISTORY_MSG = "Create harvest success";
+        public static int SUCCESS_UPDATE_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_UPDATE_HARVEST_HISTORY_MSG = "Update harvest success";
+        public static int SUCCESS_DELETE_HARVEST_HISTORY_CODE = 200;
+        public static string SUCCESS_DELETE_HARVEST_HISTORY_MSG = "Delete harvest success";
+        public static int SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_MSG = "Get all product need harvest success";
+        #endregion
+
+        #region Task Feedback
+        public static int SUCCESS_GET_ALL_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_GET_ALL_TASK_FEEDBACK_MSG = "Get all task feedback success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_ID_MSG = "Get task feedback by id success";
+        public static int SUCCESS_UPDATE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_UPDATE_TASK_FEEDBACK_MSG = "Update task feedback success";
+        public static int SUCCESS_DELETE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_DELETE_TASK_FEEDBACK_MSG = "Delete task feedback success";
+        public static int SUCCESS_CREATE_TASK_FEEDBACK_CODE = 200;
+        public static string SUCCESS_CREATE_TASK_FEEDBACK_MSG = "Create task feedback success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_MANAGER_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_MANAGER_ID_MSG = "Get task feedback by manager id success";
+        public static int SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
+        public static string SUCCESS_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id success";
+        #endregion
+
+        #region Schedule
+        public static int SUCCESS_GET_ALL_SCHEDULE_CODE = 200;
+        public const string SUCCESS_GET_ALL_SCHEDULE_MSG = "Get all schedule success";
+        public static int SUCCESS_GET_CROP_CARE_REPORT_CODE = 200;
+        public static string SUCCESS_GET_CROP_CARE_REPORT_MSG = "Get crop care report success";
+        #endregion
+
         #endregion
 
         #region FAIL
@@ -461,7 +537,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_SUB_PROCESS_CODE = 500;
         public static string FAIL_GET_SUB_PROCESS_MESSAGE = "Get sub process failed";
         #endregion
-        #region
+
+        #region Criteria
         public static int FAIL_CREATE_CRITERIA_CODE = 500;
         public static string FAIL_CREATE_CRITERIA_MESSAGE = "Create criteria failed";
         public static int FAIL_GET_CRITERIA_BY_ID_CODE = 500;
@@ -469,6 +546,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_UPDATE_CRITERIA_CODE = 500;
         public static string FAIL_UPDATE_CRITERIA_MSG = "Update criteria type failed";
         #endregion
+
         #region Plant-Criteria Fail code
         public static int FAIL_PLANTS_REQUEST_EMPTY_CODE = 500;
         public static string FAIL_PLANT_REQUEST_EMPTY_MSG = "You not select any plant";
@@ -477,6 +555,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_APPLY_LIST_CRITERIA_PLANTS_CODE = 500;
         public static string FAIL_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
         #endregion
+
         #region Farm Fail code
         public static int FAIL_CREATE_FARM_CODE = 500;
         public static string FAIL_CREATE_FARM_MSG = "Create farm have server error";
@@ -493,6 +572,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_DELETE_FARM_LANDPLOT_CODE = 500;
         public static string FAIL_DELETE_FARM_LANDPLOT_MSG = "Delete landplot of farm have server error";
         #endregion
+
         #region Partner Fail code
         public static int FAIL_CREATE_PARTNER_CODE = 500;
         public static string FAIL_CREATE_PARTNER_MESSAGE = "Create partner failed";
@@ -503,6 +583,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PARTNER_CODE = 500;
         public static string FAIL_GET_PARTNER_MESSAGE = "Get partner failed";
         #endregion
+
         #region GrowthStage Fail code
         public static int FAIL_CREATE_GROWTHSTAGE_CODE = 500;
         public static string FAIL_CREATE_GROWTHSTAGE_MESSAGE = "Create GrowthStage failed";
@@ -513,11 +594,13 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_GROWTHSTAGE_CODE = 500;
         public static string FAIL_GET_GROWTHSTAGE_MESSAGE = "Get GrowthStage failed";
         #endregion
-        #region LandRow
+
+        #region LandRow Fail code
         public static int FAIL_CREATE_ONE_LANDROW_OF_FARM_CODE = 400;
         public static string FAIL_CREATE_ONE_LANDROW_OF_FARM_MSG = "Create landrow fail, please try again";
         #endregion
-        #region Plant
+
+        #region Plant Fail code
         public static int FAIL_CREATE_PLANT_CODE = 400;
         public static string FAIL_CREATE_PLANT_MSG = "Create Plant fail";
         public static int FAIL_DELETE_PLANT_CODE = 400;
@@ -526,7 +609,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UPDATE_PLANT_MSG = "Update plant fail";
         #endregion
 
-        #region plant growth history
+        #region plant growth history fail code
         public static int FAIL_CREATE_PLANT_GROWTH_HISTORY_CODE = 400;
         public static string FAIL_CREATE_PLANT_GROWTH_HISTORY_MSG = "Create Plant growth history fail";
         public static int FAIL_DELETE_PLANT_GROWTH_HISTORY_CODE = 400;
@@ -560,7 +643,21 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_USER_WORK_LOG_CODE = 500;
         public static string FAIL_GET_USER_WORK_LOG_MESSAGE = "Get user work log failed";
         #endregion
-        #region Legal document
+
+        #region Work Log Fail code
+        public static int FAIL_CREATE_WORK_LOG_CODE = 500;
+        public static string FAIL_CREATE_WORK_LOG_MESSAGE = "Create work log failed";
+        public static int FAIL_UPDATE_WORK_LOG_CODE = 500;
+        public static string FAIL_UPDATE_WORK_LOG_MESSAGE = "Update work log failed";
+        public static int FAIL_DELETE_WORK_LOG_CODE = 500;
+        public static string FAIL_DELETE_WORK_LOG_MESSAGE = "Delete work log failed";
+        public static int FAIL_GET_WORK_LOG_CODE = 500;
+        public static string FAIL_GET_WORK_LOG_MESSAGE = "Get work log failed";
+        public static int FAIL_ASSIGN_TASK_CODE = 500;
+        public static string FAIL_ASSIGN_TASK_MESSAGE = "Assign task failed";
+        #endregion
+
+        #region Legal document fail code
         public static int FAIL_CREATE_LEGAL_DOCUMENT_CODE = 400;
         public static string FAIL_CREATE_LEGAL_DOCUMENT_MSG = "Create document Fail";
         public static int FAIL_UPDATE_LEGAL_DOCUMENT_CODE = 400;
@@ -573,7 +670,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_LEGAL_DOCUMENT_OF_FARM_MSG = "Get document of farm fail";
         #endregion
 
-        #region Crop
+        #region Crop fail code
         public static int FAIL_CREATE_CROP_CODE = 400;
         public static string FAIL_CREATE_CROP_MSG = "Create crop Fail";
         public static int FAIL_UPDATE_CROP_CODE = 400;
@@ -585,6 +682,47 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_CROP_OF_FARM_CODE = 400;
         public static string FAIL_GET_CROP_OF_FARM_MSG = "Get crop of farm fail";
         #endregion
+
+        #region Report fail code
+        public static int FAIL_GET_CROP_CARE_REPORT_CODE = 500;
+        public static string FAIL_GET_CROP_CARE_REPORT_MSG = "Get crop care report fail";
+        #endregion
+
+        #region Task Feedback fail code
+        public static int FAIL_GET_ALL_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_GET_ALL_TASK_FEEDBACK_MSG = "Get all task feedback failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_ID_CODE = 500;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_ID_MSG = "Get task feedback by id failed";
+        public static int FAIL_UPDATE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_UPDATE_TASK_FEEDBACK_MSG = "Update task feedback failed";
+        public static int FAIL_DELETE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_DELETE_TASK_FEEDBACK_MSG = "Delete task feedback failed";
+        public static int FAIL_CREATE_TASK_FEEDBACK_CODE = 500;
+        public static string FAIL_CREATE_TASK_FEEDBACK_MSG = "Create task feedback failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_MANAGER_ID_CODE = 500;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_MANAGER_ID_MSG = "Get task feedback by manager id failed";
+        public static int FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_CODE = 200;
+        public static string FAIL_GET_TASK_FEEDBACK_BY_WORK_LOG_ID_MSG = "Get task feedback by work log id failed";
+        #endregion
+
+        #region Schedule fail code
+        public static int FAIL_GET_ALL_SCHEDULE_CODE = 500;
+        public const string FAIL_GET_ALL_SCHEDULE_MSG = "Get all schedule failed";
+
+        #region Harvest fail code
+        public static int FAIL_CREATE_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_CREATE_HARVEST_HISTORY_MSG = "Create harvest have server error";
+        public static int FAIL_UPDATE_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_UPDATE_HARVEST_HISTORY_MSG = "Harvest Update fail";
+        public static int FAIL_UPDATE_HARVEST_HISTORY_COORDINATION_CODE = 400;
+        public static string FAIL_UPDATE_HARVEST_HISTORY_COORDINATION_MSG = "Harvest update fail";
+        public static int FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_MSG = "Delete harvest permanent fail";
+        public static int FAIL_DELETE_SOFTED_HARVEST_HISTORY_CODE = 400;
+        public static string FAIL_DELETE_SOFTED_HARVEST_HISTORY_MSG = "Delete harvest softed fail";
+        #endregion
+        #endregion
+
         #endregion
 
         #region WARNING
@@ -730,6 +868,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_USER_CONFLICT_SCHEDULE_CODE = 400;
         public static string WARNING_USER_CONFLICT_SCHEDULE_MSG = "User conflict schedule. Please select another time";
         #endregion
+        #region Work Log
+        public static int SUCCESS_HAS_SCHEDULE_CODE = 200;
+        public static string SUCCESS_HAS_SCHEDULE_MSG = "Get schedule success";
+        public static int WARNING_NO_SCHEDULE_CODE = 400;
+        public static string WARNING_NO_SCHEDULE_MSG = "Do not have any worklog to display on schedule";
+        #endregion
         #region Legal Document 
         public static int WARNING_LEGAL_DOCUMENT_NOT_EXIST_CODE = 400;
         public static string WARNING_LEGAL_DOCUMENT_NOT_EXIST_MSG = "This document not exist";
@@ -748,6 +892,41 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
         public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
+        #endregion
+
+        #region Report
+        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 400;
+        public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
+        #endregion
+        #region Task Feedback
+        public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
+        public static string WARNING_TASK_FEEDBACK_NOT_EXIST_MSG = "Task Feedback does not exist";
+        #endregion
+        #region Schedule
+        public const string WARNING_MISSING_SCHEDULE_DATE_FILTER_MSG = "Please enter both values for the date filter (From Date and To Date).";
+        public static int WARNING_MISSING_TIME_FILTER_CODE = 400;
+        public const string WARNING_MISSING_TIME_FILTER_MSG = "Please enter both values for the time filter (from time and to time).";
+        public static int WARNING_INVALID_TIME_FILTER_CODE = 400;
+        public static string WARNING_INVALID_TIME_FILTER_MSG = "From time must greater than To time";
+        public static int WARNING_DO_NOT_HAVE_ANY_SCHEDULE_CODE = 400;
+        public static string WARNING_DO_NOT_HAVE_ANY_SCHEDULE_MSG = "Schedule does not exist";
+        #endregion
+
+        #region Harvest
+        public static int WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE = 400;
+        public static string WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG = "Your farm have no product to harvest, please create product in category";
+        public static int WARNING_HARVEST_MUST_IN_CROP_CODE = 400;
+        public static string WARNING_HARVEST_MUST_IN_CROP_MSG = "You must choose crop. Please try again";
+        public static int WARNING_HARVEST_DATE_IN_PAST_CODE = 400;
+        public static string WARNING_HARVEST_DATE_IN_PAST_MSG = "Your harvest date in past. Please try again";
+        public static int WARNING_HARVEST_TYPE_HISTORY_EMPTY_CODE = 400;
+        public static string WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG = "This harvest is empty";
+        public static int WARNING_HARVEST_NOT_EXIST_CODE = 400;
+        public static string WARNING_HARVEST_NOT_EXIST_MSG = "This harvest is empty";
+        public static int WARNING_GET_HARVEST_NOT_EXIST_CODE = 400;
+        public static string WARNING_GET_HARVEST_NOT_EXIST_MSG = "Harvest not exist";
+        public static int WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE = 400;
+        public static string WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG = "your product type not suitable";
         #endregion
         #endregion
     }

@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
-    //public class FarmCoordinationRepository : GenericRepository<FarmCoordination>, IFarmCoordinationRepository
-    //{
-    //    public FarmCoordinationRepository(IpasContext context) : base(context)
-    //    {
-    //    }
-    //}
+    public class LandPlotCropRepository : GenericRepository<LandPlotCrop>, ILandPlotCropRepository
+    {
+        private readonly IpasContext _context;
+        public LandPlotCropRepository(IpasContext context) : base(context)
+        {
+            _context = context;
+        }
+    }
 }

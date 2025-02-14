@@ -26,7 +26,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     .Where(x => x.LandPlotId == landplotId)
                     .Include(x => x.LandRows)
                     .ThenInclude(x => x.Plants)
-                    .Include(x => x.LandPlotCoordinations)
                     .FirstOrDefaultAsync();
                 return landPlot!;
             }

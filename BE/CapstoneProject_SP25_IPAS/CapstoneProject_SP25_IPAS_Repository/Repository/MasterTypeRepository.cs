@@ -20,12 +20,32 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<MasterType>> GetMasterTypeByName(string name)
         {
-            var getMasterTypeByName = await  _context.MasterTypes.Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
-            if(getMasterTypeByName.Count() > 0)
+            var getMasterTypeByName = await _context.MasterTypes.Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
+            if (getMasterTypeByName.Count() > 0)
             {
                 return getMasterTypeByName;
             }
-            return null;
+            return null!;
+        }
+
+        public async Task<List<MasterType>> GetMasterTypesByTypeName(string name)
+        {
+            var getMasterTypeByName = await _context.MasterTypes
+                .Where(x => x.TypeName!.ToLower().Contains(name.ToLower()))
+                .ToListAsync();
+            if (getMasterTypeByName.Any())
+            {
+                return getMasterTypeByName;
+            }
+            return null!;
+        }
+
+        public async Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName)
+        {
+            var getMasterTypeByName = await _context.MasterTypes
+                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower()))
+                .FirstOrDefaultAsync();
+            return getMasterTypeByName!;
         }
     }
 }
