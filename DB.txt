@@ -1052,6 +1052,21 @@ VALUES
 ( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution'),
 ( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market');
 
+INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Lagtitude, LandPlotID)
+VALUES
+    ('polygon_A1', 106.78546314117068, 10.997278708395825, 1),
+    ('polygon_A2', 106.78589533924475, 10.997556840012322, 1),
+    ('polygon_A3', 106.78592699828585, 10.99751539287513, 1),
+    ('polygon_A4', 106.78547296403684, 10.997232090171735, 1),
+    ('polygon_A5', 106.78546314117068, 10.997278708395825, 1),
+
+    ('polygon_B1', 106.7855136114656, 10.997171331485006, 1),
+    ('polygon_B2', 106.78596437055711, 10.997462428171985, 1),
+    ('polygon_B3', 106.78593105040267, 10.997509293796838, 1),
+    ('polygon_B4', 106.78547802086456, 10.997225685284874, 1),
+    ('polygon_B5', 106.7855136114656, 10.997171331485006, 1);
+
+
 
 INSERT INTO ipas.dbo.LandRow 
 ( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 

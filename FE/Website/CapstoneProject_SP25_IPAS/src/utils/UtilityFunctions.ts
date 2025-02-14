@@ -185,7 +185,7 @@ export const formatToISO8601 = (dateInput: string | Date): string => {
   return formattedDate;
 };
 
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY");
 };
 
