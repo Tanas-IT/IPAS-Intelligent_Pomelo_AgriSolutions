@@ -1070,8 +1070,8 @@ INSERT INTO ipas.dbo.LandPlot
 VALUES
 ( 'LP001', 'Land Plot A', 500.0, 50.0, 10.0, 'Clay', '2024-01-01', '2024-01-05', 'Active', 'Suitable for rice farming', 1, 'Local Market'),
 ( 'LP002', 'Land Plot B', 300.0, 30.0, 10.0, 'Sandy', '2024-01-02', '2024-01-06', 'Active', 'Used for vegetable cultivation', 1, 'Supermarkets'),
-( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 1, 'Export Market'),
-( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 1, 'Organic Stores'),
+( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 2, 'Export Market'),
+( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 2, 'Organic Stores'),
 ( 'LP005', 'Land Plot E', 600.0, 60.0, 10.0, 'Peaty', '2024-01-05', '2024-01-09', 'Active', 'Large-scale crop production', 2, 'Food Processing Industry'),
 ( 'LP006', 'Land Plot F', 450.0, 45.0, 10.0, 'Chalky', '2024-01-06', '2024-01-10', 'Inactive', 'Experimental field', 2, 'Research Institutions'),
 ( 'LP007', 'Land Plot G', 550.0, 55.0, 10.0, 'Loamy', '2024-01-07', '2024-01-11', 'Active', 'High-yield production', 2, 'Supermarkets'),
@@ -1086,11 +1086,11 @@ VALUES
     ('LPC-003', 106.78592699828585, 10.99751539287513, 1),
     ('LPC-004', 106.78547296403684, 10.997232090171735, 1),
     ('LPC-005', 106.78546314117068, 10.997278708395825, 1),
-    ('LPC-006', 106.7855136114656, 10.997171331485006, 1),
-    ('LPC-007', 106.78596437055711, 10.997462428171985, 1),
-    ('LPC-008', 106.78593105040267, 10.997509293796838, 1),
-    ('LPC-009', 106.78547802086456, 10.997225685284874, 1),
-    ('LPC-0010', 106.7855136114656, 10.997171331485006, 1);
+    ('LPC-006', 106.7855136114656, 10.997171331485006, 2),
+    ('LPC-007', 106.78596437055711, 10.997462428171985, 2),
+    ('LPC-008', 106.78593105040267, 10.997509293796838, 2),
+    ('LPC-009', 106.78547802086456, 10.997225685284874, 2),
+    ('LPC-010', 106.7855136114656, 10.997171331485006, 2);
 
 INSERT INTO ipas.dbo.LandRow 
 ( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 
