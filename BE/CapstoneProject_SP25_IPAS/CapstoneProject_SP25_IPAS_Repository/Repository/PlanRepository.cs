@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,6 +65,52 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     content = pgh.Content,
                     plantId = pgh.PlantId
                 }).ToList<object>();
+        }
+
+        // Updated Get method with pagination
+        public virtual async Task<IEnumerable<Plan>> GetPlanWithPagination(
+            Expression<Func<Plan, bool>> filter = null!,
+            Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!,
+            int? pageIndex = null, 
+            int? pageSize = null) 
+        {
+            IQueryable<Plan> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(x => x.LandPlot)
+                          .Include(x => x.PlantLot)
+                          .Include(x => x.MasterType)
+                          .Include(x => x.Process)
+                          .Include(x => x.GrowthStage)
+                          .Include(x => x.User)
+                          .Include(x => x.Crop)
+                          .Include(x => x.Plant)
+                          .Include(x => x.GraftedPlant)
+                          .Include(x => x.CarePlanSchedule)
+                          .ThenInclude(x => x.WorkLogs)
+                          .ThenInclude(x => x.UserWorkLogs)
+                          .ThenInclude(x => x.User);
+                          
+           
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }

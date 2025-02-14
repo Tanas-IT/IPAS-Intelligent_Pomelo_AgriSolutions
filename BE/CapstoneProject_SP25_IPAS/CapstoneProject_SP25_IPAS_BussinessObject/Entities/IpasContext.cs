@@ -127,8 +127,8 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.EndTime).HasColumnType("time");
             entity.Property(e => e.StarTime).HasColumnType("time");
 
-            entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanSchedules)
-                .HasForeignKey(d => d.CarePlanId)
+            entity.HasOne(d => d.CarePlan).WithOne(p => p.CarePlanSchedule)
+                .HasForeignKey<CarePlanSchedule>(d => d.CarePlanId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__CarePlanS__CareP__2180FB33");
         });

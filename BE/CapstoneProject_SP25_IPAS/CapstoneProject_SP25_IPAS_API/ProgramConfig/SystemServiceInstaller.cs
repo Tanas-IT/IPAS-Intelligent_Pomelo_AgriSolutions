@@ -69,7 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IFarmService, FarmService>();
             services.AddScoped<IMasterTypeService, MasterTypeService>();
             services.AddScoped<IPartnerService, PartnerService>();
-            //services.AddScoped<IGrowthStageService, GrowthStageService>();
+            services.AddScoped<IGrowthStageService, GrowthStageService>();
             services.AddScoped<IProcessService, ProcessService>();
             services.AddScoped<ICriteriaService, CriteriaService>();
             services.AddScoped<ISubProcessService, SubProcessService>();

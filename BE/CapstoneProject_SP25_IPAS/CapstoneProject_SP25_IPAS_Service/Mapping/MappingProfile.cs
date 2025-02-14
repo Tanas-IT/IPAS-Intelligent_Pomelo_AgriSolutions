@@ -14,6 +14,7 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -76,16 +77,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();
 
+            CreateMap<Criteria, CriteriaModel>()
+                //.ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+                .ReverseMap();
+
             CreateMap<CriteriaMasterType, CriteriaMasterTypeModel>()
               .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
               .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
               .ReverseMap();
 
-            CreateMap<Criteria, CriteriaModel>()
-                //.ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+            CreateMap<MasterType, MasterTypeModel>()
+                .ForMember(dest => dest.CriteriaMasterType, opt => opt.MapFrom(src => src.CriteriaMasterTypes))
                 .ReverseMap();
-
-            CreateMap<MasterType, MasterTypeModel>().ReverseMap();
             CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
 
             CreateMap<LandRow, LandRowModel>()
@@ -126,7 +129,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Resource, ResourceModel>()
                .ReverseMap();
-          
+
+            CreateMap<User, ReporterModel>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.AvatarURL))
+                .ReverseMap();
+
+            CreateMap<WorkLog, WorkLogInPlanModel>()
+                .ForMember(dest => dest.WorkLogID, opt => opt.MapFrom(src => src.WorkLogId))
+                .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLogName))
+                .ForMember(dest => dest.DateWork, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.FullName).FirstOrDefault()))
+                .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
+               .ReverseMap();
+
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User.FullName))
                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
@@ -136,6 +152,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+               .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User.AvatarURL))
+               .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
+                                                                src.CarePlanSchedule.WorkLogs
+                                                                    .SelectMany(wl => wl.UserWorkLogs)
+                                                                    .Where(uwl => uwl.IsReporter == true)
+                                                                    .Select(uwl => uwl.User)
+                                                                    .Distinct()
+                                                                    .ToList()))
+               .ForMember(dest => dest.StarTime, opt => opt.MapFrom(src => src.CarePlanSchedule.StarTime))
+               .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule.EndTime))
+               .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => src.CarePlanSchedule.DayOfWeek))
+               .ForMember(dest => dest.DayOfMonth, opt => opt.MapFrom(src => src.CarePlanSchedule.DayOfMonth))
+               .ForMember(dest => dest.CustomDates, opt => opt.MapFrom(src => src.CarePlanSchedule.CustomDates))
+               .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule.WorkLogs))
                .ReverseMap();
 
             CreateMap<LegalDocument, LegalDocumentModel>()

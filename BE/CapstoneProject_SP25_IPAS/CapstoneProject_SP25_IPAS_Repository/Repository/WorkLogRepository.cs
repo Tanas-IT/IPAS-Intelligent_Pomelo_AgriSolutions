@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -123,6 +124,40 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(w => w.Date == newWorkLog.Date) // Giờ Contains() hoạt động được
                 .ToListAsync();
             return WorkLogs;
+        }
+        public async Task<List<WorkLog>> GetWorkLog(Expression<Func<WorkLog, bool>> filter = null!,
+            Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!,
+            int? pageIndex = null,
+            int? pageSize = null)
+        {
+            IQueryable<WorkLog> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(uwl => uwl.Schedule)
+                             .ThenInclude(s => s.CarePlan)
+                             .Include(wl => wl.UserWorkLogs)
+                             .ThenInclude(s => s.User);
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+
         }
     }
 }

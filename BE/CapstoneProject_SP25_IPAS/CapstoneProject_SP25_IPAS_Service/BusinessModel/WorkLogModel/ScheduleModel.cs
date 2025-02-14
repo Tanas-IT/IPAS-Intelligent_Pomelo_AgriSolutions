@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
 {
-    public class CalendarModel
+    public class ScheduleModel
     {
         public int WorkLogId { get; set; }
         public string? WorkLogName { get; set; }
@@ -21,6 +21,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? PlanName { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; } 
-        public List<UserCalendarModel>? Users { get; set; }
+        public List<UserScheduleModel>? Users { get; set; }
     }
 }

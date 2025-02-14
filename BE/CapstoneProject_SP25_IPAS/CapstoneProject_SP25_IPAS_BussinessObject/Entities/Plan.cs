@@ -55,7 +55,7 @@ public partial class Plan
     public int? MasterTypeId { get; set; }
     public int? GraftedPlantId { get; set; }
 
-    public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
+    public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
     public virtual GraftedPlant? GraftedPlant { get; set; }
 
