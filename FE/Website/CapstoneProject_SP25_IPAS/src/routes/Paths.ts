@@ -24,13 +24,14 @@ export const PATHS = {
 
   // Farm Management
   FARM: {
+    CREATE_FARM: "/farm/create",
     FARM_LIST: "/farms",
     FARM_DETAIL: "/farms/:id",
     FARM_INFO: "/farm/farm-info",
     FARM_PLANT_LIST: "/farm/plants",
     FARM_PLANT_DETAIL: "/farm/plants/:id/details",
     FARM_PLOT_LIST: "/farm/land-plots",
-    FARM_PLOT_CREATE: "/farm/land-plot/create",
+    FARM_PLOT_CREATE: "/farm/land-plots/create",
   },
 
   // Process Management
@@ -56,5 +57,5 @@ export const PATHS = {
   HR: {
     WORKLOG_CALENDAR: "/hr-management/worklogs",
     WORKLOG_DETAIL: "/hr-management/worklogs/:id",
-  }
+  },
 };

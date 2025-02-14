@@ -44,7 +44,13 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
 
       return isLastItem
         ? { title: <span className={style.active}>{title}</span> }
-        : { title: <Link to={pathTo}>{title}</Link> };
+        : {
+            title: (
+              <Link className={style.noneEvent} to={pathTo}>
+                {title}
+              </Link>
+            ),
+          };
     });
 
   return (

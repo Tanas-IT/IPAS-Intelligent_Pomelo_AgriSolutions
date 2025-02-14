@@ -1,24 +1,23 @@
 import React, { useEffect, useRef } from "react";
-import style from "./MapAddress.module.scss";
+import style from "./MapLandPlot.module.scss";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createRoot } from "react-dom/client";
 import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
-import { CoordsState } from "@/types";
 
-interface MapAddressProps {
+interface MapLandPlotProps {
   latitude: number;
   longitude: number;
   isEditing?: boolean;
-  setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
+  //   setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
 }
 
-const MapAddress: React.FC<MapAddressProps> = ({
+const MapLandPlot: React.FC<MapLandPlotProps> = ({
   latitude,
   longitude,
   isEditing = false,
-  setMarkerPosition,
+  //   setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
@@ -46,7 +45,7 @@ const MapAddress: React.FC<MapAddressProps> = ({
       map.on("click", (e) => {
         const { lng, lat } = e.lngLat;
         const newCoords = { longitude: lng, latitude: lat };
-        setMarkerPosition(newCoords); // Cập nhật state
+        // setMarkerPosition(newCoords); // Cập nhật state
         markerRef.current?.setLngLat([lng, lat]); // Cập nhật vị trí marker
       });
     }
@@ -80,10 +79,11 @@ const MapAddress: React.FC<MapAddressProps> = ({
       if (attributionControl) attributionControl.remove();
       if (attributionButton) attributionButton.remove();
     });
+
     return () => map.remove();
   }, [latitude, longitude, isEditing]);
 
   return <div ref={mapContainer} className={style.customMap} />;
 };
 
-export default MapAddress;
+export default MapLandPlot;
