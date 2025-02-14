@@ -35,7 +35,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .FirstOrDefaultAsync(x => x.CropId == cropId);
             return crop!;
         }
-
+        public async Task<Crop> getCropInExpired(int cropId)
+        {
+            var crop = await _context.Crops
+                .Where(x => x.CropId == cropId
+                && x.EndDate >= DateTime.Now)
+                .FirstOrDefaultAsync();
+            return crop!;
+        }
         public override async Task<Crop> GetByID(int id)
         {
             var crop = await _context
@@ -47,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return crop;
         }
 
-        public async Task<IEnumerable<Crop>> GetAllCropsOfLandPlot( int landPlotId, PaginationParameter paginationParameter, CropFilter cropFilter)
+        public async Task<IEnumerable<Crop>> GetAllCropsOfLandPlot(int landPlotId, PaginationParameter paginationParameter, CropFilter cropFilter)
         {
             var query = _context.Set<LandPlotCrop>().AsQueryable();
 
@@ -185,7 +192,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lọc theo Status
             if (!string.IsNullOrEmpty(cropFilter.Status))
             {
-                query = query.Where(c => c.Crop.Status == cropFilter.Status);
+                var listStatus = Util.SplitByComma(cropFilter.Status);
+                foreach (var item in listStatus)
+                {
+                    query = query.Where(c => c.Crop.Status.ToLower().Equals(cropFilter.Status.ToLower()));
+                }
             }
 
             // Xác định kiểu sắp xếp

@@ -58,6 +58,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IResourceRepository, ResourceRepository>();
             services.AddScoped<ILegalDocumentRepository, LegalDocumentRepository>();
             services.AddScoped<ICropRepository, CropRepository>();
+            services.AddScoped<IHarvestHistoryRepository, HarvestHistoryRepository>();
+            services.AddScoped<IHarvestTypeHistoryRepository, HarvestTypeHistoryRepository>();
             services.AddScoped<ITaskFeedbackRepository, TaskFeedbackRepository>();
             services.AddScoped<ICriteriaMasterTypeRepository, CriteriaMasterTypeRepository>();
 

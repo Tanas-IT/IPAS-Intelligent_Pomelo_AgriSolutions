@@ -31,7 +31,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private UserFarmRepository _userFarmRepo;
         private PlantLotRepository _plantLotRepo;
         private PlantRepository _plantRepo;
-        //private FarmCoordinationRepository _farmCoordinationRepo;
         private MasterTypeRepository _masterTypeRepo;
         private CriteriaRepository _criteriaRepo;
         private PartnerRepository _partnerRepo;
@@ -49,6 +48,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public ResourceRepository _resourceRepo;
         public LegalDocumentRepository _legalDocumentRepo;
         public CropRepository _cropRepo;
+        public HarvestHistoryRepository _harvestHistoryRepo;
+        public HarvestTypeHistoryRepository _harvestTypeHistoryRepo;
+        public LandPlotCropRepository _landPlotCropRepo;
         public CriteriaMasterTypeRepository _criteriaMasterTypeRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
@@ -73,7 +75,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _processRepo = new ProcessRepository(context);
             _subProcessRepo = new SubProcessRepository(context);
             _configuration = configuration;
-            //_farmCoordinationRepo = new FarmCoordinationRepository(context);
             _landPlotRepo = new LandPlotRepository(context);
             _landPlotCoordinationRepo = new LandPlotCoordinationRepository(context);
             _planRepo = new PlanRepository(context);
@@ -85,6 +86,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _resourceRepo = new ResourceRepository(context);
             _legalDocumentRepo = new LegalDocumentRepository(context);
             _cropRepo = new CropRepository(context);
+            _harvestHistoryRepo = new HarvestHistoryRepository(context);
+            _harvestTypeHistoryRepo = new HarvestTypeHistoryRepository(context);
+            _landPlotCropRepo = new LandPlotCropRepository(context);
             _criteriaMasterTypeRepo = new CriteriaMasterTypeRepository(context);
         }
 
@@ -501,6 +505,42 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._cropRepo = new CropRepository(_context);
                 }
                 return _cropRepo;
+            }
+        }
+
+        public HarvestHistoryRepository HarvestHistoryRepository
+        {
+            get
+            {
+                if (_harvestHistoryRepo == null)
+                {
+                    this._harvestHistoryRepo = new HarvestHistoryRepository(_context);
+                }
+                return _harvestHistoryRepo;
+            }
+        }
+
+        public HarvestTypeHistoryRepository HarvestTypeHistoryRepository
+        {
+            get
+            {
+                if (_harvestTypeHistoryRepo == null)
+                {
+                    this._harvestTypeHistoryRepo = new HarvestTypeHistoryRepository(_context);
+                }
+                return _harvestTypeHistoryRepo;
+            }
+        }
+
+        public LandPlotCropRepository LandPlotCropRepository
+        {
+            get
+            {
+                if (_landPlotCropRepo == null)
+                {
+                    this._landPlotCropRepo= new LandPlotCropRepository(_context);
+                }
+                return _landPlotCropRepo;
             }
         }
 

@@ -144,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateProcessInfo = Base + "/processes/update-process-info";
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
+            public const string getProcessesForSelect = Base + "/proceesses/get-for-select";
         }
 
         public static class SubProcess
@@ -245,7 +246,23 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCropById = prefix + "";
             public const string getAllCropOfFarm = prefix + "/get-crop-of-farm";
             public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
-            public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
+            public const string getAllCropOfLandPlotForSelect = prefix + "/get-crop-of-landplot-selected";
+        }
+
+        public static class Harvest
+        {
+            public const string prefix = Base + "/harvests";
+            public const string createHarvest = prefix + "";
+            public const string createHarvesTypeHistory = prefix + "create-detail-of-harvest";
+            public const string deletePermanentlyHarvest = prefix + "";
+            public const string deleteHarvestType = prefix + "delete-harvest-detail";
+            public const string updateHarvestInfo = prefix + "";
+            public const string updateHarvestTypeInfo = prefix + "/update-harvest-detail";
+            public const string getHarvestById = prefix + "";
+            public const string getAllHarvestPagin = prefix + "";
+            public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
+            //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
+            //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
 
         public static class WorkLog
