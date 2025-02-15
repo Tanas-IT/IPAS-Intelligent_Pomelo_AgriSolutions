@@ -36,6 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? Frequency { get; set; }
 
         public string? PesticideName { get; set; }
+        public string? Progress { get; set; }
 
         public double? MaxVolume { get; set; }
 

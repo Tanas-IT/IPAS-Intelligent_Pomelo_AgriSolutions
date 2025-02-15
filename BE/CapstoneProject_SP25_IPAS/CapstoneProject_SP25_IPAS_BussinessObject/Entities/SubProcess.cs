@@ -34,4 +34,6 @@ public partial class SubProcess
     public virtual MasterType? MasterType { get; set; }
 
     public virtual Process? Process { get; set; }
+    public SubProcess? ParentSubProcess { get; set; }
+    public ICollection<SubProcess> ChildSubProcesses { get; set; } = new List<SubProcess>();
 }

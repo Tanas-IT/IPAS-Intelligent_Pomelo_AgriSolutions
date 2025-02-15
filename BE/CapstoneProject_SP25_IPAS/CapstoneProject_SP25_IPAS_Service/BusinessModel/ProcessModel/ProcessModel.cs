@@ -31,9 +31,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public string? MasterTypeName { get; set; }
 
         public string? GrowthStageName { get; set; }
+        public string? ResourceUrl { get; set; }
+
+        public string? Input { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<SubProcessInProcessModel>? SubProcesses { get; set; } = new List<SubProcessInProcessModel>();
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<ProcessDataInProcessModel>? ListProcessData { get; set; } = new List<ProcessDataInProcessModel>();
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+       // public List<ProcessDataInProcessModel>? ListProcessData { get; set; } = new List<ProcessDataInProcessModel>();
     }
 }

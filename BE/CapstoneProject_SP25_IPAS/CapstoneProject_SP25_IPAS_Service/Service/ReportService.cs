@@ -67,5 +67,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> Dashboard()
+        {
+            try
+            {
+                return new BusinessResult();
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public Task<BusinessResult> Dashboard(int year, int farmId, int month)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

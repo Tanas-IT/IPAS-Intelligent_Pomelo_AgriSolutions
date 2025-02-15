@@ -589,9 +589,9 @@ CREATE TABLE ipas.dbo.SubProcess (
 	FarmID int NULL,
 	CONSTRAINT PK__SubProce__F054A88CD66E5A59 PRIMARY KEY (SubProcessID),
 	CONSTRAINT FK__SubProces__Proce__3CF40B7E FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT SubProcess_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
+	CONSTRAINT SubProcess_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
+	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
-
 
 -- ipas.dbo.[User] definition
 
