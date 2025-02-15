@@ -11,11 +11,16 @@ import { farmFormFields } from "@/constants";
 const useAddressLocation = <T extends { latitude: number; longitude: number }>(
   form: FormInstance,
   setLocation: React.Dispatch<React.SetStateAction<T>>,
+  latitude?: number,
+  longitude?: number,
 ) => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [markerPosition, setMarkerPosition] = useState<CoordsState>(defaultCoordsFarm);
+  const [markerPosition, setMarkerPosition] = useState<CoordsState>({
+    latitude: latitude ?? defaultCoordsFarm.latitude,
+    longitude: longitude ?? defaultCoordsFarm.longitude,
+  });
   const [addressInput, setAddressInput] = useState(form.getFieldValue("address"));
   const [debouncedAddress] = useDebounce(addressInput, 500);
 

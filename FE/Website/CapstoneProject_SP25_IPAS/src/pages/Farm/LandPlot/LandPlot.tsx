@@ -16,28 +16,6 @@ function LandPlot() {
   });
   const [isPopupVisible, setPopupVisible] = useState(false);
 
-  const popoverContent = (
-    <Flex vertical>
-      <LandPlotActions
-        icon={<Icons.plus />}
-        label=" Add New Land Plot"
-        isAction={true}
-        onClick={() => navigate(PATHS.FARM.FARM_PLOT_CREATE)}
-      />
-      <LandPlotActions
-        icon={<Icons.edit />}
-        label="  Update Existing Land Plot"
-        isAction={true}
-        onClick={() => handleUpdatePlot()}
-      />
-    </Flex>
-  );
-
-  const handleUpdatePlot = () => {
-    console.log("Opening Update Plot form...");
-    // Mở modal hoặc chuyển trang đến form cập nhật
-  };
-
   return (
     <Flex className={style.container}>
       {/* <SectionTitle title="Plant Management" totalRecords={10} /> */}
@@ -55,11 +33,11 @@ function LandPlot() {
             className={style.search}
           />
           <Flex className={style.actionBtnsWrapper}>
-            <Popover content={popoverContent} trigger="click" placement="bottomRight">
-              <>
-                <LandPlotActions icon={<Icons.tool />} label="Manage Plot" />
-              </>
-            </Popover>
+            <LandPlotActions
+              icon={<Icons.plus />}
+              label="Add New Plot"
+              onClick={() => navigate(PATHS.FARM.FARM_PLOT_CREATE)}
+            />
             <Popover
               content={<PlotListPopup onClose={() => setPopupVisible(false)} />}
               trigger="click"

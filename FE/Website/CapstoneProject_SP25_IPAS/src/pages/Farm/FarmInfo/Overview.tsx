@@ -48,7 +48,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
     getIdByName,
     markerPosition,
     setMarkerPosition,
-  } = useAddressLocation(form, setFarm);
+  } = useAddressLocation(form, setFarm, farm.latitude, farm.longitude);
 
   const handleEdit = async () => {
     try {
@@ -104,9 +104,10 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
     await form.validateFields();
     const formValues: FarmRequest = form.getFieldsValue();
     let logoUpdated = !!logo.logo;
-    let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[]).some(
-      (key) => formValues[key] != null && farm[key] != null && formValues[key] !== farm[key],
-    );
+    let infoUpdated = (Object.keys(formValues) as (keyof FarmRequest)[])
+      .filter((key) => key !== (farmFormFields.createDate as keyof FarmRequest))
+      .some((key) => formValues[key] != null && farm[key] != null && formValues[key] !== farm[key]);
+
     const isCoordsValid = markerPosition.latitude !== 0 && markerPosition.longitude !== 0;
     const isCoordsUpdated =
       isCoordsValid &&
@@ -130,12 +131,17 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         }
         var result = await farmService.updateFarmInfo(updatedFormValues);
         if (result.statusCode === 200) {
+          const data = result.data;
           setFarm((prev) => ({
             ...prev,
-            farmName: formValues.farmName,
-            longitude: isCoordsUpdated ? markerPosition.longitude : prev.longitude,
-            latitude: isCoordsUpdated ? markerPosition.latitude : prev.latitude,
+            ...Object.fromEntries(
+              Object.entries(data).filter(([key, value]) => value !== undefined),
+            ),
           }));
+          setInitialCoords({
+            latitude: data.latitude,
+            longitude: data.longitude,
+          });
           useFarmStore.getState().setFarmInfo(formValues.farmName, "");
         } else {
           toast.error(result.message);
