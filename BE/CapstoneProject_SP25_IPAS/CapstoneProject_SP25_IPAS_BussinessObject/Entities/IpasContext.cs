@@ -1136,6 +1136,11 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.ProcessId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__SubProces__Proce__3CF40B7E");
+
+            entity.HasOne(sp => sp.ParentSubProcess) // Quan hệ với chính nó
+                   .WithMany(sp => sp.ChildSubProcesses) // Một SubProcess có nhiều Child
+                   .HasForeignKey(sp => sp.ParentSubProcessId)
+                   .HasConstraintName("SubProcess_SubProcess_FK_23AG53345");// Khóa ngoại
         });
 
         modelBuilder.Entity<TaskFeedback>(entity =>

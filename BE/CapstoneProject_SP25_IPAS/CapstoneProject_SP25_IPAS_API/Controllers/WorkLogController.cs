@@ -84,5 +84,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.WorkLog.addNewTask, Name = "AddNewTask")]
+        public async Task<IActionResult> AddNewTask([FromBody] AddNewTaskModel addNewTaskModel)
+        {
+            try
+            {
+                var result = await _workLogService.AddNewTask(addNewTaskModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

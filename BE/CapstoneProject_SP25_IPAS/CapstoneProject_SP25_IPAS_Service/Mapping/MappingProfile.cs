@@ -73,6 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<SubProcess, SubProcessModel>()
                 .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process!.ProcessName))
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
+                .ForMember(dest => dest.listChildSubProcess, opt => opt.MapFrom(src => src.ChildSubProcesses))
                .ReverseMap();
 
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();

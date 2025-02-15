@@ -112,6 +112,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return savedWorkLogs;
         }
 
+        public async Task<double> CalculatePlanProgress(int planId)
+        {
+            var listAllWorkLog = await _context.WorkLogs.Where(x => x.Schedule.CarePlan.PlanId == planId).ToListAsync();
+            var listWorkLogDone = await _context.WorkLogs.Where(x => x.Schedule.CarePlan.PlanId == planId && x.Status.ToLower().Equals("done")).ToListAsync();
+            var result = ((double)listWorkLogDone.Count / (double)listAllWorkLog.Count) * 100;
+            return result;
+        }
+
         public async Task<List<WorkLog>> GetListWorkLogByScheduelId(int scheduleId)
         {
             var result = await _context.WorkLogs.Where(x => x.ScheduleId == scheduleId).ToListAsync();

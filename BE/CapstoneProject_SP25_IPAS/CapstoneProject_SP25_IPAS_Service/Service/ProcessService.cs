@@ -620,7 +620,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var item in mappedResult)
                 {
                     item.SubProcesses = null;
-                    item.ListProcessData = null;
+                    //item.ListProcessData = null;
                 }
                 return new BusinessResult(Const.SUCCESS_GET_ALL_PROCESS_CODE, Const.SUCCESS_GET_ALL_PROCESS_MESSAGE, mappedResult);
             }

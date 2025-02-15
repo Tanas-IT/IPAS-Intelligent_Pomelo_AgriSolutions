@@ -11,7 +11,7 @@ public partial class LandPlotCoordination
 
     public double? Longitude { get; set; }
 
-    public double? Lagtitude { get; set; }
+    public double? Latitude { get; set; }
 
     public int? LandPlotId { get; set; }
 
