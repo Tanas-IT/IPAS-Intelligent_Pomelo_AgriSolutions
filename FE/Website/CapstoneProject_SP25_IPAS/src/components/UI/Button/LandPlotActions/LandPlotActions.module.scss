@@ -1,0 +1,31 @@
+@use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
+
+.baseBtn {
+  color: vars.$color_primary !important;
+  border-color: transparent !important;
+  outline: transparent !important;
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.btn {
+  @extend .baseBtn;
+}
+
+.btnModal {
+  @extend .baseBtn;
+  background-color: vars.$color_second !important;
+}
+
+.btnAction {
+  @extend .baseBtn;
+  &:hover {
+    background-color: vars.$color_second !important;
+  }
+}
+
+.cancelBtn {
+  @include shared.cancelBtn;
+}

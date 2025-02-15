@@ -10,6 +10,10 @@
       flex-direction: column;
       margin: 12px 32px;
       min-height: 80vh;
+      .noneEvent {
+        pointer-events: none;
+        font-size: 14px;
+      }
     }
   }
 
@@ -22,6 +26,7 @@
 }
 
 @mixin container {
+  width: 100%;
   flex-direction: column;
 
   .headerWrapper {
@@ -162,5 +167,54 @@
   &:hover {
     color: inherit !important;
     opacity: 0.8;
+  }
+}
+
+@mixin markerWithLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .customIcon {
+    font-size: 36px;
+    color: vars.$color_second;
+  }
+
+  .markerLabelWrapper {
+    position: relative;
+    padding: 6px 14px;
+    background-color: vars.$color_second;
+    border-radius: 99px;
+    margin-bottom: 8px;
+    animation: bounceUpDown 2.5s infinite ease-in-out;
+    .markerLabel {
+      font-size: 14px;
+      font-weight: bold;
+      color: vars.$color_primary;
+    }
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid vars.$color_second;
+    }
+  }
+}
+
+@keyframes bounceUpDown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }

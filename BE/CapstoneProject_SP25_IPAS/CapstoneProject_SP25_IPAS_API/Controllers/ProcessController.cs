@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -13,10 +14,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class ProcessController : ControllerBase
     {
         private readonly IProcessService _processService;
-
-        public ProcessController(IProcessService processService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public ProcessController(IProcessService processService, IJwtTokenService jwtTokenService)
         {
             _processService = processService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.Process.getProcessWithPagination, Name = "getAllProcessPaginationAsync")]
@@ -167,6 +169,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
             catch (Exception ex)
             {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Process.getProcessesForSelect, Name = "getProcessesForSelectAsync")]
+        public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _processService.GetForSelect(farmId!.Value, searchValue);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
                 var response = new BaseResponse()
                 {
                     StatusCode = StatusCodes.Status400BadRequest,

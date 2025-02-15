@@ -97,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Farm.createFarm, Name = "createFarmAsync")]
-        public async Task<IActionResult> CreateFarmAsync([FromBody] FarmCreateRequest farmCreateModel)
+        public async Task<IActionResult> CreateFarmAsync([FromForm] FarmCreateRequest farmCreateModel)
         {
             try
             {

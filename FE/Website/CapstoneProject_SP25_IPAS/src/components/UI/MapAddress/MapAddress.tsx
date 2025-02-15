@@ -62,14 +62,16 @@ const MapAddress: React.FC<MapAddressProps> = ({
     const root = createRoot(markerElement);
     root.render(
       <div className={style.markerWithLabel}>
-        <Icons.farms className={style.customIcon} />
-        <div className={style.markerLabel}>Farm Address Here</div>
+        <div className={style.markerLabelWrapper}>
+          <label className={style.markerLabel}>Your Farm Address Here</label>
+        </div>
+        <Icons.marker className={style.customIcon} />
       </div>,
     );
 
-    // new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
-
-    markerRef.current = new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+    markerRef.current = new mapboxgl.Marker(markerElement)
+      .setLngLat([longitude, latitude])
+      .addTo(map);
 
     map.on("load", () => {
       const attributionControl = document.querySelector(".mapboxgl-ctrl-attrib-inner");

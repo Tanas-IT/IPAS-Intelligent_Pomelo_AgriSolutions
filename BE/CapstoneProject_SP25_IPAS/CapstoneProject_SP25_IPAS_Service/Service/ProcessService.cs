@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
@@ -12,7 +13,9 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -165,6 +168,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (processFilters.MasterType != null)
                 {
                     filter = filter.And(x => x.MasterType.MasterTypeName.Contains(processFilters.MasterType));
+                }
+                if (processFilters.ProcessName != null)
+                {
+                    filter = filter.And(x => x.ProcessName.Contains(processFilters.ProcessName));
                 }
 
                 if (processFilters.GrowthStage != null)
@@ -589,6 +596,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
 
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetForSelect(int farmId, string? searchValue)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                if (!string.IsNullOrEmpty(searchValue))
+                {
+                    filter = filter.And(x => x.ProcessName!.ToLower().Contains(searchValue.ToLower()));
+                }
+                Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = x => x.OrderByDescending(x => x.ProcessId);
+                string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";
+                var processes = await _unitOfWork.ProcessRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                if (!processes.Any())
+                    return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+                var mappedResult = _mapper.Map<IEnumerable<ProcessModel>>(processes);
+                foreach (var item in mappedResult)
+                {
+                    item.SubProcesses = null;
+                    item.ListProcessData = null;
+                }
+                return new BusinessResult(Const.SUCCESS_GET_ALL_PROCESS_CODE, Const.SUCCESS_GET_ALL_PROCESS_MESSAGE, mappedResult);
+            }
+            catch (Exception ex)
+            {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }

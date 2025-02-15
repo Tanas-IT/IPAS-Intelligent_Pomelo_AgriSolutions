@@ -20,8 +20,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? CropYear { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public virtual CropModel Crop { get; set; } = null!;
+        public CropModel Crop { get; set; } = null!;
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public virtual LandPlotModel LandPlot { get; set; } = null!;
+        public LandPlotModel LandPlot { get; set; } = null!;
     }
 }

@@ -1,28 +1,13 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
 .map-container {
   width: 100%;
   height: 100%;
 }
 
 .markerWithLabel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.customIcon {
-  font-size: 36px; /* Kích thước icon */
-  color: white; /* Màu sắc icon */
-  /* transform: translate(-50%, -50%);  */
-}
-
-.markerLabel {
-  margin-top: 5px;
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
+  @include shared.markerWithLabel;
 }
 
 .customMap {

@@ -179,7 +179,8 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customUpload: css`
-      .ant-upload.ant-upload-select {
+      .ant-upload.ant-upload-select,
+      .ant-upload.ant-upload-drag {
         &:hover {
           border-color: ${primaryColor} !important;
         }

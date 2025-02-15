@@ -52,6 +52,15 @@ function FarmPicker() {
     }
   };
 
+  const handleCreateNewFarm = async () => {
+    try {
+      navigate(PATHS.FARM.CREATE_FARM);
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      toast.error(MESSAGES.ERROR_OCCURRED);
+    }
+  };
+
   if (farmsData && farmsData.length === 0) {
     return (
       <Flex className={style.emptyContainer}>
@@ -73,7 +82,11 @@ function FarmPicker() {
   return (
     <Flex className={style.container}>
       <Flex className={style.headerWrapper}>
-        <CustomButton label="Add New Farm" icon={<Icons.plus />} handleOnClick={() => {}} />
+        <CustomButton
+          label="Create New Farm"
+          icon={<Icons.plus />}
+          handleOnClick={handleCreateNewFarm}
+        />
       </Flex>
       <Flex className={style.contentWrapper}>
         <Row gutter={[18, 30]} className={style.cardWrapper}>

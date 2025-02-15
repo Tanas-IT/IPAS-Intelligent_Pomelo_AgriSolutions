@@ -83,12 +83,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Crop.getAllCropOfFarmForSelect , Name = "getAllCropsOfFarmForSelect")]
-        public async Task<IActionResult> GetAllCropsOfFarmForSelectAsync([FromQuery] int farmId, string? searchValue)
+        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlotForSelect , Name = "getAllCropsOfLandPlotForSelect")]
+        public async Task<IActionResult> GetAllCropsOfLandPlotForSelectAsync([FromQuery] int? landplotId, string? searchValue)
         {
             try
             {
-                var result = await _cropService.getAllCropOfFarmForSelected(farmId, searchValue);
+                if (!landplotId.HasValue)
+                {
+                    landplotId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _cropService.getAllCropOfFarmForSelected(landplotId!.Value, searchValue);
                 return Ok(result);
             }
             catch (Exception ex)

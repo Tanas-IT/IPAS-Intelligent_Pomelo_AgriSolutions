@@ -16,6 +16,7 @@ public partial class Warning
     public string? Level { get; set; }
 
     public string? Description { get; set; }
+    public string? AffectedStage { get; set; }
 
     public DateTime? CreateDate { get; set; }
 

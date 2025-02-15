@@ -65,7 +65,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var landRow = new LandRow()
                         {
-                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW), 
+                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW),
                             RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
                             Length = createRequest.RowLength,
                             Width = createRequest.RowWidth,
@@ -84,7 +84,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             var landplotCoordination = new LandPlotCoordination()
                             {
-                                Lagtitude = coordination.Lagtitude,
+                                Latitude = coordination.Lagtitude,
                                 Longitude = coordination.Longitude,
                             };
                             landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
@@ -117,7 +117,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //var farm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
                     //if (farm == null)
                     //    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-                    var landplotDelete = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
+                    string includeProperties = "LandPlotCoordinations";
+                    var landplotDelete = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == landplotId , includeProperties: includeProperties);
                     if (landplotDelete == null)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     _unitOfWork.LandPlotRepository.Delete(landplotDelete);
@@ -138,14 +139,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetAllLandPlotNoPagin(int farmId, string? searchKey)
         {
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId ;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId;
             if (!string.IsNullOrEmpty(searchKey))
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
             }
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.FarmId);
-
-            var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+            string includeProperties = "LandPlotCoordinations";
+            var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
             if (landplotInFarm.Any())
             {
                 var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
@@ -159,8 +160,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
-
-            var landplot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId);
+            string includeProperties = "LandPlotCoordinations";
+            var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == landPlotId, includeProperties: includeProperties);
             // kiem tra null
             if (landplot == null)
                 return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
@@ -184,7 +185,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
                     var existingCoordinates = existingCoordinationList
-                        .Select(x => new { Lat = x.Lagtitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
+                        .Select(x => new { Lat = x.Latitude ?? 0, Lng = x.Longitude ?? 0 }) // Ép kiểu tránh null
                         .ToHashSet();
 
                     var newCoordinates = updateRequest.CoordinationsUpdateModel
@@ -193,7 +194,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Tìm các điểm bị xóa (có trong danh sách cũ nhưng không có trong danh sách mới)
                     var coordinatesToDelete = existingCoordinationList
-                        .Where(x => !newCoordinates.Contains(new { Lat = x.Lagtitude!.Value, Lng = x.Longitude!.Value }))
+                        .Where(x => !newCoordinates.Contains(new { Lat = x.Latitude!.Value, Lng = x.Longitude!.Value }))
                         .ToList();
 
                     // Tìm các điểm cần thêm mới (có trong danh sách mới nhưng không có trong danh sách cũ)
@@ -202,7 +203,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         .Select(x => new LandPlotCoordination
                         {
                             LandPlotId = updateRequest.LandPlotId,
-                            Lagtitude = x.Lagtitude,
+                            Latitude = x.Lagtitude,
                             Longitude = x.Longitude
                         })
                         .ToList();
@@ -288,7 +289,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         private int CalculateRowsInPlot(double landPlotLength, double rowWidth, double? distanceRow)
         {
-            
+
             double spacing = distanceRow ?? 0;
             int numRows = (int)((landPlotLength + spacing) / (rowWidth + spacing));
 

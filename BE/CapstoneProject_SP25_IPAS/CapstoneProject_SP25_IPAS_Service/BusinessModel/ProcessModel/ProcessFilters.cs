@@ -9,16 +9,18 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 {
     public class ProcessFilters
     {
-        [FromQuery(Name = "filter-growth-stage")]
+        [FromQuery(Name = "growthStage")]
         public string? GrowthStage { get; set; }
-        [FromQuery(Name = "filter-master-type")]
+        [FromQuery(Name = "masterType")]
         public string? MasterType { get; set; }
+        [FromQuery(Name = "processName")]
+        public string? ProcessName { get; set; }
 
-        [FromQuery(Name = "filter-create-date-from")]
+        [FromQuery(Name = "createDateFrom")]
         public DateTime? createDateFrom { get; set; }
-        [FromQuery(Name = "filter-create-date-to")]
+        [FromQuery(Name = "createDateTo")]
         public DateTime? createDateTo { get; set; }
-        [FromQuery(Name = "filter-is-active")]
+        [FromQuery(Name = "isActive")]
         public bool? isActive { get; set; }
     }
 }

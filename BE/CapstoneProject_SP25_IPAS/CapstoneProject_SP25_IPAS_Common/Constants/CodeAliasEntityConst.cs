@@ -22,5 +22,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string LANDROW = "LARO";
         public static string PLANT_GROWTH_HISTORY = "PLGH";
         public static string PLAN = "PLAN";
+        public static string HARVEST_HISTORY = "HVHT";
     }
 }

@@ -144,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateProcessInfo = Base + "/processes/update-process-info";
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
+            public const string getProcessesForSelect = Base + "/proceesses/get-for-select";
         }
 
         public static class SubProcess
@@ -223,6 +224,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softDeleteUserWorkLog = prefix + "/soft-delete-user-work-log";
             public const string getUserWorkLogByName = prefix + "/get-user-work-log-by-name/{name}";
             public const string CheckConflict = prefix + "/check-conflict-schedule";
+            public const string CheckConflictByStartDateAndEndDate = prefix + "/check-conflict-schedule-by-startDate-endDate";
         }
         public static class LegalDocument
         {
@@ -244,7 +246,55 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCropById = prefix + "";
             public const string getAllCropOfFarm = prefix + "/get-crop-of-farm";
             public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
-            public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
+            public const string getAllCropOfLandPlotForSelect = prefix + "/get-crop-of-landplot-selected";
+        }
+
+        public static class Harvest
+        {
+            public const string prefix = Base + "/harvests";
+            public const string createHarvest = prefix + "";
+            public const string createHarvesTypeHistory = prefix + "create-detail-of-harvest";
+            public const string deletePermanentlyHarvest = prefix + "";
+            public const string deleteHarvestType = prefix + "delete-harvest-detail";
+            public const string updateHarvestInfo = prefix + "";
+            public const string updateHarvestTypeInfo = prefix + "/update-harvest-detail";
+            public const string getHarvestById = prefix + "";
+            public const string getAllHarvestPagin = prefix + "";
+            public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
+            //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
+            //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
+        }
+
+        public static class WorkLog
+        {
+            public const string prefix = Base + "/work-log";
+            public const string createWorkLog = prefix + "";
+            public const string getWorkLogWithPagination = prefix + "";
+            public const string deleteWorkLog = prefix + "/{id}";
+            public const string updateWorkLogInfo = prefix + "";
+            public const string getWorkLogById = prefix + "/get-work-log-by-id/{id}";
+            public const string getWorkLogByName = prefix + "/get-work-log-by-name/{name}";
+            public const string getSchedule = prefix + "/get-schedule";
+            public const string getAllSchedule = prefix + "/get-all-schedule";
+            public const string assignTask = prefix + "/assign-task";
+        }
+
+        public static class Report
+        {
+            public const string prefix = Base + "/report";
+            public const string CropCareReport = prefix + "/crop-care/{landPlotId}/{year}";
+        }
+
+        public static class TaskFeedback
+        {
+            public const string prefix = Base + "/task-feedback";
+            public const string createTaskFeedback = prefix + "";
+            public const string getTaskFeedbackWithPagination = prefix + "";
+            public const string deleteTaskFeedback = prefix + "/{id}";
+            public const string updateTaskFeedbackInfo = prefix + "";
+            public const string getTaskFeedbackById = prefix + "/get-task-feedback-by-id/{id}";
+            public const string getTaskFeedbackByManagerId = prefix + "/get-task-feedback-by-manager-id/{id}";
+            public const string getTaskFeedbackByWorkLogId = prefix + "/get-task-feedback-by-work-log-id/{id}";
         }
     }
 }

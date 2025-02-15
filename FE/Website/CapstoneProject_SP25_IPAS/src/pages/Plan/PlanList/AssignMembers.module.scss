@@ -1,46 +1,45 @@
 @use "@/styles/variables.scss" as vars;
 .assignMembers {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .label {
-    font-weight: 600;
-  }
-  
-  .avatars {
-    display: flex;
-    align-items: center;
-  }
-  
-  .avatar {
-    margin-right: -8px;
-    border: 2px solid #fff;
-  }
-  
-  .more {
-    background: #ccc;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-  }
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  .btnAssign {
-    background-color: vars.$color_second;
-    color: vars.$color_primary;
-    &:hover {
-        color: inherit !important;
-        opacity: 0.8;
-        background-color: vars.$color_second !important;
-        border-color: vars.$color_second !important;
-      }
+.label {
+  font-weight: 600;
+}
+
+.avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  margin-right: -8px;
+  border: 2px solid #fff;
+}
+
+.more {
+  background: #ccc;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+}
+
+.btnAssign {
+  background-color: vars.$color_second;
+  color: vars.$color_primary;
+  &:hover {
+    color: inherit !important;
+    opacity: 0.8;
+    background-color: vars.$color_second !important;
+    border-color: vars.$color_second !important;
   }
-  
+}
