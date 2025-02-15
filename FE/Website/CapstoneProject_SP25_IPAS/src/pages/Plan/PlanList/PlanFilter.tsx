@@ -49,6 +49,8 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
   const handleApply = () => {
     if (isFilterChanged) {
+      console.log("filter thay doi");
+      
       onApply();
       setPrevFilters(filters);
     }
@@ -93,7 +95,7 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
             onChange={(value) => updateFilters("processTypes", value)}
           />
         </Flex>
-        <Flex className={style.sectionStatus}>
+        {/* <Flex className={style.sectionStatus}>
           <label className={style.title}>Status:</label>
           <Flex className={style.statusGroup}>
             {["Active", "Inactive"].map((status) => (
@@ -115,7 +117,34 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
               </Checkbox>
             ))}
           </Flex>
-        </Flex>
+        </Flex> */}
+        <Flex className={style.sectionStatus}>
+  <label className={style.title}>Status:</label>
+  <Flex className={style.statusGroup}>
+    {[
+      { label: "Active", value: true }, 
+      { label: "Inactive", value: false }
+    ].map(({ label, value }) => (
+      <Checkbox
+        className={styles.customCheckbox}
+        key={label}
+        checked={filters.status.includes(value.toString())} // Convert boolean thành string
+        onChange={(e) => {
+          const checked = e.target.checked;
+          updateFilters(
+            "status",
+            checked
+              ? [...filters.status, value.toString()] // Lưu dạng string "true" / "false"
+              : filters.status.filter((val) => val !== value.toString()),
+          );
+        }}
+      >
+        {label}
+      </Checkbox>
+    ))}
+  </Flex>
+</Flex>
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

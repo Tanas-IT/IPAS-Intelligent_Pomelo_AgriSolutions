@@ -64,7 +64,7 @@ export const buildParams = (
   sortField?: string,
   sortDirection?: string,
   searchValue?: string,
-  brandId?: string | null,
+  // brandId?: string | null,
   additionalParams?: Record<string, any>,
 ): Record<string, any> => {
   const params: Record<string, any> = {
@@ -73,7 +73,7 @@ export const buildParams = (
     sortField,
     sortDirection,
     searchKey: searchValue,
-    brandid: brandId,
+    // brandid: brandId,
     ...additionalParams,
   };
 

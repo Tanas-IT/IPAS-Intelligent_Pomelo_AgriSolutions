@@ -40,18 +40,24 @@ function PlanList() {
     isInitialLoad,
   } = useFetchData<GetPlan>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      planService.getPlans(page, limit, sortField, sortDirection, searchValue, "21", filters),
+      planService.getPlans(page, limit, sortField, sortDirection, searchValue, filters),
   });
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, searchValue]);
+  }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
 
   const updateFilters = (key: string, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    // setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters((prev) => {
+      const newFilters = { ...prev, [key]: value };
+      console.log("Updated Filters:", newFilters); // Debug kiểm tra state mới
+      return newFilters;
+    });
   };
 
   const handleApply = () => {
+    console.log("Applying filters:", filters);
     fetchData();
   };
 
@@ -65,6 +71,8 @@ function PlanList() {
     });
   };
 
+  
+
   const filterContent = (
     <PlanFilter
       filters={filters}
@@ -74,142 +82,13 @@ function PlanList() {
     />
   );
 
-  const fakeData: GetPlan[] = [
-    {
-      planId: "1",
-      planName: "Grafting",
-      status: "Active",
-      planCode: "P-001",
-      createDate: new Date("2023-01-01"),
-      startDate: new Date("2023-01-01"),
-      endDate: new Date("2023-12-01"),
-      updateDate: new Date("2023-12-01"),
-      isActive: true,
-      notes: "Initial planting process for Pomelo trees.",
-      planDetail: "Planting Pomelo trees with required spacing and soil preparation.",
-      responsibleBy: ["1"],
-      frequency: "Yearly",
-      landPlot: 1001,
-      assignorId: "201",
-      pesticideName: "Pesticide A",
-      maxVolume: 50,
-      minVolume: 10,
-      processId: "Caring",
-      cropId: "pomelo",
-      growthStageId: "stage",
-      isDelete: false,
-      masterTypeId: "601",
-      farmId: "F-001",
-      startTime: new Date("2023-01-01T08:00:00"),
-      endTime: new Date("2023-01-01T17:00:00"),
-      daysOfWeek: [1, 2, 3],
-      daysOfMonth: [10, 20],
-      customDates: [new Date("2023-01-01T08:00:00")]
-    },
-    {
-      planId: "2",
-      planName: "Grafting",
-      status: "Inactive",
-      planCode: "P-002",
-      createDate: new Date("2022-11-15"),
-      startDate: new Date("2022-11-15"),
-      endDate: new Date("2023-10-10"),
-      updateDate: new Date("2023-10-10"),
-      isActive: false,
-      notes: "Caring process for Pomelo trees.",
-      planDetail: "Maintain tree health and growth with appropriate care methods.",
-      responsibleBy: ["1"],
-      frequency: "Monthly",
-      landPlot: 1002,
-      assignorId: "202",
-      pesticideName: "Pesticide B",
-      maxVolume: 60,
-      minVolume: 15,
-      processId: "Caring",
-      cropId: "pomelo",
-      growthStageId: "stage",
-      isDelete: false,
-      masterTypeId: "602",
-      farmId: "F-002",
-      startTime: new Date("2023-01-01T08:00:00"),
-      endTime: new Date("2023-01-01T17:00:00"),
-      daysOfWeek: [1, 2, 3],
-      daysOfMonth: [10, 20],
-      customDates: [new Date("2023-01-01T08:00:00")]
-    },
-    {
-      planId: "3",
-      planName: "Grafting",
-      status: "Deleted",
-      planCode: "P-003",
-      createDate: new Date("2022-06-20"),
-      startDate: new Date("2022-06-20"),
-      endDate: new Date("2023-09-30"),
-      updateDate: new Date("2023-09-30"),
-      isActive: false,
-      notes: "Harvesting process for Pomelo trees.",
-      planDetail: "Harvesting ripe Pomelo fruits from the trees.",
-      responsibleBy: ["1"],
-      frequency: "Once a year",
-      landPlot: 1003,
-      assignorId: "203",
-      pesticideName: "Pesticide C",
-      maxVolume: 70,
-      minVolume: 20,
-      processId: "Harvesting",
-      cropId: "pomelo",
-      growthStageId: "stage",
-      isDelete: true,
-      masterTypeId: "603",
-      farmId: "F-003",
-      startTime: new Date("2023-01-01T08:00:00"),
-      endTime: new Date("2023-01-01T17:00:00"),
-      daysOfWeek: [1, 2, 3],
-      daysOfMonth: [10, 20],
-      customDates: [new Date("2023-01-01T08:00:00")]
-    },
-    {
-      planId: "4",
-      planName: "Grafting",
-      status: "Inactive",
-      planCode: "P-004",
-      createDate: new Date("2023-05-10"),
-      startDate: new Date("2023-05-10"),
-      endDate: new Date("2023-11-05"),
-      updateDate: new Date("2023-11-05"),
-      isActive: false,
-      notes: "Grafting process for Pomelo trees.",
-      planDetail: "Graft selected Pomelo varieties onto rootstock.",
-      responsibleBy: ["1"],
-      frequency: "Bi-annually",
-      landPlot: 1004,
-      assignorId: "204",
-      pesticideName: "Pesticide D",
-      maxVolume: 80,
-      minVolume: 30,
-      processId: "Grafting",
-      cropId: "pomelo",
-      growthStageId: "stage",
-      isDelete: false,
-      masterTypeId: "604",
-      farmId: "F-004",
-      startTime: new Date("2023-01-01T08:00:00"),
-      endTime: new Date("2023-01-01T17:00:00"),
-      daysOfWeek: [1, 2, 3],
-      daysOfMonth: [10, 20],
-      customDates: [new Date("2023-01-01T08:00:00")]
-    }
-  ];
-
-
-
   return (
     <Flex className={style.container}>
       <SectionTitle title="Plan Management" totalRecords={totalRecords} />
       <Flex className={style.table}>
         <Table
           columns={planColumns}
-          rows={fakeData}
+          rows={data}
           rowKey="planCode"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}

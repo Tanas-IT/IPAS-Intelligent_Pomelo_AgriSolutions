@@ -1,3 +1,22 @@
 .formWrapper {
   width: 100%;
+  
+  // Style cho label
+  .ant-form-item-label >label {
+    font-size: 16px;
+  }
+  
+  // Style cho Select
+  .ant-select {
+    font-size: 16px;
+  }
+
+  // Style cho nội dung bên trong Select
+  .ant-select-selection-item {
+    font-size: 16px;
+  }
+
+  .ant-select-selection-placeholder {
+    font-size: 16px;
+  }
 }

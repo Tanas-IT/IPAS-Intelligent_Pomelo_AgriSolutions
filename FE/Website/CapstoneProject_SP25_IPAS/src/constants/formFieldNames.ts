@@ -42,3 +42,21 @@ export const feedbackFormFields = {
   worklogId: "worklogId",
   worklogStatus: "worklogStatus"
 };
+
+export const addPlanFormFields = {
+  planName: "planName",
+  planDetail: "planDetail",
+  cropId: "cropId",
+  landPlotId: "landPlotId",
+  processId: "processId",
+  growthStageId: "growthStageId",
+  isActive: "isActive",
+  dateRange: "dateRange",
+  timeRange: "timeRange",
+  dayOfWeek: "dayOfWeek",
+  dayOfMonth: "dayOfMonth",
+  customDates: "customDates",
+  masterTypeId: "masterTypeId",
+  listEmployee: "listEmployee",
+  frequency: "frequency"
+};

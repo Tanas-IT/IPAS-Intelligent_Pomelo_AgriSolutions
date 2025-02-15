@@ -76,4 +76,10 @@ export class RulesManager {
 
   static getContentFeedbackRules = () => this.getRequiredRules("Content");
   static getStatusWorklogFeedbackRules = () => this.getRequiredRules("Status Worlog");
+
+  static getPlanNameRules = () => this.getRequiredRules("Plan Name");
+  static getPlanDetailRules = () => this.getRequiredRules("Plan Detail");
+  static getGrowthStageRules = () => this.getRequiredRules("Growth Stage");
+
+
 }

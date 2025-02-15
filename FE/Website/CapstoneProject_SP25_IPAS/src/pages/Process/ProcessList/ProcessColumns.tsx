@@ -1,9 +1,9 @@
 import { TableColumn } from "@/types";
 import style from "./ProcessList.module.scss";
-import { GetProcess } from "@/payloads/process";
+import { GetProcess, GetProcessList } from "@/payloads/process";
 import { Tag } from "antd";
 
-export const processColumns: TableColumn<GetProcess>[] = [
+export const processColumns: TableColumn<GetProcessList>[] = [
   {
     header: "Process Code",
     field: "processCode",
@@ -19,7 +19,7 @@ export const processColumns: TableColumn<GetProcess>[] = [
   {
     header: "Created Date",
     field: "createDate",
-    accessor: (process) =>  <div className={style.tableText}>{process.createDate.toLocaleDateString()}</div>,
+    accessor: (process) =>  <div className={style.tableText}>{process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}</div>,
     width: 150,
   },
   {
@@ -30,8 +30,8 @@ export const processColumns: TableColumn<GetProcess>[] = [
   },
   {
     header: "Type",
-    field: "processStyleName",
-    accessor: (process) =>  <div className={style.tableText}>{process.processStyleName}</div>,
+    field: "masterTypeName",
+    accessor: (process) =>  <div className={style.tableText}>{process.masterTypeName}</div>,
     width: 150,
   },
   {

@@ -81,6 +81,12 @@ const useStyle = createStyles(({ css }) => {
       .ant-segmented-item-label {
         color: ${primaryColor} !important;
       }
+
+      .ant-form-item-label >label,
+      .ant-form-item-required {
+        font-size: 16px;
+        color: ${primaryColor} !important;
+      }
     `,
     customTab: css`
       .ant-tabs-tab:hover,
@@ -183,6 +189,11 @@ const useStyle = createStyles(({ css }) => {
     customTimeline: css`
       .ant-timeline-item-tail {
         background-color: ${secondColor} !important;
+      }
+    `,
+    customFormItemInput: css`
+      .ant-form-item-label >label {
+        font-size: 16px;
       }
     `
   };

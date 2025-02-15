@@ -1,104 +1,61 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
-import { Button, Divider, Flex, Tag, Tree, TreeDataNode, TreeProps, Input } from "antd";
+import { Button, Divider, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons } from "@/assets";
 import { CustomButton, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
-import { useState } from "react";
-import EditableTreeNode from "./EditableTreeNode";
-import ButtonActions from "./ButtonActions";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { processService } from "@/services";
+import EditableTreeNode from "./EditableTreeNode";
+import ButtonActions from "./ButtonActions";
 
-const generateProcessData = () => [
-  {
-    title: "Lựa chọn cây giống",
-    key: "0-0",
-    children: [
-      { title: "Lựa chọn nhà cung cấp", key: "0-0-0" },
-      {
-        title: "Kiểm tra cây giống khi nhận hàng",
-        key: "0-0-1",
-        children: [
-          { title: "Plowing", key: "0-0-1-0" },
-          { title: "Leveling", key: "0-0-1-1" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Trồng cây con",
-    key: "0-1",
-    children: [
-      { title: "Chuẩn bị trước khi trồng", key: "0-1-0" },
-      { title: "Trồng cây", key: "0-1-1" },
-    ],
-  },
-  {
-    title: "Chăm sóc sau khi trồng",
-    key: "0-2",
-    children: [
-      { title: "Tưới nước", key: "0-2-0" },
-      { title: "Bón phân", key: "0-2-1" },
-      { title: "Phòng ngừa sâu bệnh", key: "0-2-2" },
-    ],
-  },
-];
+interface SubProcess {
+  subProcessId: number;
+  subProcessName: string;
+  parentSubProcessId?: number;
+  listSubProcessData?: SubProcess[];
+}
+
+const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): TreeDataNode[] => {
+  return subProcesses
+    .filter(sp => sp.parentSubProcessId === parentId)
+    .map(sp => ({
+      title: sp.subProcessName,
+      key: sp.subProcessId.toString(),
+      children: mapSubProcessesToTree(subProcesses, sp.subProcessId),
+    }));
+};
 
 function ProcessDetails() {
   const navigate = useNavigate();
-  const [gData, setGData] = useState<TreeDataNode[]>(generateProcessData());
-  const [expandedKeys] = useState<string[]>(["0-0", "0-1", "0-2"]);
-  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState<string>("");
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
-  const onDrop: TreeProps["onDrop"] = (info) => {
-    const dropKey = info.node.key.toString();
-    const dragKey = info.dragNode.key.toString();
-    const dropToGap = info.dropToGap;
-    const data = [...gData];
+  useEffect(() => {
+    if (!id) {
+      console.error("Missing id");
+      return;
+    }
 
-    let dragObj: TreeDataNode | undefined;
+    const fetchProcessDetails = async () => {
+      try {
+        const data = await processService.getProcessDetail(id);
+        console.log("data", data);
 
-    const loop = (nodes: TreeDataNode[], key: string, callback: (node: TreeDataNode, index: number, arr: TreeDataNode[]) => void) => {
-      for (let i = 0; i < nodes.length; i++) {
-        if (nodes[i].key === key) {
-          return callback(nodes[i], i, nodes);
-        }
-        if (nodes[i].children) {
-          loop(nodes[i].children!, key, callback);
-        }
+        setTreeData(mapSubProcessesToTree(data.subProcesses));
+      } catch (error) {
+        console.error("Failed to fetch process details", error);
       }
     };
 
-    // xoa node cu
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1);
-      dragObj = item;
-    });
-
-    if (!dropToGap) {
-      // tha vao 1 node khac
-      loop(data, dropKey, (item) => {
-        item.children = item.children || [];
-        item.children.push(dragObj!);
-      });
-    } else {
-      // tha cung cap
-      loop(data, dropKey, (item, index, arr) => {
-        arr.splice(index + (info.dropPosition > 0 ? 1 : 0), 0, dragObj!);
-      });
-    }
-
-    console.log("Updated Tree:", data);
-
-    setGData([...data]);
-  };
-  console.log("newTitle", newTitle);
-
-  const handleSaveNode = () => { };
-  const handleCancel = () => { };
+    fetchProcessDetails();
+  }, [id]);
+  console.log("tree data", treeData);
 
 
   const handleAdd = (parentKey: string) => {
@@ -110,7 +67,7 @@ function ProcessDetails() {
     };
 
     const updateTree = (nodes: TreeDataNode[]): TreeDataNode[] => {
-      return nodes.map((node) => {
+      return nodes.map(node => {
         if (node.key === parentKey) {
           return { ...node, children: [...(node.children || []), newNode] };
         }
@@ -121,27 +78,25 @@ function ProcessDetails() {
       });
     };
 
-    setGData(updateTree(gData));
+    setTreeData(updateTree(treeData));
   };
 
   const handleEdit = (key: string) => {
     setEditingKey(key);
-    const node = findNodeByKey(gData, key);
-    if (node && typeof node.title === 'string') {
+    const node = findNodeByKey(treeData, key);
+    if (node && typeof node.title === "string") {
       setNewTitle(node.title);
-    } else {
-      console.error(`Node with key ${key} not found or title is not a string.`);
     }
   };
 
   const handleSave = () => {
     if (editingKey !== null) {
-      const updatedData = [...gData];
+      const updatedData = [...treeData];
       const node = findNodeByKey(updatedData, editingKey);
       if (node) {
         node.title = newTitle;
       }
-      setGData(updatedData);
+      setTreeData(updatedData);
       setEditingKey(null);
       setNewTitle("");
     }
@@ -150,23 +105,29 @@ function ProcessDetails() {
   const handleDelete = (key: string) => {
     const deleteNode = (nodes: TreeDataNode[]): TreeDataNode[] => {
       return nodes
-        .filter((node) => node.key !== key)
-        .map((node) => ({
+        .filter(node => node.key !== key)
+        .map(node => ({
           ...node,
           children: node.children ? deleteNode(node.children) : undefined,
         }));
     };
 
-    setGData(deleteNode(gData));
+    setTreeData(deleteNode(treeData));
   };
 
+  const handleCancel = () => {
+
+  }
+
+  const handleSaveNode = () => {
+
+  }
+
   const findNodeByKey = (nodes: TreeDataNode[], key: string): TreeDataNode | null => {
-    for (let i = 0; i < nodes.length; i++) {
-      if (nodes[i].key === key) {
-        return nodes[i];
-      }
-      if (nodes[i].children) {
-        const foundNode = findNodeByKey(nodes[i].children!, key);
+    for (let node of nodes) {
+      if (node.key === key) return node;
+      if (node.children) {
+        const foundNode = findNodeByKey(node.children, key);
         if (foundNode) return foundNode;
       }
     }
@@ -207,46 +168,70 @@ function ProcessDetails() {
     }));
   };
 
-  const handleAddRoot = () => {
-    const newKey = `root-${Date.now()}`;
-    const newNode: TreeDataNode = {
-      title: "New Root Process",
-      key: newKey,
-      children: [],
+  const onDrop: TreeProps["onDrop"] = (info) => {
+    const dropKey = info.node.key.toString();
+    const dragKey = info.dragNode.key.toString();
+    const dropToGap = info.dropToGap;
+    const data = [...treeData];
+
+    let dragObj: TreeDataNode | undefined;
+
+    const loop = (nodes: TreeDataNode[], key: string, callback: (node: TreeDataNode, index: number, arr: TreeDataNode[]) => void) => {
+      for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].key === key) {
+          return callback(nodes[i], i, nodes);
+        }
+        if (nodes[i].children) {
+          loop(nodes[i].children!, key, callback);
+        }
+      }
     };
-  
-    setGData((prev) => [...prev, newNode]);
+
+    // xoa node cu
+    loop(data, dragKey, (item, index, arr) => {
+      arr.splice(index, 1);
+      dragObj = item;
+    });
+
+    if (!dropToGap) {
+      // tha vao 1 node khac
+      loop(data, dropKey, (item) => {
+        item.children = item.children || [];
+        item.children.push(dragObj!);
+      });
+    } else {
+      // tha cung cap
+      loop(data, dropKey, (item, index, arr) => {
+        arr.splice(index + (info.dropPosition > 0 ? 1 : 0), 0, dragObj!);
+      });
+    }
+
+    console.log("Updated Tree:", data);
+
+    setTreeData([...data]);
   };
-  
 
   return (
     <div className={style.container}>
-      <Flex className={style.extraContent}>
+      <div className={style.extraContent}>
         <Tooltip title="Back to List">
           <Icons.back className={style.backIcon} onClick={() => navigate(PATHS.PROCESS.PROCESS_LIST)} />
         </Tooltip>
-      </Flex>
+      </div>
       <Divider className={style.divider} />
-      <Flex className={style.contentSectionTitleLeft}>
+      <div className={style.contentSectionTitleLeft}>
         <p className={style.title}>Caring Process</p>
-        <Tooltip title="Hello">
-          <Icons.tag className={style.iconTag} />
-        </Tooltip>
-        <Tag className={`${style.statusTag} ${style.normal}`}>Normal</Tag>
         <div className={style.addButton}>
-          <CustomButton
-            label="Add Sub Process"
-            icon={<Icons.plus />}
-            handleOnClick={handleAddRoot} />
+          <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
         </div>
-      </Flex>
+      </div>
       <Divider className={style.divider} />
       <Tree
-        defaultExpandedKeys={expandedKeys}
         draggable
         blockNode
         onDrop={onDrop}
-        treeData={loopNodes(gData)} />
+        treeData={loopNodes(treeData)}
+      />
       <div className={style.buttonGroup}>
         <Button>Cancel</Button>
         <Button className={style.confirmButton}>Save</Button>
@@ -257,3 +242,6 @@ function ProcessDetails() {
 }
 
 export default ProcessDetails;
+
+
+

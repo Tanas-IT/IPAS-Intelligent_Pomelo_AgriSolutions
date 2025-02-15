@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
-import { buildParams } from "@/utils";
+import { buildParams, convertKeysToKebabCase } from "@/utils";
 
 export const getPlans = async (
   currentPage?: number,
@@ -9,7 +9,7 @@ export const getPlans = async (
   sortField?: string,
   sortDirection?: string,
   searchValue?: string,
-  brandId?: string | null,
+  // brandId?: string | null,
   additionalParams?: Record<string, any>,
 ): Promise<GetData<GetPlan>> => {
   const params = buildParams(
@@ -18,10 +18,22 @@ export const getPlans = async (
     sortField,
     sortDirection,
     searchValue,
-    brandId,
+    // brandId,
     additionalParams,
   );
-  const res = await axiosAuth.axiosJsonRequest.get("plan", { params });
+  console.log("params",params);
+  console.log("additionalParams",additionalParams);
+  const kebabParams = convertKeysToKebabCase(params);
+
+  console.log("🚀 Converted Params:", kebabParams); 
+  
+  const res = await axiosAuth.axiosJsonRequest.get("plan", { params: {
+    // "filter-is-active": false
+  } });
+  console.log('res', res);
+  
   const apiResponse = res.data as ApiResponse<Object>;
+  console.log("apiResponse", apiResponse);
+  
   return apiResponse.data as GetData<GetPlan>;
 };

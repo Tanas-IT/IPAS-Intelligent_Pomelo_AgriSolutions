@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Form,
     Input,
@@ -15,7 +15,7 @@ import {
     Flex,
 } from "antd";
 import moment, { Moment } from "moment";
-import { CustomButton, Section, Tooltip } from "@/components";
+import { CustomButton, FormFieldModal, Section, SelectInfo, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
@@ -23,8 +23,10 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useLocalStorage, useUnsavedChangesWarning } from "@/hooks";
-import { getUserId } from "@/utils";
+import { useLocalStorage, useStyle, useUnsavedChangesWarning } from "@/hooks";
+import { getFarmId, getUserId, RulesManager } from "@/utils";
+import { addPlanFormFields, frequencyOptions } from "@/constants";
+import { cropService, landPlotService } from "@/services";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -62,11 +64,14 @@ const AddPlan = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [daysOfMonth, setDaysOfMonth] = useState<number[]>([]);
+    const [cropOptions, setCropOptions] = useState<{ value: string, label: string }[]>([]);
+    const [landPlotOptions, setLandPlotOptions] = useState<{ value: string, label: string }[]>([]);
     const navigate = useNavigate();
     const userId = getUserId();
     const { getAuthData } = useLocalStorage();
     const authData = getAuthData();
     const [isFormDirty, setIsFormDirty] = useState(false);
+    const farmId = getFarmId();
 
     const {
         isModalVisible,
@@ -134,7 +139,35 @@ const AddPlan = () => {
                 startTime,
                 endTime
             });
-            setIsFormDirty(false);
+        setIsFormDirty(false);
+    };
+
+    useEffect(() => {
+        fetchCropOptions();
+        fetchLandPlotOptions();
+    }, []);
+
+    const fetchCropOptions = async () => {
+        const crops = await cropService.getCropsOfFarmForSelect(farmId);
+        console.log("crops", crops);
+
+        const formattedCropOptions = crops.map((crop) => ({
+            value: crop.cropId,
+            label: crop.cropName,
+        }));
+        setCropOptions(formattedCropOptions);
+
+    };
+
+    const fetchLandPlotOptions = async () => {
+        const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
+        console.log("landPlots", landPlots);
+
+        const formattedLandPlotOptions = landPlots.map((landPlot) => ({
+            value: landPlot.landPlotId,
+            label: landPlot.landPlotName,
+        }));
+        setLandPlotOptions(formattedLandPlotOptions);
     };
 
 
@@ -142,20 +175,20 @@ const AddPlan = () => {
         <div className={style.contentSectionBody}>
             <Flex gap={40} align="center">
                 <Tooltip title="Back to List">
-                    <Icons.back 
-                    className={style.backIcon} 
-                    size={20} 
-                    onClick={() => {
-                        if (isFormDirty) {
-                            Modal.confirm({
-                                title: "Bạn có chắc chắn muốn rời đi?",
-                                content: "Tất cả thay đổi chưa lưu sẽ bị mất.",
-                                onOk: () => navigate(PATHS.PLAN.PLAN_LIST),
-                            });
-                        } else {
-                            navigate(PATHS.PLAN.PLAN_LIST);
-                        }
-                    }} />
+                    <Icons.back
+                        className={style.backIcon}
+                        size={20}
+                        onClick={() => {
+                            if (isFormDirty) {
+                                Modal.confirm({
+                                    title: "Bạn có chắc chắn muốn rời đi?",
+                                    content: "Tất cả thay đổi chưa lưu sẽ bị mất.",
+                                    onOk: () => navigate(PATHS.PLAN.PLAN_LIST),
+                                });
+                            } else {
+                                navigate(PATHS.PLAN.PLAN_LIST);
+                            }
+                        }} />
                 </Tooltip>
                 <h2 className={style.title}>Add Plan</h2>
             </Flex>
@@ -172,26 +205,33 @@ const AddPlan = () => {
                     <Form.Item label="Name" name="planName" rules={[{ required: true, message: "Please enter the name!" }]}>
                         <Input placeholder="Enter care plan name" />
                     </Form.Item>
+
                     <Form.Item label="Detail" name="planDetail">
                         <Input.TextArea rows={3} placeholder="Enter details" />
                     </Form.Item>
 
+                    <Form.Item label="Note" name="notes">
+                        <Input placeholder="Enter plan notes" />
+                    </Form.Item>
+
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item label="Crop" name="cropId">
-                                <Select placeholder="Select crop">
-                                    <Option value="pomelo">Pomelo</Option>
-                                    <Option value="other">Other</Option>
-                                </Select>
-                            </Form.Item>
+                            <SelectInfo
+                                label="Crop"
+                                // rules={RulesManager.getCropRules()}
+                                name={addPlanFormFields.cropId}
+                                options={cropOptions}
+                                isEditing={true}
+                            />
                         </Col>
                         <Col span={12}>
-                            <Form.Item label="Land Plot" name="landPlot" rules={[{ required: true, message: "Please select the land plot!" }]}>
-                                <Select placeholder="Select Land Plot">
-                                    <Option value="plot1">Plot 1</Option>
-                                    <Option value="plot2">Plot 2</Option>
-                                </Select>
-                            </Form.Item>
+                            <SelectInfo
+                                label="Land Plot"
+                                rules={RulesManager.getLandPlotRules()}
+                                name={addPlanFormFields.landPlotId}
+                                options={landPlotOptions}
+                                isEditing={true}
+                            />
                         </Col>
                     </Row>
                     <Row gutter={16}>
@@ -221,20 +261,19 @@ const AddPlan = () => {
 
                 {/* SCHEDULE */}
                 <Section title="Schedule" subtitle="Define the schedule for the care plan.">
-                    <Form.Item label="Date Range" name="date" rules={[{ required: true, message: "Please select the date range!" }]}>
+                    <Form.Item label="Date Range" name="dateRange" rules={[{ required: true, message: "Please select the date range!" }]}>
                         <RangePicker style={{ width: "100%" }} />
                     </Form.Item>
                     <Form.Item label="Time Range" name="timeRange" rules={[{ required: true, message: "Please select the time range!" }]}>
                         <TimePicker.RangePicker style={{ width: "100%" }} />
                     </Form.Item>
-                    <Form.Item label="Frequency" name="frequency">
-                        <Select placeholder="Select frequency" defaultValue={"none"} onChange={handleFrequencyChange}>
-                            <Option value="none">None</Option>
-                            <Option value="daily">Daily</Option>
-                            <Option value="weekly">Weekly</Option>
-                            <Option value="monthly">Monthly</Option>
-                        </Select>
-                    </Form.Item>
+                    <SelectInfo
+                        label="Frequency"
+                        name={addPlanFormFields.frequency}
+                        options={frequencyOptions}
+                        isEditing={true}
+                        defaultValue="none"
+                    />
 
                     {frequency === "weekly" && (
                         <Form.Item label="Select Days of Week" rules={[{ required: true, message: "Please select the days of week!" }]}>

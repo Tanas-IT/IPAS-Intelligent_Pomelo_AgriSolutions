@@ -5,4 +5,5 @@ export * as processService from "./ProcessService";
 export * as planService from "./PlanService";
 export * as farmService from "./FarmService";
 export * as cropService from "./CropService";
+export * as landPlotService from "./LandPlotService";
 
