@@ -19,6 +19,9 @@ import {
   WorklogDetail,
   AddPlan,
   UpdatePlan,
+  CreateFarm,
+  LandPlot,
+  LandPlotCreate,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -33,6 +36,7 @@ interface RouteItem {
 export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.LANDING, component: Landing, layout: GuestLayout },
   { path: PATHS.FARM_PICKER, component: FarmPicker, layout: FarmPickerLayout },
+  { path: PATHS.FARM.CREATE_FARM, component: CreateFarm, layout: FarmPickerLayout },
   { path: PATHS.AUTH.LOGIN, component: Authentication, layout: EmptyLayout },
   { path: PATHS.AUTH.FORGOT_PASSWORD, component: ForgetPassword, layout: EmptyLayout },
   {
@@ -52,6 +56,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.FARM.FARM_INFO, component: FarmInfo, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
+  { path: PATHS.FARM.FARM_PLOT_LIST, component: LandPlot, layout: ManagementLayout },
+  { path: PATHS.FARM.FARM_PLOT_CREATE, component: LandPlotCreate, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },

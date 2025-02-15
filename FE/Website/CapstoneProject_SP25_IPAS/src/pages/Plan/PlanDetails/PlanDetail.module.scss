@@ -1,324 +1,318 @@
 @use "@/styles/variables.scss" as vars;
 
 .container {
-    background-color: vars.$color_bg_detail;
-    // overflow: hidden;
-    padding: 10px 24px;
-    margin-top: 8px;
-    // height: 100vh;
+  background-color: vars.$color_bg_detail;
+  // overflow: hidden;
+  padding: 10px 24px;
+  margin-top: 8px;
+  // height: 100vh;
 
+  .contentSectionTitleLeft {
+    align-items: center;
+    gap: 3rem;
 
-    .contentSectionTitleLeft {
-        align-items: center;
-        gap: 3rem;
-
-        .title {
-            font-size: 24px;
-        }
-
-        .iconTag {
-            font-size: 24px;
-        }
-
-        .statusTag {
-            padding: 4px 24px;
-            margin: 0;
-            border-radius: 8px;
-            font-weight: bold;
-            border: transparent;
-        }
-
-        .normal {
-            width: fit-content;
-            text-align: center;
-            background-color: vars.$color_second;
-            color: vars.$color_primary;
-        }
-
-        .issue {
-            width: fit-content;
-            text-align: center;
-            background-color: vars.$color_selected_bg_delete;
-            color: vars.$color_selected_delete;
-        }
-
-        .subTitle {
-            font-size: 16px;
-        }
-
-        .addButton {
-            margin-left: auto;
-        }
-
-
+    .title {
+      font-size: 24px;
     }
 
-    .extraContent {
-        margin-right: 5vw;
-        cursor: pointer;
-
-        .backIcon {
-            font-size: 1.5rem;
-        }
+    .iconTag {
+      font-size: 24px;
     }
 
-    .divider {
-        margin: 10px 0;
-        border-block-start: 1px solid vars.$color_divider;
+    .statusTag {
+      padding: 4px 24px;
+      margin: 0;
+      border-radius: 8px;
+      font-weight: bold;
+      border: transparent;
     }
 
-    .contentSectionBody {
-        width: 80%;
-        justify-content: space-between;
-
-        .col {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            gap: 0.5rem;
-
-            .frequencyInfoFields {
-                padding: 12px;
-                border-radius: 6px;
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-
-                .valueType {
-                    color: vars.$color_type_frequency;
-                    font-size: 14px;
-                    font-weight: bold;
-                    background: vars.$color_bg_type_frequency;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    display: inline-block;
-                }
-
-                .calendarContainer {
-                    background: vars.$color_bg_detail;
-                    border-radius: 8px;
-                    padding: 12px;
-                    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-                    width: 220px;
-                    text-align: center;
-    
-                    h4 {
-                        margin-bottom: 8px;
-                        font-size: 14px;
-                        font-weight: bold;
-                    }
-    
-                    .grid {
-                        display: grid;
-                        grid-template-columns: repeat(7, 1fr);
-                        gap: 4px;
-                    }
-    
-                    .day {
-                        width: 24px;
-                        height: 24px;
-                        line-height: 24px;
-                        font-size: 12px;
-                        border-radius: 4px;
-                        background: vars.$color_logout_bg_hover;
-                    }
-    
-                    .selected {
-                        background: vars.$color_selected_days;
-                        color: vars.$color_bg_detail;
-                        font-weight: bold;
-                    }
-                }
-
-                .dateList {
-                    list-style: none;
-                    padding: 0;
-                    li {
-                        background: #e3f2fd;
-                        padding: 5px 10px;
-                        border-radius: 5px;
-                        margin: 4px 0;
-                    }
-                }
-                
-                .weekDays {
-                    display: flex;
-                    gap: 5px;
-                    .weekDay {
-                        padding: 6px 12px;
-                        border-radius: 20px;
-                        background: vars.$color_bg_weekday;
-                        transition: 0.3s;
-                        margin-top: 10px;
-                    }
-                    .active {
-                        background: vars.$color_selected_days;
-                        color: vars.$color_bg_detail;
-                        font-weight: bold;
-                    }
-                }
-                
-                .monthGrid {
-                    display: grid;
-                    grid-template-columns: repeat(7, 1fr);
-                    gap: 5px;
-                    margin-top: 10px;
-                
-                    .monthDay {
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 50%;
-                        background: vars.$color_bg_frequency;
-                        cursor: pointer;
-                        transition: 0.3s;
-                    }
-                
-                    .active {
-                        background: vars.$color_selected_days;
-                        color: vars.$color_bg_detail;
-                        font-weight: bold;
-                    }
-                }
-            }
-        }
-
-        h4 {
-            width: 100%;
-            text-align: left;
-        }
-
+    .normal {
+      width: fit-content;
+      text-align: center;
+      background-color: vars.$color_second;
+      color: vars.$color_primary;
     }
 
-    .smallerSection {
-        width: 50%;
-        border-left: 4px solid vars.$color_selected_days;
-        background: vars.$color_bg_frequency;
-        border-radius: 10px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    .issue {
+      width: fit-content;
+      text-align: center;
+      background-color: vars.$color_selected_bg_delete;
+      color: vars.$color_selected_delete;
     }
 
-    .descriptionSection {
-        width: 90%;
-        flex-direction: column;
-        margin-top: -8px;
-        text-align: justify;
+    .subTitle {
+      font-size: 16px;
     }
 
-    .infoField {
-        width: 100%;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 2rem;
-
-        &.infoFieldColumn {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.2rem;
-        }
-
-        .fieldLabelWrapper {
-            min-width: 8rem;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            color: vars.$color_text_detail;
-
-            .fieldLabel {
-                margin-top: 2px;
-            }
-        }
-
-        .fieldValue {
-            font-size: 14px;
-            // color: vars.$color_tag_employee;
-        }
-
-        .imageWrapper {
-            width: max-content;
-            justify-content: flex-start;
-            gap: 1rem;
-            padding: 10px;
-            border-radius: 8px;
-            border: 2px solid vars.$color_divider;
-        }
+    .addButton {
+      margin-left: auto;
     }
+  }
 
-    .contentSectionUser {
-        margin-top: 15px;
+  .extraContent {
+    margin-right: 5vw;
+    cursor: pointer;
+
+    .backIcon {
+      font-size: 1.5rem;
     }
+  }
 
-    .avt {
-        border-radius: 100%;
-    }
+  .divider {
+    margin: 10px 0;
+    border-block-start: 1px solid vars.$color_divider;
+  }
 
-    .createdBy {
-        font-size: 16px;
-        color: vars.$color_second;
-    }
+  .contentSectionBody {
+    width: 80%;
+    justify-content: space-between;
 
-    .createdDate {
-        font-size: 14px;
-        color: vars.$color_create_at;
-    }
+    .col {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 0.5rem;
 
-    .workLogContainer {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 10px;
-        padding-top: 0;
-        
+      .frequencyInfoFields {
+        padding: 12px;
         border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
 
-        h3 {
-            position: sticky;
-            background-color: vars.$color_bg_detail;
-            top: 0;
-            width: 100%;
-            z-index: 10;
-
-            span {
-                color: vars.$color_text_btn;
-                font-weight: normal;
-                font-size: 18px;
-                margin-left: 10px;
-              }
+        .valueType {
+          color: vars.$color_type_frequency;
+          font-size: 14px;
+          font-weight: bold;
+          background: vars.$color_bg_type_frequency;
+          padding: 4px 8px;
+          border-radius: 4px;
+          display: inline-block;
         }
 
-        .workLogCard {
-            background: vars.$color_bg_detail;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .calendarContainer {
+          background: vars.$color_bg_detail;
+          border-radius: 8px;
+          padding: 12px;
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+          width: 220px;
+          text-align: center;
 
-            .taskDot {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                display: inline-block;
-            }
+          h4 {
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: bold;
+          }
 
-            .workLogDate {
-                font-size: 12px;
-                color: vars.$color_create_at;
-            }
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+          }
 
-            .underSection {
-                margin-top: 10px;
-            }
+          .day {
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            font-size: 12px;
+            border-radius: 4px;
+            background: vars.$color_logout_bg_hover;
+          }
 
-            .link {
-                font-size: 14px;
-            }
+          .selected {
+            background: vars.$color_selected_days;
+            color: vars.$color_bg_detail;
+            font-weight: bold;
+          }
         }
+
+        .dateList {
+          list-style: none;
+          padding: 0;
+          li {
+            background: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 4px 0;
+          }
+        }
+
+        .weekDays {
+          display: flex;
+          gap: 5px;
+          .weekDay {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: vars.$color_bg_weekday;
+            transition: 0.3s;
+            margin-top: 10px;
+          }
+          .active {
+            background: vars.$color_selected_days;
+            color: vars.$color_bg_detail;
+            font-weight: bold;
+          }
+        }
+
+        .monthGrid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 5px;
+          margin-top: 10px;
+
+          .monthDay {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: vars.$color_bg_frequency;
+            cursor: pointer;
+            transition: 0.3s;
+          }
+
+          .active {
+            background: vars.$color_selected_days;
+            color: vars.$color_bg_detail;
+            font-weight: bold;
+          }
+        }
+      }
     }
 
-    
+    h4 {
+      width: 100%;
+      text-align: left;
+    }
+  }
+
+  .smallerSection {
+    width: 50%;
+    border-left: 4px solid vars.$color_selected_days;
+    background: vars.$color_bg_frequency;
+    border-radius: 10px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .descriptionSection {
+    width: 90%;
+    flex-direction: column;
+    margin-top: -8px;
+    text-align: justify;
+  }
+
+  .infoField {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2rem;
+
+    &.infoFieldColumn {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+
+    .fieldLabelWrapper {
+      min-width: 8rem;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      color: vars.$color_text_detail;
+
+      .fieldLabel {
+        margin-top: 2px;
+      }
+    }
+
+    .fieldValue {
+      font-size: 14px;
+      // color: vars.$color_tag_employee;
+    }
+
+    .imageWrapper {
+      width: max-content;
+      justify-content: flex-start;
+      gap: 1rem;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid vars.$color_divider;
+    }
+  }
+
+  .contentSectionUser {
+    margin-top: 15px;
+  }
+
+  .avt {
+    border-radius: 100%;
+  }
+
+  .createdBy {
+    font-size: 16px;
+    color: vars.$color_second;
+  }
+
+  .createdDate {
+    font-size: 14px;
+    color: vars.$color_create_at;
+  }
+
+  .workLogContainer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    padding-top: 0;
+
+    border-radius: 6px;
+
+    h3 {
+      position: sticky;
+      background-color: vars.$color_bg_detail;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+
+      span {
+        color: vars.$color_text_btn;
+        font-weight: normal;
+        font-size: 18px;
+        margin-left: 10px;
+      }
+    }
+
+    .workLogCard {
+      background: vars.$color_bg_detail;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .taskDot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .workLogDate {
+        font-size: 12px;
+        color: vars.$color_create_at;
+      }
+
+      .underSection {
+        margin-top: 10px;
+      }
+
+      .link {
+        font-size: 14px;
+      }
+    }
+  }
 }

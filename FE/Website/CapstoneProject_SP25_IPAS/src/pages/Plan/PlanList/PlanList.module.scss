@@ -3,7 +3,6 @@
 
 .container {
   @include shared.container;
-
 }
 
 .filterContent {
@@ -41,8 +40,6 @@
     font-size: 20px;
     font-weight: lighter;
   }
-
-
 
   .btnAdd {
     background-color: vars.$color_second;

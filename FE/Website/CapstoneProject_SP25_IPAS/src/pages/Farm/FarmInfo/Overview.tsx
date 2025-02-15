@@ -6,18 +6,10 @@ import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
 import { formatDateAndTime, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
-import {
-  EditActions,
-  FormFieldModal,
-  InputInfo,
-  MapAddress,
-  Section,
-  SectionHeader,
-  SelectInfo,
-} from "@/components";
+import { EditActions, InfoField, MapAddress, Section, SectionHeader } from "@/components";
 import { LogoState } from "@/types";
 import { useFarmStore, useLoadingStore } from "@/stores";
-import { useAddressLocation } from "@/hooks";
+import { useAddressLocation, useStyle } from "@/hooks";
 import { farmFormFields } from "@/constants";
 
 interface OverviewProps {
@@ -28,6 +20,7 @@ interface OverviewProps {
 }
 
 const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => {
+  const { styles } = useStyle();
   const { isLoading, setIsLoading } = useLoadingStore();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
@@ -205,17 +198,17 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Public Profile" subtitle="This will be displayed on your profile.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <InputInfo
+              <InfoField
                 label="Farm Name"
                 name={farmFormFields.farmName}
                 rules={RulesManager.getFarmNameRules()}
                 isEditing={isEditing}
                 placeholder="Enter the farm name"
               />
-              <InputInfo label="Create Date" name={farmFormFields.createDate} isEditing={false} />
+              <InfoField label="Create Date" name={farmFormFields.createDate} isEditing={false} />
             </Flex>
 
-            <InputInfo
+            <InfoField
               label="Description"
               name={farmFormFields.description}
               rules={RulesManager.getFarmDescriptionRules()}
@@ -235,7 +228,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
                 onRemove={handleRemove}
                 maxCount={1}
-                className={style.uploadWrapper}
+                className={`${style.uploadWrapper} ${styles.customUpload}`}
               >
                 <p className={style.uploadIcon}>
                   <Icons.upload />
@@ -253,21 +246,22 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Farm Characteristics" subtitle="Update your farm's environmental details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <InputInfo
+              <InfoField
                 label="Area (m²)"
                 name={farmFormFields.area}
                 rules={RulesManager.getAreaRules()}
                 isEditing={isEditing}
                 placeholder="Enter the farm area"
               />
-              <InputInfo
+
+              <InfoField
                 label="Soil Type"
                 name={farmFormFields.soilType}
                 rules={RulesManager.getSoilTypeRules()}
                 isEditing={isEditing}
                 placeholder="Enter soil type"
               />
-              <InputInfo
+              <InfoField
                 label="Climate Zone"
                 name={farmFormFields.climateZone}
                 rules={RulesManager.getClimateZoneRules()}
@@ -282,7 +276,8 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         <Section title="Address" subtitle="Update your address details.">
           <Form layout="vertical" className={style.form} form={form}>
             <Flex className={style.row}>
-              <SelectInfo
+              <InfoField
+                type="select"
                 label="Province"
                 name={farmFormFields.province}
                 rules={RulesManager.getProvinceRules()}
@@ -291,7 +286,8 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInfo
+              <InfoField
+                type="select"
                 label="District"
                 name={farmFormFields.district}
                 rules={RulesManager.getDistrictRules()}
@@ -300,7 +296,8 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
                 isEditing={isEditing}
                 isLoading={isLoading}
               />
-              <SelectInfo
+              <InfoField
+                type="select"
                 label="Ward"
                 name={farmFormFields.ward}
                 rules={RulesManager.getWardRules()}
@@ -311,7 +308,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
               />
             </Flex>
             <Flex className={style.row}>
-              <InputInfo
+              <InfoField
                 label="Address"
                 name={farmFormFields.address}
                 rules={RulesManager.getAddressRules()}

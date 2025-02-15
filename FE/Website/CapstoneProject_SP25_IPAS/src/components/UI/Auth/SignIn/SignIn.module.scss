@@ -88,16 +88,15 @@
 
 .forgetpw {
   display: block;
-  width: 40%;
+  width: max-content;
   margin-top: 30px;
   font-size: 14px;
-  color: #512da8;
   text-decoration: none;
   transition: color 0.3s ease;
   text-align: right;
 
   &:hover {
-    color: #5c6bc0;
+    color: vars.$color_primary;
     text-decoration: underline;
   }
 }

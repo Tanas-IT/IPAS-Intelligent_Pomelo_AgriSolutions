@@ -1,6 +1,7 @@
 export {
   AiOutlineCheckCircle as checkSuccuss,
   AiOutlineCloseCircle as closeFail,
+  AiOutlineAreaChart as area
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
 export { CiTimer as timer, CiBoxes as box, CiMail as mail } from "react-icons/ci";
@@ -22,7 +23,8 @@ export {
   MdOutlineKeyboardBackspace as back,
   MdOutlineDescription as description,
   MdCategory as category,
-  MdOutlineScatterPlot as lot
+  MdOutlineScatterPlot as lot,
+  MdOutlineTerrain as soil
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -32,10 +34,10 @@ export {
   LuClipboardCheck as criteria,
   LuHistory as history,
   LuPhone as phone,
-  LuUpload as upload
+  LuUpload as upload,
 } from "react-icons/lu";
 
-export { VscRobot as robot } from "react-icons/vsc";
+export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
 export {
   FaRegBell as regBell,
   FaRegCalendarPlus as calendar,
@@ -43,8 +45,9 @@ export {
   FaRegEdit as edit,
   FaCloud as cloud,
   FaCalendarAlt as calendarAlt,
+  FaMapMarkerAlt as marker,
 } from "react-icons/fa";
-export { PiFarm as farms, PiPlantLight as plant } from "react-icons/pi";
+export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
 export { BiShareAlt as share, BiDetail as detail } from "react-icons/bi";
 
@@ -61,6 +64,10 @@ export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti"
 export { FaWind as wind } from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";
 export { BsCloudRainFill as cloudRain } from "react-icons/bs";
-export { IoIosSunny as sunny, IoMdCloseCircleOutline  as close, IoIosWarning as warning } from "react-icons/io";
+export {
+  IoIosSunny as sunny,
+  IoMdCloseCircleOutline as close,
+  IoIosWarning as warning,
+} from "react-icons/io";
 export { GrCycle as process } from "react-icons/gr";
 // export { TbListDetails as detail } from "react-icons/tb";

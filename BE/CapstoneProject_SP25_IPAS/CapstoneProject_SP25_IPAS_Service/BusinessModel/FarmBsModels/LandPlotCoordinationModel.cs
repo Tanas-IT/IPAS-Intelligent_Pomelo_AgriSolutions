@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public double? Longitude { get; set; }
 
-        public double? Lagtitude { get; set; }
+        public double? Latitude { get; set; }
 
         public int? LandPlotId { get; set; }
     }
