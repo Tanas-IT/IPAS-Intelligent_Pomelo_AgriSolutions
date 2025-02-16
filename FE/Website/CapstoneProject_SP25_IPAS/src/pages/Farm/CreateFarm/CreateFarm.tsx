@@ -9,12 +9,15 @@ import { CoordsState } from "@/types";
 import { useAddressLocation } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
+import { farmService } from "@/services";
+import { FarmRequest } from "@/payloads";
 
 const Text = Typography;
 
 function CreateFarm() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
   const [farmLocation, setFarmLocation] = useState<CoordsState>(defaultCoordsFarm);
   const {
     provinces,
@@ -41,8 +44,19 @@ function CreateFarm() {
   const handleCancel = () => navigate(PATHS.FARM_PICKER);
 
   const handleSave = async () => {
-    var values = await form.validateFields();
-    console.log(values);
+    var values: FarmRequest = await form.validateFields();
+    try {
+      setIsLoading(true);
+      var result = await farmService.createFarm(values);
+      const toastMessage = result.message;
+      if (result.statusCode === 200) {
+        navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+      } else {
+        toast.error(toastMessage);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

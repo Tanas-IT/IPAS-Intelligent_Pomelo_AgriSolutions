@@ -17,22 +17,23 @@ function FarmInfo() {
   const [farmDetails, setFarmDetails] = useState<GetFarmInfo>(getDefaultFarm);
   const [logo, setLogo] = useState<LogoState>(defaultLogoFarm);
 
-  useEffect(() => {
-    async function fetchFarmData() {
-      try {
-        setIsLoading(true);
-        const result = await farmService.getFarm(getFarmId());
+  const fetchFarmData = async () => {
+    try {
+      setIsLoading(true);
+      const result = await farmService.getFarm(getFarmId());
 
-        if (result.statusCode === 200) {
-          setFarmDetails(result.data);
-          setLogo((prev) => ({ ...prev, logoUrl: result.data.logoUrl }));
-        }
-      } catch (error) {
-        console.error("Fetch data error:", error);
-      } finally {
-        setIsLoading(false);
+      if (result.statusCode === 200) {
+        setFarmDetails(result.data);
+        setLogo((prev) => ({ ...prev, logoUrl: result.data.logoUrl }));
       }
+    } catch (error) {
+      console.error("Fetch data error:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchFarmData();
   }, []);
 

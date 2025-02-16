@@ -1,15 +1,25 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import style from "./MapLandPlot.module.scss";
 import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import MapboxDraw, {
+  DrawCreateEvent,
+  DrawDeleteEvent,
+  DrawUpdateEvent,
+} from "@mapbox/mapbox-gl-draw";
 import { createRoot } from "react-dom/client";
+import { Feature, Polygon } from "geojson";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
+import { PolygonInit } from "@/types";
+import { Popover } from "antd";
 
 interface MapLandPlotProps {
   latitude: number;
   longitude: number;
   isEditing?: boolean;
+  polygons: PolygonInit[];
+
   //   setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
 }
 
@@ -17,10 +27,17 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   latitude,
   longitude,
   isEditing = false,
+  polygons,
   //   setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
+  const [popupInfo, setPopupInfo] = useState<{
+    lng: number;
+    lat: number;
+    data?: PolygonInit;
+  } | null>(null);
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
 
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
   const center: [number, number] =
@@ -38,6 +55,64 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
       zoom: 17,
       scrollZoom: false,
     });
+
+    if (polygons.length > 0) {
+      map.on("load", () => {
+        map.addSource("polygon-layer", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: polygons.map((polygon) => ({
+              type: "Feature",
+              geometry: {
+                type: "Polygon",
+                coordinates: polygon.coordinates,
+              },
+              properties: {
+                id: polygon.id || "",
+              },
+            })) as Feature<Polygon>[],
+          },
+        });
+
+        map.addLayer({
+          id: "polygon-fill",
+          type: "fill",
+          source: "polygon-layer",
+          layout: {},
+          paint: {
+            "fill-color": "#e8c048",
+            "fill-opacity": 0.5,
+          },
+        });
+        map.on("click", "polygon-fill", (e) => {
+          const feature = e.features?.[0];
+
+          if (feature) {
+            const polygon = feature.geometry as Polygon;
+            const coordinates = polygon.coordinates[0]; // Tọa độ của polygon
+            // Tính trọng tâm của polygon (centroid)
+            const centroid: [number, number] = [
+              coordinates.reduce((sum, coord) => sum + coord[0], 0) / coordinates.length,
+              coordinates.reduce((sum, coord) => sum + coord[1], 0) / coordinates.length,
+            ];
+
+            // Xóa popup cũ nếu có
+            if (popupRef.current) {
+              popupRef.current.remove();
+            }
+
+            // Tạo popup mới
+            popupRef.current = new mapboxgl.Popup({ closeOnClick: true })
+              .setLngLat(centroid)
+              .setHTML(
+                `<div><b>Chi tiết Polygon</b><br>ID: ${feature.properties?.id || "Không có"}</div>`,
+              )
+              .addTo(map);
+          }
+        });
+      });
+    }
 
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
@@ -83,7 +158,21 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
     return () => map.remove();
   }, [latitude, longitude, isEditing]);
 
-  return <div ref={mapContainer} className={style.customMap} />;
+  return (
+    <div ref={mapContainer} className={style.customMap}>
+      {popupInfo && (
+        <Popover
+          content={<div>Thông tin: {popupInfo.data?.id}</div>}
+          title="Chi tiết Polygon"
+          visible={true}
+          placement="top"
+          getPopupContainer={() => mapContainer.current as HTMLElement}
+        >
+          <div style={{ position: "absolute", top: popupInfo.lat, left: popupInfo.lng }} />
+        </Popover>
+      )}
+    </div>
+  );
 };
 
 export default MapLandPlot;

@@ -8,7 +8,7 @@ interface Farm {
   farmCode: string;
   farmId: number;
   farmName: string;
-  logo?: File;
+  farmLogo?: File;
   logoUrl: string;
   address: string;
   provinceId?: string;

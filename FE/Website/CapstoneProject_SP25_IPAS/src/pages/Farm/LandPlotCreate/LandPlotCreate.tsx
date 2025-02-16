@@ -64,10 +64,8 @@ function LandPlotCreate() {
         <Flex className={style.mapSection}>
           <Flex className={style.mapControls}>
             <MapControls label="Zoom In" />
-            <Button>Zoom In</Button>
-            <Button>Zoom Out</Button>
-            <Button>Draw Plot</Button>
-            <Button danger>Clear</Button>
+            <MapControls label="Zoom Out" />
+            <MapControls label="Draw Plot" />
           </Flex>
           <Flex>
             <MapLandPlot
