@@ -5,24 +5,11 @@ interface MapControlsProps {
   label: string;
   icon?: React.ReactNode;
   onClick?: () => void;
-  isAction?: boolean;
-  isModal?: boolean;
 }
 
-const MapControls: React.FC<MapControlsProps> = ({
-  label,
-  icon,
-  onClick,
-  isAction = false,
-  isModal = false,
-}) => {
+const MapControls: React.FC<MapControlsProps> = ({ label, icon, onClick }) => {
   return (
-    <Button
-      className={`${isAction ? style.btnAction : isModal ? style.btnModal : style.btn}`}
-      icon={icon}
-      onClick={onClick}
-      htmlType="button"
-    >
+    <Button className={`${style.btn}`} icon={icon} onClick={onClick} htmlType="button">
       {label}
     </Button>
   );

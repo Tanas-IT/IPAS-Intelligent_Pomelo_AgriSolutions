@@ -215,10 +215,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.ProcessId);
+                        orderBy = x => x.OrderBy(x => x.SubProcessId);
                         break;
                 }
-                string includeProperties = "MasterType,Process";
+                string includeProperties = "MasterType,Process,ChildSubProcesses";
                 var entities = await _unitOfWork.SubProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<SubProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<SubProcessModel>>(entities).ToList();

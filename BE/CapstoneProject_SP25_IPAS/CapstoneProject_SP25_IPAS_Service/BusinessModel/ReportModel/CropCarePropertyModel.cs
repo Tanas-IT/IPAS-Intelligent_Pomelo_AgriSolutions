@@ -26,4 +26,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
         public string Content { get; set; }
         public int PlantId { get; set; }
     }
+
+    public class PlantHealthStatus
+    {
+        public string Status { get; set; }
+        public int Count { get; set; }
+    }
 }

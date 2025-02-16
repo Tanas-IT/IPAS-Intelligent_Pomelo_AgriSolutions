@@ -22,9 +22,9 @@ export const getFarm = async (farmId: string): Promise<ApiResponse<GetFarmInfo>>
   return apiResponse;
 };
 
-export const updateFarmInfo = async (farm: FarmRequest): Promise<ApiResponse<Object>> => {
+export const updateFarmInfo = async (farm: FarmRequest): Promise<ApiResponse<GetFarmInfo>> => {
   const res = await axiosAuth.axiosJsonRequest.put("farms/update-farm-info", farm);
-  const apiResponse = res.data as ApiResponse<Object>;
+  const apiResponse = res.data as ApiResponse<GetFarmInfo>;
   return apiResponse;
 };
 
@@ -33,6 +33,26 @@ export const updateFarmLogo = async (image: File): Promise<ApiResponse<{ logoUrl
   formData.append("FarmLogo", image);
   const res = await axiosAuth.axiosMultipartForm.patch("farms/update-farm-logo", formData);
   const apiResponse = res.data as ApiResponse<{ logoUrl: string }>;
+  return apiResponse;
+};
+
+export const createFarm = async (farm: FarmRequest): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("FarmName", farm.farmName);
+  formData.append("LogoUrl", farm.farmLogo);
+  formData.append("Description", farm.description);
+  formData.append("Area ", farm.area);
+  formData.append("SoilType", farm.soilType);
+  formData.append("ClimateZone", farm.climateZone);
+  formData.append("Address", farm.address);
+  formData.append("Province", farm.province);
+  formData.append("District ", farm.district);
+  formData.append("Ward", farm.ward);
+  formData.append("Longitude", farm.longitude.toString());
+  formData.append("Latitude", farm.latitude.toString());
+
+  const res = await axiosAuth.axiosMultipartForm.post(`farms`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
 

@@ -99,7 +99,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<Warning> Warnings { get; set; }
 
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
-    public virtual DbSet<CriteriaMasterType> CriteriaMasterTypes { get; set; }
+    public virtual DbSet<Type_Type> Type_Types { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -232,6 +232,11 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsChecked).HasColumnName("isChecked");
+
+            entity.HasOne(d => d.MasterType).WithMany(p => p.Criterias)
+               .HasForeignKey(d => d.MasterTypeID)
+               .OnDelete(DeleteBehavior.Cascade)
+               .HasConstraintName("Criteria_Master_Type_FK");
         });
 
         modelBuilder.Entity<Crop>(entity =>
@@ -458,6 +463,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.PlantId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_HarvestTypeHistory_Plant");
+
+            entity.HasOne(d => d.Process).WithMany(p => p.HarvestTypeHistories)
+               .HasForeignKey(d => d.ProcessId)
+               .HasConstraintName("FK_Harvest_Type_History_Process");
         });
 
         modelBuilder.Entity<LandPlot>(entity =>
@@ -574,6 +583,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsDelete).HasColumnName("isDelete");
+            entity.Property(e => e.IsDefault).HasColumnName("isDefault");
             entity.Property(e => e.MasterTypeCode)
                 .HasMaxLength(200)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -583,6 +593,11 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.TypeName).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.MasterTypes)
+                .HasForeignKey(d => d.MasterTypeId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Master_Type_Farm__22751F6C");
         });
 
         modelBuilder.Entity<MasterTypeDetail>(entity =>
@@ -691,6 +706,7 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.IsActive);
         });
 
         modelBuilder.Entity<PackageDetail>(entity =>
@@ -871,9 +887,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.GrowthStage)
-                .HasMaxLength(50)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.HealthStatus)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -903,6 +916,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.LandRowId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Plant_LandRow_FK");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.Plants)
+               .HasForeignKey(d => d.GrowthStageID)
+               .HasConstraintName("Plant_GrowthStage_FK");
         });
 
         modelBuilder.Entity<PlantCriteria>(entity =>
@@ -1136,6 +1153,11 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.ProcessId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__SubProces__Proce__3CF40B7E");
+
+            entity.HasOne(sp => sp.ParentSubProcess) // Quan hệ với chính nó
+                   .WithMany(sp => sp.ChildSubProcesses) // Một SubProcess có nhiều Child
+                   .HasForeignKey(sp => sp.ParentSubProcessId)
+                   .HasConstraintName("SubProcess_SubProcess_FK_23AG53345");// Khóa ngoại
         });
 
         modelBuilder.Entity<TaskFeedback>(entity =>
@@ -1350,22 +1372,22 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__LegalDocument__Farm__29221CFB");
         });
 
-        modelBuilder.Entity<CriteriaMasterType>(entity =>
+        modelBuilder.Entity<Type_Type>(entity =>
         {
-            entity.HasKey(e => new { e.CriteriaId, e.MasterTypeId }).HasName("PK__Criteria_Master_Type__2F2CAR35609A834");
+            entity.HasKey(e => new { e.MasterTypeID_1, e.MasterTypeID_2 }).HasName("PK_Type_Type__2F2CAR35609A834");
 
-            entity.ToTable("CriteriaMasterType");
+            entity.ToTable("Type_Type");
 
-            entity.Property(e => e.CriteriaId).HasColumnName("CriteriaID");
-            entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
+            entity.Property(e => e.MasterTypeID_1).HasColumnName("MasterTypeID_1");
+            entity.Property(e => e.MasterTypeID_2).HasColumnName("MasterTypeID_2");
 
-            entity.HasOne(d => d.Criteria).WithMany(p => p.CriteriaMasterTypes)
-                .HasForeignKey(d => d.CriteriaId)
-                .HasConstraintName("FK__CriteriaMasterType__Criteria__43A51090D");
+            entity.HasOne(d => d.MasterType_1).WithMany(p => p.Type_Types_1)
+                .HasForeignKey(d => d.MasterTypeID_1)
+                .HasConstraintName("FK__Type_Type_1_MasterType__43A51090D");
 
-            entity.HasOne(d => d.MasterType).WithMany(p => p.CriteriaMasterTypes)
-                .HasForeignKey(d => d.MasterTypeId)
-                .HasConstraintName("FK__CriteriaMasterType__Master_Type__24218C17");
+            entity.HasOne(d => d.MasterType_2).WithMany(p => p.Type_Types_2)
+                .HasForeignKey(d => d.MasterTypeID_2)
+                .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });
 
         OnModelCreatingPartial(modelBuilder);

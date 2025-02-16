@@ -16,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         [Required]
         public int? PlantIndex { get; set; }
         [Required]
-        public string? GrowthStage { get; set; }
+        public int? GrowthStageId { get; set; }
         [Required]
         public string? HealthStatus { get; set; }
         [Required]

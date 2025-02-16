@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IHarvestHistoryRepository, HarvestHistoryRepository>();
             services.AddScoped<IHarvestTypeHistoryRepository, HarvestTypeHistoryRepository>();
             services.AddScoped<ITaskFeedbackRepository, TaskFeedbackRepository>();
-            services.AddScoped<ICriteriaMasterTypeRepository, CriteriaMasterTypeRepository>();
+            services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();

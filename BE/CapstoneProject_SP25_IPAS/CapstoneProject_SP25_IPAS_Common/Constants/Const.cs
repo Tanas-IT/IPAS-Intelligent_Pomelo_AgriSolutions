@@ -342,6 +342,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_CREATE_WORK_LOG_MSG = "Create work log success";
         public static int SUCCESS_ASSIGN_TASK_CODE = 200;
         public static string SUCCESS_ASSIGN_TASK_MSG = "Assign task success";
+        public static int SUCCESS_ADD_NEW_TASK_CODE = 200;
+        public static string SUCCESS_ADD_NEW_TASK_MSG = "Add new task success";
         #endregion
 
         #region Legal Document
@@ -414,8 +416,13 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Schedule
         public static int SUCCESS_GET_ALL_SCHEDULE_CODE = 200;
         public const string SUCCESS_GET_ALL_SCHEDULE_MSG = "Get all schedule success";
+        #endregion
+
+        #region Report
         public static int SUCCESS_GET_CROP_CARE_REPORT_CODE = 200;
-        public static string SUCCESS_GET_CROP_CARE_REPORT_MSG = "Get crop care report success";
+        public static string SUCCESS_GET_CROP_CARE_REPORT_MSG = "Get dashboard report success";
+        public static int SUCCESS_GET_DASHBOARD_REPORT_CODE = 200;
+        public static string SUCCESS_GET_DASHBOARD_REPORT_MSG = "Get dashboard report success";
         #endregion
 
         #endregion
@@ -655,6 +662,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_WORK_LOG_MESSAGE = "Get work log failed";
         public static int FAIL_ASSIGN_TASK_CODE = 500;
         public static string FAIL_ASSIGN_TASK_MESSAGE = "Assign task failed";
+        public static int FAIL_ADD_NEW_TASK_CODE = 500;
+        public static string FAIL_ADD_NEW_TASK_MESSAGE = "Add new task failed";
         #endregion
 
         #region Legal document fail code
@@ -686,6 +695,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Report fail code
         public static int FAIL_GET_CROP_CARE_REPORT_CODE = 500;
         public static string FAIL_GET_CROP_CARE_REPORT_MSG = "Get crop care report fail";
+        public static int FAIL_GET_DASHBOARD_REPORT_CODE = 500;
+        public static string FAIL_GET_DASHBOARD_REPORT_MSG = "Get dashboard report fail";
         #endregion
 
         #region Task Feedback fail code
@@ -899,6 +910,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Report
         public static int WARNING_GET_CROP_CARE_REPORT_CODE = 400;
         public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
+        public static int WARNING_GET_DASHBOARD_REPORT_CODE = 400;
+        public static string WARNING_GET_DASHBOARD_REPORT_MSG = "Do not have any data to get dashboard report";
         #endregion
         #region Task Feedback
         public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;

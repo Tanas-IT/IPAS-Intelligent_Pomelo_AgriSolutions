@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -28,6 +30,93 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel)
+        {
+            using(var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    if(addNewTaskModel.DateWork <= DateTime.Now)
+                    {
+                        throw new Exception("Date Work must be greater than or equal now");
+                    }
+                    if (TimeSpan.Parse(addNewTaskModel.StartTime) >= TimeSpan.Parse(addNewTaskModel.EndTime))
+                    {
+                        throw new Exception("Start time must be less than End Time");
+                    }
+                    var newPlan = new Plan()
+                    {
+                        PlanCode = await GeneratePlanCode(null, addNewTaskModel.LandPlotId, addNewTaskModel.TypeOfPlan.Value),
+                        CropId = addNewTaskModel.CropId,
+                        PlanName = addNewTaskModel.TaskName,
+                        MasterTypeId = addNewTaskModel.TypeOfPlan,
+                        LandPlotId = addNewTaskModel.LandPlotId,
+                        ProcessId = addNewTaskModel.ProcessId,
+                        AssignorId = addNewTaskModel.AssignorId,
+                        StartDate = addNewTaskModel.DateWork,
+                        EndDate = addNewTaskModel.DateWork,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                    };
+                    await _unitOfWork.PlanRepository.Insert(newPlan);
+                    await _unitOfWork.SaveAsync();
+                    var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
+
+                    var newSchedule = new CarePlanSchedule()
+                    {
+                        CarePlanId = getLastPlan.PlanId,
+                        CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
+                        StarTime = TimeSpan.Parse(addNewTaskModel.StartTime),
+                        EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
+                        Status = "Active",
+                    };
+                    await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
+                    
+                    var checkConflict = await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(newPlan.PlanId, addNewTaskModel.DateWork.Value, addNewTaskModel.DateWork.Value, TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime));
+                    if(checkConflict)
+                    {
+                        throw new Exception($"The date {addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy")} with StartTime: {addNewTaskModel.StartTime} and EndTime: {addNewTaskModel.EndTime} is conflicted. Please try another");
+                    }
+                    await _unitOfWork.SaveAsync();
+                    var newWorkLog = new WorkLog()
+                    {
+                        WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                        ScheduleId = newSchedule.ScheduleId,
+                        Status = "Not Started",
+                        Date = addNewTaskModel.DateWork,
+                        WorkLogName = addNewTaskModel.TaskName,
+                        IsConfirm = false,
+                    };
+                    await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
+                    await _unitOfWork.SaveAsync();
+
+                    foreach(var employee in addNewTaskModel.listEmployee)
+                    {
+                        var newUserWorkLog = new UserWorkLog()
+                        {
+                            WorkLogId = newWorkLog.WorkLogId,
+                            UserId = employee.UserId,
+                            IsReporter = employee.isReporter,
+                        };
+                        await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                    }
+                    var result = await _unitOfWork.SaveAsync();
+                    if(result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
+                    }
+                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE,false);
+
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
 
         public async Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId)
@@ -280,6 +369,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        private async Task<string> GeneratePlanCode(int? plantId, int? landPlotId, int masterTypeId)
+        {
+            string datePart = DateTime.Now.ToString("ddMMyyyy");
+            string sequence = await GetNextSequenceNumber(); // Hàm lấy số thứ tự
+            var getTypePlan = await _unitOfWork.MasterTypeRepository.GetByID(masterTypeId);
+
+            if (plantId == null && landPlotId != null)
+            {
+                var landPlot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId.Value);
+                return $"{CodeAliasEntityConst.PLAN}-{datePart}-{getTypePlan.MasterTypeName}-{landPlot.LandPlotName}-{sequence}";
+            }
+            if (landPlotId == null && plantId != null)
+            {
+                var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId.Value);
+                return $"{CodeAliasEntityConst.PLAN}-{datePart}-{getTypePlan.MasterTypeName}-{getPlant.PlantName}-{sequence}";
+            }
+            if (plantId == null && landPlotId == null)
+            {
+                return $"{CodeAliasEntityConst.PLAN}-{datePart}-{getTypePlan.MasterTypeName}-{sequence}";
+            }
+            var landPlotLast = await _unitOfWork.LandPlotRepository.GetByID(landPlotId.Value);
+            var getPlantLast = await _unitOfWork.PlantRepository.GetByID(plantId.Value);
+            return $"{CodeAliasEntityConst.PLAN}-{datePart}-{getTypePlan.MasterTypeName}-{landPlotLast.LandPlotName}-{getPlantLast.PlantName}-{sequence}";
+        }
+        private async Task<string> GetNextSequenceNumber()
+        {
+            int lastNumber = await _unitOfWork.PlanRepository.GetLastPlanSequence(); // Hàm lấy số thứ tự gần nhất từ DB
+            int nextPlanId = lastNumber + 1;
+
+            // Xác định số chữ số cần hiển thị
+            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
+            string sequence = nextPlanId.ToString($"D{digitCount}");
+            return sequence;
         }
     }
 }
