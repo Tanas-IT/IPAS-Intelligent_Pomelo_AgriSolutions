@@ -12,14 +12,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
         public int TotalEmployee { get; set; }
         public int TotalTask { get; set; }
         public WeatherPropertyModel? WeatherPropertyModel { get; set; }
-        public Dictionary<string, string>? PlantDevelopmentDistribution { get; set; }
-        public Dictionary<string, string>? PlantDevelopmentStages { get; set; }
-        public List<MediaInStoreModel>? MaterialsInStore { get; set; } // Tách
-        public ProductivityByPlotModel?  ProductivityByPlot { get; set; } // Tách
-        public List<SeasonalYieldModel>? SeasonYield { get; set; } // Tách
-        public PomeloQualityBreakDown? PomeloQualityBreakDown { get; set; } // Tách
-        public WorkProgressOverview? WorkProgressOverview { get; set; }// Tách
-        public TaskStatusDistribution? TaskStatusDistribution { get; set; }// Tách
+        public Dictionary<string, double>? PlantDevelopmentDistribution { get; set; }
+        public Dictionary<string, double>? PlantDevelopmentStages { get; set; }
+        public Dictionary<string, double>? PlantHealthStatus { get; set; }
+        public TaskStatusDistribution? TaskStatusDistribution { get; set; }
 
     }
 }

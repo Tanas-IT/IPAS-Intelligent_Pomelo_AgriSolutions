@@ -147,5 +147,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     //.ThenInclude(c => c.MasterType)
             .FirstOrDefaultAsync(p => p.PlantId == plantId && p.IsDeleted == false);
         }
+
+        public async Task<List<Plant>> getPlantInclude()
+        {
+           return await _context.Plants.Include(x => x.LandRow)
+                .Include(lr => lr.LandRow.LandPlot.LandPlotCoordinations)
+                .Include(x => x.LandRow.LandPlot.Farm).ToListAsync();
+        }
     }
 }

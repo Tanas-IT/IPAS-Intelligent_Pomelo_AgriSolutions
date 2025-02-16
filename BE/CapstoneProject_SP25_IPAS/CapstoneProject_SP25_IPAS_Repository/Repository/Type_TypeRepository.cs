@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
-    public class CriteriaMasterTypeRepository : GenericRepository<CriteriaMasterType>, ICriteriaMasterTypeRepository
+    public class Type_TypeRepository : GenericRepository<Type_Type>, IType_TypeRepository
     {
         private readonly IpasContext _context;
 
-        public CriteriaMasterTypeRepository(IpasContext context) : base(context)
+        public Type_TypeRepository(IpasContext context) : base(context)
         {
             _context = context;
         }

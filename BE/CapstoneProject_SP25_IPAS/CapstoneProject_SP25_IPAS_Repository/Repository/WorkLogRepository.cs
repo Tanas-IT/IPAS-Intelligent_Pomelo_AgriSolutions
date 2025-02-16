@@ -167,5 +167,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.AsNoTracking().ToListAsync();
 
         }
+
+        public async Task<List<WorkLog>> GetWorkLogInclude()
+        {
+            return await _context.WorkLogs.Include(x => x.Schedule)
+                        .Include(x => x.Schedule.CarePlan.LandPlot.Farm)
+                        .Include(x => x.Schedule.CarePlan.Plant.LandRow.LandPlot.Farm)
+                        .ToListAsync();
+        }
     }
 }
