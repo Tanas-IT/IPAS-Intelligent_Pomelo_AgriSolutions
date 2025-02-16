@@ -13,10 +13,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class LandPlotController : ControllerBase
     {
         private readonly ILandPlotService _landPlotService;
-
-        public LandPlotController(ILandPlotService landPlotService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public LandPlotController(ILandPlotService landPlotService, IJwtTokenService jwtTokenService)
         {
             this._landPlotService = landPlotService;
+            _jwtTokenService = jwtTokenService;
         }
 
 
@@ -29,21 +30,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPginAsync")]
-        public async Task<IActionResult> getAllLandPlotNoPginAsync([FromQuery] int farmId, string? searchKey)
+        public async Task<IActionResult> getAllLandPlotNoPginAsync([FromQuery] int? farmId, string? searchKey)
         {
-            var result = await _landPlotService.GetAllLandPlotNoPagin(farmId: farmId, searchKey: searchKey);
+            if(!farmId.HasValue)
+            {
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            }
+            var result = await _landPlotService.GetAllLandPlotNoPagin(farmId: farmId!.Value, searchKey: searchKey);
             return Ok(result);
         }
 
         [HttpPost(APIRoutes.LandPlot.createLandPlot, Name = "createLandPlotAsync")]
-        public async Task<IActionResult> CreateLandPlotAsync([FromBody] LandPlotCreateRequest landPlotCreateModel)
+        public async Task<IActionResult> CreateLandPlotAsync([FromBody] LandPlotCreateRequest landPlotCreateRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            if (!landPlotCreateRequest.FarmId.HasValue)
+            {
+                landPlotCreateRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+            }
 
-            var result = await _landPlotService.CreateLandPlot(landPlotCreateModel);
+            var result = await _landPlotService.CreateLandPlot(landPlotCreateRequest);
             return Ok(result);
         }
 

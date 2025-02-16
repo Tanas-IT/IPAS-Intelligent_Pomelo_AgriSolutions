@@ -44,8 +44,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<LandPlot, LandPlotModel>()
                 .ForMember(dest => dest.LandPlotCoordinations, opt => opt.MapFrom(src => src.LandPlotCoordinations))
-                //.ForMember(dest => dest.LandRows, opt => opt.MapFrom(src => src.LandRows))
-                //.ForMember(dest => dest.Plans, opt => opt.MapFrom(src => src.Plans))
+                .ForMember(dest => dest.FarmLongtitude, opt => opt.MapFrom(src => src.Farm.Longitude))
+                .ForMember(dest => dest.FarmLatitude, opt => opt.MapFrom(src => src.Farm.Latitude))
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ReverseMap();
 

@@ -36,10 +36,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
         [Required(ErrorMessage = " Ward of farm is required")]
         public string Ward { get; set; }
 
-        [Required(ErrorMessage = "Leght of farm is required")]
         public double Length { get; set; }
 
-        [Required(ErrorMessage = "Width of farm is required")]
         public double Width { get; set; }
 
         public string? Description { get; set; }
