@@ -36,7 +36,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-       
+
+        [HttpGet(APIRoutes.Report.DashboardReport, Name = "DashboardReport")]
+        public async Task<IActionResult> DashboardReport(int farmId)
+        {
+            try
+            {
+                var result = await _reportService.Dashboard(farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 
 }

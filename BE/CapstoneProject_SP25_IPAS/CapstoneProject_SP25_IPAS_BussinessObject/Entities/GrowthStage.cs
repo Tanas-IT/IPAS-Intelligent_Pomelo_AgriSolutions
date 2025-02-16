@@ -17,4 +17,5 @@ public partial class GrowthStage
 
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
     public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
+    public virtual ICollection<Plant> Plants { get; set; } = new List<Plant>();
 }

@@ -13,5 +13,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<IEnumerable<Plant>> GetPlantsInFarmPagin(int farmId, string? Search, int? PageIndex, int? PageSize, string? SortBy, string? Direction);
         public Task<IEnumerable<Plant>> GetPlantsInPlotPagin(int landPlotId, string? search, int? pageIndex, int? pageSize, string? sortBy, string? direction);
         public Task<Plant?> getById(int plantId);
+        public Task<List<Plant>> getPlantInclude();
     }
 }

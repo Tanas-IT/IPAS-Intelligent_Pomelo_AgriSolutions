@@ -62,4 +62,5 @@ public partial class Farm
     public virtual ICollection<UserFarm> UserFarms { get; set; } = new List<UserFarm>();
     public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
     public virtual ICollection<LegalDocument> LegalDocuments { get; set; } = new List<LegalDocument>();
+    public virtual ICollection<MasterType> MasterTypes { get; set; } = new List<MasterType>();
 }

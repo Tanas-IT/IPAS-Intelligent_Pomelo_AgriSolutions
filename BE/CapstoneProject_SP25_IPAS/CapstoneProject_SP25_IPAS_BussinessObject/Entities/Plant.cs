@@ -13,8 +13,6 @@ public partial class Plant
 
     public int? PlantIndex { get; set; }
 
-    public string? GrowthStage { get; set; }
-
     public string? HealthStatus { get; set; }
 
     public DateTime? CreateDate { get; set; }
@@ -35,12 +33,14 @@ public partial class Plant
     public int? LandRowId { get; set; }
 
     public int? FarmId { get; set; }
+    public int? GrowthStageID { get; set; }
 
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
     public virtual MasterType? MasterType { get; set; }
     public virtual LandRow? LandRow { get; set; }
+    public virtual GrowthStage? GrowthStage { get; set; }
 
     public virtual ICollection<PlantCriteria> PlantCriterias { get; set; } = new List<PlantCriteria>();
 

@@ -43,7 +43,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         PlantName = plantCreateRequest.PlantName,
                         PlantIndex = plantCreateRequest.PlantIndex,
-                        GrowthStage = plantCreateRequest.GrowthStage,
+                        GrowthStageID = plantCreateRequest.GrowthStageId,
                         HealthStatus = plantCreateRequest.HealthStatus,
                         PlantingDate = plantCreateRequest.PlantingDate.Value,
                         PlantReferenceId = plantCreateRequest.MotherPlantId,

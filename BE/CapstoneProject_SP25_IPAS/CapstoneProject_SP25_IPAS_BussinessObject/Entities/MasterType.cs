@@ -24,8 +24,12 @@ public partial class MasterType
     public string? TypeName { get; set; }
 
     public bool? IsDelete { get; set; }
+    public bool? IsDefault { get; set; }
+    public int? FarmID { get; set; }
 
-   public virtual ICollection<CriteriaMasterType> CriteriaMasterTypes { get; set; } = new List<CriteriaMasterType>();
+    public virtual Farm? Farm { get; set; }
+
+   public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
     public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 
@@ -42,4 +46,6 @@ public partial class MasterType
     public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
 
     public virtual ICollection<SubProcess> SubProcesses { get; set; } = new List<SubProcess>();
+    public virtual ICollection<Type_Type> Type_Types_1 { get; set; } = new List<Type_Type>();
+    public virtual ICollection<Type_Type> Type_Types_2 { get; set; } = new List<Type_Type>();
 }

@@ -62,7 +62,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             PlantCode = NumberHelper.GenerateRandomCode("PLT"),
                             CreateDate = DateTime.Now,
                             HealthStatus = "Good",
-                            GrowthStage = "Sapling",
+                            GrowthStageID = 2,
                             UpdateDate = DateTime.Now,
                         };
                         await _unitOfWork.PlantRepository.Insert(newPlant);

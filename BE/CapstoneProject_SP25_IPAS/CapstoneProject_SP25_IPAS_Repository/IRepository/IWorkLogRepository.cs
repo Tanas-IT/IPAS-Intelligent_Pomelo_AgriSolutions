@@ -23,5 +23,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
            int? pageIndex = null,
            int? pageSize = null);
 
+        public Task<List<WorkLog>> GetWorkLogInclude();
+
     }
 }

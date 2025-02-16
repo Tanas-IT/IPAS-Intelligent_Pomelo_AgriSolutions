@@ -97,7 +97,10 @@ CREATE TABLE ipas.dbo.MasterType (
 	CreateBy nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	TypeName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isDelete bit NULL,
-	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID)
+	isDefault bit NULL,
+	FarmID int NULL,
+	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
+	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
 );
 
 
@@ -113,6 +116,7 @@ CREATE TABLE ipas.dbo.Package (
 	PackageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PackagePrice float NULL,
 	Duration float NULL,
+        isActive bit NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -168,7 +172,9 @@ CREATE TABLE ipas.dbo.Criteria (
 	Priority int NULL,
 	isActive bit NULL,
 	isChecked bit NULL,
-	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID)
+	MasterTypeID int NULL,
+	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
+	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
 );
 
 
@@ -349,16 +355,7 @@ CREATE TABLE ipas.dbo.MasterTypeDetails (
 	CONSTRAINT MasterTypeDetails_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
 );
 
--- DROP TABLE ipas.dbo.CriteriaMasterType;
 
-CREATE TABLE ipas.dbo.CriteriaMasterType (
-	CriteriaID int NOT NULL,
-	MasterTypeID int NOT NULL,
-	IsActive bit NULL,
-	CONSTRAINT CriteriaMasterType_PK PRIMARY KEY (CriteriaID,MasterTypeID),
-	CONSTRAINT CriteriaMasterType_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
-	CONSTRAINT CriteriaMasterType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
-);
 -- ipas.dbo.[Order] definition
 
 -- Drop table
@@ -460,7 +457,6 @@ CREATE TABLE ipas.dbo.Plant (
 	PlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantName nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantIndex int NULL,
-	GrowthStage nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	HealthStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
@@ -472,7 +468,9 @@ CREATE TABLE ipas.dbo.Plant (
 	LandRowID int NULL,
 	IsDeleted bit NULL,
 	FarmID int NULL,
+	GrowthStageID int NULL,
 	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
+	CONSTRAINT Plant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
 	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
 );
@@ -711,25 +709,28 @@ CREATE TABLE ipas.dbo.GraftedPlantNote (
 -- DROP TABLE ipas.dbo.HarvestTypeHistory;
 
 CREATE TABLE ipas.dbo.HarvestTypeHistory (
-	HarvestTypeHistoryID INT IDENTITY(1,1) PRIMARY KEY, -- ID tự tăng làm khóa chính
-	MasterTypeID INT NOT NULL,
-	HarvestHistoryID INT NOT NULL,
-	PlantID INT NULL, -- Cho phép NULL để lưu loại thu hoạch tổng quát trước
-	Unit NVARCHAR(50) NULL,
-	Price FLOAT NULL,
-	Quantity INT NULL,
+	MasterTypeID int NOT NULL,
+	PlantID int NULL,
+	Unit int NULL,
+	Price float NULL,
+	Quantity int NULL,
+	HarvestHistoryID int NOT NULL,
+	HarvestTypeHistoryId int IDENTITY(1,1) NOT NULL,
+	ProcessID int NULL,
+	CONSTRAINT HarvestTypeHistory_PK PRIMARY KEY (HarvestTypeHistoryId),
+	CONSTRAINT FK_HarvestTypeHistory_Plant FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT FK__HarvestTy__Harve__40058253 FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
+	CONSTRAINT HarvestTypeHistory_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
+	CONSTRAINT HarvestTypeHistory_Process_FK FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID)
+);
 
-	-- Foreign key với bảng Plant
-	CONSTRAINT FK_HarvestTypeHistory_Plant FOREIGN KEY (PlantID) 
-		REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
-
-	-- Foreign key với bảng HarvestHistory
-	CONSTRAINT FK_HarvestTypeHistory_HarvestHistory FOREIGN KEY (HarvestHistoryID) 
-		REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
-
-	-- Foreign key với bảng MasterType
-	CONSTRAINT FK_HarvestTypeHistory_MasterType FOREIGN KEY (MasterTypeID) 
-		REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
+CREATE TABLE ipas.dbo.Type_Type (
+	MasterTypeID_1 int NOT NULL,
+	MasterTypeID_2 int NOT NULL,
+	isActive bit NULL,
+	CONSTRAINT Type_Type_PK PRIMARY KEY (MasterTypeID_1,MasterTypeID_2),
+	CONSTRAINT Type_Type_MasterType_FK FOREIGN KEY (MasterTypeID_1) REFERENCES ipas.dbo.MasterType(MasterTypeID),
+	CONSTRAINT Type_Type_MasterType_FK_1 FOREIGN KEY (MasterTypeID_2) REFERENCES ipas.dbo.MasterType(MasterTypeID)
 );
 
 -- ipas.dbo.Notification definition
@@ -830,8 +831,8 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	ScheduleID int IDENTITY(1,1) NOT NULL,
 	DayOfWeek nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) NULL,
-	StarTime datetime NULL,
-	EndTime datetime NULL,
+	StarTime time(7) NULL,
+	EndTime time(7) NULL,
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CustomDates nvarchar(MAX) NULL,

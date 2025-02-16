@@ -9,6 +9,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
     public class TaskStatusDistribution
     {
         public int TotalTask {  get; set; }
-        public Dictionary<string, string>? TaskStatus { get; set; }
+        public Dictionary<string, double>? TaskStatus { get; set; }
     }
 }
