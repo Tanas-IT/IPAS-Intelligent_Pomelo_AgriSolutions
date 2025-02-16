@@ -19,10 +19,12 @@ public partial class Criteria
 
     public bool? IsChecked { get; set; }
 
+    public int? MasterTypeID { get; set; }
+
     public virtual ICollection<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; } = new List<CriteriaGraftedPlant>();
 
     public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 
     public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
-    public virtual ICollection<CriteriaMasterType> CriteriaMasterTypes { get; set; } = new List<CriteriaMasterType>();
+    public virtual MasterType? MasterType { get; set; }
 }

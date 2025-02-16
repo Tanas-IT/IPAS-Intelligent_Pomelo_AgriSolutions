@@ -8,13 +8,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
 {
     public class WeatherPropertyModel
     {
-        public string? TempMax { get; set; }
-        public string? TempMin { get; set; }
+        public double? CurrentTemp { get; set; }
+        public double? TempMax { get; set; }
+        public double? TempMin { get; set; }
         public string? Status { get; set; }
         public string? Description { get; set; }
-        public string? Humidity { get; set; }
-        public string? Visibility { get; set; }
+        public double? Humidity { get; set; }
+        public int? Visibility { get; set; }
         public string? WindSpeed { get; set; }
-        public string? Clouds { get; set; }
+        public double? Clouds { get; set; }
     }
 }

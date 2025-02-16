@@ -51,7 +51,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public HarvestHistoryRepository _harvestHistoryRepo;
         public HarvestTypeHistoryRepository _harvestTypeHistoryRepo;
         public LandPlotCropRepository _landPlotCropRepo;
-        public CriteriaMasterTypeRepository _criteriaMasterTypeRepo;
+        public Type_TypeRepository _type_TypeRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -89,7 +89,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _harvestHistoryRepo = new HarvestHistoryRepository(context);
             _harvestTypeHistoryRepo = new HarvestTypeHistoryRepository(context);
             _landPlotCropRepo = new LandPlotCropRepository(context);
-            _criteriaMasterTypeRepo = new CriteriaMasterTypeRepository(context);
+            _type_TypeRepo = new Type_TypeRepository(context);
         }
 
         private bool disposed = false;
@@ -544,15 +544,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public CriteriaMasterTypeRepository CriteriaMasterTypeRepository
+        public Type_TypeRepository Type_TypeRepository
         {
             get
             {
-                if (_criteriaMasterTypeRepo == null)
+                if (_type_TypeRepo == null)
                 {
-                    this._criteriaMasterTypeRepo = new CriteriaMasterTypeRepository(_context);
+                    this._type_TypeRepo = new Type_TypeRepository(_context);
                 }
-                return _criteriaMasterTypeRepo;
+                return _type_TypeRepo;
             }
         }
     }

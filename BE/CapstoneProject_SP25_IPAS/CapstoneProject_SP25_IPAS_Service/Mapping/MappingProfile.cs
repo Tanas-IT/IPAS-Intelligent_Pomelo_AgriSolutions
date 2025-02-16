@@ -79,16 +79,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<LandPlotCoordination, LandPlotCoordinationModel>().ReverseMap();
 
             CreateMap<Criteria, CriteriaModel>()
-                //.ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                 .ReverseMap();
 
-            CreateMap<CriteriaMasterType, CriteriaMasterTypeModel>()
-              .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
-              .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
-              .ReverseMap();
+           
 
             CreateMap<MasterType, MasterTypeModel>()
-                .ForMember(dest => dest.CriteriaMasterType, opt => opt.MapFrom(src => src.CriteriaMasterTypes))
+                .ForMember(dest => dest.CriteriaModels, opt => opt.MapFrom(src => src.Criterias))
                 .ReverseMap();
             CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
 
@@ -118,9 +115,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
            
-            CreateMap<MasterType, MasterTypeModel>()
-                .ForMember(dest => dest.CriteriaMasterType, opt => opt.MapFrom(src => src.CriteriaMasterTypes))
-                .ReverseMap();
+            
 
             CreateMap<PlantGrowthHistory, PlantGrowthHistoryModel>()
                 .ForMember(dest => dest.PlantResources, opt => opt.MapFrom(src => src.Resources))

@@ -34,13 +34,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
 
                     // Chuyển danh sách hiện có thành Dictionary để tra cứu nhanh**
-                    var existingCriteriaDict = masterType.CriteriaMasterTypes.ToDictionary(c => c.CriteriaId);
+                    var existingCriteriaDict = masterType.Criterias.ToDictionary(c => c.CriteriaId);
 
                     // Tạo danh sách xử lý
                     var criteriaToUpdate = new List<Criteria>();
-                    var CriteriaMasterTypeToUpdate = new List<CriteriaMasterType>();
                     var criteriaToAdd = new List<Criteria>();
-                    var CriteriaMasterTypeToAdd = new List<CriteriaMasterType>();
                     var receivedCriteriaIds = new HashSet<int>();
 
 
@@ -67,29 +65,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsActive = true,
                             };
                             criteriaToAdd.Add(newCriteria);
-                            await _unitOfWork.SaveAsync();
-                            var newCriteriaMasterType = new CriteriaMasterType
-                            {
-                                CriteriaId = newCriteria.CriteriaId,
-                                MasterTypeId = listUpdate.MasterTypeId
-                            };
-                            CriteriaMasterTypeToAdd.Add(newCriteriaMasterType);
                         }
                     }
 
                     // Tìm các phần tử cần xóa (không có trong danh sách cập nhật
-                    var criteriaMasterTypeToRemove = masterType.CriteriaMasterTypes.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
-                    var criteriaToRemove = new List<Criteria>();
-                    foreach (var criteria in criteriaMasterTypeToRemove)
-                    {
-                        var criteriaRemove = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteria.CriteriaId);
-                        criteriaToRemove.Add(criteriaRemove);
-                    }
+                    var criteriaToRemove = masterType.Criterias.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
+
 
                     // Thực hiện các thao tác với EF
                     if (criteriaToUpdate.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToUpdate);
                     if (criteriaToAdd.Any()) await _unitOfWork.CriteriaRepository.InsertRangeAsync(criteriaToAdd);
-                    if (criteriaMasterTypeToRemove.Any()) _unitOfWork.CriteriaMasterTypeRepository.RemoveRange(criteriaMasterTypeToRemove);
                     if (criteriaToRemove.Any()) _unitOfWork.CriteriaRepository.RemoveRange(criteriaToRemove);
 
                     // Luu thay đổi

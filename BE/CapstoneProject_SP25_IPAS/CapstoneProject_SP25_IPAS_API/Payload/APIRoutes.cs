@@ -284,6 +284,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/report";
             public const string CropCareReport = prefix + "/crop-care/{landPlotId}/{year}";
+            public const string DashboardReport = prefix + "/dashboard/{farmId}";
         }
 
         public static class TaskFeedback
