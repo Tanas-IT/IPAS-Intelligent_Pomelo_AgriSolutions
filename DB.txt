@@ -172,7 +172,9 @@ CREATE TABLE ipas.dbo.Criteria (
 	Priority int NULL,
 	isActive bit NULL,
 	isChecked bit NULL,
-	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID)
+	MasterTypeID int NULL,
+	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
+	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
 );
 
 
