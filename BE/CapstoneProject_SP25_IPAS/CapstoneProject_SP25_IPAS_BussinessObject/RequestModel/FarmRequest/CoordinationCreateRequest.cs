@@ -12,6 +12,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
         [Required]
         public double Longitude { get; set; }
         [Required]
-        public double Lagtitude { get; set; }
+        public double Latitude { get; set; }
     }
 }
