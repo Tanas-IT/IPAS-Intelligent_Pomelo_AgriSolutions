@@ -13,12 +13,14 @@ import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
 import { PolygonInit } from "@/types";
 import { Popover } from "antd";
+import PolygonPopup from "./PolygonPopup";
+import { GetLandPlot } from "@/payloads";
 
 interface MapLandPlotProps {
   latitude: number;
   longitude: number;
   isEditing?: boolean;
-  polygons: PolygonInit[];
+  landPlots: GetLandPlot[];
 
   //   setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
 }
@@ -27,16 +29,11 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   latitude,
   longitude,
   isEditing = false,
-  polygons,
+  landPlots,
   //   setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
-  const [popupInfo, setPopupInfo] = useState<{
-    lng: number;
-    lat: number;
-    data?: PolygonInit;
-  } | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
@@ -56,20 +53,24 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
       scrollZoom: false,
     });
 
-    if (polygons.length > 0) {
+    if (landPlots.length > 0) {
       map.on("load", () => {
         map.addSource("polygon-layer", {
           type: "geojson",
           data: {
             type: "FeatureCollection",
-            features: polygons.map((polygon) => ({
+            features: landPlots.map((landPlot) => ({
               type: "Feature",
               geometry: {
                 type: "Polygon",
-                coordinates: polygon.coordinates,
+                coordinates: [
+                  landPlot.landPlotCoordinations.map((coord) => [coord.longitude, coord.latitude]),
+                ],
               },
               properties: {
-                id: polygon.id || "",
+                id: landPlot.landPlotId,
+                landPlotId: landPlot.landPlotId,
+                landPlot: landPlot,
               },
             })) as Feature<Polygon>[],
           },
@@ -96,8 +97,10 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
               coordinates.reduce((sum, coord) => sum + coord[0], 0) / coordinates.length,
               coordinates.reduce((sum, coord) => sum + coord[1], 0) / coordinates.length,
             ];
+            // const landPlotId = feature.properties?.landPlotId;
+            // const landPlot = landPlots.find((lp) => lp.landPlotId === landPlotId);
 
-            // Xóa popup cũ nếu có
+            // // Xóa popup cũ nếu có
             if (popupRef.current) {
               popupRef.current.remove();
             }
@@ -106,7 +109,12 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
             popupRef.current = new mapboxgl.Popup({ closeOnClick: true })
               .setLngLat(centroid)
               .setHTML(
-                `<div><b>Chi tiết Polygon</b><br>ID: ${feature.properties?.id || "Không có"}</div>`,
+                `<div class="popup-container">
+      <h3>Chi tiết Lô đất</h3>
+      <div class="popup-content">
+        ${JSON.stringify(feature.properties?.landPlot, null, 2)}
+      </div>
+    </div>`,
               )
               .addTo(map);
           }
@@ -158,21 +166,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
     return () => map.remove();
   }, [latitude, longitude, isEditing]);
 
-  return (
-    <div ref={mapContainer} className={style.customMap}>
-      {popupInfo && (
-        <Popover
-          content={<div>Thông tin: {popupInfo.data?.id}</div>}
-          title="Chi tiết Polygon"
-          visible={true}
-          placement="top"
-          getPopupContainer={() => mapContainer.current as HTMLElement}
-        >
-          <div style={{ position: "absolute", top: popupInfo.lat, left: popupInfo.lng }} />
-        </Popover>
-      )}
-    </div>
-  );
+  return <div ref={mapContainer} className={style.customMap}></div>;
 };
 
 export default MapLandPlot;

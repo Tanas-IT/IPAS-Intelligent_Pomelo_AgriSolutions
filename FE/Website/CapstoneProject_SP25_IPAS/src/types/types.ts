@@ -19,6 +19,7 @@ export interface CoordsState {
 export interface PolygonInit {
   id: string;
   coordinates: number[][][];
+  landPlotId: number;
 }
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
