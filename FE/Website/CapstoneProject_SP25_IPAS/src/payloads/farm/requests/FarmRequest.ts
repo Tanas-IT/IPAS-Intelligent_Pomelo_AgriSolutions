@@ -2,6 +2,7 @@ export interface FarmRequest {
   farmCode: string;
   farmId: number;
   farmName: string;
+  farmLogo: File;
   description: string;
   address: string;
   district: string;

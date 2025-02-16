@@ -73,6 +73,9 @@
       .plotItemHeader {
         flex-direction: column;
         color: vars.$color_primary;
+        .plotItemTitle {
+          color: vars.$color_primary;
+        }
 
         .plotItemDescription {
           font-size: 12px;
