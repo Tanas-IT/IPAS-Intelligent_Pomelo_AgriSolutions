@@ -13,8 +13,8 @@ import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
 import { PolygonInit } from "@/types";
 import { Popover } from "antd";
-import PolygonPopup from "./PolygonPopup";
 import { GetLandPlot } from "@/payloads";
+import PopupContent from "./PopupContent";
 
 interface MapLandPlotProps {
   latitude: number;
@@ -33,8 +33,10 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   //   setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
 
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
   const center: [number, number] =
@@ -70,7 +72,14 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
               properties: {
                 id: landPlot.landPlotId,
                 landPlotId: landPlot.landPlotId,
-                landPlot: landPlot,
+                landPlotCode: landPlot.landPlotCode,
+                landPlotName: landPlot.landPlotName,
+                description: landPlot.description,
+                createDate: landPlot.createDate,
+                area: landPlot.area,
+                soilType: landPlot.soilType,
+                targetMarket: landPlot.targetMarket,
+                status: landPlot.status,
               },
             })) as Feature<Polygon>[],
           },
@@ -90,6 +99,9 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
           const feature = e.features?.[0];
 
           if (feature) {
+            const landPlot = feature.properties as GetLandPlot;
+            setSelectedPlotId(landPlot.landPlotId); // Cập nhật thửa đất đang chọn
+
             const polygon = feature.geometry as Polygon;
             const coordinates = polygon.coordinates[0]; // Tọa độ của polygon
             // Tính trọng tâm của polygon (centroid)
@@ -97,26 +109,42 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
               coordinates.reduce((sum, coord) => sum + coord[0], 0) / coordinates.length,
               coordinates.reduce((sum, coord) => sum + coord[1], 0) / coordinates.length,
             ];
-            // const landPlotId = feature.properties?.landPlotId;
-            // const landPlot = landPlots.find((lp) => lp.landPlotId === landPlotId);
 
             // // Xóa popup cũ nếu có
-            if (popupRef.current) {
-              popupRef.current.remove();
-            }
+            if (popupRef.current) popupRef.current.remove();
+
+            const closePopup = (removePopup: boolean = true) => {
+              if (removePopup) popup.remove();
+
+              setSelectedPlotId(null);
+              map.setPaintProperty("polygon-fill", "fill-color", "#e8c048");
+            };
 
             // Tạo popup mới
-            popupRef.current = new mapboxgl.Popup({ closeOnClick: true })
+            const popupContainer = document.createElement("div");
+            createRoot(popupContainer).render(
+              <PopupContent plot={landPlot} onClose={closePopup} />,
+            );
+
+            const popup = new mapboxgl.Popup({ closeOnClick: true })
               .setLngLat(centroid)
-              .setHTML(
-                `<div class="popup-container">
-      <h3>Chi tiết Lô đất</h3>
-      <div class="popup-content">
-        ${JSON.stringify(feature.properties?.landPlot, null, 2)}
-      </div>
-    </div>`,
-              )
+              .setDOMContent(popupContainer)
               .addTo(map);
+
+            map.setPaintProperty("polygon-fill", "fill-color", [
+              "case",
+              ["==", ["get", "id"], landPlot.landPlotId],
+              "#00AEEF", // Màu xanh nếu được chọn
+              "#e8c048", // Màu mặc định nếu không được chọn
+            ]);
+
+            const closeButton = document.querySelector(
+              ".mapboxgl-popup-close-button",
+            ) as HTMLButtonElement;
+            closeButton.style.display = "none";
+            closeButton.blur();
+
+            popup.on("close", () => closePopup(false));
           }
         });
       });
@@ -162,9 +190,20 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
       if (attributionControl) attributionControl.remove();
       if (attributionButton) attributionButton.remove();
     });
-
+    mapRef.current = map;
     return () => map.remove();
   }, [latitude, longitude, isEditing]);
+
+  // useEffect(() => {
+  //   if (!mapRef) return;
+
+  //   mapRef.current?.setPaintProperty("polygon-fill", "fill-color", [
+  //     "case",
+  //     ["==", ["get", "landPlotId"], selectedPlotId],
+  //     "#ff0000", // Màu đỏ nếu đang được chọn
+  //     "#e8c048", // Màu mặc định nếu không được chọn
+  //   ]);
+  // }, [selectedPlotId]);
 
   return <div ref={mapContainer} className={style.customMap}></div>;
 };

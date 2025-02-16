@@ -8,7 +8,8 @@ interface landPlotCoordinations {
 export interface GetLandPlot {
   landPlotId: string;
   landPlotCode: string;
-  LandPlotName: string;
+  landPlotName: string;
+  description: string;
   area: string;
   soilType: string;
   createDate: Date;
