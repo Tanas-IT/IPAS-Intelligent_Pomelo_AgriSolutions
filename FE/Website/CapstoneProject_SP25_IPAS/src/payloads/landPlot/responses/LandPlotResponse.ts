@@ -2,7 +2,7 @@ interface landPlotCoordinations {
   landPlotCoordinationId: string;
   landPlotCoordinationCode: string;
   longitude: number;
-  
+  latitude: number;
 }
 
 export interface GetLandPlot {
@@ -14,4 +14,5 @@ export interface GetLandPlot {
   createDate: Date;
   status: string;
   targetMarket: string;
+  landPlotCoordinations: landPlotCoordinations[];
 }
