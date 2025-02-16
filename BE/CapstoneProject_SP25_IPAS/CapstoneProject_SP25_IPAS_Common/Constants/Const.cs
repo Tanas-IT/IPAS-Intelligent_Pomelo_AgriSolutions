@@ -342,6 +342,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_CREATE_WORK_LOG_MSG = "Create work log success";
         public static int SUCCESS_ASSIGN_TASK_CODE = 200;
         public static string SUCCESS_ASSIGN_TASK_MSG = "Assign task success";
+        public static int SUCCESS_ADD_NEW_TASK_CODE = 200;
+        public static string SUCCESS_ADD_NEW_TASK_MSG = "Add new task success";
         #endregion
 
         #region Legal Document
@@ -655,6 +657,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_WORK_LOG_MESSAGE = "Get work log failed";
         public static int FAIL_ASSIGN_TASK_CODE = 500;
         public static string FAIL_ASSIGN_TASK_MESSAGE = "Assign task failed";
+        public static int FAIL_ADD_NEW_TASK_CODE = 500;
+        public static string FAIL_ADD_NEW_TASK_MESSAGE = "Add new task failed";
         #endregion
 
         #region Legal document fail code

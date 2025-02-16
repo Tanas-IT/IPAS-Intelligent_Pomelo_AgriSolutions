@@ -410,7 +410,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanModel>();
-                pagin.List = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
+
+                var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
+                foreach (var planTemp in listTemp)
+                {
+                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                }
+                pagin.List = listTemp;
                 pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count();
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
@@ -437,7 +444,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getPlan = entities.FirstOrDefault(x => x.PlanId == planId);
                 if (getPlan != null)
                 {
+                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
                     var result = _mapper.Map<PlanModel>(getPlan);
+                    result.Progress = Math.Round(calculateProgress,2).ToString();
                     return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
@@ -458,7 +467,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()));
                 if (getPlan != null)
                 {
+                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
                     var result = _mapper.Map<PlanModel>(getPlan);
+                    result.Progress = Math.Round(calculateProgress, 2).ToString();
                     return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_NAME_CODE, Const.SUCCESS_GET_PLAN_BY_NAME_MSG, result);
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
@@ -639,7 +650,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
 
             DateTime currentDate = createPlanModel.StartDate;
-            if (currentDate < DateTime.Now)
+            if (currentDate <= DateTime.Now)
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
@@ -656,7 +667,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
-                    CustomDates = createPlanModel.CustomDates.ToString(),
+                    CustomDates = createPlanModel.CustomDates.Select(x => x.Date.ToString("dd/MM/yyyy")).ToString(),
                     StarTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
@@ -764,7 +775,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
 
             DateTime currentDate = updatePlanModel.StartDate.Value;
-            if (currentDate < DateTime.Now)
+            if (currentDate <= DateTime.Now)
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
@@ -919,7 +930,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Pending",
+                Status = "Not Started",
                 WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
                 Date = dateWork.Date.Add(schedule.StarTime.Value),
                 IsConfirm = false,
@@ -1021,7 +1032,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 getPlanById.IsDelete = true;
                 getPlanById.Status = "Stopped";
                 var schedule = getPlanById.CarePlanSchedule;
-                if(schedule != null)
+                if (schedule != null)
                 {
                     schedule.Status = "Stopped";
                     var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
@@ -1058,7 +1069,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 getPlanById.IsDelete = false;
                 getPlanById.Status = "Active";
                 var schedule = getPlanById.CarePlanSchedule;
-                if(schedule != null)
+                if (schedule != null)
                 {
                     schedule.Status = "Active";
                     var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
@@ -1066,7 +1077,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (workLog.Date > DateTime.Now)
                         {
-                            workLog.Status = "Pending";
+                            workLog.Status = "Not Started";
                         }
                     }
                 }
