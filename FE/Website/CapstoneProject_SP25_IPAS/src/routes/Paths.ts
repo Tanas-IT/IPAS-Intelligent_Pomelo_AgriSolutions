@@ -58,4 +58,9 @@ export const PATHS = {
     WORKLOG_CALENDAR: "/hr-management/worklogs",
     WORKLOG_DETAIL: "/hr-management/worklogs/:id",
   },
+
+  //Package Management
+  PACKAGE: {
+    PACKAGE_LIST: "/packages"
+  }
 };

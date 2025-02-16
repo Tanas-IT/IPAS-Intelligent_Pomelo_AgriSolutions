@@ -15,7 +15,7 @@ import {
     Flex,
 } from "antd";
 import moment, { Moment } from "moment";
-import { CustomButton, FormFieldModal, Section, SelectInfo, Tooltip } from "@/components";
+import { CustomButton, FormFieldModal, InfoField, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
@@ -216,21 +216,36 @@ const AddPlan = () => {
 
                     <Row gutter={16}>
                         <Col span={12}>
-                            <SelectInfo
+                            {/* <SelectInfo
                                 label="Crop"
                                 // rules={RulesManager.getCropRules()}
                                 name={addPlanFormFields.cropId}
                                 options={cropOptions}
                                 isEditing={true}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <SelectInfo
+                            /> */}
+                            <InfoField
                                 label="Land Plot"
                                 rules={RulesManager.getLandPlotRules()}
                                 name={addPlanFormFields.landPlotId}
                                 options={landPlotOptions}
                                 isEditing={true}
+                                type="select"
+                            />
+                        </Col>
+                        <Col span={12}>
+                            {/* <SelectInfo
+                                label="Land Plot"
+                                rules={RulesManager.getLandPlotRules()}
+                                name={addPlanFormFields.landPlotId}
+                                options={landPlotOptions}
+                                isEditing={true}
+                            /> */}
+                            <InfoField
+                                label="Crop"
+                                name={addPlanFormFields.cropId}
+                                options={cropOptions}
+                                isEditing={true}
+                                type="select"
                             />
                         </Col>
                     </Row>
@@ -267,13 +282,13 @@ const AddPlan = () => {
                     <Form.Item label="Time Range" name="timeRange" rules={[{ required: true, message: "Please select the time range!" }]}>
                         <TimePicker.RangePicker style={{ width: "100%" }} />
                     </Form.Item>
-                    <SelectInfo
+                    {/* <SelectInfo
                         label="Frequency"
                         name={addPlanFormFields.frequency}
                         options={frequencyOptions}
                         isEditing={true}
                         defaultValue="none"
-                    />
+                    /> */}
 
                     {frequency === "weekly" && (
                         <Form.Item label="Select Days of Week" rules={[{ required: true, message: "Please select the days of week!" }]}>

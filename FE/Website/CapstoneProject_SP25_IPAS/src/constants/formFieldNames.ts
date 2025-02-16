@@ -58,5 +58,15 @@ export const addPlanFormFields = {
   customDates: "customDates",
   masterTypeId: "masterTypeId",
   listEmployee: "listEmployee",
-  frequency: "frequency"
+  frequency: "frequency",
+  status: "status",
+  assignor: "assignor",
+};
+
+export const packageFormFields = {
+  packageId: "packageId",
+  packageName: "packageName",
+  packagePrice: "packagePrice",
+  duration: "duration",
+  isActive: "isActive",
 };

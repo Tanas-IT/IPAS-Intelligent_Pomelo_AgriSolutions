@@ -1,9 +1,10 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
-import { GetPlan } from "@/payloads/plan";
+import { GetType } from "@/payloads/masterType";
+import { GetPackage } from "@/payloads/package";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
 
-export const getPlans = async (
+export const getPackage = async (
   currentPage?: number,
   rowsPerPage?: number,
   sortField?: string,
@@ -11,7 +12,7 @@ export const getPlans = async (
   searchValue?: string,
   // brandId?: string | null,
   additionalParams?: Record<string, any>,
-): Promise<GetData<GetPlan>> => {
+): Promise<GetData<GetPackage>> => {
   const params = buildParams(
     currentPage,
     rowsPerPage,
@@ -21,20 +22,10 @@ export const getPlans = async (
     // brandId,
     additionalParams,
   );
-  console.log("params",params);
-  console.log("additionalParams",additionalParams);
-  // const kebabParams = convertKeysToKebabCase(params);
-
-  // console.log("🚀 Converted Params:", kebabParams); 
   
-  // const res = await axiosAuth.axiosJsonRequest.get("plan", { params: {
-  //   // "filter-is-active": false
-  // } });
-
-  const res = await axiosAuth.axiosJsonRequest.get("plan", { params });
-  console.log('res', res);
+  const res = await axiosAuth.axiosJsonRequest.get(`packages`);
   
   const apiResponse = res.data as ApiResponse<Object>;
   
-  return apiResponse.data as GetData<GetPlan>;
+  return apiResponse.data as GetData<GetPackage>;
 };

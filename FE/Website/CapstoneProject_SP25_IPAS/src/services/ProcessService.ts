@@ -26,7 +26,7 @@ export const getProcesses = async (
 };
 
 export const getProcessesOfFarmForSelect = async (farmId: string) => {
-  const res = await axiosAuth.axiosJsonRequest.get(`landplots?farmId=${farmId}`);
+  const res = await axiosAuth.axiosJsonRequest.get(`proceesses/get-for-select?farmId=${farmId}`);
   const apiResponse = res.data as ApiResponse<GetProcess[]>;
 
   return apiResponse.data.map(({ processId, processName }) => ({

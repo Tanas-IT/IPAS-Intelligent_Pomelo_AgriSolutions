@@ -81,5 +81,22 @@ export class RulesManager {
   static getPlanDetailRules = () => this.getRequiredRules("Plan Detail");
   static getGrowthStageRules = () => this.getRequiredRules("Growth Stage");
 
+  static getPackageNameRules = () => this.getRequiredRules("Package Name");
+  static getPackagePriceRules() {
+    return [
+      { required: true, message: "Please input the package price!" },
+      { pattern: /^(0|[1-9]\d*)(\.\d{1,2})?$/, message: "Price must be a positive number with up to two decimal places!" },
+    ];
+  }
+  static getDurationRules() {
+    return [
+      { required: true, message: "Please input the duration!" },
+      { pattern: /^[1-9]\d*$/, message: "Duration must be a positive integer!" },
+    ];
+  }
+  
+  
+
+
 
 }

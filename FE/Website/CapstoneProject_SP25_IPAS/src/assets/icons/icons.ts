@@ -70,4 +70,4 @@ export {
   IoIosWarning as warning,
 } from "react-icons/io";
 export { GrCycle as process } from "react-icons/gr";
-// export { TbListDetails as detail } from "react-icons/tb";
+export { GoPackage as package } from "react-icons/go";

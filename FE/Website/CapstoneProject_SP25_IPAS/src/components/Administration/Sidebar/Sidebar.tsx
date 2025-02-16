@@ -210,6 +210,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
     {
+      key: "Package Management",
+      label: "Package Management",
+      icon: <Icons.package />,
+      activePaths: [""],
+      to: PATHS.PACKAGE.PACKAGE_LIST,
+      category: "Main",
+      isView: !isDefault,
+    },
+    {
       key: "Setting",
       label: "Setting",
       icon: <Icons.setting />,

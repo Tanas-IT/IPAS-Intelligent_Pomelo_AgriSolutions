@@ -4,6 +4,7 @@ import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
 import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { cropService, growthStageService, masterTypeService, userService } from "@/services";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -246,3 +247,56 @@ export const getBase64 = (file: FileType): Promise<string> =>
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
+
+export const fetchUserByRole = async (role: string) => {
+  const users = await userService.getUsersByRole(role);
+  return users.map((user) => ({
+    value: user.fullName,
+    label: user.fullName,
+  }));
+};
+
+export const fetchCropOptions = async (farmId: string) => {
+  const crops = await cropService.getCropsOfFarmForSelect(farmId);
+  return crops.map((crop) => ({
+    value: crop.cropId,
+    label: crop.cropName,
+  }));
+};
+
+export const fetchGrowthStageOptions = async () => {
+  const growthStages = await growthStageService.getGrowthStages();
+
+  return growthStages.list.map((growthStage) => ({
+    value: growthStage.growthStageName,
+    label: growthStage.growthStageName,
+  }));
+};
+
+export const fetchProcessOptions = async () => {
+  const processTypes = await masterTypeService.getTypeByName("ProcessType");
+
+  return processTypes.map((type) => ({
+    value: type.masterTypeName,
+    label: type.masterTypeName,
+  }));
+};
+
+export const frequencyOptions = [
+  { value: "None", label: "None" },
+  { value: "Daily", label: "Daily" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" },
+];
+
+export const activeOptions = [
+  { label: "Active", value: true },
+  { label: "Inactive", value: false },
+];
+
+export const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Completed", value: "completed" },
+];
+

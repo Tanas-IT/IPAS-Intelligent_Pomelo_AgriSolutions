@@ -1,19 +1,20 @@
 import { Flex } from "antd";
-import style from "./PlanList.module.scss";
+import style from "./PackageList.module.scss";
 import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
 import { useFetchData } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
-import { planService } from "@/services";
+import { packageService, planService } from "@/services";
 import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan/ActionMenuPlan";
-import PlanFilter from "./PlanFilter";
-import { planColumns } from "./PlanColumn";
-import { TableTitle } from "./TableTitle";
 import { GetPlan } from "@/payloads/plan";
+import PackageFilter from "./PackageFilter";
+import { packageColumns } from "./PackageColumns";
+import { TableTitle } from "./TableTitle";
+import { GetPackage } from "@/payloads/package";
 
 
-function PlanList() {
+function PackageList() {
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -41,9 +42,9 @@ function PlanList() {
     handleSearch,
     isLoading,
     isInitialLoad,
-  } = useFetchData<GetPlan>({
+  } = useFetchData<GetPackage>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      planService.getPlans(page, limit, sortField, sortDirection, searchValue, filters),
+      packageService.getPackage(page, limit, sortField, sortDirection, searchValue, filters),
   });
 
   useEffect(() => {
@@ -78,7 +79,7 @@ function PlanList() {
 
 
   const filterContent = (
-    <PlanFilter
+    <PackageFilter
       filters={filters}
       updateFilters={updateFilters}
       onClear={handleClear}
@@ -88,12 +89,12 @@ function PlanList() {
 
   return (
     <Flex className={style.container}>
-      <SectionTitle title="Plan Management" totalRecords={totalRecords} />
+      <SectionTitle title="Package Management" totalRecords={totalRecords} />
       <Flex className={style.table}>
         <Table
-          columns={planColumns}
+          columns={packageColumns}
           rows={data}
-          rowKey="planCode"
+          rowKey="packageCode"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
@@ -102,9 +103,9 @@ function PlanList() {
           rowsPerPage={rowsPerPage}
           isLoading={false}
           isInitialLoad={isInitialLoad}
-          caption="Plan Management Table"
+          caption="Package Management Table"
           notifyNoData="No data to display"
-          renderAction={(plan: GetPlan) => <ActionMenuPlan id={plan.planId} />}
+          renderAction={(packagee: GetPackage) => <ActionMenuPlan id={packagee.packageId} />}
         />
 
         <NavigationDot
@@ -120,4 +121,4 @@ function PlanList() {
   );
 }
 
-export default PlanList;
+export default PackageList;

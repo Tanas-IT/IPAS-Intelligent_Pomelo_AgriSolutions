@@ -13,16 +13,19 @@ type TableTitleProps = {
 export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
   const navigate = useNavigate();
   
+  
   const handleClickAddPlan = () => {
     navigate("/plans/add");
   }
+
+  
   return (
     <Flex className={style.headerWrapper}>
       <Flex className={style.sectionLeft}>
         <Searchbar onSearch={onSearch} />
         <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
           <>
-            <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => { }} />
+            <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => {}} />
           </>
         </Popover>
       </Flex>

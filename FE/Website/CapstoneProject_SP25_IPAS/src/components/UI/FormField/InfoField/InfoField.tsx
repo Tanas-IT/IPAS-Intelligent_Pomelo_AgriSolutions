@@ -1,10 +1,11 @@
 import { useStyle } from "@/hooks";
-import { Select, Input, Form, Upload, UploadFile } from "antd";
+import { Select, Input, Form, Upload, UploadFile, DatePicker } from "antd";
 import style from "./InfoField.module.scss";
 import { Icons } from "@/assets";
+import dayjs from "dayjs";
 
 interface Option {
-  value: string;
+  value: string | boolean;
   label: string;
 }
 
@@ -12,7 +13,7 @@ interface InfoFieldProps {
   label: string;
   name: string;
   rules?: any[];
-  type?: "text" | "textarea" | "select" | "uploadDragger";
+  type?: "text" | "textarea" | "select" | "uploadDragger" | "dateRange";
   isEditing?: boolean;
   options?: Option[];
   onChange?: (value: any) => void;
@@ -20,7 +21,12 @@ interface InfoFieldProps {
   placeholder?: string;
   beforeUpload?: (file: File) => boolean | string;
   onRemove?: () => void;
+  value?: any;
+  hasFeedback?: boolean;
+  multiple?: boolean;
 }
+
+const { RangePicker } = DatePicker;
 
 const InfoField: React.FC<InfoFieldProps> = ({
   label,
@@ -34,6 +40,9 @@ const InfoField: React.FC<InfoFieldProps> = ({
   placeholder = `Enter ${label.toLowerCase()}`,
   beforeUpload,
   onRemove,
+  value,
+  hasFeedback = true,
+  multiple = false
 }) => {
   const { styles } = useStyle();
   const inputClass = type === "text" || type === "textarea" ? styles.customInput2 : "";
@@ -50,6 +59,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
             onChange={onChange}
             disabled={!isEditing}
             loading={isLoading}
+            mode={multiple ? "multiple" : undefined}
           />
         );
       case "textarea":
@@ -88,6 +98,17 @@ const InfoField: React.FC<InfoFieldProps> = ({
             maxLength={255}
           />
         );
+      case "dateRange":
+        return (
+          <RangePicker
+            format="DD/MM/YYYY"
+            value={
+              value ? [dayjs(value[0]), dayjs(value[1])] : [null, null]
+            }
+            onChange={onChange}
+            disabled={!isEditing}
+          />
+        );
     }
   };
 
@@ -97,7 +118,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
       label={label}
       name={name}
       rules={rules}
-      hasFeedback={isEditing}
+      hasFeedback={hasFeedback}
     >
       {renderField()}
     </Form.Item>

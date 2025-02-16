@@ -1,6 +1,6 @@
 import { Button, Flex, Space, Card, Row, Col } from "antd";
 import { useEffect, useState } from "react";
-import style from "./PlanList.module.scss";
+import style from "./PackageList.module.scss";
 import dayjs from "dayjs";
 import { InfoField, FilterFooter } from "@/components";
 import { addPlanFormFields } from "@/constants";
@@ -23,7 +23,7 @@ type FilterProps = {
   onClear: () => void;
   onApply: () => void;
 };
-const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
+const PackageFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
   const [growthStageOptions, setGrowthStageOptions] = useState<{ value: string, label: string }[]>([]);
   const [processOptions, setProcessOptions] = useState<{ value: string, label: string }[]>([]);
@@ -63,10 +63,8 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
       <Space direction="vertical">
       <div className={style.filter}>
         <Icons.filter className={style.icon}/>
-        <Title level={4} className={style.titleFilter}>Filter Plans</Title>
+        <Title level={4} className={style.titleFilter}>Filter Packages</Title>
       </div>
-      <Row gutter={[64, 16]}>
-        <Col span={12}>
           <InfoField
             label="Create Date"
             name={addPlanFormFields.dateRange}
@@ -79,58 +77,6 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
             }}
           />
           <InfoField
-            label="Growth Stages"
-            name={addPlanFormFields.cropId}
-            options={growthStageOptions}
-            multiple
-            isEditing
-            type="select"
-            hasFeedback={false}
-            onChange={(value) => updateFilters("growStages", value)}
-          />
-          <InfoField
-            label="Process Types"
-            name={addPlanFormFields.processId}
-            options={processOptions}
-            isEditing
-            multiple
-            type="select"
-            hasFeedback={false}
-            onChange={(value) => updateFilters("processTypes", value)}
-          />
-        </Col>
-        <Col span={12}>
-          <InfoField
-            label="Frequency"
-            name={addPlanFormFields.frequency}
-            options={frequencyOptions}
-            isEditing
-            multiple
-            type="select"
-            hasFeedback={false}
-            onChange={(value) => updateFilters("frequency", value)}
-          />
-          <InfoField
-            label="Assignor"
-            name={addPlanFormFields.assignor}
-            options={assignorOptions}
-            isEditing
-            multiple
-            type="select"
-            hasFeedback={false}
-            onChange={(value) => updateFilters("assignor", value)}
-          />
-          <InfoField
-            label="Status"
-            name={addPlanFormFields.status}
-            options={statusOptions}
-            isEditing
-            multiple
-            type="select"
-            hasFeedback={false}
-            onChange={(value) => updateFilters("status", value)}
-          />
-          <InfoField
             label="Active"
             name={addPlanFormFields.isActive}
             options={activeOptions}
@@ -140,8 +86,6 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
             hasFeedback={false}
             onChange={(value) => updateFilters("isActive", value)}
           />
-        </Col>
-      </Row>
       <FilterFooter
         isFilterEmpty={isFilterEmpty}
         isFilterChanged={isFilterChanged}
@@ -152,4 +96,4 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
     </Flex>
   );
 };
-export default PlanFilter;
+export default PackageFilter;
