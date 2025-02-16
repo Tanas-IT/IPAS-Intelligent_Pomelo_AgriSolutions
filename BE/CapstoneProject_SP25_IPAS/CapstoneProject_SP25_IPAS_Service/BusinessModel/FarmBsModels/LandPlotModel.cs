@@ -35,6 +35,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? FarmId { get; set; }
 
         public string? TargetMarket { get; set; }
+        public double? FarmLongtitude { get; set; }
+        public double? FarmLatitude { get; set; }
 
         //public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
 

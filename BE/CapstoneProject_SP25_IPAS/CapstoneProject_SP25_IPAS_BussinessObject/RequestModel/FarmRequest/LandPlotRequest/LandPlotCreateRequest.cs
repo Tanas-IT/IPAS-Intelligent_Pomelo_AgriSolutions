@@ -22,21 +22,21 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         public string? SoilType { get; set; }
 
         public string? Description { get; set; }
-        [Required]
-        public int FarmId { get; set; }
+        public int? FarmId { get; set; }
 
         public string? TargetMarket { get; set; }
 
-        public int TreeAmountInRow { get; set; }
+        //public int TreeAmountInRow { get; set; }
         [Required]
         public double DistanceInRow { get; set; }
-        [Required]
-        public double RowLength { get; set; }
+        //[Required]
+        //public double RowLength { get; set; }
         [Required]
         public double RowWidth { get; set; }
         public string? RowDirection { get; set; }
 
         //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
+        [Required]
         public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
     }
 }
