@@ -18,32 +18,6 @@ function LandPlot() {
     latitude: 10.9965,
   });
   const [selectedPolygon, setSelectedPolygon] = useState<string | null>(null);
-  const [polygons, setPolygons] = useState<PolygonInit[]>([
-    {
-      id: "polygon1",
-      coordinates: [
-        [
-          [106.78546314117068, 10.997278708395825],
-          [106.78589533924475, 10.997556840012322],
-          [106.78592699828585, 10.99751539287513],
-          [106.78547296403684, 10.997232090171735],
-          [106.78546314117068, 10.997278708395825],
-        ],
-      ],
-    },
-    {
-      id: "polygon2",
-      coordinates: [
-        [
-          [106.7855136114656, 10.997171331485006],
-          [106.78596437055711, 10.997462428171985],
-          [106.78593105040267, 10.997509293796838],
-          [106.78547802086456, 10.997225685284874],
-          [106.7855136114656, 10.997171331485006],
-        ],
-      ],
-    },
-  ]);
   const [landPlots, setLandPlots] = useState<GetLandPlot[]>([]);
 
   const [isPopupVisible, setPopupVisible] = useState(false);
@@ -63,9 +37,9 @@ function LandPlot() {
     }
   };
 
-  // useEffect(() => {
-  //   fetchLandPlotData();
-  // }, []);
+  useEffect(() => {
+    fetchLandPlotData();
+  }, []);
 
   if (isLoading) return <Loading />;
 
@@ -77,8 +51,7 @@ function LandPlot() {
           longitude={farmLocation.longitude}
           latitude={farmLocation.latitude}
           isEditing={false}
-          polygons={polygons}
-
+          landPlots={landPlots}
           // setMarkerPosition={setMarkerPosition}
         />
         <Flex className={style.mapControls}>
