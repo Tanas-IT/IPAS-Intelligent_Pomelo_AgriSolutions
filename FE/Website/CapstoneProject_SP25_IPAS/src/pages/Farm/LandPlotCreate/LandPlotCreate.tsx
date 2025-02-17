@@ -2,7 +2,7 @@ import { Button, Flex, Form, Input, Popover, Typography } from "antd";
 import style from "./LandPlotCreate.module.scss";
 import { EditActions, InfoField, MapControls, MapLandPlot } from "@/components";
 import { useEffect, useState } from "react";
-import { CoordsState } from "@/types";
+import { CoordsState, PolygonInit } from "@/types";
 import { Icons } from "@/assets";
 
 import { useSidebarStore } from "@/stores";
@@ -17,6 +17,32 @@ function LandPlotCreate() {
     longitude: 106.786528,
     latitude: 10.9965,
   });
+  const [polygons, setPolygons] = useState<PolygonInit[]>([
+    {
+      id: "polygon1",
+      coordinates: [
+        [
+          [106.78546314117068, 10.997278708395825],
+          [106.78589533924475, 10.997556840012322],
+          [106.78592699828585, 10.99751539287513],
+          [106.78547296403684, 10.997232090171735],
+          [106.78546314117068, 10.997278708395825],
+        ],
+      ],
+    },
+    {
+      id: "polygon2",
+      coordinates: [
+        [
+          [106.7855136114656, 10.997171331485006],
+          [106.78596437055711, 10.997462428171985],
+          [106.78593105040267, 10.997509293796838],
+          [106.78547802086456, 10.997225685284874],
+          [106.7855136114656, 10.997171331485006],
+        ],
+      ],
+    },
+  ]);
   const { setSidebarState } = useSidebarStore();
   useEffect(() => {
     setSidebarState(false);
@@ -64,16 +90,15 @@ function LandPlotCreate() {
         <Flex className={style.mapSection}>
           <Flex className={style.mapControls}>
             <MapControls label="Zoom In" />
-            <Button>Zoom In</Button>
-            <Button>Zoom Out</Button>
-            <Button>Draw Plot</Button>
-            <Button danger>Clear</Button>
+            <MapControls label="Zoom Out" />
+            <MapControls label="Draw Plot" />
           </Flex>
           <Flex>
             <MapLandPlot
               longitude={farmLocation.longitude}
               latitude={farmLocation.latitude}
               isEditing={false}
+              polygons={polygons}
             />
           </Flex>
         </Flex>

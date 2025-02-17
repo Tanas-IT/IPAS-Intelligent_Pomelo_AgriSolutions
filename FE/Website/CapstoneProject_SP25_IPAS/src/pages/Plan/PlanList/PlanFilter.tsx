@@ -4,7 +4,7 @@ import style from "./PlanList.module.scss";
 import dayjs from "dayjs";
 import { InfoField, FilterFooter } from "@/components";
 import { addPlanFormFields } from "@/constants";
-import { activeOptions, fetchCropOptions, fetchGrowthStageOptions, fetchProcessOptions, fetchUserByRole, frequencyOptions, statusOptions } from "@/utils";
+import { activeOptions, fetchGrowthStageOptions, fetchTypeOptionsByName, fetchUserByRole, frequencyOptions, statusOptions } from "@/utils";
 import Title from "antd/es/typography/Title";
 import { Icons } from "@/assets";
 
@@ -25,13 +25,13 @@ type FilterProps = {
 };
 const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const [growthStageOptions, setGrowthStageOptions] = useState<{ value: string, label: string }[]>([]);
-  const [processOptions, setProcessOptions] = useState<{ value: string, label: string }[]>([]);
+  const [growthStageOptions, setGrowthStageOptions] = useState<{ value: string | number, label: string }[]>([]);
+  const [processOptions, setProcessOptions] = useState<{ value: string | number, label: string }[]>([]);
   const [assignorOptions, setAssignorOptions] = useState<{ value: string, label: string }[]>([]);
 
   const loadData = async () => {
-    setProcessOptions(await fetchProcessOptions());
-    setGrowthStageOptions(await fetchGrowthStageOptions());
+    setProcessOptions(await fetchTypeOptionsByName("ProcessType", false));
+    setGrowthStageOptions(await fetchGrowthStageOptions(false));
     setAssignorOptions(await fetchUserByRole("User"));
   };
 

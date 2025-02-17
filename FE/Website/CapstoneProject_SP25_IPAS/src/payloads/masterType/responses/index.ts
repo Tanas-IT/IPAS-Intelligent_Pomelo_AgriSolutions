@@ -1,1 +1,1 @@
-export * from "./GetGrowthStage";
+export * from "./GetType";

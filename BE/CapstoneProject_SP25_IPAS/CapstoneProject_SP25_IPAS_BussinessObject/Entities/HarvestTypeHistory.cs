@@ -18,10 +18,12 @@ public partial class HarvestTypeHistory
     public int? Quantity { get; set; }
 
     public int HarvestHistoryId { get; set; }
+    public int ProcessId { get; set; }
 
     public virtual HarvestHistory HarvestHistory { get; set; } = null!;
 
     public virtual MasterType MasterType { get; set; } = null!;
 
     public virtual Plant? Plant { get; set; }
+    public virtual Process? Process { get; set; }
 }

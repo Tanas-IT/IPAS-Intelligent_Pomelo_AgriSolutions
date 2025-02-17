@@ -4,7 +4,7 @@ import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
 import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { cropService, growthStageService, masterTypeService, userService } from "@/services";
+import { cropService, growthStageService, masterTypeService, processService, userService } from "@/services";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -256,6 +256,19 @@ export const fetchUserByRole = async (role: string) => {
   }));
 };
 
+export const fetchUserInfoByRole = async (role: string) => {
+  const users = await userService.getUsersByRole(role);
+  console.log("users", users);
+  
+  return users.map((user) => ({
+    fullName: user.fullName,
+    avatarURL: user.avatarURL,
+    userId: user.userId,
+  }));
+};
+
+
+
 export const fetchCropOptions = async (farmId: string) => {
   const crops = await cropService.getCropsOfFarmForSelect(farmId);
   return crops.map((crop) => ({
@@ -264,21 +277,21 @@ export const fetchCropOptions = async (farmId: string) => {
   }));
 };
 
-export const fetchGrowthStageOptions = async () => {
+// export const fetchGrowthStageOptions = async () => {
+//   const growthStages = await growthStageService.getGrowthStages();
+
+//   return growthStages.list.map((growthStage) => ({
+//     value: growthStage.growthStageName,
+//     label: growthStage.growthStageName,
+//   }));
+// };
+
+export const fetchGrowthStageOptions = async (useIdAsValue = false) => {
   const growthStages = await growthStageService.getGrowthStages();
 
   return growthStages.list.map((growthStage) => ({
-    value: growthStage.growthStageName,
+    value: useIdAsValue ? growthStage.growthStageId : growthStage.growthStageName,
     label: growthStage.growthStageName,
-  }));
-};
-
-export const fetchProcessOptions = async () => {
-  const processTypes = await masterTypeService.getTypeByName("ProcessType");
-
-  return processTypes.map((type) => ({
-    value: type.masterTypeName,
-    label: type.masterTypeName,
   }));
 };
 
@@ -299,4 +312,23 @@ export const statusOptions = [
   { label: "In Progress", value: "inProgress" },
   { label: "Completed", value: "completed" },
 ];
+
+export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue = false) => {
+  const processTypes = await masterTypeService.getTypeByName(typeName);
+
+  return processTypes.map((type) => ({
+    value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
+    label: type.masterTypeName,
+  }));
+};
+
+
+export const fetchProcessesOfFarm = async (farmId: number) => {
+  const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
+
+  return processFarms.map((processFarm) => ({
+    value: processFarm.processId,
+    label: processFarm.processName,
+  }));
+}
 

@@ -10,5 +10,11 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IReportService
     {
         public Task<BusinessResult> CropCareReport(int landPlotId, int year);
+        public Task<BusinessResult> Dashboard(int farmId);
+        public Task<BusinessResult> MaterialsInStore(int year, int farmId, int month);
+        public Task<BusinessResult> ProductivityByPlot(int year, int plotId, int month);
+        public Task<BusinessResult> SeasonYield(int year, int farmId, int month);
+        public Task<BusinessResult> PomeloQualityBreakDown(int year);
+        public Task<BusinessResult> WorkProgressOverview(int month);
     }
 }

@@ -95,7 +95,7 @@ export class RulesManager {
     ];
   }
   
-  
+  static getPlanTypeRules = () => this.getRequiredRules("Plan Type");
 
 
 

@@ -1,11 +1,11 @@
 import { useStyle } from "@/hooks";
-import { Select, Input, Form, Upload, UploadFile, DatePicker } from "antd";
+import { Select, Input, Form, Upload, UploadFile, DatePicker, Switch } from "antd";
 import style from "./InfoField.module.scss";
 import { Icons } from "@/assets";
 import dayjs from "dayjs";
 
 interface Option {
-  value: string | boolean;
+  value: string | boolean | number;
   label: string;
 }
 
@@ -13,7 +13,7 @@ interface InfoFieldProps {
   label: string;
   name: string;
   rules?: any[];
-  type?: "text" | "textarea" | "select" | "uploadDragger" | "dateRange";
+  type?: "text" | "textarea" | "select" | "uploadDragger" | "dateRange" | "switch";
   isEditing?: boolean;
   options?: Option[];
   onChange?: (value: any) => void;
@@ -109,6 +109,15 @@ const InfoField: React.FC<InfoFieldProps> = ({
             disabled={!isEditing}
           />
         );
+        case "switch":
+          return (
+            <Switch
+            className={styles.customSwitch}
+              checked={value}
+              onChange={onChange}
+              disabled={!isEditing}
+            />
+          );
     }
   };
 
@@ -119,6 +128,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
       name={name}
       rules={rules}
       hasFeedback={hasFeedback}
+      valuePropName={type === "switch" ? "checked" : "value"}
     >
       {renderField()}
     </Form.Item>

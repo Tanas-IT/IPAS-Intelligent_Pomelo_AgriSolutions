@@ -164,13 +164,14 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customSwitch: css`
-      .ant-switch-handle:before {
-        background-color: ${primaryColor};
+      .ant-switch-handle:before,
+      .ant-switch.ant-switch-checked {
+        background-color: ${primaryColor} !important;
       }
 
-      .ant-switch-inner .ant-switch-inner-checked,
-      .ant-switch-inner .ant-switch-inner-unchecked {
-        color: ${primaryColor};
+      .ant-switch.ant-switch-checked,
+      .ant-switch-checked {
+        background: ${primaryColor} !important;
       }
     `,
     customButton: css`

@@ -61,6 +61,7 @@ export const addPlanFormFields = {
   frequency: "frequency",
   status: "status",
   assignor: "assignor",
+  notes: "notes",
 };
 
 export const packageFormFields = {

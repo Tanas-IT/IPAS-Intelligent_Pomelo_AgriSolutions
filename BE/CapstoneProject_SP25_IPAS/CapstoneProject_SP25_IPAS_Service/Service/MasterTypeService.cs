@@ -290,9 +290,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "Criteria,CriteriaHarvestTypes,HarvestTypeHistories,MasterTypeDetails,Notifications,Plans,Plants,Processes,SubProcesses");
                 if(checkExistMasterType != null)
                 {
-                    foreach(var criteria in checkExistMasterType.CriteriaMasterTypes.ToList())
+                    foreach(var criteria in checkExistMasterType.Criterias.ToList())
                     {
-                        checkExistMasterType.CriteriaMasterTypes.Remove(criteria);
+                        checkExistMasterType.Criterias.Remove(criteria);
                     }
                     var listCriteriaHarvestTypes = checkExistMasterType.CriteriaHarvestTypes.ToList();
                     foreach (var criteriaHarvestTypes in listCriteriaHarvestTypes)

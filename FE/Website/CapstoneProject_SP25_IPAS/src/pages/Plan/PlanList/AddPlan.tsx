@@ -5,8 +5,6 @@ import {
     DatePicker,
     TimePicker,
     Select,
-    Switch,
-    Button,
     Row,
     Col,
     Divider,
@@ -15,7 +13,7 @@ import {
     Flex,
 } from "antd";
 import moment, { Moment } from "moment";
-import { CustomButton, FormFieldModal, InfoField, Section, Tooltip } from "@/components";
+import { CustomButton, InfoField, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
@@ -23,12 +21,13 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useLocalStorage, useStyle, useUnsavedChangesWarning } from "@/hooks";
-import { getFarmId, getUserId, RulesManager } from "@/utils";
+import { useLocalStorage, useUnsavedChangesWarning } from "@/hooks";
+import { fetchGrowthStageOptions, fetchProcessesOfFarm, fetchTypeOptionsByName, fetchUserInfoByRole, getFarmId, getUserId, RulesManager } from "@/utils";
 import { addPlanFormFields, frequencyOptions } from "@/constants";
-import { cropService, landPlotService } from "@/services";
+import { cropService, landPlotService, planService } from "@/services";
+import { toast } from "react-toastify";
+import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 
-const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 interface CarePlanForm {
@@ -46,32 +45,33 @@ interface CarePlanForm {
     active: boolean;
 }
 
-const allEmployees = [
-    { userId: "1", fullName: "Alice", avatarURL: "" },
-    { userId: "2", fullName: "Bob", avatarURL: "" },
-    { userId: "3", fullName: "Charlie", avatarURL: "" },
-    { userId: "4", fullName: "David", avatarURL: "" },
-    { userId: "5", fullName: "Emma", avatarURL: "" },
-];
+type OptionType<T = string | number> = { value: T; label: string };
+type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 const AddPlan = () => {
     const [form] = Form.useForm();
-    const [frequency, setFrequency] = useState<string>("none");
-    const [customDates, setCustomDates] = useState<[Dayjs, Dayjs] | null>(null); //chọn ngày cho frequency: none
-    const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]); //chọn thứ cho frequency: weekly
-    const [responsibleBy, setResponsibleBy] = useState<typeof allEmployees>([]);
-    const [assignorId, setAssignorId] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [daysOfMonth, setDaysOfMonth] = useState<number[]>([]);
-    const [cropOptions, setCropOptions] = useState<{ value: string, label: string }[]>([]);
-    const [landPlotOptions, setLandPlotOptions] = useState<{ value: string, label: string }[]>([]);
     const navigate = useNavigate();
-    const userId = getUserId();
+    const userId = Number(getUserId());
     const { getAuthData } = useLocalStorage();
     const authData = getAuthData();
+    const farmId = Number(getFarmId());
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormDirty, setIsFormDirty] = useState(false);
-    const farmId = getFarmId();
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
+    const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
+    const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
+    const [cropOptions, setCropOptions] = useState<OptionType<string>[]>([]);
+    const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
+    const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
+    const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
+    const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
+    const [employee, setEmployee] = useState<EmployeeType[]>([]);
+    const [assignorId, setAssignorId] = useState<number>();
+    const [frequency, setFrequency] = useState<string>("none");
+    const [customDates, setCustomDates] = useState<Dayjs[]>([]); // Frequency: none
+    const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
+    const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
 
     const {
         isModalVisible,
@@ -79,90 +79,112 @@ const AddPlan = () => {
         handleConfirmNavigation
     } = useUnsavedChangesWarning(isFormDirty);
 
-    const handleFormChange = () => {
-        setIsFormDirty(true);
+    const handleLandPlotChange = async (landPlotId: number) => {
+        setSelectedLandPlot(landPlotId);
+        setCropOptions([]);
+
+        if (landPlotId) {
+            const crops = await cropService.getCropsOfLandPlotForSelect(landPlotId);
+            setCropOptions(crops.map(crop => ({
+                value: crop.cropId,
+                label: crop.cropName,
+            })));
+        }
     };
 
+    const handleReporterChange = (userId: number) => {
+        setSelectedReporter(userId);
+    };
 
     const handleAssignMember = () => setIsModalOpen(true);
 
     const handleConfirmAssign = () => {
         setAssignorId(userId);
-        setResponsibleBy(allEmployees.filter(m => selectedIds.includes(m.userId)));
+        setSelectedEmployees(
+            employee.filter(m => selectedIds.includes(Number(m.userId)))
+        );
         setIsModalOpen(false);
     };
 
-    const handleFrequencyChange = (value: string) => {
-        setFrequency(value);
-        // setSelectedDays([]);
-    };
-
-    const handleDateChange = (dates: [Dayjs, Dayjs] | null) => {
+    const handleDateChange = (dates: Dayjs[]) => {
         setCustomDates(dates);
     };
 
     const handleWeeklyDaySelection = (days: number[]) => {
-        setDaysOfWeek(days);
+        setDayOfWeek(days);
     };
 
     const handleMonthlyDaySelection = (days: number[]) => {
-        setDaysOfMonth(days);
+        setDayOfMonth(days);
     };
 
-    const handleSubmit = (values: any) => {
-        const { date, timeRange } = values;
+    const handleSubmit = async (values: any) => {
+        const { dateRange, timeRange } = values;
+        const startDate = new Date(dateRange?.[0]);
+        const endDate = new Date(dateRange?.[1]);
 
-        const startDate = date?.[0]?.toISOString();
-        const endDate = date?.[1]?.toISOString();
-        const startTime = new Date(timeRange[0]).toISOString().substring(11, 19);
-        const endTime = new Date(timeRange[1]).toISOString().substring(11, 19);
+        const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+        const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
 
+        const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
+        const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
 
-        console.log("Submitted Data:",
-            {
-                planName: values.planName,
-                planDetail: values.planDetail,
-                cropId: values.cropId,
-                landPlot: values.landPlot,
-                processId: values.processId,
-                growthStageId: values.growthStageId,
-                frequency: values.frequency,
-                isActive: values.isActive,
-                masterTypeId: values.masterTypeId,
-                customDates,
-                assignorId,
-                responsibleBy,
-                daysOfWeek,
-                daysOfMonth,
-                startDate,
-                endDate,
-                startTime,
-                endTime
-            });
+        if (assignorId === undefined) {
+            toast.error("Assignor ID is required.");
+            return;
+        }
+
+        const planData: PlanRequest = {
+            planName: values.planName,
+            planDetail: values.planDetail,
+            cropId: values.cropId,
+            landPlotId: values.landPlotId,
+            processId: values.processId,
+            growthStageId: values.growthStageId,
+            frequency: values.frequency,
+            isActive: values.isActive,
+            masterTypeId: values.masterTypeId,
+            customDates,
+            assignorId,
+            listEmployee: selectedEmployees.map(employee => ({
+                userId: employee.userId,
+                isReporter: employee.userId === selectedReporter,
+            })),
+            dayOfWeek,
+            dayOfMonth,
+            startDate: adjustedStartDate.toISOString(),
+            endDate: adjustedEndDate.toISOString(),
+            startTime,
+            endTime,
+        };
+
+        const result = await planService.addPlan(planData);
+
+        if (result.statusCode === 200) {
+            toast.success(result.message);
+            form.resetFields();
+        } else {
+            toast.error(result.message);
+        }
+
         setIsFormDirty(false);
     };
 
+
     useEffect(() => {
-        fetchCropOptions();
-        fetchLandPlotOptions();
+        const fetchData = async () => {
+            await fetchLandPlotOptions();
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId));
+            setGrowthStageOptions(await fetchGrowthStageOptions(true));
+            setWorkTypeOptions(await fetchTypeOptionsByName("WorkType", true));
+            setEmployee(await fetchUserInfoByRole("Employee"));
+        };
+
+        fetchData();
     }, []);
-
-    const fetchCropOptions = async () => {
-        const crops = await cropService.getCropsOfFarmForSelect(farmId);
-        console.log("crops", crops);
-
-        const formattedCropOptions = crops.map((crop) => ({
-            value: crop.cropId,
-            label: crop.cropName,
-        }));
-        setCropOptions(formattedCropOptions);
-
-    };
 
     const fetchLandPlotOptions = async () => {
         const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
-        console.log("landPlots", landPlots);
-
         const formattedLandPlotOptions = landPlots.map((landPlot) => ({
             value: landPlot.landPlotId,
             label: landPlot.landPlotName,
@@ -199,30 +221,36 @@ const AddPlan = () => {
                 className={style.form}
                 onFinish={handleSubmit}
                 onValuesChange={() => setIsFormDirty(true)}
+                initialValues={{ isActive: true }}
             >
                 {/* BASIC INFORMATION */}
                 <Section title="Basic Information" subtitle="Enter the basic information for the care plan.">
-                    <Form.Item label="Name" name="planName" rules={[{ required: true, message: "Please enter the name!" }]}>
-                        <Input placeholder="Enter care plan name" />
-                    </Form.Item>
-
-                    <Form.Item label="Detail" name="planDetail">
-                        <Input.TextArea rows={3} placeholder="Enter details" />
-                    </Form.Item>
-
-                    <Form.Item label="Note" name="notes">
-                        <Input placeholder="Enter plan notes" />
-                    </Form.Item>
-
+                    <InfoField
+                        label="Name"
+                        name={addPlanFormFields.planName}
+                        rules={RulesManager.getPlanNameRules()}
+                        isEditing={true}
+                        hasFeedback={false}
+                        placeholder="Enter care plan name"
+                    />
+                    <InfoField
+                        label="Detail"
+                        name={addPlanFormFields.planDetail}
+                        isEditing={true}
+                        hasFeedback={false}
+                        type="textarea"
+                        placeholder="Enter care plan details"
+                    />
+                    <InfoField
+                        label="Note"
+                        name={addPlanFormFields.notes}
+                        isEditing={true}
+                        hasFeedback={false}
+                        type="textarea"
+                        placeholder="Enter care plan notes"
+                    />
                     <Row gutter={16}>
                         <Col span={12}>
-                            {/* <SelectInfo
-                                label="Crop"
-                                // rules={RulesManager.getCropRules()}
-                                name={addPlanFormFields.cropId}
-                                options={cropOptions}
-                                isEditing={true}
-                            /> */}
                             <InfoField
                                 label="Land Plot"
                                 rules={RulesManager.getLandPlotRules()}
@@ -230,46 +258,56 @@ const AddPlan = () => {
                                 options={landPlotOptions}
                                 isEditing={true}
                                 type="select"
+                                onChange={handleLandPlotChange}
+                                hasFeedback={false}
                             />
                         </Col>
                         <Col span={12}>
-                            {/* <SelectInfo
-                                label="Land Plot"
-                                rules={RulesManager.getLandPlotRules()}
-                                name={addPlanFormFields.landPlotId}
-                                options={landPlotOptions}
-                                isEditing={true}
-                            /> */}
                             <InfoField
                                 label="Crop"
                                 name={addPlanFormFields.cropId}
                                 options={cropOptions}
                                 isEditing={true}
+                                rules={RulesManager.getCropRules()}
                                 type="select"
+                                hasFeedback={false}
+
                             />
                         </Col>
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item label="Process Name" name="processId" rules={[{ required: true, message: "Please select the process!" }]}>
-                                <Select placeholder="Select process">
-                                    <Option value="pruning">Pruning</Option>
-                                    <Option value="watering">Watering</Option>
-                                </Select>
-                            </Form.Item>
+                            <InfoField
+                                label="Process Name"
+                                name={addPlanFormFields.processId}
+                                options={processFarmOptions}
+                                rules={RulesManager.getProcessRules()}
+                                isEditing={true}
+                                type="select"
+                                hasFeedback={false}
+
+                            />
                         </Col>
                         <Col span={12}>
-                            <Form.Item label="Growth Stage" name="growthStageId" rules={[{ required: true, message: "Please select the growth stage!" }]}>
-                                <Select placeholder="Select Growth Stage">
-                                    <Option value="early">Early</Option>
-                                    <Option value="mature">Mature</Option>
-                                </Select>
-                            </Form.Item>
+                            <InfoField
+                                label="Growth Stage"
+                                name={addPlanFormFields.growthStageId}
+                                options={growthStageOptions}
+                                isEditing={true}
+                                rules={RulesManager.getGrowthStageRules()}
+                                type="select"
+                                hasFeedback={false}
+
+                            />
                         </Col>
                     </Row>
-                    <Form.Item label="Active" name="isActive" valuePropName="checked">
-                        <Switch />
-                    </Form.Item>
+                    <InfoField
+                        label="Active"
+                        name={addPlanFormFields.isActive}
+                        isEditing={true}
+                        type="switch"
+                        hasFeedback={false}
+                    />
                 </Section>
 
                 <Divider className={style.divider} />
@@ -282,27 +320,29 @@ const AddPlan = () => {
                     <Form.Item label="Time Range" name="timeRange" rules={[{ required: true, message: "Please select the time range!" }]}>
                         <TimePicker.RangePicker style={{ width: "100%" }} />
                     </Form.Item>
-                    {/* <SelectInfo
+                    <InfoField
                         label="Frequency"
                         name={addPlanFormFields.frequency}
                         options={frequencyOptions}
-                        isEditing={true}
-                        defaultValue="none"
-                    /> */}
+                        isEditing
+                        type="select"
+                        hasFeedback={false}
+                        onChange={(value) => setFrequency(value)}
+                    />
 
-                    {frequency === "weekly" && (
+                    {frequency === "Weekly" && (
                         <Form.Item label="Select Days of Week" rules={[{ required: true, message: "Please select the days of week!" }]}>
-                            <DaySelector onSelectDays={handleWeeklyDaySelection} selectedDays={daysOfWeek} type="weekly" />
+                            <DaySelector onSelectDays={handleWeeklyDaySelection} selectedDays={dayOfWeek} type="weekly" />
                         </Form.Item>
                     )}
 
-                    {frequency === "monthly" && (
+                    {frequency === "Monthly" && (
                         <Form.Item label="Select Dates" rules={[{ required: true, message: "Please select the dates!" }]}>
-                            <DaySelector onSelectDays={handleMonthlyDaySelection} selectedDays={daysOfMonth} type="monthly" />
+                            <DaySelector onSelectDays={handleMonthlyDaySelection} selectedDays={dayOfMonth} type="monthly" />
                         </Form.Item>
                     )}
 
-                    {frequency === "none" && (
+                    {frequency === "None" && (
                         <Form.Item label="Select Specific Dates" rules={[{ required: true, message: "Please select the dates!" }]}>
                             <DatePicker
                                 format="YYYY-MM-DD"
@@ -319,16 +359,21 @@ const AddPlan = () => {
 
                 {/* TASK ASSIGNMENT */}
                 <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
-                    <Form.Item label="Type of Work" name="masterTypeId" rules={[{ required: true, message: "Please select the type of work!" }]}>
-                        <Select placeholder="Select type of work">
-                            <Option value="planting">Watering</Option>
-                            <Option value="watering">Fertilizing</Option>
-                            <Option value="pruning">Pruning</Option>
-                            <Option value="harvesting">Harvesting</Option>
-                            <Option value="grafting">Grafting</Option>
-                        </Select>
-                    </Form.Item>
-                    <AssignEmployee members={responsibleBy} onAssign={handleAssignMember} />
+                    <InfoField
+                        label="Type of Work"
+                        name={addPlanFormFields.masterTypeId}
+                        options={workTypeOptions}
+                        rules={RulesManager.getPlanTypeRules()}
+                        isEditing={true}
+                        type="select"
+                        hasFeedback={false}
+                    />
+                    <AssignEmployee
+                        members={selectedEmployees}
+                        onAssign={handleAssignMember}
+                        onReporterChange={handleReporterChange}
+                        selectedReporter={selectedReporter}
+                    />
                     <Modal
                         title="Assign Members"
                         open={isModalOpen}
@@ -341,11 +386,20 @@ const AddPlan = () => {
                             placeholder="Select employees"
                             value={selectedIds}
                             onChange={setSelectedIds}
+                            optionLabelProp="label"
                         >
-                            {allEmployees.map((employee) => (
-                                <Option key={employee.userId} value={employee.userId}>
-                                    {employee.fullName}
-                                </Option>
+                            {employee.map((emp) => (
+                                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <img
+                                            src={emp.avatarURL}
+                                            alt={emp.fullName}
+                                            style={{ width: 24, height: 24, borderRadius: "50%" }}
+                                            crossOrigin="anonymous"
+                                        />
+                                        <span>{emp.fullName}</span>
+                                    </div>
+                                </Select.Option>
                             ))}
                         </Select>
                     </Modal>

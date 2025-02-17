@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,14 +23,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<bool> DeleteDependenciesOfPlan(int planID)
         {
             var listCarePlanSchedule = await _context.CarePlanSchedules.Where(x => x.CarePlanId == planID).ToListAsync();
-            
+
             foreach (var item in listCarePlanSchedule)
             {
                 var getListWorkLog = await _context.WorkLogs.Where(x => x.ScheduleId == item.ScheduleId).ToListAsync();
-                foreach(var workLog in getListWorkLog)
+                foreach (var workLog in getListWorkLog)
                 {
                     var getListUserWorkLog = await _context.UserWorkLogs.Where(x => x.WorkLogId == workLog.WorkLogId).ToListAsync();
-                     _context.UserWorkLogs.RemoveRange(getListUserWorkLog);
+                    _context.UserWorkLogs.RemoveRange(getListUserWorkLog);
                     _context.SaveChanges();
                 }
                 _context.WorkLogs.RemoveRange(getListWorkLog);
@@ -37,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
             _context.CarePlanSchedules.RemoveRange(listCarePlanSchedule);
             var result = _context.SaveChanges();
-            if(result > 0)
+            if (result > 0)
             {
                 return true;
             }
@@ -47,7 +48,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<bool> IsScheduleConflicted(int carePlanId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime)
         {
             // Lấy danh sách lịch trình của CarePlan
-            var schedules = await  _context.CarePlanSchedules.Where(x => x.StarTime == startTime && x.EndTime == endTime).ToListAsync();
+            var schedules = await _context.CarePlanSchedules.Where(x => x.StarTime == startTime && x.EndTime == endTime).ToListAsync();
             var plan = await _context.Plans.FirstOrDefaultAsync(x => x.PlanId == carePlanId);
 
             foreach (var schedule in schedules)
@@ -60,10 +61,28 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 List<int>? dayOfMonthList = !string.IsNullOrEmpty(schedule.DayOfMonth)
                     ? JsonConvert.DeserializeObject<List<int>>(schedule.DayOfMonth)
                     : null;
-
-                List<DateTime>? customDates = !string.IsNullOrEmpty(schedule.CustomDates)
-                    ? JsonConvert.DeserializeObject<List<DateTime>>(schedule.CustomDates)
-                    : null;
+                string[] formats = { "dd/MM/yyyy HH:mm:ss", "dd/MM/yyyy" };
+                List<DateTime>? customDates = null;
+                if (!string.IsNullOrEmpty(schedule.CustomDates))
+                {
+                    // Nếu là danh sách JSON (bắt đầu bằng dấu [ và kết thúc bằng dấu ])
+                    if (schedule.CustomDates.Trim().StartsWith("[") && schedule.CustomDates.Trim().EndsWith("]"))
+                    {
+                        var dateStrings = JsonConvert.DeserializeObject<List<string>>(schedule.CustomDates);
+                        customDates = dateStrings?
+                            .Select(date => DateTime.ParseExact(date.Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None))
+                            .ToList();
+                    }
+                    else
+                    {
+                        // Nếu chỉ là một chuỗi đơn
+                        if (DateTime.TryParseExact(schedule.CustomDates.Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime singleDate))
+                        {
+                            customDates = new List<DateTime> { singleDate };
+                        }
+                    }
+                }
+                   
 
                 // Kiểm tra nếu khoảng thời gian không trùng nhau, bỏ qua
                 if (endDate < plan.StartDate || startDate > plan.EndDate)
@@ -72,7 +91,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 }
 
                 // Kiểm tra trùng ngày:
-                bool isDateMatched = (customDates != null && customDates.Any(d => d >= startDate && d <= endDate)) // Nếu là ngày tùy chỉnh
+                bool isDateMatched = (customDates != null && customDates.Any(d => d >= startDate.Date && d <= endDate.Date)) // Nếu là ngày tùy chỉnh
                     || (dayOfWeekList != null && dayOfWeekList.Intersect(GetDaysBetween(startDate, endDate)).Any()) // Nếu là Weekly
                     || (dayOfMonthList != null && dayOfMonthList.Intersect(GetValidDaysOfMonth(startDate, endDate)).Any()); // Nếu là Monthly
 

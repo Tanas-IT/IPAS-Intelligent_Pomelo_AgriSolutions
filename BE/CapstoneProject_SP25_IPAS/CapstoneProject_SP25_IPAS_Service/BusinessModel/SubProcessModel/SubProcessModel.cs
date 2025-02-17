@@ -30,8 +30,13 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.SubProcessModel
         public string? ProcessName { get; set; }
 
         public string? MasterTypeName { get; set; }
+        public string? ResourceUrl { get; set; }
 
-        public virtual ICollection<ProcessDataInSubProcessModel> ListSubProcessData { get; set; } = new List<ProcessDataInSubProcessModel>();
+        public string? Input { get; set; }
+
+        public List<SubProcessModel>? listChildSubProcess {  get; set; }
+
+        //public virtual ICollection<ProcessDataInSubProcessModel> ListSubProcessData { get; set; } = new List<ProcessDataInSubProcessModel>();
 
     }
 }

@@ -1,4 +1,4 @@
 export interface GetProcess {
-  processId: string;
+  processId: number;
   processName: string;
 }

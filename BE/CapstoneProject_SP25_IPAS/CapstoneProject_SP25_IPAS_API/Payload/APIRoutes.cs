@@ -277,12 +277,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getSchedule = prefix + "/get-schedule";
             public const string getAllSchedule = prefix + "/get-all-schedule";
             public const string assignTask = prefix + "/assign-task";
+            public const string addNewTask = prefix + "/add-new-task";
         }
 
         public static class Report
         {
             public const string prefix = Base + "/report";
             public const string CropCareReport = prefix + "/crop-care/{landPlotId}/{year}";
+            public const string DashboardReport = prefix + "/dashboard/{farmId}";
         }
 
         public static class TaskFeedback
