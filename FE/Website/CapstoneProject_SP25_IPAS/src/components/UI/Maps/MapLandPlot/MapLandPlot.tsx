@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import style from "./MapLandPlot.module.scss";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { DataDrivenPropertyValueSpecification } from "mapbox-gl";
 import MapboxDraw, {
   DrawCreateEvent,
   DrawDeleteEvent,
@@ -15,13 +15,14 @@ import { PolygonInit } from "@/types";
 import { Popover } from "antd";
 import { GetLandPlot } from "@/payloads";
 import PopupContent from "./PopupContent";
+import MapMarker from "../MapMarker/MapMarker";
 
 interface MapLandPlotProps {
   latitude: number;
   longitude: number;
   isEditing?: boolean;
   landPlots: GetLandPlot[];
-
+  highlightedPlots?: string[];
   //   setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
 }
 
@@ -30,13 +31,13 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   longitude,
   isEditing = false,
   landPlots,
+  highlightedPlots = [],
   //   setMarkerPosition,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-  const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
 
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
   const center: [number, number] =
@@ -71,15 +72,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
               },
               properties: {
                 id: landPlot.landPlotId,
-                landPlotId: landPlot.landPlotId,
-                landPlotCode: landPlot.landPlotCode,
-                landPlotName: landPlot.landPlotName,
-                description: landPlot.description,
-                createDate: landPlot.createDate,
-                area: landPlot.area,
-                soilType: landPlot.soilType,
-                targetMarket: landPlot.targetMarket,
-                status: landPlot.status,
+                ...landPlot,
               },
             })) as Feature<Polygon>[],
           },
@@ -95,13 +88,22 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
             "fill-opacity": 0.5,
           },
         });
+
+        if (highlightedPlots && highlightedPlots.length > 0) {
+          const fillColor: DataDrivenPropertyValueSpecification<string> = [
+            "match",
+            ["get", "id"],
+            ...highlightedPlots.flatMap((id) => [id, "#ff9800"]),
+            "#e8c048", // Màu mặc định
+          ];
+          map.setPaintProperty("polygon-fill", "fill-color", fillColor);
+        }
+
         map.on("click", "polygon-fill", (e) => {
           const feature = e.features?.[0];
 
           if (feature) {
             const landPlot = feature.properties as GetLandPlot;
-            setSelectedPlotId(landPlot.landPlotId); // Cập nhật thửa đất đang chọn
-
             const polygon = feature.geometry as Polygon;
             const coordinates = polygon.coordinates[0]; // Tọa độ của polygon
             // Tính trọng tâm của polygon (centroid)
@@ -116,8 +118,17 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
             const closePopup = (removePopup: boolean = true) => {
               if (removePopup) popup.remove();
 
-              setSelectedPlotId(null);
-              map.setPaintProperty("polygon-fill", "fill-color", "#e8c048");
+              const fillColor: DataDrivenPropertyValueSpecification<string> =
+                highlightedPlots.length > 0
+                  ? [
+                      "match",
+                      ["get", "id"],
+                      ...highlightedPlots.flatMap((id) => [id, "#ff9800"]), // Màu cam cho các thửa đất trong highlightedPlots
+                      "#e8c048", // Màu mặc định
+                    ]
+                  : "#e8c048"; // Nếu không có thửa đất nào được highlight, dùng màu mặc định
+
+              map.setPaintProperty("polygon-fill", "fill-color", fillColor);
             };
 
             // Tạo popup mới
@@ -131,12 +142,27 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
               .setDOMContent(popupContainer)
               .addTo(map);
 
-            map.setPaintProperty("polygon-fill", "fill-color", [
-              "case",
-              ["==", ["get", "id"], landPlot.landPlotId],
-              "#00AEEF", // Màu xanh nếu được chọn
-              "#e8c048", // Màu mặc định nếu không được chọn
-            ]);
+            const fillColor: DataDrivenPropertyValueSpecification<string> =
+              highlightedPlots.length > 0
+                ? [
+                    "case",
+                    ["==", ["get", "id"], landPlot.landPlotId],
+                    "#00AEEF", // Màu xanh nếu được chọn
+                    [
+                      "match",
+                      ["get", "id"],
+                      ...highlightedPlots.flatMap((id) => [id, "#ff9800"]),
+                      "#e8c048", // Màu mặc định nếu không có trong highlightedPlots
+                    ],
+                  ]
+                : [
+                    "case",
+                    ["==", ["get", "id"], landPlot.landPlotId],
+                    "#00AEEF", // Màu xanh nếu được chọn
+                    "#e8c048", // Màu mặc định nếu không được chọn
+                  ];
+
+            map.setPaintProperty("polygon-fill", "fill-color", fillColor);
 
             const closeButton = document.querySelector(
               ".mapboxgl-popup-close-button",
@@ -170,14 +196,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
     markerElement.className = "custom-marker";
 
     const root = createRoot(markerElement);
-    root.render(
-      <div className={style.markerWithLabel}>
-        <div className={style.markerLabelWrapper}>
-          <label className={style.markerLabel}>Your Farm Address Here</label>
-        </div>
-        <Icons.marker className={style.customIcon} />
-      </div>,
-    );
+    root.render(<MapMarker />);
 
     markerRef.current = new mapboxgl.Marker(markerElement)
       .setLngLat([longitude, latitude])
@@ -192,18 +211,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
     });
     mapRef.current = map;
     return () => map.remove();
-  }, [latitude, longitude, isEditing]);
-
-  // useEffect(() => {
-  //   if (!mapRef) return;
-
-  //   mapRef.current?.setPaintProperty("polygon-fill", "fill-color", [
-  //     "case",
-  //     ["==", ["get", "landPlotId"], selectedPlotId],
-  //     "#ff0000", // Màu đỏ nếu đang được chọn
-  //     "#e8c048", // Màu mặc định nếu không được chọn
-  //   ]);
-  // }, [selectedPlotId]);
+  }, [latitude, longitude, isEditing, highlightedPlots]);
 
   return <div ref={mapContainer} className={style.customMap}></div>;
 };

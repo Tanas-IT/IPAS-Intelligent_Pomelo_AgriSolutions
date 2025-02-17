@@ -15,5 +15,7 @@ export interface GetLandPlot {
   createDate: Date;
   status: string;
   targetMarket: string;
+  farmLongtitude: number;
+  farmLatitude: number;
   landPlotCoordinations: landPlotCoordinations[];
 }

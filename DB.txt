@@ -1040,17 +1040,78 @@ GO
 INSERT INTO [dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate])
 VALUES
-    ('MT001', 'Product Category', 'ProcessType', 'Defines product categories', 0, 1, GETDATE()),
-    ('MT002', 'User Role', 'Role', 'ProcessType', 0, 1, GETDATE()),
-    ('MT003', 'Payment Method', 'ProcessType', 'Lists available payment methods', 0, 1, GETDATE()),
-    ('MT004', 'Shipping Method', 'ProcessType', 'Lists available shipping methods', 0, 1, GETDATE()),
-    ('MT005', 'Order Status', 'CriteriaType', 'Defines various order statuses', 0, 1, GETDATE()),
-    ('MT006', 'Discount Type', 'CriteriaType', 'Defines types of discounts available', 0, 1, GETDATE()),
-    ('MT007', 'Membership Level', 'CriteriaType', 'Defines customer membership levels', 0, 1, GETDATE()),
-    ('MT008', 'Tax Type', 'Tax', 'HarvestType', 0, 1, GETDATE()),
-    ('MT009', 'Subscription Plan', 'HarvestType', 'Lists available subscription plans', 0, 1, GETDATE()),
-    ('MT010', 'Support Ticket Status', 'HarvestType', 'Defines statuses for customer support tickets', 0, 1, GETDATE());
+	('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', 0, 1, GETDATE()),
+    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', 0, 1, GETDATE()),
+    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', 0, 1, GETDATE()),
+    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', 0, 1, GETDATE()),
+    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', 0, 1, GETDATE()),
+    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', 0, 1, GETDATE()),
+    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', 0, 1, GETDATE()),
+    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', 0, 1, GETDATE()),
+
+	('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT010', '5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT011', 'Viễn Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', 0, 1, GETDATE()),
+
+    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', 0, 1, GETDATE()),
+    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', 0, 1, GETDATE()),
+	('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', 0, 1, GETDATE()),
+
+	('MT015', 'Watering', 'Work', 'Process of providing water to plants', 0, 1, GETDATE()),
+    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', 0, 1, GETDATE()),
+    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', 0, 1, GETDATE()),
+    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', 0, 1, GETDATE()),
+    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', 0, 1, GETDATE()),
+
+	('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', 0, 1, GETDATE()),
+	('MT021', 'caring ', 'Criteria', 'Defines the criteria for plant care during growth stages', 0, 1, GETDATE()),
+	('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', 0, 1, GETDATE()),
+    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', 0, 1, GETDATE()),
+
+    ('MT024', 'Grade 1', 'Harvest', 'First-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT025', 'Grade 2', 'Harvest', 'Second-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT026', 'Grade 3', 'Harvest', 'Third-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT027', 'Leaves', 'Harvest', 'Pomelo tree leaves harvested for use', 0, 1, GETDATE()),
+    ('MT028', 'Branches', 'Harvest', 'Pomelo tree branches harvested for use', 0, 1, GETDATE()),
+
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', 0, 1, GETDATE()),
+    ('MT030', 'Task Assignment,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT033', 'Task Reminder,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE());
+
 GO
+
+GO
+INSERT INTO [dbo].[MasterTypeDetails] 
+    ([MasterTypeDetailCode], [MasterTypeDetailName], [Value], [TypeOfValue], [ForeignKeyId], [ForeignKeyTable], [MasterTypeID])
+VALUES
+	('MTD001', 'BackgroundColor', '#10B981', 'String', NULL, NULL, 15),
+	('MTD002', 'TextColor', '#047857', 'String', NULL, NULL, 15),
+	('MTD003', 'VolumeRequired', '', 'String', NULL, NULL, 15),
+
+    ('MTD004', 'BackgroundColor', '#D9E5DC', 'String', NULL, NULL, 16),
+    ('MTD005', 'TextColor', '#4A9C5D', 'String', NULL, NULL, 16),
+    ('MTD006', 'VolumeRequired', '', 'String', NULL, NULL, 16),
+
+    ('MTD007', 'BackgroundColor', '#E3D7B9', 'String', NULL, NULL, 17),
+    ('MTD008', 'TextColor', '#8D5B3D', 'String', NULL, NULL, 17),
+    ('MTD009', 'VolumeRequired', '', 'String', NULL, NULL, 17),
+
+    ('MTD010', 'BackgroundColor', '#FFE5D9', 'String', NULL, NULL, 18),
+    ('MTD011', 'TextColor', '#F79C42', 'String', NULL, NULL, 18),
+    ('MTD012', 'VolumeRequired', '', 'String', NULL, NULL, 18),
+
+    ('MTD013', 'BackgroundColor', '#F2F2F2', 'String', NULL, NULL, 19),
+    ('MTD014', 'TextColor', '#4A4A4A', 'String', NULL, NULL, 19),
+    ('MTD015', 'VolumeRequired', '', 'String', NULL, NULL, 19),
+
+	('MTD016', 'Characteristic', 'Green skin, Sweet taste', 'String', NULL, NULL, 9), -- Green Skin Pomelo
+    ('MTD017', 'Characteristic', 'Sweet, Refreshing', 'String', NULL, NULL, 10), -- 5 Roi Pomelo
+    ('MTD018', 'Characteristic', 'Tart, Firm', 'String', NULL, NULL, 11); -- Viễn Pomelo
+
+GO
+
 INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
 VALUES
