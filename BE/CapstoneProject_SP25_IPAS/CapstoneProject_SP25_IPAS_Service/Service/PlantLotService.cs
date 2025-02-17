@@ -45,6 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if(result == null)
                     {
                         checkIsSystem = false;
+                        break;
                     }
 
                 }
@@ -59,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var newPlant = new Plant()
                         {
-                            PlantCode = NumberHelper.GenerateRandomCode("PLT"),
+                            PlantCode = $"{CodeAliasEntityConst.PLANT}-{DateTime.Now.ToString("ddmmyyyy")}-",
                             CreateDate = DateTime.Now,
                             HealthStatus = "Good",
                             GrowthStageID = 2,
@@ -95,7 +96,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var plantLot = new PlantLot()
                         {
-                            PlantLotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PLANT_LOT),
+                            PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PARTNER}{createPlantLotModel.PartnerId}-{CodeHelper.GenerateCode()}",
                             ImportedDate = DateTime.Now,
                             PreviousQuantity = createPlantLotModel.ImportedQuantity,
                             LastQuantity = createPlantLotModel.ImportedQuantity,

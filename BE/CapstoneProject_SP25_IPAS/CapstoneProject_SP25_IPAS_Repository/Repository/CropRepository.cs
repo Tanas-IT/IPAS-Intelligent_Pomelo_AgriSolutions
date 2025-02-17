@@ -255,5 +255,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return landPlotCrops;
         }
+
+        public async Task<int> GetLastID()
+        {
+            var lastId = await _context.Crops.MaxAsync(x => x.CropId);
+            if (lastId <= 0)
+                return 1;
+            return lastId + 1;
+        }
     }
 }

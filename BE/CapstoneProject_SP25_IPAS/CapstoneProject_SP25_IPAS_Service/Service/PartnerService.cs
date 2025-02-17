@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -35,9 +36,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    string haflCode = GenerateFarmCode(createPartnerModel);
                     var partner = new Partner()
                     {
-                       PartnerCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PARTNER),
+                       PartnerCode = $"{CodeAliasEntityConst.PARTNER}-{DateTime.Now.ToString("ddmmyyyy")}-{haflCode}-{CodeHelper.GenerateCode}",
                        Province = createPartnerModel.Province,
                        District = createPartnerModel.District,
                        Ward = createPartnerModel.Ward,
@@ -395,6 +397,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+        private string GenerateFarmCode(CreatePartnerModel partnerRequest)
+        {
+            string countryCode = CodeHelper.ConvertTextToCode(partnerRequest.National!, 2);
+            string provinceCode = CodeHelper.ConvertTextToCode(partnerRequest.Province!, 3);
+            string districtCode = CodeHelper.ConvertTextToCode(partnerRequest.District!, 3);
+
+            return $"{countryCode}-{provinceCode}-{districtCode}";
         }
     }
 }

@@ -68,7 +68,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Latitude = farmCreateRequest.Latitude
 
                     };
-                    farmCreateEntity.FarmCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.FARM);
+                    var index = await _unitOfWork.FarmRepository.GetLastFarmID();
+                    string haftCode = GenerateFarmCode(farmCreateRequest, index);
+                    farmCreateEntity.FarmCode = $"{CodeAliasEntityConst.FARM}-{DateTime.Now.ToString("ddmmyyyy")}-{haftCode}";
                     farmCreateEntity.Status = FarmStatus.Active.ToString();
                     farmCreateEntity.IsDeleted = false;
                     farmCreateEntity.CreateDate = DateTime.Now;
@@ -486,7 +488,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<UserFarm, bool>> condition = x => x.FarmId == farmId && x.UserId == userId && x.Farm.IsDeleted != true;
-                var userfarm = await _unitOfWork.UserFarmRepository.GetByCondition(condition, "Farm,User,Role");
+                Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = x => x.OrderByDescending(x => farmId);
+                string includeProperties = "Farm,User,Role";
+                var userfarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter:condition,includeProperties: includeProperties , orderBy: orderBy);
                 var result = _mapper.Map<UserFarmModel>(userfarm);
                 return result;
             }
@@ -494,6 +498,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return null;
             }
+        }
+
+        private string GenerateFarmCode(FarmCreateRequest farmRequest, int farmIndex)
+        {
+            string countryCode = CodeHelper.ConvertTextToCode("Viet Nam", 2);
+            string provinceCode = CodeHelper.ConvertTextToCode(farmRequest.Province, 3);
+            string districtCode = CodeHelper.ConvertTextToCode(farmRequest.District, 3);
+            string geoHash = CodeHelper.GenerateGeoHash(farmRequest.Latitude!.Value, farmRequest.Longitude!.Value);
+
+            return $"{countryCode}-{provinceCode}-{districtCode}-{geoHash}-{farmIndex:D6}";
         }
     }
 }

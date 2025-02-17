@@ -26,7 +26,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
 
         public string? ClimateZone { get; set; }
 
-
         [Required(ErrorMessage = "Province is required")]
         public string Province { get; set; }
 

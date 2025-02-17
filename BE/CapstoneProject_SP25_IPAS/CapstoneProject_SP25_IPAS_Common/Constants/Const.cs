@@ -854,6 +854,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
         public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
+        public static int WARNING_PLANT_IN_LANDROW_FULL_CODE = 400;
+        public static string WARNING_PLANT_IN_LANDROW_FULL_MSG = "This row has full of plant";
         #endregion
 
         #region Plant Growth History
