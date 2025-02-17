@@ -5,12 +5,13 @@ import { publicRoutes } from "./routes/RouterApp";
 import { GuestLayout } from "./layouts";
 import "aos/dist/aos.css";
 import { ToastContainer } from "react-toastify";
+import { ScrollToTop } from "./components";
 
 function App() {
   return (
     <>
       <Router>
-        {/* <ScrollToTop /> */}
+        <ScrollToTop />
         <div className="App">
           <Routes>
             {publicRoutes.map((route, index) => {
