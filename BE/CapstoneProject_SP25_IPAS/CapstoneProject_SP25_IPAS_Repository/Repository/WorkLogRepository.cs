@@ -175,5 +175,41 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .Include(x => x.Schedule.CarePlan.Plant.LandRow.LandPlot.Farm)
                         .ToListAsync();
         }
+
+        public async Task<bool> CheckConflictTimeOfWorkLog(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck)
+        {
+            // Lấy danh sách WorkLog trong ngày dayCheck
+            var workLogs = await _context.WorkLogs
+                .Where(x => x.Date.HasValue && x.Date.Value.Date == dayCheck.Date)
+                .ToListAsync();
+
+            // Danh sách chứa lịch trình của từng WorkLog
+            var scheduleList = new List<CarePlanSchedule>();
+
+            foreach (var workLog in workLogs)
+            {
+                if (workLog.ScheduleId == null) continue;
+
+                var schedule = await _context.CarePlanSchedules
+                    .FirstOrDefaultAsync(x => x.ScheduleId == workLog.ScheduleId);
+
+                if (schedule != null && schedule.StarTime.HasValue && schedule.EndTime.HasValue)
+                {
+                    scheduleList.Add(schedule);
+                }
+            }
+
+            // Kiểm tra xung đột giữa WorkLog mới với các lịch trình hiện có
+            foreach (var schedule in scheduleList)
+            {
+                bool isOverlap = newStartTime < schedule.EndTime &&
+                                 newEndTime > schedule.StarTime;
+
+                if (isOverlap)
+                    return true; // Có xung đột
+            }
+
+            return false; // Không có xung đột, có thể thêm WorkLog mới
+        }
     }
 }

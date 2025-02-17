@@ -83,12 +83,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                 .ReverseMap();
 
-           
 
+            CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
                 .ForMember(dest => dest.CriteriaModels, opt => opt.MapFrom(src => src.Criterias))
+                .ForMember(dest => dest.MasterTypeDetailModels, opt => opt.MapFrom(src => src.MasterTypeDetails))
                 .ReverseMap();
-            CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
+           
 
             CreateMap<LandRow, LandRowModel>()
                 //.ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))

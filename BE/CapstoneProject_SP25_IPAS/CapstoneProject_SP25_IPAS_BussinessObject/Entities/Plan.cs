@@ -54,6 +54,7 @@ public partial class Plan
 
     public int? MasterTypeId { get; set; }
     public int? GraftedPlantId { get; set; }
+    public int? LandRowID { get; set; }
 
     public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
@@ -70,4 +71,5 @@ public partial class Plan
     public virtual User? User { get; set; }
     public virtual Crop? Crop { get; set; }
     public virtual Plant? Plant { get; set; }
+    public virtual LandRow? LandRow { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? CreateBy { get; set; }
 
         public string? TypeName { get; set; }
+
+        public List<CreateMasterTypeDetailModel>? ListMasterTypeDetail { get; set; }
 
     }
 }

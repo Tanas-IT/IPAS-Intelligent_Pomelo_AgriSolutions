@@ -69,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotId = createPlanModel?.PlantLotId,
                         PlantId = createPlanModel?.PlantId,
                         PlanDetail = createPlanModel?.PlanDetail,
+                        LandRowID = createPlanModel?.LandRowId
                     };
                     await _unitOfWork.PlanRepository.Insert(newPlan);
                     await _unitOfWork.SaveAsync();
@@ -446,7 +447,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
                     var result = _mapper.Map<PlanModel>(getPlan);
-                    result.Progress = Math.Round(calculateProgress,2).ToString();
+                    result.Progress = Math.Round(calculateProgress, 2).ToString();
                     return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
@@ -542,6 +543,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.CropId != null)
                         {
                             checkExistPlan.CropId = updatePlanModel.CropId;
+                        }
+                        if (updatePlanModel.LandRowId != null)
+                        {
+                            checkExistPlan.LandRowID = updatePlanModel.LandRowId;
                         }
                         if (updatePlanModel.MasterTypeId != null)
                         {
@@ -671,15 +676,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StarTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
+                List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
                     if (customeDate >= currentDate && customeDate <= plan.EndDate)
                     {
+                        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), customeDate);
+                        if (checkConflictTimeOfWorkLog)
+                        {
+                            conflictCustomDates.Add(customeDate);
+                        }
+                    }
+
+                }
+                if (conflictCustomDates.Count > 5)
+                {
+                    throw new Exception("The schedule is conflicted");
+                }
+
+                foreach (var customeDate in createPlanModel.CustomDates)
+                {
+                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    {
+                            var tempModel = conflictCustomDates.Contains(customeDate)
+                                ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
+                                : createPlanModel;
                         await GenerateWorkLogs(schedule, customeDate, createPlanModel);
                     }
+
                 }
             }
-            else if (plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -692,7 +719,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
             }
-            else if (plan.Frequency.ToLower() == "monthly" && createPlanModel.DayOfMonth != null)
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "monthly" && createPlanModel.DayOfMonth != null)
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -705,7 +732,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
             }
-            else if (plan.Frequency.ToLower() == "daily")
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "daily")
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -718,31 +745,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
             }
-            if (await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(plan.PlanId, createPlanModel.StartDate, createPlanModel.EndDate, TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime)))
-            {
-                throw new Exception("The schedule is conflicted");
-            }
+            //if (await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(plan.PlanId, createPlanModel.StartDate, createPlanModel.EndDate, TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime)))
+            //{
+            //    throw new Exception("The schedule is conflicted");
+            //}
             await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             var result = await _unitOfWork.SaveAsync();
             while (currentDate <= plan.EndDate)
             {
-                if (plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
+                if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
                 {
                     // Nếu là Weekly, duyệt qua từng ngày trong tuần
+                    List<DateTime> conflictDatesInWeekly = new List<DateTime>();
                     foreach (int day in createPlanModel.DayOfWeek)
                     {
                         DateTime nextDay = GetNextDayOfWeek(currentDate, (DayOfWeek)day);
                         if (nextDay <= plan.EndDate)
                         {
-                            await GenerateWorkLogs(schedule, nextDay, createPlanModel);
+                            var checkConflictTimeOfWorkLogWeekly = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), nextDay);
+                            if (checkConflictTimeOfWorkLogWeekly)
+                            {
+                                conflictDatesInWeekly.Add(nextDay);
+                            }
                         }
                     }
+                    if (conflictDatesInWeekly.Count > 5)
+                    {
+                        throw new Exception("The schedule is conflicted");
+                    }
+                    foreach (int day in createPlanModel.DayOfWeek)
+                    {
+                        DateTime nextDay = GetNextDayOfWeek(currentDate, (DayOfWeek)day);
+                        if (nextDay <= plan.EndDate)
+                        {
+                            // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                            var tempModel = conflictDatesInWeekly.Contains(nextDay)
+                                ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
+                                : createPlanModel;
+                            await GenerateWorkLogs(schedule, nextDay, tempModel);
+                        }
+                    }
+                   
                     // Nhảy sang tuần tiếp theo
                     currentDate = currentDate.AddDays(7);
                 }
-                else if (plan.Frequency.ToLower() == "monthly" && createPlanModel.DayOfMonth != null)
+                else if (plan.Frequency != null && plan.Frequency.ToLower() == "monthly" && createPlanModel.DayOfMonth != null)
                 {
                     // Nếu là Monthly, duyệt qua từng ngày cụ thể trong tháng
+                    List<DateTime> conflictDatesInMonthly = new List<DateTime>();
                     foreach (int day in createPlanModel.DayOfMonth)
                     {
                         int maxDays = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
@@ -751,14 +801,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         DateTime nextMonthDate = new DateTime(currentDate.Year, currentDate.Month, validDay);
                         if (nextMonthDate <= plan.EndDate)
                         {
+                            var checkConflictTimeOfWorkLogMonthly = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), nextMonthDate);
+                            if (checkConflictTimeOfWorkLogMonthly)
+                            {
+                                conflictDatesInMonthly.Add(nextMonthDate);
+                            }
+                        }
+                    }
+                    if (conflictDatesInMonthly.Count > 5)
+                    {
+                        throw new Exception("The schedule is conflicted");
+                    }
+
+                    foreach (int day in createPlanModel.DayOfMonth)
+                    {
+                        int maxDays = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+                        int validDay = Math.Min(day, maxDays); // Nếu day > maxDays thì chọn ngày cuối tháng
+
+                        DateTime nextMonthDate = new DateTime(currentDate.Year, currentDate.Month, validDay);
+                        if (nextMonthDate <= plan.EndDate)
+                        {
+                            // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                            var tempModel = conflictDatesInMonthly.Contains(nextMonthDate)
+                                ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
+                                : createPlanModel;
                             await GenerateWorkLogs(schedule, nextMonthDate, createPlanModel);
                         }
                     }
                     // Nhảy sang tháng tiếp theo
                     currentDate = currentDate.AddMonths(1);
                 }
-                else if (plan.Frequency.ToLower() == "daily")
+                else if (plan.Frequency != null && plan.Frequency.ToLower() == "daily")
                 {
+                    List<DateTime> conflictDatesInDaily = new List<DateTime>();
+                    var checkConflictTimeOfWorkLogDaily = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), currentDate);
+                    if (checkConflictTimeOfWorkLogDaily)
+                    {
+                        conflictDatesInDaily.Add(currentDate);
+                    }
+                    if (conflictDatesInDaily.Count > 5)
+                    {
+                        throw new Exception("The schedule is conflicted");
+                    }
+
+                    var tempModel = conflictDatesInDaily.Contains(currentDate)
+                                ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
+                                : createPlanModel;
                     await GenerateWorkLogs(schedule, currentDate, createPlanModel);
                     currentDate = currentDate.AddDays(1);
                 }
@@ -792,15 +880,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StarTime = TimeSpan.Parse(updatePlanModel.StartTime),
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
+                List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
                     if (customeDate >= currentDate && customeDate <= plan.EndDate)
                     {
-                        await GenerateWorkLogsForUpdate(schedule, customeDate, updatePlanModel);
+                        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime), customeDate);
+                        if (checkConflictTimeOfWorkLog)
+                        {
+                            conflictCustomDates.Add(customeDate);
+                        }
                     }
                 }
+
+                if (conflictCustomDates.Count > 5)
+                {
+                    throw new Exception("The schedule is conflicted");
+                }
+
+                foreach (var customeDate in updatePlanModel.CustomDates)
+                {
+                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    {
+                        // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                        var tempModel = conflictCustomDates.Contains(customeDate)
+                            ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
+                            : updatePlanModel;
+                        await GenerateWorkLogsForUpdate(schedule, customeDate, tempModel);
+
+                    }
+
+                }
             }
-            else if (plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -813,7 +925,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
             }
-            else if (plan.Frequency.ToLower() == "monthly" && updatePlanModel.DayOfMonth != null)
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "monthly" && updatePlanModel.DayOfMonth != null)
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -826,7 +938,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
             }
-            else if (plan.Frequency.ToLower() == "daily")
+            else if (plan.Frequency != null && plan.Frequency.ToLower() == "daily")
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -839,35 +951,58 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
             }
-            if (updatePlanModel.StartDate != null && updatePlanModel.EndDate != null &&
-                    updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
-            {
-                if (await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(plan.PlanId, updatePlanModel.StartDate.Value, updatePlanModel.EndDate.Value, TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime)))
-                {
-                    throw new Exception("The schedule is conflicted");
-                }
-            }
+            //if (updatePlanModel.StartDate != null && updatePlanModel.EndDate != null &&
+            //        updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
+            //{
+            //    if (await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(plan.PlanId, updatePlanModel.StartDate.Value, updatePlanModel.EndDate.Value, TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime)))
+            //    {
+            //        throw new Exception("The schedule is conflicted");
+            //    }
+            //}
             await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             var result = await _unitOfWork.SaveAsync();
             while (currentDate <= plan.EndDate)
             {
-                if (plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
+                if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
                 {
                     // Nếu là Weekly, duyệt qua từng ngày trong tuần
+                    List<DateTime> conflictDatesInWeekly = new List<DateTime>();
                     foreach (int day in updatePlanModel.DayOfWeek)
                     {
                         DateTime nextDay = GetNextDayOfWeek(currentDate, (DayOfWeek)day);
                         if (nextDay <= plan.EndDate)
                         {
-                            await GenerateWorkLogsForUpdate(schedule, nextDay, updatePlanModel);
+                            var checkConflictTimeOfWorkLogWeekly = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime), nextDay);
+                            if (checkConflictTimeOfWorkLogWeekly)
+                            {
+                                conflictDatesInWeekly.Add(nextDay);
+                            }
+                        }
+                    }
+                    if (conflictDatesInWeekly.Count > 5)
+                    {
+                        throw new Exception("Schedule is conflicted");
+                    }
+
+                    foreach (int day in updatePlanModel.DayOfWeek)
+                    {
+                        DateTime nextDay = GetNextDayOfWeek(currentDate, (DayOfWeek)day);
+                        if (nextDay <= plan.EndDate)
+                        {
+                            // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                            var tempModel = conflictDatesInWeekly.Contains(nextDay)
+                                ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
+                                : updatePlanModel;
+                            await GenerateWorkLogsForUpdate(schedule, nextDay, tempModel);
                         }
                     }
                     // Nhảy sang tuần tiếp theo
                     currentDate = currentDate.AddDays(7);
                 }
-                else if (plan.Frequency.ToLower() == "monthly" && updatePlanModel.DayOfMonth != null)
+                else if (plan.Frequency != null && plan.Frequency.ToLower() == "monthly" && updatePlanModel.DayOfMonth != null)
                 {
                     // Nếu là Monthly, duyệt qua từng ngày cụ thể trong tháng
+                    List<DateTime> conflictDates = new List<DateTime>();
                     foreach (int day in updatePlanModel.DayOfMonth)
                     {
                         int maxDays = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
@@ -876,15 +1011,60 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         DateTime nextMonthDate = new DateTime(currentDate.Year, currentDate.Month, validDay);
                         if (nextMonthDate <= plan.EndDate)
                         {
-                            await GenerateWorkLogsForUpdate(schedule, nextMonthDate, updatePlanModel);
+                            var checkConflictTimeOfWorkLogMonthly = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime), nextMonthDate);
+                            if (checkConflictTimeOfWorkLogMonthly)
+                            {
+                                conflictDates.Add(nextMonthDate);
+                            }
+                        }
+                    }
+
+                    if (conflictDates.Count > 5)
+                    {
+                        throw new Exception("Schedule is conflicted");
+                    }
+
+                    // Duyệt lại để tạo WorkLogs
+                    foreach (int day in updatePlanModel.DayOfMonth)
+                    {
+                        int maxDays = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+                        int validDay = Math.Min(day, maxDays); // Nếu day > maxDays thì chọn ngày cuối tháng
+
+                        DateTime nextMonthDate = new DateTime(currentDate.Year, currentDate.Month, validDay);
+                        if (nextMonthDate <= plan.EndDate)
+                        {
+                            // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                            var tempModel = conflictDates.Contains(nextMonthDate)
+                                ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
+                                : updatePlanModel;
+
+                            await GenerateWorkLogsForUpdate(schedule, nextMonthDate, tempModel);
                         }
                     }
                     // Nhảy sang tháng tiếp theo
                     currentDate = currentDate.AddMonths(1);
                 }
-                else if (plan.Frequency.ToLower() == "daily")
+                else if (plan.Frequency != null && plan.Frequency.ToLower() == "daily")
                 {
-                    await GenerateWorkLogsForUpdate(schedule, currentDate, updatePlanModel);
+                    List<DateTime> conflictDatesDaily = new List<DateTime>();
+                    var checkConflictTimeOfWorkLogDaily = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(updatePlanModel.StartTime), TimeSpan.Parse(updatePlanModel.EndTime), currentDate);
+                    if (checkConflictTimeOfWorkLogDaily)
+                    {
+                        conflictDatesDaily.Add(currentDate);
+                    }
+                    if (conflictDatesDaily.Count > 5)
+                    {
+                        throw new Exception("Schedule is conflicted");
+
+                    }
+
+                    // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
+                    var tempModel = conflictDatesDaily.Contains(currentDate)
+                        ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
+                        : updatePlanModel;
+
+                    await GenerateWorkLogsForUpdate(schedule, currentDate, tempModel);
+
                     currentDate = currentDate.AddDays(1);
                 }
             }
@@ -916,7 +1096,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // 🔹 Lưu WorkLogs vào DB trước để lấy WorkLogID
             await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
             var result = await _unitOfWork.SaveAsync();
-            await GenerateUserWorkLog(createPlanModel.ListEmployee, newWorkLog);
+            if (createPlanModel.ListEmployee != null && createPlanModel.ListEmployee.Count > 0)
+            {
+                await GenerateUserWorkLog(createPlanModel.ListEmployee, newWorkLog);
+            }
             return result > 0;
         }
 
@@ -940,7 +1123,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // 🔹 Lưu WorkLogs vào DB trước để lấy WorkLogID
             await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
             var result = await _unitOfWork.SaveAsync();
-            await GenerateUserWorkLog(updatePlanModel.ListEmployee, newWorkLog);
+            if (updatePlanModel.ListEmployee != null && updatePlanModel.ListEmployee.Count > 0)
+            {
+                await GenerateUserWorkLog(updatePlanModel.ListEmployee, newWorkLog);
+            }
             return result > 0;
         }
 
