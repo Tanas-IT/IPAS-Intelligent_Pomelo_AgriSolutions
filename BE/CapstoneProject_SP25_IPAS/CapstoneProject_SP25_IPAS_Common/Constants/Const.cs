@@ -425,6 +425,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_DASHBOARD_REPORT_MSG = "Get dashboard report success";
         #endregion
 
+        #region Packages
+        public static int SUCCESS_GET_PACKAGES_CODE = 400;
+        public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
+        #endregion
+
         #endregion
 
         #region FAIL
@@ -946,6 +951,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_HARVEST_NOT_EXIST_MSG = "Harvest not exist";
         public static int WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE = 400;
         public static string WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG = "your product type not suitable";
+        #endregion
+
+        #region Package
+        public static int WARNING_GET_PACKAGES_EMPTY_CODE = 400;
+        public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
         #endregion
         #endregion
     }
