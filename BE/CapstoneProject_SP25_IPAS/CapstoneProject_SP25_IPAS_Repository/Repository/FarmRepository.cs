@@ -20,6 +20,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
+        public async Task<int> GetLastFarmID()
+        {
+            var counter = await _context.Farms.MaxAsync( x=> x.FarmId);
+            if (counter == 0)
+            {
+                return 1;
+            }
+            return counter + 1;
+        }
+
         public async Task<IEnumerable<Farm>> Get(Expression<Func<Farm, bool>> filter = null, Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = null, int? pageIndex = null, int? pageSize = null)
         {
             IQueryable<Farm> query = _context.Farms.AsQueryable(); // Khởi tạo truy vấn

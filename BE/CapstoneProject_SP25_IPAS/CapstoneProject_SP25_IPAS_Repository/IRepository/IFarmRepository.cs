@@ -17,5 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
             int? pageSize = null);
         public Task<Farm> GetFarmById(int farmId);
 
+        public Task<int> GetLastFarmID();
+
     }
 }

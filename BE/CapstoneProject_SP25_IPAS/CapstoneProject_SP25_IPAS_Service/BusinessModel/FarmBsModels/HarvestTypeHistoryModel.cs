@@ -27,6 +27,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public string? ProductName { get; set; }
 
         public string? HarvestHistoryCode { get; set; }
+        public string? ProcessName { get; set; }
+        public int? ProcessId { get; set; }
 
         //public virtual HarvestHistoryModel HarvestHistory { get; set; } = null!;
 
