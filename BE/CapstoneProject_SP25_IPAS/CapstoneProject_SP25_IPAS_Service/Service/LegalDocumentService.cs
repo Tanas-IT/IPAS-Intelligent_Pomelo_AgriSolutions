@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Khởi tạo đối tượng LegalDocument
                     var legalDocumentEntity = new LegalDocument()
                     {
-                        LegalDocumentCode = Guid.NewGuid().ToString(),
+                        LegalDocumentCode = $"{CodeAliasEntityConst.LEGAL_DOCUMENT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{farmId.ToString()}-{CodeHelper.GenerateCode}",
                         LegalDocumentType = documentCreateRequest.LegalDocumentType,
                         LegalDocumentName = documentCreateRequest.LegalDocumentName,
                         LegalDocumentURL = documentCreateRequest.LegalDocumentURL,

@@ -43,7 +43,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newSubProcess = new SubProcess()
                     {
-                        SubProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.SUB_PROCESS),
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         ProcessId = createSubProcessModel.ProcessId,
@@ -52,7 +51,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         SubProcessName = createSubProcessModel.SubProcessName,
                         IsDefault = false,
                         IsActive = createSubProcessModel.IsActive,
-                        IsDeleted = false
+                        IsDeleted = false,
+                        SubProcessCode = $"{CodeAliasEntityConst.SUB_PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PROCESS}{createSubProcessModel.ProcessId}{CodeAliasEntityConst.MASTER_TYPE}{createSubProcessModel.MasterTypeId}-{CodeHelper.GenerateCode()}",
                     };
                     if (createSubProcessModel.SubProcessData != null)
                     {
