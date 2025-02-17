@@ -907,6 +907,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
         public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
+        public static int WARNING_CROP_EXPIRED_CODE = 400;
+        public static string WARNING_CROP_EXPIRED_MSG = "This crop is expired to harvest, please choose again.";
         #endregion
 
         #region Report
