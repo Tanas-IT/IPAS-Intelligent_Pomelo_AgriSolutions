@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.MasterType)
                 .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
-                    //.ThenInclude(c => c.MasterType)
+                    .ThenInclude(c => c.MasterType)
                 .Where(p => p.LandRow != null && p.LandRow.LandPlot!.FarmId == farmId && p.IsDeleted == false)
                 .AsQueryable();
 
@@ -90,7 +90,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.MasterType)
                 .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
-                    //.ThenInclude(c => c.MasterType)
+                    .ThenInclude(c => c.MasterType)
                 .Where(p => p.LandRow != null && p.LandRow.LandPlotId == landPlotId && p.IsDeleted == false)
                 .AsQueryable();
 
@@ -144,13 +144,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
              .Include(p => p.MasterType)
              .Include(p => p.PlantCriterias)
                     .ThenInclude(pc => pc.Criteria)
-                    //.ThenInclude(c => c.MasterType)
+                    .ThenInclude(c => c.MasterType)
             .FirstOrDefaultAsync(p => p.PlantId == plantId && p.IsDeleted == false);
         }
 
         public async Task<List<Plant>> getPlantInclude()
         {
-           return await _context.Plants.Include(x => x.LandRow)
+           return await _context.Plants.Include(x => x.LandRow).Include(x => x.GrowthStage)
                 .Include(lr => lr.LandRow.LandPlot.LandPlotCoordinations)
                 .Include(x => x.LandRow.LandPlot.Farm).ToListAsync();
         }

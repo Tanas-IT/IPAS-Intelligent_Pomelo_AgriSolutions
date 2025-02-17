@@ -88,6 +88,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IWorkLogService, WorkLogService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
+            services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
 
             services.AddHttpClient();
 
