@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public MasterTypeDetailRepostiory(IpasContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<int> GetLastMasterTypeDetail()
+        {
+            var lastMasterTypeDetail = await _context.MasterTypeDetails
+                  .OrderByDescending(p => p.MasterTypeDetailId) // Lấy mã lớn nhất
+                  .Select(p => p.MasterTypeDetailId)
+                  .FirstOrDefaultAsync();
+            return lastMasterTypeDetail;
         }
     }
 }
