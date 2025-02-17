@@ -38,15 +38,16 @@ export const updateFarmLogo = async (image: File): Promise<ApiResponse<{ logoUrl
 
 export const createFarm = async (farm: FarmRequest): Promise<ApiResponse<Object>> => {
   const formData = new FormData();
+
   formData.append("FarmName", farm.farmName);
   formData.append("LogoUrl", farm.farmLogo);
   formData.append("Description", farm.description);
-  formData.append("Area ", farm.area);
+  formData.append("Area", farm.area);
   formData.append("SoilType", farm.soilType);
   formData.append("ClimateZone", farm.climateZone);
   formData.append("Address", farm.address);
   formData.append("Province", farm.province);
-  formData.append("District ", farm.district);
+  formData.append("District", farm.district);
   formData.append("Ward", farm.ward);
   formData.append("Longitude", farm.longitude.toString());
   formData.append("Latitude", farm.latitude.toString());

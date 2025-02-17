@@ -48,7 +48,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newProcess = new Process()
                     {
-                        ProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PROCESS),
+                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{createProcessModel.FarmId}-{CodeAliasEntityConst.GROWTHSTAGE}{createProcessModel.GrowthStageID}",
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         FarmId = createProcessModel.FarmId,

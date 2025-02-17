@@ -1,0 +1,95 @@
+@use "@/styles/variables.scss" as vars;
+
+.customMap {
+  width: 100%;
+  height: 100%;
+  min-height: 85vh;
+  border-radius: 8px;
+  transition: width 0.3s ease-in-out;
+}
+
+.customMap:active {
+  cursor: grabbing;
+}
+
+.popupContainer {
+  border-radius: 8px;
+
+  .popupHeader {
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid vars.$color_second;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    .popupClose {
+      outline: none !important;
+      border-color: transparent !important;
+    }
+  }
+
+  .plotItemWrapper {
+    width: 100%;
+    flex-direction: row;
+    padding: 0 14px 8px 14px;
+    gap: 8px;
+    .row {
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .col {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .plotItemHeader {
+      flex-direction: column;
+      color: vars.$color_primary;
+      .plotItemTitle {
+        color: vars.$color_primary;
+      }
+
+      .plotItemDescription {
+        font-size: 12px;
+        color: vars.$color_role_name;
+      }
+    }
+    .plotItemDetails {
+      justify-content: flex-start;
+      align-items: center;
+      gap: 12px;
+      .plotItemDetail {
+        color: vars.$color_text_detail;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        svg {
+          margin-bottom: 4px;
+        }
+      }
+    }
+  }
+
+  .popupFooter {
+    justify-content: flex-end;
+    border-top: 1px solid vars.$color_second;
+    padding-top: 10px;
+    gap: 10px;
+
+    .btn {
+      height: 28px;
+      border-color: transparent !important;
+      outline: none !important;
+    }
+    .updateBtn {
+      color: vars.$color_primary;
+      background-color: vars.$color_yellow_main;
+      &:hover {
+        color: vars.$color_primary;
+        background-color: vars.$color_yellow_main;
+        opacity: 0.9;
+      }
+    }
+  }
+}

@@ -204,7 +204,7 @@ CREATE TABLE ipas.dbo.CriteriaHarvestType (
 --	FarmCoordinationID int IDENTITY(1,1) NOT NULL,
 --	FarmCoordinationCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 --	Longitude float NULL,
---	Lagtitude float NULL,
+--	Latitude float NULL,
 --	FarmID int NULL,
 --	CONSTRAINT PK__FarmCoor__6BD490F93070DFBF PRIMARY KEY (FarmCoordinationID),
 --	CONSTRAINT FK__FarmCoord__FarmI__18B6AB08 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) --ON DELETE CASCADE
@@ -711,7 +711,7 @@ CREATE TABLE ipas.dbo.GraftedPlantNote (
 CREATE TABLE ipas.dbo.HarvestTypeHistory (
 	MasterTypeID int NOT NULL,
 	PlantID int NULL,
-	Unit nvarchar(MAX) NULL,
+	Unit nvarchar(50) NULL,
 	Price float NULL,
 	Quantity int NULL,
 	HarvestHistoryID int NOT NULL,
@@ -1042,18 +1042,79 @@ GO
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate])
 VALUES
-    ('MT001', 'Product Category', 'ProcessType', 'Defines product categories', 0, 1, GETDATE()),
-    ('MT002', 'User Role', 'Role', 'ProcessType', 0, 1, GETDATE()),
-    ('MT003', 'Payment Method', 'ProcessType', 'Lists available payment methods', 0, 1, GETDATE()),
-    ('MT004', 'Shipping Method', 'ProcessType', 'Lists available shipping methods', 0, 1, GETDATE()),
-    ('MT005', 'Order Status', 'CriteriaType', 'Defines various order statuses', 0, 1, GETDATE()),
-    ('MT006', 'Discount Type', 'CriteriaType', 'Defines types of discounts available', 0, 1, GETDATE()),
-    ('MT007', 'Membership Level', 'CriteriaType', 'Defines customer membership levels', 0, 1, GETDATE()),
-    ('MT008', 'Tax Type', 'Tax', 'HarvestType', 0, 1, GETDATE()),
-    ('MT009', 'Subscription Plan', 'HarvestType', 'Lists available subscription plans', 0, 1, GETDATE()),
-    ('MT010', 'Support Ticket Status', 'HarvestType', 'Defines statuses for customer support tickets', 0, 1, GETDATE());
+	('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', 0, 1, GETDATE()),
+    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', 0, 1, GETDATE()),
+    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', 0, 1, GETDATE()),
+    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', 0, 1, GETDATE()),
+    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', 0, 1, GETDATE()),
+    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', 0, 1, GETDATE()),
+    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', 0, 1, GETDATE()),
+    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', 0, 1, GETDATE()),
+
+	('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT010', '5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT011', 'Viễn Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', 0, 1, GETDATE()),
+
+    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', 0, 1, GETDATE()),
+    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', 0, 1, GETDATE()),
+	('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', 0, 1, GETDATE()),
+
+	('MT015', 'Watering', 'Work', 'Process of providing water to plants', 0, 1, GETDATE()),
+    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', 0, 1, GETDATE()),
+    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', 0, 1, GETDATE()),
+    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', 0, 1, GETDATE()),
+    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', 0, 1, GETDATE()),
+
+	('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', 0, 1, GETDATE()),
+	('MT021', 'caring ', 'Criteria', 'Defines the criteria for plant care during growth stages', 0, 1, GETDATE()),
+	('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', 0, 1, GETDATE()),
+    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', 0, 1, GETDATE()),
+
+    ('MT024', 'Grade 1', 'Harvest', 'First-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT025', 'Grade 2', 'Harvest', 'Second-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT026', 'Grade 3', 'Harvest', 'Third-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT027', 'Leaves', 'Harvest', 'Pomelo tree leaves harvested for use', 0, 1, GETDATE()),
+    ('MT028', 'Branches', 'Harvest', 'Pomelo tree branches harvested for use', 0, 1, GETDATE()),
+
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', 0, 1, GETDATE()),
+    ('MT030', 'Task Assignment,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT033', 'Task Reminder,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE());
+
 GO
-INSERT INTO [ipas].[dbo].[Criteria]
+
+GO
+INSERT INTO [dbo].[MasterTypeDetails] 
+    ([MasterTypeDetailCode], [MasterTypeDetailName], [Value], [TypeOfValue], [ForeignKeyId], [ForeignKeyTable], [MasterTypeID])
+VALUES
+	('MTD001', 'BackgroundColor', '#10B981', 'String', NULL, NULL, 15),
+	('MTD002', 'TextColor', '#047857', 'String', NULL, NULL, 15),
+	('MTD003', 'VolumeRequired', '', 'String', NULL, NULL, 15),
+
+    ('MTD004', 'BackgroundColor', '#D9E5DC', 'String', NULL, NULL, 16),
+    ('MTD005', 'TextColor', '#4A9C5D', 'String', NULL, NULL, 16),
+    ('MTD006', 'VolumeRequired', '', 'String', NULL, NULL, 16),
+
+    ('MTD007', 'BackgroundColor', '#E3D7B9', 'String', NULL, NULL, 17),
+    ('MTD008', 'TextColor', '#8D5B3D', 'String', NULL, NULL, 17),
+    ('MTD009', 'VolumeRequired', '', 'String', NULL, NULL, 17),
+
+    ('MTD010', 'BackgroundColor', '#FFE5D9', 'String', NULL, NULL, 18),
+    ('MTD011', 'TextColor', '#F79C42', 'String', NULL, NULL, 18),
+    ('MTD012', 'VolumeRequired', '', 'String', NULL, NULL, 18),
+
+    ('MTD013', 'BackgroundColor', '#F2F2F2', 'String', NULL, NULL, 19),
+    ('MTD014', 'TextColor', '#4A4A4A', 'String', NULL, NULL, 19),
+    ('MTD015', 'VolumeRequired', '', 'String', NULL, NULL, 19),
+
+	('MTD016', 'Characteristic', 'Green skin, Sweet taste', 'String', NULL, NULL, 9), -- Green Skin Pomelo
+    ('MTD017', 'Characteristic', 'Sweet, Refreshing', 'String', NULL, NULL, 10), -- 5 Roi Pomelo
+    ('MTD018', 'Characteristic', 'Tart, Firm', 'String', NULL, NULL, 11); -- Viễn Pomelo
+
+GO
+
+INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
 VALUES
     ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0),
@@ -1083,7 +1144,8 @@ VALUES
 ( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market');
 
 GO
-INSERT INTO [ipas].dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Latitude, LandPlotID)  
+
+INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Latitude, LandPlotID)  
 VALUES  
     ('LPC-001', 106.78546314117068, 10.997278708395825, 1),  
     ('LPC-002', 106.78589533924475, 10.997556840012322, 1),  
@@ -1210,4 +1272,43 @@ VALUES
 (N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 2),
 (N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 3),
 (N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1);
+GO
+INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
+VALUES
+('PKG001', 'Basic Package', 99.99, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG002', 'Standard Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
+('PKG003', 'Premium Package', 299.99, 90, 1, GETDATE(), NULL, 'Active'),
+('PKG004', 'Enterprise Package', 499.99, 180, 1, GETDATE(), NULL, 'Active'),
+('PKG005', 'Trial Package', 0, 7, 1, GETDATE(), NULL, 'Active'),
+('PKG006', 'VIP Package', 999.99, 365, 1, GETDATE(), NULL, 'Inactive'),
+('PKG007', 'Gold Package', 599.99, 120, 1, GETDATE(), NULL, 'Active'),
+('PKG008', 'Silver Package', 399.99, 90, 1, GETDATE(), NULL, 'Inactive'),
+('PKG009', 'Bronze Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
+('PKG010', 'Custom Package', 0, NULL, 0, GETDATE(), NULL, 'Pending');
+GO
+INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
+VALUES
+('PKD001', 'Feature A', 'Description of Feature A', 1),
+('PKD002', 'Feature B', 'Description of Feature B', 1),
+('PKD003', 'Feature C', 'Description of Feature C', 2),
+('PKD004', 'Feature D', 'Description of Feature D', 2),
+('PKD005', 'Feature E', 'Description of Feature E', 3),
+('PKD006', 'Feature F', 'Description of Feature F', 3),
+('PKD007', 'Feature G', 'Description of Feature G', 4),
+('PKD008', 'Feature H', 'Description of Feature H', 4),
+('PKD009', 'Feature I', 'Description of Feature I', 5),
+('PKD010', 'Feature J', 'Description of Feature J', 5);
+GO
+INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID)
+VALUES
+('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1),
+('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1),
+('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1),
+('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 4, 2),
+('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 5, 2),
+('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 6, 2),
+('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 7, 2),
+('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 8, 3),
+('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 9, 3),
+('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 10, 3);
 GO

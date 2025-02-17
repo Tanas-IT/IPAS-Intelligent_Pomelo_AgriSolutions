@@ -128,10 +128,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 1️⃣ Tính số hàng trong thửa
                     int numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowWidth, 0);
-
+                    int lastId = await _unitOfWork.LandPlotRepository.GetLastID();
                     // 2️⃣ Tạo đối tượng thửa đất
                     var landplotCreateEntity = new LandPlot()
                     {
+                        LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}-{createRequest.FarmId}-{DateTime.Now.ToString("ddmmyyy")}-{lastId:D6}",
                         LandPlotName = createRequest.LandPlotName,
                         TargetMarket = createRequest.TargetMarket,
                         Area = createRequest.Area,
@@ -140,7 +141,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = createRequest.PlotWidth,
                         Description = createRequest.Description,
                         FarmId = createRequest.FarmId,
-                        LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT),
                         Status = FarmStatus.Active.ToString(),
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now
@@ -154,7 +154,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         var landRow = new LandRow()
                         {
-                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW),
+                            LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{lastId}-R{(i+1)}",
                             RowIndex = i + 1, // Số thứ tự hàng (1, 2, 3,...)
                             Length = rowActualLength,
                             //Width = createRequest.RowLength,

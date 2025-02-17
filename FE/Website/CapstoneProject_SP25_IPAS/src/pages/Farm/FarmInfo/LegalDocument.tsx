@@ -21,8 +21,9 @@ function LegalDocument() {
     try {
       setIsLoading(true);
       const result = await farmService.getFarmDocuments(getFarmId());
+
       if (result.statusCode === 200) {
-        setLegalDocuments(result.data);
+        setLegalDocuments(result.data ?? []);
       }
     } catch (error) {
       console.error("Fetch data error:", error);

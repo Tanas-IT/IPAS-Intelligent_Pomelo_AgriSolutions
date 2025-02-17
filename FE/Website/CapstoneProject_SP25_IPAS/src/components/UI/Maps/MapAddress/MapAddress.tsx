@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
 import { CoordsState } from "@/types";
+import MapMarker from "../MapMarker/MapMarker";
 
 interface MapAddressProps {
   latitude: number;
@@ -60,14 +61,7 @@ const MapAddress: React.FC<MapAddressProps> = ({
     markerElement.className = "custom-marker";
 
     const root = createRoot(markerElement);
-    root.render(
-      <div className={style.markerWithLabel}>
-        <div className={style.markerLabelWrapper}>
-          <label className={style.markerLabel}>Your Farm Address Here</label>
-        </div>
-        <Icons.marker className={style.customIcon} />
-      </div>,
-    );
+    root.render(<MapMarker />);
 
     markerRef.current = new mapboxgl.Marker(markerElement)
       .setLngLat([longitude, latitude])

@@ -17,6 +17,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
+        public async Task<int> GetLastId()
+        {
+            var lastId = await _context.Partners.MaxAsync(x => x.PartnerId);
+            return lastId + 1;
+        }
+
         public async Task<List<Partner>> GetPartnerByRoleName(string roleName)
         {
             var result = await _context.Partners.Include(x => x.Role)

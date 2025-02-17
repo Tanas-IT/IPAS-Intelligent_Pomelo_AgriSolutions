@@ -1,5 +1,6 @@
 export { default as Loading } from "@/components/Loading";
 export { default as LoadingSkeleton } from "@/components/LoadingSkeleton";
+export { default as ScrollToTop } from "@/components/ScrollToTop";
 export { default as HeaderGuest } from "@/components/Guest/Header/Header";
 export { default as Footer } from "@/components/Footer/Footer";
 export { default as HeaderAdmin } from "@/components/Administration/Header/Header";
@@ -33,8 +34,9 @@ export { default as SectionWrapper } from "@/components/UI/FormField/SectionWrap
 export { default as EditActions } from "@/components/UI/FarmInfo/EditActions/EditActions";
 export { default as Section } from "@/components/UI/FarmInfo/Section/Section";
 export { default as SectionHeader } from "@/components/UI/FarmInfo/SectionHeader/SectionHeader";
-export { default as MapAddress } from "@/components/UI/MapAddress/MapAddress";
-export { default as MapLandPlot } from "@/components/UI/MapLandPlot/MapLandPlot";
+export { default as MapAddress } from "@/components/UI/Maps/MapAddress/MapAddress";
+export { default as MapLandPlot } from "@/components/UI/Maps/MapLandPlot/MapLandPlot";
+export { default as MapMarker } from "@/components/UI/Maps/MapMarker/MapMarker";
 export { default as ModalForm } from "@/components/UI/ModalForm/ModalForm";
 export { default as ConfirmModal } from "@/components/UI/ConfirmModal/ConfirmModal";
 export { default as TimePickerInfo } from "@/components/UI/FormField/TimePicker/TimePicker";

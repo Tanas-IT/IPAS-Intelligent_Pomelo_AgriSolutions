@@ -11,5 +11,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<LandPlot> GetByID(int landplotId);
         public Task<List<LandPlot>> GetLandPlotInclude();
+        public Task<int> GetLastID();
     }
 }

@@ -1,13 +1,8 @@
-@use "@/styles/share.scss" as shared;
 @use "@/styles/variables.scss" as vars;
 
 .map-container {
   width: 100%;
   height: 100%;
-}
-
-.markerWithLabel {
-  @include shared.markerWithLabel;
 }
 
 .customMap {

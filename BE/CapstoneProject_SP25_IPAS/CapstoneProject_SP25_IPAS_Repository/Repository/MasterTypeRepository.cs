@@ -63,5 +63,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.SaveChangesAsync();
             return result;
         }
+        public async Task<int> GetLastID()
+        {
+            var lastId = await _context.MasterTypes.MaxAsync(x => x.MasterTypeId);
+            if (lastId <= 0)
+                return 1;
+            return lastId + 1;
+        }
     }
 }

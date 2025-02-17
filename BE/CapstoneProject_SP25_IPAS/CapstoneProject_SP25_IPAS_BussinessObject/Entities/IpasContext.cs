@@ -451,7 +451,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
             entity.Property(e => e.ProcessId).HasColumnName("ProcessID");
-
             entity.HasOne(d => d.HarvestHistory).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");

@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRowRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -62,7 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = createRequest.Width,
                         CreateDate = DateTime.Now,
                         Status = nameof(LandRowStatus.Active),
-                        LandRowCode = ""
+                        LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{createRequest.LandPlotId}-R{(createRequest.RowIndex)}",
                     };
                     await _unitOfWork.LandRowRepository.Insert(newRow);
                     int result = await _unitOfWork.SaveAsync();

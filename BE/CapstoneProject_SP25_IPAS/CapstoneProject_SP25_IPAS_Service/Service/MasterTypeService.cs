@@ -40,7 +40,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newMasterType = new MasterType()
                     {
-                        MasterTypeCode = await GetNextSequenceNumber(),
+                        MasterTypeCode = $"{CodeAliasEntityConst.MASTER_TYPE}-{DateTime.Now.ToString("ddmmyyyy")}-{createMasterTypeModel.TypeName!.ToUpper()}-{CodeHelper.GenerateCode}",
                         MasterTypeName = createMasterTypeModel.MasterTypeName,
                         MasterTypeDescription = createMasterTypeModel.MasterTypeDescription,
                         IsActive = createMasterTypeModel.IsActive,

@@ -43,5 +43,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ToListAsync();
             return result;
         }
+        
+
+        public async Task<int> GetLastID()
+        {
+            var lastID = await _context.LandPlots.MaxAsync(x => x.LandPlotId);
+            if (lastID <= 0)
+                return 1;
+            return lastID + 1;
+        }
     }
 }

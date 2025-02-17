@@ -62,6 +62,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IHarvestTypeHistoryRepository, HarvestTypeHistoryRepository>();
             services.AddScoped<ITaskFeedbackRepository, TaskFeedbackRepository>();
             services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
+            services.AddScoped<IOrdesRepository, OrdesRepository>();
+            services.AddScoped<IPackageRepository, PackageRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -90,6 +92,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
             services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
 
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPackageService, PackageService>();
             services.AddHttpClient();
 
         }

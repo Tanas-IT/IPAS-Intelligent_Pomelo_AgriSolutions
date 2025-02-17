@@ -107,6 +107,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
     {
+      key: "Master Type Management",
+      label: "Master Type Management",
+      icon: <Icons.process />,
+      to: "",
+      activePaths: [],
+      category: "Main",
+      isView: !isDefault,
+    },
+    {
       key: "Farm Management",
       label: "Farm Management",
       icon: <Icons.farms />,

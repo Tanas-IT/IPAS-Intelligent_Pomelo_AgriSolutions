@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using System;
@@ -38,14 +39,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants");
+                    if (landrowExist == null) 
+                        return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                    if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
+                        return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
                     // Create the new Plant entity from the request
                     var plantCreateEntity = new Plant()
                     {
+                        PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{landrowExist.LandPlotId}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-{CodeHelper.GenerateCode()}",
                         PlantName = plantCreateRequest.PlantName,
                         PlantIndex = plantCreateRequest.PlantIndex,
                         GrowthStageID = plantCreateRequest.GrowthStageId,
                         HealthStatus = plantCreateRequest.HealthStatus,
-                        PlantingDate = plantCreateRequest.PlantingDate.Value,
+                        PlantingDate = plantCreateRequest.PlantingDate!.Value,
                         PlantReferenceId = plantCreateRequest.MotherPlantId,
                         Description = plantCreateRequest.Description,
                         MasterTypeId = plantCreateRequest.MasterTypeId,

@@ -52,6 +52,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public HarvestTypeHistoryRepository _harvestTypeHistoryRepo;
         public LandPlotCropRepository _landPlotCropRepo;
         public Type_TypeRepository _type_TypeRepo;
+        public PackageRepository _packageRepo;
+        public OrdesRepository _ordesRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -90,6 +92,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _harvestTypeHistoryRepo = new HarvestTypeHistoryRepository(context);
             _landPlotCropRepo = new LandPlotCropRepository(context);
             _type_TypeRepo = new Type_TypeRepository(context);
+            _packageRepo = new PackageRepository(context);
+            _ordesRepo = new OrdesRepository(context);
         }
 
         private bool disposed = false;
@@ -553,6 +557,30 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._type_TypeRepo = new Type_TypeRepository(_context);
                 }
                 return _type_TypeRepo;
+            }
+        }
+
+        public PackageRepository PackageRepository
+        {
+            get
+            {
+                if (_packageRepo == null)
+                {
+                    this._packageRepo = new PackageRepository(_context);
+                }
+                return _packageRepo;
+            }
+        }
+
+        public OrdesRepository OrdesRepository
+        {
+            get
+            {
+                if (_ordesRepo == null)
+                {
+                    this._ordesRepo= new OrdesRepository(_context);
+                }
+                return _ordesRepo;
             }
         }
     }

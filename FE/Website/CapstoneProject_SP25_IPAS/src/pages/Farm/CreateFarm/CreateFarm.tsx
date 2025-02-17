@@ -11,13 +11,14 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { farmService } from "@/services";
 import { FarmRequest } from "@/payloads";
+import { useLoadingStore } from "@/stores";
 
 const Text = Typography;
 
 function CreateFarm() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [isLoading, setIsLoading] = useState(false);
+  const { setIsLoading } = useLoadingStore();
   const [farmLocation, setFarmLocation] = useState<CoordsState>(defaultCoordsFarm);
   const {
     provinces,
@@ -45,11 +46,19 @@ function CreateFarm() {
 
   const handleSave = async () => {
     var values: FarmRequest = await form.validateFields();
+
+    values = {
+      ...values,
+      farmLogo: form.getFieldValue(farmFormFields.logo).file,
+      latitude: markerPosition.latitude,
+      longitude: markerPosition.longitude,
+    };
+
     try {
       setIsLoading(true);
       var result = await farmService.createFarm(values);
       const toastMessage = result.message;
-      if (result.statusCode === 200) {
+      if (result.statusCode === 201) {
         navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
       } else {
         toast.error(toastMessage);
@@ -84,7 +93,7 @@ function CreateFarm() {
               />
               <InfoField
                 label="Farm Logo"
-                name="farmLogo"
+                name={farmFormFields.logo}
                 type="uploadDragger"
                 beforeUpload={beforeUpload}
               />

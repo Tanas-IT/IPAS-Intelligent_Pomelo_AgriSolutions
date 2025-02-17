@@ -429,6 +429,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report success";
         #endregion
 
+        #region Packages
+        public static int SUCCESS_GET_PACKAGES_CODE = 400;
+        public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
+        #endregion
+
         #endregion
 
         #region FAIL
@@ -862,6 +867,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
         public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
+        public static int WARNING_PLANT_IN_LANDROW_FULL_CODE = 400;
+        public static string WARNING_PLANT_IN_LANDROW_FULL_MSG = "This row has full of plant";
         #endregion
 
         #region Plant Growth History
@@ -913,6 +920,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG = "Year of the crop must from this year to later. Please try again";
         public static int WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE = 400;
         public static string WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG = "Create crop must choose a landplot. Please try again";
+        public static int WARNING_CROP_EXPIRED_CODE = 400;
+        public static string WARNING_CROP_EXPIRED_MSG = "This crop is expired to harvest, please choose again.";
         #endregion
 
         #region Report
@@ -954,6 +963,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_HARVEST_NOT_EXIST_MSG = "Harvest not exist";
         public static int WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE = 400;
         public static string WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG = "your product type not suitable";
+        #endregion
+
+        #region Package
+        public static int WARNING_GET_PACKAGES_EMPTY_CODE = 400;
+        public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
         #endregion
         #endregion
     }

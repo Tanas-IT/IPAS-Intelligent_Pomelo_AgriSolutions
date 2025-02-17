@@ -253,9 +253,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/harvests";
             public const string createHarvest = prefix + "";
-            public const string createHarvesTypeHistory = prefix + "create-detail-of-harvest";
+            public const string createHarvesTypeHistory = prefix + "/create-detail-of-harvest";
             public const string deletePermanentlyHarvest = prefix + "";
-            public const string deleteHarvestType = prefix + "delete-harvest-detail";
+            public const string deleteHarvestType = prefix + "/delete-harvest-detail";
             public const string updateHarvestInfo = prefix + "";
             public const string updateHarvestTypeInfo = prefix + "/update-harvest-detail";
             public const string getHarvestById = prefix + "";
@@ -299,6 +299,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getTaskFeedbackById = prefix + "/get-task-feedback-by-id/{id}";
             public const string getTaskFeedbackByManagerId = prefix + "/get-task-feedback-by-manager-id/{id}";
             public const string getTaskFeedbackByWorkLogId = prefix + "/get-task-feedback-by-work-log-id/{id}";
+        }
+
+        public static class Package
+        {
+            public const string prefix = Base + "/packages";
+            public const string getAllPackage = prefix + "";
+            public const string getPackageById = prefix + "";
         }
     }
 }
