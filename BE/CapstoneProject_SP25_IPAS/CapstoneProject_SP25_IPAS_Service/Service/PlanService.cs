@@ -72,7 +72,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LandRowID = createPlanModel?.LandRowId
                     };
                     await _unitOfWork.PlanRepository.Insert(newPlan);
+                    var getListMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("notification");
+                    var getMasterType = getListMasterType.FirstOrDefault(x => x.MasterTypeName.ToLower().Contains("taskAssigned".ToLower()));
+                    var addNotification = new Notification()
+                    {
+                        Content = "Plan " + createPlanModel.PlanName + " has just been created",
+                        Title = "Plan",
+                        MasterTypeId = getMasterType.MasterTypeId,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
                     await _unitOfWork.SaveAsync();
+
+                    var addPlanNotification = new PlanNotification()
+                    {
+                        NotificationID = addNotification.NotificationId,
+                        PlanID = newPlan.PlanId,
+                        CreatedDate = DateTime.Now,
+                        isRead = false,
+                    };
+
+                    await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                    await _unitOfWork.SaveAsync();
+
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);
                     if (result)
@@ -253,7 +277,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "planid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

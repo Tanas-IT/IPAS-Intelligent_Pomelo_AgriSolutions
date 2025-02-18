@@ -11,8 +11,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
     {
         [FromQuery(Name = "growthStage")]
         public string? GrowthStage { get; set; }
-        [FromQuery(Name = "masterType")]
-        public string? MasterType { get; set; }
+        [FromQuery(Name = "masterTypeName")]
+        public string? MasterTypeName { get; set; }
         [FromQuery(Name = "processName")]
         public string? ProcessName { get; set; }
 

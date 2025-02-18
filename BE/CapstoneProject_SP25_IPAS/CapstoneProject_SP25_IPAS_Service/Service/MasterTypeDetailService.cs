@@ -44,7 +44,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TypeOfValue = createMasterTypeDetailModel.TypeOfValue,
                         ForeignKeyId = createMasterTypeDetailModel.ForeignKeyId,
                         ForeignKeyTable = createMasterTypeDetailModel.ForeignKeyTable,
-                        //MasterTypeId = createMasterTypeDetailModel.MasterTypeId
                     };
                     await _unitOfWork.MasterTypeDetailRepostiory.Insert(newMasterTypeDetail);
 
@@ -114,7 +113,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.ForeignKeyTable.Contains(masterTypeDetailFilter.ForeignTable));
                 }
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "mastertypedetailid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

@@ -49,7 +49,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         TypeName = createMasterTypeModel.TypeName,
-                        
                     };
 
 
@@ -91,18 +90,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private async Task<string> GetNextSequenceNumber()
-        {
-            var alias = CodeAliasEntityConst.MASTER_TYPE + "-";
-            string datePart = DateTime.Now.ToString("ddMMyyyy");
-            int lastNumber = await _unitOfWork.MasterTypeRepository.GetLastMasterType(); // Hàm lấy số thứ tự gần nhất từ DB
-            int nextPlanId = lastNumber + 1;
-
-            // Xác định số chữ số cần hiển thị
-            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
-            string sequence = nextPlanId.ToString($"D{digitCount}");
-            return alias + datePart + "-" + sequence;
-        }
 
         private async Task<string> GetNextSequenceNumberOfMasterTypeDetail()
         {
@@ -200,7 +187,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "mastertypeid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

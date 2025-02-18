@@ -284,7 +284,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "startdate":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

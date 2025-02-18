@@ -72,4 +72,5 @@ public partial class Plan
     public virtual Crop? Crop { get; set; }
     public virtual Plant? Plant { get; set; }
     public virtual LandRow? LandRow { get; set; }
+    public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
 }

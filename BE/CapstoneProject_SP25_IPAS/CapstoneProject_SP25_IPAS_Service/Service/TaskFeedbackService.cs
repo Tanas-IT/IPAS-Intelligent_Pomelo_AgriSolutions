@@ -124,7 +124,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = filter.And(x => x.WorkLog.WorkLogName.ToLower().Contains(item));
                     }
                 }
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "taskfeedbackid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

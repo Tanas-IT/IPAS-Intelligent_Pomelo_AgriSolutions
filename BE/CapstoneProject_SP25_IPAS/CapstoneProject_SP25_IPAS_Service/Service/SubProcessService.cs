@@ -146,7 +146,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.Process.ProcessName.Contains(subProcessFilters.ProcessName));
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "subprocessid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

@@ -54,6 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public Type_TypeRepository _type_TypeRepo;
         public PackageRepository _packageRepo;
         public OrdesRepository _ordesRepo;
+        public PlanNotificationRepository _planNotificationRepository;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -94,6 +95,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _type_TypeRepo = new Type_TypeRepository(context);
             _packageRepo = new PackageRepository(context);
             _ordesRepo = new OrdesRepository(context);
+            _planNotificationRepository = new PlanNotificationRepository(context);
         }
 
         private bool disposed = false;
@@ -581,6 +583,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._ordesRepo= new OrdesRepository(_context);
                 }
                 return _ordesRepo;
+            }
+        }
+
+        public PlanNotificationRepository PlanNotificationRepository
+        {
+            get
+            {
+                if (_planNotificationRepository == null)
+                {
+                    this._planNotificationRepository = new PlanNotificationRepository(_context);
+                }
+                return _planNotificationRepository;
             }
         }
     }
