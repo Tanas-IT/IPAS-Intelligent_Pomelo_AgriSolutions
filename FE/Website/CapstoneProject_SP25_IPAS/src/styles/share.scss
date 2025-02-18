@@ -53,13 +53,18 @@
     row-gap: 20px;
     overflow: hidden;
 
-    .tableText {
+    .tableText,
+    .tableExpandText {
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: normal;
+    }
+
+    .tableExpandText {
+      font-size: 13px;
     }
   }
 }

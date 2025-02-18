@@ -240,11 +240,11 @@ const TableComponent = <T, E = T>({
         columns={antColumns as any}
         footer={() => <div className={styles.customTable}>{caption}</div>}
         pagination={false}
-        // loading={isLoading}
-        // locale={{
-        //   emptyText:
-        //     isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
-        // }}
+        loading={isLoading}
+        locale={{
+          emptyText:
+            isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
+        }}
         rowClassName={(record) =>
           selection.includes(record[rowKey] as string) ? style.selectedRow : ""
         }
