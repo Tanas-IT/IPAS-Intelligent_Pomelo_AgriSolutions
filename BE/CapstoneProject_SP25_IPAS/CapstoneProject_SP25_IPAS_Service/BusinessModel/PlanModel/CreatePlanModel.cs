@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,10 +25,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public string? Frequency { get; set; }
 
-        public int? PlantId { get; set; }
-
-        public int? LandPlotId { get; set; }
-
         public int? AssignorId { get; set; }
 
         public string? PesticideName { get; set; }
@@ -37,13 +34,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public double? MinVolume { get; set; }
 
         public int? ProcessId { get; set; }
-        public int? LandRowId { get; set; }
 
         public int? CropId { get; set; }
 
         public int? GrowthStageId { get; set; }
-
-        public int? PlantLotId { get; set; }
 
         public bool? IsDelete { get; set; }
 
@@ -63,6 +57,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string EndTime { get; set; }
 
+        public List<PlanTargetModel>? PlanTargetModel { get; set; }
         // ✅ Constructor mặc định
         public CreatePlanModel() { }
 
@@ -77,9 +72,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             PlanDetail = model.PlanDetail;
             ResponsibleBy = model.ResponsibleBy;
             Frequency = model.Frequency;
-            PlantId = model.PlantId;
-            LandPlotId = model.LandPlotId;
-            LandRowId = model.LandRowId;
             AssignorId = model.AssignorId;
             PesticideName = model.PesticideName;
             MaxVolume = model.MaxVolume;
@@ -87,7 +79,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             ProcessId = model.ProcessId;
             CropId = model.CropId;
             GrowthStageId = model.GrowthStageId;
-            PlantLotId = model.PlantLotId;
             IsDelete = model.IsDelete;
             MasterTypeId = model.MasterTypeId;
             DayOfWeek = model.DayOfWeek != null ? new List<int>(model.DayOfWeek) : null;
@@ -96,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             ListEmployee = model.ListEmployee != null ? new List<EmployeeModel>(model.ListEmployee) : new List<EmployeeModel>();
             StartTime = model.StartTime;
             EndTime = model.EndTime;
-
+            PlanTargetModel = model.PlanTargetModel != null ? new List<PlanTargetModel>(model.PlanTargetModel) : new List<PlanTargetModel>();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? TypeName { get; set; }
 
         public bool? IsDelete { get; set; }
+        public bool? IsDefault { get; set; }
 
         public ICollection<CriteriaModel> CriteriaModels { get; set; } = new List<CriteriaModel>();
         public ICollection<MasterTypeDetailModel> MasterTypeDetailModels { get; set; } = new List<MasterTypeDetailModel>();

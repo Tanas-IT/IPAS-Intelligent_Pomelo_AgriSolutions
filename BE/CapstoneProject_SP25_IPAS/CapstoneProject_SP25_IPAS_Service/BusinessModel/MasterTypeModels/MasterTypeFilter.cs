@@ -10,8 +10,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
     public class MasterTypeFilter
     {
        
-        [FromQuery(Name = "typeName")]
-        public string? TypeName { get; set; }
+        [FromQuery(Name = "typeNames")]
+        public string? TypeNames { get; set; }
 
         [FromQuery(Name = "createDatefrom")]
         public DateTime? createDateFrom { get; set; }

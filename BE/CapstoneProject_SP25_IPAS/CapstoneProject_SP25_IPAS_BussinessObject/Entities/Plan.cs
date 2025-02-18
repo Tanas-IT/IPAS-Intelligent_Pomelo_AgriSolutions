@@ -30,9 +30,7 @@ public partial class Plan
     public string? Frequency { get; set; }
     public string? PlanName { get; set; }
 
-    public int? PlantId { get; set; }
 
-    public int? LandPlotId { get; set; }
 
     public int? AssignorId { get; set; }
 
@@ -48,29 +46,22 @@ public partial class Plan
 
     public int? GrowthStageId { get; set; }
 
-    public int? PlantLotId { get; set; }
 
     public bool? IsDelete { get; set; }
 
     public int? MasterTypeId { get; set; }
-    public int? GraftedPlantId { get; set; }
-    public int? LandRowID { get; set; }
 
     public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
-    public virtual GraftedPlant? GraftedPlant { get; set; }
 
-    public virtual LandPlot? LandPlot { get; set; }
 
     public virtual MasterType? MasterType { get; set; }
 
-    public virtual PlantLot? PlantLot { get; set; }
 
     public virtual Process? Process { get; set; }
     public virtual GrowthStage? GrowthStage { get; set; }
     public virtual User? User { get; set; }
     public virtual Crop? Crop { get; set; }
-    public virtual Plant? Plant { get; set; }
-    public virtual LandRow? LandRow { get; set; }
     public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
+    public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
 }

@@ -52,7 +52,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CropId = addNewTaskModel.CropId,
                         PlanName = addNewTaskModel.TaskName,
                         MasterTypeId = addNewTaskModel.TypeOfPlan,
-                        LandPlotId = addNewTaskModel.LandPlotId,
                         ProcessId = addNewTaskModel.ProcessId,
                         AssignorId = addNewTaskModel.AssignorId,
                         StartDate = addNewTaskModel.DateWork,
@@ -60,7 +59,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                     };
+                   
+
                     await _unitOfWork.PlanRepository.Insert(newPlan);
+                    foreach(var planTarget in addNewTaskModel.ListPlanTargetModel)
+                    {
+                        var newPlantTarget = new PlanTarget()
+                        {
+                            GraftedPlantID = planTarget.GraftedPlantID,
+                            LandPlotID = planTarget.LandPlotID,
+                            PlantLotID = planTarget.PlantLotID,
+                            LandRowID = planTarget.LandRowID,
+                            PlantID = planTarget.PlantID,
+                        };
+                        newPlan.PlanTargets.Add(newPlantTarget);
+                    }
+                    
                     await _unitOfWork.SaveAsync();
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
 
@@ -200,7 +214,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (bool.TryParse(paginationParameter.Search, out validBool))
                     {
-                        filter = filter.And(x => x.IsConfirm == validBool || x.IsConfirm == validBool);
+                        filter = filter.And(x => x.IsConfirm == validBool);
                     }
                     else
                     {
