@@ -56,12 +56,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? GrowthStageName { get; set; }
 
         public string? PlantLotName { get; set; }
+        public int? RowIndex { get; set; }
 
 
         public string? MasterTypeName { get; set; }
         public string? AssignedTo { get; set; }
         public string? AvatarOfAssignor { get; set; }
         public List<ReporterModel>? ListReporter { get; set; }
+        public List<ReporterModel>? ListEmployee { get; set; }
         public string? DayOfWeek { get; set; }
         public string? DayOfMonth { get; set; }
         public string? CustomDates { get; set; }

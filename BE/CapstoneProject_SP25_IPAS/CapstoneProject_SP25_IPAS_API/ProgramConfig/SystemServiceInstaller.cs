@@ -64,6 +64,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
             services.AddScoped<IOrdesRepository, OrdesRepository>();
             services.AddScoped<IPackageRepository, PackageRepository>();
+            services.AddScoped<IPlanNotificationRepository, PlanNotificationRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();

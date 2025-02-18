@@ -22,8 +22,11 @@ public partial class Notification
     public int? UserId { get; set; }
 
     public int? MasterTypeId { get; set; }
+    public int? SenderID { get; set; }
 
     public virtual MasterType? MasterType { get; set; }
 
     public virtual User? User { get; set; }
+    public virtual User? Sender { get; set; }
+    public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
 }

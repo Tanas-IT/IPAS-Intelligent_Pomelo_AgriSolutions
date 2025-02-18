@@ -54,5 +54,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public PackageRepository PackageRepository { get; }
 
         public OrdesRepository OrdesRepository { get; }
+        public PlanNotificationRepository PlanNotificationRepository { get; }
     }
 }

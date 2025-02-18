@@ -150,11 +150,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+               .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow.RowIndex))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User.AvatarURL))
                .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
                                                                 src.CarePlanSchedule.WorkLogs
                                                                     .SelectMany(wl => wl.UserWorkLogs)
                                                                     .Where(uwl => uwl.IsReporter == true)
+                                                                    .Select(uwl => uwl.User)
+                                                                    .Distinct()
+                                                                    .ToList()))
+               .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src =>
+                                                                src.CarePlanSchedule.WorkLogs
+                                                                    .SelectMany(wl => wl.UserWorkLogs)
+                                                                    .Where(uwl => uwl.IsReporter == false)
                                                                     .Select(uwl => uwl.User)
                                                                     .Distinct()
                                                                     .ToList()))

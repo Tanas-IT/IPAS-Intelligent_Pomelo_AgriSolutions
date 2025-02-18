@@ -100,6 +100,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
     public virtual DbSet<Type_Type> Type_Types { get; set; }
+    public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -634,6 +635,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Content).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.IsRead).HasColumnName("isRead");
+            entity.Property(e => e.SenderID).HasColumnName("SenderID");
             entity.Property(e => e.Link)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -655,6 +657,11 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Notification_User");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.NotificationSenders)
+               .HasForeignKey(d => d.SenderID)
+               .OnDelete(DeleteBehavior.Cascade)
+               .HasConstraintName("FK_Notification_Sender");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -1395,6 +1402,28 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });
 
+        modelBuilder.Entity<PlanNotification>(entity =>
+        {
+            entity.HasKey(e => e.PlanNotificationID).HasName("PK__PlanNotification__2EE54234ADBB5");
+
+            entity.Property(e => e.PlanID).HasColumnName("PlanID");
+            entity.Property(e => e.NotificationID).HasColumnName("NotificationID");
+            entity.Property(e => e.UserID).HasColumnName("UserID");
+            entity.Property(e => e.isRead).HasColumnName("isRead");
+            entity.Property(e => e.CreatedDate).HasColumnName("CreateDate");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.PlanNotifications)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK__PlanNotification__Plan__32673C52");
+
+            entity.HasOne(d => d.Notification).WithMany(p => p.PlanNotifications)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK__PlanNotification__Notification__3B451819");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PlanNotifications)
+               .HasForeignKey(d => d.UserID)
+               .HasConstraintName("FK__PlanNotification__User__38H51819");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 
