@@ -18,7 +18,6 @@ public partial class HarvestTypeHistory
     public int? Quantity { get; set; }
 
     public int HarvestHistoryId { get; set; }
-
     public int? ProcessId { get; set; }
 
     public virtual HarvestHistory HarvestHistory { get; set; } = null!;

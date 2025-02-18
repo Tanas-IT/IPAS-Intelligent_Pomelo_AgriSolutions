@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public bool? IsDelete { get; set; }
 
         public ICollection<CriteriaModel> CriteriaModels { get; set; } = new List<CriteriaModel>();
+        public ICollection<MasterTypeDetailModel> MasterTypeDetailModels { get; set; } = new List<MasterTypeDetailModel>();
 
     }
 }

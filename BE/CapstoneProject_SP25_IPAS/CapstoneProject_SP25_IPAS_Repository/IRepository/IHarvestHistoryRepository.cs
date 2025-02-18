@@ -14,5 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<HarvestHistory> GetByID(int harvestId);
         public Task<IEnumerable<HarvestHistory>> GetHarvestPaginFilterAsync(int cropId, PaginationParameter paginationParameter, HarvestFilter filter);
         public Task<IEnumerable<HarvestTypeHistory>> GetAllPlantOfHarvesType(int harvestId, int masterTypeId);
+        public Task<List<HarvestHistory>> GetHarvestHistoryInclude();
     }
 }

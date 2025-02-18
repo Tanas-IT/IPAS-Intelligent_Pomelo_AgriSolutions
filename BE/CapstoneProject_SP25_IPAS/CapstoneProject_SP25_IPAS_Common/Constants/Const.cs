@@ -423,6 +423,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_CROP_CARE_REPORT_MSG = "Get dashboard report success";
         public static int SUCCESS_GET_DASHBOARD_REPORT_CODE = 200;
         public static string SUCCESS_GET_DASHBOARD_REPORT_MSG = "Get dashboard report success";
+        public static int SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE = 200;
+        public static string SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report success"; 
+        public static int SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static string SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report success";
+        #endregion
+
+        #region Packages
+        public static int SUCCESS_GET_PACKAGES_CODE = 400;
+        public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
         #endregion
 
         #endregion
@@ -697,6 +706,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_CROP_CARE_REPORT_MSG = "Get crop care report fail";
         public static int FAIL_GET_DASHBOARD_REPORT_CODE = 500;
         public static string FAIL_GET_DASHBOARD_REPORT_MSG = "Get dashboard report fail";
+        public static int FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE = 500;
+        public static string FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report fail";
+        public static int FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static string FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report fail";
         #endregion
 
         #region Task Feedback fail code
@@ -916,6 +929,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
         public static int WARNING_GET_DASHBOARD_REPORT_CODE = 400;
         public static string WARNING_GET_DASHBOARD_REPORT_MSG = "Do not have any data to get dashboard report";
+        public static int WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE = 400;
+        public static string WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG = "Do not have any data to get materials in store report";
+        public static int WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static string WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Do not have any data to get productivity by plot in store report";
         #endregion
         #region Task Feedback
         public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
@@ -946,6 +963,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_HARVEST_NOT_EXIST_MSG = "Harvest not exist";
         public static int WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE = 400;
         public static string WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG = "your product type not suitable";
+        #endregion
+
+        #region Package
+        public static int WARNING_GET_PACKAGES_EMPTY_CODE = 400;
+        public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
         #endregion
         #endregion
     }

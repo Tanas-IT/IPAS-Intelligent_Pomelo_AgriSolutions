@@ -15,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -82,12 +83,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
                 .ReverseMap();
 
-           
 
+            CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
                 .ForMember(dest => dest.CriteriaModels, opt => opt.MapFrom(src => src.Criterias))
+                .ForMember(dest => dest.MasterTypeDetailModels, opt => opt.MapFrom(src => src.MasterTypeDetails))
                 .ReverseMap();
-            CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
+           
 
             CreateMap<LandRow, LandRowModel>()
                 //.ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
@@ -192,6 +194,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<HarvestTypeHistory, HarvestTypeHistoryModel>()
                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.MasterType.TypeName))
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
+                .ReverseMap();
+
+            CreateMap<Order, OrderModel>()
+               .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
+               .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package))
+                .ReverseMap();
+            CreateMap<Package, PackageModel>()
+               .ForMember(dest => dest.PackageDetails, opt => opt.MapFrom(src => src.PackageDetails))
+                .ReverseMap();
+            CreateMap<PackageDetail, PackageDetailModel>()
                 .ReverseMap();
         }
     }

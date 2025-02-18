@@ -799,6 +799,7 @@ public partial class IpasContext : DbContext
             entity.ToTable("Plan");
 
             entity.Property(e => e.PlanId).HasColumnName("PlanID");
+            entity.Property(e => e.LandRowID).HasColumnName("LandRowID");
             entity.Property(e => e.AssignorId).HasColumnName("AssignorID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CropId).HasColumnName("CropID");
@@ -873,6 +874,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Plans)
              .HasForeignKey(d => d.GraftedPlantId)
              .HasConstraintName("FK_Plan_GraftedPlant");
+
+            entity.HasOne(d => d.LandRow).WithMany(p => p.Plans)
+            .HasForeignKey(d => d.LandRowID)
+            .HasConstraintName("FK_Plan_LandRow");
         });
 
         modelBuilder.Entity<Plant>(entity =>

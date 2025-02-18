@@ -57,6 +57,46 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpGet(APIRoutes.Report.MaterialsInStore, Name = "MaterialInStore")]
+        public async Task<IActionResult> MaterialInStore([FromRoute] int farmId, [FromQuery] int year)
+        {
+            try
+            {
+                var result = await _reportService.MaterialsInStore(year: year, farmId: farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.ProductivityByPlot, Name = "ProductivityByPlot")]
+        public async Task<IActionResult> ProductivityByPlot([FromRoute] int farmId, [FromQuery] int year)
+        {
+            try
+            {
+                var result = await _reportService.ProductivityByPlot(farmId: farmId, year: year);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 
 }
