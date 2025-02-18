@@ -445,7 +445,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "ProcessData");
+                var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
                 if (checkExistProcess != null)
                 {
                     if (updateProcessModel.ProcessName != null)
@@ -512,73 +512,81 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
                             var getListSubProcess = await _unitOfWork.SubProcessRepository.GetAllNoPaging();
-                            var getListSubProcessOfProcess = getListSubProcess.Where(x => x.ProcessId == checkExistProcess.ProcessId);
+                            var getListSubProcessOfProcess = getListSubProcess.Where(x => x.ProcessId == checkExistProcess.ProcessId).ToList();
+                            var flag = false;
                             foreach (var item in getListSubProcessOfProcess)
                             {
-                                if (item.SubProcessId != subProcess.SubProcessId)
+                                if (item.SubProcessId == subProcess.SubProcessId)
                                 {
-                                    return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
+                                    flag = true;
                                 }
                             }
-                            var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcess.SubProcessId, "");
-                            if(subProcess.Status.ToLower().Equals("add"))
+                            if (flag)
                             {
-                                var newSubProcess = new SubProcess()
+                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcess.SubProcessId, "");
+                                if (subProcess.Status.ToLower().Equals("add"))
                                 {
-                                    SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                    MasterTypeId = subProcess.MasterTypeId,
-                                    SubProcessName = subProcess.SubProcessName,
-                                    IsDefault = subProcess.IsDefault,
-                                    IsActive = subProcess.IsActive,
-                                    IsDeleted = subProcess.IsDeleted,
-                                    ParentSubProcessId = subProcess.ParentSubProcessId,
-                                    CreateDate = DateTime.Now,
-                                    UpdateDate = DateTime.Now,
-                                };
-                                checkExistProcess.SubProcesses.Add(newSubProcess);
-                            }
-                            else if(subProcess.Status.ToLower().Equals("update"))
-                            {
-                                if (subProcessUpdate != null)
+                                    var newSubProcess = new SubProcess()
+                                    {
+                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                        MasterTypeId = subProcess.MasterTypeId,
+                                        SubProcessName = subProcess.SubProcessName,
+                                        IsDefault = subProcess.IsDefault,
+                                        IsActive = subProcess.IsActive,
+                                        IsDeleted = subProcess.IsDeleted,
+                                        ParentSubProcessId = subProcess.ParentSubProcessId,
+                                        CreateDate = DateTime.Now,
+                                        UpdateDate = DateTime.Now,
+                                    };
+                                    checkExistProcess.SubProcesses.Add(newSubProcess);
+                                }
+                                else if (subProcess.Status.ToLower().Equals("update"))
                                 {
-                                    if (subProcess.ParentSubProcessId != null)
+                                    if (subProcessUpdate != null)
                                     {
-                                        subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                        if (subProcess.ParentSubProcessId != null)
+                                        {
+                                            subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                        }
+                                        if (subProcess.SubProcessName != null)
+                                        {
+                                            subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                        }
+                                        if (subProcess.IsDefault != null)
+                                        {
+                                            subProcessUpdate.IsDefault = subProcess.IsDefault;
+                                        }
+                                        if (subProcess.IsActive != null)
+                                        {
+                                            subProcessUpdate.IsActive = subProcess.IsActive;
+                                        }
+                                        if (subProcess.IsDeleted != null)
+                                        {
+                                            subProcessUpdate.IsDeleted = subProcess.IsDeleted;
+                                        }
+                                        if (subProcess.MasterTypeId != null)
+                                        {
+                                            subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
+                                        }
+                                        if (subProcess.Order != null)
+                                        {
+                                            subProcessUpdate.Order = subProcess.MasterTypeId;
+                                        }
+                                        subProcessUpdate.UpdateDate = DateTime.Now;
                                     }
-                                    if (subProcess.SubProcessName != null)
+                                }
+                                else if (subProcess.Status.ToLower().Equals("delete"))
+                                {
+                                    var checkSubProcessDeletet = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId);
+                                    if (checkSubProcessDeletet != null)
                                     {
-                                        subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                        _unitOfWork.SubProcessRepository.Delete(checkSubProcessDeletet);
                                     }
-                                    if (subProcess.IsDefault != null)
-                                    {
-                                        subProcessUpdate.IsDefault = subProcess.IsDefault;
-                                    }
-                                    if (subProcess.IsActive != null)
-                                    {
-                                        subProcessUpdate.IsActive = subProcess.IsActive;
-                                    }
-                                    if (subProcess.IsDeleted != null)
-                                    {
-                                        subProcessUpdate.IsDeleted = subProcess.IsDeleted;
-                                    }
-                                    if (subProcess.MasterTypeId != null)
-                                    {
-                                        subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
-                                    }
-                                    if (subProcess.Order != null)
-                                    {
-                                        subProcessUpdate.Order = subProcess.MasterTypeId;
-                                    }
-                                    subProcessUpdate.UpdateDate = DateTime.Now;
                                 }
                             }
-                            else if(subProcess.Status.ToLower().Equals("delete"))
+                            else
                             {
-                                var checkSubProcessDeletet = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId);
-                                if(checkSubProcessDeletet != null)
-                                {
-                                     _unitOfWork.SubProcessRepository.Delete(checkSubProcessDeletet);
-                                }
+                                return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
                             }
                         }
                     }

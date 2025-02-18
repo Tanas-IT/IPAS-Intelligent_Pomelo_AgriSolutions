@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public int? GrowthStageID { get; set; }
         public int? Order { get; set; }
 
-        [DefaultValue(new[] { "{SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, ProcessStyleId: 0}" })]
+        [DefaultValue(new[] { "{SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 0}" })]
         public List<string>? ListSubProcess { get; set; }
         public IFormFile? ProcessData { get; set; }
     }
