@@ -171,8 +171,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<WorkLog>> GetWorkLogInclude()
         {
             return await _context.WorkLogs.Include(x => x.Schedule)
-                        .Include(x => x.Schedule.CarePlan.LandPlot.Farm)
-                        .Include(x => x.Schedule.CarePlan.Plant.LandRow.LandPlot.Farm)
+                        .Include(x => x.Schedule.CarePlan.PlanTargets)
+                        .ThenInclude(x => x.LandPlot.Farm)
+                        .Include(x => x.Schedule.CarePlan.PlanTargets)
+                        .ThenInclude(x => x.Plant)
+                        .ThenInclude(x => x.LandRow)
+                        .ThenInclude(x => x.LandPlot)
+                        .ThenInclude(x => x.Farm)
                         .ToListAsync();
         }
 
@@ -210,6 +215,25 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             return false; // Không có xung đột, có thể thêm WorkLog mới
+        }
+
+        public async Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, int? treeId, int? rowId, int? plotId)
+        {
+            return await _context.WorkLogs
+                           .Include(w => w.Schedule)
+                           .ThenInclude(s => s.CarePlan)
+                           .ThenInclude(c => c.PlanTargets)
+                           .Where(w =>
+                               w.Date == date &&
+                               ((w.Schedule.StarTime < endTime && w.Schedule.EndTime > startTime) ||
+                                (startTime < w.Schedule.EndTime && endTime > w.Schedule.StarTime)) &&
+                               w.Schedule.CarePlan.PlanTargets.Any(pt =>
+                                   (treeId != null && pt.PlantID == treeId) ||
+                                   (rowId != null && pt.LandRowID == rowId) ||
+                                   (plotId != null && pt.LandPlotID == plotId)
+                               )
+                           )
+                           .ToListAsync();
         }
     }
 }

@@ -43,9 +43,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public double? MinVolume { get; set; }
         public bool? IsDelete { get; set; }
 
-        public string? PlantName { get; set; }
+        public List<string>? PlantNames { get; set; }
 
-        public string? LandPlotName { get; set; }
+        public List<string>? LandPlotNames { get; set; }
 
         public string? AssignorName { get; set; }
 
@@ -55,8 +55,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public string? GrowthStageName { get; set; }
 
-        public string? PlantLotName { get; set; }
-        public int? RowIndex { get; set; }
+        public List<string>? PlantLotNames { get; set; }
+        public List<int>? RowIndexs { get; set; }
 
 
         public string? MasterTypeName { get; set; }

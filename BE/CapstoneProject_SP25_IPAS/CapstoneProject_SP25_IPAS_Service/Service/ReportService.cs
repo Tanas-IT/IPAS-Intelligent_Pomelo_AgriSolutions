@@ -98,15 +98,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                );
 
                 var filteredTask = toltalTask
-                                     .Where(p =>
-                                         (p.Schedule.CarePlan.LandPlot != null && p.Schedule.CarePlan.LandPlot.Farm.FarmId == farmId) ||
-                                         (p.Schedule.CarePlan.Plant != null && p.Schedule.CarePlan.Plant.LandRow != null &&
-                                          p.Schedule.CarePlan.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                     )
                                      .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
-                                     .ToList(); // Tạo danh sách để tránh gọi Count() nhiều lần
+                                     .Where(p =>
+                                         p.Schedule.CarePlan.PlanTargets.Any(pt =>
+                                             (pt.LandPlot != null && pt.LandPlot.Farm.FarmId == farmId) || // Kiểm tra LandPlot thuộc Farm
+                                             (pt.Plant != null && pt.LandRow != null && pt.LandRow.LandPlot.Farm.FarmId == farmId) // Kiểm tra Plant và LandRow
+                                         )
+                                     )
+                                     .ToList(); // Tránh gọi Count() nhiều lần
 
-                    var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
+                var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
 
                     var listTaskStatusDistribution = filteredTask
                         .GroupBy(x => x.Status)

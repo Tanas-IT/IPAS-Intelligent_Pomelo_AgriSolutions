@@ -145,7 +145,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (Boolean.TryParse(paginationParameter.Search, out validBool))
                     {
-                        filter = filter.And(x => x.IsDelete == validBool || x.IsActive == validBool);
+                        filter = filter.And(x => x.IsActive == validBool);
                     }
                     else
                     {
@@ -175,9 +175,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                
 
-                if (masterTypeFilter.TypeName != null)
+                if (masterTypeFilter.TypeNames != null)
                 {
-                    List<string> filterList = masterTypeFilter.TypeName.Split(',', StringSplitOptions.TrimEntries)
+                    List<string> filterList = masterTypeFilter.TypeNames.Split(',', StringSplitOptions.TrimEntries)
                                .Select(f => f.ToLower()) // Chuyển về chữ thường
                                .ToList();
 
@@ -257,7 +257,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<MasterTypeModel>();
                 pagin.List = _mapper.Map<IEnumerable<MasterTypeModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.MasterTypeRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.MasterTypeRepository.Count(x => x.IsDelete == false);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {

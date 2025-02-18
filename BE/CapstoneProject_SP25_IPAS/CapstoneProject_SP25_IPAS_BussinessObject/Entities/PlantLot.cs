@@ -36,4 +36,5 @@ public partial class PlantLot
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
     public virtual PlantLot? PlantLotReference { get; set; }
+    public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
 }
