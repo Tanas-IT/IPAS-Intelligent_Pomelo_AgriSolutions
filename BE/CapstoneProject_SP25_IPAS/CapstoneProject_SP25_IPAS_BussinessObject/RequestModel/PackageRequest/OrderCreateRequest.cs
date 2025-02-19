@@ -1,14 +1,13 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels
+namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
 {
-    public class OrderModel
+    public class OrderCreateRequest
     {
         public int OrderId { get; set; }
 
@@ -27,13 +26,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels
         public DateTime? ExpiredDate { get; set; }
 
         public int? PackageId { get; set; }
-        //public string? PackageName { get; set; }
+
         public int? FarmId { get; set; }
-        public string? FarmName { get; set; }
 
-        //public FarmModel? Farm { get; set; }
+        //public virtual Farm? Farm { get; set; }
 
-        public PackageModel? Package { get; set; }
+        //public virtual Package? Package { get; set; }
 
         //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }

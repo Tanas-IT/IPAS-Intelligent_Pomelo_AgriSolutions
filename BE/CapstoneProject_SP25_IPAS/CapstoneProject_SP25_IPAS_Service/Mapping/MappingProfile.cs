@@ -196,7 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<Order, OrderModel>()
-               .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
+               .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package))
                 .ReverseMap();
             CreateMap<Package, PackageModel>()

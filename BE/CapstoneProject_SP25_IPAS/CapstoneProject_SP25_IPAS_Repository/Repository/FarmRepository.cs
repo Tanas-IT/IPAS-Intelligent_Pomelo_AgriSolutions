@@ -68,6 +68,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.UserFarms.Where(x => x.RoleId == (int)RoleEnum.OWNER))
                 .ThenInclude(x => x.User)
                 .ThenInclude(x => x.Role)
+                .Include(x => x.LandPlots)
+                .ThenInclude(x => x.LandPlotCoordinations)
                 //.Include( x => x.LandPlots)
                 //.Include(x => x.Processes)
                 //.Include(x => x.FarmCoordinations)

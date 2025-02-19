@@ -61,24 +61,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPackageExpiredOfFarm(int farmId)
-        {
-            try
-            {
-                Expression<Func<Order, bool>> filter = x => x.FarmId == farmId && x.ExpiredDate >= DateTime.Now;
-                string includeProperties = "Package,Farm";
-                //Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(x => x.OrderId);
+        //public async Task<BusinessResult> GetPackageExpiredOfFarm(int farmId)
+        //{
+        //    try
+        //    {
+        //        Expression<Func<Order, bool>> filter = x => x.FarmId == farmId && x.ExpiredDate >= DateTime.Now;
+        //        string includeProperties = "Package,Farm";
+        //        //Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(x => x.OrderId);
 
-                var packages = await _unitOfWork.OrdesRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
-                if (packages == null)
-                    return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
-                var mappedResult = _mapper.Map<PackageModel>(packages);
-                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
+        //        var packages = await _unitOfWork.OrdesRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+        //        if (packages == null)
+        //            return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
+        //        var mappedResult = _mapper.Map<PackageModel>(packages);
+        //        return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
     }
 }

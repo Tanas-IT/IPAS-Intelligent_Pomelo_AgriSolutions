@@ -18,9 +18,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<List<MasterType>> GetMasterTypeByName(string name)
+        public async Task<List<MasterType>> GetMasterTypeByName(string name, int farmId)
         {
-            var getMasterTypeByName = await _context.MasterTypes.Where(x => x.MasterTypeName.ToLower().Contains(name.ToLower())).ToListAsync();
+            var getMasterTypeByName = await _context.MasterTypes
+                .Include(x => x.MasterTypeDetails)
+                .Where(x => x.MasterTypeName!.ToLower().Contains(name.ToLower()) 
+                && ((x.FarmID == farmId || x.IsDefault == true))).ToListAsync();
             if (getMasterTypeByName.Count() > 0)
             {
                 return getMasterTypeByName;
@@ -28,10 +31,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return null!;
         }
 
-        public async Task<List<MasterType>> GetMasterTypesByTypeName(string name)
+        public async Task<List<MasterType>> GetMasterTypesByTypeName(string name, int farmId)
         {
             var getMasterTypeByName = await _context.MasterTypes
-                .Where(x => x.TypeName!.ToLower().Contains(name.ToLower()))
+                .Where(x => x.TypeName!.ToLower().Contains(name.ToLower())
+                &&(x.FarmID == farmId || x.IsDefault == true))
                 .ToListAsync();
             if (getMasterTypeByName.Any())
             {
@@ -43,14 +47,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName)
         {
             var getMasterTypeByName = await _context.MasterTypes
-                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower()))
+                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower())
+                &&(x.IsDefault == true))
                 .FirstOrDefaultAsync();
             return getMasterTypeByName!;
         }
 
         public async Task<int> GetLastID()
         {
-            var lastId = await _context.MasterTypes.MaxAsync(x => x.MasterTypeId);
+            var lastId = await _context.MasterTypes.AsNoTracking().MaxAsync(x => x.MasterTypeId);
             if (lastId <= 0)
                 return 1;
             return lastId + 1;

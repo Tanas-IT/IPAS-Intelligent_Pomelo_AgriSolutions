@@ -90,6 +90,9 @@ CREATE TABLE ipas.dbo.MasterType (
 	MasterTypeID int IDENTITY(1,1) NOT NULL,
 	MasterTypeCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MasterTypeName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	BackgroundColor nvarchar(200) NULL,
+	TextColor nvarchar(200) COLLATE  NULL,
+	Characteristic nvarchar(200) NULL,
 	MasterTypeDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isActive bit NULL,
 	CreateDate datetime NULL,
@@ -1038,18 +1041,18 @@ VALUES
     ('HARVEST', N'Thu hoạch', 97, 120);
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate])
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate],[IsDefault],[FarmID])
 VALUES
-    ('MT001', 'Product Category', 'ProcessType', 'Defines product categories', 0, 1, GETDATE()),
-    ('MT002', 'User Role', 'Role', 'ProcessType', 0, 1, GETDATE()),
-    ('MT003', 'Payment Method', 'ProcessType', 'Lists available payment methods', 0, 1, GETDATE()),
-    ('MT004', 'Shipping Method', 'ProcessType', 'Lists available shipping methods', 0, 1, GETDATE()),
-    ('MT005', 'Order Status', 'CriteriaType', 'Defines various order statuses', 0, 1, GETDATE()),
-    ('MT006', 'Discount Type', 'CriteriaType', 'Defines types of discounts available', 0, 1, GETDATE()),
-    ('MT007', 'Membership Level', 'CriteriaType', 'Defines customer membership levels', 0, 1, GETDATE()),
-    ('MT008', 'Tax Type', 'Tax', 'HarvestType', 0, 1, GETDATE()),
-    ('MT009', 'Subscription Plan', 'HarvestType', 'Lists available subscription plans', 0, 1, GETDATE()),
-    ('MT010', 'Support Ticket Status', 'HarvestType', 'Defines statuses for customer support tickets', 0, 1, GETDATE());
+    ('MT001', 'Product Category', 'ProcessType', 'Defines product categories', 0, 1, GETDATE(),0,1),
+    ('MT002', 'User Role', 'Role', 'ProcessType', 0, 1, GETDATE(),1,NULL),
+    ('MT003', 'Payment Method', 'ProcessType', 'Lists available payment methods', 0, 1, GETDATE(),1,NULL),
+    ('MT004', 'Shipping Method', 'ProcessType', 'Lists available shipping methods', 0, 1, GETDATE(),1,NULL),
+    ('MT005', 'Order Status', 'CriteriaType', 'Defines various order statuses', 0, 1, GETDATE(),1,NULL),
+    ('MT006', 'Discount Type', 'CriteriaType', 'Defines types of discounts available', 0, 1, GETDATE(),1,NULL),
+    ('MT007', 'Membership Level', 'CriteriaType', 'Defines customer membership levels', 0, 1, GETDATE(),1,NULL),
+    ('MT008', 'Tax Type', 'Tax', 'HarvestType', 0, 1, GETDATE(),0,),
+    ('MT009', 'Subscription Plan', 'HarvestType', 'Lists available subscription plans', 0, 1, GETDATE(),0,1),
+    ('MT010', 'Support Ticket Status', 'HarvestType', 'Defines statuses for customer support tickets', 0, 1, GETDATE(),0,1);
 GO
 INSERT INTO [ipas].[dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])

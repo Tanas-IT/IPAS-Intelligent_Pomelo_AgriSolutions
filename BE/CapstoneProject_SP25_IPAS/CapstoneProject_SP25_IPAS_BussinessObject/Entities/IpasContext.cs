@@ -595,7 +595,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Farm).WithMany(p => p.MasterTypes)
-                .HasForeignKey(d => d.MasterTypeId)
+                .HasForeignKey(d => d.FarmID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Master_Type_Farm__22751F6C");
         });
@@ -605,6 +605,8 @@ public partial class IpasContext : DbContext
             entity.HasKey(e => e.MasterTypeDetailId).HasName("MasterTypeDetails_PK");
 
             entity.Property(e => e.MasterTypeDetailId).HasColumnName("MasterTypeDetailID");
+
+            entity.ToTable("MasterTypeDetails");
             entity.Property(e => e.ForeignKeyTable)
                 .HasMaxLength(200)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -621,7 +623,7 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.MasterType).WithMany(p => p.MasterTypeDetails)
                 .HasForeignKey(d => d.MasterTypeId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("MasterTypeDetails_MasterType_FK");
+                .HasForeignKey(x => x.MasterTypeId);
         });
 
         modelBuilder.Entity<Notification>(entity =>
