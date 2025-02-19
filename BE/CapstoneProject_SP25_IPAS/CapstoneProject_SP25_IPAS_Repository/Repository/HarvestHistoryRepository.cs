@@ -130,5 +130,20 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ToListAsync();
             return historys;
         }
+
+        public async Task<List<HarvestHistory>> GetHarvestHistoryInclude()
+        {
+            var historys = await _context.HarvestHistories
+                                .Include(x => x.Crop)
+                                .Include(h => h.HarvestTypeHistories)
+                                    .ThenInclude(ht => ht.Plant)
+                                        .ThenInclude(p => p.LandRow)
+                                            .ThenInclude(lr => lr.LandPlot)
+                                                .ThenInclude(lp => lp.Farm)
+                                .Include(h => h.HarvestTypeHistories)
+                                    .ThenInclude(ht => ht.MasterType)
+                                .ToListAsync();
+            return historys;
+        }
     }
 }

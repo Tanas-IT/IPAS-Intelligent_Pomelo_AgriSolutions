@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -44,9 +45,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (!cropCreateRequest.LandPlotId.Any())
                         return new BusinessResult(Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE, Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG);
                     // Tạo đối tượng Crop mới
+                    var lastId = await _unitOfWork.CropRepository.GetLastID();
                     var crop = new Crop
                     {
-                        CropCode = $"CROP-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}",
+                        CropCode = $"{CodeAliasEntityConst.CROP}-{cropCreateRequest.FarmId}-{DateTime.Now.ToString("ddmmyyyy")}-{cropCreateRequest.StartDate!.Value.ToString("ddmmyyyy")}-{cropCreateRequest.EndDate!.Value.ToString("ddmmyyyy")}-{lastId:D6}",
                         CropName = cropCreateRequest.CropName,
                         Year = cropCreateRequest.Year,
                         CropExpectedTime = cropCreateRequest.CropExpectedTime,
@@ -133,13 +135,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllCropOfFarmForSelected(int cropid, string? searchValue)
+        public async Task<BusinessResult> getAllCropOfFarmForSelected(int plotId, string? searchValue)
         {
             try
             {
-                if (cropid <= 0)
+                if (plotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<LandPlotCrop, bool>> filter = x => x.CropID == cropid && x.Crop.EndDate >= DateTime.Now;
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId && x.Crop.EndDate >= DateTime.Now;
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.Crop.CropName!.ToLower().Contains(searchValue.ToLower()));

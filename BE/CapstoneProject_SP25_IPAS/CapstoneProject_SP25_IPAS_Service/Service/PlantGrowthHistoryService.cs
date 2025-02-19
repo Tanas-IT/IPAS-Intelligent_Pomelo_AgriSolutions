@@ -41,11 +41,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Khởi tạo đối tượng PlantGrowthHistory
                     var plantGrowthHistoryEntity = new PlantGrowthHistory()
                     {
+                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PLANT}{historyCreateRequest.PlantId}-{CodeHelper.GenerateCode()}",
                         Content = historyCreateRequest.Content,
                         NoteTaker = historyCreateRequest.NoteTaker,
                         PlantId = historyCreateRequest.PlantId,
                         IssueName = historyCreateRequest.IssueName,
-                        PlantGrowthHistoryCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PLANT_GROWTH_HISTORY),
                         CreateDate = DateTime.Now,
                     };
 

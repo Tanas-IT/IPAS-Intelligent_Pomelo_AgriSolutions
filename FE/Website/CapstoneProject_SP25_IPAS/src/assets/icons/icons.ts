@@ -56,6 +56,7 @@ export {
   IoLanguageOutline as language,
   IoDocumentTextOutline as document,
   IoMapOutline as map,
+  IoCheckmarkDoneSharp as markAsRead
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";

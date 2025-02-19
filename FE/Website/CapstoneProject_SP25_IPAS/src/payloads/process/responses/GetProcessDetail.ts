@@ -16,6 +16,7 @@ export interface SubProcess {
     processId: number;
     processCode: string;
     processName: string;
+    isDefault: boolean;
     isActive: boolean;
     createDate: string;
     updateDate: string;

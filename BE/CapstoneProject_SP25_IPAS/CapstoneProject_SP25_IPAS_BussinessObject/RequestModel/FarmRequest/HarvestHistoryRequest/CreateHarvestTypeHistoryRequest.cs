@@ -20,7 +20,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Har
         public double? Price { get; set; }
         [Required]
         public int? Quantity { get; set; }
-        public int? HarvestHistoryId { get; set; }
 
+        public int? HarvestHistoryId { get; set; }
     }
 }

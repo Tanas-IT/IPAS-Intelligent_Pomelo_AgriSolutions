@@ -43,6 +43,7 @@ export const getProcessDetail = async (processId: string) => {
     processId: apiResponse.data.processId,
     processCode: apiResponse.data.processCode,
     processName: apiResponse.data.processName,
+    isDefault: apiResponse.data.isDefault,
     isActive: apiResponse.data.isActive,
     createDate: apiResponse.data.createDate,
     updateDate: apiResponse.data.updateDate,
@@ -50,11 +51,8 @@ export const getProcessDetail = async (processId: string) => {
     farmName: apiResponse.data.farmName,
     masterTypeName: apiResponse.data.masterTypeName,
     growthStageName: apiResponse.data.growthStageName,
-    subProcesses: apiResponse.data.subProcesses.map(({ subProcessId, subProcessCode, subProcessName }) => ({
-      subProcessId,
-      subProcessCode,
-      subProcessName
-    })),
+    subProcesses: apiResponse.data.subProcesses,
+    listProcessData: apiResponse.data.listProcessData
   };
 };
 

@@ -40,7 +40,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newMasterType = new MasterType()
                     {
-                        MasterTypeCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.MASTER_TYPE),
+                        MasterTypeCode = $"{CodeAliasEntityConst.MASTER_TYPE}-{DateTime.Now.ToString("ddmmyyyy")}-{createMasterTypeModel.TypeName!.ToUpper()}-{CodeHelper.GenerateCode}",
                         MasterTypeName = createMasterTypeModel.MasterTypeName,
                         MasterTypeDescription = createMasterTypeModel.MasterTypeDescription,
                         IsActive = createMasterTypeModel.IsActive,
@@ -48,11 +48,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateBy = createMasterTypeModel.CreateBy,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        TypeName = createMasterTypeModel.TypeName
+                        TypeName = createMasterTypeModel.TypeName,
+                        
                     };
-                    await _unitOfWork.MasterTypeRepository.Insert(newMasterType);
 
-                    var checkInsertMasterType = await _unitOfWork.SaveAsync();
+
+                    // Bước 1: Lưu MasterType trước
+                    var checkInsertMasterType = await _unitOfWork.MasterTypeRepository.AddMasterType(newMasterType);
+
+                    if (checkInsertMasterType > 0 && createMasterTypeModel.ListMasterTypeDetail != null && createMasterTypeModel.ListMasterTypeDetail.Count > 0)
+                    {
+                        foreach (var masterDetailModel in createMasterTypeModel.ListMasterTypeDetail)
+                        {
+                            var newMasterTypeDetailModel = new MasterTypeDetail()
+                            {
+                                MasterTypeDetailCode = await GetNextSequenceNumberOfMasterTypeDetail(),
+                                MasterTypeDetailName = masterDetailModel.MasterTypeDetailName,
+                                ForeignKeyId = masterDetailModel.ForeignKeyId,
+                                ForeignKeyTable = masterDetailModel.ForeignKeyTable,
+                                TypeOfValue = masterDetailModel.TypeOfValue,
+                                Value = masterDetailModel.TypeOfValue,
+                               
+                            };
+                             newMasterType.MasterTypeDetails.Add(newMasterTypeDetailModel);
+                            await _unitOfWork.SaveAsync();
+                        }
+                    }
+
                     await transaction.CommitAsync();
                     if (checkInsertMasterType > 0)
                     {
@@ -67,6 +89,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
             }
+        }
+
+        private async Task<string> GetNextSequenceNumber()
+        {
+            var alias = CodeAliasEntityConst.MASTER_TYPE + "-";
+            string datePart = DateTime.Now.ToString("ddMMyyyy");
+            int lastNumber = await _unitOfWork.MasterTypeRepository.GetLastMasterType(); // Hàm lấy số thứ tự gần nhất từ DB
+            int nextPlanId = lastNumber + 1;
+
+            // Xác định số chữ số cần hiển thị
+            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
+            string sequence = nextPlanId.ToString($"D{digitCount}");
+            return alias + datePart + "-" + sequence;
+        }
+
+        private async Task<string> GetNextSequenceNumberOfMasterTypeDetail()
+        {
+            var alias = CodeAliasEntityConst.MASTER_TYPE_DETAIL + "-";
+            string datePart = DateTime.Now.ToString("ddMMyyyy");
+            int lastNumber = await _unitOfWork.MasterTypeDetailRepostiory.GetLastMasterTypeDetail(); // Hàm lấy số thứ tự gần nhất từ DB
+            int nextPlanId = lastNumber + 1;
+
+            // Xác định số chữ số cần hiển thị
+            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
+            string sequence = nextPlanId.ToString($"D{digitCount}");
+            return alias + datePart + "-" + sequence;
         }
 
         public async Task<BusinessResult> GetMasterTypeByName(string MasterTypeName)
@@ -138,21 +186,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                              x.CreateDate <= masterTypeFilter.createDateTo);
                 }
 
-                if (masterTypeFilter.isActive != null) 
-                    filter = filter.And(x => x.IsActive == masterTypeFilter.isActive);
-                if (masterTypeFilter.isDelete != null)
-                    filter = filter.And(x => x.IsDelete == masterTypeFilter.isDelete);
-                if (masterTypeFilter.MasterTypeName != null)
-                {
-                    List<string> filterList = masterTypeFilter.MasterTypeName.Split(',', StringSplitOptions.TrimEntries)
-                               .Select(f => f.ToLower()) // Chuyển về chữ thường
-                               .ToList();
-
-                    foreach (var item in filterList)
-                    {
-                        filter = filter.And(x => x.MasterTypeName.ToLower().Contains(item));
-                    }
-                }
+               
 
                 if (masterTypeFilter.TypeName != null)
                 {
@@ -165,17 +199,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = filter.And(x => x.TypeName.ToLower().Contains(item));
                     }
                 }
-                if (masterTypeFilter.CreateBy != null)
-                {
-                    List<string> filterList = masterTypeFilter.CreateBy.Split(',', StringSplitOptions.TrimEntries)
-                              .Select(f => f.ToLower()) // Chuyển về chữ thường
-                              .ToList();
-
-                    foreach (var item in filterList)
-                    {
-                        filter = filter.And(x => x.CreateBy.ToLower().Contains(item));
-                    }
-                }
+               
                 switch (paginationParameter.SortBy)
                 {
                     case "mastertypeid":
@@ -242,7 +266,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderBy(x => x.MasterTypeId);
                         break;
                 }
-                string includeProperties = "";
+                string includeProperties = "MasterTypeDetails,Criterias";
                 var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<MasterTypeModel>();
                 pagin.List = _mapper.Map<IEnumerable<MasterTypeModel>>(entities).ToList();
@@ -268,7 +292,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var MasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "");
+                var MasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "MasterTypeDetails,Criterias");
                 if(MasterType != null)
                 {
                     var result = _mapper.Map<MasterTypeModel>(MasterType);
@@ -379,6 +403,38 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updateMasterTypeModel.CreateBy != null)
                         {
                             checkExistMasterType.CreateBy = updateMasterTypeModel.CreateBy;
+                        }
+                        if(updateMasterTypeModel.ListMasterTypeDetail != null)
+                        {
+                            foreach(var updateMasterTypeDetail in  updateMasterTypeModel.ListMasterTypeDetail)
+                            {
+                                var getMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeDetail.MasterTypeDetailId);
+                                if (updateMasterTypeDetail.MasterTypeDetailName != null)
+                                {
+                                    getMasterTypeDetail.MasterTypeDetailName = updateMasterTypeDetail.MasterTypeDetailName;
+                                }
+                                if (updateMasterTypeDetail.Value != null)
+                                {
+                                    getMasterTypeDetail.Value = updateMasterTypeDetail.Value;
+                                }
+                                if (updateMasterTypeDetail.TypeOfValue != null)
+                                {
+                                    getMasterTypeDetail.TypeOfValue = updateMasterTypeDetail.TypeOfValue;
+                                }
+                                if (updateMasterTypeDetail.ForeignKeyId != null)
+                                {
+                                    getMasterTypeDetail.ForeignKeyId = updateMasterTypeDetail.ForeignKeyId;
+                                }
+                                if (updateMasterTypeDetail.ForeignKeyTable != null)
+                                {
+                                    getMasterTypeDetail.ForeignKeyTable = updateMasterTypeDetail.ForeignKeyTable;
+                                }
+                                if (updateMasterTypeDetail.MasterTypeId != null)
+                                {
+                                    getMasterTypeDetail.MasterTypeId = updateMasterTypeDetail.MasterTypeId;
+                                }
+                                await _unitOfWork.SaveAsync();
+                            }
                         }
                         checkExistMasterType.UpdateDate = DateTime.Now;
 

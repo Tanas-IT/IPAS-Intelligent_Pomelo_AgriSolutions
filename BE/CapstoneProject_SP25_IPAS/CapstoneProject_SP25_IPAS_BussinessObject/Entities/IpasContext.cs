@@ -450,7 +450,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
-
+            entity.Property(e => e.ProcessId).HasColumnName("ProcessID");
             entity.HasOne(d => d.HarvestHistory).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");
@@ -799,6 +799,7 @@ public partial class IpasContext : DbContext
             entity.ToTable("Plan");
 
             entity.Property(e => e.PlanId).HasColumnName("PlanID");
+            entity.Property(e => e.LandRowID).HasColumnName("LandRowID");
             entity.Property(e => e.AssignorId).HasColumnName("AssignorID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CropId).HasColumnName("CropID");
@@ -873,6 +874,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Plans)
              .HasForeignKey(d => d.GraftedPlantId)
              .HasConstraintName("FK_Plan_GraftedPlant");
+
+            entity.HasOne(d => d.LandRow).WithMany(p => p.Plans)
+            .HasForeignKey(d => d.LandRowID)
+            .HasConstraintName("FK_Plan_LandRow");
         });
 
         modelBuilder.Entity<Plant>(entity =>

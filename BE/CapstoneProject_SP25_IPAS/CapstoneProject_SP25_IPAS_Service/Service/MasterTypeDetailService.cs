@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TypeOfValue = createMasterTypeDetailModel.TypeOfValue,
                         ForeignKeyId = createMasterTypeDetailModel.ForeignKeyId,
                         ForeignKeyTable = createMasterTypeDetailModel.ForeignKeyTable,
-                        MasterTypeId = createMasterTypeDetailModel.MasterTypeId
+                        //MasterTypeId = createMasterTypeDetailModel.MasterTypeId
                     };
                     await _unitOfWork.MasterTypeDetailRepostiory.Insert(newMasterTypeDetail);
 

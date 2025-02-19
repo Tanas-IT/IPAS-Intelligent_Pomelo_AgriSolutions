@@ -34,19 +34,18 @@
 .popupContainer {
   flex-direction: column;
   width: 24vw;
-  background: white;
   border-radius: 8px;
   .popupHeader {
     width: 100%;
     padding-bottom: 4px;
     border-bottom: 1px solid vars.$color_second;
     font-weight: bold;
-  }
-  .closeButton {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    outline: none;
+    .closeButton {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
   }
 
   .popupBody {
@@ -96,6 +95,52 @@
           }
         }
       }
+    }
+  }
+}
+
+.colorGuidContainer {
+  flex-direction: column;
+  border-radius: 8px;
+
+  .popupHeader {
+    width: 100%;
+    height: 28px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid vars.$color_second;
+    font-weight: bold;
+    .closeButton {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+    }
+  }
+  .contentWrapper {
+    flex-direction: column;
+    gap: 4px;
+    .row {
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 14px;
+      .landPlotColor {
+        width: 3vw;
+        height: 8px;
+      }
+    }
+    .green {
+      background: #999c40;
+    }
+    .red {
+      background-color: #f44336; // Red for dangerous land plots
+    }
+    .orange {
+      background-color: #ff9800; // Orange for searched land plots
+    }
+
+    .blue {
+      background-color: #00aeef; // Blue for selected land plots
     }
   }
 }

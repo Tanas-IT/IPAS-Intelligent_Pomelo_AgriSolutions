@@ -35,12 +35,12 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
   console.log("plan", plan);
   
   const formData = new FormData();
-  const startDate = new Date(plan.startDate);  // Nếu là chuỗi, sẽ chuyển thành Date
+  const startDate = new Date(plan.startDate);
   const endDate = new Date(plan.endDate);
 
 
   formData.append("planName", plan.planName);
-  formData.append("startDate", startDate.toISOString());  // Chắc chắn là Date
+  formData.append("startDate", startDate.toISOString());
   formData.append("endDate", endDate.toISOString());
   formData.append("startTime", plan.startTime);
   formData.append("endTime", plan.endTime);
@@ -54,7 +54,6 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
   formData.append("growthStageId", plan.growthStageId.toString());
   formData.append("masterTypeId", plan.masterTypeId.toString());
 
-  // Append arrays
   if (plan.responsibleBy) {
     plan.responsibleBy.forEach((id, index) => {
         formData.append(`responsibleBy[${index}]`, id);
@@ -72,7 +71,6 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
     });
 }
 
-  // Append listEmployee
   plan.listEmployee.forEach((employee, index) => {
     formData.append(`listEmployee[${index}][userId]`, employee.userId.toString());
     formData.append(`listEmployee[${index}][isReporter]`, employee.isReporter.toString());

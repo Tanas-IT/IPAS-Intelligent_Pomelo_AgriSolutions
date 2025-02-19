@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
-import { Button, Divider, Tree, TreeDataNode, TreeProps } from "antd";
+import { Button, Divider, Flex, Tag, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons } from "@/assets";
 import { CustomButton, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { processService } from "@/services";
 import EditableTreeNode from "./EditableTreeNode";
 import ButtonActions from "./ButtonActions";
+import { GetProcessDetail } from "@/payloads/process";
 
 interface SubProcess {
   subProcessId: number;
@@ -18,7 +19,12 @@ interface SubProcess {
   listSubProcessData?: SubProcess[];
 }
 
-const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): TreeDataNode[] => {
+interface CustomTreeDataNode extends TreeDataNode {
+  status?: string;  // Thêm thuộc tính 'status' vào CustomTreeDataNode
+  order?: number;
+}
+
+const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): CustomTreeDataNode[] => {
   return subProcesses
     .filter(sp => sp.parentSubProcessId === parentId)
     .map(sp => ({
@@ -31,10 +37,12 @@ const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): T
 function ProcessDetails() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
+  const [treeData, setTreeData] = useState<CustomTreeDataNode[]>([]);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState<string>("");
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [processDetail, setProcessDetail] = useState<GetProcessDetail>();
+  const [deletedNodes, setDeletedNodes] = useState<CustomTreeDataNode[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -45,6 +53,7 @@ function ProcessDetails() {
     const fetchProcessDetails = async () => {
       try {
         const data = await processService.getProcessDetail(id);
+        setProcessDetail(data);
         console.log("data", data);
 
         setTreeData(mapSubProcessesToTree(data.subProcesses));
@@ -60,16 +69,21 @@ function ProcessDetails() {
 
   const handleAdd = (parentKey: string) => {
     const newKey = `${parentKey}-${Date.now()}`;
-    const newNode: TreeDataNode = {
+    const newNode: CustomTreeDataNode = {
       title: "New Task",
       key: newKey,
       children: [],
+      status: "add",
     };
-
-    const updateTree = (nodes: TreeDataNode[]): TreeDataNode[] => {
+  
+    const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map(node => {
         if (node.key === parentKey) {
-          return { ...node, children: [...(node.children || []), newNode] };
+          const newOrder = node.children ? node.children.length + 1 : 1; // Kiểm tra xem có children hay không để xác định order
+          return { 
+            ...node, 
+            children: [...(node.children || []), { ...newNode, order: newOrder }] 
+          };
         }
         if (node.children) {
           return { ...node, children: updateTree(node.children) };
@@ -77,17 +91,26 @@ function ProcessDetails() {
         return node;
       });
     };
-
+  
     setTreeData(updateTree(treeData));
   };
+  
 
   const handleEdit = (key: string) => {
     setEditingKey(key);
     const node = findNodeByKey(treeData, key);
+  
     if (node && typeof node.title === "string") {
       setNewTitle(node.title);
+  
+      // Cập nhật trạng thái của node khi đang chỉnh sửa
+      if (node.status !== "editing") {
+        node.status = "editing"; // Đánh dấu là đang chỉnh sửa
+        setTreeData([...treeData]); // Cập nhật lại treeData với trạng thái mới
+      }
     }
   };
+  
 
   const handleSave = () => {
     if (editingKey !== null) {
@@ -103,17 +126,38 @@ function ProcessDetails() {
   };
 
   const handleDelete = (key: string) => {
-    const deleteNode = (nodes: TreeDataNode[]): TreeDataNode[] => {
-      return nodes
-        .filter(node => node.key !== key)
-        .map(node => ({
-          ...node,
-          children: node.children ? deleteNode(node.children) : undefined,
-        }));
+    const deleteNode = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+      return nodes.filter(node => node.key !== key).map(node => ({
+        ...node,
+        children: node.children ? deleteNode(node.children) : undefined,
+      }));
     };
-
-    setTreeData(deleteNode(treeData));
+  
+    // Kiểm tra xem có node nào cần xóa không
+    const deletedNode = findNodeByKey(treeData, key);
+    if (deletedNode) {
+      // Lưu task bị xóa vào deletedNodes
+      setDeletedNodes(prev => [...prev, { ...deletedNode, status: "deleted" }]);
+    }
+  
+    // Cập nhật lại dữ liệu cây
+    const updatedTreeData = deleteNode(treeData);
+  
+    // Cập nhật lại thứ tự các node còn lại
+    const reorderNodes = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+      return nodes.map((node, index) => ({
+        ...node,
+        order: index + 1,  // Cập nhật thứ tự sau khi xóa
+        children: node.children ? reorderNodes(node.children) : undefined,
+      }));
+    };
+  
+    const reorderedTreeData = reorderNodes(updatedTreeData);
+  
+    setTreeData(reorderedTreeData);
   };
+  
+  
 
   const handleCancel = () => {
 
@@ -123,7 +167,52 @@ function ProcessDetails() {
 
   }
 
-  const findNodeByKey = (nodes: TreeDataNode[], key: string): TreeDataNode | null => {
+  const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number = 0): any[] => {
+    return nodes.flatMap((node, index) => {
+      const subProcessId = Number(node.key); // Chuyển key thành số
+      const subProcess = {
+        SubProcessName: node.title || "New Task",
+        ParentSubProcessId: parentId, // Gán ID cha
+        IsDefault: true, // Giữ mặc định
+        IsActive: true,  // Giữ mặc định
+        ProcessStyleId: 0, // Nếu có style, cập nhật
+        Status: node.status || "no_change", // Trạng thái (thêm, sửa, xóa)
+        Order: node.order || index + 1,  // Gửi thứ tự
+      };
+  
+      return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
+    });
+  };
+  
+
+  const handleSaveProcess = () => {
+    const payload = {
+      processId: id || 0, // Lấy ID nếu có, nếu không để 0
+      processName: processDetail?.processName || "New Process",
+      isActive: processDetail?.isActive ?? true,
+      isDefault: processDetail?.isDefault ?? false,
+      isDeleted: processDetail?.isDeleted ?? false,
+      ListUpdateSubProcess: convertTreeToList(treeData),
+      ListDeletedSubProcess: convertDeletedNodesToList(deletedNodes), // Thêm task đã xóa
+    };
+  
+    console.log("Saving Payload:", payload);
+    // Gọi API gửi payload về backend
+    // processService.updateProcess(payload);
+  }
+
+  const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
+    return nodes.map(node => ({
+      SubProcessName: node.title || "New Task",
+      ParentSubProcessId: 0,  // Gán giá trị mặc định hoặc lấy từ dữ liệu gốc
+      IsDefault: true,
+      IsActive: false, // Thường là false khi đã xóa
+      ProcessStyleId: 0,
+      Status: node.status || "deleted", // Đảm bảo trạng thái là 'deleted'
+    }));
+  };
+
+  const findNodeByKey = (nodes: CustomTreeDataNode[], key: string): CustomTreeDataNode | null => {
     for (let node of nodes) {
       if (node.key === key) return node;
       if (node.children) {
@@ -134,7 +223,7 @@ function ProcessDetails() {
     return null;
   };
 
-  const loopNodes = (nodes: any[]): TreeDataNode[] => {
+  const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
 
     return nodes.map((node) => ({
       title: (
@@ -174,9 +263,9 @@ function ProcessDetails() {
     const dropToGap = info.dropToGap;
     const data = [...treeData];
 
-    let dragObj: TreeDataNode | undefined;
+    let dragObj: CustomTreeDataNode | undefined;
 
-    const loop = (nodes: TreeDataNode[], key: string, callback: (node: TreeDataNode, index: number, arr: TreeDataNode[]) => void) => {
+    const loop = (nodes: CustomTreeDataNode[], key: string, callback: (node: CustomTreeDataNode, index: number, arr: CustomTreeDataNode[]) => void) => {
       for (let i = 0; i < nodes.length; i++) {
         if (nodes[i].key === key) {
           return callback(nodes[i], i, nodes);
@@ -206,9 +295,19 @@ function ProcessDetails() {
       });
     }
 
-    console.log("Updated Tree:", data);
+    const reorderNodes = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+      return nodes.map((node, index) => ({
+        ...node,
+        order: index + 1,  // Cập nhật thứ tự
+        children: node.children ? reorderNodes(node.children) : undefined,
+      }));
+    };
 
-    setTreeData([...data]);
+    const updatedData = reorderNodes(data);
+
+  console.log("Updated Tree:", updatedData);
+
+  setTreeData([...updatedData]);
   };
 
   return (
@@ -219,12 +318,23 @@ function ProcessDetails() {
         </Tooltip>
       </div>
       <Divider className={style.divider} />
-      <div className={style.contentSectionTitleLeft}>
+      {/* <div className={style.contentSectionTitleLeft}>
         <p className={style.title}>Caring Process</p>
         <div className={style.addButton}>
           <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
         </div>
-      </div>
+      </div> */}
+      <Flex className={style.contentSectionTitleLeft}>
+        <p className={style.title}>Caring Process</p>
+        <Tooltip title="Hello">
+          <Icons.tag className={style.iconTag} />
+        </Tooltip>
+        <Tag className={`${style.statusTag} ${style.normal}`}>Pending</Tag>
+        <div className={style.addButton}>
+          <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
+        </div>
+      </Flex>
+      <label className={style.subTitle}>Code: laggg</label>
       <Divider className={style.divider} />
       <Tree
         draggable
@@ -234,7 +344,8 @@ function ProcessDetails() {
       />
       <div className={style.buttonGroup}>
         <Button>Cancel</Button>
-        <Button className={style.confirmButton}>Save</Button>
+        {/* <Button className={style.confirmButton}>Save</Button> */}
+        <CustomButton label="Save" isCancel={false} isModal={true} handleOnClick={() => handleSaveProcess()} />
       </div>
       <ToastContainer />
     </div>

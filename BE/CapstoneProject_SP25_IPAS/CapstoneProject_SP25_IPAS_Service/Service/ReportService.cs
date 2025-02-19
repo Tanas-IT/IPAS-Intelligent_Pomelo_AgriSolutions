@@ -83,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var totalEmployee = await _unitOfWork.UserRepository.GetAllEmployeeByFarmId(farmId);
                 var toltalTask = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
                 var growthStagePercentage = totalPlant
-                                               .Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId && !string.IsNullOrEmpty(p.GrowthStage.GrowthStageName)) // Bỏ cây không có GrowthStage
+                                               .Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId && p.GrowthStage != null) // Bỏ cây không có GrowthStage
                                                .GroupBy(p => p.GrowthStage.GrowthStageName)
                                                .ToDictionary(
                                                    g => g.Key!,
@@ -164,9 +164,55 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> MaterialsInStore(int year, int farmId, int month)
+        public async Task<BusinessResult> MaterialsInStore(int year, int farmId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (year == 0) year = DateTime.Now.Year;
+                var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude();
+               
+                var getListHarvestHistory = getListHarvestHistoryTemp.Where(x => x.DateHarvest.HasValue && x.DateHarvest.Value.Year == year)
+                                        .GroupBy(p => p.Crop.HarvestSeason) // Nhóm theo mùa
+                                        .Select(g => new
+                                        {
+                                            Season = g.Key,  // Key là mùa
+                                            Count = g.SelectMany(h => h.HarvestTypeHistories)
+                                                     .Where(x => x.Plant != null
+                                                              && x.Plant.LandRow != null
+                                                              && x.Plant.LandRow.LandPlot != null
+                                                              && x.Plant.LandRow.LandPlot.Farm != null
+                                                              && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                                     .Sum(ht => ht.Quantity),
+                                            TypeOfProduct = g.SelectMany(h => h.HarvestTypeHistories)
+                                            .Where(x => x.Plant != null
+                                                     && x.Plant.LandRow != null
+                                                     && x.Plant.LandRow.LandPlot != null
+                                                     && x.Plant.LandRow.LandPlot.Farm != null
+                                                     && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                            .GroupBy(ht => new { ht.Plant.PlantName, ht.MasterType.MasterTypeName }) // Nhóm theo tên cây và loại cây
+                                            .Select(plantGroup => new
+                                            {
+                                                PlantName = plantGroup.Key.PlantName, // Tên cây
+                                                MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
+                                                TotalQuantity = plantGroup.Sum(p => p.Quantity) // Tổng số lượng
+                                            })
+                                            .ToList()
+                                        }).ToList();
+                if(getListHarvestHistory != null)
+                {
+                    if(getListHarvestHistory.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG, getListHarvestHistory);
+                    }
+                    return new BusinessResult(Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG);
+
+                }
+                return new BusinessResult(Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE, Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
         public Task<BusinessResult> PomeloQualityBreakDown(int year)
@@ -174,9 +220,55 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public Task<BusinessResult> ProductivityByPlot(int year, int plotId, int month)
+        public async Task<BusinessResult> ProductivityByPlot(int farmId, int year)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var getListLandPlot = await _unitOfWork.LandPlotRepository.GetLandPlotInclude();
+                var result = getListLandPlot
+                                        .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.Year == year))
+                                        .SelectMany(lp => lp.LandPlotCrops, (lp, lpc) => new
+                                        {
+                                            Year = lpc.Crop.Year ?? 0,
+                                            HarvestSeason = lpc.Crop.HarvestSeason ?? "Không xác định",
+                                            LandPlotId = lp.LandPlotId,
+                                            LandPlotName = lp.LandPlotName,
+                                            Status = lp.Status,
+                                            Quantity = lpc.Crop.HarvestHistories
+                                                .SelectMany(hh => hh.HarvestTypeHistories)
+                                                .Sum(hth => hth.Quantity ?? 0)
+                                        })
+                                         .GroupBy(x => new { x.Year, x.HarvestSeason })
+                                        .Select(group => new
+                                        {
+                                            HarvestSeason = group.Key,
+                                            LandPlots = group.GroupBy(lp => lp.LandPlotId)
+                                                             .Select(g => new
+                                                             {
+                                                                 LandPlotId = g.Key,
+                                                                 LandPlotName = g.First().LandPlotName,
+                                                                 TotalPlantOfLandPlot = g.Count(),
+                                                                 Quantity = g.Sum(lp => lp.Quantity),
+                                                                 Status = g.First().Status
+                                                             }).ToList()
+                                        })
+                                        .ToList();
+
+                if (result != null)
+                {
+                    if (result.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE, Const.SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG, result);
+                    }
+                    return new BusinessResult(Const.WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE, Const.WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG);
+
+                }
+                return new BusinessResult(Const.FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE, Const.FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
         public Task<BusinessResult> SeasonYield(int year, int farmId, int month)
@@ -187,6 +279,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public Task<BusinessResult> WorkProgressOverview(int month)
         {
             throw new NotImplementedException();
+        }
+
+        private string GetSeasonFromDate(DateTime date)
+        {
+            int month = date.Month;
+            return month switch
+            {
+                1 or 2 or 3 => "Spring " + date.Year.ToString(),
+                4 or 5 or 6 => "Summer " + date.Year.ToString(),
+                7 or 8 or 9 => "Fall " + date.Year.ToString(),
+                _ => "Winter"
+            };
         }
     }
 }

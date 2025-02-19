@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? FarmId { get; set; }
 
         public string? CropName { get; set; }
+      
 
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

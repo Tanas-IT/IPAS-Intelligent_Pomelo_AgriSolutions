@@ -48,14 +48,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_HARVEST_DATE_IN_PAST_CODE, Const.WARNING_HARVEST_DATE_IN_PAST_MSG);
 
                     var cropExist = await _unitOfWork.CropRepository.getCropInExpired(createRequest.CropId.Value);
-
+                    if (cropExist == null)
+                        return new BusinessResult(Const.WARNING_CROP_EXPIRED_CODE, Const.WARNING_CROP_EXPIRED_MSG);
                     var harvestHistory = new HarvestHistory()
                     {
-                        HarvestHistoryCode = $"{CodeAliasEntityConst.HARVEST_HISTORY}-{createRequest.DateHarvest!.Value.ToString("ddmmyyyy")}",
+                        HarvestHistoryCode = $"{CodeAliasEntityConst.HARVEST_HISTORY}-{createRequest.DateHarvest!.Value.ToString("ddMMyyyyHHmmss")}-{CodeAliasEntityConst.CROP}{cropExist.CropId}-{CodeHelper.GenerateCode()}",
                         DateHarvest = createRequest.DateHarvest,
                         HarvestHistoryNote = createRequest.HarvestHistoryNote,
                         HarvestStatus = HarvestStatusConst.NOT_YET,
-
+                        TotalPrice = createRequest.TotalPrice,
+                        CropId = cropExist.CropId,
                     };
 
                     if (createRequest.HarvestTypeHistories?.Any() == true)
@@ -85,7 +87,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 MasterTypeId = item.MasterTypeId,
                                 Price = item.Price,
                                 Unit = item.Unit,
+                                Quantity = item.Quantity,
+                                //ProcessId = item.ProcessId ?? null,
                             };
+                            if (item.ProcessId.HasValue)
+                            {
+                                var processExists = await _unitOfWork.ProcessRepository.GetByID(item.ProcessId.Value);
+                                if (processExists != null)
+                                {
+                                    historyType.ProcessId = item.ProcessId;
+                                }
+                            }
                             harvestHistory.HarvestTypeHistories.Add(historyType);
                         }
                     }
@@ -100,13 +112,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
-                        await transaction.CommitAsync();
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE, Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await transaction.CommitAsync();
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
                 }
             }

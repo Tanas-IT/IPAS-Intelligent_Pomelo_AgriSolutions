@@ -47,5 +47,28 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .FirstOrDefaultAsync();
             return getMasterTypeByName!;
         }
+
+        public async Task<int> GetLastMasterType()
+        {
+            var lastMasterType = await _context.MasterTypes
+                 .OrderByDescending(p => p.MasterTypeId) // Lấy mã lớn nhất
+                 .Select(p => p.MasterTypeId)
+                 .FirstOrDefaultAsync();
+            return lastMasterType;
+        }
+
+        public async Task<int> AddMasterType(MasterType newMasterType)
+        {
+            await _context.MasterTypes.AddAsync(newMasterType);
+            var result = await _context.SaveChangesAsync();
+            return result;
+        }
+        public async Task<int> GetLastID()
+        {
+            var lastId = await _context.MasterTypes.MaxAsync(x => x.MasterTypeId);
+            if (lastId <= 0)
+                return 1;
+            return lastId + 1;
+        }
     }
 }
