@@ -18,6 +18,7 @@ public partial class Criteria
     public bool? IsActive { get; set; }
 
     public bool? IsChecked { get; set; }
+    public bool? IsDefault { get; set; }
 
     public int? MasterTypeID { get; set; }
 

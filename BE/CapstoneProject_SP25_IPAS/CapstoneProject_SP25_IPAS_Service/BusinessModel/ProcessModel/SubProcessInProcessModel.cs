@@ -30,6 +30,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public int? ProcessId { get; set; }
 
         public int? ProcessStyleId { get; set; }
+
+        public int? Order {  get; set; }
         public List<ProcessDataInProcessModel>? ListSubProcessData { get; set; } = new List<ProcessDataInProcessModel>();
     }
 }

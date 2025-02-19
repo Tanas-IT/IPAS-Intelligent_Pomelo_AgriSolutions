@@ -43,7 +43,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<WorkLog>> GetWorkLogs(int landPlotId, int year)
         {
             return await _context.WorkLogs
-                .Where(w => w.Schedule.CarePlan.LandPlot.LandPlotId == landPlotId && w.Date.HasValue && w.Date.Value.Year == year)
+                .Where(w => w.Schedule.CarePlan.PlanTargets.Any(x => x.LandPlot.LandPlotId == landPlotId) && w.Date.HasValue && w.Date.Value.Year == year)
                 .ToListAsync();
         }
 
@@ -80,21 +80,26 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 query = query.Where(filter);
             }
-            query = query.Include(x => x.LandPlot)
-                          .Include(x => x.PlantLot)
-                          .Include(x => x.MasterType)
-                          .Include(x => x.Process)
-                          .Include(x => x.GrowthStage)
-                          .Include(x => x.User)
-                          .Include(x => x.Crop)
-                          .Include(x => x.Plant)
-                          .Include(x => x.GraftedPlant)
-                          .Include(x => x.CarePlanSchedule)
-                          .ThenInclude(x => x.WorkLogs)
-                          .ThenInclude(x => x.UserWorkLogs)
-                          .ThenInclude(x => x.User);
-                          
-           
+            query = query
+                    .Include(x => x.PlanTargets) // Gọi 1 lần
+                        .ThenInclude(pt => pt.LandPlot)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.PlantLot)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.Plant)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.GraftedPlant)
+                    .Include(x => x.MasterType)
+                    .Include(x => x.Process)
+                    .Include(x => x.GrowthStage)
+                    .Include(x => x.User)
+                    .Include(x => x.Crop)
+                    .Include(x => x.CarePlanSchedule)
+                        .ThenInclude(cs => cs.WorkLogs)
+                            .ThenInclude(wl => wl.UserWorkLogs)
+                                .ThenInclude(uwl => uwl.User);
+
+
             if (orderBy != null)
             {
                 query = orderBy(query);

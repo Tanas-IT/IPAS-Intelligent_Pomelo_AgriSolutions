@@ -48,6 +48,7 @@ public partial class User
     public virtual ICollection<ChatRoom> ChatRooms { get; set; } = new List<ChatRoom>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public virtual ICollection<Notification> NotificationSenders { get; set; } = new List<Notification>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
@@ -59,4 +60,5 @@ public partial class User
 
     public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
+    public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
 }

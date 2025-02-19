@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
             }
 
             return input.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(s => s.Trim()) 
+                        .Select(s => s.Trim().ToLower()) 
                         .ToList();
         }
     }

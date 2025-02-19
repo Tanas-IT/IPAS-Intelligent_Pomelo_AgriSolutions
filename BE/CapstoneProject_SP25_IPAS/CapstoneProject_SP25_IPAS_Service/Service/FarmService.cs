@@ -116,6 +116,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetFarmByID(int farmId)
         {
+            //Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDeleted != true;
+            //string includeProperties = "Farm,Role,User";
             var farm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
             // kiem tra null
             if (farm == null)
@@ -157,7 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                   || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDeleted != true);
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "farmId":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

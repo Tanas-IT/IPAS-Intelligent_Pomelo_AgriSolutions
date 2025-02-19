@@ -36,4 +36,5 @@ public partial class LandRow
 
     public virtual ICollection<Plant> Plants { get; set; } = new List<Plant>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
+    public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
 }

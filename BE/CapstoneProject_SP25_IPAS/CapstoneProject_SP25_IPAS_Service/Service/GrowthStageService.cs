@@ -83,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       || x.GrowthStageName.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
                 }
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "growthstageid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

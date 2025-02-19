@@ -34,6 +34,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public string? ResourceUrl { get; set; }
 
         public string? Input { get; set; }
+        public int? Order { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<SubProcessInProcessModel>? SubProcesses { get; set; } = new List<SubProcessInProcessModel>();
         //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -44,7 +44,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TypeOfValue = createMasterTypeDetailModel.TypeOfValue,
                         ForeignKeyId = createMasterTypeDetailModel.ForeignKeyId,
                         ForeignKeyTable = createMasterTypeDetailModel.ForeignKeyTable,
-                        //MasterTypeId = createMasterTypeDetailModel.MasterTypeId
                     };
                     await _unitOfWork.MasterTypeDetailRepostiory.Insert(newMasterTypeDetail);
 
@@ -114,7 +113,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.ForeignKeyTable.Contains(masterTypeDetailFilter.ForeignTable));
                 }
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "mastertypedetailid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -262,7 +261,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeModel.MasterTypeDetailId);
+                if (!updateMasterTypeModel.MasterTypeDetailId.HasValue)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG );
+                }
+                var checkExistMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeModel.MasterTypeDetailId!.Value);
                 if (checkExistMasterTypeDetail != null)
                 {
                     if (updateMasterTypeModel.MasterTypeDetailName != null)
@@ -285,10 +288,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistMasterTypeDetail.ForeignKeyTable = updateMasterTypeModel.ForeignKeyTable;
                     }
-                    if (updateMasterTypeModel.MasterTypeId != null)
-                    {
-                        checkExistMasterTypeDetail.MasterTypeId = updateMasterTypeModel.MasterTypeId;
-                    }
+                    //if (updateMasterTypeModel.MasterTypeId != null)
+                    //{
+                    //    checkExistMasterTypeDetail.MasterTypeId = updateMasterTypeModel.MasterTypeId;
+                    //}
 
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
