@@ -29,5 +29,5 @@ public partial class Order
 
     public virtual Package? Package { get; set; }
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public virtual Payment? Payment { get; set; }
 }

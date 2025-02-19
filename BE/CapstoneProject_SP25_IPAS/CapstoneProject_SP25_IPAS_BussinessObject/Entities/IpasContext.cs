@@ -100,6 +100,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
     public virtual DbSet<Type_Type> Type_Types { get; set; }
+    public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -232,6 +233,7 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsChecked).HasColumnName("isChecked");
+            entity.Property(e => e.IsDefault).HasColumnName("isDefault");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Criterias)
                .HasForeignKey(d => d.MasterTypeID)
@@ -427,6 +429,7 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.CropId).HasColumnName("CropID");
+            entity.Property(e => e.isDelete).HasColumnName("isDelete");
             entity.Property(e => e.DateHarvest).HasColumnType("datetime");
             entity.Property(e => e.HarvestHistoryCode)
                 .HasMaxLength(50)
@@ -595,7 +598,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Farm).WithMany(p => p.MasterTypes)
-                .HasForeignKey(d => d.MasterTypeId)
+                .HasForeignKey(d => d.FarmID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Master_Type_Farm__22751F6C");
         });
@@ -633,7 +636,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.Content).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.IsRead).HasColumnName("isRead");
+            entity.Property(e => e.SenderID).HasColumnName("SenderID");
             entity.Property(e => e.Link)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -644,17 +647,16 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Notifications)
                 .HasForeignKey(d => d.MasterTypeId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("Notification_MasterType_FK");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Notifications)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_Notification_User");
+            entity.HasOne(d => d.Sender).WithMany(p => p.NotificationSenders)
+               .HasForeignKey(d => d.SenderID)
+               .OnDelete(DeleteBehavior.Cascade)
+               .HasConstraintName("FK_Notification_Sender");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -786,10 +788,11 @@ public partial class IpasContext : DbContext
                 .HasColumnName("TransactionID");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Payment__OrderID__28ED12D1");
+            entity.HasOne(d => d.Order)
+                    .WithOne(p => p.Payment)
+                    .HasForeignKey<Payment>(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK__Payment__OrderID__28ED12D1");
         });
 
         modelBuilder.Entity<Plan>(entity =>
@@ -799,7 +802,6 @@ public partial class IpasContext : DbContext
             entity.ToTable("Plan");
 
             entity.Property(e => e.PlanId).HasColumnName("PlanID");
-            entity.Property(e => e.LandRowID).HasColumnName("LandRowID");
             entity.Property(e => e.AssignorId).HasColumnName("AssignorID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CropId).HasColumnName("CropID");
@@ -809,7 +811,6 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.GrowthStageId).HasColumnName("GrowthStageID");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.LandPlotId).HasColumnName("LandPlotID");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.Notes)
                 .HasMaxLength(255)
@@ -821,8 +822,6 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.PlanDetail).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PlantId).HasColumnName("PlantID");
-            entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");
             entity.Property(e => e.ProcessId).HasColumnName("ProcessID");
             entity.Property(e => e.ResponsibleBy)
                 .HasMaxLength(50)
@@ -833,10 +832,7 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.LandPlot).WithMany(p => p.Plans)
-                .HasForeignKey(d => d.LandPlotId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Plan__LandPlotID__1DB06A4F");
+            
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Plans)
                 .HasForeignKey(d => d.MasterTypeId)
@@ -848,10 +844,7 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Plan_GrowStage_FK");
 
-            entity.HasOne(d => d.PlantLot).WithMany(p => p.Plans)
-                .HasForeignKey(d => d.PlantLotId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("Plan_PlantLot_FK");
+           
 
             entity.HasOne(d => d.Process).WithMany(p => p.Plans)
                 .HasForeignKey(d => d.ProcessId)
@@ -867,17 +860,9 @@ public partial class IpasContext : DbContext
               .HasForeignKey(d => d.CropId)
               .HasConstraintName("FK_Plan_Crop");
 
-            entity.HasOne(d => d.Plant).WithMany(p => p.Plans)
-             .HasForeignKey(d => d.PlantId)
-             .HasConstraintName("FK_Plan_Plant");
+           
 
-            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Plans)
-             .HasForeignKey(d => d.GraftedPlantId)
-             .HasConstraintName("FK_Plan_GraftedPlant");
-
-            entity.HasOne(d => d.LandRow).WithMany(p => p.Plans)
-            .HasForeignKey(d => d.LandRowID)
-            .HasConstraintName("FK_Plan_LandRow");
+           
         });
 
         modelBuilder.Entity<Plant>(entity =>
@@ -1395,6 +1380,64 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });
 
+        modelBuilder.Entity<PlanNotification>(entity =>
+        {
+            entity.HasKey(e => e.PlanNotificationID).HasName("PK__PlanNotification__2EE54234ADBB5");
+
+            entity.Property(e => e.PlanID).HasColumnName("PlanID");
+            entity.Property(e => e.NotificationID).HasColumnName("NotificationID");
+            entity.Property(e => e.UserID).HasColumnName("UserID");
+            entity.Property(e => e.isRead).HasColumnName("isRead");
+            entity.Property(e => e.CreatedDate).HasColumnName("CreateDate");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.PlanNotifications)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK__PlanNotification__Plan__32673C52");
+
+            entity.HasOne(d => d.Notification).WithMany(p => p.PlanNotifications)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK__PlanNotification__Notification__3B451819");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PlanNotifications)
+               .HasForeignKey(d => d.UserID)
+               .HasConstraintName("FK__PlanNotification__User__38H51819");
+        });
+
+        modelBuilder.Entity<PlanTarget>(entity =>
+        {
+            entity.HasKey(e => e.PlanTargetID).HasName("PK__PlanTarget__2456GHYRT5");
+
+            entity.Property(e => e.PlanID).HasColumnName("PlanID");
+            entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");
+            entity.Property(e => e.LandPlotID).HasColumnName("LandPlotID");
+            entity.Property(e => e.LandRowID).HasColumnName("LandRowID");
+            entity.Property(e => e.PlantLotID).HasColumnName("PlantLotID");
+            entity.Property(e => e.PlantID).HasColumnName("PlantID");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.PlanTargets)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK_PlanTarget_Plan__345619C52");
+
+            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.PlanTargets)
+                .HasForeignKey(d => d.GraftedPlantID)
+                .HasConstraintName("FK_PlanTarget_GraftedPlant_3B445629");
+
+            entity.HasOne(d => d.LandPlot).WithMany(p => p.PlanTargets)
+               .HasForeignKey(d => d.LandPlotID)
+               .HasConstraintName("FK__PlanTarget_LandPlot__39KH52829");
+
+            entity.HasOne(d => d.LandRow).WithMany(p => p.PlanTargets)
+              .HasForeignKey(d => d.LandRowID)
+              .HasConstraintName("FK__PlanTarget_LandRow__3256JH9");
+
+            entity.HasOne(d => d.PlantLot).WithMany(p => p.PlanTargets)
+              .HasForeignKey(d => d.PlantLotID)
+              .HasConstraintName("FK__PlanTarget_PlantLot__4056AE34");
+
+            entity.HasOne(d => d.Plant).WithMany(p => p.PlanTargets)
+              .HasForeignKey(d => d.PlantID)
+              .HasConstraintName("FK__PlanTarget_Plant__352ET4678");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

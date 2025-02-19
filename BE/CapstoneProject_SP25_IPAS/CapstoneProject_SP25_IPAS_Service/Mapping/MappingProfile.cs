@@ -143,18 +143,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User.FullName))
-               .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
-               .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot.PlantLotName))
-               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+                .ForMember(dest => dest.LandPlotNames, opt => opt.MapFrom(src =>
+                                                           src.PlanTargets.Select(pt => pt.LandPlot.LandPlotName).Distinct().ToList()))
+               .ForMember(dest => dest.PlantLotNames, opt => opt.MapFrom(src =>
+                                                            src.PlanTargets.Select(pt => pt.PlantLot.PlantLotName).Distinct().ToList()))
+                .ForMember(dest => dest.PlantNames, opt => opt.MapFrom(src =>
+                                                            src.PlanTargets.Select(pt => pt.Plant.PlantName).Distinct().ToList()))
                .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process.ProcessName))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage.GrowthStageName))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType.MasterTypeName))
+               .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User.AvatarURL))
                .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
                                                                 src.CarePlanSchedule.WorkLogs
                                                                     .SelectMany(wl => wl.UserWorkLogs)
                                                                     .Where(uwl => uwl.IsReporter == true)
+                                                                    .Select(uwl => uwl.User)
+                                                                    .Distinct()
+                                                                    .ToList()))
+               .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src =>
+                                                                src.CarePlanSchedule.WorkLogs
+                                                                    .SelectMany(wl => wl.UserWorkLogs)
+                                                                    .Where(uwl => uwl.IsReporter == false)
                                                                     .Select(uwl => uwl.User)
                                                                     .Distinct()
                                                                     .ToList()))

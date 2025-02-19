@@ -172,6 +172,7 @@ CREATE TABLE ipas.dbo.Criteria (
 	Priority int NULL,
 	isActive bit NULL,
 	isChecked bit NULL,
+        isDefault bit NULL,
 	MasterTypeID int NULL,
 	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
 	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
@@ -225,6 +226,7 @@ CREATE TABLE ipas.dbo.HarvestHistory (
 	TotalPrice float NULL,
 	HarvestStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CropID int NULL,
+        isDelete bit NULL,
 	CONSTRAINT PK__HarvestH__F15734AD189BFCA2 PRIMARY KEY (HarvestHistoryID),
 	CONSTRAINT HarvestHistory_Crop_FK FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID) ON DELETE SET NULL
 );
@@ -554,6 +556,7 @@ CREATE TABLE ipas.dbo.Process (
 	isDeleted bit NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
+        Order int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -561,6 +564,23 @@ CREATE TABLE ipas.dbo.Process (
 	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
 	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Process_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
+);
+
+CREATE TABLE ipas.dbo.PlanTarget (
+	PlanTargetID int IDENTITY(1,1) NOT NULL,
+	PlanID int NULL,
+	LandRowID int NULL,
+	LandPlotID int NULL,
+	GraftedPlantID int NULL,
+	PlantLotID int NULL,
+	PlantID int NULL,
+	CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
+	CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
+	CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
+	CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
+	CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 
 
@@ -580,6 +600,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	isDeleted bit NULL,
+        Order int NULL,
 	ProcessID int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -746,12 +767,11 @@ CREATE TABLE ipas.dbo.Notification (
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Link nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
-	isRead bit NULL,
-	UserID int NULL,
 	MasterTypeID int NULL,
+	SenderID int NULL,
 	CONSTRAINT PK__Notifica__20CF2E32F94B5C5B PRIMARY KEY (NotificationID),
-	CONSTRAINT FK_Notification_User FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
-	CONSTRAINT Notification_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
+	CONSTRAINT Notification_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
+	CONSTRAINT Notification_User_FK FOREIGN KEY (SenderID) REFERENCES ipas.dbo.[User](UserID)
 );
 
 
@@ -774,8 +794,6 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlanDetail nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	ResponsibleBy nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
-	LandPlotID int NULL,
 	AssignorID int NULL,
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
@@ -783,25 +801,16 @@ CREATE TABLE ipas.dbo.[Plan] (
 	ProcessID int NULL,
 	CropID int NULL,
 	GrowthStageID int NULL,
-	PlantLotID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantID int NULL,
-        LandRowID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT FK__Plan__LandPlotID__1DB06A4F FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE,
-	CONSTRAINT Plan_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
-	CONSTRAINT Plan_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID),
-	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID),
-        CONSTRAINT Plan_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.[LandRow](LandRowID)
+	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
 );
-
 
 -- ipas.dbo.RefreshToken definition
 
@@ -822,6 +831,18 @@ CREATE TABLE ipas.dbo.RefreshToken (
 	CONSTRAINT FK__RefreshTo__UserI__3BFFE745 FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE
 );
 
+CREATE TABLE ipas.dbo.PlanNotification (
+	PlanNotificationID int IDENTITY(0,1) NOT NULL,
+	PlanID int NULL,
+	NotificationID int NULL,
+	UserID int NULL,
+	isRead bit NULL,
+	CreateDate datetime NULL,
+	CONSTRAINT PlanNotification_PK PRIMARY KEY (PlanNotificationID),
+	CONSTRAINT PlanNotification_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID),
+	CONSTRAINT PlanNotification_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
+	CONSTRAINT PlanNotification_Notification_FK FOREIGN KEY (NotificationID) REFERENCES ipas.dbo.Notification(NotificationID)
+);
 
 -- ipas.dbo.CarePlanSchedule definition
 

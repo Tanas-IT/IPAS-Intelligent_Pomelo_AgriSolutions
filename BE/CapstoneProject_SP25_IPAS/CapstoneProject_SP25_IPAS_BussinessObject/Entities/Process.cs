@@ -30,6 +30,7 @@ public partial class Process
     public string? ResourceUrl { get; set; }
 
     public string? Input { get; set; }
+    public int? Order { get; set; }
 
     public virtual MasterType? MasterType { get; set; }
     public virtual Farm? Farm { get; set; }

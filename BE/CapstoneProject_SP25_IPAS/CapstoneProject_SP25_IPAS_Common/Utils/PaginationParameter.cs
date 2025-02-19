@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
         [FromQuery(Name = "pageIndex")]
         public int PageIndex { get; set; } = 1;
         [FromQuery(Name = "pageSize")]
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; set; } = 5;
         [FromQuery(Name = "searchKey")]
         public string? Search { get; set; }
         [FromQuery(Name = "sortBy")]

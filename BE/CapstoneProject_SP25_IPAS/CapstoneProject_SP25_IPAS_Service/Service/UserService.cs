@@ -877,7 +877,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     int validInt = 0;
                     var checkInt = int.TryParse(paginationParameter.Search, out validInt);
                     DateTime validDate = DateTime.Now;
-                    bool validBool = false;
                     if (checkInt)
                     {
                         filter = x => x.UserId == validInt;
@@ -886,10 +885,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         filter = x => x.CreateDate == validDate
                                       || x.UpdateDate == validDate || x.Dob == validDate;
-                    }
-                    else if (Boolean.TryParse(paginationParameter.Search, out validBool))
-                    {
-                        filter = x => x.IsDelete == validBool;
                     }
                     else
                     {
@@ -903,7 +898,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       || x.Status.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
                 }
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "userid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -985,7 +980,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.UserRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<UserModel>();
                 pagin.List = _mapper.Map<List<UserModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.UserRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.UserRepository.Count(x => x.IsDelete == false);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
