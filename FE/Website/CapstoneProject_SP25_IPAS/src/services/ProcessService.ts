@@ -52,7 +52,8 @@ export const getProcessDetail = async (processId: string) => {
     masterTypeName: apiResponse.data.masterTypeName,
     growthStageName: apiResponse.data.growthStageName,
     subProcesses: apiResponse.data.subProcesses,
-    listProcessData: apiResponse.data.listProcessData
+    listProcessData: apiResponse.data.listProcessData,
+    order: apiResponse.data.order
   };
 };
 

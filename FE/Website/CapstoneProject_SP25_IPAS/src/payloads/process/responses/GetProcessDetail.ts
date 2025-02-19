@@ -6,6 +6,7 @@ export interface SubProcess {
     isDefault: boolean;
     isActive: boolean;
     createDate: string;
+    order: number;
     updateDate: string;
     isDeleted: boolean;
     processId: number;
@@ -17,6 +18,7 @@ export interface SubProcess {
     processCode: string;
     processName: string;
     isDefault: boolean;
+    order: number;
     isActive: boolean;
     createDate: string;
     updateDate: string;
