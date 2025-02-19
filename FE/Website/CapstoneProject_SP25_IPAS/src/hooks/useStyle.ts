@@ -196,6 +196,11 @@ const useStyle = createStyles(({ css }) => {
         background-color: ${secondColor} !important;
       }
     `,
+    customDateRange: css`
+      .ant-picker-active-bar {
+        background-color: ${secondColor} !important;
+      }
+    `,
   };
 });
 

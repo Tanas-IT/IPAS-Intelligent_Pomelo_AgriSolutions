@@ -1,20 +1,22 @@
 import { useStyle } from "@/hooks";
-import { Select, Form, Flex, DatePicker, Input } from "antd";
+import { Select, Form, Flex, DatePicker, Input, Switch, ColorPicker } from "antd";
 import style from "./FormFieldModal.module.scss";
-import { Dayjs } from "dayjs";
+import { useCallback, useEffect, useState } from "react";
 
 interface FormFieldModalProps {
   label: string;
   description?: string;
   name: string;
   rules?: any[];
-  type?: "text" | "textarea" | "date" | "select";
+  type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker";
   options?: { value: string; label: string }[];
   readonly?: boolean;
   onChange?: (value: any) => void;
   isLoading?: boolean;
   isSearch?: boolean;
+  isActive?: boolean;
   placeholder?: string;
+  direction?: "row" | "col";
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
@@ -28,10 +30,21 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   onChange,
   isLoading = false,
   isSearch = true,
+  isActive = false,
   placeholder = `Enter ${label.toLowerCase()}`,
+  direction = "col",
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
+  const [checked, setChecked] = useState<boolean>(isActive);
+
+  useEffect(() => {
+    setChecked(isActive ?? false);
+  }, [isActive]);
+
+  const handleSwitchChange = (checked: boolean) => {
+    setChecked(checked);
+  };
 
   const renderInput = () => {
     switch (type) {
@@ -57,6 +70,26 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             onChange={onChange}
           />
         );
+      case "switch":
+        return (
+          <Switch
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+            checked={checked}
+            onChange={handleSwitchChange}
+            className={`${styles.customSwitch} ${checked ? style.active : style.inActive}`}
+          />
+        );
+      case "colorPicker":
+        return (
+          <ColorPicker
+            defaultValue="#1677ff"
+            format="hex"
+            size="small"
+            showText
+            className={`${style.colorPicker}`}
+          />
+        );
       default:
         return (
           <Input
@@ -70,7 +103,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   };
 
   return (
-    <Flex className={style.formSection}>
+    <Flex className={`${style.formSection} ${style[direction]}`}>
       <Flex className={style.formSectionTitle}>
         <label className={style.formTitle}>
           {label} {isRequired && <span style={{ color: "red" }}>*</span>}

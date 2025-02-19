@@ -1,0 +1,15 @@
+.headerWrapper {
+  justify-content: space-between;
+  align-items: center;
+  .sectionLeft {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .sectionRight {
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

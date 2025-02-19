@@ -53,8 +53,7 @@
     row-gap: 20px;
     overflow: hidden;
 
-    .tableText,
-    .tableExpandText {
+    .tableText {
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -62,10 +61,16 @@
       text-overflow: ellipsis;
       white-space: normal;
     }
+  }
+}
 
-    .tableExpandText {
-      font-size: 13px;
-    }
+@mixin filterContent {
+  padding: 10px;
+
+  input,
+  label,
+  span {
+    font-size: 16px !important;
   }
 }
 
@@ -141,8 +146,17 @@
 }
 
 @mixin formSection {
-  width: 100%;
-  flex-direction: column;
+  // width: 100%;
+  &.row {
+    flex-direction: row;
+    gap: 4px;
+    label {
+      margin-top: 4px;
+    }
+  }
+  &.col {
+    flex-direction: column;
+  }
   input,
   select,
   span {
@@ -155,6 +169,7 @@
       font-size: 16px;
       color: vars.$color_primary !important;
       font-weight: bold;
+      white-space: nowrap;
     }
 
     .formDescription {

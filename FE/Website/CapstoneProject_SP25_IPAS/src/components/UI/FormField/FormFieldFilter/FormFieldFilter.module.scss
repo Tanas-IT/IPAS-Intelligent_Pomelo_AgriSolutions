@@ -1,0 +1,20 @@
+@use "@/styles/variables.scss" as vars;
+
+.section {
+  max-width: 24vw;
+  flex-direction: column;
+  margin-bottom: 10px;
+  .title {
+    color: vars.$color_primary !important;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .dateRange {
+    &:hover,
+    &:focus,
+    &:focus-within {
+      border-color: vars.$color_primary !important;
+      box-shadow: none;
+    }
+  }
+}
