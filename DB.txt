@@ -556,7 +556,7 @@ CREATE TABLE ipas.dbo.Process (
 	isDeleted bit NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
-        Order int NULL,
+        [Order] int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -564,23 +564,6 @@ CREATE TABLE ipas.dbo.Process (
 	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
 	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Process_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
-);
-
-CREATE TABLE ipas.dbo.PlanTarget (
-	PlanTargetID int IDENTITY(1,1) NOT NULL,
-	PlanID int NULL,
-	LandRowID int NULL,
-	LandPlotID int NULL,
-	GraftedPlantID int NULL,
-	PlantLotID int NULL,
-	PlantID int NULL,
-	CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
-	CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
-	CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
-	CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
-	CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
-	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
-	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 
 
@@ -600,7 +583,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	isDeleted bit NULL,
-        Order int NULL,
+    [Order] int NULL,
 	ProcessID int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -985,6 +968,23 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (WorkLogID,UserID),
 	CONSTRAINT FK__UserWorkL__UserI__43A1090D FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
+);
+
+CREATE TABLE ipas.dbo.PlanTarget (
+	PlanTargetID int IDENTITY(1,1) NOT NULL,
+	PlanID int NULL,
+	LandRowID int NULL,
+	LandPlotID int NULL,
+	GraftedPlantID int NULL,
+	PlantLotID int NULL,
+	PlantID int NULL,
+	CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
+	CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
+	CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
+	CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
+	CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 GO
 
