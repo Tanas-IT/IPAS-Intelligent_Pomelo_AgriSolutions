@@ -52,8 +52,6 @@ export const handleApiError = async (error: any) => {
         toast.error(MESSAGES.BAD_REQUEST);
         break;
       default:
-        console.log(error);
-
         toast.error(MESSAGES.ERROR_OCCURRED);
     }
   } else {

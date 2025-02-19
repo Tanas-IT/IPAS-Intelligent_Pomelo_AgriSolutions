@@ -30,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public int? PlantId { get; set; }
 
         public int? LandPlotId { get; set; }
+        public int? LandRowId { get; set; }
 
         public int? AssignorId { get; set; }
 
@@ -54,6 +55,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public List<int>? DayOfMonth { get; set; }
         public List<DateTime>? CustomDates { get; set; }
         public List<EmployeeModel> ListEmployee { get; set; } = new List<EmployeeModel>();
+        public List<PlanTargetModel>? PlanTargetModel { get; set; }
+        public List<UpdatePlanTargetModel> UpdatePlanTargetModels { get; set; } = new List<UpdatePlanTargetModel>();
         [Required]
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
@@ -63,6 +66,43 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
             ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string EndTime { get; set; }
+
+        // ✅ Constructor mặc định
+        public UpdatePlanModel() { }
+
+        // ✅ Constructor copy để tạo bản sao
+        public UpdatePlanModel(UpdatePlanModel model)
+        {
+            PlanId = model.PlanId;
+            Status = model.Status;
+            PlanName = model.PlanName;
+            StartDate = model.StartDate;
+            EndDate = model.EndDate;
+            IsActive = model.IsActive;
+            Notes = model.Notes;
+            PlanDetail = model.PlanDetail;
+            ResponsibleBy = model.ResponsibleBy;
+            Frequency = model.Frequency;
+            PlantId = model.PlantId;
+            LandPlotId = model.LandPlotId;
+            LandRowId = model.LandRowId;
+            AssignorId = model.AssignorId;
+            PesticideName = model.PesticideName;
+            MaxVolume = model.MaxVolume;
+            MinVolume = model.MinVolume;
+            ProcessId = model.ProcessId;
+            CropId = model.CropId;
+            GrowthStageId = model.GrowthStageId;
+            PlantLotId = model.PlantLotId;
+            IsDelete = model.IsDelete;
+            MasterTypeId = model.MasterTypeId;
+            DayOfWeek = model.DayOfWeek != null ? new List<int>(model.DayOfWeek) : null;
+            DayOfMonth = model.DayOfMonth != null ? new List<int>(model.DayOfMonth) : null;
+            CustomDates = model.CustomDates != null ? new List<DateTime>(model.CustomDates) : null;
+            ListEmployee = model.ListEmployee != null ? new List<EmployeeModel>(model.ListEmployee) : new List<EmployeeModel>();
+            StartTime = model.StartTime;
+            EndTime = model.EndTime;
+        }
 
     }
 }

@@ -18,5 +18,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public bool? IsActive { get; set; }
 
         public int? MasterTypeId { get; set; }
+        public int? Order { get; set; }
     }
 }

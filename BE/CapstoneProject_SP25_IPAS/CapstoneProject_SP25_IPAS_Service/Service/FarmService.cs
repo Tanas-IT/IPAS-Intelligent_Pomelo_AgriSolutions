@@ -159,7 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                   || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDeleted != true);
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "farmId":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

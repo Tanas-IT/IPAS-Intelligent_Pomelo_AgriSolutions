@@ -146,7 +146,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.Process.ProcessName.Contains(subProcessFilters.ProcessName));
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "subprocessid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -222,7 +222,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.SubProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<SubProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<SubProcessModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.SubProcessRepository.Count(x => x.IsDeleted == false);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {

@@ -171,9 +171,69 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<WorkLog>> GetWorkLogInclude()
         {
             return await _context.WorkLogs.Include(x => x.Schedule)
-                        .Include(x => x.Schedule.CarePlan.LandPlot.Farm)
-                        .Include(x => x.Schedule.CarePlan.Plant.LandRow.LandPlot.Farm)
+                        .Include(x => x.Schedule.CarePlan.PlanTargets)
+                        .ThenInclude(x => x.LandPlot.Farm)
+                        .Include(x => x.Schedule.CarePlan.PlanTargets)
+                        .ThenInclude(x => x.Plant)
+                        .ThenInclude(x => x.LandRow)
+                        .ThenInclude(x => x.LandPlot)
+                        .ThenInclude(x => x.Farm)
                         .ToListAsync();
+        }
+
+        public async Task<bool> CheckConflictTimeOfWorkLog(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck)
+        {
+            // Lấy danh sách WorkLog trong ngày dayCheck
+            var workLogs = await _context.WorkLogs
+                .Where(x => x.Date.HasValue && x.Date.Value.Date == dayCheck.Date)
+                .ToListAsync();
+
+            // Danh sách chứa lịch trình của từng WorkLog
+            var scheduleList = new List<CarePlanSchedule>();
+
+            foreach (var workLog in workLogs)
+            {
+                if (workLog.ScheduleId == null) continue;
+
+                var schedule = await _context.CarePlanSchedules
+                    .FirstOrDefaultAsync(x => x.ScheduleId == workLog.ScheduleId);
+
+                if (schedule != null && schedule.StarTime.HasValue && schedule.EndTime.HasValue)
+                {
+                    scheduleList.Add(schedule);
+                }
+            }
+
+            // Kiểm tra xung đột giữa WorkLog mới với các lịch trình hiện có
+            foreach (var schedule in scheduleList)
+            {
+                bool isOverlap = newStartTime < schedule.EndTime &&
+                                 newEndTime > schedule.StarTime;
+
+                if (isOverlap)
+                    return true; // Có xung đột
+            }
+
+            return false; // Không có xung đột, có thể thêm WorkLog mới
+        }
+
+        public async Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, int? treeId, int? rowId, int? plotId)
+        {
+            return await _context.WorkLogs
+                           .Include(w => w.Schedule)
+                           .ThenInclude(s => s.CarePlan)
+                           .ThenInclude(c => c.PlanTargets)
+                           .Where(w =>
+                               w.Date == date &&
+                               ((w.Schedule.StarTime < endTime && w.Schedule.EndTime > startTime) ||
+                                (startTime < w.Schedule.EndTime && endTime > w.Schedule.StarTime)) &&
+                               w.Schedule.CarePlan.PlanTargets.Any(pt =>
+                                   (treeId != null && pt.PlantID == treeId) ||
+                                   (rowId != null && pt.LandRowID == rowId) ||
+                                   (plotId != null && pt.LandPlotID == plotId)
+                               )
+                           )
+                           .ToListAsync();
         }
     }
 }

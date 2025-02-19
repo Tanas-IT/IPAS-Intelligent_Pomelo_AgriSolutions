@@ -21,5 +21,5 @@ public partial class MasterTypeDetail
 
     public int? MasterTypeId { get; set; }
 
-    public virtual MasterType? MasterType { get; set; }
+   public virtual MasterType? MasterType { get; set; }
 }

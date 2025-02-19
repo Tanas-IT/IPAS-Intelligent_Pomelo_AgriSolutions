@@ -31,11 +31,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return null!;
         }
 
-        public async Task<List<MasterType>> GetMasterTypesByTypeName(string name, int farmId)
+        public async Task<List<MasterType>> GetMasterTypesByTypeName(string name)
         {
             var getMasterTypeByName = await _context.MasterTypes
                 .Where(x => x.TypeName!.ToLower().Contains(name.ToLower())
-                &&(x.FarmID == farmId || x.IsDefault == true))
+                &&(x.IsDefault == true))
                 .ToListAsync();
             if (getMasterTypeByName.Any())
             {
@@ -53,6 +53,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return getMasterTypeByName!;
         }
 
+        public async Task<int> GetLastMasterType()
+        {
+            var lastMasterType = await _context.MasterTypes
+                 .OrderByDescending(p => p.MasterTypeId) // Lấy mã lớn nhất
+                 .Select(p => p.MasterTypeId)
+                 .FirstOrDefaultAsync();
+            return lastMasterType;
+        }
+
+        public async Task<int> AddMasterType(MasterType newMasterType)
+        {
+            await _context.MasterTypes.AddAsync(newMasterType);
+            var result = await _context.SaveChangesAsync();
+            return result;
+        }
         public async Task<int> GetLastID()
         {
             var lastId = await _context.MasterTypes.AsNoTracking().MaxAsync(x => x.MasterTypeId);

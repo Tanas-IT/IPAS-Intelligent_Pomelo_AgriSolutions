@@ -111,13 +111,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
-                        await transaction.CommitAsync();
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE, Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await transaction.CommitAsync();
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
                 }
             }

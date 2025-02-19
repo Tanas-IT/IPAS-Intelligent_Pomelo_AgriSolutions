@@ -1,12 +1,17 @@
 import { Flex, List, Tag, Typography } from "antd";
-import { landPlots } from "./fakedata";
 const { Text } = Typography;
 import { useMemo } from "react";
 import style from "./LandPlot.module.scss";
 import { Icons } from "@/assets";
 import { formatDate } from "@/utils";
+import { GetLandPlot } from "@/payloads";
 
-function PlotListPopup({ onClose }: { onClose: () => void }) {
+interface PlotListPopupProps {
+  onClose: () => void;
+  landPlots: GetLandPlot[];
+}
+
+function PlotListPopup({ onClose, landPlots }: PlotListPopupProps) {
   const plotList = useMemo(
     () => (
       <List

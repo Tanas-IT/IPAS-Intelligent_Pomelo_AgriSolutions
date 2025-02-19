@@ -11,9 +11,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<List<MasterType>> GetMasterTypeByName(string name, int farmId);
 
-        public Task<List<MasterType>> GetMasterTypesByTypeName(string name, int farmId);
+        public Task<List<MasterType>> GetMasterTypesByTypeName(string name);
 
         public Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName);
+        public Task<int> GetLastMasterType();
+        public Task<int> AddMasterType(MasterType newMasterType);
 
         public Task<int> GetLastID();
 

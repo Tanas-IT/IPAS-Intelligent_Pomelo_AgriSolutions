@@ -57,7 +57,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ProcessName = createProcessModel.ProcessName,
                         IsDefault = false,
                         IsActive = createProcessModel.IsActive,
-                        IsDeleted = false
+                        IsDeleted = false,
+                        Order = createProcessModel.Order
                     };
                     var processData = createProcessModel.ProcessData;
                     var getLink = "";
@@ -92,6 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 ParentSubProcessId = subProcess.ParentSubProcessId,
                                 MasterTypeId = subProcess.MasterTypeId,
+                                Order = subProcess.Order
                             };
 
                             newProcess.SubProcesses.Add(newSubProcess);
@@ -165,9 +167,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (processFilters.isActive != null)
                     filter = filter.And(x => x.IsActive == processFilters.isActive);
-                if (processFilters.MasterType != null)
+                if (processFilters.MasterTypeName != null)
                 {
-                    filter = filter.And(x => x.MasterType.MasterTypeName.Contains(processFilters.MasterType));
+                    filter = filter.And(x => x.MasterType.MasterTypeName.Contains(processFilters.MasterTypeName));
                 }
                 if (processFilters.ProcessName != null)
                 {
@@ -179,7 +181,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.GrowthStage.GrowthStageName.Contains(processFilters.GrowthStage));
                 }
 
-                switch (paginationParameter.SortBy)
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "processid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -199,7 +201,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.ProcessName)
                                    : x => x.OrderBy(x => x.ProcessName)) : x => x.OrderBy(x => x.ProcessName);
                         break;
-                    case "masterstylename":
+                    case "mastertypename":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.MasterType.MasterTypeName)
@@ -247,6 +249,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.UpdateDate)
                                    : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
                         break;
+                    case "order":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Order)
+                                   : x => x.OrderBy(x => x.Order)) : x => x.OrderBy(x => x.Order);
+                        break;
                     default:
                         orderBy = x => x.OrderBy(x => x.ProcessId);
                         break;
@@ -255,7 +263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.ProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<ProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<ProcessModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(x => x.IsDeleted == false);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -437,7 +445,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "ProcessData");
+                var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
                 if (checkExistProcess != null)
                 {
                     if (updateProcessModel.ProcessName != null)
@@ -467,6 +475,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateProcessModel.GrowthStageID != null)
                     {
                         checkExistProcess.GrowthStageId = updateProcessModel.GrowthStageID;
+                    }
+                    if (updateProcessModel.Order != null)
+                    {
+                        checkExistProcess.Order = updateProcessModel.Order;
                     }
                     var processData = checkExistProcess.ResourceUrl;
                     if (updateProcessModel.UpdateProcessData != null)
@@ -500,42 +512,81 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
                             var getListSubProcess = await _unitOfWork.SubProcessRepository.GetAllNoPaging();
-                            var getListSubProcessOfProcess = getListSubProcess.Where(x => x.ProcessId == checkExistProcess.ProcessId);
+                            var getListSubProcessOfProcess = getListSubProcess.Where(x => x.ProcessId == checkExistProcess.ProcessId).ToList();
+                            var flag = false;
                             foreach (var item in getListSubProcessOfProcess)
                             {
-                                if (item.SubProcessId != subProcess.SubProcessId)
+                                if (item.SubProcessId == subProcess.SubProcessId)
                                 {
-                                    return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
+                                    flag = true;
                                 }
                             }
-                            var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcess.SubProcessId, "");
-                            if (subProcessUpdate != null)
+                            if (flag)
                             {
-                                if (subProcess.ParentSubProcessId != null)
+                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcess.SubProcessId, "");
+                                if (subProcess.Status.ToLower().Equals("add"))
                                 {
-                                    subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                    var newSubProcess = new SubProcess()
+                                    {
+                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                        MasterTypeId = subProcess.MasterTypeId,
+                                        SubProcessName = subProcess.SubProcessName,
+                                        IsDefault = subProcess.IsDefault,
+                                        IsActive = subProcess.IsActive,
+                                        IsDeleted = subProcess.IsDeleted,
+                                        ParentSubProcessId = subProcess.ParentSubProcessId,
+                                        CreateDate = DateTime.Now,
+                                        UpdateDate = DateTime.Now,
+                                    };
+                                    checkExistProcess.SubProcesses.Add(newSubProcess);
                                 }
-                                if (subProcess.SubProcessName != null)
+                                else if (subProcess.Status.ToLower().Equals("update"))
                                 {
-                                    subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                    if (subProcessUpdate != null)
+                                    {
+                                        if (subProcess.ParentSubProcessId != null)
+                                        {
+                                            subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                        }
+                                        if (subProcess.SubProcessName != null)
+                                        {
+                                            subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                        }
+                                        if (subProcess.IsDefault != null)
+                                        {
+                                            subProcessUpdate.IsDefault = subProcess.IsDefault;
+                                        }
+                                        if (subProcess.IsActive != null)
+                                        {
+                                            subProcessUpdate.IsActive = subProcess.IsActive;
+                                        }
+                                        if (subProcess.IsDeleted != null)
+                                        {
+                                            subProcessUpdate.IsDeleted = subProcess.IsDeleted;
+                                        }
+                                        if (subProcess.MasterTypeId != null)
+                                        {
+                                            subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
+                                        }
+                                        if (subProcess.Order != null)
+                                        {
+                                            subProcessUpdate.Order = subProcess.MasterTypeId;
+                                        }
+                                        subProcessUpdate.UpdateDate = DateTime.Now;
+                                    }
                                 }
-                                if (subProcess.IsDefault != null)
+                                else if (subProcess.Status.ToLower().Equals("delete"))
                                 {
-                                    subProcessUpdate.IsDefault = subProcess.IsDefault;
+                                    var checkSubProcessDeletet = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId);
+                                    if (checkSubProcessDeletet != null)
+                                    {
+                                        _unitOfWork.SubProcessRepository.Delete(checkSubProcessDeletet);
+                                    }
                                 }
-                                if (subProcess.IsActive != null)
-                                {
-                                    subProcessUpdate.IsActive = subProcess.IsActive;
-                                }
-                                if (subProcess.IsDeleted != null)
-                                {
-                                    subProcessUpdate.IsDeleted = subProcess.IsDeleted;
-                                }
-                                if (subProcess.MasterTypeId != null)
-                                {
-                                    subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
-                                }
-                                subProcessUpdate.UpdateDate = DateTime.Now;
+                            }
+                            else
+                            {
+                                return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
                             }
                         }
                     }

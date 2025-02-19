@@ -30,6 +30,8 @@ public partial class SubProcess
     public string? ResourceUrl { get; set; }
 
     public string? Input { get; set; }
+    public int? Order { get; set; }
+
 
     public virtual MasterType? MasterType { get; set; }
 

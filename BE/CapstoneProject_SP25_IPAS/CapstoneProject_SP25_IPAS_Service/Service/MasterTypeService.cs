@@ -77,6 +77,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var checkInsertMasterType = await _unitOfWork.SaveAsync();
                     await transaction.CommitAsync();
+
                     if (checkInsertMasterType > 0)
                     {
                         var mappedResult = _mapper.Map<MasterTypeModel>(newMasterType);
@@ -91,6 +92,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
             }
+        }
+
+       private async Task<string> GetNextSequenceNumberOfMasterTypeDetail()
+        {
+            var alias = CodeAliasEntityConst.MASTER_TYPE_DETAIL + "-";
+            string datePart = DateTime.Now.ToString("ddMMyyyy");
+            int lastNumber = await _unitOfWork.MasterTypeDetailRepostiory.GetLastMasterTypeDetail(); // Hàm lấy số thứ tự gần nhất từ DB
+            int nextPlanId = lastNumber + 1;
+
+            // Xác định số chữ số cần hiển thị
+            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
+            string sequence = nextPlanId.ToString($"D{digitCount}");
+            return alias + datePart + "-" + sequence;
         }
 
         public async Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId)
@@ -168,7 +182,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.CreateDate >= masterTypeFilter.createDateFrom &&
                                              x.CreateDate <= masterTypeFilter.createDateTo);
                 }
-
                 if (masterTypeFilter.isActive != null)
                     filter = filter.And(x => x.IsActive == masterTypeFilter.isActive);
                 //if (masterTypeFilter.isDelete != null)
@@ -186,7 +199,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (masterTypeFilter.TypeName != null)
                 {
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
-                    
                     foreach (var item in filterList)
                     {
                         filter = filter.And(x => filterList.Contains(x.TypeName!.ToLower()));
@@ -298,8 +310,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var MasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "MasterTypeDetails");
-                if (MasterType != null)
+
+                var MasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId, "MasterTypeDetails,Criterias");
+                if(MasterType != null)
                 {
                     var result = _mapper.Map<MasterTypeModel>(MasterType);
                     return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_ID_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_ID_MESSAGE, result);
@@ -410,6 +423,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //if (updateMasterTypeModel.CreateBy != null)
                         //{
                         //    checkExistMasterType.CreateBy = updateMasterTypeModel.CreateBy;
+                        //}
+
+                        //if(updateMasterTypeModel.MasterTypeDetails != null)
+                        //{
+                        //    foreach(var updateMasterTypeDetail in  updateMasterTypeModel.MasterTypeDetails)
+                        //    {
+                        //        var getMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeDetail.MasterTypeDetailId.Value);
+                        //        if (updateMasterTypeDetail.MasterTypeDetailName != null)
+                        //        {
+                        //            getMasterTypeDetail.MasterTypeDetailName = updateMasterTypeDetail.MasterTypeDetailName;
+                        //        }
+                        //        if (updateMasterTypeDetail.Value != null)
+                        //        {
+                        //            getMasterTypeDetail.Value = updateMasterTypeDetail.Value;
+                        //        }
+                        //        if (updateMasterTypeDetail.TypeOfValue != null)
+                        //        {
+                        //            getMasterTypeDetail.TypeOfValue = updateMasterTypeDetail.TypeOfValue;
+                        //        }
+                        //        if (updateMasterTypeDetail.ForeignKeyId != null)
+                        //        {
+                        //            getMasterTypeDetail.ForeignKeyId = updateMasterTypeDetail.ForeignKeyId;
+                        //        }
+                        //        if (updateMasterTypeDetail.ForeignKeyTable != null)
+                        //        {
+                        //            getMasterTypeDetail.ForeignKeyTable = updateMasterTypeDetail.ForeignKeyTable;
+                        //        }
+                        //        if (updateMasterTypeDetail.MasterTypeId != null)
+                        //        {
+                        //            getMasterTypeDetail.MasterTypeId = updateMasterTypeDetail.MasterTypeId;
+                        //        }
+                        //        await _unitOfWork.SaveAsync();
+                        //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
 

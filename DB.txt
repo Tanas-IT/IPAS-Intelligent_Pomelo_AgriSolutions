@@ -175,6 +175,7 @@ CREATE TABLE ipas.dbo.Criteria (
 	Priority int NULL,
 	isActive bit NULL,
 	isChecked bit NULL,
+        isDefault bit NULL,
 	MasterTypeID int NULL,
 	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
 	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
@@ -228,6 +229,7 @@ CREATE TABLE ipas.dbo.HarvestHistory (
 	TotalPrice float NULL,
 	HarvestStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CropID int NULL,
+        isDelete bit NULL,
 	CONSTRAINT PK__HarvestH__F15734AD189BFCA2 PRIMARY KEY (HarvestHistoryID),
 	CONSTRAINT HarvestHistory_Crop_FK FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID) ON DELETE SET NULL
 );
@@ -557,6 +559,7 @@ CREATE TABLE ipas.dbo.Process (
 	isDeleted bit NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
+        [Order] int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -583,6 +586,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	isDeleted bit NULL,
+    [Order] int NULL,
 	ProcessID int NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -749,12 +753,11 @@ CREATE TABLE ipas.dbo.Notification (
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Link nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
-	isRead bit NULL,
-	UserID int NULL,
 	MasterTypeID int NULL,
+	SenderID int NULL,
 	CONSTRAINT PK__Notifica__20CF2E32F94B5C5B PRIMARY KEY (NotificationID),
-	CONSTRAINT FK_Notification_User FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
-	CONSTRAINT Notification_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
+	CONSTRAINT Notification_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
+	CONSTRAINT Notification_User_FK FOREIGN KEY (SenderID) REFERENCES ipas.dbo.[User](UserID)
 );
 
 
@@ -777,8 +780,6 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlanDetail nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	ResponsibleBy nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
-	LandPlotID int NULL,
 	AssignorID int NULL,
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
@@ -786,23 +787,16 @@ CREATE TABLE ipas.dbo.[Plan] (
 	ProcessID int NULL,
 	CropID int NULL,
 	GrowthStageID int NULL,
-	PlantLotID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GraftedPlantID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT FK__Plan__LandPlotID__1DB06A4F FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE,
-	CONSTRAINT Plan_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
 	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
-	CONSTRAINT Plan_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID),
 	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
 );
-
 
 -- ipas.dbo.RefreshToken definition
 
@@ -823,6 +817,18 @@ CREATE TABLE ipas.dbo.RefreshToken (
 	CONSTRAINT FK__RefreshTo__UserI__3BFFE745 FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE
 );
 
+CREATE TABLE ipas.dbo.PlanNotification (
+	PlanNotificationID int IDENTITY(0,1) NOT NULL,
+	PlanID int NULL,
+	NotificationID int NULL,
+	UserID int NULL,
+	isRead bit NULL,
+	CreateDate datetime NULL,
+	CONSTRAINT PlanNotification_PK PRIMARY KEY (PlanNotificationID),
+	CONSTRAINT PlanNotification_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID),
+	CONSTRAINT PlanNotification_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
+	CONSTRAINT PlanNotification_Notification_FK FOREIGN KEY (NotificationID) REFERENCES ipas.dbo.Notification(NotificationID)
+);
 
 -- ipas.dbo.CarePlanSchedule definition
 
@@ -966,6 +972,23 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	CONSTRAINT FK__UserWorkL__UserI__43A1090D FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
 );
+
+CREATE TABLE ipas.dbo.PlanTarget (
+	PlanTargetID int IDENTITY(1,1) NOT NULL,
+	PlanID int NULL,
+	LandRowID int NULL,
+	LandPlotID int NULL,
+	GraftedPlantID int NULL,
+	PlantLotID int NULL,
+	PlantID int NULL,
+	CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
+	CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
+	CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
+	CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
+	CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
+);
 GO
 
 INSERT INTO [ipas].[dbo].[Farm] 
@@ -1043,18 +1066,79 @@ GO
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate],[IsDefault],[FarmID])
 VALUES
-    ('MT001', 'Product Category', 'ProcessType', 'Defines product categories', 0, 1, GETDATE(),0,1),
-    ('MT002', 'User Role', 'Role', 'ProcessType', 0, 1, GETDATE(),1,NULL),
-    ('MT003', 'Payment Method', 'ProcessType', 'Lists available payment methods', 0, 1, GETDATE(),1,NULL),
-    ('MT004', 'Shipping Method', 'ProcessType', 'Lists available shipping methods', 0, 1, GETDATE(),1,NULL),
-    ('MT005', 'Order Status', 'CriteriaType', 'Defines various order statuses', 0, 1, GETDATE(),1,NULL),
-    ('MT006', 'Discount Type', 'CriteriaType', 'Defines types of discounts available', 0, 1, GETDATE(),1,NULL),
-    ('MT007', 'Membership Level', 'CriteriaType', 'Defines customer membership levels', 0, 1, GETDATE(),1,NULL),
-    ('MT008', 'Tax Type', 'Tax', 'HarvestType', 0, 1, GETDATE(),0,),
-    ('MT009', 'Subscription Plan', 'HarvestType', 'Lists available subscription plans', 0, 1, GETDATE(),0,1),
-    ('MT010', 'Support Ticket Status', 'HarvestType', 'Defines statuses for customer support tickets', 0, 1, GETDATE(),0,1);
+	('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', 0, 1, GETDATE()),
+    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', 0, 1, GETDATE()),
+    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', 0, 1, GETDATE()),
+    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', 0, 1, GETDATE()),
+    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', 0, 1, GETDATE()),
+    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', 0, 1, GETDATE()),
+    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', 0, 1, GETDATE()),
+    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', 0, 1, GETDATE()),
+
+	('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT010', '5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', 0, 1, GETDATE()),
+    ('MT011', 'Viễn Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', 0, 1, GETDATE()),
+
+    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', 0, 1, GETDATE()),
+    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', 0, 1, GETDATE()),
+	('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', 0, 1, GETDATE()),
+
+	('MT015', 'Watering', 'Work', 'Process of providing water to plants', 0, 1, GETDATE()),
+    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', 0, 1, GETDATE()),
+    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', 0, 1, GETDATE()),
+    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', 0, 1, GETDATE()),
+    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', 0, 1, GETDATE()),
+
+	('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', 0, 1, GETDATE()),
+	('MT021', 'caring ', 'Criteria', 'Defines the criteria for plant care during growth stages', 0, 1, GETDATE()),
+	('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', 0, 1, GETDATE()),
+    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', 0, 1, GETDATE()),
+
+    ('MT024', 'Grade 1', 'Harvest', 'First-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT025', 'Grade 2', 'Harvest', 'Second-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT026', 'Grade 3', 'Harvest', 'Third-grade pomelo after harvest', 0, 1, GETDATE()),
+    ('MT027', 'Leaves', 'Harvest', 'Pomelo tree leaves harvested for use', 0, 1, GETDATE()),
+    ('MT028', 'Branches', 'Harvest', 'Pomelo tree branches harvested for use', 0, 1, GETDATE()),
+
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', 0, 1, GETDATE()),
+    ('MT030', 'Task Assignment,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
+    ('MT033', 'Task Reminder,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE());
+
 GO
-INSERT INTO [ipas].[dbo].[Criteria]
+
+GO
+INSERT INTO [dbo].[MasterTypeDetails] 
+    ([MasterTypeDetailCode], [MasterTypeDetailName], [Value], [TypeOfValue], [ForeignKeyId], [ForeignKeyTable], [MasterTypeID])
+VALUES
+	('MTD001', 'BackgroundColor', '#10B981', 'String', NULL, NULL, 15),
+	('MTD002', 'TextColor', '#047857', 'String', NULL, NULL, 15),
+	('MTD003', 'VolumeRequired', '', 'String', NULL, NULL, 15),
+
+    ('MTD004', 'BackgroundColor', '#D9E5DC', 'String', NULL, NULL, 16),
+    ('MTD005', 'TextColor', '#4A9C5D', 'String', NULL, NULL, 16),
+    ('MTD006', 'VolumeRequired', '', 'String', NULL, NULL, 16),
+
+    ('MTD007', 'BackgroundColor', '#E3D7B9', 'String', NULL, NULL, 17),
+    ('MTD008', 'TextColor', '#8D5B3D', 'String', NULL, NULL, 17),
+    ('MTD009', 'VolumeRequired', '', 'String', NULL, NULL, 17),
+
+    ('MTD010', 'BackgroundColor', '#FFE5D9', 'String', NULL, NULL, 18),
+    ('MTD011', 'TextColor', '#F79C42', 'String', NULL, NULL, 18),
+    ('MTD012', 'VolumeRequired', '', 'String', NULL, NULL, 18),
+
+    ('MTD013', 'BackgroundColor', '#F2F2F2', 'String', NULL, NULL, 19),
+    ('MTD014', 'TextColor', '#4A4A4A', 'String', NULL, NULL, 19),
+    ('MTD015', 'VolumeRequired', '', 'String', NULL, NULL, 19),
+
+	('MTD016', 'Characteristic', 'Green skin, Sweet taste', 'String', NULL, NULL, 9), -- Green Skin Pomelo
+    ('MTD017', 'Characteristic', 'Sweet, Refreshing', 'String', NULL, NULL, 10), -- 5 Roi Pomelo
+    ('MTD018', 'Characteristic', 'Tart, Firm', 'String', NULL, NULL, 11); -- Viễn Pomelo
+
+GO
+
+INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
 VALUES
     ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0),
