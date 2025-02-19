@@ -1,3 +1,5 @@
+import { GetMasterType, MasterTypeDetail } from "@/payloads";
+
 export const farmFormFields = {
   farmName: "farmName",
   description: "description",
@@ -22,6 +24,24 @@ export const farmDocumentFormFields = {
   documents: "documents",
 };
 
+export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {
+  masterTypeId: "masterTypeId",
+  masterTypeCode: "masterTypeCode",
+  masterTypeName: "masterTypeName",
+  masterTypeDescription: "masterTypeDescription",
+  typeName: "typeName",
+  createDate: "createDate",
+  isActive: "isActive",
+  masterTypeDetailModels: "masterTypeDetailModels",
+};
+
+export const masterTypeDetailFormFields = {
+  backgroundColor: "backgroundColor",
+  textColor: "textColor",
+  volumeRequired: "volumeRequired",
+  characteristic: "characteristic",
+};
+
 export const worklogFormFields = {
   worklogName: "worklogName",
   processId: "processId",
@@ -33,12 +53,12 @@ export const worklogFormFields = {
   time: "time",
   responsibleBy: "responsibleBy",
   assignorId: "assignorId",
-  type: "type"
+  type: "type",
 };
 
 export const feedbackFormFields = {
   content: "content",
   managerId: "managerId",
   worklogId: "worklogId",
-  worklogStatus: "worklogStatus"
+  worklogStatus: "worklogStatus",
 };

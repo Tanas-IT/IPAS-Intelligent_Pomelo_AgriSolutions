@@ -19,29 +19,31 @@ export const processColumns: TableColumn<GetProcess>[] = [
   {
     header: "Created Date",
     field: "createDate",
-    accessor: (process) =>  <div className={style.tableText}>{process.createDate.toLocaleDateString()}</div>,
+    accessor: (process) => (
+      <div className={style.tableText}>{process.createDate.toLocaleDateString()}</div>
+    ),
     width: 150,
   },
   {
     header: "Growth Stage",
     field: "growthStageName",
-    accessor: (process) =>  <div className={style.tableText}>{process.growthStageName}</div>,
+    accessor: (process) => <div className={style.tableText}>{process.growthStageName}</div>,
     width: 150,
   },
   {
     header: "Type",
     field: "processStyleName",
-    accessor: (process) =>  <div className={style.tableText}>{process.processStyleName}</div>,
+    accessor: (process) => <div className={style.tableText}>{process.processStyleName}</div>,
     width: 150,
   },
   {
     header: "Status",
     field: "isActive",
     accessor: (process) => (
-        <Tag color={process.isActive ? "green" : "red"}>
-          {process.isActive ? "Active" : "Inactive"}
-        </Tag>
-      ),
+      <Tag color={process.isActive ? "green" : "red"}>
+        {process.isActive ? "Active" : "Inactive"}
+      </Tag>
+    ),
     width: 170,
   },
 ];

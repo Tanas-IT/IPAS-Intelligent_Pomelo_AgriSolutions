@@ -6,6 +6,7 @@ import { Icons } from "@/assets";
 import { useStyle } from "@/hooks";
 import { ActionBar, Tooltip } from "@/components";
 import ExpandableTable from "./ExpandableTable";
+import { DEFAULT_ROWS_PER_PAGE } from "@/constants";
 
 interface TableProps<T, E = T> {
   columns: TableColumn<T>[];
@@ -42,7 +43,7 @@ const TableComponent = <T, E = T>({
   sortDirection,
   rotation,
   currentPage = 1,
-  rowsPerPage = 5,
+  rowsPerPage = DEFAULT_ROWS_PER_PAGE,
   isInitialLoad,
   isLoading,
   caption,
@@ -240,11 +241,11 @@ const TableComponent = <T, E = T>({
         columns={antColumns as any}
         footer={() => <div className={styles.customTable}>{caption}</div>}
         pagination={false}
-        // loading={isLoading}
-        // locale={{
-        //   emptyText:
-        //     isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
-        // }}
+        loading={isLoading}
+        locale={{
+          emptyText:
+            isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
+        }}
         rowClassName={(record) =>
           selection.includes(record[rowKey] as string) ? style.selectedRow : ""
         }

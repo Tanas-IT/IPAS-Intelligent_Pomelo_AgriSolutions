@@ -22,6 +22,11 @@ export const PATHS = {
     USER_DETAIL: "/users/:id",
   },
 
+  // Master type Management
+  MASTER_TYPE: {
+    LIST: "/master-types",
+  },
+
   // Farm Management
   FARM: {
     CREATE_FARM: "/farm/create",

@@ -13,7 +13,7 @@ import DocumentModal from "./DocumentModal/DocumentModal";
 function LegalDocument() {
   const [isLoading, setIsLoading] = useState(true);
   const [legalDocuments, setLegalDocuments] = useState<GetFarmDocuments[]>([]);
-  const addModal = useModal<GetFarmDocuments>();
+  const formModal = useModal<GetFarmDocuments>();
   const deleteConfirmModal = useModal<{ docId: string }>();
   const updateConfirmModal = useModal<{ doc: FarmDocumentRequest }>();
 
@@ -78,7 +78,7 @@ function LegalDocument() {
     if (isChanged) {
       updateConfirmModal.showModal({ doc });
     } else {
-      addModal.hideModal();
+      formModal.hideModal();
     }
   };
 
@@ -96,7 +96,7 @@ function LegalDocument() {
       }
     } finally {
       setIsLoading(false);
-      addModal.hideModal();
+      formModal.hideModal();
       updateConfirmModal.hideModal();
     }
   };
@@ -113,7 +113,7 @@ function LegalDocument() {
       }
     } finally {
       setIsLoading(false);
-      addModal.hideModal();
+      formModal.hideModal();
     }
   };
 
@@ -130,7 +130,7 @@ function LegalDocument() {
         <CustomButton
           label="Add New Document"
           icon={<Icons.plus />}
-          handleOnClick={() => addModal.showModal()}
+          handleOnClick={() => formModal.showModal()}
         />
       </Flex>
 
@@ -164,7 +164,7 @@ function LegalDocument() {
                     className={style.iconEdit}
                     onClick={() => deleteConfirmModal.showModal({ docId: doc.legalDocumentId })}
                   />
-                  <Icons.edit className={style.iconEdit} onClick={() => addModal.showModal(doc)} />
+                  <Icons.edit className={style.iconEdit} onClick={() => formModal.showModal(doc)} />
                 </Flex>
               </Flex>
             </Section>
@@ -175,10 +175,10 @@ function LegalDocument() {
       </Flex>
 
       <DocumentModal
-        isOpen={addModal.modalState.visible}
-        onClose={addModal.hideModal}
-        onSave={addModal.modalState.data ? handleUpdateConfirm : handleAdd}
-        documentData={addModal.modalState.data}
+        isOpen={formModal.modalState.visible}
+        onClose={formModal.hideModal}
+        onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+        documentData={formModal.modalState.data}
       />
 
       {/* Confirm Delete Modal */}

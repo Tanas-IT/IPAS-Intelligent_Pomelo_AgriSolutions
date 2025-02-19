@@ -24,6 +24,7 @@ export const handleApiError = async (error: any) => {
         if (message.includes("Token is expired!")) {
           const originalRequest = error.config;
           const result = await authService.refreshToken();
+
           if (result.statusCode === 200) {
             const newAccessToken = result.data.authenModel.accessToken;
             const newRefreshToken = result.data.authenModel.refreshToken;
@@ -33,7 +34,7 @@ export const handleApiError = async (error: any) => {
 
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
-          } else if (result.statusCode === 500) {
+          } else if (result.statusCode === 500 || result.statusCode === 400) {
             redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
           }
         } else {
