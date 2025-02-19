@@ -17,9 +17,9 @@ public partial class Payment
 
     public string? Status { get; set; }
 
-    public DateTime? UpdateDate { get; set; }
-
     public int? OrderId { get; set; }
+
+    public DateTime? UpdateDate { get; set; }
 
     public virtual Order? Order { get; set; }
 }

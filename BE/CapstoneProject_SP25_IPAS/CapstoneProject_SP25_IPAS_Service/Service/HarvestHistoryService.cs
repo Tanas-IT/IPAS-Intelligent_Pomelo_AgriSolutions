@@ -41,7 +41,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-
                     if (!createRequest.CropId.HasValue)
                         return new BusinessResult(Const.WARNING_HARVEST_MUST_IN_CROP_CODE, Const.WARNING_HARVEST_MUST_IN_CROP_MSG);
                     if (createRequest.DateHarvest < DateTime.Now)

@@ -8,7 +8,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail
 {
     public class UpdateMasterTypeDetailModel
     {
-        public int MasterTypeDetailId { get; set; }
+        public int? MasterTypeDetailId { get; set; }
 
         public string? MasterTypeDetailName { get; set; }
 
@@ -20,6 +20,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail
 
         public string? ForeignKeyTable { get; set; }
 
-        public int? MasterTypeId { get; set; }
+        //public int? MasterTypeId { get; set; }
     }
 }

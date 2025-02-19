@@ -11,6 +11,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetPackageById(int packageId);
         public Task<BusinessResult> GetListPackage();
-        public Task<BusinessResult> GetPackageExpiredOfFarm(int farmId);
+        //public Task<BusinessResult> GetPackageExpiredOfFarm(int farmId);
     }
 }
