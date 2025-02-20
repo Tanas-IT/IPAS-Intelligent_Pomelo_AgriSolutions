@@ -361,7 +361,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (masterTypeExist == null)
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
 
-                    var growthStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageId == fillRequest.growthStageId);
+                    var growthStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == fillRequest.growthStageId);
                     if (growthStageExist == null)
                         return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                     // Kiểm tra số lượng cây có thể trồng
