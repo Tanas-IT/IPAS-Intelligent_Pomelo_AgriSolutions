@@ -21,8 +21,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 
         public string? TypeName { get; set; }
 
+        public string? BackgroundColor { get; set; }
+
+        public string? TextColor { get; set; }
+
+        public string? Characteristic { get; set; }
+
         //public bool? IsDelete { get; set; }
 
-        public List<UpdateMasterTypeDetailModel> MasterTypeDetails { get; set; } = new List<UpdateMasterTypeDetailModel>();
+        //public List<UpdateMasterTypeDetailModel> MasterTypeDetails { get; set; } = new List<UpdateMasterTypeDetailModel>();
     }
 }

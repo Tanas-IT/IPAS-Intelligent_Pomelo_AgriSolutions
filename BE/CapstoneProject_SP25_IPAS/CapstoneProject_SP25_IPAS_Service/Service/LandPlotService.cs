@@ -36,21 +36,107 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
+        public async Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest)
+        {
+            try
+            {
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                {
+                    if (createRequest.RowLength > createRequest.PlotLength)
+                        return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
+                    if (createRequest.RowWidth > createRequest.PlotWidth)
+                        return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
+                    if (createRequest.LandPlotCoordinations.Count < 3)
+                        return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
+
+                    var landplotCreateEntity = new LandPlot()
+                    {
+                        LandPlotName = createRequest.LandPlotName,
+                        TargetMarket = createRequest.TargetMarket,
+                        Area = createRequest.Area,
+                        SoilType = createRequest.SoilType,
+                        Length = createRequest.PlotLength,
+                        Width = createRequest.PlotWidth,
+                        Description = createRequest.Description,
+                        FarmId = createRequest.FarmId,
+                    };
+                    landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
+                    landplotCreateEntity.Status = FarmStatus.Active.ToString();
+                    landplotCreateEntity.CreateDate = DateTime.Now;
+                    landplotCreateEntity.UpdateDate = DateTime.Now;
+                    var numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowLength, createRequest.RowSpace);
+                    for (int i = 0; i < numberRowInPlot; i++)
+                    {
+                        var landRow = new LandRow()
+                        {
+                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW),
+                            RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
+                            Length = createRequest.RowLength,
+                            Width = createRequest.RowWidth,
+                            Distance = createRequest.DistanceInRow,
+                            Direction = createRequest.RowDirection,
+                            TreeAmount = CalculateTreeAmount(createRequest.RowLength, createRequest.DistanceInRow),
+                            Status = LandRowStatus.Active.ToString(),
+                            CreateDate = DateTime.Now,
+                        };
+
+                        landplotCreateEntity.LandRows.Add(landRow);
+                    }
+                    if (createRequest.LandPlotCoordinations?.Any() == true)
+                    {
+                        foreach (var coordination in createRequest.LandPlotCoordinations)
+                        {
+                            var landplotCoordination = new LandPlotCoordination()
+                            {
+                                Latitude = coordination.Latitude,
+                                Longitude = coordination.Longitude,
+                            };
+                            landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
+                        }
+                    }
+
+                    await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mappedResult = _mapper.Map<LandPlotModel>(landplotCreateEntity);
+                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mappedResult);
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                        return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
+            }
+        }
+
         //public async Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest)
         //{
         //    try
         //    {
         //        using (var transaction = await _unitOfWork.BeginTransactionAsync())
         //        {
-        //            if (createRequest.RowLength > createRequest.PlotLength)
-        //                return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
+        //            // Kiểm tra điều kiện hợp lệ
+        //            //if (createRequest.RowLength > createRequest.PlotLength)
+        //            //    return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
         //            if (createRequest.RowWidth > createRequest.PlotWidth)
         //                return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
         //            if (createRequest.LandPlotCoordinations.Count < 3)
         //                return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
 
+        //            // 1️⃣ Tính số hàng trong thửa
+        //            int numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowWidth, 0);
+        //            int lastId = await _unitOfWork.LandPlotRepository.GetLastID();
+        //            // 2️⃣ Tạo đối tượng thửa đất
         //            var landplotCreateEntity = new LandPlot()
         //            {
+        //                LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}-{createRequest.FarmId}-{DateTime.Now.ToString("ddmmyyy")}-{lastId:D6}",
         //                LandPlotName = createRequest.LandPlotName,
         //                TargetMarket = createRequest.TargetMarket,
         //                Area = createRequest.Area,
@@ -59,29 +145,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //                Width = createRequest.PlotWidth,
         //                Description = createRequest.Description,
         //                FarmId = createRequest.FarmId,
+        //                Status = FarmStatus.Active.ToString(),
+        //                CreateDate = DateTime.Now,
+        //                UpdateDate = DateTime.Now
         //            };
-        //            landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
-        //            landplotCreateEntity.Status = FarmStatus.Active.ToString();
-        //            landplotCreateEntity.CreateDate = DateTime.Now;
-        //            landplotCreateEntity.UpdateDate = DateTime.Now;
-        //            var numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowLength, 0);
+
+        //            // 3️⃣ Thêm hàng vào thửa đất
         //            for (int i = 0; i < numberRowInPlot; i++)
         //            {
+        //                double rowActualLength = CalculateRowLength_UTM(createRequest.LandPlotCoordinations.ToList(), i, numberRowInPlot);
+        //                int treeAmount = CalculateTreeAmount(rowActualLength, createRequest.DistanceInRow);
+
         //                var landRow = new LandRow()
         //                {
-        //                    LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW),
-        //                    RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
-        //                    Length = createRequest.RowLength,
-        //                    Width = createRequest.RowWidth,
+        //                    LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{lastId}-R{(i+1)}",
+        //                    RowIndex = i + 1, // Số thứ tự hàng (1, 2, 3,...)
+        //                    Length = rowActualLength,
+        //                    //Width = createRequest.RowLength,
         //                    Distance = createRequest.DistanceInRow,
         //                    Direction = createRequest.RowDirection,
-        //                    TreeAmount = createRequest.TreeAmountInRow,
+        //                    TreeAmount = treeAmount,
         //                    Status = LandRowStatus.Active.ToString(),
         //                    CreateDate = DateTime.Now,
         //                };
 
         //                landplotCreateEntity.LandRows.Add(landRow);
         //            }
+
+        //            // 4️⃣ Thêm tọa độ vào thửa đất
         //            if (createRequest.LandPlotCoordinations?.Any() == true)
         //            {
         //                foreach (var coordination in createRequest.LandPlotCoordinations)
@@ -95,6 +186,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //                }
         //            }
 
+        //            // 5️⃣ Lưu vào DB
         //            await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
         //            int result = await _unitOfWork.SaveAsync();
         //            if (result > 0)
@@ -111,94 +203,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //        return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
         //    }
         //}
-
-        public async Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest)
-        {
-            try
-            {
-                using (var transaction = await _unitOfWork.BeginTransactionAsync())
-                {
-                    // Kiểm tra điều kiện hợp lệ
-                    //if (createRequest.RowLength > createRequest.PlotLength)
-                    //    return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
-                    if (createRequest.RowWidth > createRequest.PlotWidth)
-                        return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
-                    if (createRequest.LandPlotCoordinations.Count < 3)
-                        return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
-
-                    // 1️⃣ Tính số hàng trong thửa
-                    int numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowWidth, 0);
-                    int lastId = await _unitOfWork.LandPlotRepository.GetLastID();
-                    // 2️⃣ Tạo đối tượng thửa đất
-                    var landplotCreateEntity = new LandPlot()
-                    {
-                        LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}-{createRequest.FarmId}-{DateTime.Now.ToString("ddmmyyy")}-{lastId:D6}",
-                        LandPlotName = createRequest.LandPlotName,
-                        TargetMarket = createRequest.TargetMarket,
-                        Area = createRequest.Area,
-                        SoilType = createRequest.SoilType,
-                        Length = createRequest.PlotLength,
-                        Width = createRequest.PlotWidth,
-                        Description = createRequest.Description,
-                        FarmId = createRequest.FarmId,
-                        Status = FarmStatus.Active.ToString(),
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
-                    };
-
-                    // 3️⃣ Thêm hàng vào thửa đất
-                    for (int i = 0; i < numberRowInPlot; i++)
-                    {
-                        double rowActualLength = CalculateRowLength_UTM(createRequest.LandPlotCoordinations.ToList(), i, numberRowInPlot);
-                        int treeAmount = CalculateTreeAmount(rowActualLength, createRequest.DistanceInRow);
-
-                        var landRow = new LandRow()
-                        {
-                            LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{lastId}-R{(i+1)}",
-                            RowIndex = i + 1, // Số thứ tự hàng (1, 2, 3,...)
-                            Length = rowActualLength,
-                            //Width = createRequest.RowLength,
-                            Distance = createRequest.DistanceInRow,
-                            Direction = createRequest.RowDirection,
-                            TreeAmount = treeAmount,
-                            Status = LandRowStatus.Active.ToString(),
-                            CreateDate = DateTime.Now,
-                        };
-
-                        landplotCreateEntity.LandRows.Add(landRow);
-                    }
-
-                    // 4️⃣ Thêm tọa độ vào thửa đất
-                    if (createRequest.LandPlotCoordinations?.Any() == true)
-                    {
-                        foreach (var coordination in createRequest.LandPlotCoordinations)
-                        {
-                            var landplotCoordination = new LandPlotCoordination()
-                            {
-                                Latitude = coordination.Latitude,
-                                Longitude = coordination.Longitude,
-                            };
-                            landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
-                        }
-                    }
-
-                    // 5️⃣ Lưu vào DB
-                    await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
-                    int result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        await transaction.CommitAsync();
-                        var mappedResult = _mapper.Map<LandPlotModel>(landplotCreateEntity);
-                        return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mappedResult);
-                    }
-                    else return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
-                }
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
-            }
-        }
 
 
         public async Task<BusinessResult> deleteLandPlotOfFarm(int landplotId)

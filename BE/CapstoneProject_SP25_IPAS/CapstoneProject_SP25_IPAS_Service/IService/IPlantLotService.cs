@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.IService
 {
@@ -20,5 +21,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreatePlantLot(CreatePlantLotModel createPlantLotModel);
         public Task<BusinessResult> GetAllPlantLots(PaginationParameter paginationParameter);
         public Task<BusinessResult> CreateManyPlant(List<CriteriaForPlantLotRequestModel> criterias, int quantity);
+        public Task<BusinessResult> FillPlantToPlot(FillPlanToPlotRequest fillRequest);
     }
 }

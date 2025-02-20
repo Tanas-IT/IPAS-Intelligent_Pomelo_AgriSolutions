@@ -159,7 +159,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Process.softDeleteProcess, Name = "softDeleteProcessAsync")]
+        [HttpPatch(APIRoutes.Process.softDeleteProcess, Name = "softDeleteProcessAsync")]
         public async Task<IActionResult> SoftDeleteProcessAsync([FromRoute] int id)
         {
             try
