@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
@@ -20,8 +21,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public string? RoleName { get; set; }
         public string? FarmName { get; set; }
         public string? FullName { get; set; }
-        public virtual FarmModel Farm { get; set; } = null!;
-        //public virtual UserModel User { get; set; } = null!;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public FarmModel Farm { get; set; } = null!;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public UserModel User { get; set; } = null!;
         //public virtual RoleModel Role { get; set; } = null!;
     }
 }

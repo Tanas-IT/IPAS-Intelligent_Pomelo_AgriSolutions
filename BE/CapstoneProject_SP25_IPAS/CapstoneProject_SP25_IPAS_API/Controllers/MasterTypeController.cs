@@ -151,6 +151,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 var result = await _masterTypeService.PermanentlyDeleteManyMasterType(masterTypeId);
                 return Ok(result);
             }
+             catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        [HttpPatch(APIRoutes.MasterType.softedDelete, Name = "SoftedDeleteMasterType")]
+        public async Task<IActionResult> SoftedDeleteMasterType([FromBody] List<int> MasterTypeIds)
+        {
+            try
+            {
+                var result = await _masterTypeService.SoftedMultipleDelete(MasterTypeIds);
+                return Ok(result);
+            }
             catch (Exception ex)
             {
                 var response = new BaseResponse()
@@ -161,6 +179,5 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
     }
 }

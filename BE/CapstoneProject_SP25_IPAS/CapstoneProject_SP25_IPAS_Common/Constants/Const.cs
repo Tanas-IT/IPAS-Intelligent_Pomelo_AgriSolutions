@@ -111,6 +111,14 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG = "Get all farm of user success.";
         public static int SUCCESS_UPDATE_FARM_LOGO_CODE = 200;
         public static string SUCCESS_UPDATE_FARM_LOGO_MSG = "Update farm success";
+        public static int SUCCESS_GET_USER_OF_FARM_CODE = 200;
+        public static string SUCCESS_GET_USER_OF_FARM_MSG = "Get user of farm success";
+        public static int SUCCESS_UPDATE_USER_IN_FARM_CODE = 200;
+        public static string SUCCESS_UPDATE_USER_IN_FARM_MSG = "Update employee role success";
+        public static int SUCCESS_DELETE_USER_IN_FARM_CODE = 200;
+        public static string SUCCESS_DELETE_USER_IN_FARM_MSG = "Delete employee success";
+        public static int SUCCESS_ADD_USER_IN_FARM_CODE = 200;
+        public static string SUCCESS_ADD_USER_IN_FARM_MSG = "Add employee success";
         #endregion
 
         #region MasterType code
@@ -591,6 +599,14 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UPDATE_FARM_LOGO_MSG = "Farm Update fail";
         public static int FAIL_DELETE_FARM_LANDPLOT_CODE = 500;
         public static string FAIL_DELETE_FARM_LANDPLOT_MSG = "Delete landplot of farm have server error";
+        public static int FAIL_UPDATE_USER_IN_FARM_CODE = 400;
+        public static string FAIL_UPDATE_USER_IN_FARM_MSG = "Update employee role fail";
+        public static int FAIL_DELETE_USER_IN_FARM_CODE = 400;
+        public static string FAIL_DELETE_USER_IN_FARM_MSG = "Delete employee fail";
+        public static int FAIL_ADD_USER_IN_FARM_CODE = 400;
+        public static string FAIL_ADD_USER_IN_FARM_MSG = "Add employee fail";
+        public static int FAIL_GET_USER_IN_FARM_CODE = 400;
+        public static string FAIL_GET_USER_IN_FARM_MSG = "Get user of farm fail";
         #endregion
 
         #region Partner Fail code
@@ -811,18 +827,25 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region MasterTypeDetail
-        public static int WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG = "Does not have any master type detail";
         #endregion
 
         #region FarmService
-        public static int WARNING_GET_FARM_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_FARM_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_FARM_NOT_EXIST_MSG = "Farm Resource not found";
-        public static int WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_ALL_FARM_DOES_NOT_EXIST_MSG = "Does not have any farm";
-        public static int WARNING_GET_LANDPLOT_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_LANDPLOT_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_LANDPLOT_NOT_EXIST_MSG = "Land plot does not exist in this farm.";
         public static string WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG = "Land plot does not exist in this farm.";
+        public static string WARNING_GET_ALL_USER_OF_FARM_EMPTY_MSG = "No User was found";
+        public static int WARNING_GET_USER_OF_FARM_EXIST_CODE = 400;
+        public static string WARNING_GET_USER_OF_FARM_EXIST_MSG = "Your farm not have this employee";
+        public static int WARNING_GET_ROLE_NOTE_EXIST_CODE = 400;
+        public static string WARNING_GET_ROLE_NOTE_EXIST_MSG = "You must select role in farm";
+        public static int WARNING_USER_IN_FARM_EXIST_CODE = 400;
+        public static string WARNING_USER_IN_FARM_EXIST_MSG = "This user has join to farm";
 
         #endregion
 
