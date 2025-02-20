@@ -64,6 +64,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/plantLots/delete-permanenly/{id}";
             public const string updatePlantLotInfo = Base + "/plantLots/update-plantLot-info";
             public const string createManyPlantFromPlantLot = Base + "/plantLots/create-many-plant";
+            public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
         }
 
         public static class Resource
@@ -85,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/masterTypes/delete-permanently/{id}";
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
-            public const string softedDelete = Base + "/masterTypes/delete-permanently";
+            public const string softedDelete = Base + "/masterTypes/delete-softed";
         }
 
         public static class Criteria

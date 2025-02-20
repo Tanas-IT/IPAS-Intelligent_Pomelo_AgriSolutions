@@ -805,12 +805,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG = "Does not have any plant lot";
         public static int WARNING_CREATE_MANY_PLANT_FROM_PLANT_LOT_CODE = 400;
         public static string WARNING_CREATE_MANY_PLANT_FROM_PLANT_LOT_MSG = "Some criteria does not pass. Please check all criteria again";
+        #endregion
+
+        #region LandPlot
+        public static int WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_CODE = 400;
+        public static string WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_MSG = "This plant lot do not remain any seeding to plant";
         public static int WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE = 400;
         public static string WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG = "Lenght of the row larger than leght of landplot";
         public static int WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE = 400;
         public static string WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG = "Width of the row larger than width of landplot";
         public static int WARNING_INVALID_PLOT_COORDINATIONS_CODE = 400;
         public static string WARNING_INVALID_PLOT_COORDINATIONS_MSG = "Plot need at least 3 point to create";
+        public static int WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_CODE = 400;
+        public static string WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_MSG = "Land plot not have any row";
         #endregion
 
         #region MasterType

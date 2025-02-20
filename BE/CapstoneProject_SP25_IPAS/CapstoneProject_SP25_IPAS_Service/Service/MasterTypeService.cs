@@ -461,44 +461,55 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
-
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.BackgroundColor))
+                        {
+                            checkExistMasterType.BackgroundColor = updateMasterTypeModel.BackgroundColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.TextColor))
+                        {
+                            checkExistMasterType.TextColor = updateMasterTypeModel.TextColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.Characteristic))
+                        {
+                            checkExistMasterType.Characteristic = updateMasterTypeModel.Characteristic;
+                        }
                         //var existingResources = update.Resources.ToList();
                         // Xóa tài nguyên cũ không có trong request
-                        var detailToDelete = checkExistMasterType.MasterTypeDetails
-                            .Where(old => !updateMasterTypeModel.MasterTypeDetails.Any(newDetail => newDetail.MasterTypeDetailId == old.MasterTypeDetailId))
-                            .ToList();
+                        //var detailToDelete = checkExistMasterType.MasterTypeDetails
+                        //    .Where(old => !updateMasterTypeModel.MasterTypeDetails.Any(newDetail => newDetail.MasterTypeDetailId == old.MasterTypeDetailId))
+                        //    .ToList();
 
-                        foreach (var detail in detailToDelete)
-                        {
-                            _unitOfWork.MasterTypeDetailRepostiory.Delete(detail);
-                            checkExistMasterType.MasterTypeDetails.Remove(detail);
-                        }
-                        foreach (var detail in updateMasterTypeModel.MasterTypeDetails)
-                        {
-                            var detailRequestUpdate = checkExistMasterType.MasterTypeDetails.FirstOrDefault(old => old.MasterTypeDetailId == detail.MasterTypeDetailId);
-                            if (detailRequestUpdate == null)
-                                continue;
-                            detail.TypeOfValue = detailRequestUpdate.TypeOfValue;
-                            detail.Value = detailRequestUpdate.Value;
-                            detail.ForeignKeyTable = detailRequestUpdate.ForeignKeyTable;
-                            detail.ForeignKeyId = detailRequestUpdate.ForeignKeyId;
-                            detail.MasterTypeDetailName = detailRequestUpdate.MasterTypeDetailName;
-                        }
+                        //foreach (var detail in detailToDelete)
+                        //{
+                        //    _unitOfWork.MasterTypeDetailRepostiory.Delete(detail);
+                        //    checkExistMasterType.MasterTypeDetails.Remove(detail);
+                        //}
+                        //foreach (var detail in updateMasterTypeModel.MasterTypeDetails)
+                        //{
+                        //    var detailRequestUpdate = checkExistMasterType.MasterTypeDetails.FirstOrDefault(old => old.MasterTypeDetailId == detail.MasterTypeDetailId);
+                        //    if (detailRequestUpdate == null)
+                        //        continue;
+                        //    detail.TypeOfValue = detailRequestUpdate.TypeOfValue;
+                        //    detail.Value = detailRequestUpdate.Value;
+                        //    detail.ForeignKeyTable = detailRequestUpdate.ForeignKeyTable;
+                        //    detail.ForeignKeyId = detailRequestUpdate.ForeignKeyId;
+                        //    detail.MasterTypeDetailName = detailRequestUpdate.MasterTypeDetailName;
+                        //}
                         // Thêm tài nguyên mới từ request
-                        foreach (var resource in updateMasterTypeModel.MasterTypeDetails?.Where(newImg => !newImg.MasterTypeDetailId.HasValue)!)
-                        {
-                            //var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.FARM_LEGAL_DOCUMENT);
-                            var newRes = new MasterTypeDetail
-                            {
-                                ForeignKeyId = resource.ForeignKeyId,
-                                ForeignKeyTable = resource.ForeignKeyTable,
-                                MasterTypeDetailName = resource.MasterTypeDetailName,
-                                Value = resource.Value,
-                                TypeOfValue = resource.ToString(),
-                                MasterTypeDetailCode = $"{CodeAliasEntityConst.MASTER_TYPE_DETAIL}-{CodeHelper.GenerateCode()}"
-                            };
-                            checkExistMasterType.MasterTypeDetails.Add(newRes);
-                        }
+                        //foreach (var resource in updateMasterTypeModel.MasterTypeDetails?.Where(newImg => !newImg.MasterTypeDetailId.HasValue)!)
+                        //{
+                        //    //var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.FARM_LEGAL_DOCUMENT);
+                        //    var newRes = new MasterTypeDetail
+                        //    {
+                        //        ForeignKeyId = resource.ForeignKeyId,
+                        //        ForeignKeyTable = resource.ForeignKeyTable,
+                        //        MasterTypeDetailName = resource.MasterTypeDetailName,
+                        //        Value = resource.Value,
+                        //        TypeOfValue = resource.ToString(),
+                        //        MasterTypeDetailCode = $"{CodeAliasEntityConst.MASTER_TYPE_DETAIL}-{CodeHelper.GenerateCode()}"
+                        //    };
+                        //    checkExistMasterType.MasterTypeDetails.Add(newRes);
+                        //}
 
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
