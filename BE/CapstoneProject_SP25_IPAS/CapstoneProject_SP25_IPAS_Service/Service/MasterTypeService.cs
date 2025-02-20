@@ -116,19 +116,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private async Task<string> GetNextSequenceNumberOfMasterTypeDetail()
-        {
-            var alias = CodeAliasEntityConst.MASTER_TYPE_DETAIL + "-";
-            string datePart = DateTime.Now.ToString("ddMMyyyy");
-            int lastNumber = await _unitOfWork.MasterTypeDetailRepostiory.GetLastMasterTypeDetail(); // Hàm lấy số thứ tự gần nhất từ DB
-            int nextPlanId = lastNumber + 1;
-
-            // Xác định số chữ số cần hiển thị
-            int digitCount = nextPlanId.ToString().Length; // Số chữ số thực tế
-            string sequence = nextPlanId.ToString($"D{digitCount}");
-            return alias + datePart + "-" + sequence;
-        }
-
+      
         public async Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId)
         {
             try
