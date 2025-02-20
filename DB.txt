@@ -542,6 +542,8 @@ CREATE TABLE ipas.dbo.Process (
 	isActive bit NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	StartDate datetime NULL,
+	EndDate datetime NULL,
 	isDeleted bit NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
@@ -571,6 +573,8 @@ CREATE TABLE ipas.dbo.SubProcess (
 	isActive bit NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	StartDate datetime NULL,
+	EndDate datetime NULL
 	isDeleted bit NULL,
     [Order] int NULL,
 	ProcessID int NULL,

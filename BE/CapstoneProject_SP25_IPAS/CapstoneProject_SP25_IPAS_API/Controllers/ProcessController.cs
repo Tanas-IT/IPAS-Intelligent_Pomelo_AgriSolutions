@@ -26,8 +26,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters);
-                return Ok(result);
+                var farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (farmId != null)
+                {
+                    var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters, farmId.Value);
+                    return Ok(result);
+                }
+                var badRequest = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "FarmId is required"
+                };
+                return BadRequest(badRequest);
             }
             catch (Exception ex)
             {
