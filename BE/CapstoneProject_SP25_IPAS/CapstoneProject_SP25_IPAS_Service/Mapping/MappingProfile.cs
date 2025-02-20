@@ -67,6 +67,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.FarmName, opt => opt.MapFrom(x => x.Farm != null ? x.Farm.FarmName : ""))
                 .ForMember(dest => dest.FarmId, opt => opt.MapFrom(x => x.Farm != null ? x.Farm.FarmId : 0))
                 .ReverseMap();
+
+            CreateMap<GrowthStage, GetForSelectGrowthStage>()
+               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(x => x.GrowthStageName))
+               .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
+               .ReverseMap();
             CreateMap<SubProcessInProcessModel, SubProcess>().ReverseMap();
             CreateMap<Process, ProcessModel>()
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))

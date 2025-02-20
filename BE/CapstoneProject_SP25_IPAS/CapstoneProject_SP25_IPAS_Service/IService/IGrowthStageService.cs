@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetGrowthStageByID(int growthStageId);
 
-        public Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter, int farmId);
 
         public Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel);
 
