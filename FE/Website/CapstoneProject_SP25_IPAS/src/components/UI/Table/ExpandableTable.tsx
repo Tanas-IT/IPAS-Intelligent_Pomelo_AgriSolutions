@@ -33,6 +33,7 @@ const ExpandableTable = <E extends Record<string, any>>({
         <Flex>
           <Checkbox
             className={styles.customCheckbox}
+            style={{ fontSize: "13px" }}
             checked={selection.includes(record[rowKey] as string)}
             onChange={() => toggleRowSelection(record[rowKey] as string)}
           >
@@ -45,7 +46,7 @@ const ExpandableTable = <E extends Record<string, any>>({
     },
     ...expandColumns.map((col) => ({
       title: (
-        <div className={`${style.headerTbl}`}>
+        <div className={`${style.headerExpandTbl}`}>
           <Flex className={style.headerCol}>
             <span className={style.headerTitle}>{col.header}</span>
           </Flex>
@@ -74,7 +75,7 @@ const ExpandableTable = <E extends Record<string, any>>({
 
   return (
     <Table
-      // className={`${style.tbl} ${styles.customTable}`}
+      className={`${styles.customExpandTable}`}
       dataSource={expandDataSource}
       columns={antColumns as any}
       pagination={false}

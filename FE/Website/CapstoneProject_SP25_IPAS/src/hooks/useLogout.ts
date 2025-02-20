@@ -12,10 +12,10 @@ const useLogout = () => {
     const authData = getAuthData();
     if (authData.refreshToken && authData.accessToken) {
       var result = await authService.logout(authData.refreshToken);
-      // if (result.statusCode === 200) {
-      clearAuthData();
-      navigate(PATHS.AUTH.LOGIN);
-      // }
+      if (result.statusCode === 200) {
+        clearAuthData();
+        navigate(PATHS.AUTH.LOGIN);
+      }
     }
   };
 

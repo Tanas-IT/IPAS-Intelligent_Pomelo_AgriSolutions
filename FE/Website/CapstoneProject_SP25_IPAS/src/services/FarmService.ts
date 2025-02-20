@@ -85,7 +85,7 @@ export const createFarmDocuments = async (
   return apiResponse;
 };
 
-export const deleteFarmDocuments = async (docId: string): Promise<ApiResponse<Object>> => {
+export const deleteFarmDocuments = async (docId: number | string): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.delete(`legal-documents/${docId}`);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;

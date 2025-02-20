@@ -89,6 +89,7 @@ export const forgetPassNewPass = async (
 
 export const refreshToken = async (): Promise<ApiResponse<LoginResponse>> => {
   const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
+
   const res = await axiosNoAuth.post("refresh-token", {
     refreshToken: refreshToken,
   });

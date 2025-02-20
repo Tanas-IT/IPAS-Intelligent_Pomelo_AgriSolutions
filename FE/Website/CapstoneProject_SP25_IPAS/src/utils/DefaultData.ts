@@ -7,7 +7,7 @@ export const getDefaultFarm = (): GetFarmInfo => ({
   farmCode: "",
   farmId: 0,
   farmName: "",
-  logo: undefined,
+  farmLogo: undefined,
   logoUrl: "",
   address: "",
   provinceId: "",
