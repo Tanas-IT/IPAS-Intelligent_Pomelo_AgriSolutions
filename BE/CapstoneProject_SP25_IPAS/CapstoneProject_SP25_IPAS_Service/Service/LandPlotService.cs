@@ -234,7 +234,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
             if (!string.IsNullOrEmpty(searchKey))
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));

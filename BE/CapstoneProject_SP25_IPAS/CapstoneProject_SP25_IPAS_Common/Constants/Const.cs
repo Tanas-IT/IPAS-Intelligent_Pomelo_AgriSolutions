@@ -819,7 +819,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region MasterTypeDetail
-        public static int WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG = "Does not have any master type detail";
         #endregion
 

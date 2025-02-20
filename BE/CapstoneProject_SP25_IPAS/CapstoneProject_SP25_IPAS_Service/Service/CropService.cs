@@ -141,7 +141,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (plotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId && x.Crop.EndDate >= DateTime.Now;
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId && x.Crop.EndDate >= DateTime.Now && x.Crop.Status.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.Crop.CropName!.ToLower().Contains(searchValue.ToLower()));

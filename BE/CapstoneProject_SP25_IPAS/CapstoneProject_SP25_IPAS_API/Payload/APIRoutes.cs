@@ -33,7 +33,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/landplots";
             public const string createLandPlot = prefix + "";
-            public const string getAllLandPlotNoPagin = prefix + "";
+            public const string getAllLandPlotNoPagin = prefix + "/get-for-selected";
             public const string updateLandPlotCoordination = prefix + "/update-coordination";
             public const string updateLandPlotInfo = prefix + "/update-info";
             public const string deleteLandPlotOfFarm = prefix + "";
@@ -82,10 +82,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createMasterType = Base + "/masterTypes";
             public const string getMasterTypeById = Base + "/masterTypes/get-masterType-by-id/{id}";
             public const string getMasterTypeWithPagination = Base + "/masterTypes";
-            public const string permanenlyDelete = Base + "/masterTypes/delete-permanenly/{id}";
+            public const string permanenlyDelete = Base + "/masterTypes/delete-permanently/{id}";
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
+            public const string softedDelete = Base + "/masterTypes/delete-permanently";
         }
+
         public static class Criteria
         {
             public const string prefix = Base + "/criterias";
