@@ -14,7 +14,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel
 
         public string? GrowthStageName { get; set; }
 
-        public DateTime? MonthAgeStart { get; set; }
-        public DateTime? MonthAgeEnd { get; set; }
+        public int? MonthAgeStart { get; set; }
+
+        public int? MonthAgeEnd { get; set; }
+        public bool? isDefault { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public string? Description { get; set; }
+        public string? FarmName { get; set; }
     }
 }

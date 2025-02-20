@@ -1391,20 +1391,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPlanByFarmId(int farmId)
+        public async Task<BusinessResult> GetPlanByFarmId(int? farmId)
         {
             try
             {
-                var getListPlan = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
-                var listTemp = _mapper.Map<IEnumerable<PlanModel>>(getListPlan).ToList();
+                var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
+                var getListPlan = new List<Plan>();
+                foreach(var planTarget in getListPlanTarget)
+                {
+                    if(planTarget.PlanID != null)
+                    {
+                        var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
+                        if (getPlan != null)
+                        {
+                            getListPlan.Add(getPlan);
+                        }
+                    }
+                }
+                var listTemp = _mapper.Map<List<PlanModel>>(getListPlan).ToList();
                 foreach (var planTemp in listTemp)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
                     planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
                 }
-                if (listTemp != null && listTemp.Count > 0)
+                if (listTemp != null)
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_FARM_ID_CODE, Const.SUCCESS_GET_PLAN_BY_FARM_ID_MSG, listTemp); ;
+                    if(listTemp.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_FARM_ID_CODE, Const.SUCCESS_GET_PLAN_BY_FARM_ID_MSG, listTemp); ;
+                    }
+                    return new BusinessResult(Const.WARNING_GET_PLAN_EMPTY_CODE, Const.WARNING_GET_PLAN_EMPTY_MSG);
                 }
                 return new BusinessResult(Const.FAIL_GET_PLAN_BY_FARM_ID_CODE, Const.FAIL_GET_PLAN_BY_FARM_ID_MSG);
             }

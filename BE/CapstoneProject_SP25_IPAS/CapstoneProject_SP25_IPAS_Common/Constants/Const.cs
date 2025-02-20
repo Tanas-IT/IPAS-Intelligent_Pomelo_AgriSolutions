@@ -198,6 +198,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_DELETE_GROWTHSTAGE_MESSAGE = "Delete GrowthStage success";
         public static int SUCCESS_GET_ALL_GROWTHSTAGE_CODE = 200;
         public static string SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE = "Get all GrowthStage success";
+        public static int SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_CODE = 200;
+        public static string SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE = "Get GrowthStage by farm Id success";
         #endregion
 
         #region ProcessStyle code
@@ -611,6 +613,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_DELETE_GROWTHSTAGE_MESSAGE = "Delete GrowthStage failed";
         public static int FAIL_GET_GROWTHSTAGE_CODE = 500;
         public static string FAIL_GET_GROWTHSTAGE_MESSAGE = "Get GrowthStage failed";
+        public static int FAIL_GET_GROWTHSTAGE_BY_FARM_ID_CODE = 200;
+        public static string FAIL_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE = "Get GrowthStage by farm Id fail";
         #endregion
 
         #region LandRow Fail code
@@ -885,7 +889,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Plan History
         public static int WARNING_GET_PLAN_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLAN_DOES_NOT_EXIST_MSG = "Plan not exist.";
-        public static int WARNING_GET_PLAN_EMPTY_CODE = 400;
+        public static int WARNING_GET_PLAN_EMPTY_CODE = 404;
         public static string WARNING_GET_PLAN_EMPTY_MSG = "No plan was found.";
         #endregion
 

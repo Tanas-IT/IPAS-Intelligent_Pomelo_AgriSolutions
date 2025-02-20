@@ -53,7 +53,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<MasterType> MasterTypes { get; set; }
 
-    public virtual DbSet<MasterTypeDetail> MasterTypeDetails { get; set; }
+    //public virtual DbSet<MasterTypeDetail> MasterTypeDetails { get; set; }
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
@@ -66,6 +66,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<Partner> Partners { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
+    public virtual DbSet<PlanTarget> PlanTargets { get; set; }
 
     public virtual DbSet<Plan> Plans { get; set; }
 
@@ -608,31 +609,31 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__Master_Type_GrowthStage__2274324F6C");
         });
 
-        modelBuilder.Entity<MasterTypeDetail>(entity =>
-        {
-            entity.HasKey(e => e.MasterTypeDetailId).HasName("MasterTypeDetails_PK");
+        //modelBuilder.Entity<MasterTypeDetail>(entity =>
+        //{
+        //    entity.HasKey(e => e.MasterTypeDetailId).HasName("MasterTypeDetails_PK");
 
-            entity.Property(e => e.MasterTypeDetailId).HasColumnName("MasterTypeDetailID");
+        //    entity.Property(e => e.MasterTypeDetailId).HasColumnName("MasterTypeDetailID");
 
-            entity.ToTable("MasterTypeDetails");
-            entity.Property(e => e.ForeignKeyTable)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.MasterTypeDetailCode)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.MasterTypeDetailName).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
-            entity.Property(e => e.TypeOfValue)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.Value).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.ToTable("MasterTypeDetails");
+        //    entity.Property(e => e.ForeignKeyTable)
+        //        .HasMaxLength(200)
+        //        .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.Property(e => e.MasterTypeDetailCode)
+        //        .HasMaxLength(200)
+        //        .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.Property(e => e.MasterTypeDetailName).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
+        //    entity.Property(e => e.TypeOfValue)
+        //        .HasMaxLength(200)
+        //        .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        //    entity.Property(e => e.Value).UseCollation("SQL_Latin1_General_CP1_CI_AS");
 
-            entity.HasOne(d => d.MasterType).WithMany(p => p.MasterTypeDetails)
-                .HasForeignKey(d => d.MasterTypeId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasForeignKey(x => x.MasterTypeId);
-        });
+        //    entity.HasOne(d => d.MasterType).WithMany(p => p.MasterTypeDetails)
+        //        .HasForeignKey(d => d.MasterTypeId)
+        //        .OnDelete(DeleteBehavior.Cascade)
+        //        .HasForeignKey(x => x.MasterTypeId);
+        //});
 
         modelBuilder.Entity<Notification>(entity =>
         {
@@ -871,6 +872,7 @@ public partial class IpasContext : DbContext
              .HasForeignKey(d => d.CropId)
              .HasConstraintName("FK_Plan_Crop35612");
 
+           
 
 
         });
@@ -1416,6 +1418,7 @@ public partial class IpasContext : DbContext
         modelBuilder.Entity<PlanTarget>(entity =>
         {
             entity.HasKey(e => e.PlanTargetID).HasName("PK__PlanTarget__2456GHYRT5");
+            entity.ToTable("PlanTarget");
 
             entity.Property(e => e.PlanID).HasColumnName("PlanID");
             entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");

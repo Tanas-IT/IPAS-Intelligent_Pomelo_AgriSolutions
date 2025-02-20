@@ -15,6 +15,8 @@ public partial class GrowthStage
 
     public int? MonthAgeEnd { get; set; }
     public bool? isDefault { get; set; }
+    public DateTime? CreateDate { get; set; }
+    public string? Description { get; set; }
     public int? FarmID { get; set; }
     public virtual Farm? Farm { get; set; }
 

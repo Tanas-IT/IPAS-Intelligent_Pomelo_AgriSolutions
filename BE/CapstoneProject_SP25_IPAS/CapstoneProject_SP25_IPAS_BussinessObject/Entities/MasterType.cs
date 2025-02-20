@@ -45,7 +45,7 @@ public partial class MasterType
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 
-    public virtual ICollection<MasterTypeDetail> MasterTypeDetails { get; set; } = new List<MasterTypeDetail>();
+    //public virtual ICollection<MasterTypeDetail> MasterTypeDetails { get; set; } = new List<MasterTypeDetail>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

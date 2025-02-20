@@ -118,25 +118,20 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.AsNoTracking().ToListAsync();
         }
 
-        public async Task<List<Plan>> GetListPlanByFarmId(int farmId)
+        public async Task<List<PlanTarget>> GetListPlanByFarmId(int? farmId)
         {
-            var result = await _context.Plans
-                                 .Include(x => x.PlanTargets)
-                                     .ThenInclude(pt => pt.LandPlot)
-                                         .ThenInclude(lp => lp.Farm)  // Qua LandPlot đến Farm
-                                 .Include(x => x.PlanTargets)
-                                     .ThenInclude(pt => pt.LandRow)
-                                         .ThenInclude(lr => lr.LandPlot)
-                                            .ThenInclude(t => t.Farm)
-                                 .Include(x => x.PlanTargets)
-                                    .ThenInclude(x => x.Plant)
-                                    .ThenInclude(pt => pt.LandRow)
-                                         .ThenInclude(lr => lr.LandPlot)
-                                            .ThenInclude(t => t.Farm)
-                                 .Where(x => x.PlanTargets.Any(pt =>
-                                     (pt.LandPlot != null && pt.LandPlot.FarmId == farmId) ||
-                                     (pt.LandRow != null && pt.LandRow.FarmId == farmId) || (pt.Plant != null && pt.Plant.LandRow.LandPlot.FarmId == farmId))) 
-                                 .ToListAsync();
+            var result = await _context.PlanTargets
+                                .Include(x => x.Plan)
+                                .Include(x => x.GraftedPlant)
+                                .Include(x => x.Plant)
+                                .Include(x => x.LandPlot)
+                                .Include(x => x.LandRow)
+                                .Include(x => x.PlantLot)
+                                .Where(x => x.GraftedPlant.Plant.FarmId == farmId
+                                        || x.Plant.FarmId == farmId
+                                        || x.LandPlot.FarmId == farmId
+                                        || x.LandRow.FarmId == farmId).ToListAsync();
+                                    
 
             return result;
 

@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -14,10 +15,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class GrowthStageController : ControllerBase
     {
         private readonly IGrowthStageService _growthStageService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public GrowthStageController(IGrowthStageService growthStageService)
+        public GrowthStageController(IGrowthStageService growthStageService, IJwtTokenService jwtTokenService)
         {
             _growthStageService = growthStageService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.GrowthStage.getGrowthStageWithPagination, Name = "getAllGrowthStagePaginationAsync")]
@@ -102,6 +105,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _growthStageService.PermanentlyDeleteGrowthStage(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.GrowthStage.getGrowthStageByFarm, Name = "getGrowthStageByFarm")]
+        public async Task<IActionResult> GetGrowthStageByFarmId([FromRoute(Name = "farm-id")] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _growthStageService.GetGrowthStageByFarmId(farmId);
                 return Ok(result);
             }
             catch (Exception ex)

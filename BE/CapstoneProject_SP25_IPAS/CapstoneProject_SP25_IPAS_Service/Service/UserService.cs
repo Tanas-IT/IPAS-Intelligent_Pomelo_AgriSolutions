@@ -196,7 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.FarmRepository.Delete(listFarm);
                 _unitOfWork.UserFarmRepository.Delete(userFarm);
             }
-            foreach (var notification in entityDeleteUser!.Notifications.ToList())
+            foreach (var notification in entityDeleteUser!.NotificationSenders.ToList())
             {
                 _unitOfWork.NotificationRepository.Delete(notification);
             }
