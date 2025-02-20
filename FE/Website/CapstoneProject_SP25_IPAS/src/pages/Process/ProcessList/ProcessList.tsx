@@ -37,7 +37,6 @@ function ProcessList() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetProcess>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       processService.getProcesses(page, limit, sortField, sortDirection, searchValue, "21", filters),
@@ -145,7 +144,6 @@ function ProcessList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={false}
-          isInitialLoad={isInitialLoad}
           caption="Process Management Table"
           notifyNoData="No data to display"
           renderAction={(process: GetProcess) => <ActionMenuProcess id={process.processId} />}

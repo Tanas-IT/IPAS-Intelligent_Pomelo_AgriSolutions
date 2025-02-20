@@ -23,6 +23,7 @@ import {
   LandPlot,
   LandPlotCreate,
   MasterType,
+  GrowthStage,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -54,7 +55,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
-  { path: PATHS.MASTER_TYPE.LIST, component: MasterType, layout: ManagementLayout },
+  { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
+  { path: PATHS.CLASSIFICATION.GROWTH_STAGE, component: GrowthStage, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_INFO, component: FarmInfo, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
