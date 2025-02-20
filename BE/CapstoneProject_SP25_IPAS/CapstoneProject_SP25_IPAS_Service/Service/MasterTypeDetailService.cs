@@ -42,8 +42,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeDetailName = createMasterTypeDetailModel.MasterTypeDetailName,
                         Value = createMasterTypeDetailModel.Value,
                         TypeOfValue = createMasterTypeDetailModel.TypeOfValue,
-                        ForeignKeyId = createMasterTypeDetailModel.ForeignKeyId,
-                        ForeignKeyTable = createMasterTypeDetailModel.ForeignKeyTable,
                     };
                     await _unitOfWork.MasterTypeDetailRepostiory.Insert(newMasterTypeDetail);
 
@@ -76,15 +74,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkInt = int.TryParse(paginationParameter.Search, out validInt);
                     if (checkInt)
                     {
-                        filter = filter.And(x => x.MasterTypeDetailId == validInt || x.ForeignKeyId == validInt || x.MasterTypeId == validInt);
+                        filter = filter.And(x => x.MasterTypeDetailId == validInt || x.MasterTypeId == validInt);
                     }
                     else
                     {
                         filter = x => x.MasterTypeDetailCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.MasterTypeDetailName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Value.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.TypeOfValue.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.ForeignKeyTable.ToLower().Contains(paginationParameter.Search.ToLower());
+                                      || x.TypeOfValue.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
                 }
 
@@ -105,14 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.TypeOfValue.Contains(masterTypeDetailFilter.TypeOfValue));
                 }
-                if (masterTypeDetailFilter.ForeignKeyId != null)
-                {
-                    filter = filter.And(x => x.ForeignKeyId == masterTypeDetailFilter.ForeignKeyId);
-                }
-                if (masterTypeDetailFilter.ForeignTable != null)
-                {
-                    filter = filter.And(x => x.ForeignKeyTable.Contains(masterTypeDetailFilter.ForeignTable));
-                }
+                
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "mastertypedetailid":
@@ -144,18 +134,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.TypeOfValue)
                                    : x => x.OrderBy(x => x.TypeOfValue)) : x => x.OrderBy(x => x.TypeOfValue);
-                        break;
-                    case "foreignkeyid":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.ForeignKeyId)
-                                   : x => x.OrderBy(x => x.ForeignKeyId)) : x => x.OrderBy(x => x.ForeignKeyId);
-                        break;
-                    case "foreignkeytable":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.ForeignKeyTable)
-                                   : x => x.OrderBy(x => x.ForeignKeyTable)) : x => x.OrderBy(x => x.ForeignKeyTable);
                         break;
                     case "mastertypeid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -276,14 +254,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistMasterTypeDetail.TypeOfValue = updateMasterTypeModel.TypeOfValue;
                     }
-                    if (updateMasterTypeModel.ForeignKeyId != null)
-                    {
-                        checkExistMasterTypeDetail.ForeignKeyId = updateMasterTypeModel.ForeignKeyId;
-                    }
-                    if (updateMasterTypeModel.ForeignKeyTable != null)
-                    {
-                        checkExistMasterTypeDetail.ForeignKeyTable = updateMasterTypeModel.ForeignKeyTable;
-                    }
+                    
                     if (updateMasterTypeModel.MasterTypeId != null)
                     {
                         checkExistMasterTypeDetail.MasterTypeId = updateMasterTypeModel.MasterTypeId;

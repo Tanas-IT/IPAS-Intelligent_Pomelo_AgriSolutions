@@ -63,8 +63,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 MasterTypeDetailCode = await GetNextSequenceNumberOfMasterTypeDetail(),
                                 MasterTypeDetailName = masterDetailModel.MasterTypeDetailName,
-                                ForeignKeyId = masterDetailModel.ForeignKeyId,
-                                ForeignKeyTable = masterDetailModel.ForeignKeyTable,
                                 TypeOfValue = masterDetailModel.TypeOfValue,
                                 Value = masterDetailModel.TypeOfValue,
                                
@@ -181,9 +179,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                .Select(f => f.ToLower()) // Chuyển về chữ thường
                                .ToList();
 
-                    foreach (var item in filterList)
+                    // Kiểm tra nếu filterList có phần tử để tránh lỗi
+                    if (filterList.Any())
                     {
-                        filter = filter.And(x => x.TypeName.ToLower().Contains(item));
+                        filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
                     }
                 }
                
@@ -408,14 +407,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     getMasterTypeDetail.TypeOfValue = updateMasterTypeDetail.TypeOfValue;
                                 }
-                                if (updateMasterTypeDetail.ForeignKeyId != null)
-                                {
-                                    getMasterTypeDetail.ForeignKeyId = updateMasterTypeDetail.ForeignKeyId;
-                                }
-                                if (updateMasterTypeDetail.ForeignKeyTable != null)
-                                {
-                                    getMasterTypeDetail.ForeignKeyTable = updateMasterTypeDetail.ForeignKeyTable;
-                                }
+                                
                                 if (updateMasterTypeDetail.MasterTypeId != null)
                                 {
                                     getMasterTypeDetail.MasterTypeId = updateMasterTypeDetail.MasterTypeId;

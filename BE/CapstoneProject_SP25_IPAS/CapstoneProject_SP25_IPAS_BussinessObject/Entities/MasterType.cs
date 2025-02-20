@@ -26,8 +26,10 @@ public partial class MasterType
     public bool? IsDelete { get; set; }
     public bool? IsDefault { get; set; }
     public int? FarmID { get; set; }
+    public int? GrowthStageID { get; set; }
 
     public virtual Farm? Farm { get; set; }
+    public virtual GrowthStage? GrowthStage { get; set; }
 
    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 

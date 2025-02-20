@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
+{
+    public class AddPlanInProcessModel
+    {
+        public string? PlanName { get; set; }
+        public string? PlanDetail {  get; set; }
+        public string? PlanNote { get; set; }
+        public int? GrowthStageId { get; set; }
+        public int? MasterTypeId { get; set; }
+    }
+}

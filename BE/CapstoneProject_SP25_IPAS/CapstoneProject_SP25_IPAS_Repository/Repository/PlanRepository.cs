@@ -117,5 +117,29 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return await query.AsNoTracking().ToListAsync();
         }
+
+        public async Task<List<Plan>> GetListPlanByFarmId(int farmId)
+        {
+            var result = await _context.Plans
+                                 .Include(x => x.PlanTargets)
+                                     .ThenInclude(pt => pt.LandPlot)
+                                         .ThenInclude(lp => lp.Farm)  // Qua LandPlot đến Farm
+                                 .Include(x => x.PlanTargets)
+                                     .ThenInclude(pt => pt.LandRow)
+                                         .ThenInclude(lr => lr.LandPlot)
+                                            .ThenInclude(t => t.Farm)
+                                 .Include(x => x.PlanTargets)
+                                    .ThenInclude(x => x.Plant)
+                                    .ThenInclude(pt => pt.LandRow)
+                                         .ThenInclude(lr => lr.LandPlot)
+                                            .ThenInclude(t => t.Farm)
+                                 .Where(x => x.PlanTargets.Any(pt =>
+                                     (pt.LandPlot != null && pt.LandPlot.FarmId == farmId) ||
+                                     (pt.LandRow != null && pt.LandRow.FarmId == farmId) || (pt.Plant != null && pt.Plant.LandRow.LandPlot.FarmId == farmId))) 
+                                 .ToListAsync();
+
+            return result;
+
+        }
     }
 }

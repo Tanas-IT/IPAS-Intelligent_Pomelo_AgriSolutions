@@ -71,11 +71,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     DateTime validDate = DateTime.Now;
                     if (checkInt)
                     {
-                        filter = x => x.GrowthStageId == validInt;
-                    }
-                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
-                    {
-                        filter = x => x.MonthAgeStart == validDate || x.MonthAgeEnd == validDate;
+                        filter = x => x.GrowthStageId == validInt || x.MonthAgeStart == validInt || x.MonthAgeEnd == validInt;
                     }
                     else
                     {

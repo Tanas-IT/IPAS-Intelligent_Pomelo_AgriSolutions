@@ -440,8 +440,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
                                         AuthenModel = new AuthenModel
                                         {
-                                            AccessToken = newAccessToken,
-                                            RefreshToken = checkExistRefreshToken.RefreshTokenValue!
+                                            AccessToken = newAccessToken,   
+                                            RefreshToken = newRefreshToken
                                         },
                                         Avartar = existUser.AvatarURL,
                                         Fullname = existUser.FullName,
@@ -1280,6 +1280,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         CreateDate = DateTime.Now,
                                         ExpiredDate = checkExistRefreshToken.ExpiredDate
                                     });
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(jwtToken);
                                     return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new ReIssueToken
                                     {
                                         AccessToken = newAccessToken,

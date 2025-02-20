@@ -314,6 +314,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_UN_SOFT_DELETE_PLAN_MSG = "Un soft delete plan success";
         public static int SUCCESS_CREATE_PLAN_CODE = 200;
         public static string SUCCESS_CREATE_PLAN_MSG = "Create plan success";
+        public static int SUCCESS_GET_PLAN_BY_FARM_ID_CODE = 200;
+        public static string SUCCESS_GET_PLAN_BY_FARM_ID_MSG = "Get Plan By Farm ID success";
         #endregion
 
         #region UserWorkLog
@@ -647,6 +649,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UN_SOFT_DELETE_PLAN_MESSAGE = "Un soft delete plan failed";
         public static int FAIL_GET_PLAN_CODE = 500;
         public static string FAIL_GET_PLAN_MESSAGE = "Get plan failed";
+        public static int FAIL_GET_PLAN_BY_FARM_ID_CODE = 200;
+        public static string FAIL_GET_PLAN_BY_FARM_ID_MSG = "Get Plan By Farm ID fail";
         #endregion
 
         #region User Work Log Fail code

@@ -15,10 +15,6 @@ public partial class MasterTypeDetail
 
     public string? TypeOfValue { get; set; }
 
-    public int? ForeignKeyId { get; set; }
-
-    public string? ForeignKeyTable { get; set; }
-
     public int? MasterTypeId { get; set; }
 
    public virtual MasterType? MasterType { get; set; }

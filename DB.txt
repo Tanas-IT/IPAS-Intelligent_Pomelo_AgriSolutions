@@ -74,8 +74,8 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	GrowthStageID int IDENTITY(1,1) NOT NULL,
 	GrowthStageCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GrowthStageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MonthAgeStart datetime NULL,
-	MonthAgeEnd datetime NULL,
+	MonthAgeStart int NULL,
+	MonthAgeEnd int NULL,
 	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID)
 );
 
@@ -777,6 +777,9 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlanDetail nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	ResponsibleBy nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlanName nvarchar(200) COLLATE Vietnamese_CI_AS NULL,
+	PlantID int NULL,
+	LandPlotID int NULL,
 	AssignorID int NULL,
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
@@ -784,15 +787,20 @@ CREATE TABLE ipas.dbo.[Plan] (
 	ProcessID int NULL,
 	CropID int NULL,
 	GrowthStageID int NULL,
+	PlantLotID int NULL,
+	GraftedPlantID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
-	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LandRowID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
-	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
-	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
+	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES IPAS_v2.dbo.Crop(CropID),
+	CONSTRAINT FK_Plan_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES IPAS_v2.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT FK_Plan_GrowthStage FOREIGN KEY (GrowthStageID) REFERENCES IPAS_v2.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES IPAS_v2.dbo.Process(ProcessID) ON DELETE CASCADE,
+	CONSTRAINT FK__Plan__LandPlotID__1DB06A4F FOREIGN KEY (LandPlotID) REFERENCES IPAS_v2.dbo.LandPlot(LandPlotID) ON DELETE CASCADE,
+	CONSTRAINT Plan_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES IPAS_v2.dbo.LandRow(LandRowID),
+	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES IPAS_v2.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
+	CONSTRAINT Plan_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES IPAS_v2.dbo.PlantLot(PlantLotID) ON DELETE SET NULL
 );
 
 -- ipas.dbo.RefreshToken definition

@@ -5,7 +5,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 
 public partial class SubProcess
 {
-    public int SubProcessId { get; set; }
+    public int SubProcessID { get; set; }
 
     public string? SubProcessCode { get; set; }
 

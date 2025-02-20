@@ -417,8 +417,8 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GrowthStageName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.MonthAgeEnd).HasColumnType("datetime");
-            entity.Property(e => e.MonthAgeStart).HasColumnType("datetime");
+            entity.Property(e => e.MonthAgeEnd);
+            entity.Property(e => e.MonthAgeStart);
         });
 
         modelBuilder.Entity<HarvestHistory>(entity =>
@@ -601,6 +601,11 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.FarmID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Master_Type_Farm__22751F6C");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.MasterTypes)
+                .HasForeignKey(d => d.GrowthStageID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Master_Type_GrowthStage__2274324F6C");
         });
 
         modelBuilder.Entity<MasterTypeDetail>(entity =>
@@ -608,9 +613,7 @@ public partial class IpasContext : DbContext
             entity.HasKey(e => e.MasterTypeDetailId).HasName("MasterTypeDetails_PK");
 
             entity.Property(e => e.MasterTypeDetailId).HasColumnName("MasterTypeDetailID");
-            entity.Property(e => e.ForeignKeyTable)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+           
             entity.Property(e => e.MasterTypeDetailCode)
                 .HasMaxLength(200)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -860,9 +863,12 @@ public partial class IpasContext : DbContext
               .HasForeignKey(d => d.CropId)
               .HasConstraintName("FK_Plan_Crop");
 
-           
+            entity.HasOne(d => d.Crop).WithMany(p => p.Plans)
+             .HasForeignKey(d => d.CropId)
+             .HasConstraintName("FK_Plan_Crop35612");
 
-           
+
+
         });
 
         modelBuilder.Entity<Plant>(entity =>
@@ -1110,11 +1116,11 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<SubProcess>(entity =>
         {
-            entity.HasKey(e => e.SubProcessId).HasName("PK__SubProce__F054A88CD66E5A59");
+            entity.HasKey(e => e.SubProcessID).HasName("PK__SubProce__F054A88CD66E5A59");
 
             entity.ToTable("SubProcess");
 
-            entity.Property(e => e.SubProcessId).HasColumnName("SubProcessID");
+            entity.Property(e => e.SubProcessID).HasColumnName("SubProcessID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Input).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
