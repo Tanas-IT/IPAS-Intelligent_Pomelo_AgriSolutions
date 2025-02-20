@@ -9,24 +9,31 @@ import {
   TableTitle,
 } from "@/components";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
-import { useDelete, useFetchData, useModal } from "@/hooks";
-import { useEffect, useState } from "react";
-import { getOptions } from "@/utils";
-import { farmService, masterTypeService } from "@/services";
+import {
+  useTableDelete,
+  useFetchData,
+  useModal,
+  useTableUpdate,
+  useTableAdd,
+  useFilters,
+} from "@/hooks";
+import { useEffect } from "react";
+import { DEFAULT_FILTERS, getOptions } from "@/utils";
+import { masterTypeService } from "@/services";
 import { masterTypeColumns } from "./MasterTypeColumn";
 import MasterTypeFilter from "./MasterTypeFilter";
 import { FilterMasterTypeState } from "@/types";
 import MasterTypeModel from "./MasterTypeModel";
 
 function MasterType() {
-  const [filters, setFilters] = useState<FilterMasterTypeState>({
-    createDateFrom: "",
-    createDateTo: "",
-    typeName: [] as string[],
-  });
   const formModal = useModal<GetMasterType>();
-  const deleteConfirmModal = useModal<{ id: number }>();
+  const deleteConfirmModal = useModal<{ id: number | string }>();
   const updateConfirmModal = useModal<{ doc: MasterTypeRequest }>();
+
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
+    DEFAULT_FILTERS,
+    () => fetchData(),
+  );
 
   const {
     data,
@@ -34,6 +41,7 @@ function MasterType() {
     totalRecords,
     totalPages,
     sortField,
+    sortDirection,
     rotation,
     handleSortChange,
     currentPage,
@@ -43,7 +51,6 @@ function MasterType() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetMasterType>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       masterTypeService.getMasterTypes(page, limit, sortField, sortDirection, searchValue, filters),
@@ -51,31 +58,16 @@ function MasterType() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, searchValue]);
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
 
-  // const handleDelete = async () => {
-  //   const typeId = deleteConfirmModal.modalState.data?.typeId;
-  //   try {
-  //     const result = await UserService.deleteUser(id);
-  //     if (result.statusCode === 200) {
-  //       if ((totalRecords - 1) % rowsPerPage === 0 && currentPage > 1) {
-  //         handlePageChange(currentPage - 1);
-  //       } else {
-  //         fetchData();
-  //       }
-  //       toast.success(result.message);
-  //     } else {
-  //       toast.success(result.message);
-  //     }
-  //   } finally {
-  //     deleteConfirmModal.hideModal();
-  //   }
-  // };
-
-  const { handleDelete } = useDelete(
-    farmService.deleteFarmDocuments,
-    fetchData,
-    deleteConfirmModal,
+  const { handleDelete } = useTableDelete(
+    {
+      deleteFunction: masterTypeService.deleteMasterType,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
+      },
+    },
     {
       currentPage,
       rowsPerPage,
@@ -84,86 +76,34 @@ function MasterType() {
     },
   );
 
-  const handleUpdateConfirm = (doc: MasterTypeRequest) => {
-    // const oldDoc = legalDocuments.find((d) => d.legalDocumentId === doc.LegalDocumentId);
-    // if (!oldDoc) return;
-    // // Lấy danh sách resourceID từ oldDoc và doc
-    // const oldResourceIds = oldDoc.resources.map((r) => r.resourceID);
-    // const newResourceIds = doc.resources.map((r) => r.resourceID);
-    // // Kiểm tra nếu có file mới được thêm
-    // const hasNewFile = doc.resources.some((r) => r.file);
-    // // Kiểm tra nếu resourceID cũ bị mất
-    // const hasRemovedResource = oldResourceIds.some((id) => !newResourceIds.includes(id));
-    // // So sánh dữ liệu
-    // const isChanged =
-    //   oldDoc.legalDocumentType !== doc.legalDocumentType ||
-    //   oldDoc.legalDocumentName !== doc.legalDocumentName ||
-    //   hasNewFile || // Nếu có file mới
-    //   hasRemovedResource; // Nếu có resource bị xóa
-    // if (isChanged) {
-    //   updateConfirmModal.showModal({ doc });
-    // } else {
-    //   formModal.hideModal();
-    // }
+  const handleUpdateConfirm = (type: MasterTypeRequest) => {
+    handleUpdate(type);
   };
 
-  const handleUpdate = async () => {
-    const doc = updateConfirmModal.modalState.data?.doc;
-    if (!doc) return;
-    // try {
-    //   setIsLoading(true);
-    //   var result = await farmService.updateFarmDocuments(doc);
-    //   if (result.statusCode === 200) {
-    //     toast.success(result.message);
-    //     await fetchFarmDocumentsData();
-    //   } else {
-    //     toast.error(result.message);
-    //   }
-    // } finally {
-    //   setIsLoading(false);
-    //   formModal.hideModal();
-    //   updateConfirmModal.hideModal();
-    // }
-  };
+  const { handleUpdate } = useTableUpdate<MasterTypeRequest>({
+    updateService: masterTypeService.updateMasterType,
+    fetchData: fetchData,
+    onSuccess: () => {
+      formModal.hideModal();
+      updateConfirmModal.hideModal();
+    },
+    onError: () => {
+      updateConfirmModal.hideModal();
+    },
+  });
 
-  const handleAdd = async (type: MasterTypeRequest) => {
-    // try {
-    //   setIsLoading(true);
-    //   var result = await farmService.createFarmDocuments(doc);
-    //   if (result.statusCode === 200) {
-    //     toast.success(result.message);
-    //     await fetchFarmDocumentsData();
-    //   } else {
-    //     toast.error(result.message);
-    //   }
-    // } finally {
-    //   setIsLoading(false);
-    //   formModal.hideModal();
-    // }
-  };
-
-  const updateFilters = (key: keyof FilterMasterTypeState, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleApply = () => {
-    fetchData();
-  };
-
-  const handleClear = () => {
-    setFilters({
-      createDateFrom: "",
-      createDateTo: "",
-      typeName: [],
-    });
-  };
+  const { handleAdd } = useTableAdd({
+    addService: masterTypeService.createMasterType,
+    fetchData: fetchData,
+    onSuccess: () => formModal.hideModal(),
+  });
 
   const filterContent = (
     <MasterTypeFilter
       filters={filters}
       updateFilters={updateFilters}
-      onClear={handleClear}
-      onApply={handleApply}
+      onClear={clearFilters}
+      onApply={applyFilters}
     />
   );
 
@@ -189,7 +129,6 @@ function MasterType() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={isLoading}
-          isInitialLoad={isInitialLoad}
           caption="Master Type Management Table"
           notifyNoData="No data to display"
           renderAction={(type: GetMasterType) => (
@@ -218,7 +157,7 @@ function MasterType() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
-        onConfirm={() => handleDelete}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
         onCancel={deleteConfirmModal.hideModal}
         title="Delete Type?"
         description="Are you sure you want to delete this type? This action cannot be undone."

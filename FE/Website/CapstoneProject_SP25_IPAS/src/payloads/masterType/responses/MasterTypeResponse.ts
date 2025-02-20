@@ -11,6 +11,9 @@ export interface GetMasterType {
   masterTypeCode: string;
   masterTypeName: string;
   masterTypeDescription: string;
+  backgroundColor: string;
+  textColor: string;
+  characteristic: string;
   typeName: string;
   createDate: Date;
   isActive: boolean;

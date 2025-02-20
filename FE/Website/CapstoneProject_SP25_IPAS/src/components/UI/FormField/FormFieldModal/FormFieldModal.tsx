@@ -1,7 +1,6 @@
 import { useStyle } from "@/hooks";
 import { Select, Form, Flex, DatePicker, Input, Switch, ColorPicker } from "antd";
 import style from "./FormFieldModal.module.scss";
-import { useCallback, useEffect, useState } from "react";
 
 interface FormFieldModalProps {
   label: string;
@@ -14,7 +13,7 @@ interface FormFieldModalProps {
   onChange?: (value: any) => void;
   isLoading?: boolean;
   isSearch?: boolean;
-  isActive?: boolean;
+  isCheck?: boolean;
   placeholder?: string;
   direction?: "row" | "col";
 }
@@ -30,21 +29,12 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   onChange,
   isLoading = false,
   isSearch = true,
-  isActive = false,
+  isCheck = false,
   placeholder = `Enter ${label.toLowerCase()}`,
   direction = "col",
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
-  const [checked, setChecked] = useState<boolean>(isActive);
-
-  useEffect(() => {
-    setChecked(isActive ?? false);
-  }, [isActive]);
-
-  const handleSwitchChange = (checked: boolean) => {
-    setChecked(checked);
-  };
 
   const renderInput = () => {
     switch (type) {
@@ -75,9 +65,9 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
           <Switch
             checkedChildren="Active"
             unCheckedChildren="Inactive"
-            checked={checked}
-            onChange={handleSwitchChange}
-            className={`${styles.customSwitch} ${checked ? style.active : style.inActive}`}
+            checked={isCheck}
+            onChange={onChange}
+            className={`${styles.customSwitch} ${isCheck ? style.active : style.inActive}`}
           />
         );
       case "colorPicker":

@@ -23,7 +23,6 @@ interface TableProps<T, E = T> {
   currentPage?: number;
   rowsPerPage?: number;
   isLoading: boolean;
-  isInitialLoad: boolean;
   caption: string;
   notifyNoData: string;
   renderAction?: (item: T) => React.ReactNode;
@@ -44,7 +43,6 @@ const TableComponent = <T, E = T>({
   rotation,
   currentPage = 1,
   rowsPerPage = DEFAULT_ROWS_PER_PAGE,
-  isInitialLoad,
   isLoading,
   caption,
   notifyNoData,
@@ -169,10 +167,10 @@ const TableComponent = <T, E = T>({
             className={`${style.headerTbl} ${isSortable ? style.pointer : ""}`}
             onClick={isSortable ? () => handleSortClick(col.field.toString()) : undefined}
           >
-            <Tooltip title={tooltipText}>
-              <Flex className={style.headerCol}>
-                <span className={style.headerTitle}>{col.header}</span>
-                {isSortable && (
+            {isSortable ? (
+              <Tooltip title={tooltipText}>
+                <Flex className={style.headerCol}>
+                  <span className={style.headerTitle}>{col.header}</span>
                   <Flex
                     className={style.iconSort}
                     style={{
@@ -183,9 +181,11 @@ const TableComponent = <T, E = T>({
                   >
                     <Icons.sort />
                   </Flex>
-                )}
-              </Flex>
-            </Tooltip>
+                </Flex>
+              </Tooltip>
+            ) : (
+              <span className={style.headerTitle}>{col.header}</span>
+            )}
           </div>
         ),
         dataIndex: col.field,
@@ -196,7 +196,7 @@ const TableComponent = <T, E = T>({
       };
     }),
     renderAction && {
-      key: "actions", 
+      key: "actions",
       align: "center",
       render: (text: string, record: T) => renderAction(record),
       fixed: "right",
@@ -243,8 +243,7 @@ const TableComponent = <T, E = T>({
         pagination={false}
         loading={isLoading}
         locale={{
-          emptyText:
-            isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
+          emptyText: isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
         }}
         rowClassName={(record) =>
           selection.includes(record[rowKey] as string) ? style.selectedRow : ""

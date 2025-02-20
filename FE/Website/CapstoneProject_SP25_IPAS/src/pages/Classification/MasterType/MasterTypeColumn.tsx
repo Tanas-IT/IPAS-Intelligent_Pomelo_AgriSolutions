@@ -11,7 +11,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
     header: "Code",
     field: "masterTypeCode",
     accessor: (item) => <TableCell value={item.masterTypeCode} />,
-    width: 150,
+    width: 160,
   },
   {
     header: "Name",
@@ -38,22 +38,36 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
     width: 150,
   },
   {
-    header: "Details", // Thêm cột chi tiết
+    header: "Details",
     field: "masterTypeDetailModels",
-    accessor: (item) =>
-      item.masterTypeDetailModels && item.masterTypeDetailModels.length > 0 ? (
+    isSort: false,
+    accessor: (item) => {
+      const hasDetails =
+        (item.backgroundColor && item.backgroundColor.trim() !== "") ||
+        (item.textColor && item.textColor.trim() !== "") ||
+        (item.characteristic && item.characteristic.trim() !== "") ||
+        (item.masterTypeDetailModels && item.masterTypeDetailModels.length > 0);
+
+      return hasDetails ? (
         <Collapse defaultActiveKey={[]} ghost expandIconPosition="right">
           <Panel header="Type Details" key="1">
-            {item.masterTypeDetailModels.map((detail) => (
-              <MasterTypeDetailView key={detail.masterTypeDetailId} masterTypeDetail={detail} />
-            ))}
+            {/* Hiển thị các thông tin nếu có */}
+            {item.backgroundColor && (
+              <MasterTypeDetailView name="Background Color" value={item.backgroundColor} />
+            )}
+            {item.textColor && <MasterTypeDetailView name="Text Color" value={item.textColor} />}
+            {item.characteristic && (
+              <MasterTypeDetailView name="Characteristic" value={item.characteristic} />
+            )}
           </Panel>
         </Collapse>
       ) : (
-        <p>No details available</p> // Nếu không có chi tiết, có thể hiển thị thông báo hoặc bỏ qua
-      ),
+        <p>No details available</p>
+      );
+    },
     width: 300,
   },
+
   {
     header: "Active Status",
     field: "isActive",

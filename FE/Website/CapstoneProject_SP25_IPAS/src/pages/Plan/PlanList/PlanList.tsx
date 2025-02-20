@@ -37,7 +37,6 @@ function PlanList() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetPlan>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       planService.getPlans(page, limit, sortField, sortDirection, searchValue, "21", filters),
@@ -218,7 +217,6 @@ function PlanList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={false}
-          isInitialLoad={isInitialLoad}
           caption="Prlan Management Table"
           notifyNoData="No data to display"
           renderAction={(plan: GetPlan) => <ActionMenuPlan id={plan.planId} />}

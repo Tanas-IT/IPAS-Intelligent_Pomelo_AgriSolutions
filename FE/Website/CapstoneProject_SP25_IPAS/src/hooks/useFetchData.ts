@@ -20,7 +20,6 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
 
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState(0);
   const [totalRecords, setTotalRecords] = useState(0);
 
@@ -38,32 +37,28 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const loadData = async () => {
-        const result = await fetchFunction(
-          currentPage,
-          rowsPerPage,
-          sortField,
-          sortDirection,
-          searchValue,
-          additionalParams,
-        );
-        setData(result.list);
-        setTotalPages(result.totalPage);
-        setTotalRecords(result.totalRecord);
-        setIsLoading(false);
-        if (isInitialLoad) {
-          setIsInitialLoad(false);
+
+      setTimeout(async () => {
+        try {
+          const result = await fetchFunction(
+            currentPage,
+            rowsPerPage,
+            sortField,
+            sortDirection,
+            searchValue,
+            additionalParams,
+          );
+          setData(result.list);
+          setTotalPages(result.totalPage);
+          setTotalRecords(result.totalRecord);
+        } catch (error) {
+          toast.error("Error fetching data");
+        } finally {
+          setIsLoading(false);
         }
-      };
-      if (isInitialLoad || isLoading) {
-        setTimeout(async () => {
-          await loadData();
-        }, 500);
-      } else {
-        await loadData();
-      }
+      }, 500);
     } catch (error) {
-      toast.error("Error fetching data");
+      toast.error("Unexpected error occurred");
       setIsLoading(false);
     }
   }, [
@@ -129,7 +124,7 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
         setRotation(360);
       }
     },
-    [sortField, sortDirection],
+    [sortField, sortDirection, fetchData],
   );
 
   const handleSearch = useCallback((value: string) => {
@@ -153,8 +148,40 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
     handleSortChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   };
 }
 
 export default useFetchData;
+
+// try {
+//   setIsLoading(true);
+//   const loadData = async () => {
+//     const result = await fetchFunction(
+//       currentPage,
+//       rowsPerPage,
+//       sortField,
+//       sortDirection,
+//       searchValue,
+//       additionalParams,
+//     );
+//     setData(result.list);
+//     setTotalPages(result.totalPage);
+//     setTotalRecords(result.totalRecord);
+//     setIsLoading(false);
+//     // if (isInitialLoad) {
+//     //   setIsInitialLoad(false);
+//     // }
+//   };
+//   if (isInitialLoad || isLoading) {
+//     setTimeout(async () => {
+//       await loadData();
+//     }, 500);
+//     // } else {
+//     // await loadData();
+//   }
+// } catch (error) {
+//   toast.error("Error fetching data");
+//   setIsLoading(false);
+// } finally {
+
+// }
