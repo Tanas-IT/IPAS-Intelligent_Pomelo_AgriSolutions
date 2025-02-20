@@ -338,26 +338,6 @@ CREATE TABLE ipas.dbo.LegalDocument (
 );
 
 
--- ipas.dbo.MasterTypeDetails definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.MasterTypeDetails;
-
-CREATE TABLE ipas.dbo.MasterTypeDetails (
-	MasterTypeDetailID int IDENTITY(1,1) NOT NULL,
-	MasterTypeDetailCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeDetailName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Value nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	TypeOfValue nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ForeignKeyId int NULL,
-	ForeignKeyTable nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeID int NULL,
-	CONSTRAINT MasterTypeDetails_PK PRIMARY KEY (MasterTypeDetailID),
-	CONSTRAINT MasterTypeDetails_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
-);
-
-
 -- ipas.dbo.[Order] definition
 
 -- Drop table
@@ -1112,34 +1092,6 @@ VALUES
     ('MT033', 'Task Reminder,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE());
 
 GO
-
-GO
-INSERT INTO [dbo].[MasterTypeDetails] 
-    ([MasterTypeDetailCode], [MasterTypeDetailName], [Value], [TypeOfValue], [ForeignKeyId], [ForeignKeyTable], [MasterTypeID])
-VALUES
-	('MTD001', 'BackgroundColor', '#10B981', 'String', NULL, NULL, 15),
-	('MTD002', 'TextColor', '#047857', 'String', NULL, NULL, 15),
-	('MTD003', 'VolumeRequired', '', 'String', NULL, NULL, 15),
-
-    ('MTD004', 'BackgroundColor', '#D9E5DC', 'String', NULL, NULL, 16),
-    ('MTD005', 'TextColor', '#4A9C5D', 'String', NULL, NULL, 16),
-    ('MTD006', 'VolumeRequired', '', 'String', NULL, NULL, 16),
-
-    ('MTD007', 'BackgroundColor', '#E3D7B9', 'String', NULL, NULL, 17),
-    ('MTD008', 'TextColor', '#8D5B3D', 'String', NULL, NULL, 17),
-    ('MTD009', 'VolumeRequired', '', 'String', NULL, NULL, 17),
-
-    ('MTD010', 'BackgroundColor', '#FFE5D9', 'String', NULL, NULL, 18),
-    ('MTD011', 'TextColor', '#F79C42', 'String', NULL, NULL, 18),
-    ('MTD012', 'VolumeRequired', '', 'String', NULL, NULL, 18),
-
-    ('MTD013', 'BackgroundColor', '#F2F2F2', 'String', NULL, NULL, 19),
-    ('MTD014', 'TextColor', '#4A4A4A', 'String', NULL, NULL, 19),
-    ('MTD015', 'VolumeRequired', '', 'String', NULL, NULL, 19),
-
-	('MTD016', 'Characteristic', 'Green skin, Sweet taste', 'String', NULL, NULL, 9), -- Green Skin Pomelo
-    ('MTD017', 'Characteristic', 'Sweet, Refreshing', 'String', NULL, NULL, 10), -- 5 Roi Pomelo
-    ('MTD018', 'Characteristic', 'Tart, Firm', 'String', NULL, NULL, 11); -- Viễn Pomelo
 
 GO
 
