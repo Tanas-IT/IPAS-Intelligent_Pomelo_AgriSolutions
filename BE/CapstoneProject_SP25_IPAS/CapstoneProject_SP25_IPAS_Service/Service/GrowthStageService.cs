@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
                         CreateDate = DateTime.Now,
                         Description = createGrowthStageModel.Description,
-                        FarmID = createGrowthStageModel.FarmID,
+                        FarmID = createGrowthStageModel.FarmId,
                         isDefault = createGrowthStageModel.isDefault,
                         
                     };
@@ -240,9 +240,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
                     } 
-                    if (updateriteriaTypeModel.FarmID != null)
+                    if (updateriteriaTypeModel.FarmId != null)
                     {
-                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmID;
+                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmId;
                     }
                   
                     var result = await _unitOfWork.SaveAsync();

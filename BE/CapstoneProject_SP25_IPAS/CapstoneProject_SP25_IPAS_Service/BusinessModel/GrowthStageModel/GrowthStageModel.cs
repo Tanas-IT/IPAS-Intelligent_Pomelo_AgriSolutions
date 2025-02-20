@@ -21,5 +21,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel
         public DateTime? CreateDate { get; set; }
         public string? Description { get; set; }
         public string? FarmName { get; set; }
+        public string? FarmId { get; set; }
     }
 }
