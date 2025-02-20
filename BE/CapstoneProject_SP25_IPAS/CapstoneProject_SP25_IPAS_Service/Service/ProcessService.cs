@@ -712,7 +712,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> GetProcessBySubProcessId(int subProcessId)
+        public Task<BusinessResult> GetProcessByFarmId(int farmId)
         {
             throw new NotImplementedException();
         }
