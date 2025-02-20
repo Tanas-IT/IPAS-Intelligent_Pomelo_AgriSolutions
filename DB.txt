@@ -76,9 +76,13 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	GrowthStageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MonthAgeStart datetime NULL,
 	MonthAgeEnd datetime NULL,
-	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID)
+	isDefault bit NULL,
+	FarmID int NULL,
+	CreateDate datetime NULL,
+	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID),
+	CONSTRAINT GrowthStage_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
 );
-
 
 -- ipas.dbo.MasterType definition
 
@@ -90,9 +94,6 @@ CREATE TABLE ipas.dbo.MasterType (
 	MasterTypeID int IDENTITY(1,1) NOT NULL,
 	MasterTypeCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MasterTypeName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	BackgroundColor nvarchar(200) NULL,
-	TextColor nvarchar(200) COLLATE  NULL,
-	Characteristic nvarchar(200) NULL,
 	MasterTypeDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isActive bit NULL,
 	CreateDate datetime NULL,
@@ -102,8 +103,13 @@ CREATE TABLE ipas.dbo.MasterType (
 	isDelete bit NULL,
 	isDefault bit NULL,
 	FarmID int NULL,
+	GrowthStageID int NULL,
+	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	Characteristic nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
-	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
+	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT MasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
 
@@ -338,26 +344,6 @@ CREATE TABLE ipas.dbo.LegalDocument (
 	FarmID int NULL,
 	CONSTRAINT LegalDocument_PK PRIMARY KEY (LegalDocumentID),
 	CONSTRAINT LegalDocument_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
-);
-
-
--- ipas.dbo.MasterTypeDetails definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.MasterTypeDetails;
-
-CREATE TABLE ipas.dbo.MasterTypeDetails (
-	MasterTypeDetailID int IDENTITY(1,1) NOT NULL,
-	MasterTypeDetailCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeDetailName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Value nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	TypeOfValue nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ForeignKeyId int NULL,
-	ForeignKeyTable nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeID int NULL,
-	CONSTRAINT MasterTypeDetails_PK PRIMARY KEY (MasterTypeDetailID),
-	CONSTRAINT MasterTypeDetails_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
 );
 
 
@@ -780,6 +766,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlanDetail nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	ResponsibleBy nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlanName nvarchar(200) COLLATE Vietnamese_CI_AS NULL,
 	AssignorID int NULL,
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
@@ -789,15 +776,14 @@ CREATE TABLE ipas.dbo.[Plan] (
 	GrowthStageID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
-	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	SubProcessID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
+	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID),
+	CONSTRAINT FK_Plan_GrowthStage FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
+	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
-
 -- ipas.dbo.RefreshToken definition
 
 -- Drop table
@@ -1064,80 +1050,52 @@ VALUES
     ('HARVEST', N'Thu hoạch', 97, 120);
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate],[IsDefault],[FarmID])
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDelete], [isActive], [CreateDate], [IsDefault], [FarmID])
 VALUES
-	('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', 0, 1, GETDATE()),
-    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', 0, 1, GETDATE()),
-    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', 0, 1, GETDATE()),
-    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', 0, 1, GETDATE()),
-    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', 0, 1, GETDATE()),
-    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', 0, 1, GETDATE()),
-    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', 0, 1, GETDATE()),
-    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', 0, 1, GETDATE()),
-
-	('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', 0, 1, GETDATE()),
-    ('MT010', '5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', 0, 1, GETDATE()),
-    ('MT011', 'Viễn Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', 0, 1, GETDATE()),
-
-    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', 0, 1, GETDATE()),
-    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', 0, 1, GETDATE()),
-	('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', 0, 1, GETDATE()),
-
-	('MT015', 'Watering', 'Work', 'Process of providing water to plants', 0, 1, GETDATE()),
-    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', 0, 1, GETDATE()),
-    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', 0, 1, GETDATE()),
-    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', 0, 1, GETDATE()),
-    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', 0, 1, GETDATE()),
-
-	('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', 0, 1, GETDATE()),
-	('MT021', 'caring ', 'Criteria', 'Defines the criteria for plant care during growth stages', 0, 1, GETDATE()),
-	('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', 0, 1, GETDATE()),
-    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', 0, 1, GETDATE()),
-
-    ('MT024', 'Grade 1', 'Harvest', 'First-grade pomelo after harvest', 0, 1, GETDATE()),
-    ('MT025', 'Grade 2', 'Harvest', 'Second-grade pomelo after harvest', 0, 1, GETDATE()),
-    ('MT026', 'Grade 3', 'Harvest', 'Third-grade pomelo after harvest', 0, 1, GETDATE()),
-    ('MT027', 'Leaves', 'Harvest', 'Pomelo tree leaves harvested for use', 0, 1, GETDATE()),
-    ('MT028', 'Branches', 'Harvest', 'Pomelo tree branches harvested for use', 0, 1, GETDATE()),
-
-    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', 0, 1, GETDATE()),
-    ('MT030', 'Task Assignment,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
-    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
-    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE()),
-    ('MT033', 'Task Reminder,', 'Notification', 'Notification related to work activities in pomelo tree care', 0, 1, GETDATE());
-
-GO
-
-GO
-INSERT INTO [dbo].[MasterTypeDetails] 
-    ([MasterTypeDetailCode], [MasterTypeDetailName], [Value], [TypeOfValue], [ForeignKeyId], [ForeignKeyTable], [MasterTypeID])
-VALUES
-	('MTD001', 'BackgroundColor', '#10B981', 'String', NULL, NULL, 15),
-	('MTD002', 'TextColor', '#047857', 'String', NULL, NULL, 15),
-	('MTD003', 'VolumeRequired', '', 'String', NULL, NULL, 15),
-
-    ('MTD004', 'BackgroundColor', '#D9E5DC', 'String', NULL, NULL, 16),
-    ('MTD005', 'TextColor', '#4A9C5D', 'String', NULL, NULL, 16),
-    ('MTD006', 'VolumeRequired', '', 'String', NULL, NULL, 16),
-
-    ('MTD007', 'BackgroundColor', '#E3D7B9', 'String', NULL, NULL, 17),
-    ('MTD008', 'TextColor', '#8D5B3D', 'String', NULL, NULL, 17),
-    ('MTD009', 'VolumeRequired', '', 'String', NULL, NULL, 17),
-
-    ('MTD010', 'BackgroundColor', '#FFE5D9', 'String', NULL, NULL, 18),
-    ('MTD011', 'TextColor', '#F79C42', 'String', NULL, NULL, 18),
-    ('MTD012', 'VolumeRequired', '', 'String', NULL, NULL, 18),
-
-    ('MTD013', 'BackgroundColor', '#F2F2F2', 'String', NULL, NULL, 19),
-    ('MTD014', 'TextColor', '#4A4A4A', 'String', NULL, NULL, 19),
-    ('MTD015', 'VolumeRequired', '', 'String', NULL, NULL, 19),
-
-	('MTD016', 'Characteristic', 'Green skin, Sweet taste', 'String', NULL, NULL, 9), -- Green Skin Pomelo
-    ('MTD017', 'Characteristic', 'Sweet, Refreshing', 'String', NULL, NULL, 10), -- 5 Roi Pomelo
-    ('MTD018', 'Characteristic', 'Tart, Firm', 'String', NULL, NULL, 11); -- Viễn Pomelo
+    ('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    
+    ('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', NULL, NULL, 'Green skin, Sweet taste', 0, 1, GETDATE(), 0, 1),
+    ('MT010', '5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', NULL, NULL, 'Sweet, Refreshing', 0, 1, GETDATE(), 0, 1),
+    ('MT011', N'Vien Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', NULL, NULL, 'Tart, Firm', 0, 1, GETDATE(), 0, 1),
+    
+    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    
+    ('MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1),
+    
+    ('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT021', 'Caring', 'Criteria', 'Defines the criteria for plant care during growth stages', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    
+    ('MT024', 'Grade 1', 'Harvest', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT025', 'Grade 2', 'Harvest', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT026', 'Grade 3', 'Harvest', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT027', 'Leaves', 'Harvest', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT028', 'Branches', 'Harvest', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT030', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1),
+    ('MT033', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1);
 
 GO
 
+
+GO
 INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
 VALUES

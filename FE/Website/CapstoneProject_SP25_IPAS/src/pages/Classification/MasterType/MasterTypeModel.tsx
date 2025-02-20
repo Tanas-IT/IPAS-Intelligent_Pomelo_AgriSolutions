@@ -1,24 +1,9 @@
-import { Flex, Form, Image, Upload, UploadFile, UploadProps } from "antd";
+import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
-import { FormFieldModal, ModalForm, SectionWrapper } from "@/components";
-import { getBase64, RulesManager } from "@/utils";
-import { Icons } from "@/assets";
-import { toast } from "react-toastify";
-import {
-  farmDocumentFormFields,
-  MASTER_TYPE,
-  masterTypeDetailFormFields,
-  masterTypeFormFields,
-  MESSAGES,
-} from "@/constants";
-import {
-  GetMasterType,
-  MasterTypeDetail,
-  MasterTypeDetailRequest,
-  MasterTypeRequest,
-} from "@/payloads";
-import { useStyle } from "@/hooks";
-import { camelCase } from "change-case";
+import { FormFieldModal, ModalForm } from "@/components";
+import { RulesManager } from "@/utils";
+import { MASTER_TYPE, masterTypeFormFields } from "@/constants";
+import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
   isOpen: boolean;
@@ -28,42 +13,33 @@ type MasterTypeModelProps = {
 };
 
 const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterTypeModelProps) => {
-  const { styles } = useStyle();
   const [form] = Form.useForm();
   const [selectedType, setSelectedType] = useState<string>("");
+  const [checked, setChecked] = useState<boolean>(false);
   const isEdit = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
   const typeOptions = Object.keys(MASTER_TYPE).map((key) => ({
     value: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
     label: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
   }));
 
+  const handleSwitchChange = (newChecked: boolean) => {
+    setChecked(newChecked);
+  };
+
   useEffect(() => {
     if (isOpen) {
       form.resetFields();
       if (isEdit && masterTypeData) {
-        const hasDetails = masterTypeData.masterTypeDetailModels?.length > 0;
-        const detailValues: Record<string, string> = {};
-        const typeFieldMapping: Record<string, string[]> = {
-          [MASTER_TYPE.WORK]: ["backgroundColor", "textColor", "volumeRequired"],
-          [MASTER_TYPE.CULTIVAR]: ["characteristic"],
-        };
-        if (hasDetails) {
-          masterTypeData.masterTypeDetailModels.forEach((detail) => {
-            const camelKey = camelCase(detail.masterTypeDetailName); // Chuyển đổi thành camelCase
-            if (typeFieldMapping[masterTypeData.typeName]?.includes(camelKey)) {
-              detailValues[camelKey] = detail.value;
-            }
-          });
-        }
-
         form.setFieldsValue({
           masterTypeId: masterTypeData.masterTypeId,
           masterTypeName: masterTypeData.masterTypeName,
           masterTypeDescription: masterTypeData.masterTypeDescription,
+          backgroundColor: masterTypeData.backgroundColor,
+          textColor: masterTypeData.textColor,
+          characteristic: masterTypeData.characteristic,
           typeName: masterTypeData.typeName,
-          isActive: masterTypeData.isActive,
-          ...detailValues,
         });
+        setChecked(masterTypeData.isActive);
         setSelectedType(masterTypeData.typeName);
       }
     }
@@ -75,44 +51,35 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
 
   const handleOk = async () => {
     await form.validateFields();
-    const masterTypeDetailModels: MasterTypeDetailRequest[] = Object.entries(
-      masterTypeDetailFormFields,
-    )
-      .map(([key, fieldName]) => {
-        let value = form.getFieldValue(fieldName);
-
-        if (!value || (typeof value === "string" && value.trim() === "")) return null;
-
-        if (
-          (fieldName === masterTypeDetailFormFields.backgroundColor ||
-            fieldName === masterTypeDetailFormFields.textColor) &&
-          typeof value === "object" &&
-          typeof value.toHexString === "function"
-        ) {
-          value = value.toHexString();
-        } else {
-          value = value.toString().trim();
-        }
-
-        return { masterTypeDetailName: key, value };
-      })
-      .filter((item): item is MasterTypeDetailRequest => item !== null); // Lọc bỏ phần tử null và ép kiểu
 
     const masterTypeData: MasterTypeRequest = {
       masterTypeId: form.getFieldValue(masterTypeFormFields.masterTypeId),
       masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
       masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
       typeName: form.getFieldValue(masterTypeFormFields.typeName),
-      isActive: form.getFieldValue(masterTypeFormFields.isActive),
-      masterTypeDetailModels,
+      isActive: checked,
+      ...(form.getFieldValue(masterTypeFormFields.backgroundColor) && {
+        backgroundColor:
+          typeof form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString === "function"
+            ? form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString()
+            : form.getFieldValue(masterTypeFormFields.backgroundColor), // Nếu không có toHexString() thì giữ nguyên giá trị
+      }),
+      ...(form.getFieldValue(masterTypeFormFields.textColor) && {
+        textColor:
+          typeof form.getFieldValue(masterTypeFormFields.textColor).toHexString === "function"
+            ? form.getFieldValue(masterTypeFormFields.textColor).toHexString()
+            : form.getFieldValue(masterTypeFormFields.textColor),
+      }),
+      ...(form.getFieldValue(masterTypeFormFields.characteristic)?.trim() && {
+        characteristic: form.getFieldValue(masterTypeFormFields.characteristic).trim(),
+      }),
     };
-    console.log(masterTypeData);
-
-    // onSave(masterTypeData);
+    onSave(masterTypeData);
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setChecked(false);
     setSelectedType("");
     onClose();
   };
@@ -155,25 +122,18 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
               <FormFieldModal
                 type="colorPicker"
                 label="Background Color:"
-                name={masterTypeDetailFormFields.backgroundColor}
+                name={masterTypeFormFields.backgroundColor}
                 placeholder="Enter background color"
                 direction="row"
               />
               <FormFieldModal
                 type="colorPicker"
                 label="Text Color:"
-                name={masterTypeDetailFormFields.textColor}
+                name={masterTypeFormFields.textColor}
                 placeholder="Enter text color"
                 direction="row"
               />
             </Flex>
-
-            <FormFieldModal
-              type="textarea"
-              label="Volume Required:"
-              name={masterTypeDetailFormFields.volumeRequired}
-              placeholder="Enter volume required"
-            />
           </>
         )}
 
@@ -182,7 +142,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
             <FormFieldModal
               type="textarea"
               label="Characteristic:"
-              name={masterTypeDetailFormFields.characteristic}
+              name={masterTypeFormFields.characteristic}
               rules={RulesManager.getCharacteristicRules()}
               placeholder="Enter characteristic"
             />
@@ -193,7 +153,8 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
           type="switch"
           label="Status:"
           name={masterTypeFormFields.isActive}
-          isActive={form.getFieldValue(masterTypeFormFields.isActive)}
+          onChange={handleSwitchChange}
+          isCheck={checked}
           direction="row"
         />
       </Form>

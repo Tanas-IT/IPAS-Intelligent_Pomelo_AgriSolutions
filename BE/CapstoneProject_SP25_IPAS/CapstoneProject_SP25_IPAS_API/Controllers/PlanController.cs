@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,10 +14,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class PlanController : ControllerBase
     {
         private readonly IPlanService _planService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public PlanController(IPlanService planService)
+        public PlanController(IPlanService planService, IJwtTokenService jwtTokenService)
         {
             _planService = planService;
+            _jwtTokenService = jwtTokenService;
+
         }
 
         [HttpGet(APIRoutes.Plan.getPlanWithPagination, Name = "getAllPlanAsync")]
@@ -167,6 +171,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _planService.UnSoftDeletePlan(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Plan.getPlanByFarmId, Name = "getPlanByFarmId")]
+        public async Task<IActionResult> GetPlanByFarmId([FromRoute(Name = "farm-id")] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _planService.GetPlanByFarmId(farmId);
                 return Ok(result);
             }
             catch (Exception ex)

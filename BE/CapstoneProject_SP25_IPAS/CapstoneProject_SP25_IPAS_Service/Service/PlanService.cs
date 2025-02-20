@@ -1224,7 +1224,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Not Started",
+                Status = "Pending",
                 WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
                 Date = dateWork.Date.Add(schedule.StarTime.Value),
                 IsConfirm = false,
@@ -1387,6 +1387,46 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetPlanByFarmId(int? farmId)
+        {
+            try
+            {
+                var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
+                var getListPlan = new List<Plan>();
+                foreach(var planTarget in getListPlanTarget)
+                {
+                    if(planTarget.PlanID != null)
+                    {
+                        var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
+                        if (getPlan != null)
+                        {
+                            getListPlan.Add(getPlan);
+                        }
+                    }
+                }
+                var listTemp = _mapper.Map<List<PlanModel>>(getListPlan).ToList();
+                foreach (var planTemp in listTemp)
+                {
+                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                }
+                if (listTemp != null)
+                {
+                    if(listTemp.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_FARM_ID_CODE, Const.SUCCESS_GET_PLAN_BY_FARM_ID_MSG, listTemp); ;
+                    }
+                    return new BusinessResult(Const.WARNING_GET_PLAN_EMPTY_CODE, Const.WARNING_GET_PLAN_EMPTY_MSG);
+                }
+                return new BusinessResult(Const.FAIL_GET_PLAN_BY_FARM_ID_CODE, Const.FAIL_GET_PLAN_BY_FARM_ID_MSG);
+            }
+            catch (Exception ex)
+            {
+
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }

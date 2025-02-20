@@ -84,6 +84,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getMasterTypeById = Base + "/masterTypes/get-masterType-by-id/{id}";
             public const string getMasterTypeWithPagination = Base + "/masterTypes";
             public const string permanenlyDelete = Base + "/masterTypes/delete-permanently/{id}";
+            public const string permanenlyDeletemanyMasterType = Base + "/masterTypes/delete-permanently-many-masterType";
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
@@ -131,6 +132,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGrowthStageWithPagination = Base + "/growthStages";
             public const string permanenlyDelete = Base + "/growthStages/delete-permanenly/{id}";
             public const string updateGrowthStageInfo = Base + "/growthStages/update-growthStage-info";
+            public const string getGrowthStageByFarm = Base + "/growthStages/get-growthStage-farm/{farm-id}";
         }
 
         public static class ProcessStyle
@@ -220,6 +222,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softDeletePlan = prefix + "/soft-delete-plan/{id}";
             public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
+            public const string getPlanByFarmId = prefix + "/get-plan-by-farm/{farm-id}";
         }
 
         public static class UserWorkLog

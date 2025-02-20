@@ -7,7 +7,11 @@ export interface MasterTypeRequest {
   masterTypeId: number;
   masterTypeName: string;
   masterTypeDescription: string;
+  backgroundColor: string;
+  textColor: string;
+  characteristic: string;
   typeName: string;
   isActive: boolean;
-  masterTypeDetailModels: MasterTypeDetailRequest[];
+  createBy: string;
+  // masterTypeDetailModels: MasterTypeDetailRequest[];
 }

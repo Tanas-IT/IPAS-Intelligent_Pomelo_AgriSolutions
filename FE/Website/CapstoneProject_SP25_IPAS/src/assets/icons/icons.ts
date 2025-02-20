@@ -46,6 +46,7 @@ export {
   FaCloud as cloud,
   FaCalendarAlt as calendarAlt,
   FaMapMarkerAlt as marker,
+  FaRegFolderOpen as folder
 } from "react-icons/fa";
 export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
