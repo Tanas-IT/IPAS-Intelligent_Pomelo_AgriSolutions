@@ -61,7 +61,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDefault = false,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = false,
-                        Order = createProcessModel.Order
+                        Order = createProcessModel.Order,
+                        StartDate = createProcessModel.StartDate,
+                        EndDate = createProcessModel.EndDate
                     };
                     var processData = createProcessModel.ProcessData;
                     var getLink = "";
@@ -136,11 +138,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters)
+        public async Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters, int farmId)
         {
             try
             {
-                Expression<Func<Process, bool>> filter = null!;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -284,7 +286,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.ProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<ProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<ProcessModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(x => x.IsDeleted == false);
+                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -434,6 +436,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
                 if (checkExistProcess != null)
                 {
+                    if(checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true )
+                    {
+                        throw new Exception("Process is running. Can not update");
+                    }
+                    if (updateProcessModel.ProcessName != null)
+                    {
+                        checkExistProcess.ProcessName = updateProcessModel.ProcessName;
+                    }
+                    if (updateProcessModel.StartDate != null)
+                    {
+                        checkExistProcess.StartDate = updateProcessModel.StartDate;
+                    }
+                    if (updateProcessModel.EndDate != null)
+                    {
+                        checkExistProcess.EndDate = updateProcessModel.EndDate;
+                    }
                     if (updateProcessModel.ProcessName != null)
                     {
                         checkExistProcess.ProcessName = updateProcessModel.ProcessName;

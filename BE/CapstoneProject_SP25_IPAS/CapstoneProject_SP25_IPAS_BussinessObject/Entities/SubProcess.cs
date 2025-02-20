@@ -31,7 +31,8 @@ public partial class SubProcess
 
     public string? Input { get; set; }
     public int? Order { get; set; }
-
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     public virtual MasterType? MasterType { get; set; }
 
