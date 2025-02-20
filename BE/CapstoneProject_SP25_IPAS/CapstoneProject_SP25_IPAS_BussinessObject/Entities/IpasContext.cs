@@ -407,11 +407,11 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<GrowthStage>(entity =>
         {
-            entity.HasKey(e => e.GrowthStageId).HasName("PK__GrowthSt__B81FB6A5CB51E95C");
+            entity.HasKey(e => e.GrowthStageID).HasName("PK__GrowthSt__B81FB6A5CB51E95C");
 
             entity.ToTable("GrowthStage");
 
-            entity.Property(e => e.GrowthStageId).HasColumnName("GrowthStageID");
+            entity.Property(e => e.GrowthStageID).HasColumnName("GrowthStageID");
             entity.Property(e => e.GrowthStageCode)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -858,6 +858,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.ProcessId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Plan_Process");
+
+            entity.HasOne(d => d.SubProcess).WithMany(p => p.Plans)
+               .HasForeignKey(d => d.SubProcessId)
+               .HasConstraintName("FK_Plan_SubProcess");
 
             entity.HasOne(d => d.User).WithMany(p => p.Plans)
                .HasForeignKey(d => d.AssignorId)

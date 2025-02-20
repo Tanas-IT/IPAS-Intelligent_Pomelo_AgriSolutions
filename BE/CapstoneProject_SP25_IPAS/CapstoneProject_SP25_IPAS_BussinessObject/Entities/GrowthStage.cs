@@ -5,7 +5,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 
 public partial class GrowthStage
 {
-    public int GrowthStageId { get; set; }
+    public int GrowthStageID { get; set; }
 
     public string? GrowthStageCode { get; set; }
 

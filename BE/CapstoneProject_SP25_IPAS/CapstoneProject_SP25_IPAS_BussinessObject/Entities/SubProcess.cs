@@ -38,4 +38,5 @@ public partial class SubProcess
     public virtual Process? Process { get; set; }
     public SubProcess? ParentSubProcess { get; set; }
     public ICollection<SubProcess> ChildSubProcesses { get; set; } = new List<SubProcess>();
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

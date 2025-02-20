@@ -76,7 +76,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     DateTime validDate = DateTime.Now;
                     if (checkInt)
                     {
-                        filter = x => x.GrowthStageId == validInt || x.MonthAgeStart == validInt || x.MonthAgeEnd == validInt;
+                        filter = x => x.GrowthStageID == validInt || x.MonthAgeStart == validInt || x.MonthAgeEnd == validInt;
                     }
                     else
                     {
@@ -89,8 +89,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     case "growthstageid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.GrowthStageId)
-                                   : x => x.OrderBy(x => x.GrowthStageId)) : x => x.OrderBy(x => x.GrowthStageId);
+                                   ? x => x.OrderByDescending(x => x.GrowthStageID)
+                                   : x => x.OrderBy(x => x.GrowthStageID)) : x => x.OrderBy(x => x.GrowthStageID);
                         break;
                     case "growthstagecode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -117,7 +117,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.MonthAgeEnd)) : x => x.OrderBy(x => x.MonthAgeEnd);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.GrowthStageId);
+                        orderBy = x => x.OrderBy(x => x.GrowthStageID);
                         break;
                 }
                 string includeProperties = "Farm";
@@ -169,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var growthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageId == growthStageId, "Farm");
+                var growthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageId, "Farm");
                 var getGrowthStage = _mapper.Map<GrowthStageModel>(growthStage);
                 if (getGrowthStage != null)
                 {
@@ -189,7 +189,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string includeProperties = "Plans,Processes";
-                var getDeleteGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageId == growthStageId, includeProperties);
+                var getDeleteGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageId, includeProperties);
                 if (getDeleteGrowthStage != null)
                 {
                     foreach (var plan in getDeleteGrowthStage.Plans.ToList())

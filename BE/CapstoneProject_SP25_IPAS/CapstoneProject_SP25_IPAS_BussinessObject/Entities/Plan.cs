@@ -41,6 +41,7 @@ public partial class Plan
     public double? MinVolume { get; set; }
 
     public int? ProcessId { get; set; }
+    public int? SubProcessId { get; set; }
 
     public int? CropId { get; set; }
 
@@ -64,4 +65,5 @@ public partial class Plan
     public virtual Crop? Crop { get; set; }
     public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
+    public virtual SubProcess? SubProcess { get; set; }
 }
