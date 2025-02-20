@@ -239,7 +239,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeModel.MasterTypeDetailId);
+                if (!updateMasterTypeModel.MasterTypeDetailId.HasValue)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG );
+                }
+                var checkExistMasterTypeDetail = await _unitOfWork.MasterTypeDetailRepostiory.GetByID(updateMasterTypeModel.MasterTypeDetailId!.Value);
                 if (checkExistMasterTypeDetail != null)
                 {
                     if (updateMasterTypeModel.MasterTypeDetailName != null)

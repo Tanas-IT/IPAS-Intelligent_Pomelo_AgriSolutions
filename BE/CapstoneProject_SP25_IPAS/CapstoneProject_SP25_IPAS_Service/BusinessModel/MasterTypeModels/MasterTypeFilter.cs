@@ -9,14 +9,20 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 {
     public class MasterTypeFilter
     {
-       
-        [FromQuery(Name = "typeNames")]
-        public string? TypeNames { get; set; }
+        //[FromQuery(Name = "createBy")]
+        //public string? CreateBy { get; set; }
+        [FromQuery(Name = "masterTypeName")]
+        public string? MasterTypeName { get; set; }
+        [FromQuery(Name = "typeName")]
+        public string? TypeName { get; set; }
 
         [FromQuery(Name = "createDatefrom")]
         public DateTime? createDateFrom { get; set; }
         [FromQuery(Name = "createDateTo")]
         public DateTime? createDateTo { get; set; }
-       
+        [FromQuery(Name = "isActive")]
+        public bool? isActive { get; set; }
+        //[FromQuery(Name = "isDelete")]
+        //public bool? isDelete { get; set; }
     }
 }

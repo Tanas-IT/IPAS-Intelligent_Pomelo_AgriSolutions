@@ -802,7 +802,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region MasterType
-        public static int WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE = 200;
         public static string WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG = "Does not have any master type";
         #endregion
 
@@ -972,6 +972,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Package
         public static int WARNING_GET_PACKAGES_EMPTY_CODE = 400;
         public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
+        public static int WARNING_FARM_EXPIRED_CODE = 400;
+        public static string WARNING_FARM_EXPIRED_MSG = "Your farm has no package in time";
         #endregion
         #endregion
     }

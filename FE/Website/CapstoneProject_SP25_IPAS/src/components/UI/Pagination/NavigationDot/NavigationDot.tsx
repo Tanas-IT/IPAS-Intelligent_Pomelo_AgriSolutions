@@ -4,6 +4,7 @@ import style from "./NavigationDot.module.scss";
 import { NavigationDotProps } from "@/types";
 import { Icons } from "@/assets";
 import { useStyle } from "@/hooks";
+import { DEFAULT_ROWS_PER_PAGE } from "@/constants";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -11,7 +12,7 @@ const { Text } = Typography;
 const NavigationDot: React.FC<NavigationDotProps> = ({
   totalPages,
   currentPage = 1,
-  rowsPerPage = 5,
+  rowsPerPage = DEFAULT_ROWS_PER_PAGE,
   onPageChange,
   rowsPerPageOptions,
   onRowsPerPageChange,

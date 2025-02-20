@@ -50,4 +50,20 @@
       background-color: vars.$color_selected_row;
     }
   }
+
+  .headerExpandTbl {
+    color: black;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+
+    .headerCol {
+      justify-content: center;
+      align-items: center;
+
+      .headerTitle {
+        margin-top: 4px;
+      }
+    }
+  }
 }

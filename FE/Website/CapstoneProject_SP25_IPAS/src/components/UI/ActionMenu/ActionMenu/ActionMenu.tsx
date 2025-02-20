@@ -1,6 +1,7 @@
 import { Button, Divider, Flex, Popover, Space, Typography } from "antd";
 import style from "./ActionMenu.module.scss";
 import { Icons } from "@/assets";
+import { useState } from "react";
 const { Text } = Typography;
 
 interface ActionMenuItem {
@@ -15,6 +16,11 @@ interface ActionMenuProps {
 }
 
 const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
+  const [popoverVisible, setPopoverVisible] = useState(false);
+
+  const handlePopoverVisibleChange = (visible: boolean) => {
+    setPopoverVisible(visible);
+  };
   const popoverContent = (
     <div className={style.popoverContent}>
       <div className={style.popoverHeader}>
@@ -26,7 +32,10 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
           <>
             <Space
               key={index}
-              onClick={item.onClick}
+              onClick={() => {
+                item.onClick();
+                setPopoverVisible(false); // Đóng Popover khi click
+              }}
               className={style.popupButton}
               direction="horizontal"
             >
@@ -42,7 +51,13 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
 
   return (
     <Flex className={style.settingItem}>
-      <Popover content={popoverContent} trigger="click" placement="bottomRight">
+      <Popover
+        content={popoverContent}
+        trigger="click"
+        placement="bottomRight"
+        visible={popoverVisible}
+        onVisibleChange={handlePopoverVisibleChange}
+      >
         <Button className={style.settingsIconBtn}>
           <Flex>
             <Icons.dot className={style.settingsIcon} />

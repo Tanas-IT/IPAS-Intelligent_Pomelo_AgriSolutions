@@ -66,6 +66,10 @@ export class RulesManager {
   static getDocumentRules = () => this.getRequiredRules("Document Name");
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
 
+  static getTypeNameRules = () => this.getRequiredRules("Type Name");
+  static getTypeRules = () => this.getRequiredRules("Type");
+  static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
+  static getCharacteristicRules = () => this.getRequiredRules("Characteristic");
 
   static getWorklogNameRules = () => this.getRequiredRules("Task Name");
   static getCropRules = () => this.getRequiredRules("Crop");

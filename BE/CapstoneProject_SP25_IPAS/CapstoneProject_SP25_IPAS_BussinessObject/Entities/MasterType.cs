@@ -24,9 +24,17 @@ public partial class MasterType
     public string? TypeName { get; set; }
 
     public bool? IsDelete { get; set; }
+
     public bool? IsDefault { get; set; }
+
     public int? FarmID { get; set; }
     public int? GrowthStageID { get; set; }
+
+    public string? BackgroundColor { get; set; }
+
+    public string? TextColor { get; set; }
+
+    public string? Characteristic {  get; set; }
 
     public virtual Farm? Farm { get; set; }
     public virtual GrowthStage? GrowthStage { get; set; }

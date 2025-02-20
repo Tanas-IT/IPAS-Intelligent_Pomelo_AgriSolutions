@@ -1,5 +1,32 @@
 @use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
 
 .formSection {
   @include shared.formSection;
+
+  .active {
+    outline: none !important;
+    background: vars.$color_second !important;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+  .inActive {
+    outline: none !important;
+    background: vars.$color_inActive_bg !important;
+    span {
+      color: vars.$color_inActive !important;
+    }
+    ::before {
+      background: vars.$color_inActive !important;
+    }
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .colorPicker {
+    border-color: vars.$color_primary !important;
+    box-shadow: none;
+  }
 }

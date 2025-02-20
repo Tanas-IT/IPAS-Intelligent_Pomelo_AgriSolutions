@@ -1,10 +1,10 @@
 Use [master]
 GO
-DROP DATABASE [ipas]
+DROP DATABASE [IPAS]
 GO
-CREATE DATABASE [ipas]
+CREATE DATABASE [IPAS]
 GO
-USE [ipas]
+USE [IPAS]
 GO
 
 CREATE TABLE ipas.dbo.Crop (
@@ -90,6 +90,9 @@ CREATE TABLE ipas.dbo.MasterType (
 	MasterTypeID int IDENTITY(1,1) NOT NULL,
 	MasterTypeCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MasterTypeName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	BackgroundColor nvarchar(200) NULL,
+	TextColor nvarchar(200) COLLATE  NULL,
+	Characteristic nvarchar(200) NULL,
 	MasterTypeDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isActive bit NULL,
 	CreateDate datetime NULL,
@@ -1049,7 +1052,7 @@ VALUES
     ('HARVEST', N'Thu hoạch', 97, 120);
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate])
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [isDelete], [isActive], [CreateDate],[IsDefault],[FarmID])
 VALUES
 	('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', 0, 1, GETDATE()),
     ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', 0, 1, GETDATE()),

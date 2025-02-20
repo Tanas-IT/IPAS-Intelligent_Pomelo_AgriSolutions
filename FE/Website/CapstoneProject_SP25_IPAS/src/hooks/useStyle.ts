@@ -34,11 +34,21 @@ const useStyle = createStyles(({ css }) => {
           color: ${primaryColor} !important;
         }
 
+        .ant-table-expanded-row ant-table-expanded-row-level-1 {
+          background-color: ${secondColor} !important;
+        }
+
         .ant-table-footer {
           text-align: center;
           padding: 10px 16px;
           background-color: transparent;
         }
+      }
+    `,
+
+    customExpandTable: css`
+      .ant-table th {
+        background-color: #e8f5e9 !important;
       }
     `,
 
@@ -185,7 +195,12 @@ const useStyle = createStyles(({ css }) => {
       .ant-timeline-item-tail {
         background-color: ${secondColor} !important;
       }
-    `
+    `,
+    customDateRange: css`
+      .ant-picker-active-bar {
+        background-color: ${secondColor} !important;
+      }
+    `,
   };
 });
 
