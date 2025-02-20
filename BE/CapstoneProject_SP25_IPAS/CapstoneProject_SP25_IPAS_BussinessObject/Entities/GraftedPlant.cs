@@ -29,7 +29,6 @@ public partial class GraftedPlant
 
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
 
-    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
     public virtual Plant? Plant { get; set; }
 

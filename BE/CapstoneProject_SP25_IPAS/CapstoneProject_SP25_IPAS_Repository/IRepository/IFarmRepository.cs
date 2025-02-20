@@ -19,5 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 
         public Task<int> GetLastFarmID();
 
+        public Task<List<UserFarm>> GetUsersOfFarmByRole(int farmId, List<int> roleIds);
+
     }
 }

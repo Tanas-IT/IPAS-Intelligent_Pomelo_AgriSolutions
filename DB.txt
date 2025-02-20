@@ -76,9 +76,13 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	GrowthStageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MonthAgeStart datetime NULL,
 	MonthAgeEnd datetime NULL,
-	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID)
+	isDefault bit NULL,
+	FarmID int NULL,
+	CreateDate datetime NULL,
+	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID),
+	CONSTRAINT GrowthStage_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
 );
-
 
 -- ipas.dbo.MasterType definition
 
@@ -102,8 +106,13 @@ CREATE TABLE ipas.dbo.MasterType (
 	isDelete bit NULL,
 	isDefault bit NULL,
 	FarmID int NULL,
+	GrowthStageID int NULL,
+	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	Characteristic nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
-	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
+	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT MasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
 
@@ -338,26 +347,6 @@ CREATE TABLE ipas.dbo.LegalDocument (
 	FarmID int NULL,
 	CONSTRAINT LegalDocument_PK PRIMARY KEY (LegalDocumentID),
 	CONSTRAINT LegalDocument_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
-);
-
-
--- ipas.dbo.MasterTypeDetails definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.MasterTypeDetails;
-
-CREATE TABLE ipas.dbo.MasterTypeDetails (
-	MasterTypeDetailID int IDENTITY(1,1) NOT NULL,
-	MasterTypeDetailCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeDetailName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Value nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	TypeOfValue nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ForeignKeyId int NULL,
-	ForeignKeyTable nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeID int NULL,
-	CONSTRAINT MasterTypeDetails_PK PRIMARY KEY (MasterTypeDetailID),
-	CONSTRAINT MasterTypeDetails_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE
 );
 
 
@@ -780,6 +769,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PlanDetail nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	ResponsibleBy nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlanName nvarchar(200) COLLATE Vietnamese_CI_AS NULL,
 	AssignorID int NULL,
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
@@ -789,15 +779,14 @@ CREATE TABLE ipas.dbo.[Plan] (
 	GrowthStageID int NULL,
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
-	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlanName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	SubProcessID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
+	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID),
+	CONSTRAINT FK_Plan_GrowthStage FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT Plan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_User_FK FOREIGN KEY (AssignorID) REFERENCES ipas.dbo.[User](UserID)
+	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
-
 -- ipas.dbo.RefreshToken definition
 
 -- Drop table

@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFarmRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -53,6 +54,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!farmId.HasValue)
+                {
+                    return BadRequest();
                 }
                 var result = await _farmService.GetFarmByID(farmId!.Value);
                 return Ok(result);
@@ -240,6 +245,157 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
 
+            }
+        }
+
+        [HttpGet(APIRoutes.Farm.getUserOfFarmByRole, Name = "GetAllUserOfFarmByRoleAsync")]
+        public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, List<int> listRole)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!ModelState.IsValid || !farmId.HasValue)
+                {
+                    return BadRequest();
+                }
+                var result = await _farmService.GetAllUserOfFarmByRoleAsync(farmId: farmId!.Value, roleIds: listRole);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+
+            }
+        }
+
+        [HttpGet(APIRoutes.Farm.getUsersOfFarm, Name = "getUserOfFarmAsync")]
+        public async Task<IActionResult> getUserOfFarmAsync(int? farmId, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if(!farmId.HasValue)
+                    return BadRequest();
+                var result = await _farmService.getUserOfFarm(farmId!.Value ,paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize("Admin,User", "Manager")]
+        [HttpGet(APIRoutes.Farm.getUsersOfFarmById , Name = "GetUsersOfFarmByIdAsync")]
+        public async Task<IActionResult> GetUsersOfFarmByIdAsync([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")] int userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                    return BadRequest();
+                var result = await _farmService.getUserFarmById(farmId: farmId!.Value, userId: userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.Farm.deleteUserFarm , Name = "deleteUserFarmAsync")]
+        public async Task<IActionResult> DeleteUserFarm([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")]int userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                    return BadRequest();
+                var result = await _farmService.deleteUserInFarm(farmId: farmId.Value, userId: userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+
+        [HttpPost(APIRoutes.Farm.addUserToFarm, Name = "AddUserToFarmAsync")]
+        public async Task<IActionResult> AddUserToFarmAsync([FromBody] UserFarmRequest userFarmCreate)
+        {
+            try
+            {
+                if (!userFarmCreate.FarmId.HasValue)
+                userFarmCreate.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!userFarmCreate.FarmId.HasValue)
+                {
+                    return BadRequest();
+                }
+                var result = await _farmService.addUserToFarm(userFarmCreate);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.Farm.updateUserOfFarm, Name = "UpdateRoleOfEmployeeAsync")]
+        public async Task<IActionResult> UpdateRoleOfEmployeeAsync([FromBody] UserFarmRequest userFarmUpdateRequest)
+        {
+            try
+            {
+                if (!userFarmUpdateRequest.FarmId.HasValue)
+                {
+                    userFarmUpdateRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!ModelState.IsValid || !userFarmUpdateRequest.FarmId.HasValue)
+                {
+                    return BadRequest(ModelState);
+                }
+                var result = await _farmService.updateRoleOfUserInFarm(userFarmUpdateRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
             }
         }
     }

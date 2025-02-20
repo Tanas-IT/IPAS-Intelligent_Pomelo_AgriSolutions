@@ -143,5 +143,41 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpDelete(APIRoutes.MasterType.permanenlyDeletemanyMasterType, Name = "deleteManyMasterType")]
+        public async Task<IActionResult> DeleteManyMasterType([FromBody] List<int> masterTypeId)
+        {
+            try
+            {
+                var result = await _masterTypeService.PermanentlyDeleteManyMasterType(masterTypeId);
+                return Ok(result);
+            }
+             catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        [HttpPatch(APIRoutes.MasterType.softedDelete, Name = "SoftedDeleteMasterType")]
+        public async Task<IActionResult> SoftedDeleteMasterType([FromBody] List<int> MasterTypeIds)
+        {
+            try
+            {
+                var result = await _masterTypeService.SoftedMultipleDelete(MasterTypeIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
