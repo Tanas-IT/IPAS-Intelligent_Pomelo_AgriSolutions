@@ -12,6 +12,7 @@ interface ButtonActionsProps {
     onEdit: () => void;
     onDelete: () => void;
     onAdd: () => void;
+    onAddPlan: (key: string) => void;
 }
 
 const ButtonActions: React.FC<ButtonActionsProps> = ({
@@ -22,6 +23,7 @@ const ButtonActions: React.FC<ButtonActionsProps> = ({
     onEdit,
     onDelete,
     onAdd,
+    onAddPlan
 }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -53,6 +55,9 @@ const ButtonActions: React.FC<ButtonActionsProps> = ({
                 </>
             ) : (
                 <>
+                    <Tooltip title="Add Plan">
+                        <Button icon={<Icons.plus />} onClick={() => onAddPlan(nodeKey)} size="small" />
+                    </Tooltip>
                     <Tooltip title="Add Task">
                         <Button icon={<Icons.plus />} onClick={onAdd} size="small" />
                     </Tooltip>

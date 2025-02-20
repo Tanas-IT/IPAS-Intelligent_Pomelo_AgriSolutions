@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
 import { Button, Divider, Flex, Tag, Tree, TreeDataNode, TreeProps } from "antd";
@@ -11,6 +11,7 @@ import { processService } from "@/services";
 import EditableTreeNode from "./EditableTreeNode";
 import ButtonActions from "./ButtonActions";
 import { GetProcessDetail } from "@/payloads/process";
+import AddPlanModal from "../ProcessList/AddPlanModal";
 
 interface SubProcess {
   subProcessId: number;
@@ -19,9 +20,23 @@ interface SubProcess {
   listSubProcessData?: SubProcess[];
 }
 
+type OptionType<T = string | number> = {
+  value: T;
+  label: string
+};
+
+type PlanType = {
+  planId: number;
+  planName: string;
+  planDetail: string;
+  growthStageId: string;
+  masterTypeId: string
+};
+
 interface CustomTreeDataNode extends TreeDataNode {
-  status?: string;  // Thêm thuộc tính 'status' vào CustomTreeDataNode
+  status?: string;
   order?: number;
+  plans?: PlanType[];
 }
 
 const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): CustomTreeDataNode[] => {
@@ -43,6 +58,12 @@ function ProcessDetails() {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [processDetail, setProcessDetail] = useState<GetProcessDetail>();
   const [deletedNodes, setDeletedNodes] = useState<CustomTreeDataNode[]>([]);
+  const [isAddPlanModalOpen, setIsAddPlanModalOpen] = useState(false);
+  const [selectedSubProcessId, setSelectedSubProcessId] = useState<number>();
+  const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
+  const [processTypeOptions, setProcessTypeOptions] = useState<OptionType<number | string>[]>([]);
+  const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // để lưu task mới tạo
+
 
   useEffect(() => {
     if (!id) {
@@ -64,7 +85,38 @@ function ProcessDetails() {
 
     fetchProcessDetails();
   }, [id]);
-  console.log("tree data", treeData);
+
+  const addTaskToTree = (
+    nodes: CustomTreeDataNode[],
+    newTask: CustomTreeDataNode,
+    parentKey?: number
+  ): CustomTreeDataNode[] => {
+    return nodes.map(node => {
+      // Nếu có parentKey, thêm task mới vào `children` của node có key tương ứng
+      if (parentKey && Number(node.key) === Number(parentKey)) {
+        return {
+          ...node,
+          children: node.children ? [...node.children, newTask] : [newTask]
+        };
+      }
+
+      // Nếu node có children, tiếp tục tìm kiếm để thêm task vào đúng vị trí
+      if (node.children && node.children.length > 0) {
+        return { ...node, children: addTaskToTree(node.children, newTask, parentKey) };
+      }
+
+      return node;
+    });
+  };
+
+
+  const handleAddTask = (newTask: CustomTreeDataNode, parentKey?: number) => {
+    setNewTasks(prev => [...prev, newTask]); // Lưu task mới vào danh sách tạm
+
+    setTreeData(prevTree => {
+      return addTaskToTree(prevTree, newTask, parentKey);
+    });
+  };
 
 
   const handleAdd = (parentKey: string) => {
@@ -75,14 +127,14 @@ function ProcessDetails() {
       children: [],
       status: "add",
     };
-  
+
     const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map(node => {
         if (node.key === parentKey) {
-          const newOrder = node.children ? node.children.length + 1 : 1; // Kiểm tra xem có children hay không để xác định order
-          return { 
-            ...node, 
-            children: [...(node.children || []), { ...newNode, order: newOrder }] 
+          const newOrder = node.children ? node.children.length + 1 : 1;
+          return {
+            ...node,
+            children: [...(node.children || []), { ...newNode, order: newOrder }]
           };
         }
         if (node.children) {
@@ -91,26 +143,25 @@ function ProcessDetails() {
         return node;
       });
     };
-  
+
     setTreeData(updateTree(treeData));
   };
-  
+
 
   const handleEdit = (key: string) => {
     setEditingKey(key);
     const node = findNodeByKey(treeData, key);
-  
+
     if (node && typeof node.title === "string") {
       setNewTitle(node.title);
-  
-      // Cập nhật trạng thái của node khi đang chỉnh sửa
+
       if (node.status !== "editing") {
-        node.status = "editing"; // Đánh dấu là đang chỉnh sửa
-        setTreeData([...treeData]); // Cập nhật lại treeData với trạng thái mới
+        node.status = "editing";
+        setTreeData([...treeData]);
       }
     }
   };
-  
+
 
   const handleSave = () => {
     if (editingKey !== null) {
@@ -132,32 +183,28 @@ function ProcessDetails() {
         children: node.children ? deleteNode(node.children) : undefined,
       }));
     };
-  
-    // Kiểm tra xem có node nào cần xóa không
+
     const deletedNode = findNodeByKey(treeData, key);
     if (deletedNode) {
-      // Lưu task bị xóa vào deletedNodes
       setDeletedNodes(prev => [...prev, { ...deletedNode, status: "deleted" }]);
     }
-  
-    // Cập nhật lại dữ liệu cây
+
     const updatedTreeData = deleteNode(treeData);
-  
-    // Cập nhật lại thứ tự các node còn lại
+
     const reorderNodes = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map((node, index) => ({
         ...node,
-        order: index + 1,  // Cập nhật thứ tự sau khi xóa
+        order: index + 1,
         children: node.children ? reorderNodes(node.children) : undefined,
       }));
     };
-  
+
     const reorderedTreeData = reorderNodes(updatedTreeData);
-  
+
     setTreeData(reorderedTreeData);
   };
-  
-  
+
+
 
   const handleCancel = () => {
 
@@ -167,48 +214,121 @@ function ProcessDetails() {
 
   }
 
+  const handleClickAddPlan = (subProcessKey: number) => {
+    setSelectedSubProcessId(subProcessKey);
+    setIsAddPlanModalOpen(true);
+  };
+
+  const updateTreeWithPlan = (
+    nodes: CustomTreeDataNode[],
+    subProcessKey: number,
+    newPlan: PlanType
+  ): CustomTreeDataNode[] => {
+    return nodes.map(node => {
+      if (Number(node.key) === Number(subProcessKey)) {
+        return {
+          ...node,
+          plans: node.plans ? [...node.plans, newPlan] : [newPlan], // Thêm plan mới vào danh sách
+        };
+      }
+      if (node.children && node.children.length > 0) {
+        return { ...node, children: updateTreeWithPlan(node.children, subProcessKey, newPlan) }; // Cập nhật cây con
+      }
+      return node;
+    });
+  };
+
+
+  const handleAddPlan = (subProcessKey: number, newPlan: PlanType) => {
+    console.log("Adding plan:", newPlan);
+    console.log("subProcessKey", subProcessKey);
+
+
+    const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+      return nodes.map(node => {
+        if (Number(node.key) === Number(subProcessKey)) {
+          return {
+            ...node,
+            plans: node.plans ? [...node.plans, newPlan] : [newPlan], // Thêm plan mới
+          };
+        }
+        if (node.children && node.children.length > 0) {
+          return { ...node, children: updateTree(node.children) }; // Đệ quy cập nhật children
+        }
+        return node;
+      });
+    };
+
+    // setTreeData(prevTree => {
+    //   const newTree = updateTree([...prevTree]); // Cập nhật cây
+    //   console.log("Updated tree:", newTree); // Kiểm tra kết quả
+    //   return newTree;
+    // });
+    setTreeData(prevTree => {
+      let updatedTree = [...prevTree];
+
+      // Kiểm tra nếu subProcessKey không có trong treeData
+      const foundTask = newTasks.find(task => Number(task.key) === Number(subProcessKey));
+
+      if (foundTask) {
+        updatedTree = addTaskToTree(updatedTree, foundTask); // Thêm task mới vào treeData
+        setNewTasks(newTasks.filter(task => Number(task.key) !== Number(subProcessKey))); // Xóa khỏi danh sách tạm
+      }
+
+      return updateTreeWithPlan(updatedTree, subProcessKey, newPlan);
+    });
+
+    // setTimeout(() => setIsAddPlanModalOpen(true), 0);
+  };
+
+  console.log(treeData);
+
+
   const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number = 0): any[] => {
+    console.log("nodesss", nodes);
+
     return nodes.flatMap((node, index) => {
-      const subProcessId = Number(node.key); // Chuyển key thành số
+      const subProcessId = Number(node.key);
       const subProcess = {
+        SubProcessId: subProcessId,
         SubProcessName: node.title || "New Task",
-        ParentSubProcessId: parentId, // Gán ID cha
-        IsDefault: true, // Giữ mặc định
-        IsActive: true,  // Giữ mặc định
-        ProcessStyleId: 0, // Nếu có style, cập nhật
-        Status: node.status || "no_change", // Trạng thái (thêm, sửa, xóa)
-        Order: node.order || index + 1,  // Gửi thứ tự
+        ParentSubProcessId: parentId,
+        IsDefault: true,
+        IsActive: true,
+        MasterTypeId: 0,
+        Status: node.status || "no_change",
+        Order: node.order || index + 1,
       };
-  
+
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
-  
+
 
   const handleSaveProcess = () => {
     const payload = {
-      processId: id || 0, // Lấy ID nếu có, nếu không để 0
+      processId: id || 0,
       processName: processDetail?.processName || "New Process",
       isActive: processDetail?.isActive ?? true,
       isDefault: processDetail?.isDefault ?? false,
       isDeleted: processDetail?.isDeleted ?? false,
       ListUpdateSubProcess: convertTreeToList(treeData),
-      ListDeletedSubProcess: convertDeletedNodesToList(deletedNodes), // Thêm task đã xóa
+      ListDeletedSubProcess: convertDeletedNodesToList(deletedNodes),
     };
-  
+
     console.log("Saving Payload:", payload);
-    // Gọi API gửi payload về backend
     // processService.updateProcess(payload);
   }
 
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
     return nodes.map(node => ({
+      SubProcessId: Number(node.key),
       SubProcessName: node.title || "New Task",
-      ParentSubProcessId: 0,  // Gán giá trị mặc định hoặc lấy từ dữ liệu gốc
+      ParentSubProcessId: 0,
       IsDefault: true,
-      IsActive: false, // Thường là false khi đã xóa
+      IsActive: false,
       ProcessStyleId: 0,
-      Status: node.status || "deleted", // Đảm bảo trạng thái là 'deleted'
+      Status: node.status || "deleted",
     }));
   };
 
@@ -223,39 +343,75 @@ function ProcessDetails() {
     return null;
   };
 
+  const handleEditPlan = useCallback((plan: PlanType) => {
+    console.log("Chỉnh sửa kế hoạch", plan);
+  }, []);
+
+  /**
+   * Xóa kế hoạch
+   */
+  const handleDeletePlan = useCallback((planId: number) => {
+    console.log("Xóa kế hoạch với ID:", planId);
+  }, []);
+
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
+    return nodes.map((node) => {
+      // Nếu có plans, tạo một node chứa danh sách kế hoạch
+      const planNodes = node.plans?.length
+        ? [{
+          title: (
+            <div style={{ marginLeft: "20px", padding: "5px", border: "1px solid #ddd", borderRadius: "5px" }}>
+              <strong>Plan List:</strong>
+              {node.plans.map((plan: PlanType) => (
+                <div key={plan.planId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0" }}>
+                  <span>{plan.planName}</span>
+                  <div>
+                    <Icons.edit color="blue" size={20} onClick={() => handleEditPlan(plan)} />
+                    <Icons.delete color="red" size={20} onClick={() => handleDeletePlan(plan.planId)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ),
+          key: `${node.key}-plans`, // Key riêng để không trùng lặp
+          isLeaf: true, // Đánh dấu là node lá để tránh lỗi tree recursive
+        }]
+        : [];
 
-    return nodes.map((node) => ({
-      title: (
-        <div
-          onMouseEnter={() => setHoveredKey(node.key.toString())}
-          onMouseLeave={() => setHoveredKey(null)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
-        >
-          <EditableTreeNode
-            isEditing={editingKey === node.key}
-            title={editingKey === node.key ? newTitle : node.title}
-            onChange={(e) => setNewTitle(e)}
-            onBlur={handleSave}
-          />
-
-          {hoveredKey === node.key && (
-            <ButtonActions
-              editingKey={editingKey}
-              nodeKey={node.key}
-              onSave={handleSaveNode}
-              onCancel={handleCancel}
-              onEdit={() => handleEdit(node.key)}
-              onDelete={() => handleDelete(node.key)}
-              onAdd={() => handleAdd(node.key)}
+      return {
+        title: (
+          <div
+            onMouseEnter={() => setHoveredKey(node.key.toString())}
+            onMouseLeave={() => setHoveredKey(null)}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+          >
+            <EditableTreeNode
+              isEditing={editingKey === node.key}
+              title={editingKey === node.key ? newTitle : node.title}
+              onChange={(e) => setNewTitle(e)}
+              onBlur={handleSave}
             />
-          )}
-        </div>
-      ),
-      key: node.key,
-      children: node.children ? loopNodes(node.children) : undefined,
-    }));
+
+            {hoveredKey === node.key && (
+              <ButtonActions
+                editingKey={editingKey}
+                nodeKey={node.key}
+                onSave={handleSaveNode}
+                onCancel={handleCancel}
+                onEdit={() => handleEdit(node.key)}
+                onDelete={() => handleDelete(node.key)}
+                onAdd={() => handleAdd(node.key)}
+                onAddPlan={() => handleClickAddPlan(node.key)}
+              />
+            )}
+          </div>
+        ),
+        key: node.key,
+        children: [...(node.children ? loopNodes(node.children) : []), ...planNodes], // Kết hợp cả sub-process và plan list
+      };
+    });
   };
+
 
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
@@ -305,9 +461,9 @@ function ProcessDetails() {
 
     const updatedData = reorderNodes(data);
 
-  console.log("Updated Tree:", updatedData);
+    console.log("Updated Tree:", updatedData);
 
-  setTreeData([...updatedData]);
+    setTreeData([...updatedData]);
   };
 
   return (
@@ -318,14 +474,8 @@ function ProcessDetails() {
         </Tooltip>
       </div>
       <Divider className={style.divider} />
-      {/* <div className={style.contentSectionTitleLeft}>
-        <p className={style.title}>Caring Process</p>
-        <div className={style.addButton}>
-          <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
-        </div>
-      </div> */}
       <Flex className={style.contentSectionTitleLeft}>
-        <p className={style.title}>Caring Process</p>
+        <p className={style.title}>{processDetail?.processName}</p>
         <Tooltip title="Hello">
           <Icons.tag className={style.iconTag} />
         </Tooltip>
@@ -334,9 +484,10 @@ function ProcessDetails() {
           <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
         </div>
       </Flex>
-      <label className={style.subTitle}>Code: laggg</label>
+      <label className={style.subTitle}>Code: {processDetail?.processCode}</label>
       <Divider className={style.divider} />
       <Tree
+        style={{ fontSize: "18px" }}
         draggable
         blockNode
         onDrop={onDrop}
@@ -344,9 +495,27 @@ function ProcessDetails() {
       />
       <div className={style.buttonGroup}>
         <Button>Cancel</Button>
-        {/* <Button className={style.confirmButton}>Save</Button> */}
-        <CustomButton label="Save" isCancel={false} isModal={true} handleOnClick={() => handleSaveProcess()} />
+        <CustomButton
+          label="Save"
+          isCancel={false}
+          isModal={true}
+          handleOnClick={() => handleSaveProcess()} />
       </div>
+      {isAddPlanModalOpen && (
+        <AddPlanModal
+          isOpen={isAddPlanModalOpen}
+          subProcessId={selectedSubProcessId}
+          onClose={() => setIsAddPlanModalOpen(false)}
+          onSave={(values) => {
+            const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId };
+            handleAddPlan(selectedSubProcessId!, newPlan);
+            setIsAddPlanModalOpen(false);
+          }}
+          growthStageOptions={growthStageOptions}
+          processTypeOptions={processTypeOptions}
+        />
+
+      )}
       <ToastContainer />
     </div>
   );

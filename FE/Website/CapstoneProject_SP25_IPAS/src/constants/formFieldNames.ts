@@ -71,3 +71,12 @@ export const packageFormFields = {
   duration: "duration",
   isActive: "isActive",
 };
+
+export const processFormFields = {
+  processName: "processName",
+  isActive: "isActive",
+  farmId: "farmId",
+  masterTypeId: "masterTypeId",
+  growthStageId: "growthStageId",
+  listPlan: "listPlan",
+};

@@ -314,9 +314,9 @@ export const statusOptions = [
 ];
 
 export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue = false) => {
-  const processTypes = await masterTypeService.getTypeByName(typeName);
+  const types = await masterTypeService.getTypeByName(typeName);
 
-  return processTypes.map((type) => ({
+  return types.map((type) => ({
     value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
     label: type.masterTypeName,
   }));
