@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +24,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 Include(x => x.Processes)
                 .Include(x => x.Plants)
                 .Include(x => x.Plans)
-                .Include(x => x.MasterTypes).
+                .Include(x => x.MasterTypes)
+                .Include(x => x.Farm).
                 Where(x => x.FarmID == farmId).ToListAsync();
             return result;
         }
