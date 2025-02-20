@@ -99,7 +99,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     bool validBool = false;
                     if (checkInt)
                     {
-                        filter = filter.And(x => x.SubProcessId == validInt || x.ParentSubProcessId == validInt);
+                        filter = filter.And(x => x.SubProcessID == validInt || x.ParentSubProcessId == validInt);
                     }
                     else if (DateTime.TryParse(paginationParameter.Search, out validDate))
                     {
@@ -151,8 +151,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     case "subprocessid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.SubProcessId)
-                                   : x => x.OrderBy(x => x.SubProcessId)) : x => x.OrderBy(x => x.SubProcessId);
+                                   ? x => x.OrderByDescending(x => x.SubProcessID)
+                                   : x => x.OrderBy(x => x.SubProcessID)) : x => x.OrderBy(x => x.SubProcessID);
                         break;
                     case "subprocesscode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -215,7 +215,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.SubProcessId);
+                        orderBy = x => x.OrderBy(x => x.SubProcessID);
                         break;
                 }
                 string includeProperties = "MasterType,Process,ChildSubProcesses";
@@ -244,7 +244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, "MasterType,Process");
+                var getProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcessId, "MasterType,Process");
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<SubProcessModel>(getProcess);
@@ -283,7 +283,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string includeProperties = "Process,MasterType";
-                var deleteSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcessId, includeProperties);
+                var deleteSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcessId, includeProperties);
 
                 var data = deleteSubProcess.ResourceUrl;
                 if (data != null)
@@ -317,7 +317,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == updateSubProcessModel.SubProcessId, "");
+                var checkExistSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == updateSubProcessModel.SubProcessId, "");
                 if (checkExistSubProcess != null)
                 {
                     if (updateSubProcessModel.SubProcessName != null)

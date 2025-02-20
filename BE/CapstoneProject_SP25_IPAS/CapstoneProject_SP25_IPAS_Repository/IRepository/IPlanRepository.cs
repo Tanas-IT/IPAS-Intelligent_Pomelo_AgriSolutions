@@ -21,5 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
            Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!,
            int? pageIndex = null,
            int? pageSize = null);
+
+        public Task<List<PlanTarget>> GetListPlanByFarmId(int? farmId);
     }
 }

@@ -39,7 +39,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         GrowthStageCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.GROWTHSTAGE),
                         GrowthStageName = createGrowthStageModel.GrowthStageName,
                         MonthAgeStart = createGrowthStageModel.MonthAgeStart,
-                        MonthAgeEnd = createGrowthStageModel.MonthAgeEnd
+                        MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
+                        CreateDate = DateTime.Now,
+                        Description = createGrowthStageModel.Description,
+                        FarmID = createGrowthStageModel.FarmID,
+                        isDefault = createGrowthStageModel.isDefault,
+                        
                     };
                     await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
                     var result = await _unitOfWork.SaveAsync();
@@ -71,11 +76,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     DateTime validDate = DateTime.Now;
                     if (checkInt)
                     {
-                        filter = x => x.GrowthStageId == validInt;
-                    }
-                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
-                    {
-                        filter = x => x.MonthAgeStart == validDate || x.MonthAgeEnd == validDate;
+                        filter = x => x.GrowthStageID == validInt || x.MonthAgeStart == validInt || x.MonthAgeEnd == validInt;
                     }
                     else
                     {
@@ -88,8 +89,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     case "growthstageid":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.GrowthStageId)
-                                   : x => x.OrderBy(x => x.GrowthStageId)) : x => x.OrderBy(x => x.GrowthStageId);
+                                   ? x => x.OrderByDescending(x => x.GrowthStageID)
+                                   : x => x.OrderBy(x => x.GrowthStageID)) : x => x.OrderBy(x => x.GrowthStageID);
                         break;
                     case "growthstagecode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -116,10 +117,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.MonthAgeEnd)) : x => x.OrderBy(x => x.MonthAgeEnd);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.GrowthStageId);
+                        orderBy = x => x.OrderBy(x => x.GrowthStageID);
                         break;
                 }
-                string includeProperties = "";
+                string includeProperties = "Farm";
                 var entities = await _unitOfWork.GrowthStageRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<GrowthStageModel>();
                 pagin.List = _mapper.Map<IEnumerable<GrowthStageModel>>(entities).ToList();
@@ -141,11 +142,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> GetGrowthStageByFarmId(int? farmId)
+        {
+            try
+            {
+                var getGrowthStageByFarmId = await _unitOfWork.GrowthStageRepository.GetGrowthStagesByFarmId(farmId);
+                if(getGrowthStageByFarmId != null)
+                {
+                    if(getGrowthStageByFarmId.Count() > 0)
+                    {
+                        var mappedModel =  _mapper.Map<List<GrowthStageModel>>(getGrowthStageByFarmId);
+                        return new BusinessResult(Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_CODE, Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE, mappedModel);
+                    }
+                    return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
+                }
+                return new BusinessResult(Const.FAIL_GET_GROWTHSTAGE_BY_FARM_ID_CODE, Const.FAIL_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
         public async Task<BusinessResult> GetGrowthStageByID(int growthStageId)
         {
             try
             {
-                var getGrowthStage = await _unitOfWork.GrowthStageRepository.GetByID(growthStageId);
+                var growthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageId, "Farm");
+                var getGrowthStage = _mapper.Map<GrowthStageModel>(growthStage);
                 if (getGrowthStage != null)
                 {
                     return new BusinessResult(Const.SUCCESS_GET_GROWTHSTAGE_BY_ID_CODE, Const.SUCCESS_GET_GROWTHSTAGE_BY_ID_MESSAGE, getGrowthStage);
@@ -164,7 +189,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string includeProperties = "Plans,Processes";
-                var getDeleteGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageId == growthStageId, includeProperties);
+                var getDeleteGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageId, includeProperties);
                 if (getDeleteGrowthStage != null)
                 {
                     foreach (var plan in getDeleteGrowthStage.Plans.ToList())
@@ -211,6 +236,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistGrowthStage.MonthAgeEnd = updateriteriaTypeModel.MonthAgeEnd;
                     }
+                    if (updateriteriaTypeModel.Description != null)
+                    {
+                        checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
+                    } 
+                    if (updateriteriaTypeModel.FarmID != null)
+                    {
+                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmID;
+                    }
+                  
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {

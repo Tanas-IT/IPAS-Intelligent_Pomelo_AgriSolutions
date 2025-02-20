@@ -5,7 +5,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 
 public partial class SubProcess
 {
-    public int SubProcessId { get; set; }
+    public int SubProcessID { get; set; }
 
     public string? SubProcessCode { get; set; }
 
@@ -38,4 +38,5 @@ public partial class SubProcess
     public virtual Process? Process { get; set; }
     public SubProcess? ParentSubProcess { get; set; }
     public ICollection<SubProcess> ChildSubProcesses { get; set; } = new List<SubProcess>();
+    public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 }

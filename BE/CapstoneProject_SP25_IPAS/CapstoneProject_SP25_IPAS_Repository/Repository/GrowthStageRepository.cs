@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public GrowthStageRepository(IpasContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<List<GrowthStage>> GetGrowthStagesByFarmId(int? farmId)
+        {
+           var result = await _context.GrowthStages.
+                Include(x => x.Processes)
+                .Include(x => x.Plants)
+                .Include(x => x.Plans)
+                .Include(x => x.MasterTypes).
+                Where(x => x.FarmID == farmId).ToListAsync();
+            return result;
         }
     }
 }
