@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetForSelect(int farmId, string? search);
 
-        public Task<BusinessResult> GetProcessBySubProcessId(int subProcessId);
+        public Task<BusinessResult> GetProcessByFarmId(int farmId);
 
     }
 }
