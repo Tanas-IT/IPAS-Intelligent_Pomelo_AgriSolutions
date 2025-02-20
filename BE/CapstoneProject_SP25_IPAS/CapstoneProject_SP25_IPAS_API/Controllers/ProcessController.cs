@@ -103,7 +103,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Process.createManyProcess, Name = "createManyProcessAsync")]
-        public async Task<IActionResult> CreateManyProcess([FromForm] List<CreateProcessModel> listCreateProcessModel)
+        public async Task<IActionResult> CreateManyProcess([FromBody] List<CreateManyProcessModel> listCreateProcessModel)
         {
             try
             {
