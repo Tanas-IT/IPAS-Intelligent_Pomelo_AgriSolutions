@@ -135,7 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
+        [HttpPatch(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
         public async Task<IActionResult> SoftDeleteUser([FromRoute] int userId)
         {
             try
