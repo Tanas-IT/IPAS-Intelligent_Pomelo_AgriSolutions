@@ -54,10 +54,20 @@ const NavigationDot: React.FC<NavigationDotProps> = ({
           {...paginationProps}
           itemRender={(page, type, originalElement) => {
             if (type === "prev") {
-              return <Flex className={style.paginationArrow}>{<Icons.arrowBack />}</Flex>;
+              const isDisabled = currentPage === 1;
+              return (
+                <Flex className={`${style.paginationArrow} ${isDisabled ? style.inActive : ""}`}>
+                  {<Icons.arrowBack />}
+                </Flex>
+              );
             }
             if (type === "next") {
-              return <Flex className={style.paginationArrow}>{<Icons.arrowForward />}</Flex>;
+              const isDisabled = currentPage === totalPages;
+              return (
+                <Flex className={`${style.paginationArrow} ${isDisabled ? style.inActive : ""}`}>
+                  {<Icons.arrowForward />}
+                </Flex>
+              );
             }
             if (type === "page") {
               const isActive = page === paginationProps.current;

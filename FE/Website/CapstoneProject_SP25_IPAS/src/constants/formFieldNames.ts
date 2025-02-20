@@ -29,17 +29,13 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   masterTypeCode: "masterTypeCode",
   masterTypeName: "masterTypeName",
   masterTypeDescription: "masterTypeDescription",
+  backgroundColor: "backgroundColor",
+  textColor: "textColor",
+  characteristic: "characteristic",
   typeName: "typeName",
   createDate: "createDate",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
-};
-
-export const masterTypeDetailFormFields = {
-  backgroundColor: "backgroundColor",
-  textColor: "textColor",
-  volumeRequired: "volumeRequired",
-  characteristic: "characteristic",
 };
 
 export const worklogFormFields = {

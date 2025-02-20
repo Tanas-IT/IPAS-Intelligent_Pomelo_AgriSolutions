@@ -22,9 +22,9 @@ export const PATHS = {
     USER_DETAIL: "/users/:id",
   },
 
-  // Master type Management
-  MASTER_TYPE: {
-    LIST: "/master-types",
+  CLASSIFICATION: {
+    MASTER_TYPE: "/classification/master-types",
+    GROWTH_STAGE: "/classification/growth-stages",
   },
 
   // Farm Management
