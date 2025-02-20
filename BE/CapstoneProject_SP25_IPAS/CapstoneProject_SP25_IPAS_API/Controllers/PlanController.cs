@@ -145,7 +145,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Plan.softDeletePlan, Name = "softDeletePlanAsync")]
+        [HttpPatch(APIRoutes.Plan.softDeletePlan, Name = "softDeletePlanAsync")]
         public async Task<IActionResult> SoftDeletePlan([FromRoute] int id)
         {
             try
@@ -165,7 +165,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Plan.unSoftDeletePlan, Name = "unSoftDeletePlanAsync")]
+        [HttpPatch(APIRoutes.Plan.unSoftDeletePlan, Name = "unSoftDeletePlanAsync")]
         public async Task<IActionResult> UnSoftDeletePlan([FromRoute] int id)
         {
             try

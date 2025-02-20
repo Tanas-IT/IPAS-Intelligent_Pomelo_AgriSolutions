@@ -466,7 +466,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
-
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.BackgroundColor))
+                        {
+                            checkExistMasterType.BackgroundColor = updateMasterTypeModel.BackgroundColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.TextColor))
+                        {
+                            checkExistMasterType.TextColor = updateMasterTypeModel.TextColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.Characteristic))
+                        {
+                            checkExistMasterType.Characteristic = updateMasterTypeModel.Characteristic;
+                        }
                         //var existingResources = update.Resources.ToList();
                         // Xóa tài nguyên cũ không có trong request
                         //var detailToDelete = checkExistMasterType.MasterTypeDetails
