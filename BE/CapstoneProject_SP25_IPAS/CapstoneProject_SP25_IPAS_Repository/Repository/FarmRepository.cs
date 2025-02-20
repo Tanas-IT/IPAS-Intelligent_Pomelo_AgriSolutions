@@ -51,7 +51,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 // Ensure the pageIndex and pageSize are valid
                 int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
 
                 query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
             }
@@ -75,6 +75,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 //.Include(x => x.FarmCoordinations)
                 .FirstOrDefaultAsync();
             return farm;
+        }
+
+        public async Task<List<UserFarm>> GetUsersOfFarmByRole(int farmId, List<int> roleIds)
+        {
+            var userFarms = await _context.UserFarms
+                .Where(x => x.FarmId == farmId && x.Farm.IsDeleted == false && roleIds.Contains(x.RoleId!.Value))
+                .Include(x => x.User)
+                .Include(x => x.Role)
+                .Include(x => x.Farm)
+                .ToListAsync();
+
+            return userFarms;
         }
     }
 }

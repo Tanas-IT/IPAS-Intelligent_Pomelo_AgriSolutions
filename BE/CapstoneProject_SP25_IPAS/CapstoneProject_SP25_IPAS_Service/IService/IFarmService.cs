@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFarmRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
@@ -32,5 +33,18 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         //public Task<BusinessResult> UpdateFarmCoordination(int farmId, List<CoordinationCreateRequest> farmCoordinationUpdate);
 
         public Task<UserFarmModel> GetUserFarmRole(int farmId, int userId);
+
+        public Task<BusinessResult> GetAllUserOfFarmByRoleAsync(int farmId, List<int> roleIds);
+
+        public Task<BusinessResult> getUserOfFarm(int farmId, PaginationParameter paginationParameter);
+
+        public Task<BusinessResult> updateRoleOfUserInFarm(UserFarmRequest updateRequest);
+
+        public Task<BusinessResult> deleteUserInFarm(int farmId, int userId);
+
+        public Task<BusinessResult> addUserToFarm(UserFarmRequest createRequest);
+
+        public Task<BusinessResult> getUserFarmById(int farmId, int userId);
+
     }
 }

@@ -56,6 +56,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                 //.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ReverseMap();
 
 
