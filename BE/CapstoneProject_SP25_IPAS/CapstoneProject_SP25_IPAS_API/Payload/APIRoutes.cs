@@ -21,6 +21,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateFarmInfo = prefix + "/update-farm-info";
             public const string updateFarmLogo = prefix + "/update-farm-logo";
             public const string updateFarmCoordination = prefix + "/update-farm-coordination";
+            public const string getUserOfFarmByRole = prefix + "/get-users-farm-by-role";
+            public const string getUsersOfFarmById = prefix + "/user-farm/get-by-id";
+            public const string updateUserOfFarm = prefix + "/user-farm/";
+            public const string addUserToFarm = prefix + "/user-farm/";
+            public const string getUsersOfFarm = prefix + "/user-farm/";
+            public const string deleteUserFarm = prefix + "/user-farm";
         }
 
         public static class LandPlot

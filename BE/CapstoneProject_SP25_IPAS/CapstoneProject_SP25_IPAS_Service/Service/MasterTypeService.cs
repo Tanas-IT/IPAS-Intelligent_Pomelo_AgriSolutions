@@ -133,9 +133,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Expression<Func<MasterType, bool>> filter = x => x.IsDelete == false ;
                 if (farmId > 0)
-                    filter.And(x => (x.FarmID == farmId && x.IsDelete == false) || x.IsDefault == false);
+                   filter = filter.And(x => (x.FarmID == farmId && x.IsDelete == false) || (x.IsDefault == true && x.FarmID == null));
                 else
-                    filter.And(x => x.IsDefault == true);
+                   filter = filter.And(x => x.IsDefault == true && x.FarmID == null);
                 //return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                 Func<IQueryable<MasterType>, IOrderedQueryable<MasterType>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
