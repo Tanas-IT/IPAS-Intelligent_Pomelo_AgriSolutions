@@ -39,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     string haflCode = GenerateFarmCode(createPartnerModel);
                     var partner = new Partner()
                     {
-                       PartnerCode = $"{CodeAliasEntityConst.PARTNER}-{DateTime.Now.ToString("ddmmyyyy")}-{haflCode}-{CodeHelper.GenerateCode}",
+                       PartnerCode = $"{CodeAliasEntityConst.PARTNER}-{DateTime.Now.ToString("ddmmyyyy")}-{haflCode}-{CodeHelper.GenerateCode()}",
                        Province = createPartnerModel.Province,
                        District = createPartnerModel.District,
                        Ward = createPartnerModel.Ward,
