@@ -49,6 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeDescription = createMasterTypeModel.MasterTypeDescription,
                         IsActive = createMasterTypeModel.IsActive,
                         IsDelete = false,
+                        IsDefault = false,
                         CreateBy = createMasterTypeModel.CreateBy,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
