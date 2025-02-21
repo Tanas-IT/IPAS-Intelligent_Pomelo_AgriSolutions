@@ -119,6 +119,8 @@ const AddPlan = () => {
     };
 
     const handleSubmit = async (values: any) => {
+        console.log("bấm add");
+        
         const { dateRange, timeRange } = values;
         const startDate = new Date(dateRange?.[0]);
         const endDate = new Date(dateRange?.[1]);
@@ -175,13 +177,15 @@ const AddPlan = () => {
         const fetchData = async () => {
             await fetchLandPlotOptions();
             setProcessFarmOptions(await fetchProcessesOfFarm(farmId));
-            setGrowthStageOptions(await fetchGrowthStageOptions(true));
-            setWorkTypeOptions(await fetchTypeOptionsByName("WorkType", true));
+            setGrowthStageOptions(await fetchGrowthStageOptions(true, farmId));
+            setWorkTypeOptions(await fetchTypeOptionsByName("Work", true));
             setEmployee(await fetchUserInfoByRole("Employee"));
         };
 
         fetchData();
     }, []);
+    console.log("growthStageOptions", growthStageOptions);
+    
 
     const fetchLandPlotOptions = async () => {
         const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
@@ -220,8 +224,12 @@ const AddPlan = () => {
                 layout="vertical"
                 className={style.form}
                 onFinish={handleSubmit}
-                onValuesChange={() => setIsFormDirty(true)}
+                // onValuesChange={() => setIsFormDirty(true)}
                 initialValues={{ isActive: true }}
+                onValuesChange={(changedValues, allValues) => {
+                    console.log("Changed:", changedValues);
+                    console.log("All Values:", allValues);
+                }}
             >
                 {/* BASIC INFORMATION */}
                 <Section title="Basic Information" subtitle="Enter the basic information for the care plan.">
@@ -291,13 +299,12 @@ const AddPlan = () => {
                         <Col span={12}>
                             <InfoField
                                 label="Growth Stage"
-                                name={addPlanFormFields.growthStageId}
+                                name={addPlanFormFields.growthStageID}
                                 options={growthStageOptions}
                                 isEditing={true}
                                 rules={RulesManager.getGrowthStageRules()}
                                 type="select"
                                 hasFeedback={false}
-
                             />
                         </Col>
                     </Row>

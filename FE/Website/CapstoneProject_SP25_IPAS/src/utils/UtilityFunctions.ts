@@ -284,14 +284,17 @@ export const fetchCropOptions = async (farmId: string) => {
 //   }));
 // };
 
-export const fetchGrowthStageOptions = async (useIdAsValue = false) => {
-  const growthStages = await growthStageService.getGrowthStages();
+export const fetchGrowthStageOptions = async (useIdAsValue = false, farmId: number) => {
+  const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
+  console.log("growthStages", growthStages);
+  
 
-  return growthStages.list.map((growthStage) => ({
-    value: useIdAsValue ? growthStage.growthStageId : growthStage.growthStageName,
+  return growthStages.map((growthStage: { growthStageID: number; growthStageName: string }) => ({
+    value: useIdAsValue ? growthStage.growthStageID : growthStage.growthStageName,
     label: growthStage.growthStageName,
   }));
 };
+
 
 export const frequencyOptions = [
   { value: "None", label: "None" },

@@ -65,7 +65,7 @@ export const addPlanFormFields = {
   cropId: "cropId",
   landPlotId: "landPlotId",
   processId: "processId",
-  growthStageId: "growthStageId",
+  growthStageID: "growthStageId",
   isActive: "isActive",
   dateRange: "dateRange",
   timeRange: "timeRange",

@@ -28,3 +28,15 @@ export const getGrowthStages = async (
   
   return apiResponse.data as GetData<GetGrowthStage>;
 };
+
+export const getGrowthStagesOfFarmForSelect = async (farmId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`growthStages/get-for-select/${farmId}`);
+  const apiResponse = res.data as ApiResponse<GetGrowthStage[]>;
+  console.log("apiResponse grow", apiResponse);
+  
+
+  return apiResponse.data.map(({ growthStageID, growthStageName }) => ({
+    growthStageID,
+    growthStageName
+  }));
+}

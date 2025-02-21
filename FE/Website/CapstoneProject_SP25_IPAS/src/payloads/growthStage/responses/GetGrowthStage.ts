@@ -1,5 +1,5 @@
 export interface GetGrowthStage {
-  growthStageId: number;
+  growthStageID: number;
   growthStageCode: string;
   growthStageName: string;
   monthAgeStart: Date;

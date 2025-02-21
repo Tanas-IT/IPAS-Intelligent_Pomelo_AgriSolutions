@@ -11,7 +11,7 @@ import {
 import { getFarmId, getUserId } from "@/utils";
 
 export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
-  const res = await axiosAuth.axiosJsonRequest.get(`landplots?farmId=${farmId}`);
+  const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-selected?farmId=${farmId}`);
   const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
 
   return apiResponse.data.map(({ landPlotId, landPlotName }) => ({
