@@ -980,7 +980,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.UserRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<UserModel>();
                 pagin.List = _mapper.Map<List<UserModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.UserRepository.Count(x => x.IsDelete == false);
+                pagin.TotalRecord = await _unitOfWork.UserRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {

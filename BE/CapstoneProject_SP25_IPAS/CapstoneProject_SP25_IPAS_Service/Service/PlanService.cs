@@ -132,11 +132,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllPlanPagination(PaginationParameter paginationParameter, PlanFilter planFilter)
+        public async Task<BusinessResult> GetAllPlanPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int farmId)
         {
             try
             {
-                Expression<Func<Plan, bool>> filter = null!;
+                Expression<Func<Plan, bool>> filter = x =>
+                                 x.PlanTargets.Any(pt =>
+                                     (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
+                                     || (pt.Plant != null && pt.Plant.FarmId == farmId)
+                                     || (pt.LandPlot != null && pt.LandPlot.FarmId == farmId)
+                                     || (pt.LandRow != null && pt.LandRow.FarmId == farmId)
+                                 );
                 Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -424,7 +430,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.EndDate)) : x => x.OrderBy(x => x.EndDate);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.ProcessId);
+                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
                         break;
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
@@ -437,7 +443,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
                 }
                 pagin.List = listTemp;
-                pagin.TotalRecord = await _unitOfWork.PlanRepository.Count(x => x.IsDelete == false);
+                pagin.TotalRecord = await _unitOfWork.PlanRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
