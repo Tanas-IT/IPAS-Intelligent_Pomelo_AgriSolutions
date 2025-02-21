@@ -4,6 +4,7 @@ import style from "./NavigationDot.module.scss";
 import { NavigationDotProps } from "@/types";
 import { Icons } from "@/assets";
 import { useStyle } from "@/hooks";
+import { DEFAULT_ROWS_PER_PAGE } from "@/constants";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -11,7 +12,7 @@ const { Text } = Typography;
 const NavigationDot: React.FC<NavigationDotProps> = ({
   totalPages,
   currentPage = 1,
-  rowsPerPage = 5,
+  rowsPerPage = DEFAULT_ROWS_PER_PAGE,
   onPageChange,
   rowsPerPageOptions,
   onRowsPerPageChange,
@@ -53,10 +54,20 @@ const NavigationDot: React.FC<NavigationDotProps> = ({
           {...paginationProps}
           itemRender={(page, type, originalElement) => {
             if (type === "prev") {
-              return <Flex className={style.paginationArrow}>{<Icons.arrowBack />}</Flex>;
+              const isDisabled = currentPage === 1;
+              return (
+                <Flex className={`${style.paginationArrow} ${isDisabled ? style.inActive : ""}`}>
+                  {<Icons.arrowBack />}
+                </Flex>
+              );
             }
             if (type === "next") {
-              return <Flex className={style.paginationArrow}>{<Icons.arrowForward />}</Flex>;
+              const isDisabled = currentPage === totalPages;
+              return (
+                <Flex className={`${style.paginationArrow} ${isDisabled ? style.inActive : ""}`}>
+                  {<Icons.arrowForward />}
+                </Flex>
+              );
             }
             if (type === "page") {
               const isActive = page === paginationProps.current;

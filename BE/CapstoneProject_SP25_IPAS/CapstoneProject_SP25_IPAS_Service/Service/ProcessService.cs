@@ -7,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -91,12 +92,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDefault = false,
                                 IsActive = subProcess.IsActive,
                                 IsDeleted = false,
-                                ParentSubProcessId = subProcess.ParentSubProcessId,
+                                ParentSubProcessId = subProcess.ParentSubProcessId <= 0 ? null : subProcess.ParentSubProcessId,
                                 MasterTypeId = subProcess.MasterTypeId,
                                 Order = subProcess.Order
                             };
 
                             newProcess.SubProcesses.Add(newSubProcess);
+                        }
+                    }
+                    if(createProcessModel.ListPlan != null)
+                    {
+                        foreach (var planRaw in createProcessModel.ListPlan)
+                        {
+                            var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
+                            var newPlan = new Plan()
+                            {
+                               PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId.Value,
+                               PlanName = plan.PlanName,
+                               PlanDetail = plan.PlanDetail,   
+                               Notes = plan.PlanNote,
+                               GrowthStageId = plan.GrowthStageId,
+                               MasterTypeId = plan.MasterTypeId,
+                            };
+
+                            newProcess.Plans.Add(newPlan);
                         }
                     }
                     var checkInsertProcess = await _unitOfWork.SaveAsync();
@@ -516,14 +535,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var flag = false;
                             foreach (var item in getListSubProcessOfProcess)
                             {
-                                if (item.SubProcessId == subProcess.SubProcessId)
+                                if (item.SubProcessID == subProcess.SubProcessId)
                                 {
                                     flag = true;
                                 }
                             }
                             if (flag)
                             {
-                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessId == subProcess.SubProcessId, "");
+                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcess.SubProcessId, "");
                                 if (subProcess.Status.ToLower().Equals("add"))
                                 {
                                     var newSubProcess = new SubProcess()
@@ -587,6 +606,51 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             else
                             {
                                 return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
+                            }
+                        }
+                        if (updateProcessModel.ListPlan != null)
+                        {
+                            foreach (var updatePlanRaw in updateProcessModel.ListPlan)
+                            {
+                                var updatePlan = JsonConvert.DeserializeObject<UpdatePlanInProcessModel>(updatePlanRaw);
+                                var getListPlan = await _unitOfWork.PlanRepository.GetAllNoPaging();
+                                var getListPlanOfProcess = getListPlan.Where(x => x.ProcessId == checkExistProcess.ProcessId).ToList();
+                                bool flag = false;
+                                foreach (var item in getListPlanOfProcess)
+                                {
+                                    if (item.PlanId == updatePlan.PlanId)
+                                    {
+                                        flag = true;
+                                    }
+                                }
+                                if (flag)
+                                {
+                                    var planUpdate = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlan.PlanId, "");
+                                    if (planUpdate != null)
+                                    {
+                                        if (updatePlan.PlanName != null)
+                                        {
+                                            planUpdate.PlanName = updatePlan.PlanName;
+                                        }
+                                        if (updatePlan.PlanDetail != null)
+                                        {
+                                            planUpdate.PlanDetail = updatePlan.PlanDetail;
+                                        }
+                                        if (updatePlan.PlanNote != null)
+                                        {
+                                            planUpdate.Notes = updatePlan.PlanNote;
+                                        }
+                                        if (updatePlan.GrowthStageId != null)
+                                        {
+                                            planUpdate.GrowthStageId = updatePlan.GrowthStageId;
+                                        }
+                                        if (updatePlan.MasterTypeId != null)
+                                        {
+                                            planUpdate.MasterTypeId = updatePlan.MasterTypeId;
+                                        }
+                                        planUpdate.UpdateDate = DateTime.Now;
+                                    }
+                                }
                             }
                         }
                     }

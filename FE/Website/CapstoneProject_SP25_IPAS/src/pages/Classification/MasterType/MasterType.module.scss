@@ -1,0 +1,29 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+}
+
+.filterContent {
+  @include shared.filterContent;
+}
+
+.masterTypeDetailContainer {
+  display: flex;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.5s ease;
+  gap: 10px;
+
+  .masterTypeDetailName {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .masterTypeDetailValue {
+    text-align: left;
+    color: #555;
+  }
+}

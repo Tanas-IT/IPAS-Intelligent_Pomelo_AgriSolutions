@@ -26,6 +26,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 
         [DefaultValue(new[] { "{SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 0}" })]
         public List<string>? ListSubProcess { get; set; }
+
+        [DefaultValue(new[] { "{PlanName: \"string\", PlanDetail: \"string\", PlanNote: \"string\", GrowthStageId: 0, MasterTypeId: 0}" })]
+        public List<string>? ListPlan { get; set; }
         public IFormFile? ProcessData { get; set; }
     }
 }

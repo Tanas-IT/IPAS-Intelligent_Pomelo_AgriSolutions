@@ -89,7 +89,6 @@ function ProcessList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={false}
-          isInitialLoad={isInitialLoad}
           caption="Process Management Table"
           notifyNoData="No data to display"
           renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} />}

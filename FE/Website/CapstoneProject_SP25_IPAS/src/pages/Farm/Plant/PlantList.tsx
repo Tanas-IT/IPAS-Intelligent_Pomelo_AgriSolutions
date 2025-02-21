@@ -36,7 +36,6 @@ function PlantList() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetPlant>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       userService.getUsers(page, limit, sortField, sortDirection, searchValue, "21", filters),
@@ -153,7 +152,6 @@ function PlantList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={false}
-          isInitialLoad={isInitialLoad}
           caption="Plant Management Board"
           notifyNoData="No plants to display"
           renderAction={(plant: GetPlant) => <ActionMenuPlant id={plant.userId} />}

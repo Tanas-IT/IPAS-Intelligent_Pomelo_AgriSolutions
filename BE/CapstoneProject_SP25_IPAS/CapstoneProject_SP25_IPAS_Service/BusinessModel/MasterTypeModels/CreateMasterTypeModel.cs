@@ -20,7 +20,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 
         public string? TypeName { get; set; }
 
-        public List<CreateMasterTypeDetailModel>? ListMasterTypeDetail { get; set; }
+        public string? BackgroundColor { get; set; }
 
+        public string? TextColor { get; set; }
+
+        public string? Characteristic { get; set; }
+
+        public int? FarmId { get; set; }
+
+        //public List<CreateMasterTypeDetailModel> createMasterTypeDetail { get; set; } = new List<CreateMasterTypeDetailModel>();
     }
 }

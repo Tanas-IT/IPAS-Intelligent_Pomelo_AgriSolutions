@@ -107,13 +107,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
     {
-      key: "Master Type Management",
-      label: "Master Type Management",
-      icon: <Icons.process />,
-      to: "",
-      activePaths: [],
+      key: "Classification Management",
+      label: "Classification Management",
+      icon: <Icons.folder />,
+      activePaths: [PATHS.CLASSIFICATION.GROWTH_STAGE, PATHS.CLASSIFICATION.MASTER_TYPE],
       category: "Main",
       isView: !isDefault,
+      subMenuItems: [
+        {
+          key: "Growth Stage",
+          label: "Growth Stage",
+          icon: Images.radius,
+          to: PATHS.CLASSIFICATION.GROWTH_STAGE,
+          activePaths: [PATHS.CLASSIFICATION.GROWTH_STAGE],
+        },
+        {
+          key: "Master Type Management",
+          label: "Master Type Management",
+          icon: Images.radius,
+          to: PATHS.CLASSIFICATION.MASTER_TYPE,
+          activePaths: [PATHS.CLASSIFICATION.MASTER_TYPE],
+        },
+      ],
     },
     {
       key: "Farm Management",

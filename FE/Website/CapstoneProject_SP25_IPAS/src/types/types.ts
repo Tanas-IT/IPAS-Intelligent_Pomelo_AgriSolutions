@@ -23,3 +23,9 @@ export interface PolygonInit {
 }
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+
+export type FilterMasterTypeState = {
+  createDateFrom: string;
+  createDateTo: string;
+  typeName: string[];
+};

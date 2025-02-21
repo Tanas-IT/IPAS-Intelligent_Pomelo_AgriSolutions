@@ -20,5 +20,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel);
 
         public Task<BusinessResult> PermanentlyDeleteGrowthStage(int growthStageId);
+        public Task<BusinessResult> GetGrowthStageByFarmId(int? farmId);
     }
 }

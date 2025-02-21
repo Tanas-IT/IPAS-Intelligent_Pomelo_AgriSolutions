@@ -9,9 +9,9 @@ import { Icons } from "@/assets";
 import AddPlanModal from "./AddPlanModal";
 
 type ProcessModalProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (values: any) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (values: any) => void;
 };
 
 type OptionType<T = string | number> = { 

@@ -62,19 +62,17 @@ export const hashOtp = async (input: string): Promise<string> => {
 export const buildParams = (
   currentPage?: number,
   rowsPerPage?: number,
-  sortField?: string,
-  sortDirection?: string,
+  sortBy?: string,
+  direction?: string,
   searchValue?: string,
-  // brandId?: string | null,
   additionalParams?: Record<string, any>,
 ): Record<string, any> => {
   const params: Record<string, any> = {
-    pageNumber: currentPage,
+    pageIndex: currentPage,
     pageSize: rowsPerPage,
-    sortField,
-    sortDirection,
+    sortBy,
+    direction,
     searchKey: searchValue,
-    // brandid: brandId,
     ...additionalParams,
   };
 

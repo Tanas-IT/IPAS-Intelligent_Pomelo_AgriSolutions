@@ -1,13 +1,13 @@
 import { Images } from "@/assets";
 import { GetFarmDocuments, GetFarmInfo } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
-import { CoordsState, LogoState } from "@/types";
+import { CoordsState, FilterMasterTypeState, LogoState } from "@/types";
 
 export const getDefaultFarm = (): GetFarmInfo => ({
   farmCode: "",
   farmId: 0,
   farmName: "",
-  logo: undefined,
+  farmLogo: undefined,
   logoUrl: "",
   address: "",
   provinceId: "",
@@ -73,4 +73,10 @@ export const defaultPlanData: GetPlan = {
   daysOfWeek: [1, 2, 3, 4, 5],
   daysOfMonth: [],
   customDates: [],
+};
+
+export const DEFAULT_FILTERS: FilterMasterTypeState = {
+  createDateFrom: "",
+  createDateTo: "",
+  typeName: [] as string[],
 };

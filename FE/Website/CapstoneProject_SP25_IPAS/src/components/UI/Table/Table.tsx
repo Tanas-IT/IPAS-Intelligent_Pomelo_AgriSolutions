@@ -6,6 +6,7 @@ import { Icons } from "@/assets";
 import { useStyle } from "@/hooks";
 import { ActionBar, Tooltip } from "@/components";
 import ExpandableTable from "./ExpandableTable";
+import { DEFAULT_ROWS_PER_PAGE } from "@/constants";
 
 interface TableProps<T, E = T> {
   columns: TableColumn<T>[];
@@ -22,7 +23,6 @@ interface TableProps<T, E = T> {
   currentPage?: number;
   rowsPerPage?: number;
   isLoading: boolean;
-  isInitialLoad: boolean;
   caption: string;
   notifyNoData: string;
   renderAction?: (item: T) => React.ReactNode;
@@ -42,8 +42,7 @@ const TableComponent = <T, E = T>({
   sortDirection,
   rotation,
   currentPage = 1,
-  rowsPerPage = 5,
-  isInitialLoad,
+  rowsPerPage = DEFAULT_ROWS_PER_PAGE,
   isLoading,
   caption,
   notifyNoData,
@@ -168,10 +167,10 @@ const TableComponent = <T, E = T>({
             className={`${style.headerTbl} ${isSortable ? style.pointer : ""}`}
             onClick={isSortable ? () => handleSortClick(col.field.toString()) : undefined}
           >
-            <Tooltip title={tooltipText}>
-              <Flex className={style.headerCol}>
-                <span className={style.headerTitle}>{col.header}</span>
-                {isSortable && (
+            {isSortable ? (
+              <Tooltip title={tooltipText}>
+                <Flex className={style.headerCol}>
+                  <span className={style.headerTitle}>{col.header}</span>
                   <Flex
                     className={style.iconSort}
                     style={{
@@ -182,9 +181,11 @@ const TableComponent = <T, E = T>({
                   >
                     <Icons.sort />
                   </Flex>
-                )}
-              </Flex>
-            </Tooltip>
+                </Flex>
+              </Tooltip>
+            ) : (
+              <span className={style.headerTitle}>{col.header}</span>
+            )}
           </div>
         ),
         dataIndex: col.field,
@@ -195,7 +196,7 @@ const TableComponent = <T, E = T>({
       };
     }),
     renderAction && {
-      key: "actions", 
+      key: "actions",
       align: "center",
       render: (text: string, record: T) => renderAction(record),
       fixed: "right",
@@ -240,11 +241,10 @@ const TableComponent = <T, E = T>({
         columns={antColumns as any}
         footer={() => <div className={styles.customTable}>{caption}</div>}
         pagination={false}
-        // loading={isLoading}
-        // locale={{
-        //   emptyText:
-        //     isInitialLoad && isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
-        // }}
+        loading={isLoading}
+        locale={{
+          emptyText: isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
+        }}
         rowClassName={(record) =>
           selection.includes(record[rowKey] as string) ? style.selectedRow : ""
         }

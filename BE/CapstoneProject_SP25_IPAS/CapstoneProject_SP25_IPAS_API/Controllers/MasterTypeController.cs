@@ -15,17 +15,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
 
         private readonly IMasterTypeService _masterTypeService;
-        public MasterTypeController(IMasterTypeService masterTypeService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public MasterTypeController(IMasterTypeService masterTypeService, IJwtTokenService jwtTokenService)
         {
             _masterTypeService = masterTypeService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
-        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter)
+        public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int? farmId)
         {
             try
             {
-                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter, masterTypeFilter);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _masterTypeService.GetAllMasterTypePagination(paginationParameter, masterTypeFilter, farmId!.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -58,12 +62,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
-        public async Task<IActionResult> GetMasterTypeByName([FromRoute] string name)
+        [HttpGet(APIRoutes.MasterType.getMasterTypeByName + "/{farm-id}", Name = "getMasterTypeByName")]
+        public async Task<IActionResult> GetMasterTypeByName([FromRoute(Name = "name")] string name)
         {
             try
             {
-                var result = await _masterTypeService.GetMasterTypeByName(name);
+                var farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                    return Unauthorized();
+                var result = await _masterTypeService.GetMasterTypeByName(name, farmId!.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -82,6 +89,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!createMasterTypeModel.FarmId.HasValue)
+                    createMasterTypeModel.FarmId = _jwtTokenService.GetFarmIdFromToken();
                 var result = await _masterTypeService.CreateMasterType(createMasterTypeModel);
                 return Ok(result);
             }
@@ -134,5 +143,41 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpDelete(APIRoutes.MasterType.permanenlyDeletemanyMasterType, Name = "deleteManyMasterType")]
+        public async Task<IActionResult> DeleteManyMasterType([FromBody] List<int> masterTypeId)
+        {
+            try
+            {
+                var result = await _masterTypeService.PermanentlyDeleteManyMasterType(masterTypeId);
+                return Ok(result);
+            }
+             catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        [HttpPatch(APIRoutes.MasterType.softedDelete, Name = "SoftedDeleteMasterType")]
+        public async Task<IActionResult> SoftedDeleteMasterType([FromBody] List<int> MasterTypeIds)
+        {
+            try
+            {
+                var result = await _masterTypeService.SoftedMultipleDelete(MasterTypeIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

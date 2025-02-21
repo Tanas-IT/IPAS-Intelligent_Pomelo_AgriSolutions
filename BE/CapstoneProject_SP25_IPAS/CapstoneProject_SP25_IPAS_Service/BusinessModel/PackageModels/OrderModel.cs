@@ -27,10 +27,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels
         public DateTime? ExpiredDate { get; set; }
 
         public int? PackageId { get; set; }
-
+        //public string? PackageName { get; set; }
         public int? FarmId { get; set; }
+        public string? FarmName { get; set; }
 
-        public FarmModel? Farm { get; set; }
+        //public FarmModel? Farm { get; set; }
 
         public PackageModel? Package { get; set; }
 

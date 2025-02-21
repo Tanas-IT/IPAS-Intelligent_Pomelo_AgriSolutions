@@ -196,7 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.FarmRepository.Delete(listFarm);
                 _unitOfWork.UserFarmRepository.Delete(userFarm);
             }
-            foreach (var notification in entityDeleteUser!.Notifications.ToList())
+            foreach (var notification in entityDeleteUser!.NotificationSenders.ToList())
             {
                 _unitOfWork.NotificationRepository.Delete(notification);
             }
@@ -440,8 +440,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
                                         AuthenModel = new AuthenModel
                                         {
-                                            AccessToken = newAccessToken,
-                                            RefreshToken = checkExistRefreshToken.RefreshTokenValue!
+                                            AccessToken = newAccessToken,   
+                                            RefreshToken = newRefreshToken
                                         },
                                         Avartar = existUser.AvatarURL,
                                         Fullname = existUser.FullName,
@@ -584,7 +584,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var uploadImageLink = await _cloudinaryService.UploadImageAsync(avatarOfUser, CloudinaryPath.USER_AVARTAR);
                 if (uploadImageLink != null)
                 {
-                    if (checkExistUser.AvatarURL != null ||  checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:ResourceDefault"]) || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:AvatarDefault"]))
+                    if (checkExistUser.AvatarURL != null || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:ResourceDefault"]) || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:AvatarDefault"]))
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
                     }
@@ -1280,6 +1280,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         CreateDate = DateTime.Now,
                                         ExpiredDate = checkExistRefreshToken.ExpiredDate
                                     });
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(jwtToken);
                                     return new BusinessResult(Const.SUCCESS_RFT_CODE, Const.SUCCESS_RFT_MSG, new ReIssueToken
                                     {
                                         AccessToken = newAccessToken,

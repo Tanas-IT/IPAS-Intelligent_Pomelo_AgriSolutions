@@ -15,14 +15,16 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetMasterTypeByID(int MasterTypeId);
 
-        public Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter);
+        public Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int farmId);
 
         public Task<BusinessResult> CreateMasterType(CreateMasterTypeModel createMasterTypeModel);
 
         public Task<BusinessResult> UpdateMasterTypeInfo(UpdateMasterTypeModel updateriteriaTypeModel);
 
         public Task<BusinessResult> PermanentlyDeleteMasterType(int MasterTypeId);
+        public Task<BusinessResult> SoftedMultipleDelete(List<int> MasterTypeIds);
 
-        public Task<BusinessResult> GetMasterTypeByName(string MasterTypeName);
+        public Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId);
+        public Task<BusinessResult> PermanentlyDeleteManyMasterType(List<int> MasterTypeId);
     }
 }

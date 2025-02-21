@@ -24,10 +24,20 @@ public partial class MasterType
     public string? TypeName { get; set; }
 
     public bool? IsDelete { get; set; }
+
     public bool? IsDefault { get; set; }
+
     public int? FarmID { get; set; }
+    public int? GrowthStageID { get; set; }
+
+    public string? BackgroundColor { get; set; }
+
+    public string? TextColor { get; set; }
+
+    public string? Characteristic {  get; set; }
 
     public virtual Farm? Farm { get; set; }
+    public virtual GrowthStage? GrowthStage { get; set; }
 
    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
@@ -35,7 +45,7 @@ public partial class MasterType
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 
-    public virtual ICollection<MasterTypeDetail> MasterTypeDetails { get; set; } = new List<MasterTypeDetail>();
+    //public virtual ICollection<MasterTypeDetail> MasterTypeDetails { get; set; } = new List<MasterTypeDetail>();
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

@@ -25,7 +25,7 @@ export const processColumns: TableColumn<GetProcessList>[] = [
   {
     header: "Growth Stage",
     field: "growthStageName",
-    accessor: (process) =>  <div className={style.tableText}>{process.growthStageName}</div>,
+    accessor: (process) => <div className={style.tableText}>{process.growthStageName}</div>,
     width: 150,
   },
   {
@@ -38,10 +38,10 @@ export const processColumns: TableColumn<GetProcessList>[] = [
     header: "Status",
     field: "isActive",
     accessor: (process) => (
-        <Tag color={process.isActive ? "green" : "red"}>
-          {process.isActive ? "Active" : "Inactive"}
-        </Tag>
-      ),
+      <Tag color={process.isActive ? "green" : "red"}>
+        {process.isActive ? "Active" : "Inactive"}
+      </Tag>
+    ),
     width: 170,
   },
 ];

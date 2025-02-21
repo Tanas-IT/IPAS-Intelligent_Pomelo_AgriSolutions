@@ -1,5 +1,9 @@
 export { default as useStyle } from "./useStyle";
 export { default as useFetchData } from "./useFetchData";
+export { default as useFilters } from "./useFilters";
+export { default as useTableAdd } from "./useTableAdd";
+export { default as useTableDelete } from "./useTableDelete";
+export { default as useTableUpdate } from "./useTableUpdate";
 export { default as useToastMessage } from "./useToastMessage";
 export { default as useToastFromLocalStorage } from "./useToastFromLocalStorage ";
 export { default as useLocalStorage } from "./useLocalStorage";

@@ -22,6 +22,11 @@ export const PATHS = {
     USER_DETAIL: "/users/:id",
   },
 
+  CLASSIFICATION: {
+    MASTER_TYPE: "/classification/master-types",
+    GROWTH_STAGE: "/classification/growth-stages",
+  },
+
   // Farm Management
   FARM: {
     CREATE_FARM: "/farm/create",

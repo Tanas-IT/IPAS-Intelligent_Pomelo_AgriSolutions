@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFarmRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
@@ -11,8 +12,10 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +26,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -116,6 +120,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetFarmByID(int farmId)
         {
+            //Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDeleted != true;
+            //string includeProperties = "Farm,Role,User";
             var farm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
             // kiem tra null
             if (farm == null)
@@ -139,6 +145,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     uf.Farm.Owner = null;
                 }
+                userFarm = null;
             });
             return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG, result);
         }
@@ -488,9 +495,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<UserFarm, bool>> condition = x => x.FarmId == farmId && x.UserId == userId && x.Farm.IsDeleted != true;
-                Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = x => x.OrderByDescending(x => farmId);
+                //Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = x => x.OrderByDescending(x => farmId);
                 string includeProperties = "Farm,User,Role";
-                var userfarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter:condition,includeProperties: includeProperties , orderBy: orderBy);
+                var userfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter: condition, includeProperties: includeProperties);
                 var result = _mapper.Map<UserFarmModel>(userfarm);
                 return result;
             }
@@ -508,6 +515,232 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string geoHash = CodeHelper.GenerateGeoHash(farmRequest.Latitude!.Value, farmRequest.Longitude!.Value);
 
             return $"{countryCode}-{provinceCode}-{districtCode}-{geoHash}-{farmIndex:D6}";
+        }
+
+        public async Task<BusinessResult> GetAllUserOfFarmByRoleAsync(int farmId, List<int> roleIds)
+        {
+            try
+            {
+                var farmexist = await _unitOfWork.FarmRepository.GetByID(farmId);
+                if (farmexist == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                if (!roleIds.Any())
+                    return new BusinessResult(Const.WARNING_GET_ROLE_NOTE_EXIST_CODE, Const.WARNING_GET_ROLE_NOTE_EXIST_MSG);
+                var userFarm = await _unitOfWork.FarmRepository.GetUsersOfFarmByRole(farmId: farmId, roleIds: roleIds);
+                if (!userFarm.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_USER_BY_ROLE_CODE, Const.WARNING_GET_ALL_USER_OF_FARM_EMPTY_MSG);
+                var mappedResult = _mapper.Map<IEnumerable<UserModel>>(userFarm);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_USER_BY_ROLE_CODE, Const.SUCCESS_GET_ALL_USER_BY_ROLE_MESSAGE, mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getUserOfFarm(int farmId, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var farmexist = await _unitOfWork.FarmRepository.GetByID(farmId);
+                if (farmexist == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                Expression<Func<UserFarm, bool>> filter = x => x.FarmId == farmId && !(x.Role.RoleName!.ToUpper().Equals(RoleEnum.OWNER.ToString().ToUpper()));
+                Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = null!;
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+                    filter = filter.And(x => (x.User.FullName!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.User.Email!.ToLower().Contains(paginationParameter.Search.ToLower()))
+                                   && x.User.IsDelete != true
+                                   && x.Farm.IsDeleted != true);
+                }
+
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                {
+                    case "email":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.User.Email).OrderByDescending(x => x.UserId)
+                                   : x => x.OrderBy(x => x.User.Email).OrderByDescending(x => x.UserId)) : x => x.OrderBy(x => x.User.Email).OrderBy(x => x.UserId);
+                        break;
+                    case "fullname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.User.FullName).OrderByDescending(x => x.UserId)
+                                   : x => x.OrderBy(x => x.User.FullName).OrderByDescending(x => x.UserId)) : x => x.OrderBy(x => x.User.FullName);
+                        break;
+                    case "gender":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.User.Gender).OrderByDescending(x => x.UserId)
+                                   : x => x.OrderBy(x => x.User.Gender)) : x => x.OrderBy(x => x.User.Gender).OrderBy(x => x.UserId);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.User);
+                        break;
+                }
+                string includeProperties = "Role,User,Farm";
+                var entities = await _unitOfWork.UserFarmRepository.Get(filter: filter, orderBy: orderBy, includeProperties: includeProperties, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<UserFarmModel>();
+                pagin.List = _mapper.Map<List<UserFarmModel>>(entities);
+                pagin.List.ToList().ForEach(uf =>
+                {
+                    if (uf.Farm != null)
+                    {
+                        uf.Farm.Owner = null;
+                    }
+                    uf.Farm = null!;
+                });
+                pagin.TotalRecord = await _unitOfWork.UserFarmRepository.Count(filter: filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, pagin);
+                }
+                else
+                {
+                    return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG, pagin);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> updateRoleOfUserInFarm(UserFarmRequest updateRequest)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    Expression<Func<UserFarm, bool>> filter = x => x.UserId == updateRequest.UserId && x.FarmId == updateRequest.FarmId.Value;
+                    string includeProperties = "Role,Farm,User";
+                    var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter, includeProperties);
+                    if (userInfarm == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
+                    }
+                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleId == updateRequest.RoleId && x.IsSystem == true);
+                    if (checkRoleExist == null)
+                    {
+                        return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
+                    }
+
+                    userInfarm.RoleId = updateRequest.RoleId;
+                    _unitOfWork.UserFarmRepository.Update(userInfarm);
+
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mappedResult = _mapper.Map<UserFarmModel>(userInfarm);
+                        mappedResult.Farm = null!;
+                        mappedResult.User = null!;
+                        return new BusinessResult(Const.SUCCESS_UPDATE_USER_IN_FARM_CODE, Const.SUCCESS_UPDATE_USER_IN_FARM_MSG, mappedResult);
+                    }
+                    else return new BusinessResult(Const.FAIL_UPDATE_USER_IN_FARM_CODE, Const.FAIL_UPDATE_USER_IN_FARM_MSG);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+        public async Task<BusinessResult> deleteUserInFarm(int farmId, int userId)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.FarmId == farmId;
+                    //string includeProperties = "Role,Farm,User";
+                    var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter);
+                    if (userInfarm == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
+                    }
+                    _unitOfWork.UserFarmRepository.Delete(userInfarm);
+
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_USER_IN_FARM_CODE, Const.SUCCESS_DELETE_USER_IN_FARM_MSG, new { success = true });
+                    }
+                    else return new BusinessResult(Const.FAIL_UPDATE_USER_IN_FARM_CODE, Const.FAIL_UPDATE_USER_IN_FARM_MSG);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+        public async Task<BusinessResult> addUserToFarm(UserFarmRequest createRequest)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId!.Value && x.IsDeleted == false);
+                    var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDelete == false);
+                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleId == createRequest.RoleId && x.IsSystem == true);
+                    if (checkFarmExist == null || checkUserExist == null || checkRoleExist == null)
+                        return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
+                    Expression<Func<UserFarm, bool>> filter = x => x.UserId == createRequest.UserId && x.FarmId == createRequest.FarmId;
+                    var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter);
+                    if (userInfarm != null)
+                    {
+                        return new BusinessResult(Const.WARNING_USER_IN_FARM_EXIST_CODE, Const.WARNING_USER_IN_FARM_EXIST_MSG);
+                    }
+                    var newUserFarm = new UserFarm
+                    {
+                        UserId = createRequest.UserId,
+                        FarmId = createRequest.FarmId!.Value,
+                        RoleId = createRequest.RoleId
+                    };
+                    await _unitOfWork.UserFarmRepository.Insert(newUserFarm);
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_ADD_USER_IN_FARM_CODE, Const.SUCCESS_ADD_USER_IN_FARM_MSG, new { success = true });
+                    }
+                    else return new BusinessResult(Const.FAIL_ADD_USER_IN_FARM_CODE, Const.FAIL_ADD_USER_IN_FARM_MSG);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+        public async Task<BusinessResult> getUserFarmById(int farmId, int userId)
+        {
+            try
+            {
+                Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.FarmId == farmId;
+                string includeProperties = "Role,Farm,User";
+                var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter, includeProperties: includeProperties);
+                if (userInfarm == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
+                }
+
+                var mappedResult = _mapper.Map<UserFarmModel>(userInfarm);
+                mappedResult.Farm = null!;
+                mappedResult.User = null!;
+                return new BusinessResult(Const.SUCCESS_GET_USER_OF_FARM_CODE, Const.SUCCESS_GET_USER_OF_FARM_MSG, mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }

@@ -29,8 +29,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
-        [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPginAsync")]
-        public async Task<IActionResult> getAllLandPlotNoPginAsync([FromQuery] int? farmId, string? searchKey)
+        [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPaginAsync")]
+        public async Task<IActionResult> getAllLandPlotNoPaginAsync([FromQuery] int? farmId, string? searchKey)
         {
             if(!farmId.HasValue)
             {

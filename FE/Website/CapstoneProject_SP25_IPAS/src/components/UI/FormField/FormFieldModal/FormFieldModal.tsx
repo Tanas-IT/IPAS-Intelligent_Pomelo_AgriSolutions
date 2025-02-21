@@ -1,20 +1,21 @@
 import { useStyle } from "@/hooks";
-import { Select, Form, Flex, DatePicker, Input } from "antd";
+import { Select, Form, Flex, DatePicker, Input, Switch, ColorPicker } from "antd";
 import style from "./FormFieldModal.module.scss";
-import { Dayjs } from "dayjs";
 
 interface FormFieldModalProps {
   label: string;
   description?: string;
   name: string;
   rules?: any[];
-  type?: "text" | "textarea" | "date" | "select";
+  type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker";
   options?: { value: string; label: string }[];
   readonly?: boolean;
   onChange?: (value: any) => void;
   isLoading?: boolean;
   isSearch?: boolean;
+  isCheck?: boolean;
   placeholder?: string;
+  direction?: "row" | "col";
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
@@ -28,7 +29,9 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   onChange,
   isLoading = false,
   isSearch = true,
+  isCheck = false,
   placeholder = `Enter ${label.toLowerCase()}`,
+  direction = "col",
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -57,6 +60,26 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             onChange={onChange}
           />
         );
+      case "switch":
+        return (
+          <Switch
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+            checked={isCheck}
+            onChange={onChange}
+            className={`${styles.customSwitch} ${isCheck ? style.active : style.inActive}`}
+          />
+        );
+      case "colorPicker":
+        return (
+          <ColorPicker
+            defaultValue="#1677ff"
+            format="hex"
+            size="small"
+            showText
+            className={`${style.colorPicker}`}
+          />
+        );
       default:
         return (
           <Input
@@ -70,7 +93,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   };
 
   return (
-    <Flex className={style.formSection}>
+    <Flex className={`${style.formSection} ${style[direction]}`}>
       <Flex className={style.formSectionTitle}>
         <label className={style.formTitle}>
           {label} {isRequired && <span style={{ color: "red" }}>*</span>}
