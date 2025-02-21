@@ -20,7 +20,7 @@ export const getMasterTypes = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("masterTypes", { params });
-  const apiResponse = res.data as ApiResponse<Object>;
+  const apiResponse = res.data as ApiResponse<GetData<GetMasterType>>;
   return apiResponse.data as GetData<GetMasterType>;
 };
 
@@ -39,6 +39,15 @@ export const updateMasterType = async (
 };
 
 export const createMasterType = async (
+  type: MasterTypeRequest,
+): Promise<ApiResponse<GetMasterType>> => {
+  type.createBy = localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) ?? "";
+  const res = await axiosAuth.axiosJsonRequest.post(`masterTypes`, type);
+  const apiResponse = res.data as ApiResponse<GetMasterType>;
+  return apiResponse;
+};
+
+export const getMasterTypeSelect = async (
   type: MasterTypeRequest,
 ): Promise<ApiResponse<GetMasterType>> => {
   type.createBy = localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) ?? "";

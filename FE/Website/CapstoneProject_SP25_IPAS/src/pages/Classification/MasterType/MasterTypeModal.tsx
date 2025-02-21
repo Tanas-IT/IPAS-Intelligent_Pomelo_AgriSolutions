@@ -122,7 +122,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
 
         {selectedType === MASTER_TYPE.WORK && (
           <>
-            <Flex gap={40}>
+            <Flex justify="space-between" gap={40}>
               <FormFieldModal
                 type="colorPicker"
                 label="Background Color:"

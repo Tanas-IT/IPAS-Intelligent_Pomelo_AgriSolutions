@@ -7,6 +7,8 @@ export * as farmService from "./FarmService";
 export * as cropService from "./CropService";
 export * as landPlotService from "./LandPlotService";
 export * as masterTypeService from "./MasterTypeService";
+export * as growthStageService from "./GrowthStageService";
+
 
 
 

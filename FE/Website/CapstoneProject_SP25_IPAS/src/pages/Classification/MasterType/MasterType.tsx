@@ -16,6 +16,7 @@ import {
   useTableUpdate,
   useTableAdd,
   useFilters,
+  useHasChanges,
 } from "@/hooks";
 import { useEffect } from "react";
 import { DEFAULT_FILTERS, getOptions } from "@/utils";
@@ -23,12 +24,12 @@ import { masterTypeService } from "@/services";
 import { masterTypeColumns } from "./MasterTypeColumn";
 import MasterTypeFilter from "./MasterTypeFilter";
 import { FilterMasterTypeState } from "@/types";
-import MasterTypeModel from "./MasterTypeModel";
+import MasterTypeModel from "./MasterTypeModal";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
-  const updateConfirmModal = useModal<{ doc: MasterTypeRequest }>();
+  const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_FILTERS,
@@ -76,15 +77,11 @@ function MasterType() {
     },
   );
 
+  const hasChanges = useHasChanges<MasterTypeRequest>(data);
+
   const handleUpdateConfirm = (type: MasterTypeRequest) => {
-    const oldType = data.find((d) => d.masterTypeId === type.masterTypeId);
-    if (!oldType) return;
-    const hasChanged = Object.keys(type).some((key) => {
-      const typeKey = key as keyof MasterTypeRequest;
-      return oldType[typeKey as keyof typeof oldType] !== type[typeKey];
-    });
-    if (hasChanged) {
-      handleUpdate(type);
+    if (hasChanges(type, "masterTypeId")) {
+      updateConfirmModal.showModal({ type });
     } else {
       formModal.hideModal();
     }
@@ -171,21 +168,16 @@ function MasterType() {
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
         onCancel={deleteConfirmModal.hideModal}
-        title="Delete Type?"
-        description="Are you sure you want to delete this type? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        isDanger={true}
+        itemName="Type"
+        actionType="delete"
       />
       {/* Confirm Update Modal */}
       <ConfirmModal
         visible={updateConfirmModal.modalState.visible}
         onConfirm={handleUpdate}
         onCancel={updateConfirmModal.hideModal}
-        title="Update Document?"
-        description="Are you sure you want to update this document? This action cannot be undone."
-        confirmText="Save Changes"
-        cancelText="Cancel"
+        itemName="Type"
+        actionType="update"
       />
     </Flex>
   );
