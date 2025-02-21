@@ -33,6 +33,7 @@ public partial class MasterType
     public string? BackgroundColor { get; set; }
 
     public string? TextColor { get; set; }
+    public string? Target { get; set; }
 
     public string? Characteristic {  get; set; }
 
@@ -41,7 +42,6 @@ public partial class MasterType
 
    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
-    public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 

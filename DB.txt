@@ -26,7 +26,8 @@ CREATE TABLE ipas.dbo.Crop (
 	Notes nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MarketPrice float NULL,
 	FarmID int NULL,
-	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID)
+	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID),
+        CONSTRAINT Crop_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
 );
 
 
@@ -104,6 +105,7 @@ CREATE TABLE ipas.dbo.MasterType (
 	isDelete bit NULL,
 	isDefault bit NULL,
 	FarmID int NULL,
+        Target nvarchar(MAX) NULL,
 	GrowthStageID int NULL,
 	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
@@ -189,21 +191,6 @@ CREATE TABLE ipas.dbo.Criteria (
 );
 
 
--- ipas.dbo.CriteriaHarvestType definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.CriteriaHarvestType;
-
-CREATE TABLE ipas.dbo.CriteriaHarvestType (
-	CriteriaID int NOT NULL,
-	MasterTypeID int NOT NULL,
-	isChecked bit NULL,
-	CONSTRAINT PK__Criteria__30A6B59B7AC7D5D7 PRIMARY KEY (CriteriaID,MasterTypeID),
-	CONSTRAINT CriteriaHarvestType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
-	CONSTRAINT FK_CriteriaHarvestType_Criteria FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE
-);
-
 
 -- ipas.dbo.FarmCoordination definition
 
@@ -261,6 +248,7 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
+        isDeleted bit NULL,
 	TargetMarket nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__LandPlot__ADDF712A976DFB93 PRIMARY KEY (LandPlotID),
 	CONSTRAINT FK__LandPlot__FarmID__2739D489 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE
@@ -320,6 +308,7 @@ CREATE TABLE ipas.dbo.LandRow (
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandPlotID int NULL,
 	FarmID int NULL,
+        isDeleted bit NULL,
 	CONSTRAINT PK__LandRow__0E72A6FAD7B08F4C PRIMARY KEY (LandRowID),
 	CONSTRAINT FK__LandRow__LandPlo__22751F6C FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE
 );
@@ -468,23 +457,6 @@ CREATE TABLE ipas.dbo.Plant (
 );
 
 
--- ipas.dbo.PlantCriteria definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.PlantCriteria;
-
-CREATE TABLE ipas.dbo.PlantCriteria (
-	PlantID int NOT NULL,
-	CriteriaID int NOT NULL,
-	isChecked bit NULL,
-	Priority int NULL,
-	CONSTRAINT PK__PlantCri__5718EB0E819D7672 PRIMARY KEY (PlantID,CriteriaID),
-	CONSTRAINT FK__CriteriaT__Crite__37703C52 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
-	CONSTRAINT FK__CriteriaT__Plant__367C1819 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
-);
-
-
 -- ipas.dbo.PlantGrowthHistory definition
 
 -- Drop table
@@ -523,9 +495,11 @@ CREATE TABLE ipas.dbo.PlantLot (
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PartnerID int NULL,
 	PlantLotReferenceID int NULL,
+	FarmID int NULL,
+	isDeleted bit NULL,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
-	CONSTRAINT PlantLot_PlantLot_FK FOREIGN KEY (PlantLotReferenceID) REFERENCES ipas.dbo.PlantLot(PlantLotID)
+	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
 );
 
 
@@ -861,23 +835,26 @@ CREATE TABLE ipas.dbo.ChatMessage (
 	CONSTRAINT FK__ChatMessa__RoomI__16CE6296 FOREIGN KEY (RoomID) REFERENCES ipas.dbo.ChatRoom(RoomID) ON DELETE CASCADE
 );
 
-
--- ipas.dbo.CriteriaGraftedPlant definition
+-- ipas.dbo.CriteriaTarget definition
 
 -- Drop table
 
--- DROP TABLE ipas.dbo.CriteriaGraftedPlant;
+-- DROP TABLE ipas.dbo.CriteriaTarget;
 
-CREATE TABLE ipas.dbo.CriteriaGraftedPlant (
-	GraftedPlantID int NOT NULL,
-	CriteriaID int NOT NULL,
+CREATE TABLE ipas.dbo.CriteriaTarget (
+	CriteriaTargetID int IDENTITY(1,1) NOT NULL,
 	isChecked bit NULL,
-	CONSTRAINT PK__Criteria__47DA559824FE7603 PRIMARY KEY (GraftedPlantID,CriteriaID),
-	CONSTRAINT FK__CriteriaG__Crite__55F4C372 FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID) ON DELETE CASCADE,
-	CONSTRAINT FK__CriteriaG__Graft__55009F39 FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
+	Priority int NULL,
+	PlantID int NULL,
+	CriteriaID int NULL,
+	GraftedPlantID int NULL,
+	PlantLotID int NULL,
+	CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
+	CONSTRAINT CriteriaTarget_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
+	CONSTRAINT CriteriaTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT CriteriaTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
-
-
 -- ipas.dbo.WorkLog definition
 
 -- Drop table

@@ -22,10 +22,6 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<ChatRoom> ChatRooms { get; set; }
 
-    public virtual DbSet<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; }
-
-    public virtual DbSet<CriteriaHarvestType> CriteriaHarvestTypes { get; set; }
-
     public virtual DbSet<Criteria> Criteria { get; set; }
 
     public virtual DbSet<Crop> Crops { get; set; }
@@ -72,7 +68,6 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<Plant> Plants { get; set; }
 
-    public virtual DbSet<PlantCriteria> PlantCriteria { get; set; }
 
     public virtual DbSet<PlantGrowthHistory> PlantGrowthHistories { get; set; }
 
@@ -102,6 +97,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
     public virtual DbSet<Type_Type> Type_Types { get; set; }
     public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
+    public virtual DbSet<CriteriaTarget> CriteriaTargets { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -182,44 +178,6 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__ChatRoom__Create__17C286CF");
         });
 
-        modelBuilder.Entity<CriteriaGraftedPlant>(entity =>
-        {
-            entity.HasKey(e => new { e.GraftedPlantId, e.CriteriaId }).HasName("PK__Criteria__47DA559824FE7603");
-
-            entity.ToTable("CriteriaGraftedPlant");
-
-            entity.Property(e => e.GraftedPlantId).HasColumnName("GraftedPlantID");
-            entity.Property(e => e.CriteriaId).HasColumnName("CriteriaID");
-            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
-
-            entity.HasOne(d => d.Criteria).WithMany(p => p.CriteriaGraftedPlants)
-                .HasForeignKey(d => d.CriteriaId)
-                .HasConstraintName("FK__CriteriaG__Crite__55F4C372");
-
-            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.CriteriaGraftedPlants)
-                .HasForeignKey(d => d.GraftedPlantId)
-                .HasConstraintName("FK__CriteriaG__Graft__55009F39");
-        });
-
-        modelBuilder.Entity<CriteriaHarvestType>(entity =>
-        {
-            entity.HasKey(e => new { e.CriteriaId, e.MasterTypeId }).HasName("PK__Criteria__30A6B59B7AC7D5D7");
-
-            entity.ToTable("CriteriaHarvestType");
-
-            entity.Property(e => e.CriteriaId).HasColumnName("CriteriaID");
-            entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
-            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
-
-            entity.HasOne(d => d.Criteria).WithMany(p => p.CriteriaHarvestTypes)
-                .HasForeignKey(d => d.CriteriaId)
-                .HasConstraintName("FK_CriteriaHarvestType_Criteria");
-
-            entity.HasOne(d => d.MasterType).WithMany(p => p.CriteriaHarvestTypes)
-                .HasForeignKey(d => d.MasterTypeId)
-                .HasConstraintName("CriteriaHarvestType_MasterType_FK");
-        });
-
         modelBuilder.Entity<Criteria>(entity =>
         {
             entity.HasKey(e => e.CriteriaId).HasName("PK__Criteria__FE6ADB2D5F0540FD");
@@ -273,6 +231,10 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.Crops)
+                .HasForeignKey(d => d.FarmId)
+                .HasConstraintName("FK_Crop_Farm");
 
         });
 
@@ -420,6 +382,10 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.MonthAgeEnd);
             entity.Property(e => e.MonthAgeStart);
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.GrowthStages)
+               .HasForeignKey(d => d.FarmID)
+               .HasConstraintName("FK_GrowthStage_Farm");
         });
 
         modelBuilder.Entity<HarvestHistory>(entity =>
@@ -928,23 +894,6 @@ public partial class IpasContext : DbContext
                .HasConstraintName("Plant_GrowthStage_FK");
         });
 
-        modelBuilder.Entity<PlantCriteria>(entity =>
-        {
-            entity.HasKey(e => new { e.PlantId, e.CriteriaId }).HasName("PK__PlantCri__5718EB0E819D7672");
-
-            entity.Property(e => e.PlantId).HasColumnName("PlantID");
-            entity.Property(e => e.CriteriaId).HasColumnName("CriteriaID");
-            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
-
-            entity.HasOne(d => d.Criteria).WithMany(p => p.PlantCriteria)
-                .HasForeignKey(d => d.CriteriaId)
-                .HasConstraintName("FK__CriteriaT__Crite__37703C52");
-
-            entity.HasOne(d => d.Plant).WithMany(p => p.PlantCriterias)
-                .HasForeignKey(d => d.PlantId)
-                .HasConstraintName("FK__CriteriaT__Plant__367C1819");
-        });
-
         modelBuilder.Entity<PlantGrowthHistory>(entity =>
         {
             entity.HasKey(e => e.PlantGrowthHistoryId).HasName("PK__PlantGro__8F26DC48C9286D17");
@@ -1002,6 +951,11 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.PlantLotReference).WithMany(p => p.InversePlantLotReference)
                 .HasForeignKey(d => d.PlantLotReferenceId)
                 .HasConstraintName("PlantLot_PlantLot_FK");
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.PlantLots)
+               .HasForeignKey(d => d.FarmID)
+               .HasConstraintName("FK_PlantLot_Farm");
+
         });
 
         modelBuilder.Entity<Resource>(entity =>
@@ -1454,6 +1408,39 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Plant).WithMany(p => p.PlanTargets)
               .HasForeignKey(d => d.PlantID)
               .HasConstraintName("FK__PlanTarget_Plant__352ET4678");
+        });
+
+        modelBuilder.Entity<CriteriaTarget>(entity =>
+        {
+            entity.HasKey(e => e.CriteriaTargetId).HasName("PK__CriteriaTarget__24324GHYRT5");
+            entity.ToTable("CriteriaTarget");
+
+            entity.Property(e => e.CriteriaTargetId).HasColumnName("CriteriaTargetID");
+            entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");
+            entity.Property(e => e.PlantID).HasColumnName("PlantID");
+            entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");
+            entity.Property(e => e.CriteriaID).HasColumnName("CriteriaID");
+            entity.Property(e => e.PlantLotID).HasColumnName("PlantLotID");
+            entity.Property(e => e.isChecked).HasColumnName("isChecked");
+            entity.Property(e => e.Priority).HasColumnName("Priority");
+
+            entity.HasOne(d => d.Plant).WithMany(p => p.CriteriaTargets)
+                .HasForeignKey(d => d.PlantID)
+                .HasConstraintName("FK_CriteriaTarget_Plant__345245C52");
+
+            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.CriteriaTargets)
+                .HasForeignKey(d => d.GraftedPlantID)
+                .HasConstraintName("FK_CriteriaTarget_GraftedPlant__345234C52");
+
+            entity.HasOne(d => d.Criteria).WithMany(p => p.CriteriaTargets)
+               .HasForeignKey(d => d.CriteriaID)
+               .HasConstraintName("FK_CriteriaTarget_Criteria__345267C52");
+
+            entity.HasOne(d => d.PlantLot).WithMany(p => p.CriteriaTargets)
+               .HasForeignKey(d => d.PlantLotID)
+               .HasConstraintName("FK_CriteriaTarget_PlantLot__345267C52");
+
+
         });
         OnModelCreatingPartial(modelBuilder);
     }
