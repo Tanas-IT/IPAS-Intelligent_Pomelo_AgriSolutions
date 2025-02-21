@@ -24,6 +24,18 @@ export const getMasterTypes = async (
   return apiResponse.data as GetData<GetMasterType>;
 };
 
+export const getSelectMasterTypes = async (
+  typeName: string,
+): Promise<ApiResponse<GetMasterType[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`masterTypes/get-masterType-by-name`, {
+    params: {
+      typeName,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetMasterType[]>;
+  return apiResponse;
+};
+
 export const deleteMasterTypes = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.patch(`masterTypes/delete-softed`, ids);
   const apiResponse = res.data as ApiResponse<Object>;

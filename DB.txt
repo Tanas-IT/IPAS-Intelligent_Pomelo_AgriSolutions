@@ -7,32 +7,6 @@ GO
 USE [IPAS]
 GO
 
-CREATE TABLE ipas.dbo.Crop (
-	CropID int IDENTITY(1,1) NOT NULL,
-	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CropName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	StartDate datetime NULL,
-	EndDate datetime NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CropExpectedTime datetime NULL,
-	Year int NULL,
-	CropActualTime datetime NULL,
-	HarvestSeason nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	EstimateYield float NULL,
-	ActualYield float NULL,
-	IsDeleted bit NULL,
-	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Notes nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MarketPrice float NULL,
-	FarmID int NULL,
-	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID),
-        CONSTRAINT Crop_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
-);
-
-
-
-
 
 -- ipas.dbo.Farm definition
 
@@ -63,6 +37,31 @@ CREATE TABLE ipas.dbo.Farm (
 	Province nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 		CONSTRAINT PK__Farm__ED7BBA991346855A PRIMARY KEY (FarmID)
 );
+
+
+CREATE TABLE ipas.dbo.Crop (
+	CropID int IDENTITY(1,1) NOT NULL,
+	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CropName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	StartDate datetime NULL,
+	EndDate datetime NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	CropExpectedTime datetime NULL,
+	Year int NULL,
+	CropActualTime datetime NULL,
+	HarvestSeason nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	EstimateYield float NULL,
+	ActualYield float NULL,
+	IsDeleted bit NULL,
+	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Notes nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	MarketPrice float NULL,
+	FarmID int NULL,
+	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID),
+        CONSTRAINT Crop_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
+);
+
 
 
 -- ipas.dbo.GrowthStage definition
@@ -1021,9 +1020,13 @@ VALUES
 (3,3,5),
 (4,3,5);
 GO
-INSERT INTO [ipas].[dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd], [IsDefault], [IsDeleted], [FarmID], [CreateDate], [Description])  
+INSERT INTO [ipas].[dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd], [IsDefault], 
+    [IsDeleted], 
+    [FarmID], 
+    [CreateDate], 
+    [Description])  
 VALUES  
-	('GS001', N'Germination', 0, 2, 0, 0, 1, GETDATE(), N'Seed begins to sprout.'),
+   ('GS001', N'Germination', 0, 2, 0, 0, 1, GETDATE(), N'Seed begins to sprout.'),
     ('GS002', N'Seedling', 3, 12, 0, 0, 1, GETDATE(), N'Young plant growth stage.'),
     ('GS003', N'Vegetative Growth', 13, 36, 0, 0, 1, GETDATE(), N'Focuses on leaf and stem development.'),
     ('GS004', N'Flowering', 37, 48, 0, 0, 1, GETDATE(), N'Plant produces flowers.'),

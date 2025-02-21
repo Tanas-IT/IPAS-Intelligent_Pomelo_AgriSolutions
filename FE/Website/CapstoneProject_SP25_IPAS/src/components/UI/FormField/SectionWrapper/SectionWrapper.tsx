@@ -9,6 +9,7 @@ type SectionWrapperProps = {
   rules?: any[];
   description?: string;
   children: ReactNode;
+  direction?: "row" | "col";
 };
 
 const SectionWrapper = ({
@@ -18,9 +19,10 @@ const SectionWrapper = ({
   valuePropName = "value",
   description,
   children,
+  direction = "col",
 }: SectionWrapperProps) => {
   return (
-    <Flex className={style.formSection}>
+    <Flex className={`${style.formSection} ${style[direction]}`}>
       <Flex className={style.formSectionTitle}>
         <label className={style.formTitle}>{title}</label>
         {description && <span className={style.formDescription}>{description}</span>}
