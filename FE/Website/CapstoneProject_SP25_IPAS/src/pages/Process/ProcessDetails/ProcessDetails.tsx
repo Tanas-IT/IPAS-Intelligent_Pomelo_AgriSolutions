@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
-import { Button, Divider, Flex, Tag, Tree, TreeDataNode, TreeProps } from "antd";
+import { Button, Divider, Flex, Form, Tag, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons } from "@/assets";
-import { CustomButton, Tooltip } from "@/components";
+import { CustomButton, EditActions, InfoField, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,6 +12,8 @@ import EditableTreeNode from "./EditableTreeNode";
 import ButtonActions from "./ButtonActions";
 import { GetProcessDetail } from "@/payloads/process";
 import AddPlanModal from "../ProcessList/AddPlanModal";
+import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, getFarmId, RulesManager } from "@/utils";
+import { processFormFields } from "@/constants";
 
 interface SubProcess {
   subProcessId: number;
@@ -29,8 +31,8 @@ type PlanType = {
   planId: number;
   planName: string;
   planDetail: string;
-  growthStageId: string;
-  masterTypeId: string
+  growthStageId: number;
+  masterTypeId: number
 };
 
 interface CustomTreeDataNode extends TreeDataNode {
@@ -60,9 +62,11 @@ function ProcessDetails() {
   const [deletedNodes, setDeletedNodes] = useState<CustomTreeDataNode[]>([]);
   const [isAddPlanModalOpen, setIsAddPlanModalOpen] = useState(false);
   const [selectedSubProcessId, setSelectedSubProcessId] = useState<number>();
-  const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
-  const [processTypeOptions, setProcessTypeOptions] = useState<OptionType<number | string>[]>([]);
+  const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
+  const [processTypeOptions, setProcessTypeOptions] = useState<OptionType<number>[]>([]);
   const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // để lưu task mới tạo
+  const [isEditing, setIsEditing] = useState(false);
+  const farmId = Number(getFarmId());
 
 
   useEffect(() => {
@@ -77,14 +81,24 @@ function ProcessDetails() {
         setProcessDetail(data);
         console.log("data", data);
 
+        form.setFieldsValue({
+          ...data,
+        });
+
         setTreeData(mapSubProcessesToTree(data.subProcesses));
       } catch (error) {
         console.error("Failed to fetch process details", error);
       }
     };
+    const fetchData = async () => {
+                setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
+                setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
+            };
+            fetchData();
 
     fetchProcessDetails();
   }, [id]);
+  
 
   const addTaskToTree = (
     nodes: CustomTreeDataNode[],
@@ -127,24 +141,32 @@ function ProcessDetails() {
       children: [],
       status: "add",
     };
+    setTreeData(prevTree => {
+      if (parentKey === "root") {
+        return [...prevTree, newNode];
+      } else {
+        const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+          return nodes.map(node => {
+            if (node.key === parentKey) {
+              const newOrder = node.children ? node.children.length + 1 : 1;
+              return {
+                ...node,
+                children: [...(node.children || []), { ...newNode, order: newOrder }]
+              };
+            }
+            if (node.children) {
+              return { ...node, children: updateTree(node.children) };
+            }
+            return node;
+          });
+        };
+        return updateTree(prevTree);
+      }
+    });
 
-    const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
-      return nodes.map(node => {
-        if (node.key === parentKey) {
-          const newOrder = node.children ? node.children.length + 1 : 1;
-          return {
-            ...node,
-            children: [...(node.children || []), { ...newNode, order: newOrder }]
-          };
-        }
-        if (node.children) {
-          return { ...node, children: updateTree(node.children) };
-        }
-        return node;
-      });
-    };
-
-    setTreeData(updateTree(treeData));
+    setTimeout(() => {
+      console.log("tree data sau khi cập nhật:", treeData);
+    }, 0);
   };
 
 
@@ -238,15 +260,15 @@ function ProcessDetails() {
     });
   };
 
-
   const handleAddPlan = (subProcessKey: number, newPlan: PlanType) => {
     console.log("Adding plan:", newPlan);
     console.log("subProcessKey", subProcessKey);
+    console.log("tree data trong add plan", treeData);
 
 
     const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map(node => {
-        if (Number(node.key) === Number(subProcessKey)) {
+        if (node.key === subProcessKey) {
           return {
             ...node,
             plans: node.plans ? [...node.plans, newPlan] : [newPlan], // Thêm plan mới
@@ -259,26 +281,27 @@ function ProcessDetails() {
       });
     };
 
-    // setTreeData(prevTree => {
-    //   const newTree = updateTree([...prevTree]); // Cập nhật cây
-    //   console.log("Updated tree:", newTree); // Kiểm tra kết quả
-    //   return newTree;
-    // });
     setTreeData(prevTree => {
       let updatedTree = [...prevTree];
 
-      // Kiểm tra nếu subProcessKey không có trong treeData
-      const foundTask = newTasks.find(task => Number(task.key) === Number(subProcessKey));
+      // Kiểm tra nếu task chưa có trong treeData
+      const taskIndex = newTasks.findIndex(task => Number(task.key) === Number(subProcessKey));
 
-      if (foundTask) {
-        updatedTree = addTaskToTree(updatedTree, foundTask); // Thêm task mới vào treeData
-        setNewTasks(newTasks.filter(task => Number(task.key) !== Number(subProcessKey))); // Xóa khỏi danh sách tạm
+      if (taskIndex !== -1) {
+        // Nếu task mới có trong newTasks, thêm plan vào đó
+        const updatedTasks = [...newTasks];
+        updatedTasks[taskIndex] = {
+          ...updatedTasks[taskIndex],
+          plans: [...(updatedTasks[taskIndex].plans || []), newPlan],
+        };
+        setNewTasks(updatedTasks);
+      } else {
+        // Nếu task đã tồn tại trong treeData, cập nhật plan trong cây
+        updatedTree = updateTree(updatedTree);
       }
 
-      return updateTreeWithPlan(updatedTree, subProcessKey, newPlan);
+      return updatedTree;
     });
-
-    // setTimeout(() => setIsAddPlanModalOpen(true), 0);
   };
 
   console.log(treeData);
@@ -360,11 +383,11 @@ function ProcessDetails() {
       const planNodes = node.plans?.length
         ? [{
           title: (
-            <div style={{ marginLeft: "20px", padding: "5px", border: "1px solid #ddd", borderRadius: "5px" }}>
-              <strong>Plan List:</strong>
+            <div style={{ fontSize: "14px", padding: "5px 20px", border: "1px solid #ddd", borderRadius: "5px", boxShadow: "2px 2px 10px #20461e" }}>
+              <strong style={{fontSize: "14px"}}>Plan List:</strong>
               {node.plans.map((plan: PlanType) => (
                 <div key={plan.planId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0" }}>
-                  <span>{plan.planName}</span>
+                  <span style={{fontWeight: "lighter"}}>{plan.planName}</span>
                   <div>
                     <Icons.edit color="blue" size={20} onClick={() => handleEditPlan(plan)} />
                     <Icons.delete color="red" size={20} onClick={() => handleDeletePlan(plan.planId)} />
@@ -373,8 +396,8 @@ function ProcessDetails() {
               ))}
             </div>
           ),
-          key: `${node.key}-plans`, // Key riêng để không trùng lặp
-          isLeaf: true, // Đánh dấu là node lá để tránh lỗi tree recursive
+          key: `${node.key}-plans`,
+          isLeaf: true,
         }]
         : [];
 
@@ -466,57 +489,126 @@ function ProcessDetails() {
     setTreeData([...updatedData]);
   };
 
+  const [form] = Form.useForm();
+
   return (
     <div className={style.container}>
-      <div className={style.extraContent}>
-        <Tooltip title="Back to List">
-          <Icons.back className={style.backIcon} onClick={() => navigate(PATHS.PROCESS.PROCESS_LIST)} />
-        </Tooltip>
-      </div>
-      <Divider className={style.divider} />
-      <Flex className={style.contentSectionTitleLeft}>
-        <p className={style.title}>{processDetail?.processName}</p>
-        <Tooltip title="Hello">
-          <Icons.tag className={style.iconTag} />
-        </Tooltip>
-        <Tag className={`${style.statusTag} ${style.normal}`}>Pending</Tag>
-        <div className={style.addButton}>
-          <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
+      <Form form={form}>
+        <div className={style.extraContent}>
+          <Tooltip title="Back to List">
+            <Icons.back className={style.backIcon} onClick={() => navigate(PATHS.PROCESS.PROCESS_LIST)} />
+          </Tooltip>
         </div>
-      </Flex>
-      <label className={style.subTitle}>Code: {processDetail?.processCode}</label>
-      <Divider className={style.divider} />
-      <Tree
-        style={{ fontSize: "18px" }}
-        draggable
-        blockNode
-        onDrop={onDrop}
-        treeData={loopNodes(treeData)}
-      />
-      <div className={style.buttonGroup}>
-        <Button>Cancel</Button>
-        <CustomButton
-          label="Save"
-          isCancel={false}
-          isModal={true}
-          handleOnClick={() => handleSaveProcess()} />
-      </div>
-      {isAddPlanModalOpen && (
-        <AddPlanModal
-          isOpen={isAddPlanModalOpen}
-          subProcessId={selectedSubProcessId}
-          onClose={() => setIsAddPlanModalOpen(false)}
-          onSave={(values) => {
-            const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId };
-            handleAddPlan(selectedSubProcessId!, newPlan);
-            setIsAddPlanModalOpen(false);
-          }}
-          growthStageOptions={growthStageOptions}
-          processTypeOptions={processTypeOptions}
-        />
+        <Divider className={style.divider} />
+        <Flex className={style.contentSectionTitleLeft}>
+          <p className={style.title}>{processDetail?.processName}</p>
+          <Tooltip title="Hello">
+            <Icons.tag className={style.iconTag} />
+          </Tooltip>
+          {/* <Tag className={`${style.statusTag} ${style.normal} ${processDetail?.isActive ? "" : style.inactive}`}>{processDetail?.isActive ? "Active" : "Inactive"}</Tag> */}
+        
+          {isEditing ? (
+            <>
+              <div className={style.addButton}>
+                <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
+              </div>
+            </>
 
-      )}
-      <ToastContainer />
+          ) : (
+            <div className={style.addButton}>
+              <Tooltip title="Edit">
+                <Icons.edit size={20} onClick={() => setIsEditing(true)} />
+              </Tooltip>
+            </div>
+          )}
+
+
+        </Flex>
+        <label className={style.subTitle}>Code: {processDetail?.processCode}</label>
+        <div className={style.status}>
+        <InfoField
+              label=""
+              name={processFormFields.isActive}
+              isEditing={isEditing}
+              type="switch"
+              value={processDetail?.isActive}
+            />
+          </div>
+        <Divider className={style.divider} />
+        <Flex vertical className={style.infoProcess}>
+          <Flex className={style.plotItemDetails}>
+            <Flex className={style.plotItemDetail}>
+              <Icons.calendar />
+              <label>Create Date:</label>
+            </Flex>
+            {processDetail?.createDate}
+          </Flex>
+          <Flex gap={20} className={style.infoDetail}>
+            <InfoField
+              label="Process Type"
+              name={processFormFields.masterTypeId}
+              rules={RulesManager.getProcessTypeRules()}
+              isEditing={isEditing}
+              options={processTypeOptions}
+              type="select"
+            />
+            <InfoField
+              label="Growth Stage"
+              name={processFormFields.growthStageId}
+              rules={RulesManager.getGrowthStageRules()}
+              isEditing={isEditing}
+              options={growthStageOptions}
+              type="select"
+            />
+          </Flex>
+        </Flex>
+        <Divider className={style.divider} />
+        {treeData.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "20px", fontSize: "16px", color: "#999" }}>
+            No data
+          </div>
+        ) : (
+          <>
+            <Tree
+              style={{ fontSize: "18px" }}
+              draggable
+              blockNode
+              onDrop={onDrop}
+              treeData={loopNodes(treeData)}
+            // disabled
+            />
+            {isEditing ? (
+              <div className={style.buttonGroup}>
+                <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+                <CustomButton
+                  label="Save"
+                  isCancel={false}
+                  isModal={true}
+                  handleOnClick={() => handleSaveProcess()} />
+              </div>
+            ) : (
+              <></>
+            )}
+
+          </>
+        )}
+        {isAddPlanModalOpen && (
+          <AddPlanModal
+            isOpen={isAddPlanModalOpen}
+            subProcessId={selectedSubProcessId}
+            onClose={() => setIsAddPlanModalOpen(false)}
+            onSave={(values) => {
+              const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId };
+              handleAddPlan(selectedSubProcessId!, newPlan);
+              setIsAddPlanModalOpen(false);
+            }}
+            growthStageOptions={growthStageOptions}
+            processTypeOptions={processTypeOptions}
+          />
+
+        )}
+        <ToastContainer />
+      </Form>
     </div>
   );
 }

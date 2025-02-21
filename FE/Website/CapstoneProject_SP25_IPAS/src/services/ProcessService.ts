@@ -1,6 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
+import { ProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
 export const getProcesses = async (
@@ -21,6 +22,8 @@ export const getProcesses = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("processes", { params });
+  console.log("process ist", res);
+
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse.data as GetData<GetProcessList>;
 };
@@ -53,7 +56,16 @@ export const getProcessDetail = async (processId: string) => {
     growthStageName: apiResponse.data.growthStageName,
     subProcesses: apiResponse.data.subProcesses,
     listProcessData: apiResponse.data.listProcessData,
-    order: apiResponse.data.order
+    order: apiResponse.data.order,
+
   };
 };
+
+export const createProcess = async (
+  type: ProcessRequest,
+): Promise<ApiResponse<boolean>> => {
+  const res = await axiosAuth.axiosMultipartForm.post(`processes`, type);
+  return res.data as ApiResponse<boolean>;
+};
+
 

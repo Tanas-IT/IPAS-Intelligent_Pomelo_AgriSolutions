@@ -4,15 +4,15 @@ import { InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
 
-type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: string; masterTypeId: string, planNote: string };
+type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
 
 type AddPlanModalProps = {
     isOpen: boolean;
     onClose: () => void;
     onSave: (values: Omit<PlanType, "planId">) => void;
     editPlan?: PlanType | null;
-    growthStageOptions: { value: number | string; label: string }[];
-    processTypeOptions: { value: number | string; label: string }[];
+    growthStageOptions: { value: number; label: string }[];
+    processTypeOptions: { value: number; label: string }[];
     subProcessId?: number;
 };
 

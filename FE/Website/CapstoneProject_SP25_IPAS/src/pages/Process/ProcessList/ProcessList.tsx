@@ -2,7 +2,7 @@ import { Flex } from "antd";
 import style from "./ProcessList.module.scss";
 import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
-import { useFetchData } from "@/hooks";
+import { useFetchData, useModal, useTableAdd } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { processService, userService } from "@/services";
@@ -10,10 +10,12 @@ import { GetProcess, GetProcessList } from "@/payloads/process";
 import { processColumns } from "./ProcessColumns";
 import ActionMenuProcess from "@/components/UI/ActionMenu/ActionMenuProcess/ActionMenuProcess";
 import ProcessFilter from "./ProcessFilter";
-import { TableTitle } from "./TableTitle";
+import TableTitle from "./TableTitle";
+import ProcessModal from "./AddProcessModal";
 
 
 function ProcessList() {
+  const formModal = useModal<GetProcessList>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -37,7 +39,6 @@ function ProcessList() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetProcessList>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       processService.getProcesses(page, limit, sortField, sortDirection, searchValue, "21", filters),
@@ -65,6 +66,12 @@ function ProcessList() {
     });
   };
 
+  const { handleAdd } = useTableAdd({
+      addService: processService.createProcess,
+      fetchData: fetchData,
+      onSuccess: () => formModal.hideModal(),
+    });
+
   const filterContent = (
     <ProcessFilter
       filters={filters}
@@ -82,7 +89,7 @@ function ProcessList() {
           columns={processColumns}
           rows={data}
           rowKey="processCode"
-          title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
+          title={<TableTitle onSearch={handleSearch} filterContent={filterContent} addLabel="Add New Type" onAdd={() => formModal.showModal()} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           rotation={rotation}
@@ -103,6 +110,10 @@ function ProcessList() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
+      <ProcessModal 
+      isOpen={formModal.modalState.visible}
+      onClose={formModal.hideModal}
+      onSave={handleAdd} />
     </Flex>
   );
 }

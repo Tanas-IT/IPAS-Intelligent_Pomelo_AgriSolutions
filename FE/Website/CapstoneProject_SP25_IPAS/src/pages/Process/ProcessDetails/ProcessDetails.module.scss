@@ -39,6 +39,13 @@
     color: vars.$color_primary;
   }
 
+  .inactive {
+    width: fit-content;
+    text-align: center;
+    background-color: vars.$color_second;
+    color: red;
+  }
+
   .issue {
     width: fit-content;
     text-align: center;
@@ -63,6 +70,41 @@
 .divider {
   margin: 10px 0;
   border-block-start: 1px solid vars.$color_divider;
+}
+
+.status {
+  margin-top: 10px;
+}
+
+
+
+.infoProcess {
+  margin-top: 20px;
+
+  .plotItemDetails {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    color: vars.$color_text_detail;
+    .plotItemDetail {
+      color: vars.$color_text_detail;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      svg {
+        margin-bottom: 4px;
+      }
+      label {
+        color: black;
+      }
+    }
+
+    
+  }
+
+  .infoDetail {
+    margin-top: 20px;
+  }
 }
 
 .buttonGroup {

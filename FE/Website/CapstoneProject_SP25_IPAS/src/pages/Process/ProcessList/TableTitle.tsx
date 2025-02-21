@@ -2,54 +2,35 @@ import { Flex, Form, Input, Modal, Popover, Select } from "antd";
 import { Searchbar, CustomButton, TagRender } from "@/components";
 import { Icons } from "@/assets";
 import style from "./ProcessList.module.scss";
-import { useState } from "react";
-import ProcessModal from "./AddProcessModal";
-
 type TableTitleProps = {
   onSearch: (value: string) => void;
-  filterContent: JSX.Element;
+  filterContent?: JSX.Element;
+  filterLabel?: string;
+  addLabel?: string;
+  onAdd: () => void;
 };
 
-export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const showModal = () => setIsModalOpen(true);
-  const handleClose = () => setIsModalOpen(false);
-
-  const handleSave = (newProcess: any) => {
-    console.log("New Process Data:", newProcess);
-    setIsModalOpen(false);
-  };
-
-  const growthStageOptions = [
-    { value: "gold" },
-    { value: "lime" },
-    { value: "green" },
-    { value: "cyan" },
-    { value: "ds" },
-    { value: "as" },
-  ];
-
-  const processTypeOptions = [
-    { value: "type 1" },
-    { value: "type 2" },
-    { value: "type 3" },
-    { value: "type 4" }
-  ];
+const TableTitle = ({
+  onSearch,
+  filterContent,
+  filterLabel = "Filter",
+  addLabel = "Add New",
+  onAdd,
+}: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
       <Flex className={style.sectionLeft}>
         <Searchbar onSearch={onSearch} />
         <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
           <>
-            <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => { }} />
+            <CustomButton label={filterLabel} icon={<Icons.filter />} />
           </>
         </Popover>
       </Flex>
       <Flex className={style.sectionRight}>
-        <CustomButton label="Add New Process" icon={<Icons.plus />} handleOnClick={showModal} />
+        <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />
       </Flex>
-      <ProcessModal isOpen={isModalOpen} onClose={handleClose} onSave={handleSave} />
     </Flex>
   );
 };
+export default TableTitle;

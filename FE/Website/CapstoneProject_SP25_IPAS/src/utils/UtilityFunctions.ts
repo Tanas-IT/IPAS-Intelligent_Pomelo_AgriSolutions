@@ -284,13 +284,24 @@ export const fetchCropOptions = async (farmId: string) => {
 //   }));
 // };
 
-export const fetchGrowthStageOptions = async (useIdAsValue = false, farmId: number) => {
+// export const fetchGrowthStageOptions = async (useIdAsValue = false, farmId: number) => {
+//   const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
+//   console.log("growthStages", growthStages);
+  
+
+//   return growthStages.map((growthStage: { growthStageID: number; growthStageName: string }) => ({
+//     value: useIdAsValue ? growthStage.growthStageID : growthStage.growthStageName,
+//     label: growthStage.growthStageName,
+//   }));
+// };
+
+export const fetchGrowthStageOptions = async (farmId: number) => {
   const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
   console.log("growthStages", growthStages);
   
 
   return growthStages.map((growthStage: { growthStageID: number; growthStageName: string }) => ({
-    value: useIdAsValue ? growthStage.growthStageID : growthStage.growthStageName,
+    value: growthStage.growthStageID,
     label: growthStage.growthStageName,
   }));
 };
@@ -314,11 +325,20 @@ export const statusOptions = [
   { label: "Completed", value: "completed" },
 ];
 
-export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue: boolean) => {
+// export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue: boolean) => {
+//   const types = await masterTypeService.getTypeByName(typeName);
+
+//   return types.map((type) => ({
+//     value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
+//     label: type.masterTypeName,
+//   }));
+// };
+
+export const fetchTypeOptionsByName = async (typeName: string) => {
   const types = await masterTypeService.getTypeByName(typeName);
 
   return types.map((type) => ({
-    value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
+    value: type.masterTypeId,
     label: type.masterTypeName,
   }));
 };

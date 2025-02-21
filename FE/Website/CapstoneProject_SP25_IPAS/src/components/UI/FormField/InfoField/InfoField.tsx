@@ -112,10 +112,12 @@ const InfoField: React.FC<InfoFieldProps> = ({
         case "switch":
           return (
             <Switch
-            className={styles.customSwitch}
+              className={`${styles.customSwitch} ${value ? style.active : style.inActive}`}
               checked={value}
               onChange={onChange}
               disabled={!isEditing}
+              unCheckedChildren="Inactive"
+              checkedChildren="Active"
             />
           );
     }
