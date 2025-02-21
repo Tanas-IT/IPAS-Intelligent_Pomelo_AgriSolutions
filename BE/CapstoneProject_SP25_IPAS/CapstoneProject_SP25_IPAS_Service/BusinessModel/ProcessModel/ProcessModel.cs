@@ -23,6 +23,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public DateTime? CreateDate { get; set; }
 
         public DateTime? UpdateDate { get; set; }
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
 
         public bool? IsDeleted { get; set; }
 

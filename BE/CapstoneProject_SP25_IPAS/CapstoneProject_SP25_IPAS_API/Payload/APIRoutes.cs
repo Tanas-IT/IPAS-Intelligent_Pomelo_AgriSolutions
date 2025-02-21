@@ -133,6 +133,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/growthStages/delete-permanenly/{id}";
             public const string updateGrowthStageInfo = Base + "/growthStages/update-growthStage-info";
             public const string getGrowthStageByFarm = Base + "/growthStages/get-for-select/{farm-id}";
+            public const string softDeleteManyGrowthStage = Base + "/growthStages/softed-delete";
+            public const string permentlyDeleteManyGrowthStage = Base + "/growthStages/delete-permanently-many-growthStage";
         }
 
         public static class ProcessStyle

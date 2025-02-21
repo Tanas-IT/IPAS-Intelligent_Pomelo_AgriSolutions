@@ -21,5 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> PermanentlyDeleteGrowthStage(int growthStageId);
         public Task<BusinessResult> GetGrowthStageByFarmId(int? farmId);
+        public Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId);
+        public Task<BusinessResult> PermanentlyDeleteManyGrowthStage(List<int> growthStagesId);
     }
 }
