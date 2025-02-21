@@ -21,9 +21,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<MasterType>> GetMasterTypeByName(string name, int farmId)
         {
             var getMasterTypeByName = await _context.MasterTypes
-                .Where(x => x.MasterTypeName!.ToLower().Contains(name.ToLower()) 
-                && ((x.FarmID == farmId || x.IsDefault == true))).ToListAsync();
-            if (getMasterTypeByName.Count() > 0)
+                .Where(x => x.TypeName!.ToLower().Equals(name.ToLower()) 
+                && (x.FarmID == farmId || x.IsDefault == true))
+                .OrderBy(x => x.MasterTypeId)
+                .ToListAsync();
+            if (getMasterTypeByName.Any())
             {
                 return getMasterTypeByName;
             }
