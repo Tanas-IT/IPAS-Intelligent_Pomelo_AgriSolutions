@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Description = createGrowthStageModel.Description,
                         FarmID = createGrowthStageModel.FarmId,
                         isDefault = createGrowthStageModel.isDefault,
-                        
+                        isDeleted = false,
                     };
                     await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
                     var result = await _unitOfWork.SaveAsync();
@@ -117,14 +117,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.MonthAgeEnd)) : x => x.OrderBy(x => x.MonthAgeEnd);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.GrowthStageID);
+                        orderBy = x => x.OrderByDescending(x => x.GrowthStageID);
                         break;
                 }
                 string includeProperties = "Farm";
                 var entities = await _unitOfWork.GrowthStageRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<GrowthStageModel>();
                 pagin.List = _mapper.Map<IEnumerable<GrowthStageModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.GrowthStageRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.GrowthStageRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -147,11 +147,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getGrowthStageByFarmId = await _unitOfWork.GrowthStageRepository.GetGrowthStagesByFarmId(farmId);
-                if(getGrowthStageByFarmId != null)
+                if (getGrowthStageByFarmId != null)
                 {
-                    if(getGrowthStageByFarmId.Count() > 0)
+                    if (getGrowthStageByFarmId.Count() > 0)
                     {
-                        var mappedModel =  _mapper.Map<List<GetForSelectGrowthStage>>(getGrowthStageByFarmId);
+                        var mappedModel = _mapper.Map<List<GetForSelectGrowthStage>>(getGrowthStageByFarmId);
                         return new BusinessResult(Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_CODE, Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE, mappedModel);
                     }
                     return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
@@ -217,6 +217,79 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> PermanentlyDeleteManyGrowthStage(List<int> growthStagesId)
+        {
+            try
+            {
+                var count = 0;
+                var deletedNames = new List<string>();
+
+                foreach (var growthStageDelete in growthStagesId)
+                {
+                    var getGrowthStageDelete = await _unitOfWork.GrowthStageRepository.GetByID(growthStageDelete);
+                    if (getGrowthStageDelete == null)
+                        continue;
+
+                    var result = await PermanentlyDeleteGrowthStage(growthStageDelete);
+                    if (result.StatusCode == 200)
+                    {
+                        count++;
+                        deletedNames.Add(getGrowthStageDelete.GrowthStageName);
+                    }
+                }
+
+
+                if (count == growthStagesId.Count)
+                {
+                    return new BusinessResult(Const.SUCCESS_DELETE_GROWTHSTAGE_CODE,
+                        $"Successfully deleted {count} GrowthStage: {string.Join(", ", deletedNames)}", true);
+                }
+
+                return new BusinessResult(Const.FAIL_DELETE_GROWTHSTAGE_CODE,
+                    $"Only deleted {count}/{growthStagesId.Count} GrowthStage(s): {string.Join(", ", deletedNames)}", false);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var deletedNames = new List<string>();
+                    foreach (var growthStageDeleteId in growthStagesId)
+                    {
+                        Expression<Func<GrowthStage, bool>> filter = x => x.GrowthStageID == growthStageDeleteId && x.isDefault == false && x.isDeleted == false;
+                        var checkExistGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageDeleteId);
+                        if (checkExistGrowthStage != null)
+                        {
+                            checkExistGrowthStage.isDeleted = true;
+                            deletedNames.Add(checkExistGrowthStage.GrowthStageName);
+                            _unitOfWork.GrowthStageRepository.Update(checkExistGrowthStage);
+                        }
+                    }
+                    var result = await _unitOfWork.SaveAsync();
+                    if(result == growthStagesId.Count)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE,
+                            $"Successfully deleted {result} GrowthStage: {string.Join(", ", deletedNames)}", true);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_GROWTHSTAGE_CODE, Const.FAIL_DELETE_GROWTHSTAGE_MESSAGE, false);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
         public async Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel)
         {
             try
@@ -239,12 +312,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateriteriaTypeModel.Description != null)
                     {
                         checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
-                    } 
+                    }
                     if (updateriteriaTypeModel.FarmId != null)
                     {
                         checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmId;
                     }
-                  
+                    if (updateriteriaTypeModel.isDefault != null)
+                    {
+                        checkExistGrowthStage.isDefault = updateriteriaTypeModel.isDefault;
+                    }
+                    if (updateriteriaTypeModel.isDeleted != null)
+                    {
+                        checkExistGrowthStage.isDeleted = updateriteriaTypeModel.isDeleted;
+                    }
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
