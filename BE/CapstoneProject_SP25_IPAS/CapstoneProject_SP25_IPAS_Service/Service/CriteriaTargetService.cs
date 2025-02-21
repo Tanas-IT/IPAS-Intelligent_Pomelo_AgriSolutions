@@ -16,12 +16,12 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
-    public class PlantCriteriaService : IPlantCriteriaService
+    public class CriteriaTargetService : ICriteriaTargetService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public PlantCriteriaService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CriteriaTargetService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -37,22 +37,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.FAIL_PLANTS_REQUEST_EMPTY_CODE, Const.FAIL_PLANT_REQUEST_EMPTY_MSG);
                     if (plantCriteriaCreateRequest.CriteriaData.IsNullOrEmpty())
                         return new BusinessResult(Const.FAIL_CRITERIA_REQUEST_EMPTY_CODE, Const.FAIL_CRITERIA_REQUEST_EMPTY_MSG);
-                    var plantCriteriaList = new List<PlantCriteria>();
+                    var plantCriteriaList = new List<CriteriaTarget>();
 
                     foreach (var plantId in plantCriteriaCreateRequest.PlantIds)
                     {
                         foreach (var criteria in plantCriteriaCreateRequest.CriteriaData)
                         {
-                            plantCriteriaList.Add(new PlantCriteria
+                            plantCriteriaList.Add(new  CriteriaTarget
                             {
-                                PlantId = plantId,
-                                CriteriaId = criteria.CriteriaId,
-                                IsChecked = criteria.IsChecked
+                                PlantID = plantId,
+                                CriteriaID = criteria.CriteriaId,
+                                isChecked = criteria.IsChecked
                             });
                         }
                     }
 
-                    await _unitOfWork.PlantCriteriaRepository.InsertRangeAsync(plantCriteriaList);
+                    await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(plantCriteriaList);
                     var resultSave = await _unitOfWork.SaveAsync();
                     if (resultSave > 0)
                     {
@@ -74,8 +74,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    Expression<Func<PlantCriteria, bool>> condition = x => x.PlantId == plantId && x.CriteriaId == criteriaId;
-                    var plantCriteria = await _unitOfWork.PlantCriteriaRepository.GetByCondition(condition);
+                    Expression<Func<CriteriaTarget, bool>> condition = x => x.PlantID == plantId && x.CriteriaID == criteriaId;
+                    var plantCriteria = await _unitOfWork.CriteriaTargetRepository.GetByCondition(condition);
                     //if ()
                     //{
 
@@ -98,20 +98,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     foreach (var criteria in checkPlantCriteriaRequest.criteriaDatas)
                     {
-                        Expression<Func<PlantCriteria, bool>> filter = x => x.CriteriaId == criteria.CriteriaId && x.PlantId == checkPlantCriteriaRequest.PlantId;
-                        var plantCriteria = await _unitOfWork.PlantCriteriaRepository.GetByCondition(filter);
+                        Expression<Func<CriteriaTarget, bool>> filter = x => x.CriteriaID == criteria.CriteriaId && x.PlantID == checkPlantCriteriaRequest.PlantId;
+                        var plantCriteria = await _unitOfWork.CriteriaTargetRepository.GetByCondition(filter);
                         // neu khong co doi tuong thi bo qua luon, khoi update
                         if (plantCriteria != null)
                         {
-                            plantCriteria.IsChecked = criteria.IsChecked;
+                            plantCriteria.isChecked = criteria.IsChecked;
                         }
-                        _unitOfWork.PlantCriteriaRepository.Update(plantCriteria!);
+                        _unitOfWork.CriteriaTargetRepository.Update(plantCriteria!);
                     }
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var newPlantCriteria = await _unitOfWork.PlantCriteriaRepository.GetAllCriteriaOfPlantNoPaging(checkPlantCriteriaRequest.PlantId);
+                        var newPlantCriteria = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfPlantNoPaging(checkPlantCriteriaRequest.PlantId);
                         return new BusinessResult(Const.SUCCES_CHECK_PLANT_CRITERIA_CODE, Const.SUCCES_CHECK_PLANT_CRITERIA_MSG, newPlantCriteria);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE, new { success = false });

@@ -353,11 +353,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistMasterType.Criterias.Remove(criteria);
                     }
-                    var listCriteriaHarvestTypes = checkExistMasterType.CriteriaHarvestTypes.ToList();
-                    foreach (var criteriaHarvestTypes in listCriteriaHarvestTypes)
-                    {
-                        checkExistMasterType.CriteriaHarvestTypes.Remove(criteriaHarvestTypes);
-                    }
+                    
                     var listHarvestTypeHistories = checkExistMasterType.HarvestTypeHistories.ToList();
                     foreach (var harvestTypeHistories in listHarvestTypeHistories)
                     {

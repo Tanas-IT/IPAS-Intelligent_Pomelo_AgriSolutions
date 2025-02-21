@@ -28,6 +28,7 @@ public partial class LandRow
     public string? Status { get; set; }
 
     public string? Description { get; set; }
+    public bool? isDeleted { get; set; }
 
     public int? LandPlotId { get; set; }
 
