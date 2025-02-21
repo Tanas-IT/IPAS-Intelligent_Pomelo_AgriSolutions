@@ -9,6 +9,7 @@ type TableTitleProps = {
   filterLabel?: string;
   addLabel?: string;
   onAdd: () => void;
+  noFilter?: boolean;
 };
 
 const TableTitle = ({
@@ -17,16 +18,19 @@ const TableTitle = ({
   filterLabel = "Filter",
   addLabel = "Add New",
   onAdd,
+  noFilter = false,
 }: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
       <Flex className={style.sectionLeft}>
         <Searchbar onSearch={onSearch} />
-        <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
-          <>
-            <CustomButton label={filterLabel} icon={<Icons.filter />} />
-          </>
-        </Popover>
+        {!noFilter && (
+          <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
+            <>
+              <CustomButton label={filterLabel} icon={<Icons.filter />} />
+            </>
+          </Popover>
+        )}
       </Flex>
       <Flex className={style.sectionRight}>
         <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />

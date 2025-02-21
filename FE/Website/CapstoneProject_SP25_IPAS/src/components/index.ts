@@ -19,8 +19,8 @@ export { default as LandPlotActions } from "@/components/UI/Button/LandPlotActio
 export { default as MapControls } from "@/components/UI/Button/MapControls/MapControls";
 export { default as ActionBar } from "@/components/UI/ActionBar/ActionBar";
 export { default as ActionMenu } from "@/components/UI/ActionMenu/ActionMenu/ActionMenu";
-export { default as ActionMenuPlant } from "@/components/UI/ActionMenu/ActionMenuPlant/ActionMenuPlant";
-export { default as ActionMenuMasterType } from "@/components/UI/ActionMenu/ActionMenuMasterType/ActionMenuMasterType";
+export { default as ActionMenuPlant } from "@/components/UI/ActionMenu/ActionMenuPlant";
+export { default as ActionMenuMasterType } from "@/components/UI/ActionMenu/ActionMenuMasterType";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";
