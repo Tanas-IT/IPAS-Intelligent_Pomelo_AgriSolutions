@@ -12,9 +12,11 @@ interface TableProps<T, E = T> {
   columns: TableColumn<T>[];
   rows: T[];
   rowKey: Extract<keyof T, string>;
+  idName?: Extract<keyof T, string>;
   expandedColumns?: TableColumn<E>[];
   expandedRowName?: Extract<keyof T, string>;
   expandedRowKey?: Extract<keyof E, string>;
+  idExpandedName?: Extract<keyof E, string>;
   title?: React.ReactNode;
   handleSortClick: (field: string) => void;
   selectedColumn?: string;
@@ -22,6 +24,7 @@ interface TableProps<T, E = T> {
   rotation: number;
   currentPage?: number;
   rowsPerPage?: number;
+  handleDelete?: (ids: string[]) => void;
   isLoading: boolean;
   caption: string;
   notifyNoData: string;
@@ -33,9 +36,11 @@ const TableComponent = <T, E = T>({
   columns,
   rows,
   rowKey,
+  idName,
   expandedColumns,
   expandedRowName,
   expandedRowKey,
+  idExpandedName,
   title,
   handleSortClick,
   selectedColumn,
@@ -43,6 +48,7 @@ const TableComponent = <T, E = T>({
   rotation,
   currentPage = 1,
   rowsPerPage = DEFAULT_ROWS_PER_PAGE,
+  handleDelete,
   isLoading,
   caption,
   notifyNoData,
@@ -116,13 +122,34 @@ const TableComponent = <T, E = T>({
     setSelection([]);
   }, [currentPage, rowsPerPage]);
 
+  const getIdFromCode = (code: string): string | undefined => {
+    for (const row of rows) {
+      if ((row as T)[rowKey] === code) {
+        return (row as T)[idName as keyof T] as string;
+      }
+
+      // Kiểm tra hàng con (expanded rows)
+      if (expandedRowName) {
+        const expandedRows = (row[expandedRowName] as E[]) || [];
+        for (const child of expandedRows) {
+          if (expandedRowKey && (child as E)[expandedRowKey] === code) {
+            return (child as E)[idExpandedName as keyof E] as string;
+          }
+        }
+      }
+    }
+    return undefined;
+  };
+
   const deleteSelectedItems = () => {
-    console.log(selection);
-    notification.success({
-      message: "Deleted Successfully",
-      description: `${selection.length} items have been deleted.`,
-      showProgress: true,
-    });
+    const selectedIds = selection
+      .map((code) => getIdFromCode(code))
+      .filter((id): id is string => id !== undefined);
+
+    if (handleDelete) {
+      handleDelete(selectedIds); // Gửi danh sách các id đã chọn để xóa
+    }
+
     setSelection([]);
   };
 

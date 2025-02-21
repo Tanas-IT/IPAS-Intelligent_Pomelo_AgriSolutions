@@ -2,6 +2,8 @@ import { Button, Divider, Flex, Modal, Popover } from "antd";
 import { useEffect, useState } from "react";
 import style from "./ActionBar.module.scss";
 import { Icons } from "@/assets";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { useModal } from "@/hooks";
 
 interface ActionBarProps {
   selectedCount: number;
@@ -10,8 +12,7 @@ interface ActionBarProps {
 
 const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItems }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isActionPopupVisible, setIsActionPopupVisible] = useState(false);
+  const deleteConfirmModal = useModal();
 
   useEffect(() => {
     setIsVisible(selectedCount > 0);
@@ -21,19 +22,19 @@ const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItem
 
   const handleDeleteSelectedItems = () => {
     deleteSelectedItems();
-    setIsModalVisible(false);
+    deleteConfirmModal.hideModal();
   };
 
   const showModal = () => {
-    setIsModalVisible(true);
+    deleteConfirmModal.showModal();
   };
 
-  const showActionPopup = () => {
-    setIsActionPopupVisible(true); // Hiển thị popup khi bấm "Actions"
-  };
+  // const showActionPopup = () => {
+  //   setIsActionPopupVisible(true); // Hiển thị popup khi bấm "Actions"
+  // };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    deleteConfirmModal.hideModal();
   };
 
   const actionContent = (
@@ -76,19 +77,17 @@ const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItem
         </Flex>
       </Flex>
 
-      <Modal
-        title="Delete Selected Items"
-        visible={isModalVisible}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={handleDeleteSelectedItems}
         onCancel={handleCancel}
-        onOk={handleDeleteSelectedItems}
-        okText="Delete"
+        title="Delete Selected Items?"
+        description={`Are you sure you want to delete the ${selectedCount} selected items? This action cannot be
+          undone.`}
+        confirmText="Delete"
         cancelText="Cancel"
-      >
-        <p>
-          Are you sure you want to delete the {selectedCount} selected items? This action cannot be
-          undone.
-        </p>
-      </Modal>
+        isDanger={true}
+      />
     </>
   );
 };

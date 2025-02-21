@@ -27,7 +27,7 @@ import MasterTypeModel from "./MasterTypeModel";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
-  const deleteConfirmModal = useModal<{ id: number | string }>();
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ doc: MasterTypeRequest }>();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
@@ -62,7 +62,7 @@ function MasterType() {
 
   const { handleDelete } = useTableDelete(
     {
-      deleteFunction: masterTypeService.deleteMasterType,
+      deleteFunction: masterTypeService.deleteMasterTypes,
       fetchData,
       onSuccess: () => {
         deleteConfirmModal.hideModal();
@@ -115,6 +115,7 @@ function MasterType() {
           columns={masterTypeColumns}
           rows={data}
           rowKey="masterTypeCode"
+          idName="masterTypeId"
           title={
             <TableTitle
               onSearch={handleSearch}
@@ -128,13 +129,14 @@ function MasterType() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
           caption="Master Type Management Table"
           notifyNoData="No data to display"
           renderAction={(type: GetMasterType) => (
             <ActionMenuMasterType
               onEdit={() => formModal.showModal(type)}
-              onDelete={() => deleteConfirmModal.showModal({ id: type.masterTypeId })}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [type.masterTypeId] })}
             />
           )}
         />
@@ -157,7 +159,7 @@ function MasterType() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
-        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
         onCancel={deleteConfirmModal.hideModal}
         title="Delete Type?"
         description="Are you sure you want to delete this type? This action cannot be undone."
