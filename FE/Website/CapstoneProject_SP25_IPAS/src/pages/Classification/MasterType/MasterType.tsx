@@ -77,7 +77,17 @@ function MasterType() {
   );
 
   const handleUpdateConfirm = (type: MasterTypeRequest) => {
-    handleUpdate(type);
+    const oldType = data.find((d) => d.masterTypeId === type.masterTypeId);
+    if (!oldType) return;
+    const hasChanged = Object.keys(type).some((key) => {
+      const typeKey = key as keyof MasterTypeRequest;
+      return oldType[typeKey as keyof typeof oldType] !== type[typeKey];
+    });
+    if (hasChanged) {
+      handleUpdate(type);
+    } else {
+      formModal.hideModal();
+    }
   };
 
   const { handleUpdate } = useTableUpdate<MasterTypeRequest>({

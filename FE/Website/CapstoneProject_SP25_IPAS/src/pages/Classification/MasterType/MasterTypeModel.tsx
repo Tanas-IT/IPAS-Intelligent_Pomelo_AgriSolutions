@@ -26,9 +26,15 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     setChecked(newChecked);
   };
 
+  const resetForm = () => {
+    form.resetFields();
+    setChecked(false);
+    setSelectedType("");
+  };
+
   useEffect(() => {
+    resetForm();
     if (isOpen) {
-      form.resetFields();
       if (isEdit && masterTypeData) {
         form.setFieldsValue({
           masterTypeId: masterTypeData.masterTypeId,
@@ -78,9 +84,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
   };
 
   const handleCancel = () => {
-    form.resetFields();
-    setChecked(false);
-    setSelectedType("");
+    resetForm();
     onClose();
   };
 

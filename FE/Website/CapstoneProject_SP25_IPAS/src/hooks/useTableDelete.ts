@@ -41,7 +41,8 @@ export default function useDelete(
         setIsLoading(true);
         const result = await deleteFunction(deleteIds, ...args);
         if (result.statusCode === 200) {
-          if ((totalRecords - 1) % rowsPerPage === 0 && currentPage > 1) {
+          const deletedCount = deleteIds.length;
+          if ((totalRecords - deletedCount) % rowsPerPage === 0 && currentPage > 1) {
             handlePageChange(currentPage - 1);
           } else {
             await fetchData();
