@@ -4,7 +4,7 @@ import { InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
 
-type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: string; masterTypeId: string };
+type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: string; masterTypeId: string, planNote: string };
 
 type AddPlanModalProps = {
     isOpen: boolean;
@@ -50,6 +50,13 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
                     isEditing={true}
                     type="textarea"
                     placeholder="Enter care plan details"
+                />
+                <InfoField
+                    label="Notes"
+                    name={addPlanFormFields.planNote}
+                    isEditing={true}
+                    type="textarea"
+                    placeholder="Enter care plan notes"
                 />
                 <InfoField
                     label="Growth Stage"

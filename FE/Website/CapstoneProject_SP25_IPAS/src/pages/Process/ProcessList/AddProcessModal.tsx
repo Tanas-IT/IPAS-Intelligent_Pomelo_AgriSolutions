@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { CustomButton, InfoField } from "@/components";
 import style from "./ProcessList.module.scss";
 import { useStyle } from "@/hooks";
-import { fetchGrowthStageOptions, fetchTypeOptionsByName, RulesManager } from "@/utils";
+import { fetchGrowthStageOptions, fetchTypeOptionsByName, getFarmId, RulesManager } from "@/utils";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { Icons } from "@/assets";
 import AddPlanModal from "./AddPlanModal";
@@ -22,6 +22,7 @@ type PlanType = {
     planId: number; 
     planName: string; 
     planDetail: string; 
+    planNote: string
     growthStageId: string; 
     masterTypeId: string 
 };
@@ -35,11 +36,12 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
     const [plans, setPlans] = useState<PlanType[]>([]);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [editPlan, setEditPlan] = useState<PlanType | null>(null);
+    const farmId = Number(getFarmId());
 
     useEffect(() => {
         const fetchData = async () => {
-            setGrowthStageOptions(await fetchGrowthStageOptions(true));
-            setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
+            setGrowthStageOptions(await fetchGrowthStageOptions(true, farmId));
+            setProcessTypeOptions(await fetchTypeOptionsByName("Process", true));
         };
         fetchData();
     }, []);
@@ -47,7 +49,23 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
     const handleOk = () => {
         form.validateFields()
             .then(values => {
-                console.log("Form Values:", { ...values, plans });
+                const formattedPlans = plans.map(({ planName, planDetail, planNote, growthStageId, masterTypeId }) => ({
+                    PlanName: planName,
+                    PlanDetail: planDetail,
+                    PlanNote: planNote,
+                    GrowthStageId: growthStageId,
+                    MasterTypeId: masterTypeId
+                }));
+        
+                const payload = {
+                    ProcessName: values.processName,
+                    MasterTypeId: values.masterTypeId,
+                    GrowthStageId: values.growthStageId,
+                    ListPlan: formattedPlans
+                };
+        
+                console.log("Submitting Payload:", payload);
+                console.log("Form Values:", { ...values, ListPlan: plans });
                 onSave({ ...values, plans });
                 form.resetFields();
                 setPlans([]);

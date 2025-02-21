@@ -314,7 +314,7 @@ export const statusOptions = [
   { label: "Completed", value: "completed" },
 ];
 
-export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue = false) => {
+export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue: boolean) => {
   const types = await masterTypeService.getTypeByName(typeName);
 
   return types.map((type) => ({

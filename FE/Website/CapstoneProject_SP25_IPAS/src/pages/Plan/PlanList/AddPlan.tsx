@@ -251,7 +251,7 @@ const AddPlan = () => {
                     />
                     <InfoField
                         label="Note"
-                        name={addPlanFormFields.notes}
+                        name={addPlanFormFields.planNote}
                         isEditing={true}
                         hasFeedback={false}
                         type="textarea"
