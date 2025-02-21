@@ -62,15 +62,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.MasterType.getMasterTypeByName + "/{farm-id}", Name = "getMasterTypeByName")]
-        public async Task<IActionResult> GetMasterTypeByName([FromRoute(Name = "name")] string name)
+        [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
+        public async Task<IActionResult> GetMasterTypeByName([FromQuery(Name = "typeName")] string typeName, int? farmId)
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!farmId.HasValue)
-                    return Unauthorized();
-                var result = await _masterTypeService.GetMasterTypeByName(name, farmId!.Value);
+                if(!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue || string.IsNullOrEmpty(typeName))
+                    return BadRequest();
+                var result = await _masterTypeService.GetMasterTypeByName(typeName, farmId!.Value);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -86,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/masterTypes/delete-permanently/{id}";
             public const string permanenlyDeletemanyMasterType = Base + "/masterTypes/delete-permanently-many-masterType";
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
-            public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
+            public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
         }
 

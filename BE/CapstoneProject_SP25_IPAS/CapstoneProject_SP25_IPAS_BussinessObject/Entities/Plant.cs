@@ -42,9 +42,9 @@ public partial class Plant
     public virtual LandRow? LandRow { get; set; }
     public virtual GrowthStage? GrowthStage { get; set; }
 
-    public virtual ICollection<PlantCriteria> PlantCriterias { get; set; } = new List<PlantCriteria>();
 
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
 
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
+    public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
 }
