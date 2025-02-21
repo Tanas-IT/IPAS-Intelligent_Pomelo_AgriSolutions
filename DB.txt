@@ -78,6 +78,7 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	MonthAgeEnd int NULL,
 	isDefault bit NULL,
 	FarmID int NULL,
+        isDeleted bit NULL,
 	CreateDate datetime NULL,
 	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID),
@@ -574,7 +575,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	StartDate datetime NULL,
-	EndDate datetime NULL
+	EndDate datetime NULL,
 	isDeleted bit NULL,
     [Order] int NULL,
 	ProcessID int NULL,

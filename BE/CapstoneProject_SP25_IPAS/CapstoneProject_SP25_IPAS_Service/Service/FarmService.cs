@@ -529,7 +529,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var userFarm = await _unitOfWork.FarmRepository.GetUsersOfFarmByRole(farmId: farmId, roleIds: roleIds);
                 if (!userFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ALL_USER_BY_ROLE_CODE, Const.WARNING_GET_ALL_USER_OF_FARM_EMPTY_MSG);
-                var mappedResult = _mapper.Map<IEnumerable<UserModel>>(userFarm);
+                var mappedResult = _mapper.Map<IEnumerable<UserFarmModel>>(userFarm);
+                foreach (var item in mappedResult)
+                {
+                    item.Farm = null!;
+                }
                 return new BusinessResult(Const.SUCCESS_GET_ALL_USER_BY_ROLE_CODE, Const.SUCCESS_GET_ALL_USER_BY_ROLE_MESSAGE, mappedResult);
             }
             catch (Exception ex)

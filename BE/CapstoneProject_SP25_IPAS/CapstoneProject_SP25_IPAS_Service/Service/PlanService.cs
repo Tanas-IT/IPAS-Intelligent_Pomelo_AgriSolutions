@@ -430,7 +430,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.EndDate)) : x => x.OrderBy(x => x.EndDate);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.ProcessId);
+                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
                         break;
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
