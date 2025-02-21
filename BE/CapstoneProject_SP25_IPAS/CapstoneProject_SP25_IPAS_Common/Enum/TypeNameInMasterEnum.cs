@@ -11,5 +11,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Enum
         ProcessType,
         CriteriaType,
         HarvestType,
+        CultivaType,
     }
 }

@@ -13,11 +13,13 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -59,7 +61,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDefault = false,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = false,
-                        Order = createProcessModel.Order
+                        Order = createProcessModel.Order,
+                        StartDate = createProcessModel.StartDate,
+                        EndDate = createProcessModel.EndDate
                     };
                     var processData = createProcessModel.ProcessData;
                     var getLink = "";
@@ -100,19 +104,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             newProcess.SubProcesses.Add(newSubProcess);
                         }
                     }
-                    if(createProcessModel.ListPlan != null)
+                    if (createProcessModel.ListPlan != null)
                     {
                         foreach (var planRaw in createProcessModel.ListPlan)
                         {
                             var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
                             var newPlan = new Plan()
                             {
-                               PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId.Value,
-                               PlanName = plan.PlanName,
-                               PlanDetail = plan.PlanDetail,   
-                               Notes = plan.PlanNote,
-                               GrowthStageId = plan.GrowthStageId,
-                               MasterTypeId = plan.MasterTypeId,
+                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId.Value,
+                                PlanName = plan.PlanName,
+                                PlanDetail = plan.PlanDetail,
+                                Notes = plan.PlanNote,
+                                GrowthStageId = plan.GrowthStageId,
+                                MasterTypeId = plan.MasterTypeId,
                             };
 
                             newProcess.Plans.Add(newPlan);
@@ -134,11 +138,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters)
+        public async Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters, int farmId)
         {
             try
             {
-                Expression<Func<Process, bool>> filter = null!;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -282,7 +286,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.ProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<ProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<ProcessModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(x => x.IsDeleted == false);
+                pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -338,78 +342,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> InsertManyProcess(List<CreateProcessModel> listCreateProcessModel)
+        public async Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel)
         {
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
-            {
-                try
-                {
-                    foreach (var createProcessModel in listCreateProcessModel)
-                    {
-                        var newProcess = new Process()
-                        {
-                            ProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.PROCESS),
-                            CreateDate = DateTime.Now,
-                            UpdateDate = DateTime.Now,
-                            FarmId = createProcessModel.FarmId,
-                            GrowthStageId = createProcessModel.GrowthStageID,
-                            MasterTypeId = createProcessModel.MasterTypeId,
-                            ProcessName = createProcessModel.ProcessName,
-                            IsDefault = false,
-                            IsActive = createProcessModel.IsActive,
-                            IsDeleted = false
-                        };
-                        var getLink = "";
-                        var newData = createProcessModel.ProcessData;
-                        if (newData != null)
-                        {
-                            if (IsImageFile(newData))
-                            {
-                                getLink = await _cloudinaryService.UploadImageAsync(newData, "process/data");
-                            }
-                            else
-                            {
-                                getLink = await _cloudinaryService.UploadVideoAsync(newData, "process/data");
-                            }
-                            newProcess.ResourceUrl = getLink;
-                        }
 
-                        await _unitOfWork.ProcessRepository.Insert(newProcess);
-                        if (createProcessModel.ListSubProcess != null)
-                        {
-                            foreach (var subProcessRaw in createProcessModel.ListSubProcess)
-                            {
-                                var subProcess = JsonConvert.DeserializeObject<AddSubProcessModel>(subProcessRaw);
-                                var newSubProcess = new SubProcess()
-                                {
-                                    SubProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.SUB_PROCESS),
-                                    SubProcessName = subProcess.SubProcessName,
-                                    CreateDate = DateTime.Now,
-                                    UpdateDate = DateTime.Now,
-                                    IsDefault = false,
-                                    IsActive = subProcess.IsActive,
-                                    IsDeleted = false,
-                                    ParentSubProcessId = subProcess.ParentSubProcessId,
-                                    MasterTypeId = subProcess.MasterTypeId,
-                                };
-                                newProcess.SubProcesses.Add(newSubProcess);
-                            }
-                        }
-                    }
-                    var checkInsertProcess = await _unitOfWork.SaveAsync();
-                    await transaction.CommitAsync();
-                    if (checkInsertProcess > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_CREATE_PROCESS_CODE, Const.SUCCESS_CREATE_PROCESS_MESSAGE, checkInsertProcess > 0); ;
-                    }
-                    return new BusinessResult(Const.FAIL_CREATE_PROCESS_CODE, Const.FAIL_CREATE_PROCESS_MESSAGE, false);
-                }
-                catch (Exception ex)
+            try
+            {
+                var checkInsertProcess = 0;
+                foreach (var createProcessModel in listCreateProcessModel)
                 {
-                    await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    var newProcessModel = new CreateProcessModel()
+                    {
+                        FarmId = createProcessModel.FarmId,
+                        MasterTypeId = createProcessModel.MasterTypeId,
+                        ProcessName = createProcessModel.ProcessName,
+                        ListSubProcess = createProcessModel.ListSubProcess,
+                        ListPlan = createProcessModel.ListPlan,
+                        IsActive = createProcessModel.IsActive,
+                        IsDeleted = createProcessModel.IsDeleted,
+                        GrowthStageID = createProcessModel.GrowthStageID,
+                        Order = createProcessModel.Order,
+                    };
+                    var result = await CreateProcess(newProcessModel);
+                    if(result.StatusCode == 200)
+                    {
+                        checkInsertProcess++;
+                    }
                 }
+                if (checkInsertProcess == listCreateProcessModel.Count)
+                {
+                    return new BusinessResult(Const.SUCCESS_CREATE_PROCESS_CODE, Const.SUCCESS_CREATE_PROCESS_MESSAGE, checkInsertProcess > 0); ;
+                }
+                return new BusinessResult(Const.FAIL_CREATE_PROCESS_CODE, Const.FAIL_CREATE_PROCESS_MESSAGE, false);
             }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+
         }
 
         public async Task<BusinessResult> PermanentlyDeleteProcess(int processId)
@@ -467,6 +436,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
                 if (checkExistProcess != null)
                 {
+                    if(checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true )
+                    {
+                        throw new Exception("Process is running. Can not update");
+                    }
+                    if (updateProcessModel.ProcessName != null)
+                    {
+                        checkExistProcess.ProcessName = updateProcessModel.ProcessName;
+                    }
+                    if (updateProcessModel.StartDate != null)
+                    {
+                        checkExistProcess.StartDate = updateProcessModel.StartDate;
+                    }
+                    if (updateProcessModel.EndDate != null)
+                    {
+                        checkExistProcess.EndDate = updateProcessModel.EndDate;
+                    }
                     if (updateProcessModel.ProcessName != null)
                     {
                         checkExistProcess.ProcessName = updateProcessModel.ProcessName;
@@ -743,6 +728,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public Task<BusinessResult> GetProcessByFarmId(int farmId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

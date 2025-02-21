@@ -22,27 +22,37 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<bool> DeleteDependenciesOfPlan(int planID)
         {
-            var listCarePlanSchedule = await _context.CarePlanSchedules.Where(x => x.CarePlanId == planID).ToListAsync();
+            // Lấy danh sách CarePlanSchedules của planID
+            var listCarePlanSchedule = await _context.CarePlanSchedules
+                .Where(x => x.CarePlanId == planID)
+                .ToListAsync();
 
-            foreach (var item in listCarePlanSchedule)
-            {
-                var getListWorkLog = await _context.WorkLogs.Where(x => x.ScheduleId == item.ScheduleId).ToListAsync();
-                foreach (var workLog in getListWorkLog)
-                {
-                    var getListUserWorkLog = await _context.UserWorkLogs.Where(x => x.WorkLogId == workLog.WorkLogId).ToListAsync();
-                    _context.UserWorkLogs.RemoveRange(getListUserWorkLog);
-                    _context.SaveChanges();
-                }
-                _context.WorkLogs.RemoveRange(getListWorkLog);
-                _context.SaveChanges();
-            }
+            if (!listCarePlanSchedule.Any()) return false;
+
+            // Lấy danh sách ScheduleId từ CarePlanSchedules
+            var scheduleIds = listCarePlanSchedule.Select(x => x.ScheduleId).ToList();
+
+            // Lấy danh sách WorkLogs liên quan, loại bỏ những workLog có Date < hiện tại hoặc có Status "completed"
+            var workLogsToDelete = await _context.WorkLogs
+                .Where(x => scheduleIds.Contains(x.ScheduleId.Value) &&
+                            !(x.Date < DateTime.Now || (x.Status != null && x.Status.ToLower() == "completed")))
+                .ToListAsync();
+
+            // Lấy danh sách WorkLogId từ workLogs cần xóa
+            var workLogIds = workLogsToDelete.Select(x => x.WorkLogId).ToList();
+
+            // Lấy danh sách UserWorkLogs liên quan
+            var userWorkLogsToDelete = await _context.UserWorkLogs
+                .Where(x => workLogIds.Contains(x.WorkLogId))
+                .ToListAsync();
+
+            // Xóa UserWorkLogs, WorkLogs, CarePlanSchedules
+            _context.UserWorkLogs.RemoveRange(userWorkLogsToDelete);
+            _context.WorkLogs.RemoveRange(workLogsToDelete);
             _context.CarePlanSchedules.RemoveRange(listCarePlanSchedule);
-            var result = _context.SaveChanges();
-            if (result > 0)
-            {
-                return true;
-            }
-            return false;
+
+            // Lưu thay đổi một lần duy nhất
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> IsScheduleConflicted(int carePlanId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime)

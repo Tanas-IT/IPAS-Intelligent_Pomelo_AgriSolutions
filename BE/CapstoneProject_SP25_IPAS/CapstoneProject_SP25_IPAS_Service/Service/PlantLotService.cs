@@ -18,6 +18,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -42,14 +44,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var criteria in criterias)
                 {
                     var result = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteria.CriteriaId);
-                    if(result == null)
+                    if (result == null)
                     {
                         checkIsSystem = false;
                         break;
                     }
 
                 }
-                if(!checkIsSystem)
+                if (!checkIsSystem)
                 {
                     return new BusinessResult(Const.FAIL_CREATE_MANY_PLANT_BECAUSE_CRITERIA_INVALID_CODE, Const.FAIL_CREATE_MANY_PLANT_BECAUSE_CRITERIA_INVALID_MESSAGE, false);
                 }
@@ -89,40 +91,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> CreatePlantLot(CreatePlantLotModel createPlantLotModel)
         {
-            
-                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
                 {
-                    try
+                    var plantLot = new PlantLot()
                     {
-                        var plantLot = new PlantLot()
-                        {
-                            PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PARTNER}{createPlantLotModel.PartnerId}-{CodeHelper.GenerateCode()}",
-                            ImportedDate = DateTime.Now,
-                            PreviousQuantity = createPlantLotModel.ImportedQuantity,
-                            LastQuantity = createPlantLotModel.ImportedQuantity,
-                            PartnerId = createPlantLotModel.PartnerId,
-                            PlantLotName = createPlantLotModel.Name,
-                            Unit = createPlantLotModel.Unit,
-                            Note = createPlantLotModel.Note,
-                            Status = "Active"
-                        };
+                        PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PARTNER}{createPlantLotModel.PartnerId}-{CodeHelper.GenerateCode()}",
+                        ImportedDate = DateTime.Now,
+                        PreviousQuantity = createPlantLotModel.ImportedQuantity,
+                        LastQuantity = createPlantLotModel.ImportedQuantity,
+                        PartnerId = createPlantLotModel.PartnerId,
+                        PlantLotName = createPlantLotModel.Name,
+                        Unit = createPlantLotModel.Unit,
+                        Note = createPlantLotModel.Note,
+                        Status = "Active"
+                    };
 
-                        await _unitOfWork.PlantLotRepository.Insert(plantLot);
-                        var checkInsertPlantLot = await _unitOfWork.SaveAsync();
-                        await transaction.CommitAsync();
-                        if (checkInsertPlantLot > 0)
-                        {
-                            return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, Const.SUCCESS_CREATE_PLANT_LOT_MESSAGE, true);
-                        }
-                        return new BusinessResult(Const.FAIL_CREATE_PLANT_LOT_CODE, Const.FAIL_CREATE_PLANT_LOT_MESSAGE, false);
-                    }
-                    catch (Exception ex)
+                    await _unitOfWork.PlantLotRepository.Insert(plantLot);
+                    var checkInsertPlantLot = await _unitOfWork.SaveAsync();
+                    await transaction.CommitAsync();
+                    if (checkInsertPlantLot > 0)
                     {
-                        await transaction.RollbackAsync();
-                        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                        return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, Const.SUCCESS_CREATE_PLANT_LOT_MESSAGE, true);
                     }
-
+                    return new BusinessResult(Const.FAIL_CREATE_PLANT_LOT_CODE, Const.FAIL_CREATE_PLANT_LOT_MESSAGE, false);
                 }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+
+            }
         }
 
         public async Task<BusinessResult> DeletePlantLot(int plantLotId)
@@ -133,7 +135,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entityPlantLotDelete = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, includeProperties);
                 _unitOfWork.PlantLotRepository.Delete(entityPlantLotDelete);
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(Const.SUCCESS_DELETE_PLANT_LOT_CODE, Const.SUCCESS_DELETE_PLANT_LOT_MESSAGE, result > 0);
                 }
@@ -268,7 +270,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var plantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, "Partner");
-                if(plantLot != null)
+                if (plantLot != null)
                 {
                     var result = _mapper.Map<PlantLotModel>(plantLot);
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_LOT_BY_ID_CODE, Const.SUCCESS_GET_PLANT_LOT_BY_ID_MESSAGE, result);
@@ -287,56 +289,167 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdatePlantLot(UpdatePlantLotModel updatePlantLotRequestModel)
         {
-            try
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
-                var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(updatePlantLotRequestModel.PlantLotID);
-                if(checkExistPlantLot != null)
+
+                try
                 {
-                    if(updatePlantLotRequestModel.PartnerID > 0)
+                    var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(updatePlantLotRequestModel.PlantLotID);
+                    if (checkExistPlantLot != null)
                     {
-                        checkExistPlantLot.PartnerId = updatePlantLotRequestModel.PartnerID;
-                    }
-                    if (updatePlantLotRequestModel.Name != null)
-                    {
-                        checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
-                    }
-                    if (updatePlantLotRequestModel.GoodPlant  > 0)
-                    {
-                        checkExistPlantLot.LastQuantity = checkExistPlantLot.LastQuantity - updatePlantLotRequestModel.GoodPlant;
-                    }
-                    if (updatePlantLotRequestModel.Unit != null)
-                    {
-                        checkExistPlantLot.Unit = updatePlantLotRequestModel.Unit;
-                    }
-                    if (updatePlantLotRequestModel.Note != null)
-                    {
-                        checkExistPlantLot.Note = updatePlantLotRequestModel.Note;
-                    }
-                    if (updatePlantLotRequestModel.Status != null)
-                    {
-                        checkExistPlantLot.Status = updatePlantLotRequestModel.Status;
-                    }
-                    var result = await _unitOfWork.SaveAsync();
-                    if(result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, Const.SUCCESS_UPDATE_PLANT_LOT_MESSAGE, checkExistPlantLot);
+                        if (updatePlantLotRequestModel.PartnerID > 0)
+                        {
+                            checkExistPlantLot.PartnerId = updatePlantLotRequestModel.PartnerID;
+                        }
+                        if (updatePlantLotRequestModel.Name != null)
+                        {
+                            checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
+                        }
+                        if (updatePlantLotRequestModel.GoodPlant > 0)
+                        {
+                            checkExistPlantLot.LastQuantity = checkExistPlantLot.LastQuantity - updatePlantLotRequestModel.GoodPlant;
+                        }
+                        if (updatePlantLotRequestModel.Unit != null)
+                        {
+                            checkExistPlantLot.Unit = updatePlantLotRequestModel.Unit;
+                        }
+                        if (updatePlantLotRequestModel.Note != null)
+                        {
+                            checkExistPlantLot.Note = updatePlantLotRequestModel.Note;
+                        }
+                        if (updatePlantLotRequestModel.Status != null)
+                        {
+                            checkExistPlantLot.Status = updatePlantLotRequestModel.Status;
+                        }
+                        var result = await _unitOfWork.SaveAsync();
+                        if (result > 0)
+                        {
+                            return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, Const.SUCCESS_UPDATE_PLANT_LOT_MESSAGE, checkExistPlantLot);
+                        }
+                        else
+                        {
+                            await transaction.RollbackAsync();
+                            return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE, false);
+                        }
                     }
                     else
                     {
-                        return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE, false);
+                        return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     }
-
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> FillPlantToPlot(FillPlanToPlotRequest fillRequest)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+
+                try
+                {
+                    // Lấy thông tin lô cây
+                    var plantLot = await _unitOfWork.PlantLotRepository.GetByID(fillRequest.plantLotId);
+                    if (plantLot == null)
+                        return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+
+                    var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(fillRequest.MasterTypeId, TypeNameInMasterEnum.CultivaType.ToString());
+                    if (masterTypeExist == null)
+                        return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
+
+                    var growthStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == fillRequest.growthStageId);
+                    if (growthStageExist == null)
+                        return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
+                    // Kiểm tra số lượng cây có thể trồng
+                    int quantityToPlant = plantLot.LastQuantity ?? 0;
+                    if (quantityToPlant <= 0)
+                    {
+                        return new BusinessResult(Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_CODE, Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_MSG);
+                    }
+
+                    // Lấy thông tin thửa đất
+                    var landPlot = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == fillRequest.landPlotId, "LandRows");
+                    if (landPlot == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                    }
+
+                    // Lấy danh sách hàng trên thửa đất
+                    var landRows = landPlot.LandRows.ToList();
+                    if (landRows == null || !landRows.Any())
+                    {
+                        return new BusinessResult(Const.WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_CODE, Const.WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_MSG, false);
+                    }
+
+                    int remainingPlants = quantityToPlant;
+                    foreach (var row in landRows)
+                    {
+                        if (remainingPlants <= 0) break;
+
+                        int maxTreeAmount = row.TreeAmount ?? 0;
+                        if (maxTreeAmount <= 0) continue;
+
+                        // Lấy danh sách cây hiện có trong hàng
+                        var existingPlants = (await _unitOfWork.PlantRepository
+                            .GetAllNoPaging(x => x.LandRowId == row.LandRowId))
+                            .OrderBy(p => p.PlantIndex)
+                            .ToList();
+
+                        HashSet<int> occupiedIndexes = existingPlants
+                            .Where(p => p.PlantIndex.HasValue)
+                            .Select(p => p.PlantIndex.Value)
+                            .ToHashSet();
+
+                        // Tạo danh sách các vị trí trống trong hàng
+                        List<int> availableIndexes = Enumerable.Range(1, maxTreeAmount)
+                            .Where(index => !occupiedIndexes.Contains(index))
+                            .ToList();
+
+                        int plantsToAdd = Math.Min(remainingPlants, availableIndexes.Count);
+                        for (int i = 0; i < plantsToAdd; i++)
+                        {
+                            var newPlant = new Plant
+                            {
+                                PlantName = plantLot.PlantLotName,
+                                PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now:ddMMyyyy}-{CodeAliasEntityConst.LANDPLOT}{row.LandPlotId}{CodeAliasEntityConst.LANDROW}{row.RowIndex}-{CodeHelper.GenerateCode()}",
+                                PlantingDate = DateTime.UtcNow,
+                                HealthStatus = "Healthy",
+                                LandRowId = row.LandRowId,
+                                FarmId = landPlot.FarmId,
+                                IsDeleted = false,
+                                GrowthStageID = fillRequest.growthStageId,
+                                MasterTypeId = fillRequest.MasterTypeId,
+                                PlantIndex = availableIndexes[i] // Gán vị trí trống hợp lệ
+                            };
+                            await _unitOfWork.PlantRepository.Insert(newPlant);
+                        }
+
+                        remainingPlants -= plantsToAdd;
+                    }
+
+                    // Cập nhật số lượng cây còn lại trong PlantLot
+                    plantLot.LastQuantity -= (quantityToPlant - remainingPlants);
+                    _unitOfWork.PlantLotRepository.Update(plantLot);
+                    // Lưu thay đổi
+                    var result = await _unitOfWork.SaveAsync();
+                    if(result > 0)
+                    return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
+                    // nếu sai
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+
     }
 }

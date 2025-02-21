@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetProcessByID(int processId);
 
-        public Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters);
+        public Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters, int farmId);
 
         public Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel);
 
@@ -24,8 +24,11 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> SoftDeleteProcess(int processId);
 
         public Task<BusinessResult> GetProcessByName(string processName);
-        public Task<BusinessResult> InsertManyProcess(List<CreateProcessModel> listCreateProcessModel);
+        public Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel);
 
         public Task<BusinessResult> GetForSelect(int farmId, string? search);
+
+        public Task<BusinessResult> GetProcessByFarmId(int farmId);
+
     }
 }

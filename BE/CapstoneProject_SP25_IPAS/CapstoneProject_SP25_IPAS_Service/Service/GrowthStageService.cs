@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
                         CreateDate = DateTime.Now,
                         Description = createGrowthStageModel.Description,
-                        FarmID = createGrowthStageModel.FarmID,
+                        FarmID = createGrowthStageModel.FarmId,
                         isDefault = createGrowthStageModel.isDefault,
                         
                     };
@@ -63,11 +63,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter, int farmId)
         {
             try
             {
-                Expression<Func<GrowthStage, bool>> filter = null!;
+                Expression<Func<GrowthStage, bool>> filter = x => x.FarmID == farmId!;
                 Func<IQueryable<GrowthStage>, IOrderedQueryable<GrowthStage>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -151,7 +151,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if(getGrowthStageByFarmId.Count() > 0)
                     {
-                        var mappedModel =  _mapper.Map<List<GrowthStageModel>>(getGrowthStageByFarmId);
+                        var mappedModel =  _mapper.Map<List<GetForSelectGrowthStage>>(getGrowthStageByFarmId);
                         return new BusinessResult(Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_CODE, Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE, mappedModel);
                     }
                     return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
@@ -240,9 +240,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
                     } 
-                    if (updateriteriaTypeModel.FarmID != null)
+                    if (updateriteriaTypeModel.FarmId != null)
                     {
-                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmID;
+                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmId;
                     }
                   
                     var result = await _unitOfWork.SaveAsync();

@@ -64,6 +64,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/plantLots/delete-permanenly/{id}";
             public const string updatePlantLotInfo = Base + "/plantLots/update-plantLot-info";
             public const string createManyPlantFromPlantLot = Base + "/plantLots/create-many-plant";
+            public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
         }
 
         public static class Resource
@@ -86,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDeletemanyMasterType = Base + "/masterTypes/delete-permanently-many-masterType";
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name/{name}";
-            public const string softedDelete = Base + "/masterTypes/delete-permanently";
+            public const string softedDelete = Base + "/masterTypes/delete-softed";
         }
 
         public static class Criteria
@@ -131,7 +132,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGrowthStageWithPagination = Base + "/growthStages";
             public const string permanenlyDelete = Base + "/growthStages/delete-permanenly/{id}";
             public const string updateGrowthStageInfo = Base + "/growthStages/update-growthStage-info";
-            public const string getGrowthStageByFarm = Base + "/growthStages/get-growthStage-farm/{farm-id}";
+            public const string getGrowthStageByFarm = Base + "/growthStages/get-for-select/{farm-id}";
         }
 
         public static class ProcessStyle
@@ -221,7 +222,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softDeletePlan = prefix + "/soft-delete-plan/{id}";
             public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
-            public const string getPlanByFarmId = prefix + "/get-plan-by-farm/{farm-id}";
+            public const string getPlanByFarmId = prefix + "/get-for-select/{farm-id}";
         }
 
         public static class UserWorkLog

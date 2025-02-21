@@ -144,7 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Crop.deleteSoftedCrop + "/{crop-id}", Name = "softDeleteCrop")]
+        [HttpPatch(APIRoutes.Crop.deleteSoftedCrop + "/{crop-id}", Name = "softDeleteCrop")]
         public async Task<IActionResult> SoftDeleteCropAsync([FromRoute(Name = "crop-id")] int cropId)
         {
             try

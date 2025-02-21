@@ -299,7 +299,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             break;
                     }
                 }
-                string includeProperties = "MasterTypeDetails";
+                string includeProperties = "";
                 var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<MasterTypeModel>();
                 pagin.List = _mapper.Map<IEnumerable<MasterTypeModel>>(entities).ToList();
@@ -345,7 +345,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == MasterTypeId;
-                string includeProperties = "Criterias,CriteriaHarvestTypes,HarvestTypeHistories,MasterTypeDetails,Notifications,Plans,Plants,Processes,SubProcesses";
+                string includeProperties = "Criterias,CriteriaHarvestTypes,HarvestTypeHistories,Notifications,Plans,Plants,Processes,SubProcesses";
                 var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(filter, includeProperties );
                 if (checkExistMasterType != null)
                 {
@@ -466,7 +466,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
-
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.BackgroundColor))
+                        {
+                            checkExistMasterType.BackgroundColor = updateMasterTypeModel.BackgroundColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.TextColor))
+                        {
+                            checkExistMasterType.TextColor = updateMasterTypeModel.TextColor;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.Characteristic))
+                        {
+                            checkExistMasterType.Characteristic = updateMasterTypeModel.Characteristic;
+                        }
                         //var existingResources = update.Resources.ToList();
                         // Xóa tài nguyên cũ không có trong request
                         //var detailToDelete = checkExistMasterType.MasterTypeDetails
@@ -540,10 +551,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var count = 0;
                 foreach(var deleteMasterType in MasterTypeId)
                 {
-                    await PermanentlyDeleteMasterType(deleteMasterType);
-                    count++;
+                    var result = await PermanentlyDeleteMasterType(deleteMasterType);
+                    if(result.StatusCode == 200)
+                    {
+                        count++;
+                    }
                 }
-                if(count > 0)
+                if(count == MasterTypeId.Count)
                 {
                     return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE, Const.SUCCESS_DELETE_MASTER_TYPE_MESSAGE, true);
                 }

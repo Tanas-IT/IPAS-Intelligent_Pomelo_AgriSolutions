@@ -181,7 +181,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //    }
         //}
 
-        [HttpDelete(APIRoutes.Farm.softedDeleteFarm + "/{farm-id}", Name = "softedDeleteFarmAsync")]
+        [HttpPatch(APIRoutes.Farm.softedDeleteFarm + "/{farm-id}", Name = "softedDeleteFarmAsync")]
         public async Task<IActionResult> SoftDeleteFarmAsync([FromRoute(Name = "farm-id")] int farmId)
         {
             try

@@ -26,8 +26,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters);
-                return Ok(result);
+                var farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (farmId != null)
+                {
+                    var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters, farmId.Value);
+                    return Ok(result);
+                }
+                var badRequest = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "FarmId is required"
+                };
+                return BadRequest(badRequest);
             }
             catch (Exception ex)
             {
@@ -103,7 +113,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Process.createManyProcess, Name = "createManyProcessAsync")]
-        public async Task<IActionResult> CreateManyProcess([FromForm] List<CreateProcessModel> listCreateProcessModel)
+        public async Task<IActionResult> CreateManyProcess([FromBody] List<CreateManyProcessModel> listCreateProcessModel)
         {
             try
             {
@@ -159,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Process.softDeleteProcess, Name = "softDeleteProcessAsync")]
+        [HttpPatch(APIRoutes.Process.softDeleteProcess, Name = "softDeleteProcessAsync")]
         public async Task<IActionResult> SoftDeleteProcessAsync([FromRoute] int id)
         {
             try
