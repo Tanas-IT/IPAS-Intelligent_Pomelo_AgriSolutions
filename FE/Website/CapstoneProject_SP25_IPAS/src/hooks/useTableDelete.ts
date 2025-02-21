@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
 interface DeleteParams {
-  (id: number | string, ...args: any[]): Promise<ApiResponse<Object>>;
+  (ids: number[] | string[], ...args: any[]): Promise<ApiResponse<Object>>;
 }
 
 interface PaginationParams {
@@ -32,14 +32,17 @@ export default function useDelete(
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = useCallback(
-    async (id?: number | string, ...args: any[]) => {
-      if (!id) return;
+    async (ids?: number[] | string[], ...args: any[]) => {
+      if (!ids) return;
+
+      const deleteIds = Array.isArray(ids) ? ids : [ids];
 
       try {
         setIsLoading(true);
-        const result = await deleteFunction(id, ...args);
+        const result = await deleteFunction(deleteIds, ...args);
         if (result.statusCode === 200) {
-          if ((totalRecords - 1) % rowsPerPage === 0 && currentPage > 1) {
+          const deletedCount = deleteIds.length;
+          if ((totalRecords - deletedCount) % rowsPerPage === 0 && currentPage > 1) {
             handlePageChange(currentPage - 1);
           } else {
             await fetchData();

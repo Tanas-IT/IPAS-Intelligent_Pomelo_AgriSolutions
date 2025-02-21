@@ -1,31 +1,31 @@
 import { FC } from "react";
 import { Icons } from "@/assets";
-import ActionMenu from "../ActionMenu/ActionMenu";
+import ActionMenu from "./ActionMenu/ActionMenu";
 
 interface ActionMenuProps {
   onEdit: () => void;
   onDelete: () => void;
 }
 
-const ActionMenuMasterType: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
+const ActionMenuGrowthStage: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
   const actionItems = [
     {
       icon: <Icons.edit />,
-      label: "Update type",
+      label: "Update stage",
       onClick: () => onEdit(),
     },
     {
       icon: <Icons.delete />,
-      label: "Delete type",
+      label: "Delete stage",
       onClick: () => onDelete(),
     },
   ];
 
   return (
     <>
-      <ActionMenu title="Master Type Manage" items={actionItems} />
+      <ActionMenu title="Growth Stage Manage" items={actionItems} />
     </>
   );
 };
 
-export default ActionMenuMasterType;
+export default ActionMenuGrowthStage;

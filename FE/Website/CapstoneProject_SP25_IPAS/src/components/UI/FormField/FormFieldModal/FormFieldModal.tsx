@@ -16,6 +16,7 @@ interface FormFieldModalProps {
   isCheck?: boolean;
   placeholder?: string;
   direction?: "row" | "col";
+  dependencies?: string[];
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
@@ -32,6 +33,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   isCheck = false,
   placeholder = `Enter ${label.toLowerCase()}`,
   direction = "col",
+  dependencies,
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -105,6 +107,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
         rules={rules}
         hasFeedback
         className={`${type === "text" || type === "textarea" ? styles.customInput2 : ""}`}
+        dependencies={dependencies}
       >
         {renderInput()}
       </Form.Item>
