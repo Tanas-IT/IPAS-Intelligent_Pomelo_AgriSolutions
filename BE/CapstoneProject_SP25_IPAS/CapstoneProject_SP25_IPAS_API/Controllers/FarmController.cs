@@ -249,7 +249,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Farm.getUserOfFarmByRole, Name = "GetAllUserOfFarmByRoleAsync")]
-        public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, List<int> listRole)
+        public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, [FromQuery]List<int> listRole)
         {
             try
             {

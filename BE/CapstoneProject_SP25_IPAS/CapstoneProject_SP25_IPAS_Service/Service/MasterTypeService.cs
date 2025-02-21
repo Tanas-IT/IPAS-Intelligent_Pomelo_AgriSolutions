@@ -49,6 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeDescription = createMasterTypeModel.MasterTypeDescription,
                         IsActive = createMasterTypeModel.IsActive,
                         IsDelete = false,
+                        IsDefault = false,
                         CreateBy = createMasterTypeModel.CreateBy,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -117,14 +118,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId)
+        public async Task<BusinessResult> GetMasterTypeByName(string typeName, int farmId)
         {
             try
             {
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-                var listMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypeByName(MasterTypeName, farmId);
-                if (listMasterType != null && listMasterType.Count() > 0)
+                var listMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypeByName(typeName, farmId);
+                if (listMasterType != null)
                 {
                     var listMasterTypeModel = _mapper.Map<List<MasterTypeModel>>(listMasterType);
                     return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_MESSAGE, listMasterTypeModel);
