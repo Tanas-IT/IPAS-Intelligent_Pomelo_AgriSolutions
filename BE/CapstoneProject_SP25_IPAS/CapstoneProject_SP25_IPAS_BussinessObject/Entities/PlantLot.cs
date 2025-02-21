@@ -24,6 +24,8 @@ public partial class PlantLot
     public string? Note { get; set; }
 
     public int? PartnerId { get; set; }
+    public int? FarmID { get; set; }
+    public bool? isDeleted { get; set; }
 
     public int? PlantLotReferenceId { get; set; }
 
@@ -32,8 +34,10 @@ public partial class PlantLot
     public virtual ICollection<PlantLot> InversePlantLotReference { get; set; } = new List<PlantLot>();
 
     public virtual Partner? Partner { get; set; }
+    public virtual Farm? Farm { get; set; }
 
 
     public virtual PlantLot? PlantLotReference { get; set; }
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
+    public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
 }

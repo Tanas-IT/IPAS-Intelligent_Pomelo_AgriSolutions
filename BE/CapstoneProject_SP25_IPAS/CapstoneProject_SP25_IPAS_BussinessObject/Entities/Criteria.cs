@@ -21,11 +21,7 @@ public partial class Criteria
     public bool? IsDefault { get; set; }
 
     public int? MasterTypeID { get; set; }
-
-    public virtual ICollection<CriteriaGraftedPlant> CriteriaGraftedPlants { get; set; } = new List<CriteriaGraftedPlant>();
-
-    public virtual ICollection<CriteriaHarvestType> CriteriaHarvestTypes { get; set; } = new List<CriteriaHarvestType>();
-
-    public virtual ICollection<PlantCriteria> PlantCriteria { get; set; } = new List<PlantCriteria>();
+   
+    public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
     public virtual MasterType? MasterType { get; set; }
 }

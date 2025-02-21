@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel)
+        public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -42,8 +42,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
                         CreateDate = DateTime.Now,
                         Description = createGrowthStageModel.Description,
-                        FarmID = createGrowthStageModel.FarmId,
-                        isDefault = createGrowthStageModel.isDefault,
+                        FarmID = farmId,
+                        isDefault = false,
                         isDeleted = false,
                     };
                     await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
@@ -67,7 +67,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GrowthStage, bool>> filter = x => x.FarmID == farmId!;
+                Expression<Func<GrowthStage, bool>> filter = x => x.FarmID == farmId! && x.isDeleted == false;
                 Func<IQueryable<GrowthStage>, IOrderedQueryable<GrowthStage>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -273,7 +273,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                     var result = await _unitOfWork.SaveAsync();
-                    if(result == growthStagesId.Count)
+                    if (result == growthStagesId.Count)
                     {
                         await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE,

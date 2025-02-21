@@ -148,7 +148,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (plantId <= 0)
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
-                var criteriaByType = await _unitOfWork.PlantCriteriaRepository.GetAllCriteriaOfPlantNoPaging(plantId);
+                var criteriaByType = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfPlantNoPaging(plantId);
                 if (!criteriaByType.Any())
                 {
                     return new BusinessResult(Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);

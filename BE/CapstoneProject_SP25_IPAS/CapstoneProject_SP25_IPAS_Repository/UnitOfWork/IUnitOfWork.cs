@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public SubProcessRepository SubProcessRepository { get; }
         public LandPlotRepository LandPlotRepository { get; }
         public LandPlotCoordinationRepository LandPlotCoordinationRepository { get; }
-        public PlantCriteriaRepository PlantCriteriaRepository { get; }
+        public CriteriaTargetRepository CriteriaTargetRepository { get; }
         public LandRowRepository LandRowRepository { get; }
         public PlantGrowthHistoryRepository PlantGrowthHistoryRepository { get; }
         public CarePlanScheduleRepository CarePlanScheduleRepository { get; }

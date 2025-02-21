@@ -39,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         private SubProcessRepository _subProcessRepo;
         private LandPlotRepository _landPlotRepo;
         private LandPlotCoordinationRepository _landPlotCoordinationRepo;
-        private PlantCriteriaRepository _plantCriteriaRepo;
+        private CriteriaTargetRepository _criteriaTargetRepo;
         private LandRowRepository _landRowRepo;
         public PlantGrowthHistoryRepository _plantGrowthHistoryRepo;
         public CarePlanScheduleRepository _carePlanScheduleRepo;
@@ -383,15 +383,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public PlantCriteriaRepository PlantCriteriaRepository
+        public CriteriaTargetRepository CriteriaTargetRepository
         {
             get
             {
-                if (_plantCriteriaRepo == null)
+                if (_criteriaTargetRepo == null)
                 {
-                    this._plantCriteriaRepo = new PlantCriteriaRepository(_context);
+                    this._criteriaTargetRepo = new CriteriaTargetRepository(_context);
                 }
-                return _plantCriteriaRepo;
+                return _criteriaTargetRepo;
             }
         }
 

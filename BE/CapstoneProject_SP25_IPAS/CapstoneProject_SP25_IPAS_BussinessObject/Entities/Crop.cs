@@ -45,4 +45,6 @@ public partial class Crop
     public virtual ICollection<LandPlotCrop> LandPlotCrops { get; set; } = new List<LandPlotCrop>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
+    public virtual Farm? Farm { get; set; }
+
 }

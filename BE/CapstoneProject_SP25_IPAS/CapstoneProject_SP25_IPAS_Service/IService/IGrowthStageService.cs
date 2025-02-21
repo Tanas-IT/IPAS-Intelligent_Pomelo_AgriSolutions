@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter, int farmId);
 
-        public Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel);
+        public Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId);
 
         public Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel);
 

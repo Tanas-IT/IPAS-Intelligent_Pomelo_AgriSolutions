@@ -120,9 +120,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //    .ToList())
                 //);
 
-            CreateMap<PlantCriteria, PlantCriteriaModel>()
-                .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
-                .ReverseMap();
+            //CreateMap<PlantCriteria, PlantCriteriaModel>()
+            //    .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
+            //    .ReverseMap();
 
            
             

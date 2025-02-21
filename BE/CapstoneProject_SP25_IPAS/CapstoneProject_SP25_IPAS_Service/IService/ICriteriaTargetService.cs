@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.IService
 {
-    public interface IPlantCriteriaService
+    public interface ICriteriaTargetService
     {
         public Task<BusinessResult> ApplyCriteriasForPlants(PlantCriteriaCreateRequest plantCriteriaCreateRequest);
 

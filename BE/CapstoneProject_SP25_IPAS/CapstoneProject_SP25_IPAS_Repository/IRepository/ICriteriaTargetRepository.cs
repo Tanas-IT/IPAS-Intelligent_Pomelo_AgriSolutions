@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
-    public interface IPlantCriteriaRepository
+    public interface ICriteriaTargetRepository
     {
-        public Task<IEnumerable<PlantCriteria>> GetAllCriteriaOfPlantNoPaging(int plantId);
+        public Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfPlantNoPaging(int plantId);
     }
 }
