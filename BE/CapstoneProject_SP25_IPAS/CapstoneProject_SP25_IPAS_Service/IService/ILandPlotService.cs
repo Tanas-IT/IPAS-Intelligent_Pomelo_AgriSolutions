@@ -13,6 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetLandPlotById(int landPlotId);
         public Task<BusinessResult> GetAllLandPlotNoPagin(int farmId, string? searchKey);
+        public Task<BusinessResult> GetLandPlotForSelected(int farmId);
         public Task<BusinessResult> UpdateLandPlotCoordination(LandPlotUpdateCoordinationRequest updateLandPlotCoordinationRequest);
         public Task<BusinessResult> UpdateLandPlotInfo(LandPlotUpdateRequest updateLandPlotRequest);
         public Task<BusinessResult> deleteLandPlotOfFarm(int landplotId);

@@ -12,6 +12,8 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IExcelReaderService _excelReaderService;
+        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createPlant(PlantCreateRequest plantCreateRequest)
@@ -40,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants");
-                    if (landrowExist == null) 
+                    if (landrowExist == null)
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
                         return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
@@ -293,7 +297,134 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-       
+
+        public async Task<BusinessResult> ImportPlantAsync(ImportExcelRequest request)
+        {
+            try
+            {
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                {
+                    List<PlantCSVImportRequest> plantCsvList = await _excelReaderService.ReadCsvFileAsync<PlantCSVImportRequest>(request.fileExcel);
+                    if(!plantCsvList.Any())
+                        return new BusinessResult(400, "File excel is empty. Please try again!");
+                    bool fileHasError = false;
+                    // 1. Kiểm tra trùng lặp trong file
+                    var (duplicateErrors, validPlants) = await _excelReaderService.FindDuplicatesInFileAsync(plantCsvList);
+                    string errorList = "";
+                    if (duplicateErrors.Any())
+                    {
+                        if (!request.skipDuplicate)
+                        {
+                            // Nếu không bỏ qua trùng lặp, báo lỗi luôn
+                            errorList = string.Join("\n", duplicateErrors.Select(error =>
+                                $"Row {string.Join(" and ", error.RowIndexes)} is duplicate."
+                            ));
+                            return new BusinessResult(Const.WARNING_IMPORT_PLANT_DUPLICATE_CODE, errorList, duplicateErrors);
+                        }
+                        else
+                        {
+                            // Nếu bỏ qua trùng lặp, chỉ lấy các hàng hợp lệ
+                            validPlants = validPlants.Where(p => !duplicateErrors.Any(e => e.DuplicateItems.Contains(p))).ToList();
+                        }
+                    }
+
+
+                    var plantList = new List<Plant>();
+                    // 3. Lấy thông tin ID từ database
+                    foreach (var plant in validPlants)
+                    {
+                        var landRow = await _unitOfWork.LandRowRepository
+                            .GetByCondition(x => x.LandRowCode == plant.LandRowCode, "Plants");
+                        if (landRow == null)
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Row {plant.NumberOrder}: LandRowCode not exist.";
+                        }
+                        else
+                        {
+                            if (landRow.TreeAmount <= landRow.Plants.Count())
+                            {
+                                fileHasError = true;
+                                errorList = errorList + "\n" + $"Row {plant.NumberOrder}: Row is full of plants.";
+                            }
+                            if (landRow.Plants.Any(x => x.PlantIndex == plant.PlantIndex))
+                            {
+                                fileHasError = true;
+                                errorList = errorList + "\n" + $"Row {plant.NumberOrder}: Index {plant.PlantIndex} of row {plant.LandRowCode} has exist";
+                            }
+                        }
+
+                        var growthStage = await _unitOfWork.GrowthStageRepository
+                            .GetByCondition(x => x.GrowthStageCode == plant.GrowthStageCode);
+                        if (growthStage == null)
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Row {plant.NumberOrder}: GrowthStageCode not exist.";
+                        }
+
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                            .GetByCondition(x => x.MasterTypeCode == plant.MasterTypeCode);
+                        if (masterType == null)
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Row {plant.NumberOrder}: MasterTypeCode not exist.";
+                        }
+
+                        var referencePlant = await _unitOfWork.PlantRepository
+                            .GetByCondition(x => x.PlantCode == plant.PlantReferenceCode) ?? null;
+                        if (referencePlant == null && !string.IsNullOrEmpty(plant.PlantReferenceCode) )
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Row {plant.NumberOrder}: Mother plant code not exist.";
+                        }
+                        if (landRow != null && growthStage != null && masterType != null )
+                        {
+                            var newPlant = new Plant
+                            {
+                                PlantName = plant.PlantName,
+                                PlantIndex = plant.PlantIndex,
+                                HealthStatus = plant.HealthStatus,
+                                PlantingDate = plant.PlantingDate,
+                                Description = plant.Description,
+                                CreateDate = DateTime.Now,
+                                GrowthStageID = growthStage!.GrowthStageID, 
+                                PlantReferenceId = referencePlant != null ? referencePlant.PlantId : null,
+                                LandRowId = landRow!.LandRowId,
+                                MasterTypeId = masterType!.MasterTypeId,
+                            };
+                            //newPlant.GrowthStageID = growthStage?.GrowthStageID;
+                            //newPlant.MasterTypeId = masterType?.MasterTypeId;
+                            //newPlant.LandRowId = landRow?.LandRowId;
+                            //newPlant.PlantReferenceId = referencePlant?.PlantReferenceId;
+                            plantList.Add(newPlant);
+                        }
+                    }
+
+                    if (fileHasError)
+                    {
+                        return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, errorList);
+                    }
+                    // 4. Thêm vào database
+                    //foreach (var plant in validPlants)
+                    //{
+                        await _unitOfWork.PlantRepository.InsertRangeAsync(plantList);
+                    //}
+
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_IMPORT_PLANT_CODE, $"Import {result} plant from excel succes");
+                    }
+
+                    return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, "Save to data fail");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, "Error when inport", ex.Message);
+            }
+        }
 
     }
 }

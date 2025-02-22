@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -243,13 +244,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
             }
-            Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.FarmId);
+            Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
             string includeProperties = "LandPlotCoordinations,Farm";
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
             if (landplotInFarm.Any())
             {
                 var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
                 return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
+            }
+            else
+            {
+                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+            }
+        }
+
+        public async Task<BusinessResult> GetLandPlotForSelected(int farmId)
+        {
+            if (farmId <= 0)
+                return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
+            Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
+            
+            var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+            if (landplotInFarm.Any())
+            {
+                var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(landplotInFarm);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_LANDPLOT_IN_FARM_CODE, Const.SUCCESS_GET_ALL_LANDPLOT_IN_FARM_MSG, mappedResult);
             }
             else
             {

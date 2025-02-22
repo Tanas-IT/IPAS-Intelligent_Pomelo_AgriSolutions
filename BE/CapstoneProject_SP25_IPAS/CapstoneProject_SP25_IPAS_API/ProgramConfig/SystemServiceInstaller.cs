@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CapstoneProject_SP25_IPAS_Repository.Repository;
@@ -6,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 
 namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
@@ -97,6 +99,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<IValidator<IFormFile>, ExcelFileValidator>();
+            services.AddScoped<IExcelReaderService, ExcelReaderService>();
+
             services.AddHttpClient();
 
         }

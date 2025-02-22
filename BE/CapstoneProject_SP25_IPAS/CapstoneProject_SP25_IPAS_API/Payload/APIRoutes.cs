@@ -33,7 +33,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/landplots";
             public const string createLandPlot = prefix + "";
-            public const string getAllLandPlotNoPagin = prefix + "/get-for-selected";
+            public const string getAllLandPlotNoPagin = prefix + "";
+            public const string getAllForSelected = prefix + "/get-for-selected";
             public const string updateLandPlotCoordination = prefix + "/update-coordination";
             public const string updateLandPlotInfo = prefix + "/update-info";
             public const string deleteLandPlotOfFarm = prefix + "";
@@ -199,6 +200,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantById = prefix + "";
             public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
             public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+            public const string importPlantFromExcel = prefix + "/import-excel";
         }
 
         public static class PlantGrowthHistory
