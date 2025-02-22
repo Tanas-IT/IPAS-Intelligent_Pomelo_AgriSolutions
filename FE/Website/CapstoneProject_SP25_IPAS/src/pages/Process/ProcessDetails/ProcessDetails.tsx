@@ -250,11 +250,11 @@ function ProcessDetails() {
       if (Number(node.key) === Number(subProcessKey)) {
         return {
           ...node,
-          plans: node.plans ? [...node.plans, newPlan] : [newPlan], // Thêm plan mới vào danh sách
+          plans: node.plans ? [...node.plans, newPlan] : [newPlan],
         };
       }
       if (node.children && node.children.length > 0) {
-        return { ...node, children: updateTreeWithPlan(node.children, subProcessKey, newPlan) }; // Cập nhật cây con
+        return { ...node, children: updateTreeWithPlan(node.children, subProcessKey, newPlan) };
       }
       return node;
     });
@@ -271,11 +271,11 @@ function ProcessDetails() {
         if (node.key === subProcessKey) {
           return {
             ...node,
-            plans: node.plans ? [...node.plans, newPlan] : [newPlan], // Thêm plan mới
+            plans: node.plans ? [...node.plans, newPlan] : [newPlan],
           };
         }
         if (node.children && node.children.length > 0) {
-          return { ...node, children: updateTree(node.children) }; // Đệ quy cập nhật children
+          return { ...node, children: updateTree(node.children) };
         }
         return node;
       });
