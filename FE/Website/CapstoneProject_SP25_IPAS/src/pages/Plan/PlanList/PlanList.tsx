@@ -6,7 +6,7 @@ import { useFetchData } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { planService } from "@/services";
-import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan/ActionMenuPlan";
+import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan";
 import PlanFilter from "./PlanFilter";
 import { planColumns } from "./PlanColumn";
 import { TableTitle } from "./TableTitle";

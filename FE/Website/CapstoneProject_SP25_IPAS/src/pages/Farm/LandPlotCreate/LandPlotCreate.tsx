@@ -1,52 +1,67 @@
 import { Button, Flex, Form, Input, Popover, Typography } from "antd";
 import style from "./LandPlotCreate.module.scss";
-import { EditActions, InfoField, MapControls, MapLandPlot } from "@/components";
+import { EditActions, InfoField, Loading, MapControls, MapLandPlot } from "@/components";
 import { useEffect, useState } from "react";
-import { CoordsState, PolygonInit } from "@/types";
 import { Icons } from "@/assets";
 
 import { useSidebarStore } from "@/stores";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { RulesManager } from "@/utils";
+import { LandPlotsStateType } from "@/types";
+import { landPlotService } from "@/services";
 
 function LandPlotCreate() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [farmLocation, setFarmLocation] = useState<CoordsState>({
-    longitude: 106.786528,
-    latitude: 10.9965,
+  const [isLoading, setIsLoading] = useState(false);
+  const [state, setState] = useState<LandPlotsStateType>({
+    longitude: 0,
+    latitude: 0,
+    landPlots: [],
   });
-  const [polygons, setPolygons] = useState<PolygonInit[]>([
-    {
-      id: "polygon1",
-      coordinates: [
-        [
-          [106.78546314117068, 10.997278708395825],
-          [106.78589533924475, 10.997556840012322],
-          [106.78592699828585, 10.99751539287513],
-          [106.78547296403684, 10.997232090171735],
-          [106.78546314117068, 10.997278708395825],
-        ],
-      ],
-    },
-    {
-      id: "polygon2",
-      coordinates: [
-        [
-          [106.7855136114656, 10.997171331485006],
-          [106.78596437055711, 10.997462428171985],
-          [106.78593105040267, 10.997509293796838],
-          [106.78547802086456, 10.997225685284874],
-          [106.7855136114656, 10.997171331485006],
-        ],
-      ],
-    },
-  ]);
+
   const { setSidebarState } = useSidebarStore();
   useEffect(() => {
     setSidebarState(false);
   }, []);
+
+  const fetchLandPlotData = async () => {
+    try {
+      setIsLoading(true);
+      console.log(1);
+      
+      const result = await landPlotService.getLandPlots();
+
+      if (result.statusCode === 200) {
+        setState({
+          longitude: result.data[0]?.farmLongtitude ?? 0,
+          latitude: result.data[0]?.farmLatitude ?? 0,
+          landPlots: result.data,
+        });
+      }
+    } catch (error) {
+      console.error("Fetch data error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (location.state) {
+      const { longitude, latitude, landPlots } = location.state as LandPlotsStateType;
+      setState({
+        longitude: longitude ?? 0,
+        latitude: latitude ?? 0,
+        landPlots: landPlots ?? [],
+      });
+    } else {
+      fetchLandPlotData();
+    }
+  }, [location.state]);
+
+  const { longitude, latitude, landPlots } = state;
 
   const handleCancel = () => navigate(PATHS.FARM.FARM_PLOT_LIST);
 
@@ -54,6 +69,8 @@ function LandPlotCreate() {
     var values = await form.validateFields();
     console.log(values);
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <Flex className={style.container}>
@@ -95,10 +112,10 @@ function LandPlotCreate() {
           </Flex>
           <Flex>
             <MapLandPlot
-              longitude={farmLocation.longitude}
-              latitude={farmLocation.latitude}
+              longitude={longitude}
+              latitude={latitude}
               isEditing={false}
-              polygons={polygons}
+              landPlots={landPlots}
             />
           </Flex>
         </Flex>

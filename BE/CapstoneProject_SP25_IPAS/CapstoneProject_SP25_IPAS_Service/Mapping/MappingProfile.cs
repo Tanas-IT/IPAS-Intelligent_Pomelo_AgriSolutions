@@ -74,10 +74,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
                .ReverseMap();
             CreateMap<SubProcessInProcessModel, SubProcess>().ReverseMap();
+
+            CreateMap<GrowthStage, ProcessGrowthStageModel>()
+                .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(src => src.GrowthStageID))
+                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStageName))
+                .ReverseMap();
+
+            CreateMap<MasterType, ProcessMasterTypeModel>()
+               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
+               .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterTypeName))
+               .ReverseMap();
+
+
             CreateMap<Process, ProcessModel>()
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
-                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
-                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
+                 .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
+                 .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId)))
                 .ReverseMap();
 
@@ -121,9 +133,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //    .ToList())
                 //);
 
-            CreateMap<PlantCriteria, PlantCriteriaModel>()
-                .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
-                .ReverseMap();
+            //CreateMap<PlantCriteria, PlantCriteriaModel>()
+            //    .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
+            //    .ReverseMap();
 
            
             

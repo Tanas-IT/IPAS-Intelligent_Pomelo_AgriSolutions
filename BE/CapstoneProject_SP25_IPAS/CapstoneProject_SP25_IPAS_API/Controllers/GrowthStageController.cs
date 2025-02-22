@@ -76,8 +76,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _growthStageService.CreateGrowthStage(createGrowthStageModel);
-                return Ok(result);
+                var farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (farmId != null)
+                {
+                    var result = await _growthStageService.CreateGrowthStage(createGrowthStageModel, farmId.Value);
+                    return Ok(result);
+                }
+                var badRequest = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "FarmId is required"
+                };
+                return BadRequest(badRequest);
             }
             catch (Exception ex)
             {
@@ -138,6 +148,44 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
                 var result = await _growthStageService.GetGrowthStageByFarmId(farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.GrowthStage.permentlyDeleteManyGrowthStage, Name = "deleteManyGrowthStage")]
+        public async Task<IActionResult> DeleteManyGrowthStage([FromBody] List<int> growthStageId)
+        {
+            try
+            {
+                var result = await _growthStageService.PermanentlyDeleteManyGrowthStage(growthStageId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPatch(APIRoutes.GrowthStage.softDeleteManyGrowthStage, Name = "SoftedDeleteManyGrowthStage")]
+        public async Task<IActionResult> SoftedDeleteManyGrowthStage([FromBody] List<int> GrowthStageIds)
+        {
+            try
+            {
+                var result = await _growthStageService.SoftedMultipleDelete(GrowthStageIds);
                 return Ok(result);
             }
             catch (Exception ex)

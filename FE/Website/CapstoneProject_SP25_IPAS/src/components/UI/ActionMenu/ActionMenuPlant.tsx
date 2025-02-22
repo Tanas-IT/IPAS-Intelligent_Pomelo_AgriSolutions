@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Icons } from "@/assets";
-import ActionMenu from "../ActionMenu/ActionMenu";
+import ActionMenu from "./ActionMenu/ActionMenu";
 
 interface ActionMenuProps {
   id: number;

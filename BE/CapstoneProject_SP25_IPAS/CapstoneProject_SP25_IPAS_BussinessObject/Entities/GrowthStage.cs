@@ -18,6 +18,7 @@ public partial class GrowthStage
     public DateTime? CreateDate { get; set; }
     public string? Description { get; set; }
     public int? FarmID { get; set; }
+    public bool? isDeleted { get; set; }
     public virtual Farm? Farm { get; set; }
 
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();

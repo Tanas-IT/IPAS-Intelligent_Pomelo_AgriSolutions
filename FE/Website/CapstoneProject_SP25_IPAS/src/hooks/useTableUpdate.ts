@@ -20,8 +20,6 @@ export default function useTableUpdate<T>({
   const handleUpdate = useCallback(
     async (data?: T, ...args: any[]) => {
       if (!data) return;
-      console.log(data);
-
       setIsUpdateLoading(true);
       try {
         const result = await updateService(data, ...args);

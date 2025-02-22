@@ -8,7 +8,7 @@ import { getOptions } from "@/utils";
 import { processService, userService } from "@/services";
 import { GetProcess } from "@/payloads/process";
 import { processColumns } from "./ProcessColumns";
-import ActionMenuProcess from "@/components/UI/ActionMenu/ActionMenuProcess/ActionMenuProcess";
+import ActionMenuProcess from "@/components/UI/ActionMenu/ActionMenuProcess";
 import ProcessFilter from "./ProcessFilter";
 import { TableTitle } from "./TableTitle";
 

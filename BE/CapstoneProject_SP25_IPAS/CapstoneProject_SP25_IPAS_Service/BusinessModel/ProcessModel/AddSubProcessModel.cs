@@ -19,5 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 
         public int? MasterTypeId { get; set; }
         public int? Order { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 }

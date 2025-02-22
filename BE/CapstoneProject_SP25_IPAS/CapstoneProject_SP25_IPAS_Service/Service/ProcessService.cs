@@ -98,7 +98,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 ParentSubProcessId = subProcess.ParentSubProcessId <= 0 ? null : subProcess.ParentSubProcessId,
                                 MasterTypeId = subProcess.MasterTypeId,
-                                Order = subProcess.Order
+                                Order = subProcess.Order,
+                                StartDate = subProcess.StartDate,
+                                EndDate = subProcess.EndDate,
                             };
 
                             newProcess.SubProcesses.Add(newSubProcess);
@@ -279,7 +281,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.Order)) : x => x.OrderBy(x => x.Order);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.ProcessId);
+                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
                         break;
                 }
                 string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";

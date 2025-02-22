@@ -5,10 +5,10 @@ import style from "./DocumentModal.module.scss";
 import { getBase64, RulesManager } from "@/utils";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
-import { farmDocumentFormFields, MESSAGES } from "@/constants";
-import { FarmDocumentRequest, GetFarmDocuments } from "@/payloads";
+import { farmDocumentFormFields, MASTER_TYPE, MESSAGES } from "@/constants";
+import { FarmDocumentRequest, GetFarmDocuments, GetMasterType } from "@/payloads";
 import { FileType } from "@/types";
-import { useStyle } from "@/hooks";
+import { useMasterTypeOptions, useStyle } from "@/hooks";
 
 type DocumentModalProps = {
   isOpen: boolean;
@@ -24,16 +24,7 @@ const DocumentModal = ({ isOpen, onClose, onSave, documentData }: DocumentModalP
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const isEdit = documentData !== undefined && Object.keys(documentData).length > 0;
-  const documentTypeOptions = [
-    { value: "Certificate", label: "Certificate" },
-    { value: "License", label: "License" },
-    { value: "Permit", label: "Permit" },
-    { value: "Contract", label: "Contract" },
-    { value: "Invoice", label: "Invoice" },
-    { value: "Report", label: "Report" },
-    { value: "Regulation", label: "Regulation" },
-    { value: "Other", label: "Other" },
-  ];
+  const { options: documentTypeOptions } = useMasterTypeOptions(MASTER_TYPE.DOCUMENT, true);
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
