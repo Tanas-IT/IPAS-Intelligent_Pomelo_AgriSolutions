@@ -201,6 +201,25 @@ const useStyle = createStyles(({ css }) => {
         background-color: ${secondColor} !important;
       }
     `,
+    customSteps: css`
+      .ant-steps-item-finish .ant-steps-item-icon {
+        background-color: #d9e6b4 !important;
+        border-color: #d9e6b4 !important;
+        .ant-steps-icon {
+          color: ${primaryColor} !important;
+        }
+      }
+      .ant-steps-item-finish .ant-steps-item-title::after {
+        background-color: ${secondColor} !important;
+      }
+      .ant-steps-item-active .ant-steps-item-icon {
+        background-color: ${secondColor} !important;
+        border-color: ${secondColor} !important;
+        .ant-steps-icon {
+          color: ${primaryColor} !important;
+        }
+      }
+    `,
   };
 });
 
