@@ -842,7 +842,9 @@ public partial class IpasContext : DbContext
              .HasForeignKey(d => d.CropId)
              .HasConstraintName("FK_Plan_Crop35612");
 
-           
+            entity.HasOne(d => d.Farm).WithMany(p => p.Plans)
+            .HasForeignKey(d => d.FarmID)
+            .HasConstraintName("FK_Plan_Farm");
 
 
         });

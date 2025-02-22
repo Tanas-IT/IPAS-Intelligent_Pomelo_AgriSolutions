@@ -8,6 +8,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 {
     public class PlantCSVImportRequest
     {
+        public int? NumberOrder { get; set; }
+
         public string? PlantName { get; set; }
 
         public int? PlantIndex { get; set; }

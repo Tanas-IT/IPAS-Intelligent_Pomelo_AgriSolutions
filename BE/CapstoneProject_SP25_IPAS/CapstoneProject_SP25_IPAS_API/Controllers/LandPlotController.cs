@@ -40,6 +40,17 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        [HttpGet(APIRoutes.LandPlot.getAllForSelected, Name = "GetAllForSelectedAsync")]
+        public async Task<IActionResult> getAllForSelectedAsync([FromQuery] int? farmId)
+        {
+            if (!farmId.HasValue)
+            {
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            }
+            var result = await _landPlotService.GetLandPlotForSelected(farmId: farmId!.Value);
+            return Ok(result);
+        }
+
         [HttpPost(APIRoutes.LandPlot.createLandPlot, Name = "createLandPlotAsync")]
         public async Task<IActionResult> CreateLandPlotAsync([FromBody] LandPlotCreateRequest landPlotCreateRequest)
         {
