@@ -290,6 +290,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_DELETE_MULTIPLE_PLANTS_MSG = "Delete multiple plant success";
         public static int SUCCESS_CREATE_PLANT_CODE = 200;
         public static string SUCCESS_CREATE_PLANT_MSG = "Create plant success";
+        public static int SUCCESS_IMPORT_PLANT_CODE = 200;
+        public static string SUCCESS_IMPORT_PLANT_MSG = "Import plant from excel success";
         #endregion
 
         #region PlantGrowthHistory
@@ -645,6 +647,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_DELETE_PLANT_MSG = "Delete plant fail";
         public static int FAIL_UPDATE_PLANT_CODE = 400;
         public static string FAIL_UPDATE_PLANT_MSG = "Update plant fail";
+        public static int FAIL_IMPORT_PLANT_CODE = 400;
+        public static string FAIL_IMPORT_PLANT_MSG = "Save data fail";
         #endregion
 
         #region plant growth history fail code
@@ -907,6 +911,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
         public static int WARNING_PLANT_IN_LANDROW_FULL_CODE = 400;
         public static string WARNING_PLANT_IN_LANDROW_FULL_MSG = "This row has full of plant";
+        public static int WARNING_IMPORT_PLANT_DUPLICATE_CODE = 400;
+        public static string WARNING_IMPORT_PLANT_DUPLICATE_MSG = "Have duplicate exist";
         #endregion
 
         #region Plant Growth History

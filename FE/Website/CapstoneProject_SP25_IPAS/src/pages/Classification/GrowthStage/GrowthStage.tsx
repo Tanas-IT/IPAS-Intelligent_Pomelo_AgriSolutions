@@ -65,9 +65,9 @@ function GrowthStage() {
 
   const hasChanges = useHasChanges<GrowthStageRequest>(data);
 
-  const handleUpdateConfirm = (type: GrowthStageRequest) => {
-    if (hasChanges(type, "growthStageId")) {
-      handleUpdate(type);
+  const handleUpdateConfirm = (stage: GrowthStageRequest) => {
+    if (hasChanges(stage, "growthStageId")) {
+      updateConfirmModal.showModal({ stage });
     } else {
       formModal.hideModal();
     }
@@ -151,7 +151,7 @@ function GrowthStage() {
       {/* Confirm Update Modal */}
       <ConfirmModal
         visible={updateConfirmModal.modalState.visible}
-        onConfirm={handleUpdate}
+        onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.stage)}
         onCancel={updateConfirmModal.hideModal}
         itemName="Stage"
         actionType="update"

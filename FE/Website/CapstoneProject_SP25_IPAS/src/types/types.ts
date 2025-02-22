@@ -1,3 +1,4 @@
+import { GetLandPlot } from "@/payloads";
 import { GetProp, UploadProps } from "antd";
 
 export interface Farm {
@@ -29,3 +30,9 @@ export type FilterMasterTypeState = {
   createDateTo: string;
   typeName: string[];
 };
+
+export interface LandPlotsStateType {
+  longitude: number;
+  latitude: number;
+  landPlots: GetLandPlot[];
+}

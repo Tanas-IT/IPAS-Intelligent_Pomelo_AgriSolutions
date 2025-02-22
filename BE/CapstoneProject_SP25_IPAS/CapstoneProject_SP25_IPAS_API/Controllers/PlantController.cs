@@ -7,6 +7,8 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
+using FluentValidation;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -16,10 +18,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
 
         private readonly IPlantService _plantService;
+        private readonly IValidator<IFormFile> _fileValidator;
 
-        public PlantController(IPlantService plantService)
+        public PlantController(IPlantService plantService, IValidator<IFormFile> fileValidator)
         {
             _plantService = plantService;
+            _fileValidator = fileValidator;
         }
 
         /// <summary>
@@ -27,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// </summary>
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}", $"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getPlantById + "/{plant-id}", Name = "GetPlantById")]
-        public async Task<IActionResult> GetPlantById([FromRoute(Name = "plant-id")]int plantId)
+        public async Task<IActionResult> GetPlantById([FromRoute(Name = "plant-id")] int plantId)
         {
             try
             {
@@ -48,7 +52,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>
         [HttpGet(APIRoutes.Plant.getPlantOfPlot + "/{landplot-id}")]
-        public async Task<IActionResult> GetAllPlantsOfPlot([FromRoute(Name = "landplot-id")]int landplotId, [FromQuery] PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPlantsOfPlot([FromRoute(Name = "landplot-id")] int landplotId, [FromQuery] PaginationParameter paginationParameter)
         {
             try
             {
@@ -69,7 +73,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// Lấy tất cả cây của một trang trại có phân trang
         /// </summary>
         [HttpGet(APIRoutes.Plant.getPlantOfFarm + "/{farm-id}")]
-        public async Task<IActionResult> GetAllPlantsOfFarm([FromRoute(Name = "farm-id")]int farmId, [FromQuery] PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPlantsOfFarm([FromRoute(Name = "farm-id")] int farmId, [FromQuery] PaginationParameter paginationParameter)
         {
             try
             {
@@ -131,8 +135,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Xóa cây trồng theo ID
         /// </summary>
-        [HttpDelete(APIRoutes.Plant.deletePlant+ "/{plant-id}")]
-        public async Task<IActionResult> DeletePlant([FromRoute(Name = "plant-id")]int plantId)
+        [HttpDelete(APIRoutes.Plant.deletePlant + "/{plant-id}")]
+        public async Task<IActionResult> DeletePlant([FromRoute(Name = "plant-id")] int plantId)
         {
             try
             {
@@ -161,6 +165,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return Ok(result);
             }
             catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost(APIRoutes.Plant.importPlantFromExcel)]
+        public async Task<IActionResult> ImportPlantFromExcel([FromForm] ImportExcelRequest request)
+        {
+            try
+            {
+
+                var validationResult = await _fileValidator.ValidateAsync(request.fileExcel);
+                if (!validationResult.IsValid)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Errors = validationResult.ToProblemDetails().Errors
+                    });
+                }
+                var result = await _plantService.ImportPlantAsync(request);
+                return Ok(result);
+            } catch (Exception ex)
             {
                 return BadRequest(new BaseResponse
                 {
