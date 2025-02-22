@@ -89,8 +89,9 @@ function MasterType() {
   };
 
   const handleCancelConfirm = (stage: MasterTypeRequest, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate ? hasChanges(stage, "masterTypeId") : hasChanges(stage);
-
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(stage, "masterTypeId")
+      : hasChanges(stage, undefined, { isActive: false });
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
     } else {
