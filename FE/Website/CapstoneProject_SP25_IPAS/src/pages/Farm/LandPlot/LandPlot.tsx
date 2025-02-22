@@ -87,8 +87,8 @@ function LandPlot() {
       {/* <SectionTitle title="Plant Management" totalRecords={10} /> */}
       <div className={style.mapWrapper}>
         <MapLandPlot
-          longitude={landPlots[0]?.farmLongtitude}
-          latitude={landPlots[0]?.farmLatitude}
+          longitude={landPlots[0]?.farmLongtitude ?? 0}
+          latitude={landPlots[0]?.farmLatitude ?? 0}
           isEditing={false}
           landPlots={landPlots}
           highlightedPlots={filteredLandPlotIds}
@@ -116,7 +116,15 @@ function LandPlot() {
             <LandPlotActions
               icon={<Icons.plus />}
               label="Add New Plot"
-              onClick={() => navigate(PATHS.FARM.FARM_PLOT_CREATE)}
+              onClick={() =>
+                navigate(PATHS.FARM.FARM_PLOT_CREATE, {
+                  state: {
+                    longitude: landPlots[0]?.farmLongtitude ?? 0,
+                    latitude: landPlots[0]?.farmLatitude ?? 0,
+                    landPlots: landPlots,
+                  },
+                })
+              }
             />
             <Popover
               content={
