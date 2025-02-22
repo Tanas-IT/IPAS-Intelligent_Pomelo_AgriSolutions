@@ -45,6 +45,8 @@ export const deleteMasterTypes = async (ids: number[] | string[]): Promise<ApiRe
 export const updateMasterType = async (
   type: MasterTypeRequest,
 ): Promise<ApiResponse<GetMasterType>> => {
+  console.log(type);
+  
   const res = await axiosAuth.axiosJsonRequest.put("masterTypes/update-masterType-info", type);
   const apiResponse = res.data as ApiResponse<GetMasterType>;
   return apiResponse;

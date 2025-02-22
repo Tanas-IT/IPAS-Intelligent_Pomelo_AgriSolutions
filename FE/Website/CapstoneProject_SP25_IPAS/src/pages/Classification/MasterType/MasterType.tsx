@@ -174,7 +174,7 @@ function MasterType() {
       {/* Confirm Update Modal */}
       <ConfirmModal
         visible={updateConfirmModal.modalState.visible}
-        onConfirm={handleUpdate}
+        onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.type)}
         onCancel={updateConfirmModal.hideModal}
         itemName="Type"
         actionType="update"
