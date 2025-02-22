@@ -51,6 +51,7 @@ public partial class Plan
     public bool? IsDelete { get; set; }
 
     public int? MasterTypeId { get; set; }
+    public int? FarmID { get; set; }
 
     public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
@@ -66,4 +67,5 @@ public partial class Plan
     public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
     public virtual SubProcess? SubProcess { get; set; }
+    public virtual Farm? Farm { get; set; }
 }

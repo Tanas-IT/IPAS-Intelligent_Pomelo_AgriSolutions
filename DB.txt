@@ -62,30 +62,6 @@ CREATE TABLE ipas.dbo.Crop (
 );
 
 
-CREATE TABLE ipas.dbo.Crop (
-	CropID int IDENTITY(1,1) NOT NULL,
-	CropCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CropName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	StartDate datetime NULL,
-	EndDate datetime NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CropExpectedTime datetime NULL,
-	Year int NULL,
-	CropActualTime datetime NULL,
-	HarvestSeason nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	EstimateYield float NULL,
-	ActualYield float NULL,
-	IsDeleted bit NULL,
-	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Notes nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MarketPrice float NULL,
-	FarmID int NULL,
-	CONSTRAINT PK__Crop__923561351B1EF0E2 PRIMARY KEY (CropID),
-        CONSTRAINT Crop_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
-);
-
-
 
 -- ipas.dbo.GrowthStage definition
 
@@ -748,11 +724,11 @@ CREATE TABLE ipas.dbo.Notification (
 );
 
 
--- ipas.dbo.[Plan] definition
+-- IPAS_v2.dbo.[Plan] definition
 
 -- Drop table
 
--- DROP TABLE ipas.dbo.[Plan];
+-- DROP TABLE IPAS_v2.dbo.[Plan];
 
 CREATE TABLE ipas.dbo.[Plan] (
 	PlanID int IDENTITY(1,1) NOT NULL,
@@ -778,13 +754,16 @@ CREATE TABLE ipas.dbo.[Plan] (
 	IsDelete bit NULL,
 	MasterTypeID int NULL,
 	SubProcessID int NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
 	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID),
 	CONSTRAINT FK_Plan_GrowthStage FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
+	CONSTRAINT Plan_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
+
 -- ipas.dbo.RefreshToken definition
 
 -- Drop table
