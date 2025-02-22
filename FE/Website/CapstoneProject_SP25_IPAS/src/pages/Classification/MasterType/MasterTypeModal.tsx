@@ -83,7 +83,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     onSave(getFormData());
   };
 
-  const handleCancel = () => onClose(getFormData(), true);
+  const handleCancel = () => onClose(getFormData(), isUpdate);
 
   return (
     <ModalForm

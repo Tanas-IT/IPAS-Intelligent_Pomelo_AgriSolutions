@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
   return useCallback(
-    (newData: T, keyField?: keyof T): boolean => {
+    (newData: T, keyField?: keyof T, defaultValues?: Partial<T>): boolean => {
       if (keyField) {
         // Xử lý cho update
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
@@ -32,10 +32,24 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           return oldValue !== newValue;
         });
       } else {
-        // Xử lý cho add
+        // Xử lý cho add với defaultValues
         return Object.keys(newData).some((key) => {
-          const value = newData[key as keyof T];
-          return value !== null && value !== undefined && value !== ""; // Nếu có dữ liệu → có thay đổi
+          const typedKey = key as keyof T;
+          const defaultValue = defaultValues?.[typedKey];
+          const newValue = newData[typedKey];
+
+          // Nếu là string thì trim trước khi so sánh
+          if (typeof defaultValue === "string" && typeof newValue === "string") {
+            return defaultValue.trim() !== newValue.trim();
+          }
+
+          // Nếu không có giá trị mặc định thì kiểm tra nếu newValue có dữ liệu
+          if (defaultValue === undefined) {
+            return newValue !== null && newValue !== undefined && newValue !== "";
+          }
+
+          // So sánh thông thường hoặc nếu defaultValue không có
+          return defaultValue !== newValue;
         });
       }
     },

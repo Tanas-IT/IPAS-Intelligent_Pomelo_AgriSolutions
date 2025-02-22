@@ -1,6 +1,6 @@
 import { Flex, Form, FormInstance } from "antd";
 import style from "./LandPlotCreate.module.scss";
-import { InfoField, Loading, MapControls, MapLandPlot } from "@/components";
+import { InfoField, MapControls, MapLandPlot } from "@/components";
 import React, { useEffect, useState } from "react";
 import { RulesManager } from "@/utils";
 import { GetLandPlot } from "@/payloads";
