@@ -22,22 +22,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Process.getProcessWithPagination, Name = "getAllProcessPaginationAsync")]
-        public async Task<IActionResult> GetAllProcess(PaginationParameter paginationParameter, ProcessFilters processFilters)
+        public async Task<IActionResult> GetAllProcess(PaginationParameter paginationParameter, ProcessFilters processFilters, int? farmId)
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (farmId != null)
-                {
-                    var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters, farmId.Value);
-                    return Ok(result);
-                }
-                var badRequest = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "FarmId is required"
-                };
-                return BadRequest(badRequest);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _processService.GetAllProcessPagination(paginationParameter, processFilters, farmId.Value);
+                return Ok(result);
+
             }
             catch (Exception ex)
             {
@@ -71,7 +64,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-       
+
 
         [HttpGet(APIRoutes.Process.getProcessById, Name = "getProcessByIdAsync")]
         public async Task<IActionResult> GetProcessByIdAsync([FromRoute] int id)
@@ -94,11 +87,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Process.createProcess, Name = "createProcessAsync")]
-        public async Task<IActionResult> CreateProcess([FromForm] CreateProcessModel createProcessModel)
+        public async Task<IActionResult> CreateProcess([FromForm] CreateProcessModel createProcessModel, int? farmId)
         {
             try
             {
-                var result = await _processService.CreateProcess(createProcessModel);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _processService.CreateProcess(createProcessModel, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -113,11 +108,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Process.createManyProcess, Name = "createManyProcessAsync")]
-        public async Task<IActionResult> CreateManyProcess([FromBody] List<CreateManyProcessModel> listCreateProcessModel)
+        public async Task<IActionResult> CreateManyProcess([FromBody] List<CreateManyProcessModel> listCreateProcessModel, int? farmId)
         {
             try
             {
-                var result = await _processService.InsertManyProcess(listCreateProcessModel);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _processService.InsertManyProcess(listCreateProcessModel, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
