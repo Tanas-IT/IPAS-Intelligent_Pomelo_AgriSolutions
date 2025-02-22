@@ -22,7 +22,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var getMasterTypeByName = await _context.MasterTypes
                 .Where(x => x.TypeName!.ToLower().Equals(name.ToLower()) 
-                && (x.FarmID == farmId || x.IsDefault == true))
+                && (x.FarmID == farmId || x.IsDefault == true)
+                && x.IsActive == true)
                 .OrderBy(x => x.MasterTypeId)
                 .ToListAsync();
             if (getMasterTypeByName.Any())
