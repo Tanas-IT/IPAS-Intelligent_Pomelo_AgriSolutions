@@ -8,7 +8,7 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   itemName?: string;
-  actionType?: "delete" | "update";
+  actionType?: "delete" | "update" | "unsaved";
   title?: string;
   description?: string;
   confirmText?: string;
@@ -16,28 +16,28 @@ interface ConfirmModalProps {
   isDanger?: boolean;
 }
 
-const generateMessages = (actionType: "delete" | "update", itemName?: string) => {
-  if (!itemName)
+const generateMessages = (actionType: "delete" | "update" | "unsaved", itemName?: string) => {
+  if (actionType === "unsaved") {
+    return {
+      title: "Unsaved Changes",
+      description: "You have unsaved changes. Are you sure you want to close?",
+    };
+  }
+
+  if (!itemName) {
     return {
       title: "Are you sure?",
       description: "This action cannot be undone. Please confirm if you want to proceed.",
     };
+  }
 
-  const actionMessages = {
-    delete: {
-      title: `Delete ${itemName}?`,
-      description: `Are you sure you want to delete this ${itemName}? This action cannot be undone.`,
-    },
-    update: {
-      title: `Update ${itemName}?`,
-      description: `Are you sure you want to update this ${itemName}? This action cannot be undone.`,
-    },
+  return {
+    title: `${actionType === "delete" ? "Delete" : "Update"} ${itemName}?`,
+    description: `Are you sure you want to ${actionType} this ${itemName}? This action cannot be undone.`,
   };
-
-  return actionMessages[actionType] || actionMessages.update;
 };
 
-const generateButtonTexts = (actionType: "delete" | "update") => {
+const generateButtonTexts = (actionType: "delete" | "update" | "unsaved") => {
   const buttonTexts = {
     delete: {
       confirmText: "Delete",
@@ -45,6 +45,10 @@ const generateButtonTexts = (actionType: "delete" | "update") => {
     },
     update: {
       confirmText: "Save Changes",
+      cancelText: "Cancel",
+    },
+    unsaved: {
+      confirmText: "Yes",
       cancelText: "Cancel",
     },
   };

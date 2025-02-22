@@ -11,8 +11,6 @@ import { Feature, Polygon } from "geojson";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
-import { PolygonInit } from "@/types";
-import { Popover } from "antd";
 import { GetLandPlot } from "@/payloads";
 import PopupContent from "./PopupContent";
 import MapMarker from "../MapMarker/MapMarker";
@@ -20,19 +18,17 @@ import MapMarker from "../MapMarker/MapMarker";
 interface MapLandPlotProps {
   latitude: number;
   longitude: number;
-  isEditing?: boolean;
   landPlots: GetLandPlot[];
   highlightedPlots?: string[];
-  //   setMarkerPosition: React.Dispatch<React.SetStateAction<CoordsState>>;
+  isShowInfo?: boolean;
 }
 
 const MapLandPlot: React.FC<MapLandPlotProps> = ({
   latitude,
   longitude,
-  isEditing = false,
   landPlots,
   highlightedPlots = [],
-  //   setMarkerPosition,
+  isShowInfo = true,
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -99,93 +95,86 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
           map.setPaintProperty("polygon-fill", "fill-color", fillColor);
         }
 
-        map.on("click", "polygon-fill", (e) => {
-          const feature = e.features?.[0];
+        if (isShowInfo) {
+          map.on("click", "polygon-fill", (e) => {
+            const feature = e.features?.[0];
 
-          if (feature) {
-            const landPlot = feature.properties as GetLandPlot;
-            const polygon = feature.geometry as Polygon;
-            const coordinates = polygon.coordinates[0]; // Tọa độ của polygon
-            // Tính trọng tâm của polygon (centroid)
-            const centroid: [number, number] = [
-              coordinates.reduce((sum, coord) => sum + coord[0], 0) / coordinates.length,
-              coordinates.reduce((sum, coord) => sum + coord[1], 0) / coordinates.length,
-            ];
+            if (feature) {
+              const landPlot = feature.properties as GetLandPlot;
+              const polygon = feature.geometry as Polygon;
+              const coordinates = polygon.coordinates[0]; // Tọa độ của polygon
+              // Tính trọng tâm của polygon (centroid)
+              const centroid: [number, number] = [
+                coordinates.reduce((sum, coord) => sum + coord[0], 0) / coordinates.length,
+                coordinates.reduce((sum, coord) => sum + coord[1], 0) / coordinates.length,
+              ];
 
-            // // Xóa popup cũ nếu có
-            if (popupRef.current) popupRef.current.remove();
+              // // Xóa popup cũ nếu có
+              if (popupRef.current) popupRef.current.remove();
 
-            const closePopup = (removePopup: boolean = true) => {
-              if (removePopup) popup.remove();
+              const closePopup = (removePopup: boolean = true) => {
+                if (removePopup) popup.remove();
+
+                const fillColor: DataDrivenPropertyValueSpecification<string> =
+                  highlightedPlots.length > 0
+                    ? [
+                        "match",
+                        ["get", "id"],
+                        ...highlightedPlots.flatMap((id) => [id, "#ff9800"]), // Màu cam cho các thửa đất trong highlightedPlots
+                        "#e8c048", // Màu mặc định
+                      ]
+                    : "#e8c048"; // Nếu không có thửa đất nào được highlight, dùng màu mặc định
+
+                map.setPaintProperty("polygon-fill", "fill-color", fillColor);
+              };
+
+              // Tạo popup mới
+              const popupContainer = document.createElement("div");
+              createRoot(popupContainer).render(
+                <PopupContent plot={landPlot} onClose={closePopup} />,
+              );
+
+              const popup = new mapboxgl.Popup({ closeOnClick: true })
+                .setLngLat(centroid)
+                .setDOMContent(popupContainer)
+                .addTo(map);
 
               const fillColor: DataDrivenPropertyValueSpecification<string> =
                 highlightedPlots.length > 0
                   ? [
-                      "match",
-                      ["get", "id"],
-                      ...highlightedPlots.flatMap((id) => [id, "#ff9800"]), // Màu cam cho các thửa đất trong highlightedPlots
-                      "#e8c048", // Màu mặc định
+                      "case",
+                      ["==", ["get", "id"], landPlot.landPlotId],
+                      "#00AEEF", // Màu xanh nếu được chọn
+                      [
+                        "match",
+                        ["get", "id"],
+                        ...highlightedPlots.flatMap((id) => [id, "#ff9800"]),
+                        "#e8c048", // Màu mặc định nếu không có trong highlightedPlots
+                      ],
                     ]
-                  : "#e8c048"; // Nếu không có thửa đất nào được highlight, dùng màu mặc định
+                  : [
+                      "case",
+                      ["==", ["get", "id"], landPlot.landPlotId],
+                      "#00AEEF", // Màu xanh nếu được chọn
+                      "#e8c048", // Màu mặc định nếu không được chọn
+                    ];
 
               map.setPaintProperty("polygon-fill", "fill-color", fillColor);
-            };
 
-            // Tạo popup mới
-            const popupContainer = document.createElement("div");
-            createRoot(popupContainer).render(
-              <PopupContent plot={landPlot} onClose={closePopup} />,
-            );
+              const closeButton = document.querySelector(
+                ".mapboxgl-popup-close-button",
+              ) as HTMLButtonElement;
+              closeButton.style.display = "none";
+              closeButton.blur();
 
-            const popup = new mapboxgl.Popup({ closeOnClick: true })
-              .setLngLat(centroid)
-              .setDOMContent(popupContainer)
-              .addTo(map);
-
-            const fillColor: DataDrivenPropertyValueSpecification<string> =
-              highlightedPlots.length > 0
-                ? [
-                    "case",
-                    ["==", ["get", "id"], landPlot.landPlotId],
-                    "#00AEEF", // Màu xanh nếu được chọn
-                    [
-                      "match",
-                      ["get", "id"],
-                      ...highlightedPlots.flatMap((id) => [id, "#ff9800"]),
-                      "#e8c048", // Màu mặc định nếu không có trong highlightedPlots
-                    ],
-                  ]
-                : [
-                    "case",
-                    ["==", ["get", "id"], landPlot.landPlotId],
-                    "#00AEEF", // Màu xanh nếu được chọn
-                    "#e8c048", // Màu mặc định nếu không được chọn
-                  ];
-
-            map.setPaintProperty("polygon-fill", "fill-color", fillColor);
-
-            const closeButton = document.querySelector(
-              ".mapboxgl-popup-close-button",
-            ) as HTMLButtonElement;
-            closeButton.style.display = "none";
-            closeButton.blur();
-
-            popup.on("close", () => closePopup(false));
-          }
-        });
+              popup.on("close", () => closePopup(false));
+            }
+          });
+        }
       });
     }
 
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-
-    if (isEditing) {
-      map.on("click", (e) => {
-        const { lng, lat } = e.lngLat;
-        const newCoords = { longitude: lng, latitude: lat };
-        // setMarkerPosition(newCoords); // Cập nhật state
-        markerRef.current?.setLngLat([lng, lat]); // Cập nhật vị trí marker
-      });
-    }
 
     // Thay đổi con trỏ
     map.getCanvas().style.cursor = "pointer";
@@ -211,7 +200,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
     });
     mapRef.current = map;
     return () => map.remove();
-  }, [latitude, longitude, isEditing, highlightedPlots]);
+  }, [latitude, longitude, highlightedPlots]);
 
   return <div ref={mapContainer} className={style.customMap}></div>;
 };

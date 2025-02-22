@@ -7,7 +7,7 @@ import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (values: MasterTypeRequest, isUpdate: boolean) => void;
   onSave: (values: MasterTypeRequest) => void;
   masterTypeData?: GetMasterType;
 };
@@ -16,7 +16,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
   const [form] = Form.useForm();
   const [selectedType, setSelectedType] = useState<string>("");
   const [checked, setChecked] = useState<boolean>(false);
-  const isEdit = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
+  const isUpdate = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
   const typeOptions = Object.keys(MASTER_TYPE).map((key) => ({
     value: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
     label: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
@@ -35,7 +35,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
   useEffect(() => {
     resetForm();
     if (isOpen) {
-      if (isEdit && masterTypeData) {
+      if (isUpdate && masterTypeData) {
         form.setFieldsValue({
           masterTypeId: masterTypeData.masterTypeId,
           masterTypeName: masterTypeData.masterTypeName,
@@ -55,46 +55,43 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     setSelectedType(value);
   };
 
+  const getFormData = (): MasterTypeRequest => ({
+    masterTypeId: form.getFieldValue(masterTypeFormFields.masterTypeId),
+    masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
+    masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
+    typeName: form.getFieldValue(masterTypeFormFields.typeName),
+    isActive: checked,
+    ...(form.getFieldValue(masterTypeFormFields.backgroundColor) && {
+      backgroundColor:
+        typeof form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString === "function"
+          ? form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString()
+          : form.getFieldValue(masterTypeFormFields.backgroundColor), // Nếu không có toHexString() thì giữ nguyên giá trị
+    }),
+    ...(form.getFieldValue(masterTypeFormFields.textColor) && {
+      textColor:
+        typeof form.getFieldValue(masterTypeFormFields.textColor).toHexString === "function"
+          ? form.getFieldValue(masterTypeFormFields.textColor).toHexString()
+          : form.getFieldValue(masterTypeFormFields.textColor),
+    }),
+    ...(form.getFieldValue(masterTypeFormFields.characteristic)?.trim() && {
+      characteristic: form.getFieldValue(masterTypeFormFields.characteristic).trim(),
+    }),
+  });
+
   const handleOk = async () => {
     await form.validateFields();
-
-    const masterTypeData: MasterTypeRequest = {
-      masterTypeId: form.getFieldValue(masterTypeFormFields.masterTypeId),
-      masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
-      masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
-      typeName: form.getFieldValue(masterTypeFormFields.typeName),
-      isActive: checked,
-      ...(form.getFieldValue(masterTypeFormFields.backgroundColor) && {
-        backgroundColor:
-          typeof form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString === "function"
-            ? form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString()
-            : form.getFieldValue(masterTypeFormFields.backgroundColor), // Nếu không có toHexString() thì giữ nguyên giá trị
-      }),
-      ...(form.getFieldValue(masterTypeFormFields.textColor) && {
-        textColor:
-          typeof form.getFieldValue(masterTypeFormFields.textColor).toHexString === "function"
-            ? form.getFieldValue(masterTypeFormFields.textColor).toHexString()
-            : form.getFieldValue(masterTypeFormFields.textColor),
-      }),
-      ...(form.getFieldValue(masterTypeFormFields.characteristic)?.trim() && {
-        characteristic: form.getFieldValue(masterTypeFormFields.characteristic).trim(),
-      }),
-    };
-    onSave(masterTypeData);
+    onSave(getFormData());
   };
 
-  const handleCancel = () => {
-    resetForm();
-    onClose();
-  };
+  const handleCancel = () => onClose(getFormData(), true);
 
   return (
     <ModalForm
       isOpen={isOpen}
       onClose={handleCancel}
       onSave={handleOk}
-      isEdit={isEdit}
-      title={isEdit ? "Update Type" : "Add New Type"}
+      isUpdate={isUpdate}
+      title={isUpdate ? "Update Type" : "Add New Type"}
     >
       <Form form={form} layout="vertical">
         <FormFieldModal
@@ -122,7 +119,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
 
         {selectedType === MASTER_TYPE.WORK && (
           <>
-            <Flex justify="space-between" gap={40} >
+            <Flex justify="space-between" gap={40}>
               <FormFieldModal
                 type="colorPicker"
                 label="Background Color:"

@@ -30,6 +30,7 @@ function MasterType() {
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
+  const cancelConfirmModal = useModal();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_FILTERS,
@@ -82,6 +83,16 @@ function MasterType() {
   const handleUpdateConfirm = (type: MasterTypeRequest) => {
     if (hasChanges(type, "masterTypeId")) {
       updateConfirmModal.showModal({ type });
+    } else {
+      formModal.hideModal();
+    }
+  };
+
+  const handleCancelConfirm = (stage: MasterTypeRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate ? hasChanges(stage, "masterTypeId") : hasChanges(stage);
+
+    if (hasUnsavedChanges) {
+      cancelConfirmModal.showModal();
     } else {
       formModal.hideModal();
     }
@@ -159,7 +170,7 @@ function MasterType() {
       </Flex>
       <MasterTypeModel
         isOpen={formModal.modalState.visible}
-        onClose={formModal.hideModal}
+        onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         masterTypeData={formModal.modalState.data}
       />
@@ -178,6 +189,16 @@ function MasterType() {
         onCancel={updateConfirmModal.hideModal}
         itemName="Type"
         actionType="update"
+      />
+      {/* Confirm Cancel Modal */}
+      <ConfirmModal
+        visible={cancelConfirmModal.modalState.visible}
+        actionType="unsaved"
+        onConfirm={() => {
+          cancelConfirmModal.hideModal();
+          formModal.hideModal();
+        }}
+        onCancel={cancelConfirmModal.hideModal}
       />
     </Flex>
   );
