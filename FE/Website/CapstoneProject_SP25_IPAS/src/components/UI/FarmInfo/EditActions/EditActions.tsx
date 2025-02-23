@@ -3,20 +3,24 @@ import { CustomButton } from "@/components";
 import style from "./EditActions.module.scss";
 
 interface EditActionsProps {
-  handleCancel: () => void;
-  handleSave: () => void;
-  label?: string;
+  handleBtn1: () => void;
+  handleBtn2: () => void;
+  labelBtn1?: string;
+  labelBtn2?: string;
+  isCancel?: boolean;
 }
 
 const EditActions: React.FC<EditActionsProps> = ({
-  handleCancel,
-  handleSave,
-  label = "Save Changes",
+  handleBtn1,
+  handleBtn2,
+  labelBtn1 = "Cancel",
+  labelBtn2 = "Save Changes",
+  isCancel = true,
 }) => {
   return (
     <Flex className={style.btnWrapper}>
-      <CustomButton label="Cancel" isCancel handleOnClick={handleCancel} />
-      <CustomButton label={label} handleOnClick={handleSave} />
+      <CustomButton label={labelBtn1} isCancel={isCancel} handleOnClick={handleBtn1} />
+      <CustomButton label={labelBtn2} handleOnClick={handleBtn2} />
     </Flex>
   );
 };

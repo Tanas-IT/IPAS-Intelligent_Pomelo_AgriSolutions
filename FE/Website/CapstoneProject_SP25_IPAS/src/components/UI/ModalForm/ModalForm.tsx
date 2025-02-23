@@ -8,7 +8,7 @@ type ModalFormProps = {
   onSave: () => void;
   title: string;
   children: React.ReactNode;
-  isEdit?: boolean;
+  isUpdate?: boolean;
   cancelLabel?: string;
   saveLabel?: string;
 };
@@ -19,7 +19,7 @@ const ModalForm = ({
   onSave,
   title,
   children,
-  isEdit = false,
+  isUpdate = false,
   cancelLabel = "Cancel",
   saveLabel,
 }: ModalFormProps) => {
@@ -31,7 +31,7 @@ const ModalForm = ({
         <Divider className={style.dividerModal} />,
         <CustomButton label={cancelLabel} isCancel handleOnClick={onClose} />,
         <CustomButton
-          label={saveLabel ?? (isEdit ? "Save Changes" : "Add New")}
+          label={saveLabel ?? (isUpdate ? "Save Changes" : "Add New")}
           handleOnClick={onSave}
           isModal={true}
         />,
