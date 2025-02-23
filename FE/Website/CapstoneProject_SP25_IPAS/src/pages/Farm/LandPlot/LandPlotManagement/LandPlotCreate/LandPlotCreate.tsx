@@ -1,9 +1,10 @@
 import { Flex, Form, FormInstance } from "antd";
 import style from "./LandPlotCreate.module.scss";
-import { InfoField, MapControls, MapLandPlot } from "@/components";
-import React, { useEffect, useState } from "react";
+import { FormFieldModal, MapControls, MapLandPlot } from "@/components";
+import React, { useEffect, useRef, useState } from "react";
 import { RulesManager } from "@/utils";
 import { GetLandPlot } from "@/payloads";
+import { MapLandPlotRef } from "@/components/UI/Maps/MapLandPlot/MapLandPlot";
 
 interface LandPlotCreateProps {
   form: FormInstance;
@@ -13,8 +14,14 @@ interface LandPlotCreateProps {
 
 const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
   ({ form, landPlots, setIsDirty }) => {
+    const mapRef = useRef<MapLandPlotRef>(null);
+
     const handleInputChange = () => {
       setIsDirty(true); // Đánh dấu form đã thay đổi
+    };
+
+    const handleDrawPolygon = () => {
+      mapRef.current?.startDrawingPolygon();
     };
 
     return (
@@ -22,14 +29,14 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
         <Flex className={style.contentWrapper}>
           <Flex className={style.formSection}>
             <Form form={form} layout="vertical" className={style.formContainer}>
-              <InfoField
+              <FormFieldModal
                 label="Plot Name"
                 name={"landPlotName"}
                 rules={RulesManager.getLandPlotNameRules()}
                 placeholder="Enter land plot name"
                 onChange={handleInputChange}
               />
-              <InfoField
+              <FormFieldModal
                 type="textarea"
                 label="Description"
                 name={"description"}
@@ -37,22 +44,26 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
                 placeholder="Enter description"
                 onChange={handleInputChange}
               />
-              <InfoField
+              <FormFieldModal
                 label="Area (m²)"
                 name={"area"}
                 placeholder="Auto-calculated from drawn plot"
-                isEditing={false}
+                readonly={true}
               />
             </Form>
           </Flex>
           <Flex className={style.mapSection}>
-            {/* <Flex className={style.mapControls}>
-            <MapControls label="Zoom In" />
-            <MapControls label="Zoom Out" />
-            <MapControls label="Draw Plot" />
-          </Flex> */}
+            <Flex className={style.mapControls}>
+              <MapControls label="Draw Polygon" onClick={handleDrawPolygon} />
+              <MapControls label="Delete Plot" />
+              <MapControls label="Edit Plot" />
+              <MapControls label="Finish Drawing" />
+              {/* <MapControls label="Combine Plots" />
+              <MapControls label="Uncombine Plots" /> */}
+            </Flex>
             <Flex>
               <MapLandPlot
+                ref={mapRef}
                 longitude={landPlots[0]?.farmLongtitude ?? 0}
                 latitude={landPlots[0]?.farmLatitude ?? 0}
                 landPlots={landPlots}

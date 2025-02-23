@@ -212,6 +212,10 @@ const useStyle = createStyles(({ css }) => {
       .ant-steps-item-finish .ant-steps-item-title::after {
         background-color: ${secondColor} !important;
       }
+      .ant-steps-item-active .ant-steps-item-title,
+      .ant-steps-item-finish .ant-steps-item-title {
+        color: ${primaryColor} !important;
+      }
       .ant-steps-item-active .ant-steps-item-icon {
         background-color: ${secondColor} !important;
         border-color: ${secondColor} !important;
