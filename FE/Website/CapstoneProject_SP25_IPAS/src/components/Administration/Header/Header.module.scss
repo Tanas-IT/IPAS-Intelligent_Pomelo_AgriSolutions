@@ -58,26 +58,26 @@
       width: 100%;
     }
     .notificationWrapper {
-      .notificationButton {
-        outline: none;
-        background-color: vars.$color_bg_notification;
-        border: none;
-        border-radius: 8px;
-        margin-left: 20px;
-        padding: 20px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &:hover {
+        .notificationButton {
+          outline: none;
           background-color: vars.$color_bg_notification;
-        }
-
-        svg {
-          width: 20px;
-          height: 20px;
-          color: vars.$color_sidebar_text_inactive;
-        }
+          border: none;
+          border-radius: 8px;
+          margin-left: 20px;
+          padding: 20px 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+  
+          &:hover {
+            background-color: vars.$color_bg_notification;
+          }
+  
+          svg {
+            width: 20px;
+            height: 20px;
+            color: vars.$color_sidebar_text_inactive;
+          }
       }
     }
 
@@ -132,4 +132,9 @@
 
 .popupContainer {
   @include shared.popupContainer;
+}
+
+.notiContainer {
+  background-color: aqua;
+  width: 300px;
 }

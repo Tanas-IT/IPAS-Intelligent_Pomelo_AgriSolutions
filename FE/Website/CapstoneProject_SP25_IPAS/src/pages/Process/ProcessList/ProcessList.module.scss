@@ -40,4 +40,37 @@
     font-size: 20px;
     font-weight: lighter;
   }
+
+  
+}
+
+.titleAddPlan {
+  margin-bottom: 17px;
+}
+
+
+.planItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+      background: white;
+  }
+
+  &:hover .planActions {
+      display: flex;
+  }
+}
+
+.planActions {
+  display: none;
+  gap: 8px;
 }

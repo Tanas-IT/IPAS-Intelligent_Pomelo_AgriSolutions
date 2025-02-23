@@ -68,3 +68,41 @@ export const feedbackFormFields = {
   worklogId: "worklogId",
   worklogStatus: "worklogStatus",
 };
+
+export const addPlanFormFields = {
+  planName: "planName",
+  planDetail: "planDetail",
+  cropId: "cropId",
+  landPlotId: "landPlotId",
+  processId: "processId",
+  growthStageID: "growthStageId",
+  isActive: "isActive",
+  dateRange: "dateRange",
+  timeRange: "timeRange",
+  dayOfWeek: "dayOfWeek",
+  dayOfMonth: "dayOfMonth",
+  customDates: "customDates",
+  masterTypeId: "masterTypeId",
+  listEmployee: "listEmployee",
+  frequency: "frequency",
+  status: "status",
+  assignor: "assignor",
+  planNote: "planNote",
+};
+
+export const packageFormFields = {
+  packageId: "packageId",
+  packageName: "packageName",
+  packagePrice: "packagePrice",
+  duration: "duration",
+  isActive: "isActive",
+};
+
+export const processFormFields = {
+  processName: "processName",
+  isActive: "isActive",
+  farmId: "farmId",
+  masterTypeId: "masterTypeId",
+  growthStageId: "growthStageId",
+  listPlan: "listPlan",
+};

@@ -22,6 +22,7 @@ import {
   CreateFarm,
   LandPlot,
   LandPlotCreate,
+  PackageList,
   MasterType,
   GrowthStage,
 } from "@/pages";
@@ -70,6 +71,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },
+  { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

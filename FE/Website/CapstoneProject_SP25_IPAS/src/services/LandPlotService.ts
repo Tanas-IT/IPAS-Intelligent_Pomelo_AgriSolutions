@@ -2,7 +2,15 @@ import { axiosAuth } from "@/api";
 import { ApiResponse, GetLandPlot } from "@/payloads";
 import { getFarmId } from "@/utils";
 
-export const getLandPlotsOfFarmForSelect = async (farmId: string) => {};
+export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-selected?farmId=${farmId}`);
+  const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
+
+  return apiResponse.data.map(({ landPlotId, landPlotName }) => ({
+    landPlotId,
+    landPlotName
+  }));
+}
 
 export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetLandPlot[]>> => {
   const url = searchKey

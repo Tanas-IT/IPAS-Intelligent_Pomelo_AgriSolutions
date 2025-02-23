@@ -1,6 +1,6 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetMasterType, MasterTypeRequest } from "@/payloads";
+import { ApiResponse, GetData, GetMasterType, GetType, MasterTypeRequest } from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getMasterTypes = async (
@@ -23,6 +23,18 @@ export const getMasterTypes = async (
   const apiResponse = res.data as ApiResponse<GetData<GetMasterType>>;
   return apiResponse.data as GetData<GetMasterType>;
 };
+
+export const getTypeByName = async (name: string) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`masterTypes?typeName=${name}`);
+  const apiResponse = res.data as ApiResponse<{ list: GetType[] }>;
+  console.log("apiResponse", apiResponse);
+  
+
+  return apiResponse.data.list.map(({ masterTypeId, masterTypeName }) => ({
+    masterTypeId,
+    masterTypeName
+  }));
+}
 
 export const getSelectMasterTypes = async (
   typeName: string,
