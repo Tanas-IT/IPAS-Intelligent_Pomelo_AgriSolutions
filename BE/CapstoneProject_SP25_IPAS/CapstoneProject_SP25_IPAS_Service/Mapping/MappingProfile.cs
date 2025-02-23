@@ -73,7 +73,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(x => x.GrowthStageName))
                .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
                .ReverseMap();
-            CreateMap<SubProcessInProcessModel, SubProcess>().ReverseMap();
+
+            CreateMap<Plan, UpdatePlanInProcessModel>()
+               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(x => x.MasterTypeId))
+               .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(x => x.GrowthStageId))
+               .ForMember(dest => dest.PlanName, opt => opt.MapFrom(x => x.PlanName))
+               .ForMember(dest => dest.PlanNote, opt => opt.MapFrom(x => x.Notes))
+               .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(x => x.PlanDetail))
+               .ForMember(dest => dest.PlanId, opt => opt.MapFrom(x => x.PlanId))
+              .ReverseMap();
+
+            CreateMap<SubProcess, SubProcessInProcessModel>()
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans))
+                .ReverseMap();
 
             CreateMap<GrowthStage, ProcessGrowthStageModel>()
                 .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(src => src.GrowthStageID))
@@ -90,6 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId)))
                 .ReverseMap();
 
