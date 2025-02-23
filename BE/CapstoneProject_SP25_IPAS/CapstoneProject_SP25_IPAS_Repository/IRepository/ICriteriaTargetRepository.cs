@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface ICriteriaTargetRepository
     {
-        public Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfPlantNoPaging(int plantId);
+        public Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfTargetNoPaging(int? plantId, int? graftedPlantId, int? plantLotId);
+        
+
     }
 }

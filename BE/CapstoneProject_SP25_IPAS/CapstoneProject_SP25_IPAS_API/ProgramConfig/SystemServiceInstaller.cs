@@ -69,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IPlanNotificationRepository, PlanNotificationRepository>();
             services.AddScoped<IGraftedPlantRepository, GraftedPlantRepository>();
             services.AddScoped<IPlanTargetRepository, PlanTargetRepository>();
+            services.AddScoped<ICriteriaTargetRepository, CriteriaTargetRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -101,6 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<IValidator<IFormFile>, ExcelFileValidator>();
             services.AddScoped<IExcelReaderService, ExcelReaderService>();
+            services.AddScoped<ICriteriaTargetService, CriteriaTargetService>();
 
             services.AddHttpClient();
 

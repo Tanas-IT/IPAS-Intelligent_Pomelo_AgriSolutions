@@ -96,8 +96,16 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string prefix = Base + "/criterias";
             public const string updateListCriteriaType = prefix + "/update-list-criteria";
             public const string getCriteriaById = prefix + "";
-            public const string getCriteriaOfPlantById = prefix + "/get-criteria-of-plant";
-            public const string updateCriteriaInfo = prefix + "/update-criteria-info";
+            public const string getCriteriaOfObject = prefix + "/get-criteria-of-object";
+            public const string updateCriteriaInfo = prefix + "";
+            public const string createMasTypeCriteria = prefix + "/create-master-type-criteria";
+
+            public const string prefixCriteriaTarget = Base + "/criterias/target";
+            public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
+            public const string updateCriteriaTarget = prefixCriteriaTarget  + "/update-criteria-target";
+            public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
+            public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
+            public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
         }
 
         public static class Authentication
