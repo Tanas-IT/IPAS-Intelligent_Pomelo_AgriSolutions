@@ -7,16 +7,22 @@ import { CustomButton } from "@/components";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
-import { formatDate } from "@/utils";
+import { formatDate, getUserId } from "@/utils";
 import { toast } from "react-toastify";
 import { GetFarmPicker } from "@/payloads";
 import { useFarmStore } from "@/stores";
+import { useLocalStorage } from "@/hooks";
 const Text = Typography;
 
 function FarmPicker() {
   const navigate = useNavigate();
   const [farmsData, setFarmsData] = useState<GetFarmPicker[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { getAuthData } = useLocalStorage();
+  const userId = getUserId();
+  console.log(userId);
+  
+  
 
   useEffect(() => {
     const fetchFarms = async () => {
@@ -90,7 +96,7 @@ function FarmPicker() {
       </Flex>
       <Flex className={style.contentWrapper}>
         <Row gutter={[18, 30]} className={style.cardWrapper}>
-          {farmsData.map((farm) => (
+          {farmsData?.map((farm) => (
             <Col span={12} key={farm.farm.farmId}>
               <Card
                 className={style.card}

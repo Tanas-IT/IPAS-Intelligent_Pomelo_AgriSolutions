@@ -66,6 +66,9 @@ export class RulesManager {
   static getDocumentRules = () => this.getRequiredRules("Document Name");
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
 
+  static getLandPlotNameRules = () => this.getRequiredRules("Land Plot Name");
+
+
   static getStageNameRules = () => this.getRequiredRules("Growth Stage Name");
   static getMonthAgeStartRules = () => this.getNumberRules("Month Age Start");
   static getMonthAgeEndRules = () => this.getNumberRules("Month Age End");
@@ -84,4 +87,29 @@ export class RulesManager {
 
   static getContentFeedbackRules = () => this.getRequiredRules("Content");
   static getStatusWorklogFeedbackRules = () => this.getRequiredRules("Status Worlog");
+
+  static getPlanNameRules = () => this.getRequiredRules("Plan Name");
+  static getPlanDetailRules = () => this.getRequiredRules("Plan Detail");
+  static getGrowthStageRules = () => this.getRequiredRules("Growth Stage");
+
+  static getPackageNameRules = () => this.getRequiredRules("Package Name");
+  static getPackagePriceRules() {
+    return [
+      { required: true, message: "Please input the package price!" },
+      { pattern: /^(0|[1-9]\d*)(\.\d{1,2})?$/, message: "Price must be a positive number with up to two decimal places!" },
+    ];
+  }
+  static getDurationRules() {
+    return [
+      { required: true, message: "Please input the duration!" },
+      { pattern: /^[1-9]\d*$/, message: "Duration must be a positive integer!" },
+    ];
+  }
+  
+  static getPlanTypeRules = () => this.getRequiredRules("Plan Type");
+
+  static getProcessNameRules = () => this.getRequiredRules("Process Name");
+  static getProcessTypeRules = () => this.getRequiredRules("Process Type");
+
+
 }

@@ -1,6 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
-import { GetProcess } from "@/payloads/process";
+import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
+import { ProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
 export const getProcesses = async (
@@ -11,17 +12,60 @@ export const getProcesses = async (
   searchValue?: string,
   brandId?: string | null,
   additionalParams?: Record<string, any>,
-): Promise<GetData<GetProcess>> => {
+): Promise<GetData<GetProcessList>> => {
   const params = buildParams(
     currentPage,
     rowsPerPage,
     sortField,
     sortDirection,
     searchValue,
-    brandId,
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("processes", { params });
+  console.log("process ist", res);
+
   const apiResponse = res.data as ApiResponse<Object>;
-  return apiResponse.data as GetData<GetProcess>;
+  return apiResponse.data as GetData<GetProcessList>;
 };
+
+export const getProcessesOfFarmForSelect = async (farmId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`proceesses/get-for-select?farmId=${farmId}`);
+  const apiResponse = res.data as ApiResponse<GetProcess[]>;
+
+  return apiResponse.data.map(({ processId, processName }) => ({
+    processId,
+    processName
+  }));
+}
+
+export const getProcessDetail = async (processId: string) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`processes/get-process-by-id/${processId}`);
+  const apiResponse = res.data as ApiResponse<GetProcessDetail>;
+
+  return {
+    processId: apiResponse.data.processId,
+    processCode: apiResponse.data.processCode,
+    processName: apiResponse.data.processName,
+    isDefault: apiResponse.data.isDefault,
+    isActive: apiResponse.data.isActive,
+    createDate: apiResponse.data.createDate,
+    updateDate: apiResponse.data.updateDate,
+    isDeleted: apiResponse.data.isDeleted,
+    farmName: apiResponse.data.farmName,
+    processMasterTypeModel: apiResponse.data.processMasterTypeModel,
+    processGrowthStageModel: apiResponse.data.processGrowthStageModel,
+    subProcesses: apiResponse.data.subProcesses,
+    listProcessData: apiResponse.data.listProcessData,
+    order: apiResponse.data.order,
+
+  };
+};
+
+export const createProcess = async (
+  type: ProcessRequest,
+): Promise<ApiResponse<boolean>> => {
+  const res = await axiosAuth.axiosMultipartForm.post(`processes`, type);
+  return res.data as ApiResponse<boolean>;
+};
+
+

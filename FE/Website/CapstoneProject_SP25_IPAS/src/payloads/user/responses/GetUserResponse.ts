@@ -1,5 +1,5 @@
 export interface GetUser {
-    userId: string;
+    userId: number;
     fullName: string;
     avatarURL: string;
   };

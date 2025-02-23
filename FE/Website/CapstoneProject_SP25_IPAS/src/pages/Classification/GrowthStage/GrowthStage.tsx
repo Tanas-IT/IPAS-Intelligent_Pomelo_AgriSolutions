@@ -21,6 +21,7 @@ function GrowthStage() {
   const formModal = useModal<GetGrowthStage>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ stage: GrowthStageRequest }>();
+  const cancelConfirmModal = useModal();
 
   const {
     data,
@@ -68,6 +69,16 @@ function GrowthStage() {
   const handleUpdateConfirm = (stage: GrowthStageRequest) => {
     if (hasChanges(stage, "growthStageId")) {
       updateConfirmModal.showModal({ stage });
+    } else {
+      formModal.hideModal();
+    }
+  };
+
+  const handleCancelConfirm = (stage: GrowthStageRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate ? hasChanges(stage, "growthStageId") : hasChanges(stage);
+
+    if (hasUnsavedChanges) {
+      cancelConfirmModal.showModal();
     } else {
       formModal.hideModal();
     }
@@ -136,7 +147,7 @@ function GrowthStage() {
       </Flex>
       <GrowthStageModal
         isOpen={formModal.modalState.visible}
-        onClose={formModal.hideModal}
+        onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         growthStageData={formModal.modalState.data}
       />
@@ -155,6 +166,16 @@ function GrowthStage() {
         onCancel={updateConfirmModal.hideModal}
         itemName="Stage"
         actionType="update"
+      />
+      {/* Confirm Cancel Modal */}
+      <ConfirmModal
+        visible={cancelConfirmModal.modalState.visible}
+        actionType="unsaved"
+        onConfirm={() => {
+          cancelConfirmModal.hideModal();
+          formModal.hideModal();
+        }}
+        onCancel={cancelConfirmModal.hideModal}
       />
     </Flex>
   );

@@ -40,7 +40,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public int? Order { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<SubProcessInProcessModel>? SubProcesses { get; set; } = new List<SubProcessInProcessModel>();
+
+        public List<UpdatePlanInProcessModel>? ListPlan { get; set; } = new List<UpdatePlanInProcessModel>();
         //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-       // public List<ProcessDataInProcessModel>? ListProcessData { get; set; } = new List<ProcessDataInProcessModel>();
+        // public List<ProcessDataInProcessModel>? ListProcessData { get; set; } = new List<ProcessDataInProcessModel>();
     }
 }

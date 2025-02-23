@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public ReportController(IReportService reportService)
+        public ReportController(IReportService reportService, IJwtTokenService jwtTokenService)
         {
             _reportService = reportService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.Report.CropCareReport, Name = "CropCareReport")]
@@ -38,10 +41,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Report.DashboardReport, Name = "DashboardReport")]
-        public async Task<IActionResult> DashboardReport(int farmId)
+        public async Task<IActionResult> DashboardReport(int? farmId)
         {
             try
             {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var result = await _reportService.Dashboard(farmId);
                 return Ok(result);
             }

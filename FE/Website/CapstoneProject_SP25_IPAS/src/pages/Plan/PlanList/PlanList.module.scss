@@ -7,11 +7,30 @@
 
 .filterContent {
   padding: 10px;
+  width: 600px;
 
-  input,
-  label,
-  span {
-    font-size: 16px !important;
+  // input,
+  // label,
+  // span {
+  //   font-size: 16px !important;
+  // }
+
+  .filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: vars.$color_primary;
+
+    .icon {
+      font-size: 18px;
+      color: vars.$color_primary
+    }
+
+    .titleFilter {
+      margin: 0;
+      color: vars.$color_primary
+    }
   }
 
   .title {

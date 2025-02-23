@@ -554,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PROCESS_CODE = 500;
         public static string FAIL_GET_PROCESS_MESSAGE = "Get process failed";
         public static int FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE = 500;
-        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess that iss not part of the process";
+        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess because it is not part of the process";
         #endregion
 
         #region SubProcess Fail code

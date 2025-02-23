@@ -14,7 +14,12 @@ const EditableTreeNode: React.FC<EditableTreeNodeProps> = ({
   onBlur,
 }) => {
   return isEditing ? (
-    <Input style={{width: "90%"}} value={title} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} autoFocus />
+    <Input
+      style={{ width: "90%" }}
+      value={title}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      autoFocus />
   ) : (
     title
   );

@@ -91,6 +91,12 @@ const useStyle = createStyles(({ css }) => {
       .ant-segmented-item-label {
         color: ${primaryColor} !important;
       }
+
+      .ant-form-item-label >label,
+      .ant-form-item-required {
+        font-size: 16px;
+        color: ${primaryColor} !important;
+      }
     `,
     customTab: css`
       .ant-tabs-tab:hover,
@@ -168,13 +174,14 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customSwitch: css`
-      .ant-switch-handle:before {
-        background-color: ${primaryColor};
+      .ant-switch-handle:before,
+      .ant-switch.ant-switch-checked {
+        background-color: ${primaryColor} !important;
       }
 
-      .ant-switch-inner .ant-switch-inner-checked,
-      .ant-switch-inner .ant-switch-inner-unchecked {
-        color: ${primaryColor};
+      .ant-switch.ant-switch-checked,
+      .ant-switch-checked {
+        background: ${primaryColor} !important;
       }
     `,
     customButton: css`
@@ -196,9 +203,33 @@ const useStyle = createStyles(({ css }) => {
         background-color: ${secondColor} !important;
       }
     `,
+    customFormItemInput: css`
+      .ant-form-item-label >label {
+        font-size: 16px;
+      }
+    `,
     customDateRange: css`
       .ant-picker-active-bar {
         background-color: ${secondColor} !important;
+      }
+    `,
+    customSteps: css`
+      .ant-steps-item-finish .ant-steps-item-icon {
+        background-color: #d9e6b4 !important;
+        border-color: #d9e6b4 !important;
+        .ant-steps-icon {
+          color: ${primaryColor} !important;
+        }
+      }
+      .ant-steps-item-finish .ant-steps-item-title::after {
+        background-color: ${secondColor} !important;
+      }
+      .ant-steps-item-active .ant-steps-item-icon {
+        background-color: ${secondColor} !important;
+        border-color: ${secondColor} !important;
+        .ant-steps-icon {
+          color: ${primaryColor} !important;
+        }
       }
     `,
   };

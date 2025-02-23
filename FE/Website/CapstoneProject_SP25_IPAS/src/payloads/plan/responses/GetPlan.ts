@@ -1,31 +1,20 @@
 export interface GetPlan {
-  planId: string;
+  planId: number;
   planName: string;
   status: string;
   planCode: string;
   createDate: Date;
   startDate: Date;
   endDate: Date;
-  startTime: Date;
-  endTime: Date;
-  updateDate: Date;
   isActive: boolean;
   notes: string;
   planDetail: string;
-  responsibleBy: string[];
   frequency: string;
-  landPlot: number;
-  assignorId: string;
-  pesticideName: string;
-  maxVolume: number;
-  minVolume: number;
-  processId: string;
-  cropId: string;
-  growthStageId: string;
+  assignorName: string;
+  processName: string;
+  cropName: string;
+  growthStageName: string;
   isDelete: boolean;
-  masterTypeId: string;
-  farmId: string;
-  daysOfWeek: number[];
-  daysOfMonth: number[];
-  customDates : Date[];
+  masterTypeName: string;
+  landPlotName: string;
 }

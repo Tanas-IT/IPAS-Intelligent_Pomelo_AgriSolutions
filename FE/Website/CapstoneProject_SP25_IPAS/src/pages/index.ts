@@ -11,7 +11,8 @@ export { default as GrowthStage } from "@/pages/Classification/GrowthStage/Growt
 export { default as CreateFarm } from "@/pages/Farm/CreateFarm/CreateFarm";
 export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as LandPlot } from "@/pages/Farm/LandPlot/LandPlot";
-export { default as LandPlotCreate } from "@/pages/Farm/LandPlotCreate/LandPlotCreate";
+export { default as AddNewPlotDrawer } from "@/pages/Farm/LandPlot/LandPlotManagement/AddNewPlotDrawer/AddNewPlotDrawer";
+export { default as LandPlotCreate } from "@/pages/Farm/LandPlot/LandPlotManagement/LandPlotCreate/LandPlotCreate";
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
 export { default as Weather } from "@/pages/Weather/Weather";
@@ -24,3 +25,4 @@ export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
+export { default as PackageList } from "@/pages/Package/PackageList/PackageList";
