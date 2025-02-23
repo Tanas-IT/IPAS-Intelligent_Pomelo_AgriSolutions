@@ -80,7 +80,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> GetAllEmployeeByFarmId(int farmId)
+        public async Task<int> GetAllEmployeeByFarmId(int? farmId)
         {
            var listEmployee = await _context.Users.Include(x => x.UserFarms).ThenInclude(x => x.Farm)
                                     .Where(x => x.UserFarms.Any(x => x.FarmId == farmId && x.RoleId == 5))

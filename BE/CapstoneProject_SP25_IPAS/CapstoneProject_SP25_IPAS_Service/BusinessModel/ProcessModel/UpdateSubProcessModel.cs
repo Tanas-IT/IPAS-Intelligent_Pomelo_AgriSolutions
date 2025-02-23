@@ -22,5 +22,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public int? MasterTypeId { get; set; }
         public string? Status { get; set; }
         public string? Order { get; set; }
+        //[DefaultValue(new[] { "{PlanName: \"string\", PlanDetail: \"string\", PlanNote: \"string\", GrowthStageId: 0, MasterTypeId: 0}" })]
+        public List<UpdatePlanInProcessModel>? ListPlan { get; set; }
     }
 }
