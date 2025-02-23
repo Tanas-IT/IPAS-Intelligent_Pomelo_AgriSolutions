@@ -5,12 +5,12 @@
   overflow: hidden;
   padding: 10px 24px;
   margin-top: 8px;
-  height: 100vh;
+  min-height: 100vh;
 
   .containerWrapper {
     width: 100%;
   }
-}
+
 
 .contentSectionTitleLeft {
   align-items: center;
@@ -174,4 +174,28 @@
       font-weight: lighter;
     }
   }
+}
+
+.noDataContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #fefefe;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+  .noDataImage {
+    width: 50px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .noDataText {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+  }
+}
 }
