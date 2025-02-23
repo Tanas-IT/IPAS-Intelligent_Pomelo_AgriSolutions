@@ -345,7 +345,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
 
       {isEditing && (
         <Flex className={style.contentSectionFooter}>
-          <EditActions handleCancel={handleCancel} handleSave={handleSave} />
+          <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} />
         </Flex>
       )}
     </Flex>

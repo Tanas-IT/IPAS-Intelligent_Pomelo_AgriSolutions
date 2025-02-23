@@ -16,14 +16,14 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllPlanPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int farmId);
 
-        public Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel);
+        public Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId);
 
         public Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel);
 
         public Task<BusinessResult> PermanentlyDeletePlan(int planId);
         public Task<BusinessResult> SoftDeletePlan(int planId);
 
-        public Task<BusinessResult> GetPlanByName(string planName);
+        public Task<BusinessResult> GetPlanByName(string planName, int? farmId);
         public Task<BusinessResult> UnSoftDeletePlan(int planId);
         public Task<BusinessResult> GetPlanByFarmId(int? farmId);
     }

@@ -16,3 +16,4 @@ export { default as useAddressLocation } from "./useAddressLocation";
 export { default as useModal } from "./useModal";
 export { default as useMasterTypeOptions } from "./useMasterTypeOptions";
 export { default as useNotifications } from "./useNotifications";
+export { default as useFormManager } from "./useFormManager";

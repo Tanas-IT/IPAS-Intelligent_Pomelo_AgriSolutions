@@ -5,6 +5,8 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
@@ -37,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel)
+        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -65,6 +67,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
                         Status = "Active",
+                        FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
                     };
 
@@ -137,11 +140,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<Plan, bool>> filter = x =>
-                                 x.PlanTargets.Any(pt =>
-                                     (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
-                                     || (pt.Plant != null && pt.Plant.FarmId == farmId)
-                                     || (pt.LandPlot != null && pt.LandPlot.FarmId == farmId)
-                                     || (pt.LandRow != null && pt.LandRow.FarmId == farmId)
+                           x.IsDelete == false && // Chỉ lấy các bản ghi chưa bị xóa
+                           (
+                               (x.PlanTargets != null && x.PlanTargets.Any(pt =>
+                                   (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
+                                   || (pt.Plant != null && pt.Plant.FarmId == farmId)
+                                   || (pt.LandPlot != null && pt.LandPlot.FarmId == farmId)
+                                   || (pt.LandRow != null && pt.LandRow.FarmId == farmId)
+                               ))
+                               || x.FarmID == farmId
                                  );
                 Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
@@ -466,7 +473,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
-                var getPlan = entities.FirstOrDefault(x => x.PlanId == planId);
+                var getPlan = entities.FirstOrDefault(x => x.PlanId == planId && x.IsDelete == false);
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
@@ -483,13 +490,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPlanByName(string planName)
+        public async Task<BusinessResult> GetPlanByName(string planName, int? farmId)
         {
             try
             {
 
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
-                var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()));
+                var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()) && x.FarmID == farmId && x.IsDelete == false);
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
@@ -1343,7 +1350,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (workLog.Date > DateTime.Now)
                         {
-                            workLog.Status = "Stopped";
+                            await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
                         }
                     }
                 }
@@ -1408,18 +1415,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if(planTarget.PlanID != null)
                     {
                         var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
-                        if (getPlan != null)
+                        if (getPlan != null && getPlan.IsDelete == false)
                         {
                             getListPlan.Add(getPlan);
                         }
                     }
                 }
-                var listTemp = _mapper.Map<List<PlanModel>>(getListPlan).ToList();
-                foreach (var planTemp in listTemp)
-                {
-                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
-                    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
-                }
+                var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlan).ToList();
+                //foreach (var planTemp in listTemp)
+                //{
+                //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                //    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                //}
                 if (listTemp != null)
                 {
                     if(listTemp.Count > 0)

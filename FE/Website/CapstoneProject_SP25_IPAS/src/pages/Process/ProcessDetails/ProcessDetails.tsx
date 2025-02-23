@@ -13,7 +13,8 @@ import ButtonActions from "./ButtonActions";
 import { GetProcessDetail } from "@/payloads/process";
 import AddPlanModal from "../ProcessList/AddPlanModal";
 import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, getFarmId, RulesManager } from "@/utils";
-import { processFormFields } from "@/constants";
+import { MASTER_TYPE, processFormFields } from "@/constants";
+import { useMasterTypeOptions } from "@/hooks";
 
 interface SubProcess {
   subProcessId: number;
@@ -63,10 +64,10 @@ function ProcessDetails() {
   const [isAddPlanModalOpen, setIsAddPlanModalOpen] = useState(false);
   const [selectedSubProcessId, setSelectedSubProcessId] = useState<number>();
   const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
-  const [processTypeOptions, setProcessTypeOptions] = useState<OptionType<number>[]>([]);
-  const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // để lưu task mới tạo
+  const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // lưu task mới tạo
   const [isEditing, setIsEditing] = useState(false);
   const farmId = Number(getFarmId());
+  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
 
 
   useEffect(() => {
@@ -79,11 +80,10 @@ function ProcessDetails() {
       try {
         const data = await processService.getProcessDetail(id);
         setProcessDetail(data);
-        console.log("data", data);
 
         form.setFieldsValue({
           ...data,
-          masterTypeId: data.processMasterTypeModel.masterTypeId,
+          masterTypeId: String(data.processMasterTypeModel.masterTypeId),
           growthStageId: data.processGrowthStageModel.growthStageId
         });
 
@@ -94,7 +94,7 @@ function ProcessDetails() {
     };
     const fetchData = async () => {
       setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
-      setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
+      // setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
     };
     fetchData();
 
@@ -165,10 +165,6 @@ function ProcessDetails() {
         return updateTree(prevTree);
       }
     });
-
-    setTimeout(() => {
-      console.log("tree data sau khi cập nhật:", treeData);
-    }, 0);
   };
 
 
@@ -263,11 +259,6 @@ function ProcessDetails() {
   };
 
   const handleAddPlan = (subProcessKey: number, newPlan: PlanType) => {
-    console.log("Adding plan:", newPlan);
-    console.log("subProcessKey", subProcessKey);
-    console.log("tree data trong add plan", treeData);
-
-
     const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map(node => {
         if (node.key === subProcessKey) {
@@ -298,7 +289,6 @@ function ProcessDetails() {
         };
         setNewTasks(updatedTasks);
       } else {
-        // Nếu task đã tồn tại trong treeData, cập nhật plan trong cây
         updatedTree = updateTree(updatedTree);
       }
 
@@ -306,12 +296,7 @@ function ProcessDetails() {
     });
   };
 
-  console.log(treeData);
-
-
   const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number = 0): any[] => {
-    console.log("nodesss", nodes);
-
     return nodes.flatMap((node, index) => {
       const subProcessId = Number(node.key);
       const subProcess = {
@@ -371,31 +356,28 @@ function ProcessDetails() {
   };
 
   const handleEditPlan = useCallback((plan: PlanType) => {
-    console.log("Chỉnh sửa kế hoạch", plan);
+    console.log("update", plan);
   }, []);
 
-  /**
-   * Xóa kế hoạch
-   */
   const handleDeletePlan = useCallback((planId: number) => {
-    console.log("Xóa kế hoạch với ID:", planId);
+    console.log("delete ID:", planId);
   }, []);
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
     return nodes.map((node) => {
-      // Nếu có plans, tạo một node chứa danh sách kế hoạch
+      // có plans, tạo một node chứa plan list
       const planNodes = node.plans?.length
         ? [{
           title: (
-            <div style={{ fontSize: "14px", padding: "5px 20px", border: "1px solid #ddd", borderRadius: "5px", boxShadow: "2px 2px 10px #20461e" }}>
-              <strong style={{ fontSize: "14px" }}>Plan List:</strong>
+            <div className={style.planList} >
+              <strong className={style.planListTitle}>Plan List:</strong>
               {node.plans.map((plan: PlanType) => (
-                <div key={plan.planId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0" }}>
-                  <span style={{ fontWeight: "lighter" }}>{plan.planName}</span>
-                  <div>
-                    <Icons.edit color="blue" size={20} onClick={() => handleEditPlan(plan)} />
-                    <Icons.delete color="red" size={20} onClick={() => handleDeletePlan(plan.planId)} />
-                  </div>
+                <div key={plan.planId} className={style.planItem}>
+                  <span className={style.planName}>{plan.planName}</span>
+                  <Flex gap={10}>
+                    <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
+                    <Icons.delete color="red" size={18} onClick={() => handleDeletePlan(plan.planId)} />
+                  </Flex>
                 </div>
               ))}
             </div>
@@ -488,8 +470,6 @@ function ProcessDetails() {
 
     const updatedData = reorderNodes(data);
 
-    console.log("Updated Tree:", updatedData);
-
     setTreeData([...updatedData]);
   };
 
@@ -509,7 +489,6 @@ function ProcessDetails() {
           <Tooltip title="Hello">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
-          {/* <Tag className={`${style.statusTag} ${style.normal} ${processDetail?.isActive ? "" : style.inactive}`}>{processDetail?.isActive ? "Active" : "Inactive"}</Tag> */}
 
           {isEditing ? (
             <>

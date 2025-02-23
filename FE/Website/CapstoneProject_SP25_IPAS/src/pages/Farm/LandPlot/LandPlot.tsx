@@ -1,27 +1,28 @@
-import { Button, Flex, Input, Popover, Typography } from "antd";
+import { Flex, Input, Popover } from "antd";
 import style from "./LandPlot.module.scss";
-import { ConfirmModal, LandPlotActions, Loading, MapLandPlot, SectionTitle } from "@/components";
-import { useEffect, useMemo, useState } from "react";
-import { CoordsState, PolygonInit } from "@/types";
+import { LandPlotActions, Loading, MapLandPlot } from "@/components";
+import { useEffect, useState } from "react";
 import { Icons } from "@/assets";
 import PlotListPopup from "./PlotListPopup";
 import { useNavigate } from "react-router-dom";
-import { PATHS } from "@/routes";
 import { landPlotService } from "@/services";
 import { GetLandPlot } from "@/payloads";
 import { useDebounce } from "use-debounce";
 import ColorGuide from "./ColorGuide";
+import { AddNewPlotDrawer } from "@/pages";
 
 function LandPlot() {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [landPlots, setLandPlots] = useState<GetLandPlot[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLandPlotIds, setFilteredLandPlotIds] = useState<string[]>([]);
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isGuidePopupVisible, setGuidePopupVisible] = useState(false);
-
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500)[0];
+
+  const showDrawer = () => setIsDrawerVisible(true);
+  const closeDrawer = () => setIsDrawerVisible(false);
 
   const fetchLandPlotData = async () => {
     try {
@@ -87,12 +88,10 @@ function LandPlot() {
       {/* <SectionTitle title="Plant Management" totalRecords={10} /> */}
       <div className={style.mapWrapper}>
         <MapLandPlot
-          longitude={landPlots[0]?.farmLongtitude}
-          latitude={landPlots[0]?.farmLatitude}
-          isEditing={false}
+          longitude={landPlots[0]?.farmLongtitude ?? 0}
+          latitude={landPlots[0]?.farmLatitude ?? 0}
           landPlots={landPlots}
           highlightedPlots={filteredLandPlotIds}
-          // setMarkerPosition={setMarkerPosition}
         />
         <Flex className={style.mapControls}>
           <Input.Search
@@ -113,11 +112,7 @@ function LandPlot() {
                 <LandPlotActions icon={<Icons.seedling />} label="Color Guide" />
               </>
             </Popover>
-            <LandPlotActions
-              icon={<Icons.plus />}
-              label="Add New Plot"
-              onClick={() => navigate(PATHS.FARM.FARM_PLOT_CREATE)}
-            />
+            <LandPlotActions icon={<Icons.plus />} label="Add New Plot" onClick={showDrawer} />
             <Popover
               content={
                 <PlotListPopup landPlots={landPlots} onClose={() => setPopupVisible(false)} />
@@ -134,6 +129,7 @@ function LandPlot() {
           </Flex>
         </Flex>
       </div>
+      <AddNewPlotDrawer landPlots={landPlots} isOpen={isDrawerVisible} onClose={closeDrawer} />
     </Flex>
   );
 }

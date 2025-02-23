@@ -43,7 +43,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel)
+        public async Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel, int? farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -51,10 +51,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newProcess = new Process()
                     {
-                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{createProcessModel.FarmId}-{CodeAliasEntityConst.GROWTHSTAGE}{createProcessModel.GrowthStageID}",
+                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{farmId}-{CodeAliasEntityConst.GROWTHSTAGE}{createProcessModel.GrowthStageID}",
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        FarmId = createProcessModel.FarmId,
+                        FarmId = farmId,
                         GrowthStageId = createProcessModel.GrowthStageID,
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
@@ -103,6 +103,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 EndDate = subProcess.EndDate,
                             };
 
+                            if(subProcess.ListPlan != null)
+                            {
+                                foreach (var plan in subProcess.ListPlan)
+                                {
+                                    //var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
+                                    var newPlan = new Plan()
+                                    {
+                                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                        PlanName = plan.PlanName,
+                                        PlanDetail = plan.PlanDetail,
+                                        Notes = plan.PlanNote,
+                                        FarmID = farmId,
+                                        GrowthStageId = plan.GrowthStageId,
+                                        MasterTypeId = plan.MasterTypeId,
+                                    };
+
+                                    newSubProcess.Plans.Add(newPlan);
+                                }
+                            }
                             newProcess.SubProcesses.Add(newSubProcess);
                         }
                     }
@@ -113,10 +132,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
                             var newPlan = new Plan()
                             {
-                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId.Value,
+                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
                                 PlanName = plan.PlanName,
                                 PlanDetail = plan.PlanDetail,
                                 Notes = plan.PlanNote,
+                                FarmID = farmId,
                                 GrowthStageId = plan.GrowthStageId,
                                 MasterTypeId = plan.MasterTypeId,
                             };
@@ -344,7 +364,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel)
+        public async Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel, int? farmId)
         {
 
             try
@@ -354,7 +374,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newProcessModel = new CreateProcessModel()
                     {
-                        FarmId = createProcessModel.FarmId,
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         ListSubProcess = createProcessModel.ListSubProcess,
@@ -364,7 +383,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         GrowthStageID = createProcessModel.GrowthStageID,
                         Order = createProcessModel.Order,
                     };
-                    var result = await CreateProcess(newProcessModel);
+                    var result = await CreateProcess(newProcessModel, farmId);
                     if(result.StatusCode == 200)
                     {
                         checkInsertProcess++;

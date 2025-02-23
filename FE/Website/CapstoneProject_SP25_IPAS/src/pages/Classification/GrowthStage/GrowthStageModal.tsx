@@ -7,21 +7,21 @@ import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
 
 type GrowthStageModalProps = {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (values: GrowthStageRequest, isUpdate: boolean) => void;
   onSave: (values: GrowthStageRequest) => void;
   growthStageData?: GetGrowthStage;
 };
 
 const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthStageModalProps) => {
   const [form] = Form.useForm();
-  const isEdit = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
+  const isUpdate = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
 
   const resetForm = () => form.resetFields();
 
   useEffect(() => {
     resetForm();
     if (isOpen) {
-      if (isEdit && growthStageData) {
+      if (isUpdate && growthStageData) {
         form.setFieldsValue({
           growthStageId: growthStageData.growthStageId,
           growthStageName: growthStageData.growthStageName,
@@ -34,31 +34,28 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     }
   }, [isOpen, growthStageData]);
 
+  const getFormData = (): GrowthStageRequest => ({
+    growthStageId: form.getFieldValue(growthStageFormFields.growthStageId),
+    growthStageName: form.getFieldValue(growthStageFormFields.growthStageName),
+    description: form.getFieldValue(growthStageFormFields.description),
+    monthAgeStart: form.getFieldValue(growthStageFormFields.monthAgeStart),
+    monthAgeEnd: form.getFieldValue(growthStageFormFields.monthAgeEnd),
+  });
+
   const handleOk = async () => {
     await form.validateFields();
-
-    const growthStageData: GrowthStageRequest = {
-      growthStageId: form.getFieldValue(growthStageFormFields.growthStageId),
-      growthStageName: form.getFieldValue(growthStageFormFields.growthStageName),
-      description: form.getFieldValue(growthStageFormFields.description),
-      monthAgeStart: form.getFieldValue(growthStageFormFields.monthAgeStart),
-      monthAgeEnd: form.getFieldValue(growthStageFormFields.monthAgeEnd),
-    };
-    onSave(growthStageData);
+    onSave(getFormData());
   };
 
-  const handleCancel = () => {
-    resetForm();
-    onClose();
-  };
+  const handleCancel = () => onClose(getFormData(), isUpdate);
 
   return (
     <ModalForm
       isOpen={isOpen}
       onClose={handleCancel}
       onSave={handleOk}
-      isEdit={isEdit}
-      title={isEdit ? "Update Stage" : "Add New Stage"}
+      isUpdate={isUpdate}
+      title={isUpdate ? "Update Stage" : "Add New Stage"}
     >
       <Form form={form} layout="vertical">
         <FormFieldModal

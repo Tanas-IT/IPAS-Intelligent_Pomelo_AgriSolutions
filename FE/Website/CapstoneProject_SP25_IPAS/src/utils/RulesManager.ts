@@ -66,6 +66,9 @@ export class RulesManager {
   static getDocumentRules = () => this.getRequiredRules("Document Name");
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
 
+  static getLandPlotNameRules = () => this.getRequiredRules("Land Plot Name");
+
+
   static getStageNameRules = () => this.getRequiredRules("Growth Stage Name");
   static getMonthAgeStartRules = () => this.getNumberRules("Month Age Start");
   static getMonthAgeEndRules = () => this.getNumberRules("Month Age End");

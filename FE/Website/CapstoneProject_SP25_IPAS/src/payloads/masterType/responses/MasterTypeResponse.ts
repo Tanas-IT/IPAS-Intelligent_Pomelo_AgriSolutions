@@ -17,5 +17,4 @@ export interface GetMasterType {
   typeName: string;
   createDate: Date;
   isActive: boolean;
-  masterTypeDetailModels: MasterTypeDetail[];
 }

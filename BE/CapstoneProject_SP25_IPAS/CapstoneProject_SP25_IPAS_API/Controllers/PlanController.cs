@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -24,22 +25,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Plan.getPlanWithPagination, Name = "getAllPlanAsync")]
-        public async Task<IActionResult> GetAllPlanWithPagination(PaginationParameter paginationParameter, PlanFilter planFilter)
+        public async Task<IActionResult> GetAllPlanWithPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int? farmId)
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (farmId != null)
-                {
-                    var result = await _planService.GetAllPlanPagination(paginationParameter, planFilter, farmId.Value);
-                    return Ok(result);
-                }
-                var badRequest = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "FarmId is required"
-                };
-                return BadRequest(badRequest);
+
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _planService.GetAllPlanPagination(paginationParameter, planFilter, farmId.Value);
+                return Ok(result);
+
             }
             catch (Exception ex)
             {
@@ -74,11 +69,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Plan.getPlanByName, Name = "getPlanByName")]
-        public async Task<IActionResult> GetPlanByName([FromRoute] string name)
+        public async Task<IActionResult> GetPlanByName([FromRoute] string name, int? farmId)
         {
             try
             {
-                var result = await _planService.GetPlanByName(name);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue || string.IsNullOrEmpty(name))
+                    return BadRequest();
+                var result = await _planService.GetPlanByName(name, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -95,11 +94,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
 
         [HttpPost(APIRoutes.Plan.createPlan, Name = "createPlanAsync")]
-        public async Task<IActionResult> CreatePlanAsync([FromBody] CreatePlanModel createPlanModel)
+        public async Task<IActionResult> CreatePlanAsync([FromBody] CreatePlanModel createPlanModel, int? farmId)
         {
             try
             {
-                var result = await _planService.CreatePlan(createPlanModel);
+
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _planService.CreatePlan(createPlanModel, farmId);
                 return Ok(result);
             }
             catch (Exception ex)

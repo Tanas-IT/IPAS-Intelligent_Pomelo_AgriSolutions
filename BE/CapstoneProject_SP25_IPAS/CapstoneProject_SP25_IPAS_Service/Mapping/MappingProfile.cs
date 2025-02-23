@@ -16,6 +16,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -238,6 +239,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
             CreateMap<PackageDetail, PackageDetailModel>()
                 .ReverseMap();
+
+            CreateMap<LandPlot, ForSelectedModels>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandPlotId))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandPlotCode))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LandPlotName))
+                .ReverseMap();
+
+            CreateMap<Plan, ForSelectedModels>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlanId))
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlanCode))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlanName))
+               .ReverseMap();
+
+            CreateMap<GrowthStage, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GrowthStageID))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GrowthStageCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GrowthStageName))
+              .ReverseMap();
+
         }
     }
 }

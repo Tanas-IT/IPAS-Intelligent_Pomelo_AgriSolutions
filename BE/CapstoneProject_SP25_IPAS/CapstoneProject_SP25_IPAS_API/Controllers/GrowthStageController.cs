@@ -24,22 +24,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.GrowthStage.getGrowthStageWithPagination, Name = "getAllGrowthStagePaginationAsync")]
-        public async Task<IActionResult> GetAllGrowthStage(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllGrowthStage(PaginationParameter paginationParameter, int? farmId)
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if(farmId != null)
-                {
-                    var result = await _growthStageService.GetAllGrowthStagePagination(paginationParameter, farmId.Value);
-                    return Ok(result);
-                }
-                var badRequest = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "FarmId is required"
-                };
-                return BadRequest(badRequest);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _growthStageService.GetAllGrowthStagePagination(paginationParameter, farmId.Value);
+                return Ok(result);
+
             }
             catch (Exception ex)
             {
@@ -72,22 +65,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.GrowthStage.createGrowthStage, Name = "createGrowthStageAsync")]
-        public async Task<IActionResult> CreateGrowthStage([FromBody] CreateGrowthStageModel createGrowthStageModel)
+        public async Task<IActionResult> CreateGrowthStage([FromBody] CreateGrowthStageModel createGrowthStageModel, int? farmId)
         {
             try
             {
-                var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (farmId != null)
-                {
-                    var result = await _growthStageService.CreateGrowthStage(createGrowthStageModel, farmId.Value);
-                    return Ok(result);
-                }
-                var badRequest = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "FarmId is required"
-                };
-                return BadRequest(badRequest);
+
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _growthStageService.CreateGrowthStage(createGrowthStageModel, farmId.Value);
+                return Ok(result);
             }
             catch (Exception ex)
             {

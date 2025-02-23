@@ -62,7 +62,6 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLOT_LIST, component: LandPlot, layout: ManagementLayout },
-  { path: PATHS.FARM.FARM_PLOT_CREATE, component: LandPlotCreate, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },

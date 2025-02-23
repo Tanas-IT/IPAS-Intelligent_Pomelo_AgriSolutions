@@ -275,34 +275,12 @@ export const fetchCropOptions = async (farmId: string) => {
   }));
 };
 
-// export const fetchGrowthStageOptions = async () => {
-//   const growthStages = await growthStageService.getGrowthStages();
-
-//   return growthStages.list.map((growthStage) => ({
-//     value: growthStage.growthStageName,
-//     label: growthStage.growthStageName,
-//   }));
-// };
-
-// export const fetchGrowthStageOptions = async (useIdAsValue = false, farmId: number) => {
-//   const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
-//   console.log("growthStages", growthStages);
-  
-
-//   return growthStages.map((growthStage: { growthStageID: number; growthStageName: string }) => ({
-//     value: useIdAsValue ? growthStage.growthStageID : growthStage.growthStageName,
-//     label: growthStage.growthStageName,
-//   }));
-// };
-
 export const fetchGrowthStageOptions = async (farmId: number) => {
   const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
-  console.log("growthStages", growthStages);
-  
 
-  return growthStages.map((growthStage: { growthStageID: number; growthStageName: string }) => ({
-    value: growthStage.growthStageID,
-    label: growthStage.growthStageName,
+  return growthStages.map((growthStage: { id: number; name: string }) => ({
+    value: growthStage.id,
+    label: growthStage.name,
   }));
 };
 

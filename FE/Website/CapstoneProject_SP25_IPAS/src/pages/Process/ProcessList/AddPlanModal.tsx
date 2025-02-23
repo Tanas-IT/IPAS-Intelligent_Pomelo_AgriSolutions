@@ -12,7 +12,7 @@ type AddPlanModalProps = {
     onSave: (values: Omit<PlanType, "planId">) => void;
     editPlan?: PlanType | null;
     growthStageOptions: { value: number; label: string }[];
-    processTypeOptions: { value: number; label: string }[];
+    processTypeOptions: { value: string; label: string }[];
     subProcessId?: number;
 };
 

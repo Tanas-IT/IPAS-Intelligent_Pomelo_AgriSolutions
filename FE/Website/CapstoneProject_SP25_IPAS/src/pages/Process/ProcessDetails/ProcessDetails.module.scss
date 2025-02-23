@@ -153,3 +153,25 @@
   background-color: vars.$color_no_btn;
   color: white;
 }
+
+
+.planList {
+  font-size: 14px;
+  padding: 5px 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px #bcd379;
+  .planListTitle {
+    font-size: 14px;
+  }
+
+  .planItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    .planName {
+      font-weight: lighter;
+    }
+  }
+}
