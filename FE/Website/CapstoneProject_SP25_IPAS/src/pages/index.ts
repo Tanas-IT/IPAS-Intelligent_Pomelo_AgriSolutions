@@ -25,3 +25,4 @@ export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
+export { default as PackageList } from "@/pages/Package/PackageList/PackageList";

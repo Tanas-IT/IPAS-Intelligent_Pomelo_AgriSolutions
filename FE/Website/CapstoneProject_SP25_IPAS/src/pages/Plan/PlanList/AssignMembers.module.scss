@@ -43,3 +43,14 @@
     border-color: vars.$color_second !important;
   }
 }
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radio {
+  margin-left: 8px;
+}
+

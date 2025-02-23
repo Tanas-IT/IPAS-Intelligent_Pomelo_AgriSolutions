@@ -17,7 +17,7 @@ export const getUsers = async (
     sortField,
     sortDirection,
     searchValue,
-    brandId,
+    // brandId,
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("app-users", { params });

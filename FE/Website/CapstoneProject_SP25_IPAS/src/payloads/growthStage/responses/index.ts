@@ -1,1 +1,1 @@
-export * from "./GrowthStageResponse";
+export * from "./GetGrowthStage";

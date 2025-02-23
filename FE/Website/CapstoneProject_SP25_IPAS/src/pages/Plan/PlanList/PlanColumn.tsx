@@ -19,25 +19,19 @@ export const planColumns: TableColumn<GetPlan>[] = [
     {
       header: "Created Date",
       field: "createDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.createDate.toLocaleDateString()}</div>,
+      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.createDate).toLocaleDateString() : "N/A"}</div>,
       width: 150,
     },
     {
       header: "Start Date",
       field: "startDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.startDate.toLocaleDateString()}</div>,
+      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.startDate).toLocaleDateString() : "N/A"}</div>,
       width: 150,
     },
     {
       header: "End Date",
       field: "endDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.endDate.toLocaleDateString()}</div>,
-      width: 150,
-    },
-    {
-      header: "Responsible By",
-      field: "responsibleBy",
-      accessor: (plan) => <div className={style.tableText}>{plan.responsibleBy}</div>,
+      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.endDate).toLocaleDateString() : "N/A"}</div>,
       width: 150,
     },
     {

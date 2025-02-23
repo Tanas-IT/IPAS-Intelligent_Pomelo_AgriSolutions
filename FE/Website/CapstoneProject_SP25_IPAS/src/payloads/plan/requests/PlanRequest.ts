@@ -1,20 +1,26 @@
+import { Dayjs } from "dayjs";
+
 export interface PlanRequest {
     planName: string;
-    startDate: Date;
-    endDate: Date;
-    startTime: Date;
-    endTime: Date;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
     isActive: boolean;
     planDetail: string;
-    responsibleBy: string[];
+    responsibleBy?: string[];
     frequency: string;
-    landPlot: number;
+    landPlotId: number;
     assignorId: number;
-    processId: string;
-    cropId: string;
-    growthStageId: string;
+    processId: number;
+    cropId: number;
+    growthStageId: number;
     masterTypeId: number;
-    daysOfWeek: number[];
-    daysOfMonth: number[];
-    customDates : Date[];
+    dayOfWeek: number[];
+    dayOfMonth: number[];
+    customDates? : Dayjs[];
+    listEmployee: {
+        userId: number;
+        isReporter: boolean;
+    }[];
 }
