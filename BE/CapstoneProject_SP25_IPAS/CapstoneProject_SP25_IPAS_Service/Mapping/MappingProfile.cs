@@ -246,6 +246,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LandPlotName))
                 .ReverseMap();
 
+            CreateMap<Plan, ForSelectedModels>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlanId))
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlanCode))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlanName))
+               .ReverseMap();
+
+            CreateMap<GrowthStage, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GrowthStageID))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GrowthStageCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GrowthStageName))
+              .ReverseMap();
+
         }
     }
 }

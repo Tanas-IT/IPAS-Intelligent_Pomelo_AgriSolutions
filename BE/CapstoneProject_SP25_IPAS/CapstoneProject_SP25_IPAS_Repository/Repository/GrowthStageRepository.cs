@@ -26,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.Plans)
                 .Include(x => x.MasterTypes)
                 .Include(x => x.Farm).
-                Where(x => x.FarmID == farmId).ToListAsync();
+                Where(x => x.FarmID == farmId && x.isDeleted == false).ToListAsync();
             return result;
         }
     }
