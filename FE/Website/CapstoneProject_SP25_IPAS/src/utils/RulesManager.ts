@@ -66,6 +66,10 @@ export class RulesManager {
   static getDocumentRules = () => this.getRequiredRules("Document Name");
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
 
+  static getStageNameRules = () => this.getRequiredRules("Growth Stage Name");
+  static getMonthAgeStartRules = () => this.getNumberRules("Month Age Start");
+  static getMonthAgeEndRules = () => this.getNumberRules("Month Age End");
+
   static getTypeNameRules = () => this.getRequiredRules("Type Name");
   static getTypeRules = () => this.getRequiredRules("Type");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");

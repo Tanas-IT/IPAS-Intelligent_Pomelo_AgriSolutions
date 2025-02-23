@@ -12,6 +12,6 @@ export interface MasterTypeRequest {
   characteristic: string;
   typeName: string;
   isActive: boolean;
-  createBy: string;
+  createBy?: string;
   // masterTypeDetailModels: MasterTypeDetailRequest[];
 }

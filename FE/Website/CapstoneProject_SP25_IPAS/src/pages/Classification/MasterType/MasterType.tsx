@@ -16,6 +16,7 @@ import {
   useTableUpdate,
   useTableAdd,
   useFilters,
+  useHasChanges,
 } from "@/hooks";
 import { useEffect } from "react";
 import { DEFAULT_FILTERS, getOptions } from "@/utils";
@@ -23,12 +24,12 @@ import { masterTypeService } from "@/services";
 import { masterTypeColumns } from "./MasterTypeColumn";
 import MasterTypeFilter from "./MasterTypeFilter";
 import { FilterMasterTypeState } from "@/types";
-import MasterTypeModel from "./MasterTypeModel";
+import MasterTypeModel from "./MasterTypeModal";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
-  const deleteConfirmModal = useModal<{ id: number | string }>();
-  const updateConfirmModal = useModal<{ doc: MasterTypeRequest }>();
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_FILTERS,
@@ -62,7 +63,7 @@ function MasterType() {
 
   const { handleDelete } = useTableDelete(
     {
-      deleteFunction: masterTypeService.deleteMasterType,
+      deleteFunction: masterTypeService.deleteMasterTypes,
       fetchData,
       onSuccess: () => {
         deleteConfirmModal.hideModal();
@@ -76,8 +77,14 @@ function MasterType() {
     },
   );
 
+  const hasChanges = useHasChanges<MasterTypeRequest>(data);
+
   const handleUpdateConfirm = (type: MasterTypeRequest) => {
-    handleUpdate(type);
+    if (hasChanges(type, "masterTypeId")) {
+      updateConfirmModal.showModal({ type });
+    } else {
+      formModal.hideModal();
+    }
   };
 
   const { handleUpdate } = useTableUpdate<MasterTypeRequest>({
@@ -115,6 +122,7 @@ function MasterType() {
           columns={masterTypeColumns}
           rows={data}
           rowKey="masterTypeCode"
+          idName="masterTypeId"
           title={
             <TableTitle
               onSearch={handleSearch}
@@ -128,13 +136,14 @@ function MasterType() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
           caption="Master Type Management Table"
           notifyNoData="No data to display"
           renderAction={(type: GetMasterType) => (
             <ActionMenuMasterType
               onEdit={() => formModal.showModal(type)}
-              onDelete={() => deleteConfirmModal.showModal({ id: type.masterTypeId })}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [type.masterTypeId] })}
             />
           )}
         />
@@ -157,23 +166,18 @@ function MasterType() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
-        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
         onCancel={deleteConfirmModal.hideModal}
-        title="Delete Type?"
-        description="Are you sure you want to delete this type? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        isDanger={true}
+        itemName="Type"
+        actionType="delete"
       />
       {/* Confirm Update Modal */}
       <ConfirmModal
         visible={updateConfirmModal.modalState.visible}
         onConfirm={handleUpdate}
         onCancel={updateConfirmModal.hideModal}
-        title="Update Document?"
-        description="Are you sure you want to update this document? This action cannot be undone."
-        confirmText="Save Changes"
-        cancelText="Cancel"
+        itemName="Type"
+        actionType="update"
       />
     </Flex>
   );

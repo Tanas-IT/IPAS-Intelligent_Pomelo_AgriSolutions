@@ -1,0 +1,32 @@
+import { useState, useEffect } from "react";
+import { masterTypeService } from "@/services";
+import { ApiResponse, GetMasterType } from "@/payloads";
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+const useMasterTypeOptions = (type: string, isDocument: boolean = false) => {
+  const [options, setOptions] = useState<SelectOption[]>([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const result: ApiResponse<GetMasterType[]> = await masterTypeService.getSelectMasterTypes(
+        type,
+      );
+      if (result.statusCode === 200) {
+        const mappedOptions = result.data.map((item) => ({
+          value: isDocument ? item.masterTypeName : String(item.masterTypeId),
+          label: item.masterTypeName,
+        }));
+        setOptions(mappedOptions);
+      }
+    };
+
+    fetchOptions();
+  }, [type]);
+
+  return { options };
+};
+export default useMasterTypeOptions;

@@ -1,4 +1,4 @@
-import { GetMasterType, MasterTypeDetail } from "@/payloads";
+import { GetGrowthStage, GetMasterType, MasterTypeDetail } from "@/payloads";
 
 export const farmFormFields = {
   farmName: "farmName",
@@ -36,6 +36,16 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   createDate: "createDate",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
+};
+
+export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
+  growthStageId: "growthStageId",
+  growthStageCode: "growthStageCode",
+  growthStageName: "growthStageName",
+  description: "description",
+  monthAgeStart: "monthAgeStart",
+  monthAgeEnd: "monthAgeEnd",
+  createDate: "createDate",
 };
 
 export const worklogFormFields = {

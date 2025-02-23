@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Icons } from "@/assets";
-import ActionMenu from "../ActionMenu/ActionMenu";
+import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 
 interface ActionMenuProps {
@@ -9,16 +9,16 @@ interface ActionMenuProps {
   //   onDelete: (id: number) => void;
 }
 
-const ActionMenuProcess: FC<ActionMenuProps> = ({ id }) => {
+const ActionMenuPlan: FC<ActionMenuProps> = ({ id }) => {
   const navigate = useNavigate();
-  const handleEditClick = async () => {
+  const handleUpdateClick = async () => {
     console.log("Edit Clicked");
-    
+    navigate(`/plans/update/${id}`);
   };
 
   const handleDetailClick = async () => {
     console.log("Detail Clicked");
-    navigate(`/processes/${id}`);
+    navigate(`/plans/${id}`);
   };
   const actionItems = [
     {
@@ -28,21 +28,21 @@ const ActionMenuProcess: FC<ActionMenuProps> = ({ id }) => {
     },
     {
       icon: <Icons.edit />,
-      label: "Update Process",
-      onClick: handleEditClick,
+      label: "Update Plan",
+      onClick: handleUpdateClick,
     },
     {
       icon: <Icons.delete />,
-      label: "Delete Process",
+      label: "Delete Plan",
       onClick: () => {},
     },
   ];
 
   return (
     <>
-      <ActionMenu title="Process Manage" items={actionItems} />
+      <ActionMenu title="Plan Manage" items={actionItems} />
     </>
   );
 };
 
-export default ActionMenuProcess;
+export default ActionMenuPlan;

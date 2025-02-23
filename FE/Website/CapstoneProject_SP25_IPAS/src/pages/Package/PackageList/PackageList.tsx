@@ -6,12 +6,13 @@ import { useFetchData } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { packageService, planService } from "@/services";
-import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan/ActionMenuPlan";
+// import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan/ActionMenuPlan";
 import { GetPlan } from "@/payloads/plan";
 import PackageFilter from "./PackageFilter";
 import { packageColumns } from "./PackageColumns";
 import { TableTitle } from "./TableTitle";
 import { GetPackage } from "@/payloads/package";
+import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan";
 
 
 function PackageList() {
@@ -41,7 +42,6 @@ function PackageList() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-    isInitialLoad,
   } = useFetchData<GetPackage>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       packageService.getPackage(page, limit, sortField, sortDirection, searchValue, filters),
@@ -102,7 +102,6 @@ function PackageList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isLoading={false}
-          isInitialLoad={isInitialLoad}
           caption="Package Management Table"
           notifyNoData="No data to display"
           renderAction={(packagee: GetPackage) => <ActionMenuPlan id={packagee.packageId} />}

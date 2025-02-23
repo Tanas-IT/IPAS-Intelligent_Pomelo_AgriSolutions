@@ -83,6 +83,8 @@ function ProcessDetails() {
 
         form.setFieldsValue({
           ...data,
+          masterTypeId: data.processMasterTypeModel.masterTypeId,
+          growthStageId: data.processGrowthStageModel.growthStageId
         });
 
         setTreeData(mapSubProcessesToTree(data.subProcesses));
@@ -91,14 +93,14 @@ function ProcessDetails() {
       }
     };
     const fetchData = async () => {
-                setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
-                setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
-            };
-            fetchData();
+      setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
+      setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
+    };
+    fetchData();
 
     fetchProcessDetails();
   }, [id]);
-  
+
 
   const addTaskToTree = (
     nodes: CustomTreeDataNode[],
@@ -330,11 +332,13 @@ function ProcessDetails() {
 
   const handleSaveProcess = () => {
     const payload = {
-      processId: id || 0,
-      processName: processDetail?.processName || "New Process",
-      isActive: processDetail?.isActive ?? true,
-      isDefault: processDetail?.isDefault ?? false,
-      isDeleted: processDetail?.isDeleted ?? false,
+      ProcessId: id || 0,
+      ProcessName: processDetail?.processName || "New Process",
+      IsActive: processDetail?.isActive ?? true,
+      IsDefault: processDetail?.isDefault ?? false,
+      IsDeleted: processDetail?.isDeleted ?? false,
+      MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
+      GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
       ListUpdateSubProcess: convertTreeToList(treeData),
       ListDeletedSubProcess: convertDeletedNodesToList(deletedNodes),
     };
@@ -348,7 +352,7 @@ function ProcessDetails() {
       SubProcessId: Number(node.key),
       SubProcessName: node.title || "New Task",
       ParentSubProcessId: 0,
-      IsDefault: true,
+      IsDefault: false,
       IsActive: false,
       ProcessStyleId: 0,
       Status: node.status || "deleted",
@@ -384,10 +388,10 @@ function ProcessDetails() {
         ? [{
           title: (
             <div style={{ fontSize: "14px", padding: "5px 20px", border: "1px solid #ddd", borderRadius: "5px", boxShadow: "2px 2px 10px #20461e" }}>
-              <strong style={{fontSize: "14px"}}>Plan List:</strong>
+              <strong style={{ fontSize: "14px" }}>Plan List:</strong>
               {node.plans.map((plan: PlanType) => (
                 <div key={plan.planId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0" }}>
-                  <span style={{fontWeight: "lighter"}}>{plan.planName}</span>
+                  <span style={{ fontWeight: "lighter" }}>{plan.planName}</span>
                   <div>
                     <Icons.edit color="blue" size={20} onClick={() => handleEditPlan(plan)} />
                     <Icons.delete color="red" size={20} onClick={() => handleDeletePlan(plan.planId)} />
@@ -506,7 +510,7 @@ function ProcessDetails() {
             <Icons.tag className={style.iconTag} />
           </Tooltip>
           {/* <Tag className={`${style.statusTag} ${style.normal} ${processDetail?.isActive ? "" : style.inactive}`}>{processDetail?.isActive ? "Active" : "Inactive"}</Tag> */}
-        
+
           {isEditing ? (
             <>
               <div className={style.addButton}>
@@ -526,14 +530,14 @@ function ProcessDetails() {
         </Flex>
         <label className={style.subTitle}>Code: {processDetail?.processCode}</label>
         <div className={style.status}>
-        <InfoField
-              label=""
-              name={processFormFields.isActive}
-              isEditing={isEditing}
-              type="switch"
-              value={processDetail?.isActive}
-            />
-          </div>
+          <InfoField
+            label=""
+            name={processFormFields.isActive}
+            isEditing={isEditing}
+            type="switch"
+            value={processDetail?.isActive}
+          />
+        </div>
         <Divider className={style.divider} />
         <Flex vertical className={style.infoProcess}>
           <Flex className={style.plotItemDetails}>
@@ -568,7 +572,6 @@ function ProcessDetails() {
             No data
           </div>
         ) : (
-          <>
             <Tree
               style={{ fontSize: "18px" }}
               draggable
@@ -577,7 +580,8 @@ function ProcessDetails() {
               treeData={loopNodes(treeData)}
             // disabled
             />
-            {isEditing ? (
+        )}
+        {isEditing ? (
               <div className={style.buttonGroup}>
                 <Button onClick={() => setIsEditing(false)}>Cancel</Button>
                 <CustomButton
@@ -589,9 +593,6 @@ function ProcessDetails() {
             ) : (
               <></>
             )}
-
-          </>
-        )}
         {isAddPlanModalOpen && (
           <AddPlanModal
             isOpen={isAddPlanModalOpen}
