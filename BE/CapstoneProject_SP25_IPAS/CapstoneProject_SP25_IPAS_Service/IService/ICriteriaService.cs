@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetCriteriaById(int criteriaId);
         public Task<BusinessResult> UpdateListCriteriaInType(ListCriteriaUpdateRequest listCriteriaUpdateRequest);
         public Task<BusinessResult> UpdateOneCriteriaInType(CriteriaUpdateRequest criteriaUpdateRequests);
-        public Task<BusinessResult> GetCriteriaOfPlant(int plantId);
+        public Task<BusinessResult> GetCriteriaOfTarget(GetCriteriaOfTargetRequest reqeust);
+        public Task<BusinessResult> CreateCriteriaWithMasterType(CreateCriteriaMasterTypeRequest request);
+        public (bool IsValid, string ErrorMessage) ValidateCriteriaPriorities(List<CriteriaCreateRequest> criteriaList);
 
     }
 }

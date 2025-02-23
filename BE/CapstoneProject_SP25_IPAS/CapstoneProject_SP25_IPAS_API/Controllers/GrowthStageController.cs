@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var farmId = _jwtTokenService.GetFarmIdFromToken();
-                if(farmId != null)
+                if (farmId != null)
                 {
                     var result = await _growthStageService.GetAllGrowthStagePagination(paginationParameter, farmId.Value);
                     return Ok(result);

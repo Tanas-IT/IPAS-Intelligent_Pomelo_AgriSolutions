@@ -2,23 +2,14 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
-using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -33,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> CreateMasterType(CreateMasterTypeModel createMasterTypeModel)
+        public async Task<BusinessResult> CreateMasterType(CreateMasterTypeRequestModel createMasterTypeModel)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
