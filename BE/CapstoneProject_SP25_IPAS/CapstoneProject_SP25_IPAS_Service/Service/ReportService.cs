@@ -75,7 +75,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> Dashboard(int farmId)
+        public async Task<BusinessResult> Dashboard(int? farmId)
         {
             try
             {
@@ -83,11 +83,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var totalEmployee = await _unitOfWork.UserRepository.GetAllEmployeeByFarmId(farmId);
                 var toltalTask = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
                 var growthStagePercentage = totalPlant
-                                               .Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId && p.GrowthStage != null) // Bỏ cây không có GrowthStage
+                                               .Where(p => p.FarmId == farmId && p.GrowthStage != null) // Bỏ cây không có GrowthStage
                                                .GroupBy(p => p.GrowthStage.GrowthStageName)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
                                                );
                 var plantHeathStatus = totalPlant
                                                .Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId && !string.IsNullOrEmpty(p.HealthStatus)) // Bỏ cây không có Status
@@ -120,7 +120,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TotalTask = toltalTask.Count(),
                     TaskStatus = listTaskStatusDistribution
                 };
-                var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+                var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
                 string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
                 
                 HttpResponseMessage response = await _httpClient.GetAsync(url);

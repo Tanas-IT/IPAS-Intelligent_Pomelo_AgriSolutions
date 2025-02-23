@@ -8,9 +8,9 @@ namespace CapstoneProject_SP25_IPAS_Common.Enum
 {
     public enum TypeNameInMasterEnum
     {
-        ProcessType,
-        CriteriaType,
-        HarvestType,
-        CultivaType,
+        Process,
+        Criteria,
+        Harvest,
+        Cultiva,
     }
 }

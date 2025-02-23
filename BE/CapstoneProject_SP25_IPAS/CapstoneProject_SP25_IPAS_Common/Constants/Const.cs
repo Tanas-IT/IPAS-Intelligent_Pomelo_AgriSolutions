@@ -160,13 +160,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_CRITERIA_BY_ID_MSG = "Get criteria by id success";
         #endregion
 
-        #region Plant-Criteria
-        public static int SUCCESS_APPLY_LIST_CRITERIA_PLANTS_CODE = 200;
-        public static string SUCCESS_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
+        #region CriteriaTarget
+        public static int SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE = 200;
+        public static string SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG = "Apply criteias for selected list success";
         public static int SUCCES_CHECK_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_CHECK_PLANT_CRITERIA_MSG = "Check criteria of plant success";
         public static int SUCCES_GET_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_GET_PLANT_CRITERIA_MSG = "Get criteria of plant success";
+        public static int SUCCES_DELETE_CRITERIA_TARGET_CODE = 200;
+        public static string SUCCES_DELETE_CRITERIA_TARGET_MSG = "Delete criteria for object success";
         #endregion
 
         #region landplot
@@ -552,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PROCESS_CODE = 500;
         public static string FAIL_GET_PROCESS_MESSAGE = "Get process failed";
         public static int FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE = 500;
-        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess that iss not part of the process";
+        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess because it is not part of the process";
         #endregion
 
         #region SubProcess Fail code
@@ -569,21 +571,23 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Criteria
-        public static int FAIL_CREATE_CRITERIA_CODE = 500;
+        public static int FAIL_CREATE_CRITERIA_CODE = 400;
         public static string FAIL_CREATE_CRITERIA_MESSAGE = "Create criteria failed";
-        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 500;
+        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 400;
         public static string FAIL_GET_CRITERIA_BY_ID_MSG = "Get criteria failed";
-        public static int FAIL_UPDATE_CRITERIA_CODE = 500;
+        public static int FAIL_UPDATE_CRITERIA_CODE = 400;
         public static string FAIL_UPDATE_CRITERIA_MSG = "Update criteria type failed";
+        public static int FAIL_GET_CRITERIA_CODE = 400;
+        public static string FAIL_GET_CRITERIA_MSG = "Get criteria failed";
+        public static int FAIL_CHECK_CRITERIA_TARGET_CODE = 400;
+        public static string FAIL_CHECK_CRITERIA_TARGET_MSG = "Check criteria fail";
         #endregion
 
-        #region Plant-Criteria Fail code
-        public static int FAIL_PLANTS_REQUEST_EMPTY_CODE = 500;
-        public static string FAIL_PLANT_REQUEST_EMPTY_MSG = "You not select any plant";
-        public static int FAIL_CRITERIA_REQUEST_EMPTY_CODE = 500;
-        public static string FAIL_CRITERIA_REQUEST_EMPTY_MSG = "You not select any Criteria";
-        public static int FAIL_APPLY_LIST_CRITERIA_PLANTS_CODE = 500;
-        public static string FAIL_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
+        #region CriteriaTarget Fail code
+        public static int FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE = 400;
+        public static string FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG = "Apply criteias for selected list fail because all of them was has exist";
+        public static int FAIL_DELETE_CRITERIA_CODE = 400;
+        public static string FAIL_DELETE_CRITERIA_MSG = "Can not detete this criteria has applied";
         #endregion
 
         #region Farm Fail code
@@ -865,6 +869,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG = "Does not have any partner";
         #endregion
 
+        #region CriteriaTarget
+        public static int WARING_OBJECT_REQUEST_EMPTY_CODE = 400;
+        public static string WARNING_OBJECT_REQUEST_EMPTY_MSG = "You not select any object";
+        public static int WARINING_CRITERIA_REQUEST_EMPTY_CODE = 400;
+        public static string WARINING_CRITERIA_REQUEST_EMPTY_MSG = "You not select any Criteria";
+        #endregion
         #region GrowthStage
         public static int WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE = 404;
         public static string WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG = "Does not have any GrowthStage";
