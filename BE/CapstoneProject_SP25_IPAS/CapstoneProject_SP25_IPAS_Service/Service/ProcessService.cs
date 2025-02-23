@@ -114,6 +114,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         PlanName = plan.PlanName,
                                         PlanDetail = plan.PlanDetail,
                                         Notes = plan.PlanNote,
+                                        FarmID = farmId,
                                         GrowthStageId = plan.GrowthStageId,
                                         MasterTypeId = plan.MasterTypeId,
                                     };
@@ -135,6 +136,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlanName = plan.PlanName,
                                 PlanDetail = plan.PlanDetail,
                                 Notes = plan.PlanNote,
+                                FarmID = farmId,
                                 GrowthStageId = plan.GrowthStageId,
                                 MasterTypeId = plan.MasterTypeId,
                             };
