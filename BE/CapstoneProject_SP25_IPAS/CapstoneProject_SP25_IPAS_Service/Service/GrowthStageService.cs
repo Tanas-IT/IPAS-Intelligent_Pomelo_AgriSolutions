@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -151,7 +152,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (getGrowthStageByFarmId.Count() > 0)
                     {
-                        var mappedModel = _mapper.Map<List<GetForSelectGrowthStage>>(getGrowthStageByFarmId);
+                        var mappedModel = _mapper.Map<List<ForSelectedModels>>(getGrowthStageByFarmId);
                         return new BusinessResult(Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_CODE, Const.SUCCESS_GET_GROWTHSTAGE_BY_FARM_ID_MESSAGE, mappedModel);
                     }
                     return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
