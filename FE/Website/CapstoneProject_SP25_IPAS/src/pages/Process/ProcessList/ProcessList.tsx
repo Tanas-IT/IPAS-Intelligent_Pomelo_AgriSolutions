@@ -67,10 +67,10 @@ function ProcessList() {
   };
 
   const { handleAdd } = useTableAdd({
-      addService: processService.createProcess,
-      fetchData: fetchData,
-      onSuccess: () => formModal.hideModal(),
-    });
+    addService: processService.createProcess,
+    fetchData: fetchData,
+    onSuccess: () => formModal.hideModal(),
+  });
 
   const filterContent = (
     <ProcessFilter
@@ -89,7 +89,14 @@ function ProcessList() {
           columns={processColumns}
           rows={data}
           rowKey="processCode"
-          title={<TableTitle onSearch={handleSearch} filterContent={filterContent} addLabel="Add New Type" onAdd={() => formModal.showModal()} />}
+          title={
+            <TableTitle
+              onSearch={handleSearch}
+              filterContent={filterContent}
+              addLabel="Add New Process"
+              onAdd={() => formModal.showModal()}
+            />
+          }
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           rotation={rotation}
@@ -110,10 +117,10 @@ function ProcessList() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
-      <ProcessModal 
-      isOpen={formModal.modalState.visible}
-      onClose={formModal.hideModal}
-      onSave={handleAdd} />
+      <ProcessModal
+        isOpen={formModal.modalState.visible}
+        onClose={formModal.hideModal}
+        onSave={handleAdd} />
     </Flex>
   );
 }
