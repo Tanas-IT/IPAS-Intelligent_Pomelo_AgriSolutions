@@ -532,7 +532,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         checkExistProcess.UpdateDate = DateTime.Now;
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
-                            var listSubProcessUpdateConvert = JsonConvert.DeserializeObject<List<UpdateSubProcessModel>>(updateProcessModel.ListUpdateSubProcess.ToString());
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
                             foreach (var subProcessRaw in updateProcessModel.ListUpdateSubProcess)
                             {
