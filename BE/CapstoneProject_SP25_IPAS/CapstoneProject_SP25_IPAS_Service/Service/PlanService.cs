@@ -89,7 +89,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                     var getListMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("notification");
-                    var getMasterType = getListMasterType.FirstOrDefault(x => x.MasterTypeName.ToLower().Contains("taskAssigned".ToLower()));
+                    var getMasterType = getListMasterType.FirstOrDefault(x => x.MasterTypeName.ToLower().Contains("Task Assignment".ToLower()));
                     var addNotification = new Notification()
                     {
                         Content = "Plan " + createPlanModel.PlanName + " has just been created",
@@ -713,7 +713,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 throw new Exception("Start time must be less than End Time");
             }
 
-            if (plan.Frequency == null && createPlanModel.CustomDates != null)
+            if (plan.Frequency.ToLower() == "none" && createPlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
                 {
