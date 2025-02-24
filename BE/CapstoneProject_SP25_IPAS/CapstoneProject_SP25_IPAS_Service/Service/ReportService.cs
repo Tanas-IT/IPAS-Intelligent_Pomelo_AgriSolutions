@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
@@ -12,6 +14,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -109,12 +112,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
 
-                    var listTaskStatusDistribution = filteredTask
-                        .GroupBy(x => x.Status)
-                        .ToDictionary(
-                            g => g.Key!,
-                            g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
-                        );
+                var listTaskStatusDistribution = filteredTask
+                    .GroupBy(x => x.Status)
+                    .ToDictionary(
+                        g => g.Key!,
+                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                    );
                 var taskStatusDistribution = new TaskStatusDistribution()
                 {
                     TotalTask = toltalTask.Count(),
@@ -122,13 +125,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
                 string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
-                
+
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 JObject weatherData = JObject.Parse(responseBody);
-                var weatherProperty =  new WeatherPropertyModel
+                var weatherProperty = new WeatherPropertyModel
                 {
                     CurrentTemp = weatherData["main"]["temp"].Value<double>(),
                     TempMax = weatherData["main"]["temp_max"].Value<double>(),
@@ -153,9 +156,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     WeatherPropertyModel = weatherProperty
                 };
 
-                if(dashboardModel != null )
+                if (dashboardModel != null)
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_DASHBOARD_REPORT_CODE, Const.SUCCESS_GET_DASHBOARD_REPORT_MSG, dashboardModel );
+                    return new BusinessResult(Const.SUCCESS_GET_DASHBOARD_REPORT_CODE, Const.SUCCESS_GET_DASHBOARD_REPORT_MSG, dashboardModel);
                 }
                 return new BusinessResult(Const.FAIL_GET_DASHBOARD_REPORT_CODE, Const.FAIL_GET_DASHBOARD_REPORT_MSG, null);
             }
@@ -165,13 +168,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> MaterialsInStore(int year, int farmId)
+        public async Task<BusinessResult> MaterialsInStore(int year, int? farmId)
         {
             try
             {
                 if (year == 0) year = DateTime.Now.Year;
-                var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude();
-               
+                var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude(farmId);
+
                 var getListHarvestHistory = getListHarvestHistoryTemp.Where(x => x.DateHarvest.HasValue && x.DateHarvest.Value.Year == year)
                                         .GroupBy(p => p.Crop.HarvestSeason) // Nhóm theo mùa
                                         .Select(g => new
@@ -199,9 +202,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             })
                                             .ToList()
                                         }).ToList();
-                if(getListHarvestHistory != null)
+                if (getListHarvestHistory != null)
                 {
-                    if(getListHarvestHistory.Count > 0)
+                    if (getListHarvestHistory.Count > 0)
                     {
                         return new BusinessResult(Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG, getListHarvestHistory);
                     }
@@ -216,12 +219,62 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> PomeloQualityBreakDown(int year)
+        public async Task<BusinessResult> PomeloQualityBreakDown(int year, int? farmId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (year == 0) year = DateTime.Now.Year;
+                var rawData = await _unitOfWork.HarvestTypeHistoryRepository.GetHarvestDataByYear(year, farmId);
+
+                // Nhóm dữ liệu theo mùa vụ
+                var groupedData = rawData
+                    .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                    .Select(g => new
+                    {
+                        HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
+                        QualityType = g.Key.MasterTypeName ?? "Không xác định",
+                        Quantity = g.Sum(ht => ht.Quantity ?? 0)
+                    })
+                    .ToList();
+
+                // Tính tổng sản lượng theo từng mùa
+                var totalBySeason = groupedData
+                    .GroupBy(g => g.HarvestSeason)
+                    .ToDictionary(g => g.Key, g => g.Sum(q => q.Quantity));
+
+                // Xây dựng danh sách kết quả
+                var result = groupedData
+                    .GroupBy(g => g.HarvestSeason)
+                    .Select(g => new PomeloQualityBreakDown
+                    {
+                        HarvestSeason = g.Key,
+                        QualityStats = g.Select(q => new QualityStat
+                        {
+                            QualityType = q.QualityType,
+                            Percentage = Math.Round(totalBySeason[g.Key] == 0 ? 0 : (double)q.Quantity / totalBySeason[g.Key] * 100, 2)
+                        }).ToList()
+                    })
+                    .OrderBy(s => s.HarvestSeason)
+                    .ToList();
+                if(result != null)
+                {
+                    if (result.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE, Const.SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG, result);
+                    }
+                    return new BusinessResult(Const.WARNING_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE, Const.SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG);
+                }
+                return new BusinessResult(Const.FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE, Const.FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG);
+
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+
+            }
         }
 
-        public async Task<BusinessResult> ProductivityByPlot(int farmId, int year)
+        public async Task<BusinessResult> ProductivityByPlot(int year, int? farmId)
         {
             try
             {
@@ -272,12 +325,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> SeasonYield(int year, int farmId, int month)
+        public async Task<BusinessResult> SeasonYield(int year, int? farmId)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
 
-        public Task<BusinessResult> WorkProgressOverview(int month)
+                var rawData = await _unitOfWork.HarvestTypeHistoryRepository.GetHarvestDataByYear(year, farmId);
+
+                // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
+                var groupedData = rawData
+                    .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                    .Select(g => new QualityYieldStat
+                    {
+                        QualityType = g.Key.MasterTypeName ?? "Không xác định",
+                        QuantityYield = g.Sum(ht => ht.Quantity ?? 0) // Tổng số lượng theo loại
+                    })
+                    .ToList();
+
+                // Nhóm dữ liệu theo mùa vụ
+                var result = groupedData
+                    .GroupBy(g => g.QualityType)
+                    .Select(g => new SeasonalYieldModel
+                    {
+                        HarvestSeason = g.First().QualityType, // Mùa vụ
+                        QualityStats = g.ToList()
+                    })
+                    .OrderBy(s => s.HarvestSeason)
+                    .ToList();
+
+                if(result != null)
+                {
+                    if (result.Count > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_GET_SEASON_YIELD_REPORT_CODE, Const.SUCCESS_GET_SEASON_YIELD_REPORT_MSG, result);
+                    }
+                    return new BusinessResult(Const.WARNING_GET_SEASON_YIELD_REPORT_CODE, Const.WARNING_GET_SEASON_YIELD_REPORT_MSG);
+                }
+                return new BusinessResult(Const.FAIL_GET_SEASON_YIELD_REPORT_CODE, Const.FAIL_GET_SEASON_YIELD_REPORT_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }   
+
+        public Task<BusinessResult> WorkProgressOverview(int month, int? farmId)
         {
             throw new NotImplementedException();
         }

@@ -164,7 +164,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -659,7 +659,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }
                                 else if (subProcess.Status.ToLower().Equals("delete"))
                                 {
-                                    var checkSubProcessDelete = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId);
+                                    var checkSubProcessDelete = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId.Value != null ? subProcess.SubProcessId.Value : 0);
                                     if (checkSubProcessDelete != null)
                                     {
                                         checkSubProcessDelete.IsDeleted = true;

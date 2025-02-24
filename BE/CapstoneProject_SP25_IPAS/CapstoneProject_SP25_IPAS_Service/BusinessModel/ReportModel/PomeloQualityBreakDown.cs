@@ -8,7 +8,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
 {
     public class PomeloQualityBreakDown
     {
-        public string Quater {  get; set; }
-        public Dictionary<string, int>? Quality { get; set; }
+        public string HarvestSeason { get; set; } = string.Empty; // Mùa vụ (Xuân, Hè, Thu, Đông)
+        public List<QualityStat> QualityStats { get; set; } = new List<QualityStat>();
+    }
+    public class QualityStat
+    {
+        public string QualityType { get; set; } = string.Empty;
+        public double Percentage { get; set; }
     }
 }
