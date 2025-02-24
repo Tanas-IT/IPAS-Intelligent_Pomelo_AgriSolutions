@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
 {
     public class UpdateSubProcessModel
     {
-        public int SubProcessId {  get; set; }
+        public int? SubProcessId {  get; set; }
         public string? SubProcessName { get; set; }
 
         public int? ParentSubProcessId { get; set; }
