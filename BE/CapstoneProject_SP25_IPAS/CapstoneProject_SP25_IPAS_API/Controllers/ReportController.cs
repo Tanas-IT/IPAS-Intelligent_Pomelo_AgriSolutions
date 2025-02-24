@@ -41,13 +41,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Report.DashboardReport, Name = "DashboardReport")]
-        public async Task<IActionResult> DashboardReport(int? farmId)
+        public async Task<IActionResult> DashboardReport(int? year, int? month, int? farmId)
         {
             try
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _reportService.Dashboard(farmId);
+                var result = await _reportService.Dashboard(year,month,farmId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -136,6 +136,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var result = await _reportService.SeasonYield(farmId: farmId, year: year);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.WorkProgressOverview, Name = "WorkProgressOverview")]
+        public async Task<IActionResult> WorkProgressOverview([FromQuery] int? farmId, [FromQuery] int year, [FromQuery] int month)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _reportService.WorkProgressOverview(farmId: farmId, year: year, month: month);
                 return Ok(result);
             }
             catch (Exception ex)

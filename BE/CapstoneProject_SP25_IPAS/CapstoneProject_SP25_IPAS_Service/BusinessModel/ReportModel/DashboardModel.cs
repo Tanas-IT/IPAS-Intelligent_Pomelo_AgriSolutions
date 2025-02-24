@@ -16,6 +16,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
         public Dictionary<string, double>? PlantDevelopmentStages { get; set; }
         public Dictionary<string, double>? PlantHealthStatus { get; set; }
         public TaskStatusDistribution? TaskStatusDistribution { get; set; }
+        public List<MaterialsInStoreModel>? MaterialsInStoreModels { get; set; }
+        public List<PomeloQualityBreakDown>? PomeloQualityBreakDowns { get; set; }
+        public List<ProductivityByPlotModel>? ProductivityByPlots { get; set; }
+        public List<SeasonalYieldModel>? SeasonalYields { get; set; }
+        public List<WorkProgressOverview>? WorkProgressOverviews { get; set; }
 
     }
 }
