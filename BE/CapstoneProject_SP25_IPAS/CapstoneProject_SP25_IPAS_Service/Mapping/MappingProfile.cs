@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -271,6 +272,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GrowthStageName))
               .ReverseMap();
 
+            CreateMap<GraftedPlantNote, GraftedPlantModels>()
+                .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
+                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
+                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
+                .ReverseMap();
         }
     }
 }

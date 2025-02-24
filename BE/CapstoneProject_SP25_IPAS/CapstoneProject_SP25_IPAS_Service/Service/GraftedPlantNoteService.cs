@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -9,42 +8,42 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Org.BouncyCastle.Utilities.Collections;
-using System.Reflection.Metadata;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest.GraftedNoteRequest;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
-    public class PlantGrowthHistoryService : IPlantGrowthHistoryService
+    public class GraftedPlantNoteService : IGraftedPlantNoteService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public PlantGrowthHistoryService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IGraftedPlantService _graftedPlantService;
+        public GraftedPlantNoteService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IGraftedPlantService graftedPlantService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _graftedPlantService = graftedPlantService;
         }
 
-        public async Task<BusinessResult> createPlantGrowthHistory(CreatePlantGrowthHistoryRequest historyCreateRequest)
+        public async Task<BusinessResult> createGraftedNote(CreateGraftedNoteRequest historyCreateRequest)
         {
             try
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    // Khởi tạo đối tượng PlantGrowthHistory
-                    var plantGrowthHistoryEntity = new PlantGrowthHistory()
+                    var checkGraftedExist = await _graftedPlantService.getGraftedByIdAsync(historyCreateRequest.GraftedPlantId);
+                    if (checkGraftedExist.StatusCode != 200)
+                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG);
+                    // Khởi tạo đối tượng GraftedPlantNote
+                    var graftedPlantNoteEntity = new GraftedPlantNote()
                     {
-                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PLANT}{historyCreateRequest.PlantId}-{CodeHelper.GenerateCode()}",
+                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.GRAFTED_PLANT}{historyCreateRequest.GraftedPlantId}-{CodeHelper.GenerateCode()}",
                         Content = historyCreateRequest.Content,
                         NoteTaker = historyCreateRequest.NoteTaker,
-                        PlantId = historyCreateRequest.PlantId,
+                        GraftedPlantId = historyCreateRequest.GraftedPlantId,
                         IssueName = historyCreateRequest.IssueName,
                         CreateDate = DateTime.Now,
                     };
@@ -56,7 +55,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             if (resource.File != null)
                             {
-                                var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                                var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.GRAFTED_PLANT_NOTE);
                                 var plantResource = new Resource()
                                 {
                                     ResourceURL = (string)cloudinaryUrl.Data! ?? null,
@@ -65,20 +64,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     CreateDate = DateTime.Now,
                                     Description = resource.Description,
                                 };
-                                plantGrowthHistoryEntity.Resources.Add(plantResource);
+                                graftedPlantNoteEntity.Resources.Add(plantResource);
                             }
                         }
                     }
 
                     // Chèn vào DB
-                    await _unitOfWork.PlantGrowthHistoryRepository.Insert(plantGrowthHistoryEntity);
+                    await _unitOfWork.GraftedPlantNoteRepository.Insert(graftedPlantNoteEntity);
                     int result = await _unitOfWork.SaveAsync();
 
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var mappedResult = _mapper.Map<PlantGrowthHistoryModel>(plantGrowthHistoryEntity);
-                        return new BusinessResult(Const.SUCCESS_CREATE_PLANT_GROWTH_CODE, Const.SUCCESS_CREATE_PLANT_GROWTH_MSG, mappedResult);
+                        var mappedResult = _mapper.Map<GraftedPlantNoteModel>(graftedPlantNoteEntity);
+                        return new BusinessResult(Const.SUCCESS_CREATE_GRAFTED_PLANT_CODE, Const.SUCCESS_CREATE_GRAFTED_PLANT_MSG, mappedResult);
                     }
                     else
                     {
@@ -93,15 +92,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> updatePlantGrowthHistory(UpdatePlantGrowthHistoryRequest historyUpdateRequest)
+        public async Task<BusinessResult> updateGraftedNote(UpdateGraftedNoteRequest historyUpdateRequest)
         {
             try
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == historyUpdateRequest.PlantGrowthHistoryId;
+                    Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantNoteId == historyUpdateRequest.GraftedPlantNoteId;
                     string includeProperties = "Resources";
-                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository
+                    var plantGrowthHistory = await _unitOfWork.GraftedPlantNoteRepository
                         .GetByCondition(filter: filter, includeProperties: includeProperties);
 
                     if (plantGrowthHistory == null)
@@ -139,7 +138,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Thêm ảnh mới từ request
-                    foreach (var resource in newResources.Where(newImg => newImg.ResourceID == null))
+                    foreach (var resource in newResources.Where(newImg => newImg.ResourceID == null || newImg.ResourceID == 0))
                     {
                         if (!string.IsNullOrEmpty(resource.ResourceURL))
                         {
@@ -149,25 +148,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
                                 FileFormat = resource.FileFormat,
                                 CreateDate = DateTime.UtcNow,
-                                PlantGrowthHistoryID = plantGrowthHistory.PlantGrowthHistoryId
+                                GraftedPlantNoteID = plantGrowthHistory.GraftedPlantNoteId,
                             };
                             plantGrowthHistory.Resources.Add(newImg);
                         }
                     }
 
                     // Cập nhật vào DB
-                    _unitOfWork.PlantGrowthHistoryRepository.Update(plantGrowthHistory);
+                    _unitOfWork.GraftedPlantNoteRepository.Update(plantGrowthHistory);
                     int result = await _unitOfWork.SaveAsync();
 
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<PlantGrowthHistoryModel>(plantGrowthHistory);
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_GROWTH_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mappedResult);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_NOTE_CODE, Const.SUCCESS_UPDATE_GRAFTED_NOTE_MSG, mappedResult);
                     }
 
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_CODE, Const.FAIL_UPDATE_PLANT_GROWTH_HISTORY_MSG);
+                    return new BusinessResult(Const.FAIL_UPDATE_GRAFTED_PLANT_CODE, Const.FAIL_UPDATE_GRAFTED_PLANT_MSG);
                 }
             }
             catch (Exception ex)
@@ -177,19 +176,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> deleteGrowthHistory(int plantGrowthHistoryId)
+        public async Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId)
         {
             try
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == plantGrowthHistoryId;
+                    Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantNoteId == graftedPlantNoteId;
                     string includeProperties = "Resources";
-                    var plantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
-                    if (plantGrowthHistory == null)
+                    var GraftedPlantNote = await _unitOfWork.GraftedPlantNoteRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                    if (GraftedPlantNote == null)
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                     // If the plant has an image associated, delete it from Cloudinary or another storage service
-                    foreach (var resource in plantGrowthHistory.Resources)
+                    foreach (var resource in GraftedPlantNote.Resources)
                     {
                         if (!string.IsNullOrEmpty(resource.ResourceURL))
                         {
@@ -197,16 +196,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         _unitOfWork.ResourceRepository.Delete(resource);
                     }
-                    _unitOfWork.PlantGrowthHistoryRepository.Delete(plantGrowthHistory);
+                    _unitOfWork.GraftedPlantNoteRepository.Delete(GraftedPlantNote);
                     int result = await _unitOfWork.SaveAsync();
 
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_DELETE_PLANT_GROWTH_CODE, Const.SUCCESS_DELETE_PLANT_GROWTH_MSG, new { success = true });
+                        return new BusinessResult(Const.SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, Const.SUCCESS_DELETE_PLANT_GROWTH_MSG, new { success = true });
                     }
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_DELETE_PLANT_CODE, Const.FAIL_DELETE_PLANT_MSG);
+                    return new BusinessResult(Const.FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, Const.FAIL_DELETE_PERMANETNLY_GRAFTED_PLANT_MSG);
 
                 }
             }
@@ -216,22 +215,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllHistoryOfPlantById(int plantId)
+        public async Task<BusinessResult> getAllNoteOfGraftedById(int graftedPlantId)
         {
             try
             {
-                if (plantId <= 0)
+                if (graftedPlantId <= 0)
                 {
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 }
-                Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == plantId;
-                Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantId == graftedPlantId;
+                Func<IQueryable<GraftedPlantNote>, IOrderedQueryable<GraftedPlantNote>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 string includeProperties = "Resources";
-                var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                var plantGrowthHistotys = await _unitOfWork.GraftedPlantNoteRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!plantGrowthHistotys.Any())
-                    return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG);
-                var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
-                return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE, Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG, mapResult!);
+                    return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG , new List<GraftedPlantNoteModel>());
+                var mapResult = _mapper.Map<List<GraftedPlantNoteModel>?>(plantGrowthHistotys);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_CODE, Const.SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_MSG, mapResult!);
             }
             catch (Exception ex)
             {
@@ -239,21 +238,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getPlantGrowthById(int plantGrowthHistoryId)
+        public async Task<BusinessResult> getGraftedNoteById(int GraftedPlantNoteId)
         {
             try
             {
-                if (plantGrowthHistoryId <= 0)
+                if (GraftedPlantNoteId <= 0)
                 {
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 }
-                Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == plantGrowthHistoryId;
+                Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantNoteId == GraftedPlantNoteId;
                 string includeProperties = "Resources";
-                var plantGrowthHistoty = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                var plantGrowthHistoty = await _unitOfWork.GraftedPlantNoteRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (plantGrowthHistoty == null)
-                    return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
-                var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistoty);
-                return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE, Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG, mapResult!);
+                    return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG);
+                var mapResult = _mapper.Map<List<GraftedPlantNoteModel>?>(plantGrowthHistoty);
+                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_NOTE_BY_ID_CODE, Const.SUCCESS_GET_GRAFTED_NOTE_BY_ID_MSG, mapResult!);
             }
             catch (Exception ex)
             {
