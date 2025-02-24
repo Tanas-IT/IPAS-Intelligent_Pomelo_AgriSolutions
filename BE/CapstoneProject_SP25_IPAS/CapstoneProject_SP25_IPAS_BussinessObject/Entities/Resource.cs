@@ -26,12 +26,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
 
         public int? WorkLogID { get; set; }
         public int? LegalDocumentID { get; set; }
-        public int? GraftedPlantID { get; set; }
+        public int? GraftedPlantNoteID { get; set; }
         public int? PlantGrowthHistoryID { get; set; }
 
         public virtual WorkLog? WorkLog { get; set; }
         public virtual LegalDocument? LegalDocument { get; set; }
-        public virtual GraftedPlant? GraftedPlant { get; set; }
+        public virtual GraftedPlantNote? GraftedPlantNote { get; set; }
         public virtual PlantGrowthHistory? PlantGrowthHistory { get; set; }
     }
 }

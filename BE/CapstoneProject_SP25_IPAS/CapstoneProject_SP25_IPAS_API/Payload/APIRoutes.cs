@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
 
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
-            public const string updateCriteriaTarget = prefixCriteriaTarget  + "/update-criteria-target";
+            public const string updateCriteriaTarget = prefixCriteriaTarget + "/update-criteria-target";
             public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
             public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
@@ -220,7 +220,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePlantGrowthHistory = prefix + "";
             public const string updatePlantGrowthHistoryInfo = prefix + "";
             public const string getPlantGrowthHistoryById = prefix + "";
-            public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
+            public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
         }
 
         public static class Plan
@@ -333,5 +333,25 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllPackage = prefix + "";
             public const string getPackageById = prefix + "";
         }
+
+        public static class GraftedPlant
+        {
+            public const string prefix = Base + "/grafted-plant";
+            public const string createGrafted = prefix + "";
+            public const string deletePermanentlyGrafted = prefix + "";
+            public const string updateGraftedInfo = prefix + "";
+            public const string deleteSoftedGrafted = prefix + "/softed-delete";
+            public const string getGraftedById = prefix + "";
+            public const string getAllGraftedPagin = prefix + "";
+
+            public const string graftedNotePrefix = prefix + "/note";
+            public const string createGraftedNote = graftedNotePrefix + "";
+            public const string deleteGraftedNote = graftedNotePrefix + "";
+            public const string updateGraftedNoteInfo = graftedNotePrefix + "";
+            public const string getGraftedNoteById = graftedNotePrefix + "";
+            public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
+        }
+
+        
     }
 }

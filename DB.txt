@@ -645,6 +645,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	GraftedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantID int NULL,
+	IsDeleted bit NULL,
 	PlantLotID int NULL,
 	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
 	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
@@ -660,9 +661,9 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 
 CREATE TABLE ipas.dbo.GraftedPlantNote (
 	GraftedPlantNoteID int IDENTITY(1,1) NOT NULL,
-	GraftedPlantNoteName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	GraftedPlantNoteCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IssueName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Image] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedPlantID int NULL,
 	CreateDate datetime NULL,
@@ -899,9 +900,9 @@ CREATE TABLE ipas.dbo.Resource (
 	WorkLogID int NULL,
 	PlantGrowthHistoryID int NULL,
 	LegalDocumentID int NULL,
-	GraftedPlantID int NULL,
+	GraftedPlantNoteID int NULL,
 	CONSTRAINT Resource_PK PRIMARY KEY (ResourceID),
-	CONSTRAINT Resource_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+	CONSTRAINT Resource_GraftedPlantNote_FK FOREIGN KEY (GraftedPlantNoteID) REFERENCES ipas.dbo.GraftedPlantNote(GraftedPlantNoteID),
 	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
 	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
 	CONSTRAINT Resource_WorkLog_FK FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID)
@@ -1169,7 +1170,7 @@ VALUES
 ('LD-005', 'Agreement', 'Supplier Contract', 'https://example.com/doc5.pdf', '2023-02-01', '2026-02-01', 'Active', GETDATE(), GETDATE(), 2);
 GO
 -- Chèn dữ liệu vào bảng Resource với liên kết đến LegalDocument
-INSERT INTO [ipas].dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantID)
+INSERT INTO [ipas].dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantNoteID)
 VALUES
 ('RES-001', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010443/farm/legal-document/lhhd96qnxjcbxcgh6yvy.jpg', 'Organic Farming Guidelines', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
 ('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),

@@ -454,6 +454,35 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
         #endregion
 
+        #region Grafted Plant
+        public static int SUCCESS_CREATE_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_CREATE_GRAFTED_PLANT_MSG = "Create grafted plant success";
+        public static int SUCCESS_DELETE_SOFTED_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_SOFTED_GRAFTED_PLANT_MSG = "Delete softed grafted plant success";
+        public static int SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_MSG = "Delete permanent grafted plant success";
+        public static int SUCCESS_UPDATE_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_UPDATE_GRAFTED_PLANT_MSG = "Update grafted plant success"; 
+        public static int SUCCESS_GET_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_GET_GRAFTED_OF_PLANT_MSG = "Get grafted of plant success";
+        public static string SUCCESS_GET_GRAFTED_NOTE_MSG = "Get grafted note success";
+        #endregion
+
+        #region Grafted plant Note
+        public static int SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_CODE = 200;
+        public static string SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_MSG = "Get all grafted note success";
+        public static int SUCCESS_GET_GRAFTED_NOTE_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_GRAFTED_NOTE_BY_ID_MSG = "Get grafted growth history success";
+        public static int SUCCESS_UPDATE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_UPDATE_GRAFTED_NOTE_MSG = "Update grafted growth success";
+        public static int SUCCESS_DELETE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_DELETE_GRAFTED_NOTE_MSG = "Delete grafted growth success";
+        public static int SUCCESS_DELETE_MULTIPLE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_DELETE_MULTIPLE_GRAFTED_NOTE_MSG = "Delete multiple grafted growth success";
+        public static int SUCCESS_CREATE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_CREATE_GRAFTED_NOTE_MSG = "Create grafted growth success";
+        #endregion
+
         #endregion
 
         #region FAIL
@@ -787,6 +816,17 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
         #endregion
 
+        #region grafted plant
+        public static int FAIL_CREATE_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_CREATE_GRAFTED_PLANT_MSG = "Create Plant fail";
+        public static int FAIL_DELETE_SOFTED_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_DELETE_SOFTED_GRAFTED_PLANT_MSG = "Delete plant fail";
+        public static int FAIL_UPDATE_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_UPDATE_GRAFTED_PLANT_MSG = "Update plant fail";
+        public static int FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_DELETE_PERMANETNLY_GRAFTED_PLANT_MSG = "Delete permanently fail";
+        #endregion
+
         #endregion
 
         #region WARNING
@@ -921,7 +961,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Plant
-        public static int WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE = 200;
+        public static int WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG = "Get plant in farm empty.";
         public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
@@ -1036,6 +1076,22 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
         public static int WARNING_FARM_EXPIRED_CODE = 400;
         public static string WARNING_FARM_EXPIRED_MSG = "Your farm has no package in time";
+        #endregion
+
+        #region GraftedPlat
+        public static int WARNING_NO_GRAFTED_WAS_FOUND_CODE = 400;
+        public static string WARNING_NO_GRAFTED_WAS_FOUND_MSG = "Get plant in farm empty.";
+        //public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
+        //public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
+        //public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;
+        //public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
+        #endregion
+
+        #region Grafted Plant Note
+        public static int WARNING_GRAFTED_NOTE_NOT_EXIST_CODE = 400;
+        public static string WARNING_GRAFTED_NOTE_NOT_EXIST_MSG = "Grafted notenot exist.";
+        public static int WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE = 200;
+        public static string WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG = "Get Grafted note history empty.";
         #endregion
         #endregion
     }

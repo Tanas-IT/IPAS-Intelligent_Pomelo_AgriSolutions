@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
         [FromQuery(Name = "sortBy")]
         public string? SortBy { get; set; }
         [FromQuery(Name = "direction")]
-        public string? Direction { get; set; }
+        public string? Direction { get; set; } = "desc";
 
     }
 }
