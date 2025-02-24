@@ -458,6 +458,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
+                    var result = 0;
                     if (checkExistProcess != null)
                     {
                         //if (checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true)
@@ -541,48 +542,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 if (subProcess.Status.ToLower().Equals("add"))
                                 {
                                     var newSubProcess = new SubProcess();
-                                    if (subProcess.ParentSubProcessId != null)
-                                    {
-                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
-                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
-                                                 : (int?)null;
 
-                                        // Chuyển đổi sang entity SubProcess
-                                        newSubProcess = new SubProcess()
-                                        {
-                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                            MasterTypeId = subProcess.MasterTypeId,
-                                            SubProcessName = subProcess.SubProcessName,
-                                            IsDefault = subProcess.IsDefault,
-                                            IsActive = subProcess.IsActive,
-                                            IsDeleted = subProcess.IsDeleted,
-                                            CreateDate = DateTime.Now,
-                                            UpdateDate = DateTime.Now,
-                                        };
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
-                                        newSubProcess.ParentSubProcessId = realParentId; 
+                                    int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
+                                             ? idMapping[subProcess.ParentSubProcessId.Value]
+                                             : (int?)null;
 
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
-                                        await _unitOfWork.SaveAsync(); 
-                                        idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
-                                    }
-                                    else
+                                    // Chuyển đổi sang entity SubProcess
+                                    newSubProcess = new SubProcess()
                                     {
-                                        newSubProcess = new SubProcess()
-                                        {
-                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                            MasterTypeId = subProcess.MasterTypeId,
-                                            SubProcessName = subProcess.SubProcessName,
-                                            IsDefault = subProcess.IsDefault,
-                                            IsActive = subProcess.IsActive,
-                                            IsDeleted = subProcess.IsDeleted,
-                                            ParentSubProcessId = subProcess.ParentSubProcessId,
-                                            CreateDate = DateTime.Now,
-                                            UpdateDate = DateTime.Now,
-                                        };
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
-                                    }
-                                    await _unitOfWork.SaveAsync();
+                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                        MasterTypeId = subProcess.MasterTypeId,
+                                        SubProcessName = subProcess.SubProcessName,
+                                        IsDefault = subProcess.IsDefault,
+                                        IsActive = subProcess.IsActive,
+                                        IsDeleted = subProcess.IsDeleted,
+                                        CreateDate = DateTime.Now,
+                                        UpdateDate = DateTime.Now,
+                                    };
+                                    checkExistProcess.SubProcesses.Add(newSubProcess);
+                                    newSubProcess.ParentSubProcessId = realParentId;
+
+                                    checkExistProcess.SubProcesses.Add(newSubProcess);
+                                    result = await _unitOfWork.SaveAsync();
+                                    idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+
                                     if (subProcess.ListPlan != null)
                                     {
                                         foreach (var plan in subProcess.ListPlan)
@@ -738,8 +721,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }
                             }
                         }
-                        var result = await _unitOfWork.SaveAsync();
-                        if (result > 0)
+                        var finalResult = await _unitOfWork.SaveAsync();
+                        if (result > 0 || finalResult > 0)
                         {
                             await transaction.CommitAsync();
                             return new BusinessResult(Const.SUCCESS_UPDATE_PROCESS_CODE, Const.SUCCESS_UPDATE_PROCESS_MESSAGE, checkExistProcess);
@@ -760,7 +743,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
-                
+
         }
         public bool IsImageFile(IFormFile file)
         {
