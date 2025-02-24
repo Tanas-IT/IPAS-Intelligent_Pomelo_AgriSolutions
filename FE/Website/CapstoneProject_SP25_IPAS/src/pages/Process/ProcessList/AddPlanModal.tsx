@@ -1,6 +1,6 @@
 import { Button, Form, Modal, Flex } from "antd";
 import { useEffect } from "react";
-import { InfoField } from "@/components";
+import { CustomButton, InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
 
@@ -28,6 +28,8 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
     }, [editPlan, form]);
 
     const handleFinish = (values: Omit<PlanType, "planId">) => {
+        console.log("values", values);
+        
         onSave(values);
         form.resetFields();
         onClose();
@@ -74,8 +76,8 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
                     type="select"
                 />
                 <Flex justify="end">
-                    <Button onClick={onClose} style={{ marginRight: 10 }}>Cancel</Button>
-                    <Button type="primary" htmlType="submit">{editPlan ? "Update Plan" : "Add Plan"}</Button>
+                    <CustomButton label="Cancel" isCancel handleOnClick={onClose}/>
+                    <CustomButton label={editPlan ? "Update Plan" : "Add Plan"}  htmlType="submit"/>
                 </Flex>
             </Form>
         </Modal>

@@ -1,12 +1,30 @@
 import { useState } from "react";
-import { Form } from "antd";
+import { Form, TreeDataNode } from "antd";
 import { PlanType } from "@/payloads/process";
 
- const usePlanManager = () => {
+interface CustomTreeDataNode extends TreeDataNode {
+  status?: string;
+  order?: number;
+  listPlan?: PlanType[];
+  growthStageId?: number;
+  masterTypeId?: number;
+}
+
+ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: CustomTreeDataNode[]) => void) => {
     const [plans, setPlans] = useState<PlanType[]>([]);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [editPlan, setEditPlan] = useState<PlanType | null>(null);
     const [planForm] = Form.useForm();
+
+    const updatePlanInNodes = (updatedPlans: PlanType[], nodeKey: string) => {
+        const newNodes = nodes.map(node => {
+            if (node.key === nodeKey) {
+                return { ...node, listPlan: updatedPlans };
+            }
+            return node;
+        });
+        setNodes(newNodes);
+    };
 
     const handleAddPlan = (values: Omit<PlanType, "planId">) => {
         if (editPlan) {

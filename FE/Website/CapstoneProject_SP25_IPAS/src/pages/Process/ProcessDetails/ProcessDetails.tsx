@@ -24,6 +24,7 @@ interface SubProcess {
   subProcessName: string;
   parentSubProcessId?: number;
   listSubProcessData?: SubProcess[];
+  listPlan?: PlanType[];
 }
 
 type OptionType<T = string | number> = {
@@ -34,7 +35,7 @@ type OptionType<T = string | number> = {
 interface CustomTreeDataNode extends TreeDataNode {
   status?: string;
   order?: number;
-  plans?: PlanType[];
+  listPlan?: PlanType[];
   growthStageId?: number;
   masterTypeId?: number;
 }
@@ -45,6 +46,7 @@ const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): C
     .map(sp => ({
       title: sp.subProcessName,
       key: sp.subProcessId.toString(),
+      listPlan: sp.listPlan || [],
       children: mapSubProcessesToTree(subProcesses, sp.subProcessId),
     }));
 };
@@ -69,7 +71,7 @@ function ProcessDetails() {
     plans, planForm, isPlanModalOpen, editPlan,
     handleAddPlan, handleEditPlan, handleDeletePlan,
     handleCloseModal, handleOpenModal, setPlans
-  } = usePlanManager();
+  } = usePlanManager(treeData, setTreeData);
   const [isSubProcessModalOpen, setIsSubProcessModalOpen] = useState(false);
 const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
 const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
@@ -258,7 +260,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
       if (Number(node.key) === Number(subProcessKey)) {
         return {
           ...node,
-          plans: node.plans ? [...node.plans, newPlan] : [newPlan],
+          listPlan: node.listPlan ? [...node.listPlan, newPlan] : [newPlan],
         };
       }
       if (node.children && node.children.length > 0) {
@@ -274,7 +276,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
         if (node.key === subProcessKey) {
           return {
             ...node,
-            plans: node.plans ? [...node.plans, newPlan] : [newPlan],
+            listPlan: node.listPlan ? [...node.listPlan, newPlan] : [newPlan],
           };
         }
         if (node.children && node.children.length > 0) {
@@ -295,7 +297,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
         const updatedTasks = [...newTasks];
         updatedTasks[taskIndex] = {
           ...updatedTasks[taskIndex],
-          plans: [...(updatedTasks[taskIndex].plans || []), newPlan],
+          listPlan: [...(updatedTasks[taskIndex].listPlan || []), newPlan],
         };
         setNewTasks(updatedTasks);
       } else {
@@ -306,9 +308,12 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     });
   };
 
-  const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number = 0): any[] => {
+  let tempIdCounter = -1;
+
+  const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number | null = null): any[] => {
     return nodes.flatMap((node, index) => {
-      const subProcessId = Number(node.key);
+      const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
+
       const subProcess = {
         SubProcessId: subProcessId,
         SubProcessName: node.title || "New Task",
@@ -319,14 +324,14 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
         GrowthStageId: node.growthStageId,
         Status: node.status || "no_change",
         Order: node.order || index + 1,
-        ListPlan: node.plans?.map((plan) => ({
+        ListPlan: node.listPlan?.map((plan) => ({
           PlanId: plan.planId || 0,
           PlanName: plan.planName || "New Plan",
           PlanDetail: plan.planDetail || "",
           PlanNote: plan.planNote || "",
           GrowthStageId: plan.growthStageId || 0,
           MasterTypeId: Number(plan.masterTypeId) || 0,
-        })) || [],
+        })) || null,
       };
 
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
@@ -389,8 +394,23 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     return null;
   };
 
-  const handleEditPlanInSub = useCallback((plan: PlanType) => {
-    console.log("update", plan);
+  const updatePlanInSubProcess = (nodes: CustomTreeDataNode[], subProcessKey: string, updatedPlan: PlanType): CustomTreeDataNode[] => {
+    return nodes.map(node => {
+      if (node.key === subProcessKey) {
+        return {
+          ...node,
+          listPlan: node.listPlan?.map(plan => plan.planId === updatedPlan.planId ? updatedPlan : plan),
+        };
+      }
+      if (node.children && node.children.length > 0) {
+        return { ...node, children: updatePlanInSubProcess(node.children, subProcessKey, updatedPlan) };
+      }
+      return node;
+    });
+  };
+
+  const handleEditPlanInSub = useCallback((subProcessKey: string, plan: PlanType) => {
+    setTreeData(prevTree => updatePlanInSubProcess(prevTree, subProcessKey, plan));
   }, []);
 
   const handleDeletePlanInSub = useCallback((planId: number) => {
@@ -419,16 +439,16 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
     return nodes.map((node) => {
       // có plans, tạo một node chứa plan list
-      const planNodes = node.plans?.length
+      const planNodes = node.listPlan?.length
         ? [{
           title: (
             <div className={style.planList} >
               <strong className={style.planListTitle}>Plan List:</strong>
-              {node.plans.map((plan: PlanType) => (
+              {node.listPlan.map((plan: PlanType) => (
                 <div key={plan.planId} className={style.planItem}>
                   <span className={style.planName}>{plan.planName}</span>
                   <Flex gap={10}>
-                    <Icons.edit color="blue" size={18} onClick={() => handleEditPlanInSub(plan)} />
+                    <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
                     <Icons.delete color="red" size={18} onClick={() => handleDeletePlanInSub(plan.planId)} />
                   </Flex>
                 </div>
