@@ -347,6 +347,10 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
       GrowthStageId: plan.growthStageId,
       MasterTypeId: Number(plan.masterTypeId)
     }));
+    let ListUpdateSubProcess = [
+      ...convertTreeToList(treeData),
+      ...convertDeletedNodesToList(deletedNodes),
+    ].filter(sub => sub.Status !== "no_change");
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
       ProcessName: processDetail?.processName || "New Process",
@@ -355,10 +359,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
       IsDeleted: processDetail?.isDeleted ?? false,
       MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
       GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
-      ListUpdateSubProcess: [
-        ...convertTreeToList(treeData),
-        ...convertDeletedNodesToList(deletedNodes),
-      ],
+      ListUpdateSubProcess: ListUpdateSubProcess,
       ListPlan: ListPlan
     };
 
