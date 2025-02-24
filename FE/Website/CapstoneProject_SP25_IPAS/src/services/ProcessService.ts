@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
-import { ProcessRequest } from "@/payloads/process/requests/ProcessRequest";
+import { ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
 export const getProcesses = async (
@@ -67,6 +67,12 @@ export const createProcess = async (
 ): Promise<ApiResponse<boolean>> => {
   const res = await axiosAuth.axiosMultipartForm.post(`processes`, type);
   return res.data as ApiResponse<boolean>;
+};
+
+export const updateFProcess = async (process: UpdateProcessRequest): Promise<ApiResponse<UpdateProcessRequest>> => {
+  const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", process);
+  const apiResponse = res.data as ApiResponse<UpdateProcessRequest>;
+  return apiResponse;
 };
 
 

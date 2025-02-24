@@ -11,6 +11,8 @@ type PlanListProps = {
 }
 
 const PlanList: React.FC<PlanListProps> = ({ plans, onEdit, onDelete, isEditing }) => {
+    // console.log("plans", plans);
+    
     return (
         <div>
             {plans.map((plan) => (

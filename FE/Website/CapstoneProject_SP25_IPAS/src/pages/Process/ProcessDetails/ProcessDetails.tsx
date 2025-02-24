@@ -16,6 +16,8 @@ import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, get
 import { MASTER_TYPE, processFormFields } from "@/constants";
 import { useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "../ProcessList/PlanList";
+import { ListPlan, UpdateProcessRequest } from "@/payloads/process/requests";
+import SubProcessModal from "./SubProcessModal";
 
 interface SubProcess {
   subProcessId: number;
@@ -33,6 +35,8 @@ interface CustomTreeDataNode extends TreeDataNode {
   status?: string;
   order?: number;
   plans?: PlanType[];
+  growthStageId?: number;
+  masterTypeId?: number;
 }
 
 const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): CustomTreeDataNode[] => {
@@ -66,6 +70,9 @@ function ProcessDetails() {
     handleAddPlan, handleEditPlan, handleDeletePlan,
     handleCloseModal, handleOpenModal, setPlans
   } = usePlanManager();
+  const [isSubProcessModalOpen, setIsSubProcessModalOpen] = useState(false);
+const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
+const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
 
 
   useEffect(() => {
@@ -77,6 +84,8 @@ function ProcessDetails() {
     const fetchProcessDetails = async () => {
       try {
         const data = await processService.getProcessDetail(id);
+        console.log(data);
+
         setProcessDetail(data);
 
         form.setFieldsValue({
@@ -86,6 +95,9 @@ function ProcessDetails() {
         });
 
         setTreeData(mapSubProcessesToTree(data.subProcesses));
+        if (data.listPlan) {
+          setPlans(data.listPlan);
+        }
       } catch (error) {
         console.error("Failed to fetch process details", error);
       }
@@ -95,9 +107,6 @@ function ProcessDetails() {
       // setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
     };
     fetchData();
-    if (processDetail?.listPlan) {
-      setPlans(processDetail.listPlan);
-    }
 
     fetchProcessDetails();
   }, [id]);
@@ -176,8 +185,8 @@ function ProcessDetails() {
     if (node && typeof node.title === "string") {
       setNewTitle(node.title);
 
-      if (node.status !== "editing") {
-        node.status = "editing";
+      if (node.status !== "update") {
+        node.status = "update";
         setTreeData([...treeData]);
       }
     }
@@ -207,7 +216,7 @@ function ProcessDetails() {
 
     const deletedNode = findNodeByKey(treeData, key);
     if (deletedNode) {
-      setDeletedNodes(prev => [...prev, { ...deletedNode, status: "deleted" }]);
+      setDeletedNodes(prev => [...prev, { ...deletedNode, status: "delete" }]);
     }
 
     const updatedTreeData = deleteNode(treeData);
@@ -306,7 +315,8 @@ function ProcessDetails() {
         ParentSubProcessId: parentId,
         IsDefault: true,
         IsActive: true,
-        MasterTypeId: 0,
+        MasterTypeId: Number(node.masterTypeId),
+        GrowthStageId: node.growthStageId,
         Status: node.status || "no_change",
         Order: node.order || index + 1,
         ListPlan: node.plans?.map((plan) => ({
@@ -315,17 +325,25 @@ function ProcessDetails() {
           PlanDetail: plan.planDetail || "",
           PlanNote: plan.planNote || "",
           GrowthStageId: plan.growthStageId || 0,
-          MasterTypeId: plan.masterTypeId || 0,
+          MasterTypeId: Number(plan.masterTypeId) || 0,
         })) || [],
       };
-  
+
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
 
-  const handleSaveProcess = () => {
-    const payload = {
-      ProcessId: id || 0,
+  const handleSaveProcess = async () => {
+    const ListPlan: ListPlan[] = plans.map(plan => ({
+      PlanId: plan.planId || 0,
+      PlanName: plan.planName,
+      PlanDetail: plan.planDetail,
+      PlanNote: plan.planNote,
+      GrowthStageId: plan.growthStageId,
+      MasterTypeId: Number(plan.masterTypeId)
+    }));
+    const payload: UpdateProcessRequest = {
+      ProcessId: Number(id) || 0,
       ProcessName: processDetail?.processName || "New Process",
       IsActive: processDetail?.isActive ?? true,
       IsDefault: processDetail?.isDefault ?? false,
@@ -336,9 +354,14 @@ function ProcessDetails() {
         ...convertTreeToList(treeData),
         ...convertDeletedNodesToList(deletedNodes),
       ],
+      ListPlan: ListPlan
     };
-  
-    console.log("Saving Payload:", JSON.stringify(payload, null, 2));
+
+    // console.log("Saving Payload:", JSON.stringify(payload, null, 2));
+    console.log("Saving Payload without stringyfy:", payload);
+    const res = await processService.updateFProcess(payload);
+    console.log("res update", res);
+
   };
 
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
@@ -349,7 +372,7 @@ function ProcessDetails() {
       IsDefault: false,
       IsActive: false,
       MasterTypeId: 0,
-      Status: "deleted",
+      Status: "delete",
       Order: node.order || 0,
       ListPlan: [],
     }));
@@ -373,6 +396,25 @@ function ProcessDetails() {
   const handleDeletePlanInSub = useCallback((planId: number) => {
     console.log("delete ID:", planId);
   }, []);
+
+  const handleEditSubProcess = (node: CustomTreeDataNode) => {
+    setEditingNode(node);
+    setIsSubProcessModalOpen(true);
+  };
+  
+  const handleUpdateSubProcess = (values: any) => {
+    const updatedData = [...treeData];
+    console.log("editingNode", editingNode);
+    
+    const node = findNodeByKey(updatedData, String(editingNode!.key));
+    if (node) {
+      node.title = values.processName;
+      node.growthStageId = values.growthStageId;
+      node.masterTypeId = values.masterTypeId;
+    }
+    setTreeData(updatedData);
+    setEditingNode(null);
+  };
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
     return nodes.map((node) => {
@@ -418,7 +460,8 @@ function ProcessDetails() {
                 nodeKey={node.key}
                 onSave={handleSaveNode}
                 onCancel={handleCancel}
-                onEdit={() => handleEdit(node.key)}
+                // onEdit={() => handleEdit(node.key)}
+                onEdit={() => handleEditSubProcess(node)}
                 onDelete={() => handleDelete(node.key)}
                 onAdd={() => handleAdd(node.key)}
                 onAddPlan={() => handleClickAddPlan(node.key)}
@@ -485,6 +528,47 @@ function ProcessDetails() {
   };
 
   const [form] = Form.useForm();
+
+  const handleAddSubProcess = (parentKey: string) => {
+    setSelectedNodeKey(parentKey);
+    setIsSubProcessModalOpen(true);
+  };
+  
+  const handleSaveSubProcess = (values: any) => {
+    const newKey = `${selectedNodeKey}-${Date.now()}`;
+    const newNode: CustomTreeDataNode = {
+      title: values.processName,
+      key: newKey,
+      children: [],
+      status: "add",
+      growthStageId: values.growthStageId,
+      masterTypeId: values.masterTypeId,
+      // Thêm các field khác từ values vào đây
+    };
+  
+    setTreeData(prevTree => {
+      if (selectedNodeKey === "root") {
+        return [...prevTree, newNode];
+      } else {
+        const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+          return nodes.map(node => {
+            if (node.key === selectedNodeKey) {
+              const newOrder = node.children ? node.children.length + 1 : 1;
+              return {
+                ...node,
+                children: [...(node.children || []), { ...newNode, order: newOrder }]
+              };
+            }
+            if (node.children) {
+              return { ...node, children: updateTree(node.children) };
+            }
+            return node;
+          });
+        };
+        return updateTree(prevTree);
+      }
+    });
+  };
 
   return (
     <div className={style.container}>
@@ -634,6 +718,12 @@ function ProcessDetails() {
           />
 
         )}
+        <SubProcessModal
+          isOpen={isSubProcessModalOpen}
+          onClose={() => setIsSubProcessModalOpen(false)}
+          onSave={editingNode ? handleUpdateSubProcess : handleSaveSubProcess}
+          initialValues={editingNode ? { processName: editingNode.title, growthStageId: editingNode.growthStageId, masterTypeId: editingNode.masterTypeId } : undefined}
+        />
         <ToastContainer />
       </Form>
     </div>
