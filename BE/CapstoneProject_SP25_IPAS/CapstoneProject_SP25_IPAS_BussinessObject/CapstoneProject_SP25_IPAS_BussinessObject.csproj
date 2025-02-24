@@ -26,4 +26,8 @@
     <ProjectReference Include="..\CapstoneProject_SP25_IPAS_Common\CapstoneProject_SP25_IPAS_Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RequestModel\FarmRequest\PlantCriteriaRequest\" />
+  </ItemGroup>
+
 </Project>

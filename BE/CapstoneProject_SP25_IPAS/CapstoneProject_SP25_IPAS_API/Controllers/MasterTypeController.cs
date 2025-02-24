@@ -86,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
-        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeModel createMasterTypeModel)
+        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeRequestModel createMasterTypeModel)
         {
             try
             {

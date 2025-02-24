@@ -2,19 +2,20 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
 import { Button, Divider, Flex, Form, Tag, Tree, TreeDataNode, TreeProps } from "antd";
-import { Icons } from "@/assets";
-import { CustomButton, EditActions, InfoField, Tooltip } from "@/components";
+import { Icons, Images } from "@/assets";
+import { CustomButton, EditActions, InfoField, Section, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { processService } from "@/services";
 import EditableTreeNode from "./EditableTreeNode";
 import ButtonActions from "./ButtonActions";
-import { GetProcessDetail } from "@/payloads/process";
+import { GetProcessDetail, PlanType } from "@/payloads/process";
 import AddPlanModal from "../ProcessList/AddPlanModal";
 import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, getFarmId, RulesManager } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
-import { useMasterTypeOptions } from "@/hooks";
+import { useMasterTypeOptions, usePlanManager } from "@/hooks";
+import PlanList from "../ProcessList/PlanList";
 
 interface SubProcess {
   subProcessId: number;
@@ -26,14 +27,6 @@ interface SubProcess {
 type OptionType<T = string | number> = {
   value: T;
   label: string
-};
-
-type PlanType = {
-  planId: number;
-  planName: string;
-  planDetail: string;
-  growthStageId: number;
-  masterTypeId: number
 };
 
 interface CustomTreeDataNode extends TreeDataNode {
@@ -68,6 +61,11 @@ function ProcessDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+  const {
+    plans, planForm, isPlanModalOpen, editPlan,
+    handleAddPlan, handleEditPlan, handleDeletePlan,
+    handleCloseModal, handleOpenModal, setPlans
+  } = usePlanManager();
 
 
   useEffect(() => {
@@ -97,6 +95,9 @@ function ProcessDetails() {
       // setProcessTypeOptions(await fetchTypeOptionsByName("Process"));
     };
     fetchData();
+    if (processDetail?.listPlan) {
+      setPlans(processDetail.listPlan);
+    }
 
     fetchProcessDetails();
   }, [id]);
@@ -258,7 +259,7 @@ function ProcessDetails() {
     });
   };
 
-  const handleAddPlan = (subProcessKey: number, newPlan: PlanType) => {
+  const handleAddPlanInSub = (subProcessKey: number, newPlan: PlanType) => {
     const updateTree = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map(node => {
         if (node.key === subProcessKey) {
@@ -308,12 +309,19 @@ function ProcessDetails() {
         MasterTypeId: 0,
         Status: node.status || "no_change",
         Order: node.order || index + 1,
+        ListPlan: node.plans?.map((plan) => ({
+          PlanId: plan.planId || 0,
+          PlanName: plan.planName || "New Plan",
+          PlanDetail: plan.planDetail || "",
+          PlanNote: plan.planNote || "",
+          GrowthStageId: plan.growthStageId || 0,
+          MasterTypeId: plan.masterTypeId || 0,
+        })) || [],
       };
-
+  
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
-
 
   const handleSaveProcess = () => {
     const payload = {
@@ -324,23 +332,26 @@ function ProcessDetails() {
       IsDeleted: processDetail?.isDeleted ?? false,
       MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
       GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
-      ListUpdateSubProcess: convertTreeToList(treeData),
-      ListDeletedSubProcess: convertDeletedNodesToList(deletedNodes),
+      ListUpdateSubProcess: [
+        ...convertTreeToList(treeData),
+        ...convertDeletedNodesToList(deletedNodes),
+      ],
     };
-
-    console.log("Saving Payload:", payload);
-    // processService.updateProcess(payload);
-  }
+  
+    console.log("Saving Payload:", JSON.stringify(payload, null, 2));
+  };
 
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
-    return nodes.map(node => ({
+    return nodes.map((node) => ({
       SubProcessId: Number(node.key),
       SubProcessName: node.title || "New Task",
       ParentSubProcessId: 0,
       IsDefault: false,
       IsActive: false,
-      ProcessStyleId: 0,
-      Status: node.status || "deleted",
+      MasterTypeId: 0,
+      Status: "deleted",
+      Order: node.order || 0,
+      ListPlan: [],
     }));
   };
 
@@ -355,11 +366,11 @@ function ProcessDetails() {
     return null;
   };
 
-  const handleEditPlan = useCallback((plan: PlanType) => {
+  const handleEditPlanInSub = useCallback((plan: PlanType) => {
     console.log("update", plan);
   }, []);
 
-  const handleDeletePlan = useCallback((planId: number) => {
+  const handleDeletePlanInSub = useCallback((planId: number) => {
     console.log("delete ID:", planId);
   }, []);
 
@@ -375,8 +386,8 @@ function ProcessDetails() {
                 <div key={plan.planId} className={style.planItem}>
                   <span className={style.planName}>{plan.planName}</span>
                   <Flex gap={10}>
-                    <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
-                    <Icons.delete color="red" size={18} onClick={() => handleDeletePlan(plan.planId)} />
+                    <Icons.edit color="blue" size={18} onClick={() => handleEditPlanInSub(plan)} />
+                    <Icons.delete color="red" size={18} onClick={() => handleDeletePlanInSub(plan.planId)} />
                   </Flex>
                 </div>
               ))}
@@ -492,9 +503,6 @@ function ProcessDetails() {
 
           {isEditing ? (
             <>
-              <div className={style.addButton}>
-                <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} />
-              </div>
             </>
 
           ) : (
@@ -546,11 +554,37 @@ function ProcessDetails() {
           </Flex>
         </Flex>
         <Divider className={style.divider} />
-        {treeData.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "20px", fontSize: "16px", color: "#999" }}>
-            No data
-          </div>
-        ) : (
+        <Section
+          title="Plan List"
+          subtitle="All plans of this process is displayed here."
+          actionButton={isEditing ? <CustomButton label="Add Plan" icon={<Icons.plus />} handleOnClick={handleOpenModal} /> : null}
+        >
+          {plans.length ? (
+            <PlanList
+              plans={plans}
+              onEdit={handleEditPlan}
+              onDelete={handleDeletePlan}
+              isEditing={isEditing} />
+          ) : (
+            <div className={style.noDataContainer}>
+              <img src={Images.empty} alt="No Data" className={style.noDataImage} />
+              <p className={style.noDataText}>No plans available!.</p>
+            </div>
+          )}
+
+        </Section>
+        <Divider className={style.divider} />
+        <Section
+          title="Sub Process"
+          subtitle="All sub-processes of this process is displayed here."
+          actionButton={isEditing ? <CustomButton label="Add Sub Process" icon={<Icons.plus />} handleOnClick={() => handleAdd("root")} /> : null}
+        >
+          {treeData.length === 0 ? (
+            <div className={style.noDataContainer}>
+              <img src={Images.empty} alt="No Data" className={style.noDataImage} />
+              <p className={style.noDataText}>No sub-processes available!.</p>
+            </div>
+          ) : (
             <Tree
               style={{ fontSize: "18px" }}
               draggable
@@ -559,27 +593,40 @@ function ProcessDetails() {
               treeData={loopNodes(treeData)}
             // disabled
             />
-        )}
+          )}
+
+        </Section>
         {isEditing ? (
-              <div className={style.buttonGroup}>
-                <Button onClick={() => setIsEditing(false)}>Cancel</Button>
-                <CustomButton
-                  label="Save"
-                  isCancel={false}
-                  isModal={true}
-                  handleOnClick={() => handleSaveProcess()} />
-              </div>
-            ) : (
-              <></>
-            )}
+          <div className={style.buttonGroup}>
+            <CustomButton
+              label="Cancel"
+              isCancel
+              handleOnClick={() => setIsEditing(false)} />
+            <CustomButton
+              label="Save"
+              isCancel={false}
+              isModal={true}
+              handleOnClick={() => handleSaveProcess()} />
+          </div>
+        ) : (
+          <></>
+        )}
+        <AddPlanModal
+          isOpen={isPlanModalOpen}
+          onClose={handleCloseModal}
+          onSave={handleAddPlan}
+          editPlan={editPlan}
+          growthStageOptions={growthStageOptions}
+          processTypeOptions={processTypeOptions}
+        />
         {isAddPlanModalOpen && (
           <AddPlanModal
             isOpen={isAddPlanModalOpen}
             subProcessId={selectedSubProcessId}
             onClose={() => setIsAddPlanModalOpen(false)}
             onSave={(values) => {
-              const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId };
-              handleAddPlan(selectedSubProcessId!, newPlan);
+              const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId, planNote: values.planNote };
+              handleAddPlanInSub(selectedSubProcessId!, newPlan);
               setIsAddPlanModalOpen(false);
             }}
             growthStageOptions={growthStageOptions}

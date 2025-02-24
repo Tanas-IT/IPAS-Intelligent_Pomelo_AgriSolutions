@@ -76,7 +76,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE, Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
                         foreach (var item in createRequest.HarvestTypeHistories)
                         {
-                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.Harvest.ToString());
                             if (checkMasterTypeExist == null)
                             {
                                 return new BusinessResult(Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE, Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG);
@@ -134,7 +134,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 1. Kiểm tra MasterType có tồn tại hay không
                     var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(
-                        createRequest.MasterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+                        createRequest.MasterTypeId, TypeNameInMasterEnum.Harvest.ToString());
 
                     if (masterType == null)
                         return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE,
@@ -308,7 +308,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var harvest = await _unitOfWork.HarvestHistoryRepository.GetByID(harvestId);
             if (harvest == null)
                 return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
-            var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(masterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+            var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(masterTypeId, TypeNameInMasterEnum.Harvest.ToString());
             if (masterType == null)
                 return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE, Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
             var historyTypes = await _unitOfWork.HarvestHistoryRepository.GetAllPlantOfHarvesType(harvestId, masterTypeId);
