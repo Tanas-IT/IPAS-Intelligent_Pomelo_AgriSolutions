@@ -235,5 +235,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                            )
                            .ToListAsync();
         }
+
+        public async Task<List<WorkLog>> GetListWorkLogByYearAndMonth(int year, int month, int? farmId)
+        {
+            var result = await _context.WorkLogs
+                            .Include(x => x.UserWorkLogs)
+                            .ThenInclude(x => x.User)
+                            .Include(w => w.Schedule)
+                            .ThenInclude(x => x.CarePlan)
+                            .ThenInclude(x => x.Farm)
+                            .Where(x => x.Date.Value.Year == year && x.Date.Value.Month == month && x.Schedule.CarePlan.FarmID == farmId).ToListAsync();
+            return result;
+        }
     }
 }

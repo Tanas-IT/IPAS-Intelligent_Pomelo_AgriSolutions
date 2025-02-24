@@ -14,6 +14,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -459,7 +460,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
                     if (checkExistProcess != null)
                     {
-                        //if(checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true )
+                        //if (checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true)
                         //{
                         //    throw new Exception("Process is running. Can not update");
                         //}
@@ -531,6 +532,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         checkExistProcess.UpdateDate = DateTime.Now;
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
+                            var listSubProcessUpdateConvert = JsonConvert.DeserializeObject<List<UpdateSubProcessModel>>(updateProcessModel.ListUpdateSubProcess.ToString());
+                            Dictionary<int, int> idMapping = new Dictionary<int, int>();
                             foreach (var subProcessRaw in updateProcessModel.ListUpdateSubProcess)
                             {
                                 var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
@@ -538,19 +541,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcess.SubProcessId, "");
                                 if (subProcess.Status.ToLower().Equals("add"))
                                 {
-                                    var newSubProcess = new SubProcess()
+                                    var newSubProcess = new SubProcess();
+                                    if (subProcess.ParentSubProcessId != null)
                                     {
-                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                        MasterTypeId = subProcess.MasterTypeId,
-                                        SubProcessName = subProcess.SubProcessName,
-                                        IsDefault = subProcess.IsDefault,
-                                        IsActive = subProcess.IsActive,
-                                        IsDeleted = subProcess.IsDeleted,
-                                        ParentSubProcessId = subProcess.ParentSubProcessId,
-                                        CreateDate = DateTime.Now,
-                                        UpdateDate = DateTime.Now,
-                                    };
-                                    checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
+                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
+                                                 : (int?)null;
+
+                                        // Chuyển đổi sang entity SubProcess
+                                        newSubProcess = new SubProcess()
+                                        {
+                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                            MasterTypeId = subProcess.MasterTypeId,
+                                            SubProcessName = subProcess.SubProcessName,
+                                            IsDefault = subProcess.IsDefault,
+                                            IsActive = subProcess.IsActive,
+                                            IsDeleted = subProcess.IsDeleted,
+                                            CreateDate = DateTime.Now,
+                                            UpdateDate = DateTime.Now,
+                                        };
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        newSubProcess.ParentSubProcessId = realParentId; 
+
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        await _unitOfWork.SaveAsync(); 
+                                        idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+                                    }
+                                    else
+                                    {
+                                        newSubProcess = new SubProcess()
+                                        {
+                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                            MasterTypeId = subProcess.MasterTypeId,
+                                            SubProcessName = subProcess.SubProcessName,
+                                            IsDefault = subProcess.IsDefault,
+                                            IsActive = subProcess.IsActive,
+                                            IsDeleted = subProcess.IsDeleted,
+                                            ParentSubProcessId = subProcess.ParentSubProcessId,
+                                            CreateDate = DateTime.Now,
+                                            UpdateDate = DateTime.Now,
+                                        };
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                    }
                                     await _unitOfWork.SaveAsync();
                                     if (subProcess.ListPlan != null)
                                     {
@@ -604,7 +636,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             subProcessUpdate.Order = subProcess.MasterTypeId;
                                         }
                                         subProcessUpdate.UpdateDate = DateTime.Now;
-                                        if (subProcess.ListPlan != null)
+                                        if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
                                             {
@@ -667,7 +699,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }
 
                             }
-                            if (updateProcessModel.ListPlan != null)
+                            if (updateProcessModel.ListPlan != null && updateProcessModel.ListPlan.Count > 0)
                             {
                                 foreach (var updatePlanRaw in updateProcessModel.ListPlan)
                                 {
