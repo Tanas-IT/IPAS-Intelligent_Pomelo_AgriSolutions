@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest
 {
-    public class PlantGrowthHistoryUpdateRequest
+    public class UpdatePlantGrowthHistoryRequest
     {
         [Required]
         public int PlantGrowthHistoryId { get; set; }
@@ -16,6 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         public string? Content { get; set; }
 
         public string? IssueName { get; set; }
+
 
         public List<ResourceCrUpRequest> PlantResource = new();
     }

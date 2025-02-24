@@ -51,10 +51,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public HarvestTypeHistoryRepository HarvestTypeHistoryRepository { get; }
         public LandPlotCropRepository LandPlotCropRepository { get; }
         public PackageRepository PackageRepository { get; }
-
         public OrdesRepository OrdesRepository { get; }
         public PlanNotificationRepository PlanNotificationRepository { get; }
         public GraftedPlantRepository GraftedPlantRepository { get; }
         public PlanTargetRepository PlanTargetRepository { get; }
+
+        public GraftedPlantNoteRepository GraftedPlantNoteRepository { get; }
     }
 }

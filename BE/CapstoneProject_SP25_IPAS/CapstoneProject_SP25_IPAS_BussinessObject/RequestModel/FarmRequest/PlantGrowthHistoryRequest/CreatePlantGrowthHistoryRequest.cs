@@ -2,7 +2,7 @@
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest
 {
-    public class PlantGrowthHistoryCreateRequest
+    public class CreatePlantGrowthHistoryRequest
     {
 
         public string? Content { get; set; }

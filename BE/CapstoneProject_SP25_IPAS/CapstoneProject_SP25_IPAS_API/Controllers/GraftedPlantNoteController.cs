@@ -1,7 +1,9 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest.GraftedNoteRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +11,17 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PlantGrowthHistoryController : ControllerBase
+    public class GraftedPlantNoteController : ControllerBase
     {
-        private readonly IPlantGrowthHistoryService _plantGrowthHistoryService;
+        private readonly IGraftedPlantNoteService _graftedNoteService;
 
-        public PlantGrowthHistoryController(IPlantGrowthHistoryService plantGrowthHistoryService)
+        public GraftedPlantNoteController(IGraftedPlantNoteService graftedNoteService)
         {
-            _plantGrowthHistoryService = plantGrowthHistoryService;
+            _graftedNoteService = graftedNoteService;
         }
 
-        [HttpPost(APIRoutes.PlantGrowthHistory.createPlantGrowthHistory, Name = "createPlantGrowthHistoryAsync")]
-        public async Task<IActionResult> CreatePlantGrowthHistoryAsync([FromForm] CreatePlantGrowthHistoryRequest request)
+        [HttpPost(APIRoutes.GraftedPlant.createGraftedNote, Name = "CreateGraftedNoteAsync")]
+        public async Task<IActionResult> CreateGraftedNoteAsync([FromForm] CreateGraftedNoteRequest request)
         {
             try
             {
@@ -27,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _plantGrowthHistoryService.createPlantGrowthHistory(request);
+                var result = await _graftedNoteService.createGraftedNote(request);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -41,8 +43,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.PlantGrowthHistory.updatePlantGrowthHistoryInfo, Name = "updatePlantGrowthHistoryAsync")]
-        public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromBody] UpdatePlantGrowthHistoryRequest request)
+        [HttpPut(APIRoutes.GraftedPlant.updateGraftedNoteInfo, Name = "updateGraftedNoteInfoAsync")]
+        public async Task<IActionResult> updateGraftedNoteInfoAsync([FromBody] UpdateGraftedNoteRequest request)
         {
             try
             {
@@ -51,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _plantGrowthHistoryService.updatePlantGrowthHistory(request);
+                var result = await _graftedNoteService.updateGraftedNote(request);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -65,12 +67,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.PlantGrowthHistory.getPlantGrowthHistoryById + "/{plant-growth-history-id}", Name = "getPlantGrowthByIdAsync")]
-        public async Task<IActionResult> GetPlantGrowthByIdAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
+        [HttpGet(APIRoutes.GraftedPlant.getGraftedNoteById + "/{grafted-note-id}", Name = "GetGraftedNoteByIdAsync")]
+        public async Task<IActionResult> GetGraftedNoteByIdAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId)
         {
             try
             {
-                var result = await _plantGrowthHistoryService.getPlantGrowthById(plantGrowthHistoryId);
+                var result = await _graftedNoteService.getGraftedNoteById(graftedNoteId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -84,12 +86,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.PlantGrowthHistory.getAllHistoryOfPlantById + "/{plant-id}", Name = "getAllHistoryOfPlantByIdAsync")]
-        public async Task<IActionResult> GetAllHistoryOfPlantByIdAsync([FromRoute(Name = "plant-id")] int plantId)
+        [HttpGet(APIRoutes.GraftedPlant.getAllNoteOfGraftedById + "/{grafted-id}", Name = "GetAllNoteOfGraftedByIdAsync")]
+        public async Task<IActionResult> GetAllNoteOfGraftedByIdAsync([FromRoute(Name = "grafted-id")] int graftedId)
         {
             try
             {
-                var result = await _plantGrowthHistoryService.getAllHistoryOfPlantById(plantId);
+                var result = await _graftedNoteService.getAllNoteOfGraftedById(graftedId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -103,12 +105,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.PlantGrowthHistory.deletePlantGrowthHistory + "/{plant-growth-history-id}", Name = "deleteGrowthHistoryAsync")]
-        public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
+        [HttpDelete(APIRoutes.GraftedPlant.deleteGraftedNote + "/{grafted-note-id}", Name = "DeleteGraftedNoteAsync")]
+        public async Task<IActionResult> DeleteGraftedNoteAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId)
         {
             try
             {
-                var result = await _plantGrowthHistoryService.deleteGrowthHistory(plantGrowthHistoryId);
+                var result = await _graftedNoteService.deleteGraftedNote(graftedNoteId);
                 return Ok(result);
             }
             catch (Exception ex)

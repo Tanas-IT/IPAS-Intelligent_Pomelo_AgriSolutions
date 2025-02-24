@@ -1,0 +1,135 @@
+﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
+using CapstoneProject_SP25_IPAS_Service.IService;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CapstoneProject_SP25_IPAS_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class GraftedPlantController : ControllerBase
+    {
+        private readonly IGraftedPlantService _graftedPlantService;
+
+        public GraftedPlantController(IGraftedPlantService graftedPlantService)
+        {
+            _graftedPlantService = graftedPlantService;
+        }
+
+        // Lấy cây ghép theo ID
+        [HttpGet(APIRoutes.GraftedPlant.getGraftedById + "/{graftedPlantId}", Name = "getGraftedById")]
+        public async Task<IActionResult> GetGraftedByIdAsync([FromRoute] int graftedPlantId)
+        {
+            try
+            {
+                var result = await _graftedPlantService.getGraftedByIdAsync(graftedPlantId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        // Lấy danh sách cây ghép theo phân trang
+        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getGraftedOfPlantPagin")]
+        public async Task<IActionResult> GetGraftedOfPlantPaginAsync([FromQuery] GetGraftedPaginRequest getRequest)
+        {
+            try
+            {
+                var result = await _graftedPlantService.getGraftedOfPlantPaginAsync(getRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        // Tạo mới cây ghép
+        [HttpPost(APIRoutes.GraftedPlant.createGrafted ,Name = "createGraftedPlant")]
+        public async Task<IActionResult> CreateGraftedPlantAsync([FromBody] CreateGraftedPlantRequest createRequest)
+        {
+            try
+            {
+                var result = await _graftedPlantService.createGraftedPlantAsync(createRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        // Cập nhật thông tin cây ghép
+        [HttpPut(APIRoutes.GraftedPlant.updateGraftedInfo ,Name = "updateGraftedPlant")]
+        public async Task<IActionResult> UpdateGraftedPlantAsync([FromBody] UpdateGraftedPlantRequest updateRequest)
+        {
+            try
+            {
+                var result = await _graftedPlantService.updateGraftedPlantAsync(updateRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        // Xóa mềm cây ghép (chuyển trạng thái đã xóa)
+        [HttpPatch(APIRoutes.GraftedPlant.deleteSoftedGrafted , Name = "softDeleteGraftedPlant")]
+        public async Task<IActionResult> SoftDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
+        {
+            try
+            {
+                var result = await _graftedPlantService.deteSoftedGraftedAsync(graftedPlantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        // Xóa vĩnh viễn cây ghép
+        [HttpDelete(APIRoutes.GraftedPlant.deletePermanentlyGrafted, Name = "permanentDeleteGraftedPlant")]
+        public async Task<IActionResult> PermanentDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
+        {
+            try
+            {
+                var result = await _graftedPlantService.deletePermanentlyGrafteAsync(graftedPlantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+    }
+}
