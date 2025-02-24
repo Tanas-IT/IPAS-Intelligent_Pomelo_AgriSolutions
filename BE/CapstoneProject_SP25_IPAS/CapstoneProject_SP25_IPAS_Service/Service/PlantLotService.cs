@@ -67,6 +67,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             HealthStatus = "Good",
                             GrowthStageID = 2,
                             UpdateDate = DateTime.Now,
+                            IsDeleted = false
                         };
                         await _unitOfWork.PlantRepository.Insert(newPlant);
                     }

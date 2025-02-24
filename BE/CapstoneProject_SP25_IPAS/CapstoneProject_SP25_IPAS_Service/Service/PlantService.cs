@@ -51,7 +51,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Create the new Plant entity from the request
                     var plantCreateEntity = new Plant()
                     {
-                        PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{landrowExist.LandPlotId}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-{CodeHelper.GenerateCode()}",
+                        PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{landrowExist.LandPlotId}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-{CodeHelper.GenerateCode()}",
                         PlantName = plantCreateRequest.PlantName,
                         PlantIndex = plantCreateRequest.PlantIndex,
                         GrowthStageID = plantCreateRequest.GrowthStageId,
@@ -61,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Description = plantCreateRequest.Description,
                         MasterTypeId = plantCreateRequest.MasterTypeId,
                         LandRowId = plantCreateRequest.LandRowId,
+                        IsDeleted = false,
                     };
 
                     // Upload image to Cloudinary if needed
@@ -391,6 +392,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlantReferenceId = referencePlant != null ? referencePlant.PlantId : null,
                                 LandRowId = landRow!.LandRowId,
                                 MasterTypeId = masterType!.MasterTypeId,
+                                IsDeleted = false,
                             };
                             //newPlant.GrowthStageID = growthStage?.GrowthStageID;
                             //newPlant.MasterTypeId = masterType?.MasterTypeId;

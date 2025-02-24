@@ -347,15 +347,16 @@ public partial class IpasContext : DbContext
             entity.ToTable("GraftedPlantNote");
 
             entity.Property(e => e.GraftedPlantNoteId).HasColumnName("GraftedPlantNoteID");
+            entity.Property(e => e.GraftedPlantNoteCode).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Content).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.GraftedPlantId).HasColumnName("GraftedPlantID");
-            entity.Property(e => e.GraftedPlantNoteName)
+            entity.Property(e => e.IssueName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.Image)
-                .HasMaxLength(50)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.Image)
+            //    .HasMaxLength(50)
+            //    .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.NoteTaker)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -983,7 +984,7 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.WorkLogID);
             entity.Property(e => e.LegalDocumentID);
-            entity.Property(e => e.GraftedPlantID);
+            entity.Property(e => e.GraftedPlantNoteID);
             entity.Property(e => e.PlantGrowthHistoryID);
 
             entity.HasOne(d => d.WorkLog).WithMany(p => p.Resources)
@@ -994,9 +995,9 @@ public partial class IpasContext : DbContext
                .HasForeignKey(d => d.LegalDocumentID)
                .HasConstraintName("FK_Resource_LegalDocument");
 
-            entity.HasOne(d => d.GraftedPlant).WithMany(p => p.Resources)
-              .HasForeignKey(d => d.GraftedPlantID)
-              .HasConstraintName("FK_Resource_GraftedPlant");
+            entity.HasOne(d => d.GraftedPlantNote).WithMany(p => p.Resources)
+             .HasForeignKey(d => d.GraftedPlantNoteID)
+             .HasConstraintName("FK_Resource_GraftedPlantNote");
 
             entity.HasOne(d => d.PlantGrowthHistory).WithMany(p => p.Resources)
               .HasForeignKey(d => d.PlantGrowthHistoryID)
