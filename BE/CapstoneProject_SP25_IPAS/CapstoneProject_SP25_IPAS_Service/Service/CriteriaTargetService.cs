@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -181,7 +182,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    }
         //}
 
-        public async Task<BusinessResult> CheckCriteriaForPlant(CheckPlantCriteriaRequest request)
+        public async Task<BusinessResult> CheckCriteriaForTarget(CheckPlantCriteriaRequest request)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -395,6 +396,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-
+        public async Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? plantId, int? graftedId, int? plantLotId, string TargetsList)
+        {
+            try
+            {
+                // Lấy danh sách tiêu chí hiện tại của đối tượng (Plant, GraftedPlant hoặc PlantLot)
+                var existingCriteria = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId:plantId, graftedPlantId:graftedId, plantLotId:plantLotId);
+                if (existingCriteria.Any())
+                    return (false, "You must apply criteria before.");
+                var targetSplit = Util.SplitByComma(TargetsList);
+                existingCriteria = existingCriteria.Where(x => targetSplit.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked == true);
+                if (!existingCriteria.Any()) 
+                    return (false, $"You must completed all criteria of {string.Join(", ", targetSplit)} before.");
+                return (true, "All of criteria is complete");
+            } catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
     }
 }

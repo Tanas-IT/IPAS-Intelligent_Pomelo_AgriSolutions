@@ -14,10 +14,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class PartnerController : ControllerBase
     {
         private readonly IPartnerService _partnerService;
-
-        public PartnerController(IPartnerService partnerService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public PartnerController(IPartnerService partnerService, IJwtTokenService jwtTokenService)
         {
             _partnerService = partnerService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.Partner.getPartnerWithPagination, Name = "getPartnerWithPagination")]
@@ -122,6 +123,33 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 var result = await _partnerService.GetPartnerByRoleName(roleName);
                 return Ok(result);  
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Partner.getForSelected, Name = "getPartnerForSelected")]
+        public async Task<IActionResult> getPartnerForSelected([FromQuery] int? farmId)
+        {
+            try
+            {
+                if(!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId cannot be null"
+                    });
+                var result = await _partnerService.GetPartnerForSelected(farmId: farmId!.Value);
+                return Ok(result);
             }
             catch (Exception ex)
             {

@@ -15,7 +15,7 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureServices();
+builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddDbContext<IpasContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

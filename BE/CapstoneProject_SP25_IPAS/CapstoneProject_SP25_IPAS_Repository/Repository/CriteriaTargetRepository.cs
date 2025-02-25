@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfTargetNoPaging(int? plantId, int? graftedPlantId, int? plantLotId)
+        public async Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfTargetNoPaging(int? plantId = null, int? graftedPlantId = null, int? plantLotId = null)
         {
             var query = _context.CriteriaTargets
                 .Include(x => x.Criteria)

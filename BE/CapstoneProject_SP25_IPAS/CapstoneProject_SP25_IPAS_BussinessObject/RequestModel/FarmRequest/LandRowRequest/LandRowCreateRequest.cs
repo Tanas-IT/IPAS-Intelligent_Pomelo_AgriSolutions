@@ -9,7 +9,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
 {
     public class LandRowCreateRequest
     {
-        [Required]
         public int LandPlotId { get; set; }
         [Required]
         public int RowIndex { get; set; }

@@ -26,5 +26,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId);
         public Task<BusinessResult> PermanentlyDeleteManyMasterType(List<int> MasterTypeId);
+        public Task<BusinessResult> GetMasterTypeForSelected(string MasterTypeName,string target, int farmId);
+
+        //public Task CheckMasterType();
     }
 }

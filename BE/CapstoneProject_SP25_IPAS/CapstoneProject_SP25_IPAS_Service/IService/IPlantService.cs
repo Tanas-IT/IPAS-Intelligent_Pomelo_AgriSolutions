@@ -21,6 +21,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> deletePlant(int plantId);
         public Task<BusinessResult> deleteMultiplePlant(List<int> ids);
         public Task<BusinessResult> ImportPlantAsync(ImportExcelRequest request);
+        public Task<BusinessResult> getPlantInPlotForSelected(int plotId);
+        public Task<BusinessResult> getPlantInRowForSelected(int rowId);
+
 
     }
 }

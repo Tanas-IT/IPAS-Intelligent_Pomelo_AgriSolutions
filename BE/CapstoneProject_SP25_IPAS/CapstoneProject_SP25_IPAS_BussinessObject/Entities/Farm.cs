@@ -67,4 +67,5 @@ public partial class Farm
     public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
     public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
+    public virtual ICollection<Partner> Partners { get; set; } = new List<Partner>();
 }

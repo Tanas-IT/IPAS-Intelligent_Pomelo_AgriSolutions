@@ -962,6 +962,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG = "Total area was user larger than area of landplot";
         public static int WARNING_ROW_NOT_EXIST_CODE = 400;
         public static string WARNING_ROW_NOT_EXIST_MSG = "This row not exist";
+        public static int WARNING_EMPTY_LAND_ROWS_CODE = 400;
+        public static string WARNING_EMPTY_LAND_ROWS_MSG = "No landrow to create";
+        public static int WARNING_DUPLICATE_ROW_INDEX_CODE = 400;
+        public static string WARNING_DUPLICATE_ROW_INDEX_MSG = "Duplicate row index when create";
         #endregion
 
         #region Plant
@@ -1085,8 +1089,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region GraftedPlat
-        public static int WARNING_NO_GRAFTED_WAS_FOUND_CODE = 400;
-        public static string WARNING_NO_GRAFTED_WAS_FOUND_MSG = "Get plant in farm empty.";
+        public static int WARNING_GET_GRAFTED_EMPTY_CODE = 400;
+        public static string WARNING_GET_GRAFTED_EMPTY_MSG = "Get plant in farm empty.";
         //public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
         //public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
         //public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;

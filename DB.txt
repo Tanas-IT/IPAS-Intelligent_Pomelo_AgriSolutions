@@ -240,6 +240,8 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Area float NULL,
 	[Length] float NULL,
 	Width float NULL,
+ 	RowperLine int NULL,
+	RowSpacing float NULL,
 	SoilType nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
@@ -400,8 +402,10 @@ CREATE TABLE ipas.dbo.Partner (
 	ContactName nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	BusinessField nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__Partner__39FD6332F826F432 PRIMARY KEY (PartnerID),
-	CONSTRAINT FK__Partner__RoleID__27F8EE98 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
+	CONSTRAINT FK__Partner__RoleID__27F8EE98 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE,
+	CONSTRAINT FK__Partner__Farm FOREIGN KEY (FarmID) REFERENCES ipas.dbo.[Farm](FarmID) ON DELETE CASCADE
 );
 
 
@@ -646,7 +650,9 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantID int NULL,
 	IsDeleted bit NULL,
+	IsCompleted bit NULL,
 	PlantLotID int NULL,
+	FarmID int NULL,
 	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
 	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
 	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
@@ -1281,4 +1287,50 @@ VALUES
 ('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 8, 3),
 ('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 9, 3),
 ('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 10, 3);
+GO
+INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National], RoleID, District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
+VALUES 
+('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
+('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
+('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
+('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5),
+('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
+('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
+('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
+('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5);
+GO
+INSERT INTO ipas.dbo.PlantLot 
+(PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted) 
+VALUES
+('PL001', 'Plant Lot A', 100, 'kg', 'Active', 90, '2024-06-01', 'Good condition', 1, NULL, 1, 0),
+('PL002', 'Plant Lot B', 200, 'kg', 'Inactive', 180, '2024-06-05', 'Stored in warehouse', 2, NULL, 2, 0),
+('PL003', 'Plant Lot C', 150, 'kg', 'Active', 120, '2024-06-10', 'Requires monitoring', 3, NULL, 3, 0),
+('PL004', 'Plant Lot D', 80, 'kg', 'Active', 75, '2024-06-15', 'Good growth', 4, NULL, 1, 0),
+('PL005', 'Plant Lot E', 50, 'kg', 'Inactive', 50, '2024-06-20', 'Pending inspection', 5, NULL, 2, 0),
+('PL006', 'Plant Lot F', 120, 'kg', 'Active', 100, '2024-07-01', 'Well-maintained', 6, NULL, 3, 0),
+('PL007', 'Plant Lot G', 90, 'kg', 'Inactive', 85, '2024-07-05', 'Need more fertilizer', 7, NULL, 1, 0),
+('PL008', 'Plant Lot H', 70, 'kg', 'Active', 60, '2024-07-10', 'Growth is slow', 8, NULL, 2, 0),
+('PL009', 'Plant Lot I', 110, 'kg', 'Active', 95, '2024-07-15', 'Ready for harvest', 9, NULL, 3, 0),
+('PL010', 'Plant Lot J', 130, 'kg', 'Inactive', 125, '2024-07-20', 'Requires re-evaluation', 10, NULL, 1, 0);
+GO
+INSERT INTO ipas.dbo.GraftedPlant 
+(GraftedPlantCode, GraftedPlantName, GrowthStage, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
+VALUES
+('GP001', 'Grafted Plant A', 'Stage 1', '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,0 , 1, 1),
+('GP002', 'Grafted Plant B', 'Stage 2', '2024-02-10', 'Growing', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,2, 1),
+('GP003', 'Grafted Plant C', 'Stage 3', '2024-03-05', 'Healthy', '2024-02-25', 'Strong growth', 3, 0, 0 ,3, 1),
+('GP004', 'Grafted Plant D', 'Stage 1', '2024-04-20', 'Weak', '2024-04-10', 'Requires extra care', 4, 0, 0 ,4, 1),
+('GP005', 'Grafted Plant E', 'Stage 2', '2024-05-12', 'Healthy', '2024-05-01', 'Excellent condition', 5, 0,0 , 5, 1),
+('GP006', 'Grafted Plant F', 'Stage 1', '2024-06-10', 'Healthy', '2024-06-01', 'Stable condition', 6, 0, 0 ,6, 1),
+('GP007', 'Grafted Plant G', 'Stage 2', '2024-07-15', 'Growing', '2024-07-05', 'Showing good progress', 7, 0 ,0, 7, 1),
+('GP008', 'Grafted Plant H', 'Stage 3', '2024-08-20', 'Weak', '2024-08-10', 'Needs more nutrients', 8, 0, 0 ,8, 1),
+('GP009', 'Grafted Plant I', 'Stage 1', '2024-09-10', 'Healthy', '2024-09-01', 'No issues', 9, 0, 0 ,9, 2),
+('GP010', 'Grafted Plant J', 'Stage 2', '2024-10-05', 'Dying', '2024-09-25', 'Urgent care required', 10, 0,0 , 1, 2),
+('GP011', 'Grafted Plant K', 'Stage 3', '2024-11-12', 'Growing', '2024-11-01', 'Needs more light', 1, 0,0 , 1, 2),
+('GP012', 'Grafted Plant L', 'Stage 1', '2024-12-08', 'Healthy', '2024-12-01', 'Great potential', 2, 0, 0 ,1, 2),
+('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,1, 2),
+('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,1, 2),
+('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,1, 2);
 GO
