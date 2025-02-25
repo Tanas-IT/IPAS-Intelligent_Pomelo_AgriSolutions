@@ -191,5 +191,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Harvest.getHarvestForSelectedByPlotId + "/{crop-id}", Name = "getHarvestForSelectedByPlotId")]
+        public async Task<IActionResult> getHarvestForSelected([FromRoute(Name = "crop-id")] int cropId)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.getHarvestForSelectedByPlotId(cropId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

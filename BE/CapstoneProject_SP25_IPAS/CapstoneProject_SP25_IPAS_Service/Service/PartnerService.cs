@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -43,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        Province = createPartnerModel.Province,
                        District = createPartnerModel.District,
                        Ward = createPartnerModel.Ward,
-                       Avatar = createPartnerModel.Avatar,
+                       //Avatar = createPartnerModel.Avatar,
                        Note = createPartnerModel.Note,
                        Description = createPartnerModel.Description,
                        Major = createPartnerModel.Major,
@@ -108,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       || x.BusinessField.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.ContactName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Major.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Avatar.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      //|| x.Avatar.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Role.RoleName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Province.ToLower().Contains(paginationParameter.Search.ToLower())
@@ -344,7 +345,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (updatePartnerModel.Avatar != null)
                     {
-                        checkExistPartner.Avatar = updatePartnerModel.Avatar;
+                        //checkExistPartner.Avatar = updatePartnerModel.Avatar;
                     }
                     if (updatePartnerModel.BusinessField != null)
                     {
@@ -405,6 +406,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string districtCode = CodeHelper.ConvertTextToCode(partnerRequest.District!, 3);
 
             return $"{countryCode}-{provinceCode}-{districtCode}";
+        }
+
+        public async Task<BusinessResult> GetPartnerForSelected(int farmId)
+        {
+            try
+            {
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == farmId;
+                Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
+                var rowsOfFarm = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!rowsOfFarm.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_PARTNER_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(rowsOfFarm);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }

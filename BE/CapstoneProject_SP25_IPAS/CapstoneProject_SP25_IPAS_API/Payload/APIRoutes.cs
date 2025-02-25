@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace CapstoneProject_SP25_IPAS_API.Payload
 {
     public static class APIRoutes
@@ -59,13 +61,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
 
         public static class PlantLot
         {
-            public const string createPlantLot = Base + "/plantLots";
-            public const string getPlantLotById = Base + "/plantLots/get-plantLot-by-id/{id}";
+            public const string createPlantLot = Base + "/plant-lots";
+            public const string getPlantLotById = Base + "/get-plantLot-by-id/{id}";
             public const string getPlantLotWithPagination = Base + "/plantLots";
-            public const string permanenlyDelete = Base + "/plantLots/delete-permanenly/{id}";
-            public const string updatePlantLotInfo = Base + "/plantLots/update-plantLot-info";
-            public const string createManyPlantFromPlantLot = Base + "/plantLots/create-many-plant";
+            public const string permanenlyDelete = Base + "/delete-permanenly/{id}";
+            public const string updatePlantLotInfo = Base + "/update-plantLot-info";
+            public const string createManyPlantFromPlantLot = Base + "/create-many-plant";
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
+            public const string GetPlantPlotForSelected = Base + "/get-for-selected";
         }
 
         public static class Resource
@@ -89,6 +92,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
+            public const string getForSelected = Base + "/masterTypes/get-for-selected";
+            
         }
 
         public static class Criteria
@@ -132,6 +137,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/partners/delete-permanenly/{id}";
             public const string updatePartnerInfo = Base + "/partners/update-partner-info";
             public const string getPartnerByRoleName = Base + "/partners/get-partner-by-role-name/{roleName}";
+            public const string getForSelected = Base + "/partners/get-for-selected";
+
         }
 
         public static class GrowthStage
@@ -198,6 +205,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateLandRowInfo = prefix + "";
             public const string getLandRowById = prefix + "";
             public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+            public const string getLandRowForSelected = prefix + "/get-for-selected";
         }
 
         public static class Plant
@@ -211,6 +219,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
             public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";
+            public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
+            public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
         }
 
         public static class PlantGrowthHistory
@@ -285,6 +295,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestById = prefix + "";
             public const string getAllHarvestPagin = prefix + "";
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
+            public const string getHarvestForSelectedByPlotId = prefix + "/get-for-selected";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
@@ -344,6 +355,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteSoftedGrafted = prefix + "/softed-delete";
             public const string getGraftedById = prefix + "";
             public const string getAllGraftedPagin = prefix + "";
+            public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
 
             public const string graftedNotePrefix = prefix + "/note";
             public const string createGraftedNote = graftedNotePrefix + "";

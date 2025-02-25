@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
@@ -84,6 +85,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
+        public Task<int> CreateMultipleRow(List<LandRowCreateRequest> createRequest)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<BusinessResult> DeleteLandRowOfFarm(int rowId)
         {
             try
@@ -123,6 +129,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<LandRowModel>>(rowsOfFarm);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetLandRowForSelectedByPlotId(int landplotId)
+        {
+            try
+            {
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
+                Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
+                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!rowsOfFarm.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(rowsOfFarm);
                 return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
             }
             catch (Exception ex)

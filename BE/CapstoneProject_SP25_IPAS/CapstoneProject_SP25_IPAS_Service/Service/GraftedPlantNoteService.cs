@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var checkGraftedExist = await _graftedPlantService.getGraftedByIdAsync(historyCreateRequest.GraftedPlantId);
                     if (checkGraftedExist.StatusCode != 200)
-                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG);
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     // Khởi tạo đối tượng GraftedPlantNote
                     var graftedPlantNoteEntity = new GraftedPlantNote()
                     {

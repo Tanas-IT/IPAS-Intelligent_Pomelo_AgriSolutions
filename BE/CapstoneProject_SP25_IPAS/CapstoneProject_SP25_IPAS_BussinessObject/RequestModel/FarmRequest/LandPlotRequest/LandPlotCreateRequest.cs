@@ -25,19 +25,23 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         public int? FarmId { get; set; }
 
         public string? TargetMarket { get; set; }
-
+        [Required]
+        public int RowPerLine { get; set; }
+        [Required]
+        public double RowSpacing { get; set; }
         //public int TreeAmountInRow { get; set; }
-        [Required]
-        public double DistanceInRow { get; set; }
-        [Required]
-        public double RowLength { get; set; }
-        [Required]
-        public double RowWidth { get; set; }
-        public string? RowDirection { get; set; }
-        public double? RowSpace { get; set; }
+        //[Required]
+        //public double DistanceInRow { get; set; }
+        //[Required]
+        //public double RowLength { get; set; }
+        //[Required]
+        //public double RowWidth { get; set; }
+        //public string? RowDirection { get; set; }
+        //public double? RowSpace { get; set; }
 
         //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
         [Required]
         public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
+        public ICollection<LandRowCreateRequest> LandRows { get; set; } = new List<LandRowCreateRequest>();
     }
 }

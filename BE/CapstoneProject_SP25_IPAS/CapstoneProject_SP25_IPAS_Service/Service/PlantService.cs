@@ -8,6 +8,7 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -428,5 +429,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+
+        public async Task<BusinessResult> getPlantInPlotForSelected(int landPlotId)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == landPlotId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getPlantInRowForSelected(int rowId)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRowId == rowId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
