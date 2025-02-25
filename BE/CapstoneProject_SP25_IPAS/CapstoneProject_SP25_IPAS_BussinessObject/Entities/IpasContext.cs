@@ -328,7 +328,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.HasOne(d => d.Plant).WithMany(p => p.GraftedPlants)
                 .HasForeignKey(d => d.PlantId)
                 .OnDelete(DeleteBehavior.Cascade)

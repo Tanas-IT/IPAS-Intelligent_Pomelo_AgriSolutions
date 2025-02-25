@@ -131,5 +131,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
+
+        // get for selected
+        // Lấy cây ghép theo ID
+        [HttpGet(APIRoutes.GraftedPlant.getGraftedForSelectedByFarmId + "/{farm-id}", Name = "getGraftedForSelectedByFarmIdAsync")]
+        public async Task<IActionResult> getGraftedForSelectedByFarmIdAsync([FromRoute(Name = "farm-id")] int farmId)
+        {
+            try
+            {
+                var result = await _graftedPlantService.getGraftedForSelected(farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }

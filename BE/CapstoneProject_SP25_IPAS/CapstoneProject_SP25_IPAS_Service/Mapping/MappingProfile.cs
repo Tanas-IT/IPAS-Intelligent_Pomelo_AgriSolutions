@@ -302,6 +302,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PartnerName))
               .ReverseMap();
 
+            CreateMap<Plant, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlantId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlantCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlantName))
+              .ReverseMap();
+
+            CreateMap<GraftedPlant, ForSelectedModels>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GraftedPlantId))
+           .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GraftedPlantCode))
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GraftedPlantName))
+            .ReverseMap();
+
             CreateMap<GraftedPlantNote, GraftedPlantModels>()
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                 .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))

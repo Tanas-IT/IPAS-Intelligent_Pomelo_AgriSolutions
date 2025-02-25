@@ -219,6 +219,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
             public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";
+            public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
+            public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
         }
 
         public static class PlantGrowthHistory
@@ -350,6 +352,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteSoftedGrafted = prefix + "/softed-delete";
             public const string getGraftedById = prefix + "";
             public const string getAllGraftedPagin = prefix + "";
+            public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
 
             public const string graftedNotePrefix = prefix + "/note";
             public const string createGraftedNote = graftedNotePrefix + "";

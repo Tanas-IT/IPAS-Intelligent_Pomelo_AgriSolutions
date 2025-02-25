@@ -182,7 +182,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.MasterType.getForSelected, Name = "getMasterTypeForSelected")]
-        public async Task<IActionResult> getMasterTypeForSelected([FromQuery] string typeName,string target, int? farmId)
+        public async Task<IActionResult> getMasterTypeForSelected([FromQuery] string typeName, string? target, int? farmId)
         {
             try
             {

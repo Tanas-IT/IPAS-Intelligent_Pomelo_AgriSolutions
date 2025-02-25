@@ -194,7 +194,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
-                var result = await _criteriaTargetService.CheckCriteriaForPlant(request);
+                var result = await _criteriaTargetService.CheckCriteriaForTarget(request);
                 return Ok(result);
             }
             catch (Exception ex)

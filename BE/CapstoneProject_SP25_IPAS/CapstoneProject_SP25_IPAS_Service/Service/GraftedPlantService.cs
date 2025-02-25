@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -20,6 +19,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -28,11 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPlantService _plantService;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, IPlantService plantService)
+        private readonly ICriteriaTargetService _criteriaTargetService;
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, IPlantService plantService, ICriteriaTargetService criteriaTargetService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _plantService = plantService;
+            _criteriaTargetService = criteriaTargetService;
         }
 
         public async Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest)
@@ -45,8 +47,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (plantExist.StatusCode != 200)
                         return plantExist;
 
+                    // kiem tra xem co apply va check criteria chua
+                    var criteriaResult = await _criteriaTargetService.CheckCriteriaComplete(PlantId: createRequest.PlantId, GraftedId: null, PlantLotId: null, TargetsList: "Grafted");
+                    if (criteriaResult.enable == false)
+                        return new BusinessResult(Const.FAIL_CREATE_GRAFTED_PLANT_CODE, criteriaResult.ErrorMessage);
                     // Create the new Plant entity from the request
-                    var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.ToString()!);
+                    var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
 
                     var graftedCreateEntity = new GraftedPlant()
                     {
@@ -86,7 +92,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (graftedPlantIds == null || !graftedPlantIds.Any())
                     {
-                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, "No valid GraftedPlantIds provided.");
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, "No valid GraftedPlantIds provided.");
                     }
 
                     // Filter to find all plants with matching IDs
@@ -96,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (grafteds == null || !grafteds.Any())
                     {
-                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG);
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
 
                     // Delete each plant entity
@@ -130,7 +136,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (graftedPlantIdsDelete == null || !graftedPlantIdsDelete.Any())
                     {
-                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, "No valid GraftedPlantIds provided.");
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, "No valid GraftedPlantIds provided.");
                     }
 
                     // Filter to find all plants with matching IDs
@@ -140,7 +146,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (grafteds == null || !grafteds.Any())
                     {
-                        return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG);
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
                     grafteds.ToList().ForEach(gr =>
                     {
@@ -169,12 +175,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == graftedPlantId && x.IsDeleted != true ;
+                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == graftedPlantId && x.IsDeleted != true;
                 string includeProperties = "PlantLot,Plant";
                 var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(filter, includeProperties);
                 // kiem tra null
                 if (graftedPlant == null)
-                    return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG);
+                    return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                 // neu khong null return ve mapper
                 var result = _mapper.Map<GraftedPlantModels>(graftedPlant);
                 return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, result);
@@ -266,7 +272,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (pagin.List.Any())
                     return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin);
                 else
-                    return new BusinessResult(Const.WARNING_NO_GRAFTED_WAS_FOUND_CODE, Const.WARNING_NO_GRAFTED_WAS_FOUND_MSG, new PageEntity<GraftedPlantModels>());
+                    return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantModels>());
             }
             catch (Exception ex)
             {
@@ -322,6 +328,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, Const.FAIL_UPDATE_PLANT_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getGraftedForSelected(int farmId)
+        {
+            try
+            {
+                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId;
+                Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
+                var plantInPlot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(200, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
             }
             catch (Exception ex)
             {

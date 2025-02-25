@@ -1071,8 +1071,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region GraftedPlat
-        public static int WARNING_NO_GRAFTED_WAS_FOUND_CODE = 400;
-        public static string WARNING_NO_GRAFTED_WAS_FOUND_MSG = "Get plant in farm empty.";
+        public static int WARNING_GET_GRAFTED_EMPTY_CODE = 400;
+        public static string WARNING_GET_GRAFTED_EMPTY_MSG = "Get plant in farm empty.";
         //public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
         //public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
         //public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;

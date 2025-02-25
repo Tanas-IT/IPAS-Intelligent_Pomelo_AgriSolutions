@@ -26,6 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedMo
         public string? Note { get; set; }
 
         public int? PlantId { get; set; }
+        public bool? IsCompleted { get; set; }
         public string? PlantName { get; set; }
         public int? PlantLotId { get; set; }
         public string? PlantLotName { get; set; }

@@ -201,5 +201,47 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Lấy tất cả cây của một thửa
+        /// </summary>
+        [HttpGet(APIRoutes.Plant.getForSelectedForPlot + "/{plot-id}")]
+        public async Task<IActionResult> GetForSelectedForPlot([FromRoute(Name = "plot-id")] int plotId)
+        {
+            try
+            {
+                var result = await _plantService.getPlantInPlotForSelected(plotId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Lấy tất cả cây của một hàng
+        /// </summary>
+        [HttpGet(APIRoutes.Plant.getForSelectedForRow + "/{row-id}")]
+        public async Task<IActionResult> GetForSelectedForRow([FromRoute(Name = "row-id")] int plotId)
+        {
+            try
+            {
+                var result = await _plantService.getPlantInRowForSelected(plotId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }

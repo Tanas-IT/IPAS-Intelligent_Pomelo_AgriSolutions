@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
@@ -14,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 {
     public static class SystemServiceInstaller
     {
-        public static void ConfigureServices(this IServiceCollection services)
+        public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Add services to the container.
             services.AddControllers();
@@ -29,6 +30,13 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             });
 
             services.AddSingleton(mapper.CreateMapper());
+
+            // read TypeName and Target of MasterType
+            var masterTypeConfig = new MasterTypeConfig();
+            configuration.GetSection("MasterTypeConfig").Bind(masterTypeConfig);
+
+            services.AddSingleton(masterTypeConfig);
+
 
             // Register repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
