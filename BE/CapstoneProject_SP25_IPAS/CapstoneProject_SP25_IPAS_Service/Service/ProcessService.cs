@@ -540,228 +540,240 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
 
                                 var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcess.SubProcessId, "");
-                                if (subProcess.Status.ToLower().Equals("add"))
+                                if(subProcess.Status != null)
                                 {
-                                    var newSubProcess = new SubProcess();
-
-                                    int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
-                                             ? idMapping[subProcess.ParentSubProcessId.Value]
-                                             : (int?)null;
-
-                                    // Chuyển đổi sang entity SubProcess
-                                    newSubProcess = new SubProcess()
+                                    if (subProcess.Status.ToLower().Equals("add"))
                                     {
-                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                        MasterTypeId = subProcess.MasterTypeId,
-                                        SubProcessName = subProcess.SubProcessName,
-                                        IsDefault = subProcess.IsDefault,
-                                        IsActive = subProcess.IsActive,
-                                        IsDeleted = subProcess.IsDeleted,
-                                        CreateDate = DateTime.Now,
-                                        UpdateDate = DateTime.Now,
-                                    };
-                                    checkExistProcess.SubProcesses.Add(newSubProcess);
-                                    newSubProcess.ParentSubProcessId = realParentId;
+                                        var newSubProcess = new SubProcess();
 
-                                    checkExistProcess.SubProcesses.Add(newSubProcess);
-                                    result = await _unitOfWork.SaveAsync();
-                                    idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
+                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
+                                                 : (int?)null;
 
-                                    if (subProcess.ListPlan != null)
-                                    {
-                                        foreach (var plan in subProcess.ListPlan)
+                                        // Chuyển đổi sang entity SubProcess
+                                        newSubProcess = new SubProcess()
                                         {
-                                            var getPlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
-                                            if (plan.PlanStatus.ToLower().Equals("add"))
+                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                            MasterTypeId = subProcess.MasterTypeId,
+                                            SubProcessName = subProcess.SubProcessName,
+                                            IsDefault = subProcess.IsDefault,
+                                            IsActive = subProcess.IsActive,
+                                            IsDeleted = subProcess.IsDeleted,
+                                            CreateDate = DateTime.Now,
+                                            UpdateDate = DateTime.Now,
+                                        };
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        newSubProcess.ParentSubProcessId = realParentId;
+
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        result = await _unitOfWork.SaveAsync();
+                                        idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+
+                                        if (subProcess.ListPlan != null)
+                                        {
+                                            foreach (var plan in subProcess.ListPlan)
                                             {
-                                                var newPlan = new Plan()
+                                                var getPlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
+                                                if(plan.PlanStatus != null)
                                                 {
-                                                    PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
-                                                    PlanName = plan.PlanName,
-                                                    PlanDetail = plan.PlanDetail,
-                                                    Notes = plan.PlanNote,
-                                                    FarmID = checkExistProcess.FarmId,
-                                                    GrowthStageId = plan.GrowthStageId,
-                                                    MasterTypeId = plan.MasterTypeId,
-                                                };
-                                                newSubProcess.Plans.Add(newPlan);
+                                                    if (plan.PlanStatus.ToLower().Equals("add"))
+                                                    {
+                                                        var newPlan = new Plan()
+                                                        {
+                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanName = plan.PlanName,
+                                                            PlanDetail = plan.PlanDetail,
+                                                            Notes = plan.PlanNote,
+                                                            FarmID = checkExistProcess.FarmId,
+                                                            GrowthStageId = plan.GrowthStageId,
+                                                            MasterTypeId = plan.MasterTypeId,
+                                                        };
+                                                        newSubProcess.Plans.Add(newPlan);
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                    {
+                                                        if (getPlanInDB != null)
+                                                        {
+                                                            if (plan.PlanName != null)
+                                                            {
+                                                                getPlanInDB.PlanName = plan.PlanName;
+                                                            }
+                                                            if (plan.PlanDetail != null)
+                                                            {
+                                                                getPlanInDB.PlanDetail = plan.PlanDetail;
+                                                            }
+                                                            if (plan.PlanNote != null)
+                                                            {
+                                                                getPlanInDB.Notes = plan.PlanNote;
+                                                            }
+                                                            if (plan.GrowthStageId != null)
+                                                            {
+                                                                getPlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                            }
+                                                            if (plan.MasterTypeId != null)
+                                                            {
+                                                                getPlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                            }
+                                                            getPlanInDB.UpdateDate = DateTime.Now;
+                                                        }
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                    {
+                                                        getPlanInDB.IsDelete = true;
+                                                    }
+                                                }
+
                                             }
-                                            else if (plan.PlanStatus.ToLower().Equals("update"))
+                                        }
+
+                                    }
+                                    else if (subProcess.Status.ToLower().Equals("update"))
+                                    {
+                                        if (subProcessUpdate != null)
+                                        {
+                                            if (subProcess.ParentSubProcessId != null)
                                             {
-                                                if (getPlanInDB != null)
+                                                subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                            }
+                                            if (subProcess.SubProcessName != null)
+                                            {
+                                                subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                            }
+                                            if (subProcess.IsDefault != null)
+                                            {
+                                                subProcessUpdate.IsDefault = subProcess.IsDefault;
+                                            }
+                                            if (subProcess.IsActive != null)
+                                            {
+                                                subProcessUpdate.IsActive = subProcess.IsActive;
+                                            }
+                                            if (subProcess.IsDeleted != null)
+                                            {
+                                                subProcessUpdate.IsDeleted = subProcess.IsDeleted;
+                                            }
+                                            if (subProcess.MasterTypeId != null)
+                                            {
+                                                subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
+                                            }
+                                            if (subProcess.Order != null)
+                                            {
+                                                subProcessUpdate.Order = subProcess.MasterTypeId;
+                                            }
+                                            subProcessUpdate.UpdateDate = DateTime.Now;
+                                            if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
+                                            {
+                                                foreach (var plan in subProcess.ListPlan)
                                                 {
-                                                    if (plan.PlanName != null)
+                                                    var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
+                                                    if(plan.PlanStatus != null)
                                                     {
-                                                        getPlanInDB.PlanName = plan.PlanName;
+                                                        if (plan.PlanStatus.ToLower().Equals("add"))
+                                                        {
+                                                            var newPlan = new Plan()
+                                                            {
+                                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                                PlanName = plan.PlanName,
+                                                                PlanDetail = plan.PlanDetail,
+                                                                Notes = plan.PlanNote,
+                                                                FarmID = checkExistProcess.FarmId,
+                                                                GrowthStageId = plan.GrowthStageId,
+                                                                MasterTypeId = plan.MasterTypeId,
+                                                            };
+                                                            subProcessUpdate.Plans.Add(newPlan);
+                                                        }
+                                                        else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                        {
+                                                            if (getUpdatePlanInDB != null)
+                                                            {
+                                                                if (plan.PlanName != null)
+                                                                {
+                                                                    getUpdatePlanInDB.PlanName = plan.PlanName;
+                                                                }
+                                                                if (plan.PlanDetail != null)
+                                                                {
+                                                                    getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
+                                                                }
+                                                                if (plan.PlanNote != null)
+                                                                {
+                                                                    getUpdatePlanInDB.Notes = plan.PlanNote;
+                                                                }
+                                                                if (plan.GrowthStageId != null)
+                                                                {
+                                                                    getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                                }
+                                                                if (plan.MasterTypeId != null)
+                                                                {
+                                                                    getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                                }
+                                                                getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                            }
+                                                        }
+                                                        else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                        {
+                                                            getUpdatePlanInDB.IsDelete = true;
+                                                        }
                                                     }
-                                                    if (plan.PlanDetail != null)
-                                                    {
-                                                        getPlanInDB.PlanDetail = plan.PlanDetail;
-                                                    }
-                                                    if (plan.PlanNote != null)
-                                                    {
-                                                        getPlanInDB.Notes = plan.PlanNote;
-                                                    }
-                                                    if (plan.GrowthStageId != null)
-                                                    {
-                                                        getPlanInDB.GrowthStageId = plan.GrowthStageId;
-                                                    }
-                                                    if (plan.MasterTypeId != null)
-                                                    {
-                                                        getPlanInDB.MasterTypeId = plan.MasterTypeId;
-                                                    }
-                                                    getPlanInDB.UpdateDate = DateTime.Now;
                                                 }
                                             }
-                                            else if (plan.PlanStatus.ToLower().Equals("delete"))
-                                            {
-                                                getPlanInDB.IsDelete = true;
-                                            }
-
                                         }
                                     }
-
-                                }
-                                else if (subProcess.Status.ToLower().Equals("update"))
-                                {
-                                    if (subProcessUpdate != null)
+                                    else if (subProcess.Status.ToLower().Equals("delete"))
                                     {
-                                        if (subProcess.ParentSubProcessId != null)
-                                        {
-                                            subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
-                                        }
-                                        if (subProcess.SubProcessName != null)
-                                        {
-                                            subProcessUpdate.SubProcessName = subProcess.SubProcessName;
-                                        }
-                                        if (subProcess.IsDefault != null)
-                                        {
-                                            subProcessUpdate.IsDefault = subProcess.IsDefault;
-                                        }
-                                        if (subProcess.IsActive != null)
-                                        {
-                                            subProcessUpdate.IsActive = subProcess.IsActive;
-                                        }
-                                        if (subProcess.IsDeleted != null)
-                                        {
-                                            subProcessUpdate.IsDeleted = subProcess.IsDeleted;
-                                        }
-                                        if (subProcess.MasterTypeId != null)
-                                        {
-                                            subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
-                                        }
-                                        if (subProcess.Order != null)
-                                        {
-                                            subProcessUpdate.Order = subProcess.MasterTypeId;
-                                        }
-                                        subProcessUpdate.UpdateDate = DateTime.Now;
+
+                                        subProcessUpdate.IsDeleted = true;
                                         if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
                                             {
                                                 var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
-                                                if (plan.PlanStatus.ToLower().Equals("add"))
+                                                if(plan.PlanStatus != null)
                                                 {
-                                                    var newPlan = new Plan()
+                                                    if (plan.PlanStatus.ToLower().Equals("add"))
                                                     {
-                                                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
-                                                        PlanName = plan.PlanName,
-                                                        PlanDetail = plan.PlanDetail,
-                                                        Notes = plan.PlanNote,
-                                                        FarmID = checkExistProcess.FarmId,
-                                                        GrowthStageId = plan.GrowthStageId,
-                                                        MasterTypeId = plan.MasterTypeId,
-                                                    };
-                                                    subProcessUpdate.Plans.Add(newPlan);
+                                                        var newPlan = new Plan()
+                                                        {
+                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanName = plan.PlanName,
+                                                            PlanDetail = plan.PlanDetail,
+                                                            Notes = plan.PlanNote,
+                                                            FarmID = checkExistProcess.FarmId,
+                                                            GrowthStageId = plan.GrowthStageId,
+                                                            MasterTypeId = plan.MasterTypeId,
+                                                        };
+                                                        subProcessUpdate.Plans.Add(newPlan);
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                    {
+                                                        if (getUpdatePlanInDB != null)
+                                                        {
+                                                            if (plan.PlanName != null)
+                                                            {
+                                                                getUpdatePlanInDB.PlanName = plan.PlanName;
+                                                            }
+                                                            if (plan.PlanDetail != null)
+                                                            {
+                                                                getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
+                                                            }
+                                                            if (plan.PlanNote != null)
+                                                            {
+                                                                getUpdatePlanInDB.Notes = plan.PlanNote;
+                                                            }
+                                                            if (plan.GrowthStageId != null)
+                                                            {
+                                                                getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                            }
+                                                            if (plan.MasterTypeId != null)
+                                                            {
+                                                                getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                            }
+                                                            getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                        }
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                    {
+                                                        getUpdatePlanInDB.IsDelete = true;
+                                                    }
                                                 }
-                                                else if (plan.PlanStatus.ToLower().Equals("update"))
-                                                {
-                                                    if (getUpdatePlanInDB != null)
-                                                    {
-                                                        if (plan.PlanName != null)
-                                                        {
-                                                            getUpdatePlanInDB.PlanName = plan.PlanName;
-                                                        }
-                                                        if (plan.PlanDetail != null)
-                                                        {
-                                                            getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
-                                                        }
-                                                        if (plan.PlanNote != null)
-                                                        {
-                                                            getUpdatePlanInDB.Notes = plan.PlanNote;
-                                                        }
-                                                        if (plan.GrowthStageId != null)
-                                                        {
-                                                            getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
-                                                        }
-                                                        if (plan.MasterTypeId != null)
-                                                        {
-                                                            getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
-                                                        }
-                                                        getUpdatePlanInDB.UpdateDate = DateTime.Now;
-                                                    }
-                                                }
-                                                else if (plan.PlanStatus.ToLower().Equals("delete"))
-                                                {
-                                                    getUpdatePlanInDB.IsDelete = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                else if (subProcess.Status.ToLower().Equals("delete"))
-                                {
-
-                                    subProcessUpdate.IsDeleted = true;
-                                    if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
-                                    {
-                                        foreach (var plan in subProcess.ListPlan)
-                                        {
-                                            var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
-                                            if (plan.PlanStatus.ToLower().Equals("add"))
-                                            {
-                                                var newPlan = new Plan()
-                                                {
-                                                    PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
-                                                    PlanName = plan.PlanName,
-                                                    PlanDetail = plan.PlanDetail,
-                                                    Notes = plan.PlanNote,
-                                                    FarmID = checkExistProcess.FarmId,
-                                                    GrowthStageId = plan.GrowthStageId,
-                                                    MasterTypeId = plan.MasterTypeId,
-                                                };
-                                                subProcessUpdate.Plans.Add(newPlan);
-                                            }
-                                            else if (plan.PlanStatus.ToLower().Equals("update"))
-                                            {
-                                                if (getUpdatePlanInDB != null)
-                                                {
-                                                    if (plan.PlanName != null)
-                                                    {
-                                                        getUpdatePlanInDB.PlanName = plan.PlanName;
-                                                    }
-                                                    if (plan.PlanDetail != null)
-                                                    {
-                                                        getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
-                                                    }
-                                                    if (plan.PlanNote != null)
-                                                    {
-                                                        getUpdatePlanInDB.Notes = plan.PlanNote;
-                                                    }
-                                                    if (plan.GrowthStageId != null)
-                                                    {
-                                                        getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
-                                                    }
-                                                    if (plan.MasterTypeId != null)
-                                                    {
-                                                        getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
-                                                    }
-                                                    getUpdatePlanInDB.UpdateDate = DateTime.Now;
-                                                }
-                                            }
-                                            else if (plan.PlanStatus.ToLower().Equals("delete"))
-                                            {
-                                                getUpdatePlanInDB.IsDelete = true;
                                             }
                                         }
                                     }
@@ -774,50 +786,53 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     var updatePlan = JsonConvert.DeserializeObject<UpdatePlanInProcessModel>(updatePlanRaw);
                                     var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(updatePlan.PlanId != null ? updatePlan.PlanId.Value : -1);
-                                    if (updatePlan.PlanStatus.ToLower().Equals("add"))
+                                    if(updatePlan.PlanStatus != null)
                                     {
-                                        var newPlan = new Plan()
+                                        if (updatePlan.PlanStatus.ToLower().Equals("add"))
                                         {
-                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + updatePlan.MasterTypeId,
-                                            PlanName = updatePlan.PlanName,
-                                            PlanDetail = updatePlan.PlanDetail,
-                                            Notes = updatePlan.PlanNote,
-                                            FarmID = checkExistProcess.FarmId,
-                                            GrowthStageId = updatePlan.GrowthStageId,
-                                            MasterTypeId = updatePlan.MasterTypeId,
-                                        };
-                                        checkExistProcess.Plans.Add(newPlan);
-                                    }
-                                    else if (updatePlan.PlanStatus.ToLower().Equals("update"))
-                                    {
-                                        if (getUpdatePlanInDB != null)
-                                        {
-                                            if (updatePlan.PlanName != null)
+                                            var newPlan = new Plan()
                                             {
-                                                getUpdatePlanInDB.PlanName = updatePlan.PlanName;
-                                            }
-                                            if (updatePlan.PlanDetail != null)
-                                            {
-                                                getUpdatePlanInDB.PlanDetail = updatePlan.PlanDetail;
-                                            }
-                                            if (updatePlan.PlanNote != null)
-                                            {
-                                                getUpdatePlanInDB.Notes = updatePlan.PlanNote;
-                                            }
-                                            if (updatePlan.GrowthStageId != null)
-                                            {
-                                                getUpdatePlanInDB.GrowthStageId = updatePlan.GrowthStageId;
-                                            }
-                                            if (updatePlan.MasterTypeId != null)
-                                            {
-                                                getUpdatePlanInDB.MasterTypeId = updatePlan.MasterTypeId;
-                                            }
-                                            getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + updatePlan.MasterTypeId,
+                                                PlanName = updatePlan.PlanName,
+                                                PlanDetail = updatePlan.PlanDetail,
+                                                Notes = updatePlan.PlanNote,
+                                                FarmID = checkExistProcess.FarmId,
+                                                GrowthStageId = updatePlan.GrowthStageId,
+                                                MasterTypeId = updatePlan.MasterTypeId,
+                                            };
+                                            checkExistProcess.Plans.Add(newPlan);
                                         }
-                                    }
-                                    else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
-                                    {
-                                        getUpdatePlanInDB.IsDelete = true;
+                                        else if (updatePlan.PlanStatus.ToLower().Equals("update"))
+                                        {
+                                            if (getUpdatePlanInDB != null)
+                                            {
+                                                if (updatePlan.PlanName != null)
+                                                {
+                                                    getUpdatePlanInDB.PlanName = updatePlan.PlanName;
+                                                }
+                                                if (updatePlan.PlanDetail != null)
+                                                {
+                                                    getUpdatePlanInDB.PlanDetail = updatePlan.PlanDetail;
+                                                }
+                                                if (updatePlan.PlanNote != null)
+                                                {
+                                                    getUpdatePlanInDB.Notes = updatePlan.PlanNote;
+                                                }
+                                                if (updatePlan.GrowthStageId != null)
+                                                {
+                                                    getUpdatePlanInDB.GrowthStageId = updatePlan.GrowthStageId;
+                                                }
+                                                if (updatePlan.MasterTypeId != null)
+                                                {
+                                                    getUpdatePlanInDB.MasterTypeId = updatePlan.MasterTypeId;
+                                                }
+                                                getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                            }
+                                        }
+                                        else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
+                                        {
+                                            getUpdatePlanInDB.IsDelete = true;
+                                        }
                                     }
                                 }
                             }
