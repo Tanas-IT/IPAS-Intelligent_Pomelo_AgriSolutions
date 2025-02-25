@@ -105,6 +105,7 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
         PlanNote: plan.PlanNote,
         GrowthStageId: plan.GrowthStageId,
         MasterTypeId: plan.MasterTypeId ?? null,
+        PlanStatus: plan.PlanStatus
       }));
     });
   }
