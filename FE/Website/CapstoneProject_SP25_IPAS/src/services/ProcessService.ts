@@ -92,6 +92,7 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
         GrowthStageId: subProcess.GrowthStageId ?? null,
         Status: subProcess.Status,
         Order: subProcess.Order,
+        ListPlan: subProcess.ListPlan
       }));
     });
   }

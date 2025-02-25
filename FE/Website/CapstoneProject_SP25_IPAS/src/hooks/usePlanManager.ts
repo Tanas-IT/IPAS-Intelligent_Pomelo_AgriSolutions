@@ -50,12 +50,8 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
 
 
     const handleAddPlan = (values: PlanType, subProcessKey: string | null) => {
-        console.log("valuesssss", values);
-        console.log("plans", plans);
-        console.log("subProcessKey", subProcessKey);
 
         let subProcessKeyToUse = subProcessKey;
-        console.log("subProcessKeyToUse", subProcessKeyToUse);
 
         if (editPlan) {
             subProcessKeyToUse = findSubProcessKeyByPlanId(nodes, editPlan.planId);
@@ -73,14 +69,9 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
                 planStatus: "add"
             };
 
-        console.log("updatedPlan", updatedPlan);
-        console.log("subProcessKeyToUse", subProcessKeyToUse);
-
         if (subProcessKeyToUse !== null && subProcessKeyToUse !== undefined && subProcessKeyToUse !== "") {
-            console.log("✅ Đã vào if: Cập nhật vào Sub-Process");
             setNodes(updatePlanInSubProcess(nodes, subProcessKeyToUse, updatedPlan));
         } else {
-            console.log("✅ Đã vào else: Thêm vào Process");
             setPlans(prevList => [...prevList, updatedPlan]);
         }
         
@@ -89,8 +80,6 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         planForm.resetFields();
         setIsPlanModalOpen(false);
     };
-
-    console.log("plans outside", plans);
 
     const handleEditPlan = (plan: PlanType) => {
         setEditPlan(plan);

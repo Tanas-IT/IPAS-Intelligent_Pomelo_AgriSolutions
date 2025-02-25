@@ -12,14 +12,12 @@ import EditableTreeNode from "./EditableTreeNode";
 import ButtonActions from "./ButtonActions";
 import { GetProcessDetail, PlanType } from "@/payloads/process";
 import AddPlanModal from "../ProcessList/AddPlanModal";
-import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, getFarmId, RulesManager } from "@/utils";
+import { fetchGrowthStageOptions, fetchTypeOptionsByName, formatDateAndTime, generatePlanId, getFarmId, RulesManager } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
 import { useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "../ProcessList/PlanList";
 import { ListPlan, UpdateProcessRequest } from "@/payloads/process/requests";
 import SubProcessModal from "./SubProcessModal";
-import { usePrompt } from "@/hooks/usePrompt";
-import { useConfirm } from "@/utils/confirm/confirm.hooks";
 
 interface SubProcess {
   subProcessId: number;
@@ -129,7 +127,6 @@ function ProcessDetails() {
     parentKey?: number
   ): CustomTreeDataNode[] => {
     return nodes.map(node => {
-      // Nếu có parentKey, thêm task mới vào `children` của node có key tương ứng
       if (parentKey && Number(node.key) === Number(parentKey)) {
         return {
           ...node,
@@ -137,7 +134,6 @@ function ProcessDetails() {
         };
       }
 
-      // Nếu node có children, tiếp tục tìm kiếm để thêm task vào đúng vị trí
       if (node.children && node.children.length > 0) {
         return { ...node, children: addTaskToTree(node.children, newTask, parentKey) };
       }
@@ -253,35 +249,8 @@ function ProcessDetails() {
 
   const handleCancelClick = () => {
     setIsEditing(false);
-    setTreeData([...originalData.treeData]); // Khôi phục treeData
-    setPlans([...originalData.plans]); // Khôi phục plans
+    setPlans([...originalData.plans]);
   };
-
-  // const handleCancelClick = () => {
-  //   if (isDirty) {
-  //     console.log("isDirty", isDirty);
-      
-  //     confirm.show({
-  //       title: 'Hủy bỏ thay đổi',
-  //       subtitle: 'Bạn có chắc chắn muốn hủy bỏ thay đổi?',
-  //       confirmText: 'Đồng ý',
-  //       cancelText: 'Hủy',
-  //       onConfirm: () => {
-  //         setIsEditing(false);
-  //         setTreeData([...originalData.treeData]);
-  //         setPlans([...originalData.plans]);
-  //         setIsDirty(false); // Đặt lại trạng thái isDirty
-  //       },
-  //       onCancel: () => {
-  //         // Không làm gì cả, đóng hộp thoại
-  //       },
-  //       type: 'warning',
-  //     });
-  //   } else {
-  //     setIsEditing(false);
-  //   }
-  // };
-
   const handleSaveNode = () => {
 
   }
@@ -351,6 +320,11 @@ function ProcessDetails() {
   const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number | null = null): any[] => {
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
+      const hasChangedPlan = node.listPlan?.some(plan => 
+        ["add", "update", "delete"].includes(plan.planStatus)
+    );
+      console.log("hasUpdatedPlan",hasChangedPlan);
+      
 
       const subProcess = {
         SubProcessId: subProcessId,
@@ -358,17 +332,18 @@ function ProcessDetails() {
         ParentSubProcessId: parentId,
         IsDefault: true,
         IsActive: true,
-        MasterTypeId: Number(node.masterTypeId),
-        GrowthStageId: node.growthStageId,
-        Status: node.status || "no_change",
+        MasterTypeId: Number(node.masterTypeId) || null,
+        GrowthStageId: node.growthStageId || null,
+        Status: hasChangedPlan ? "update" : (node.status || "no_change"),
         Order: node.order || index + 1,
         ListPlan: node.listPlan?.map((plan) => ({
           PlanId: plan.planId || 0,
           PlanName: plan.planName || "New Plan",
           PlanDetail: plan.planDetail || "",
           PlanNote: plan.planNote || "",
-          GrowthStageId: plan.growthStageId || 0,
-          MasterTypeId: Number(plan.masterTypeId) || 0,
+          GrowthStageId: plan.growthStageId || null,
+          MasterTypeId: Number(plan.masterTypeId) || null,
+          PlanStatus: plan.planStatus || "no_change"
         })) || null,
       };
 
@@ -384,7 +359,7 @@ function ProcessDetails() {
       PlanNote: plan.planNote,
       GrowthStageId: plan.growthStageId,
       MasterTypeId: Number(plan.masterTypeId),
-      PlanStatus: plan.planStatus
+      PlanStatus: plan.planStatus || "no_change"
     }));
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
@@ -783,7 +758,7 @@ function ProcessDetails() {
             onClose={() => setIsAddPlanModalOpen(false)}
             onSave={(values) => {
               const newPlan = { 
-                planId: Date.now(), 
+                planId: generatePlanId(), 
                 planName: values.planName, 
                 planDetail: values.planDetail, 
                 growthStageId: values.growthStageId, 

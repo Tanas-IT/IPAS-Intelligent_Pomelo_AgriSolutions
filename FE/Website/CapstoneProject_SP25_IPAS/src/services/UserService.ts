@@ -25,8 +25,8 @@ export const getUsers = async (
   return apiResponse.data as GetData<GetPlant>;
 };
 
-export const getUsersOfFarmByRole = async ( roleId: number, farmId: number ): Promise<GetUser[]> => {
-  const res = await axiosAuth.axiosJsonRequest.get(`farms/get-users-farm-by-role?farmId=1&listRole=5`);
+export const getUsersByRole = async ( role: string ): Promise<GetUser[]> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`users/get-all-user-by-role/${role}`);
 
   const apiResponse = res.data as ApiResponse<GetUser[]>;
 
