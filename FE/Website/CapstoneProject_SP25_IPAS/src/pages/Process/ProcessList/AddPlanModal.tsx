@@ -3,13 +3,15 @@ import { useEffect } from "react";
 import { CustomButton, InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
+import { PlanType } from "@/payloads/process";
 
-type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
+// type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
 
 type AddPlanModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (values: Omit<PlanType, "planId">) => void;
+    // onSave: (values: Omit<PlanType, "planId">) => void;
+    onSave: (values: PlanType, subProcessKey: string | null) => void;
     editPlan?: PlanType | null;
     growthStageOptions: { value: number; label: string }[];
     processTypeOptions: { value: string; label: string }[];
@@ -27,10 +29,12 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
         }
     }, [editPlan, form]);
 
-    const handleFinish = (values: Omit<PlanType, "planId">) => {
+    const handleFinish = (values: PlanType) => {
         console.log("values", values);
-        
-        onSave(values);
+        const updatedPlan = editPlan ? { ...editPlan, ...values } : values;
+        console.log("updatedPlan", updatedPlan);
+        // onSave(values);
+        onSave(updatedPlan, subProcessId ? subProcessId.toString() : null);
         form.resetFields();
         onClose();
     };

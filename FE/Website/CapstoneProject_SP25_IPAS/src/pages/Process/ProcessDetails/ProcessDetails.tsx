@@ -18,6 +18,8 @@ import { useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "../ProcessList/PlanList";
 import { ListPlan, UpdateProcessRequest } from "@/payloads/process/requests";
 import SubProcessModal from "./SubProcessModal";
+import { usePrompt } from "@/hooks/usePrompt";
+import { useConfirm } from "@/utils/confirm/confirm.hooks";
 
 interface SubProcess {
   subProcessId: number;
@@ -52,6 +54,7 @@ const mapSubProcessesToTree = (subProcesses: SubProcess[], parentId?: number): C
 };
 
 function ProcessDetails() {
+  let tempIdCounter = -1;
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [treeData, setTreeData] = useState<CustomTreeDataNode[]>([]);
@@ -73,9 +76,15 @@ function ProcessDetails() {
     handleCloseModal, handleOpenModal, setPlans
   } = usePlanManager(treeData, setTreeData);
   const [isSubProcessModalOpen, setIsSubProcessModalOpen] = useState(false);
-const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
-const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
-
+  const [selectedNodeKey, setSelectedNodeKey] = useState<string | null>(null);
+  const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
+  const [originalData, setOriginalData] = useState({
+    treeData: [] as CustomTreeDataNode[],
+    plans: [] as PlanType[],
+  });
+  // const [isDirty, setIsDirty] = useState(false);
+  // usePrompt({ isDirty });
+  // const confirm = useConfirm();
 
   useEffect(() => {
     if (!id) {
@@ -242,6 +251,37 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
 
   }
 
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    setTreeData([...originalData.treeData]); // Khôi phục treeData
+    setPlans([...originalData.plans]); // Khôi phục plans
+  };
+
+  // const handleCancelClick = () => {
+  //   if (isDirty) {
+  //     console.log("isDirty", isDirty);
+      
+  //     confirm.show({
+  //       title: 'Hủy bỏ thay đổi',
+  //       subtitle: 'Bạn có chắc chắn muốn hủy bỏ thay đổi?',
+  //       confirmText: 'Đồng ý',
+  //       cancelText: 'Hủy',
+  //       onConfirm: () => {
+  //         setIsEditing(false);
+  //         setTreeData([...originalData.treeData]);
+  //         setPlans([...originalData.plans]);
+  //         setIsDirty(false); // Đặt lại trạng thái isDirty
+  //       },
+  //       onCancel: () => {
+  //         // Không làm gì cả, đóng hộp thoại
+  //       },
+  //       type: 'warning',
+  //     });
+  //   } else {
+  //     setIsEditing(false);
+  //   }
+  // };
+
   const handleSaveNode = () => {
 
   }
@@ -308,8 +348,6 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     });
   };
 
-  let tempIdCounter = -1;
-
   const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number | null = null): any[] => {
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
@@ -345,7 +383,8 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
       PlanDetail: plan.planDetail,
       PlanNote: plan.planNote,
       GrowthStageId: plan.growthStageId,
-      MasterTypeId: Number(plan.masterTypeId)
+      MasterTypeId: Number(plan.masterTypeId),
+      PlanStatus: plan.planStatus
     }));
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
@@ -422,16 +461,20 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     setEditingNode(node);
     setIsSubProcessModalOpen(true);
   };
-  
+
   const handleUpdateSubProcess = (values: any) => {
     const updatedData = [...treeData];
     console.log("editingNode", editingNode);
-    
+    console.log("values in handleUpdateSubProcess", values);
+
     const node = findNodeByKey(updatedData, String(editingNode!.key));
     if (node) {
       node.title = values.processName;
       node.growthStageId = values.growthStageId;
-      node.masterTypeId = values.masterTypeId;
+      node.masterTypeId = Number(values.masterTypeId);
+      if (node.status !== "add") {
+        node.status = "update";
+      }
     }
     setTreeData(updatedData);
     setEditingNode(null);
@@ -475,13 +518,12 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
               onBlur={handleSave}
             />
 
-            {hoveredKey === node.key && (
+            {isEditing && hoveredKey === node.key && (
               <ButtonActions
                 editingKey={editingKey}
                 nodeKey={node.key}
                 onSave={handleSaveNode}
                 onCancel={handleCancel}
-                // onEdit={() => handleEdit(node.key)}
                 onEdit={() => handleEditSubProcess(node)}
                 onDelete={() => handleDelete(node.key)}
                 onAdd={() => handleAdd(node.key)}
@@ -554,7 +596,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     setSelectedNodeKey(parentKey);
     setIsSubProcessModalOpen(true);
   };
-  
+
   const handleSaveSubProcess = (values: any) => {
     const newKey = `${selectedNodeKey}-${Date.now()}`;
     const newNode: CustomTreeDataNode = {
@@ -566,7 +608,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
       masterTypeId: values.masterTypeId,
       // Thêm các field khác từ values vào đây
     };
-  
+
     setTreeData(prevTree => {
       if (selectedNodeKey === "root") {
         return [...prevTree, newNode];
@@ -591,6 +633,16 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
     });
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setOriginalData({
+      treeData: [...treeData],
+      plans: [...plans],
+    });
+  };
+  console.log("tree data", treeData);
+  
+
   return (
     <div className={style.container}>
       <Form form={form}>
@@ -613,7 +665,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
           ) : (
             <div className={style.addButton}>
               <Tooltip title="Edit">
-                <Icons.edit size={20} onClick={() => setIsEditing(true)} />
+                <Icons.edit size={20} onClick={handleEditClick} />
               </Tooltip>
             </div>
           )}
@@ -696,7 +748,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
               blockNode
               onDrop={onDrop}
               treeData={loopNodes(treeData)}
-            // disabled
+              disabled={!isEditing}
             />
           )}
 
@@ -706,7 +758,7 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
             <CustomButton
               label="Cancel"
               isCancel
-              handleOnClick={() => setIsEditing(false)} />
+              handleOnClick={handleCancelClick} />
             <CustomButton
               label="Save"
               isCancel={false}
@@ -730,7 +782,15 @@ const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
             subProcessId={selectedSubProcessId}
             onClose={() => setIsAddPlanModalOpen(false)}
             onSave={(values) => {
-              const newPlan = { planId: Date.now(), planName: values.planName, planDetail: values.planDetail, growthStageId: values.growthStageId, masterTypeId: values.masterTypeId, planNote: values.planNote };
+              const newPlan = { 
+                planId: Date.now(), 
+                planName: values.planName, 
+                planDetail: values.planDetail, 
+                growthStageId: values.growthStageId, 
+                masterTypeId: values.masterTypeId, 
+                planNote: values.planNote,
+                planStatus: "add"
+               };
               handleAddPlanInSub(selectedSubProcessId!, newPlan);
               setIsAddPlanModalOpen(false);
             }}

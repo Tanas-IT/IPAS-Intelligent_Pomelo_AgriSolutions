@@ -5,6 +5,7 @@ export interface ListPlan {
     PlanNote: string;
     GrowthStageId: number;
     MasterTypeId: number;
+    PlanStatus: string;
 
 }
 

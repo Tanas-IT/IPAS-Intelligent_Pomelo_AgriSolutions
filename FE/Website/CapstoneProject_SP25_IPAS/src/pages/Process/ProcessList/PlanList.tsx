@@ -11,17 +11,18 @@ type PlanListProps = {
 }
 
 const PlanList: React.FC<PlanListProps> = ({ plans, onEdit, onDelete, isEditing }) => {
-    // console.log("plans", plans);
     
     return (
         <div>
             {plans.map((plan) => (
                 <div key={plan.planId} className={style.planItem}>
                     <span>{plan.planName}</span>
-                    <div className={`${style.planActions} ${!isEditing ? style.disabled : ""}`}>
-                        <Icons.edit color="blue" size={20} onClick={isEditing ? () => onEdit(plan) : undefined} />
-                        <Icons.delete color="red" size={20} onClick={isEditing ? () => onDelete(plan.planId) : undefined} />
-                    </div>
+                    {isEditing && (
+                        <div className={style.planActions}>
+                            <Icons.edit color="blue" size={20} onClick={() => onEdit(plan)} />
+                            <Icons.delete color="red" size={20} onClick={() => onDelete(plan.planId)} />
+                        </div>
+                    )}
                 </div>
             ))}
         </div>
