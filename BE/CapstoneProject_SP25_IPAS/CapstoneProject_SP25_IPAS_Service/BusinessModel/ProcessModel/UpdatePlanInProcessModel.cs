@@ -14,5 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public string? PlanNote { get; set; }
         public int? GrowthStageId { get; set; }
         public int? MasterTypeId { get; set; }
+        public string? PlanStatus { get; set; }
     }
 }
