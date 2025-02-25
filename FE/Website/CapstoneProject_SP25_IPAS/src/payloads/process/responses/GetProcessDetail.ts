@@ -20,6 +20,7 @@ export interface PlanType {
   planDetail: string;
   growthStageId: number;
   masterTypeId: number;
+  planStatus: string;
 }
 
 export interface GetProcessDetail {

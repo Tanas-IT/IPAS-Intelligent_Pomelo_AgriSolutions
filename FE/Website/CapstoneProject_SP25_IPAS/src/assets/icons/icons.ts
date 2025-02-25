@@ -24,7 +24,8 @@ export {
   MdOutlineDescription as description,
   MdCategory as category,
   MdOutlineScatterPlot as lot,
-  MdOutlineTerrain as soil
+  MdOutlineTerrain as soil,
+  MdAssignmentAdd as addPLan,
 } from "react-icons/md";
 export {
   LuUsers as users,

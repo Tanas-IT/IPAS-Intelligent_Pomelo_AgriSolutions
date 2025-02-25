@@ -1,15 +1,17 @@
 import { Button, Form, Modal, Flex } from "antd";
 import { useEffect } from "react";
-import { InfoField } from "@/components";
+import { CustomButton, InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
+import { PlanType } from "@/payloads/process";
 
-type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
+// type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
 
 type AddPlanModalProps = {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (values: Omit<PlanType, "planId">) => void;
+    // onSave: (values: Omit<PlanType, "planId">) => void;
+    onSave: (values: PlanType, subProcessKey: string | null) => void;
     editPlan?: PlanType | null;
     growthStageOptions: { value: number; label: string }[];
     processTypeOptions: { value: string; label: string }[];
@@ -27,8 +29,12 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
         }
     }, [editPlan, form]);
 
-    const handleFinish = (values: Omit<PlanType, "planId">) => {
-        onSave(values);
+    const handleFinish = (values: PlanType) => {
+        console.log("values", values);
+        const updatedPlan = editPlan ? { ...editPlan, ...values } : values;
+        console.log("updatedPlan", updatedPlan);
+        // onSave(values);
+        onSave(updatedPlan, subProcessId ? subProcessId.toString() : null);
         form.resetFields();
         onClose();
     };
@@ -74,8 +80,8 @@ const AddPlanModal = ({ isOpen, onClose, onSave, editPlan, growthStageOptions, p
                     type="select"
                 />
                 <Flex justify="end">
-                    <Button onClick={onClose} style={{ marginRight: 10 }}>Cancel</Button>
-                    <Button type="primary" htmlType="submit">{editPlan ? "Update Plan" : "Add Plan"}</Button>
+                    <CustomButton label="Cancel" isCancel handleOnClick={onClose}/>
+                    <CustomButton label={editPlan ? "Update Plan" : "Add Plan"}  htmlType="submit"/>
                 </Flex>
             </Form>
         </Modal>

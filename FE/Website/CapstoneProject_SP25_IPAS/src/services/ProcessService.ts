@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
-import { ProcessRequest } from "@/payloads/process/requests/ProcessRequest";
+import { ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
 export const getProcesses = async (
@@ -68,5 +68,53 @@ export const createProcess = async (
   const res = await axiosAuth.axiosMultipartForm.post(`processes`, type);
   return res.data as ApiResponse<boolean>;
 };
+
+export const updateFProcess = async (payload: UpdateProcessRequest): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+
+  formData.append("ProcessId", String(payload.ProcessId));
+  formData.append("ProcessName", payload.ProcessName);
+  formData.append("IsActive", String(payload.IsActive));
+  formData.append("IsDefault", String(payload.IsDefault));
+  formData.append("IsDeleted", String(payload.IsDeleted));
+  formData.append("MasterTypeId", String(payload.MasterTypeId));
+  formData.append("GrowthStageID", String(payload.GrowthStageID));
+
+  if (payload.ListUpdateSubProcess && payload.ListUpdateSubProcess.length > 0) {
+    payload.ListUpdateSubProcess.forEach((subProcess, index) => {
+      formData.append(`ListUpdateSubProcess[${index}]`, JSON.stringify({
+        SubProcessId: subProcess.SubProcessId,
+        SubProcessName: subProcess.SubProcessName,
+        ParentSubProcessId: subProcess.ParentSubProcessId ?? null,
+        IsDefault: subProcess.IsDefault,
+        IsActive: subProcess.IsActive,
+        MasterTypeId: subProcess.MasterTypeId ?? null,
+        GrowthStageId: subProcess.GrowthStageId ?? null,
+        Status: subProcess.Status,
+        Order: subProcess.Order,
+        ListPlan: subProcess.ListPlan
+      }));
+    });
+  }
+
+  if (payload.ListPlan && payload.ListPlan.length > 0) {
+    payload.ListPlan.forEach((plan, index) => {
+      formData.append(`ListPlan[${index}]`, JSON.stringify({
+        PlanId: plan.PlanId,
+        PlanName: plan.PlanName,
+        PlanDetail: plan.PlanDetail,
+        PlanNote: plan.PlanNote,
+        GrowthStageId: plan.GrowthStageId,
+        MasterTypeId: plan.MasterTypeId ?? null,
+        PlanStatus: plan.PlanStatus
+      }));
+    });
+  }
+
+  const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
 
 

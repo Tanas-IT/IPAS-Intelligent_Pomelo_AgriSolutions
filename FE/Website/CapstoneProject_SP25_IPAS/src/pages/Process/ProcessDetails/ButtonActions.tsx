@@ -56,7 +56,7 @@ const ButtonActions: React.FC<ButtonActionsProps> = ({
             ) : (
                 <>
                     <Tooltip title="Add Plan">
-                        <Button icon={<Icons.plus />} onClick={() => onAddPlan(nodeKey)} size="small" />
+                        <Button icon={<Icons.addPLan />} onClick={() => onAddPlan(nodeKey)} size="small" />
                     </Tooltip>
                     <Tooltip title="Add Task">
                         <Button icon={<Icons.plus />} onClick={onAdd} size="small" />
