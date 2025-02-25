@@ -39,42 +39,41 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
   const endDate = new Date(plan.endDate);
 
 
-  formData.append("planName", plan.planName);
-  formData.append("startDate", startDate.toISOString());
-  formData.append("endDate", endDate.toISOString());
-  formData.append("startTime", plan.startTime);
-  formData.append("endTime", plan.endTime);
-  formData.append("isActive", plan.isActive.toString());
-  formData.append("planDetail", plan.planDetail);
-  formData.append("frequency", plan.frequency);
-  formData.append("landPlotId", plan.landPlotId.toString());
-  formData.append("assignorId", plan.assignorId.toString());
-  formData.append("processId", plan.processId.toString());
-  formData.append("cropId", plan.cropId.toString());
-  formData.append("growthStageId", plan.growthStageId.toString());
-  formData.append("masterTypeId", plan.masterTypeId.toString());
-
-  if (plan.responsibleBy) {
-    plan.responsibleBy.forEach((id, index) => {
-        formData.append(`responsibleBy[${index}]`, id);
-    });
-}
-  plan.dayOfWeek.forEach((day, index) => {
-    formData.append(`dayOfWeek[${index}]`, day.toString());
-  });
-  plan.dayOfMonth.forEach((day, index) => {
-    formData.append(`dayOfMonth[${index}]`, day.toString());
-  });
-  if (plan.customDates) {
-    plan.customDates.forEach((date, index) => {
-        formData.append(`customDates[${index}]`, date.toISOString());
-    });
-}
-
-  plan.listEmployee.forEach((employee, index) => {
-    formData.append(`listEmployee[${index}][userId]`, employee.userId.toString());
-    formData.append(`listEmployee[${index}][isReporter]`, employee.isReporter.toString());
-  });
+  const payload = {
+    startDate: new Date(plan.startDate).toISOString(),
+    endDate: new Date(plan.endDate).toISOString(),
+    isActive: plan.isActive,
+    planName: plan.planName,
+    notes: plan.notes|| "", // Nếu có
+    planDetail: plan.planDetail,
+    responsibleBy: plan.responsibleBy || "", // Nếu có
+    frequency: plan.frequency,
+    assignorId: plan.assignorId,
+    pesticideName: plan.pesticideName || "", // Nếu có
+    maxVolume: plan.maxVolume || 0,
+    minVolume: plan.minVolume || 0,
+    processId: plan.processId,
+    cropId: plan.cropId,
+    growthStageId: plan.growthStageId,
+    isDelete: plan.isDelete || false,
+    masterTypeId: plan.masterTypeId,
+    dayOfWeek: plan.dayOfWeek || [],
+    dayOfMonth: plan.dayOfMonth || [],
+    customDates: plan.customDates?.map(date => new Date(date).toISOString()) || [],
+    listEmployee: plan.listEmployee.map(employee => ({
+        userId: employee.userId,
+        isReporter: employee.isReporter
+    })),
+    startTime: plan.startTime,
+    endTime: plan.endTime,
+    planTargetModel: plan.planTargetModel?.map(target => ({
+        landRowID: target.landRowID,
+        landPlotID: target.landPlotID,
+        graftedPlantID: target.graftedPlantID,
+        plantLotID: target.plantLotID,
+        plantID: target.plantID
+    })) || []
+};
 
   const res = await axiosAuth.axiosJsonRequest.post(`plan`, formData);
   const apiResponse = res.data as ApiResponse<Object>;

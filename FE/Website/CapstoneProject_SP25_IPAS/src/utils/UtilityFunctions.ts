@@ -331,6 +331,6 @@ export const fetchProcessesOfFarm = async (farmId: number) => {
   }));
 }
 
-export const generatePlanId = () => Math.floor(Date.now() / 1000);
+export const generatePlanId = () => Math.floor(Date.now() / 1000000);
 
 

@@ -5,6 +5,7 @@ export * from "./farm";
 export * from "./user";
 export * from "./thirdParty";
 export * from "./landPlot";
+export * from "./landRow";
 export * from "./masterType";
 export * from "./growthStage";
 
