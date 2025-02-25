@@ -732,11 +732,15 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-
+            entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.HasOne(d => d.Role).WithMany(p => p.Partners)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Partner__RoleID__27F8EE98");
+            entity.HasOne(d => d.Farm).WithMany(p => p.Partners)
+                .HasForeignKey(d => d.PartnerId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Partner__Farm");
         });
 
         modelBuilder.Entity<Payment>(entity =>
@@ -807,7 +811,7 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-            
+
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Plans)
                 .HasForeignKey(d => d.MasterTypeId)
@@ -819,7 +823,7 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Plan_GrowStage_FK");
 
-           
+
 
             entity.HasOne(d => d.Process).WithMany(p => p.Plans)
                 .HasForeignKey(d => d.ProcessId)
@@ -1328,7 +1332,7 @@ public partial class IpasContext : DbContext
               .UseCollation("SQL_Latin1_General_CP1_CI_AS")
               .HasColumnName("Status");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
-          
+
 
             entity.HasOne(d => d.Farm).WithMany(p => p.LegalDocuments)
                 .HasForeignKey(d => d.FarmId)
