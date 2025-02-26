@@ -29,45 +29,99 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
+        //public async Task<BusinessResult> ApplyCriteriasForTarget(CriteriaTargerRequest request)
+        //{
+        //    using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            var plantIds = request.PlantID ?? new List<int>();
+        //            var graftedPlantIds = request.GraftedPlantID ?? new List<int>();
+        //            var plantLotIds = request.PlantLotID ?? new List<int>();
+
+        //            if (!plantIds.Any() && !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
+        //            {
+        //                return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+        //            }
+
+        //            // Lấy dữ liệu hiện có để tránh trùng lặp
+        //            var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
+        //                .GetAllNoPaging(x =>
+        //                    (x.PlantID != null && plantIds.Contains(x.PlantID!.Value) ) ||
+        //                    (x.GraftedPlantID != null && graftedPlantIds.Contains(x.GraftedPlantID!.Value) ) ||
+        //                    (x.PlantLotID != null && plantLotIds.Contains(x.PlantLotID!.Value))
+        //                );
+
+        //            var newCriteriaTargets = request.CriteriaData
+        //                .SelectMany(criteria =>
+        //                    plantIds.Select(targetId => new CriteriaTarget
+        //                    {
+        //                        PlantID = targetId,
+        //                        CriteriaID = criteria.CriteriaId,
+        //                        isChecked = criteria.IsChecked,
+        //                        Priority = criteria.Priority
+        //                    })
+        //                    .Concat(graftedPlantIds.Select(targetId => new CriteriaTarget
+        //                    {
+        //                        GraftedPlantID = targetId,
+        //                        CriteriaID = criteria.CriteriaId,
+        //                        isChecked = criteria.IsChecked,
+        //                        Priority = criteria.Priority
+        //                    }))
+        //                    .Concat(plantLotIds.Select(targetId => new CriteriaTarget
+        //                    {
+        //                        PlantLotID = targetId,
+        //                        CriteriaID = criteria.CriteriaId,
+        //                        isChecked = criteria.IsChecked,
+        //                        Priority = criteria.Priority
+        //                    }))
+        //                )
+        //                .Where(x => !existingCriteriaTargets.Any(e =>
+        //                    (e.PlantID == x.PlantID && x.PlantID != null) ||
+        //                    (e.GraftedPlantID == x.GraftedPlantID && x.GraftedPlantID != null) ||
+        //                    (e.PlantLotID == x.PlantLotID && x.PlantLotID != null) &&
+        //                    e.CriteriaID == x.CriteriaID
+        //                ))
+        //                .ToList();
+
+        //            if (newCriteriaTargets.Any())
+        //            {
+        //                await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(newCriteriaTargets);
+        //                var resultSave = await _unitOfWork.SaveAsync();
+        //                if (resultSave > 0)
+        //                {
+        //                    await transaction.CommitAsync();
+        //                    return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, $"Apply {request.CriteriaData.Count()} criteria for selected {newCriteriaTargets.Count} objects success", new { success = true });
+        //                }
+        //            }
+
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //        }
+        //    }
+        //}
+
         public async Task<BusinessResult> ApplyCriteriasForTarget(CriteriaTargerRequest request)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
-                    // Đảm bảo chỉ có một danh sách được truyền vào
-                    var targetList = request.PlantID?.Cast<int?>().ToList() ??
-                                     request.GraftedPlantID?.Cast<int?>().ToList() ??
-                                     request.PlantLotID?.Cast<int?>().ToList();
+                    var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
 
-                    if (!targetList!.Any() || !request.CriteriaData.Any())
+                    if (!plantIds.Any() && !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
                     {
                         return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
 
-                    // Lấy dữ liệu hiện có trong database để tránh thêm trùng lặp
-                    var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => targetList!.Contains(x.PlantID) ||
-                                        targetList.Contains(x.GraftedPlantID) ||
-                                        targetList.Contains(x.PlantLotID));
+                    var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
 
-                    var existingSet = new HashSet<(int?, int?)>(
-                        existingCriteriaTargets.Select(x => (x.PlantID ?? x.GraftedPlantID ?? x.PlantLotID, x.CriteriaID))
-                    );
-
-                    // Tạo danh sách mới, chỉ lấy dữ liệu không trùng
-                    var newCriteriaTargets = request.CriteriaData
-                        .SelectMany(criteria => targetList!.Select(targetId => new CriteriaTarget
-                        {
-                            PlantID = (request.PlantID != null && request.PlantID.Count > 0) ? targetId : null,
-                            GraftedPlantID = (request.GraftedPlantID != null && request.GraftedPlantID.Count > 0) ? targetId : null,
-                            PlantLotID = (request.PlantLotID != null && request.PlantLotID.Count > 0) ? targetId : null,
-                            CriteriaID = criteria.CriteriaId,
-                            isChecked = criteria.IsChecked,
-                            Priority = criteria.Priority
-                        }))
-                        .Where(x => !existingSet.Contains((x.PlantID ?? x.GraftedPlantID ?? x.PlantLotID, x.CriteriaID)))
-                        .ToList();
+                    var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, plantIds, graftedPlantIds, plantLotIds, existingCriteriaTargets);
 
                     if (newCriteriaTargets.Any())
                     {
@@ -76,9 +130,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (resultSave > 0)
                         {
                             await transaction.CommitAsync();
-                            return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, $"Apply {request.CriteriaData.Count()} criteias for selected {newCriteriaTargets.Count} object success", new { success = true });
+                            return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
+                                $"Apply {request.CriteriaData.Count()} criteria for selected {newCriteriaTargets.Count} objects success", new { success = true });
                         }
                     }
+
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
                 }
@@ -251,11 +307,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Xác định loại đối tượng duy nhất (Plant, GraftedPlant hoặc PlantLot)
                     if (updateRequest.PlantID.HasValue)
                     {
-                         await UpdateCriteria(updateRequest.PlantID, null, null, updateRequest.CriteriaData, allowOverride);
+                        await UpdateCriteria(updateRequest.PlantID, null, null, updateRequest.CriteriaData, allowOverride);
                     }
                     else if (updateRequest.GraftedPlantID.HasValue)
                     {
-                         await UpdateCriteria(null, updateRequest.GraftedPlantID, null, updateRequest.CriteriaData, allowOverride);
+                        await UpdateCriteria(null, updateRequest.GraftedPlantID, null, updateRequest.CriteriaData, allowOverride);
                     }
                     else if (updateRequest.PlantLotID.HasValue)
                     {
@@ -396,23 +452,79 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? plantId, int? graftedId, int? plantLotId, string TargetsList)
+        public async Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? plantId, int? graftedId, int? plantLotId, List<string> TargetsList)
         {
             try
             {
                 // Lấy danh sách tiêu chí hiện tại của đối tượng (Plant, GraftedPlant hoặc PlantLot)
-                var existingCriteria = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId:plantId, graftedPlantId:graftedId, plantLotId:plantLotId);
+                var existingCriteria = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId, graftedPlantId: graftedId, plantLotId: plantLotId);
                 if (existingCriteria.Any())
                     return (false, "You must apply criteria before.");
-                var targetSplit = Util.SplitByComma(TargetsList);
-                existingCriteria = existingCriteria.Where(x => targetSplit.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked == true);
-                if (!existingCriteria.Any()) 
-                    return (false, $"You must completed all criteria of {string.Join(", ", targetSplit)} before.");
+                //var targetSplit = Util.SplitByComma(TargetsList);
+                existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked == true);
+                if (!existingCriteria.Any())
+                    return (false, $"You must completed all criteria of {string.Join(", ", TargetsList)} before.");
                 return (true, "All of criteria is complete");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (false, ex.Message);
             }
         }
+
+        private (List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds) ExtractTargetIds(CriteriaTargerRequest request)
+        {
+            return (
+                request.PlantID ?? new List<int>(),
+                request.GraftedPlantID ?? new List<int>(),
+                request.PlantLotID ?? new List<int>()
+            );
+        }
+
+        private async Task<List<CriteriaTarget>> GetExistingCriteriaTargets(List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds)
+        {
+            var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(x =>
+                            (x.PlantID != null && plantIds.Contains(x.PlantID!.Value)) ||
+                            (x.GraftedPlantID != null && graftedPlantIds.Contains(x.GraftedPlantID!.Value)) ||
+                            (x.PlantLotID != null && plantLotIds.Contains(x.PlantLotID!.Value))
+                        );
+            return existingCriteriaTargets.ToList();
+        }
+
+        private List<CriteriaTarget> GenerateNewCriteriaTargets( List<CriteriaData> criteriaData, List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds, List<CriteriaTarget> existingCriteriaTargets)
+        {
+            return criteriaData
+                .SelectMany(criteria =>
+                    plantIds.Select(targetId => CreateCriteriaTarget(targetId, null, null, criteria))
+                    .Concat(graftedPlantIds.Select(targetId => CreateCriteriaTarget(null, targetId, null, criteria)))
+                    .Concat(plantLotIds.Select(targetId => CreateCriteriaTarget(null, null, targetId, criteria)))
+                )
+                .Where(x => !IsDuplicate(x, existingCriteriaTargets))
+                .ToList();
+        }
+        private CriteriaTarget CreateCriteriaTarget(int? plantId, int? graftedPlantId, int? plantLotId, CriteriaData criteria)
+        {
+            return new CriteriaTarget
+            {
+                PlantID = plantId,
+                GraftedPlantID = graftedPlantId,
+                PlantLotID = plantLotId,
+                CriteriaID = criteria.CriteriaId,
+                isChecked = criteria.IsChecked,
+                Priority = criteria.Priority
+            };
+        }
+
+        private bool IsDuplicate(CriteriaTarget newTarget, List<CriteriaTarget> existingTargets)
+        {
+            return existingTargets.Any(e =>
+                (e.PlantID == newTarget.PlantID && newTarget.PlantID != null) ||
+                (e.GraftedPlantID == newTarget.GraftedPlantID && newTarget.GraftedPlantID != null) ||
+                (e.PlantLotID == newTarget.PlantLotID && newTarget.PlantLotID != null) &&
+                e.CriteriaID == newTarget.CriteriaID
+            );
+        }
+
     }
 }

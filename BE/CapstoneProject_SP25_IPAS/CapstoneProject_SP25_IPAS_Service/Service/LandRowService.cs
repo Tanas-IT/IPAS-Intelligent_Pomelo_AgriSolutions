@@ -4,11 +4,15 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRow
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -32,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _configuration = configuration;
         }
 
-        public async Task<BusinessResult> CreateLandRow(LandRowCreateRequest createRequest)
+        public async Task<BusinessResult> CreateLandRow(CreateLandRowRequest createRequest)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -85,7 +89,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public Task<int> CreateMultipleRow(List<LandRowCreateRequest> createRequest)
+        public Task<int> CreateMultipleRow(List<CreateLandRowRequest> createRequest)
         {
             throw new NotImplementedException();
         }
@@ -165,7 +169,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var row = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (row == null)
                     return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
-                return new BusinessResult(Const.SUCCESS_GET_ROW_BY_ID_CODE, Const.SUCCESS_GET_ROW_BY_ID_MSG, row);
+                var mappedReturn = _mapper.Map<LandRowModel>(row);
+                return new BusinessResult(Const.SUCCESS_GET_ROW_BY_ID_CODE, Const.SUCCESS_GET_ROW_BY_ID_MSG, mappedReturn);
             }
             catch (Exception ex)
             {
@@ -173,7 +178,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> UpdateLandRowInfo(LandRowUpdateRequest updateLandRowRequest)
+        public async Task<BusinessResult> UpdateLandRowInfo(UpdateLandRowRequest updateLandRowRequest)
         {
             try
             {
@@ -213,5 +218,126 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+        public async Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request)
+        {
+            try
+            {
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId;
+                Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(od => od.RowIndex).OrderByDescending(x => x.LandRowId);
+                if (!string.IsNullOrEmpty(request.paginationParameter.Search))
+                {
+                    filter = x => (x.LandRowCode!.ToLower().Contains(request.paginationParameter.Search.ToLower())
+                                  || x.Description!.ToLower().Contains(request.paginationParameter.Search.ToLower())
+                                  && x.isDeleted != true);
+                }
+                if (!string.IsNullOrEmpty(request.Direction))
+                {
+                    List<string> filterList = Util.SplitByComma(request.Direction!);
+                    filter = filter.And(x => filterList.Contains(request.Direction.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(request.Status))
+                {
+                    List<string> filterList = Util.SplitByComma(request.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+
+                if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
+                {
+                    if (request.RowIndexFrom > request.RowIndexTo)
+                        return new BusinessResult(Const.WARNING_INVALID_FILTER_VALUE_CODE, Const.WARNING_INVALID_ROW_INDEX_FILTER_MSG);
+
+                    filter = filter.And(x => x.RowIndex >= request.RowIndexFrom && x.RowIndex <= request.RowIndexTo);
+                }
+
+                if (request.TreeAmountFrom.HasValue && request.TreeAmountTo.HasValue)
+                {
+                    if (request.TreeAmountFrom > request.TreeAmountTo)
+                        return new BusinessResult(Const.WARNING_INVALID_FILTER_VALUE_CODE, Const.WARNING_INVALID_TREE_AMOUNT_FILTER_MSG);
+
+                    filter = filter.And(x => x.TreeAmount >= request.TreeAmountFrom && x.TreeAmount <= request.TreeAmountTo);
+                }
+                switch (request.paginationParameter.SortBy != null ? request.paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                {
+                    //case "farmId":
+                    //    orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                    //                ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                    //               ? x => x.OrderByDescending(x => x.FarmId)
+                    //               : x => x.OrderBy(x => x.FarmId)) : x => x.OrderBy(x => x.FarmId);
+                    //    break;
+                    case "landrowcode":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.LandRowCode)
+                                   : x => x.OrderBy(x => x.LandRowCode)) : x => x.OrderBy(x => x.LandRowCode);
+                        break;
+                    case "rowindex":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.RowIndex)
+                                   : x => x.OrderBy(x => x.RowIndex)) : x => x.OrderBy(x => x.RowIndex);
+                        break;
+                    case "treeamount":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.TreeAmount).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.TreeAmount).OrderBy(x => x.LandRowId)) : x => x.OrderBy(x => x.TreeAmount).ThenBy(x => x.LandRowId);
+                        break;
+                    case "distance":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Distance).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.Distance).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Distance).ThenBy(x => x.LandRowId);
+                        break;
+                    case "length":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Length).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.Length).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Length).ThenBy(x => x.LandRowId);
+                        break;
+                    case "width":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Width).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.Width).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Width).ThenBy(x => x.LandRowId);
+                        break;
+                    case "direction":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.Direction).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.Direction).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Direction).ThenBy(x => x.LandRowId);
+                        break;
+                    case "status":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.Status).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.Status).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Status).ThenBy(x => x.LandRowId);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.LandRowId);
+                        break;
+                }
+                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: request.paginationParameter.PageIndex, pageSize: request.paginationParameter.PageSize);
+                var pagin = new PageEntity<LandRowModel>();
+                pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
+                //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
+                pagin.TotalRecord = await _unitOfWork.LandRowRepository.Count(filter: filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, request.paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    return new BusinessResult(Const.SUCCESS_GET_ROW_OF_PLOT_PAGINATION_CODE, Const.SUCCESS_GET_ROW_OF_PLOT_PAGINATION_MSG, pagin);
+                }
+                else
+                {
+                    return new BusinessResult(200, Const.WARNING_GET_ALL_ROW_EMPTY_MSG, pagin);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }

@@ -204,8 +204,10 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteLandRow = prefix + "";
             public const string updateLandRowInfo = prefix + "";
             public const string getLandRowById = prefix + "";
-            public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+            public const string getLandRowOfPlotNoPagin = prefix + "/get-land-rows-of-plot";
             public const string getLandRowForSelected = prefix + "/get-for-selected";
+            public const string getLandRowOfPlotPagin = prefix + "/get-land-rows-of-plot-pagin";
+
         }
 
         public static class Plant
@@ -216,11 +218,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
             public const string updatePlantInfo = prefix + "";
             public const string getPlantById = prefix + "";
-            public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
-            public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+            //public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
+            //public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";
             public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
             public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
+            public const string getPlantPagin = prefix + "/get-plants-pagin";
+
         }
 
         public static class PlantGrowthHistory

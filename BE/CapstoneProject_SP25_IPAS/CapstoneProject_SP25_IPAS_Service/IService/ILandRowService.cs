@@ -8,11 +8,11 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetLandRowById(int landRowId);
         public Task<BusinessResult> GetAllLandRowOfLandPlotNoPagin(int plotId);
-        public Task<BusinessResult> UpdateLandRowInfo(LandRowUpdateRequest updateLandRowRequest);
+        public Task<BusinessResult> UpdateLandRowInfo(UpdateLandRowRequest updateLandRowRequest);
         public Task<BusinessResult> DeleteLandRowOfFarm(int rowId);
-        public Task<BusinessResult> CreateLandRow(LandRowCreateRequest createRequest);
-        public Task<int> CreateMultipleRow(List<LandRowCreateRequest> createRequest);
+        public Task<BusinessResult> CreateLandRow(CreateLandRowRequest createRequest);
+        public Task<int> CreateMultipleRow(List<CreateLandRowRequest> createRequest);
         public Task<BusinessResult> GetLandRowForSelectedByPlotId(int landplotId);
-
+        public Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request);
     }
 }

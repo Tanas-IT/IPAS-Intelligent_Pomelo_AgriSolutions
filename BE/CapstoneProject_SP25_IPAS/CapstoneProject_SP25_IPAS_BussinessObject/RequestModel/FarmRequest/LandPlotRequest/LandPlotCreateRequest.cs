@@ -42,6 +42,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
         [Required]
         public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
-        public ICollection<LandRowCreateRequest> LandRows { get; set; } = new List<LandRowCreateRequest>();
+        public ICollection<CreateLandRowRequest> LandRows { get; set; } = new List<CreateLandRowRequest>();
     }
 }
