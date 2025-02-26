@@ -18,14 +18,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfPlantNoPaging(int plantId)
+        public async Task<IEnumerable<CriteriaTarget>> GetAllCriteriaOfTargetNoPaging(int? plantId = null, int? graftedPlantId = null, int? plantLotId = null)
         {
-            var plantCriteria = await _context.CriteriaTargets
+            var query = _context.CriteriaTargets
                 .Include(x => x.Criteria)
-               // .ThenInclude(x => x.MasterType)
-                .Where(x => x.PlantID == plantId)
-                .ToListAsync();
-            return plantCriteria;
+                .ThenInclude(x => x.MasterType)
+                .AsQueryable();
+
+            if (plantId.HasValue)
+                query = query.Where(x => x.PlantID == plantId);
+            else if (graftedPlantId.HasValue)
+                query = query.Where(x => x.GraftedPlantID == graftedPlantId);
+            else if (plantLotId.HasValue)
+                query = query.Where(x => x.PlantLotID == plantLotId);
+
+            return await query.ToListAsync();
         }
+
     }
 }

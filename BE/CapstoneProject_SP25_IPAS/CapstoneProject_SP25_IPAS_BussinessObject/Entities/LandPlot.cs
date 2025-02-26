@@ -31,6 +31,8 @@ public partial class LandPlot
     public bool? isDeleted { get; set; }
 
     public string? TargetMarket { get; set; }
+    public int? RowPerLine { get; set; }
+    public double? RowSpacing { get; set; }
 
     public virtual Farm? Farm { get; set; }
 

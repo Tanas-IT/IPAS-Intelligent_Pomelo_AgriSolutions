@@ -131,7 +131,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return historys;
         }
 
-        public async Task<List<HarvestHistory>> GetHarvestHistoryInclude()
+        public async Task<List<HarvestHistory>> GetHarvestHistoryInclude(int? farmId)
         {
             var historys = await _context.HarvestHistories
                                 .Include(x => x.Crop)
@@ -142,6 +142,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                                 .ThenInclude(lp => lp.Farm)
                                 .Include(h => h.HarvestTypeHistories)
                                     .ThenInclude(ht => ht.MasterType)
+                                .Where(x => x.Crop.FarmId == farmId)
                                 .ToListAsync();
             return historys;
         }

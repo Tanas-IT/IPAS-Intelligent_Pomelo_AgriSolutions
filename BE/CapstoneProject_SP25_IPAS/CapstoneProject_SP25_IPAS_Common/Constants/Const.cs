@@ -160,13 +160,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_CRITERIA_BY_ID_MSG = "Get criteria by id success";
         #endregion
 
-        #region Plant-Criteria
-        public static int SUCCESS_APPLY_LIST_CRITERIA_PLANTS_CODE = 200;
-        public static string SUCCESS_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
+        #region CriteriaTarget
+        public static int SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE = 200;
+        public static string SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG = "Apply criteias for selected list success";
         public static int SUCCES_CHECK_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_CHECK_PLANT_CRITERIA_MSG = "Check criteria of plant success";
         public static int SUCCES_GET_PLANT_CRITERIA_CODE = 200;
         public static string SUCCES_GET_PLANT_CRITERIA_MSG = "Get criteria of plant success";
+        public static int SUCCES_DELETE_CRITERIA_TARGET_CODE = 200;
+        public static string SUCCES_DELETE_CRITERIA_TARGET_MSG = "Delete criteria for object success";
         #endregion
 
         #region landplot
@@ -273,6 +275,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ROWS_SUCCESS_CODE = 200;
         public static string SUCCESS_GET_ROWS_SUCCESS_MSG = "Get rows success";
         public static string SUCCESS_GET_ROWS_EMPTY_MSG = "No resource was found";
+        public static int SUCCESS_GET_ROW_OF_PLOT_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_ROW_OF_PLOT_PAGINATION_MSG = "Get all row of plot success";
         #endregion
 
         #region Plant
@@ -441,11 +445,46 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report success"; 
         public static int SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
         public static string SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report success";
+        public static int SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 200;
+        public static string SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Get pomelo quality breakdown report success";
+        public static int SUCCESS_GET_SEASON_YIELD_REPORT_CODE = 200;
+        public static string SUCCESS_GET_SEASON_YIELD_REPORT_MSG = "Get season yield report success";
+        public static int SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 200;
+        public static string SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Get work progress overview success";
         #endregion
 
         #region Packages
         public static int SUCCESS_GET_PACKAGES_CODE = 400;
         public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
+        #endregion
+
+        #region Grafted Plant
+        public static int SUCCESS_CREATE_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_CREATE_GRAFTED_PLANT_MSG = "Create grafted plant success";
+        public static int SUCCESS_DELETE_SOFTED_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_SOFTED_GRAFTED_PLANT_MSG = "Delete softed grafted plant success";
+        public static int SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_MSG = "Delete permanent grafted plant success";
+        public static int SUCCESS_UPDATE_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_UPDATE_GRAFTED_PLANT_MSG = "Update grafted plant success"; 
+        public static int SUCCESS_GET_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_GET_GRAFTED_OF_PLANT_MSG = "Get grafted of plant success";
+        public static string SUCCESS_GET_GRAFTED_NOTE_MSG = "Get grafted note success";
+        #endregion
+
+        #region Grafted plant Note
+        public static int SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_CODE = 200;
+        public static string SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_MSG = "Get all grafted note success";
+        public static int SUCCESS_GET_GRAFTED_NOTE_BY_ID_CODE = 200;
+        public static string SUCCESS_GET_GRAFTED_NOTE_BY_ID_MSG = "Get grafted growth history success";
+        public static int SUCCESS_UPDATE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_UPDATE_GRAFTED_NOTE_MSG = "Update grafted growth success";
+        public static int SUCCESS_DELETE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_DELETE_GRAFTED_NOTE_MSG = "Delete grafted growth success";
+        public static int SUCCESS_DELETE_MULTIPLE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_DELETE_MULTIPLE_GRAFTED_NOTE_MSG = "Delete multiple grafted growth success";
+        public static int SUCCESS_CREATE_GRAFTED_NOTE_CODE = 200;
+        public static string SUCCESS_CREATE_GRAFTED_NOTE_MSG = "Create grafted growth success";
         #endregion
 
         #endregion
@@ -552,7 +591,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_GET_PROCESS_CODE = 500;
         public static string FAIL_GET_PROCESS_MESSAGE = "Get process failed";
         public static int FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE = 500;
-        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess that iss not part of the process";
+        public static string FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE = "Can not update subprocess because it is not part of the process";
         #endregion
 
         #region SubProcess Fail code
@@ -569,21 +608,23 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Criteria
-        public static int FAIL_CREATE_CRITERIA_CODE = 500;
+        public static int FAIL_CREATE_CRITERIA_CODE = 400;
         public static string FAIL_CREATE_CRITERIA_MESSAGE = "Create criteria failed";
-        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 500;
+        public static int FAIL_GET_CRITERIA_BY_ID_CODE = 400;
         public static string FAIL_GET_CRITERIA_BY_ID_MSG = "Get criteria failed";
-        public static int FAIL_UPDATE_CRITERIA_CODE = 500;
+        public static int FAIL_UPDATE_CRITERIA_CODE = 400;
         public static string FAIL_UPDATE_CRITERIA_MSG = "Update criteria type failed";
+        public static int FAIL_GET_CRITERIA_CODE = 400;
+        public static string FAIL_GET_CRITERIA_MSG = "Get criteria failed";
+        public static int FAIL_CHECK_CRITERIA_TARGET_CODE = 400;
+        public static string FAIL_CHECK_CRITERIA_TARGET_MSG = "Check criteria fail";
         #endregion
 
-        #region Plant-Criteria Fail code
-        public static int FAIL_PLANTS_REQUEST_EMPTY_CODE = 500;
-        public static string FAIL_PLANT_REQUEST_EMPTY_MSG = "You not select any plant";
-        public static int FAIL_CRITERIA_REQUEST_EMPTY_CODE = 500;
-        public static string FAIL_CRITERIA_REQUEST_EMPTY_MSG = "You not select any Criteria";
-        public static int FAIL_APPLY_LIST_CRITERIA_PLANTS_CODE = 500;
-        public static string FAIL_APPLY_LIST_CRITERIA_PLANTS_MSG = "Apply criteias for selected plants success";
+        #region CriteriaTarget Fail code
+        public static int FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE = 400;
+        public static string FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG = "Apply criteias for selected list fail because all of them was has exist";
+        public static int FAIL_DELETE_CRITERIA_CODE = 400;
+        public static string FAIL_DELETE_CRITERIA_MSG = "Can not detete this criteria has applied";
         #endregion
 
         #region Farm Fail code
@@ -736,8 +777,14 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_DASHBOARD_REPORT_MSG = "Get dashboard report fail";
         public static int FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE = 500;
         public static string FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report fail";
-        public static int FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static int FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 500;
         public static string FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report fail";
+        public static int FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 500;
+        public static string FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Get pomelo quality breakdown report failed";
+        public static int FAIL_GET_SEASON_YIELD_REPORT_CODE = 500;
+        public static string FAIL_GET_SEASON_YIELD_REPORT_MSG = "Get season yield report failed";
+        public static int FAIL_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 500;
+        public static string FAIL_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Get work progress overview failed";
         #endregion
 
         #region Task Feedback fail code
@@ -773,6 +820,17 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int FAIL_DELETE_SOFTED_HARVEST_HISTORY_CODE = 400;
         public static string FAIL_DELETE_SOFTED_HARVEST_HISTORY_MSG = "Delete harvest softed fail";
         #endregion
+        #endregion
+
+        #region grafted plant
+        public static int FAIL_CREATE_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_CREATE_GRAFTED_PLANT_MSG = "Create Plant fail";
+        public static int FAIL_DELETE_SOFTED_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_DELETE_SOFTED_GRAFTED_PLANT_MSG = "Delete plant fail";
+        public static int FAIL_UPDATE_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_UPDATE_GRAFTED_PLANT_MSG = "Update plant fail";
+        public static int FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_DELETE_PERMANETNLY_GRAFTED_PLANT_MSG = "Delete permanently fail";
         #endregion
 
         #endregion
@@ -865,6 +923,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG = "Does not have any partner";
         #endregion
 
+        #region CriteriaTarget
+        public static int WARING_OBJECT_REQUEST_EMPTY_CODE = 400;
+        public static string WARNING_OBJECT_REQUEST_EMPTY_MSG = "You not select any object";
+        public static int WARINING_CRITERIA_REQUEST_EMPTY_CODE = 400;
+        public static string WARINING_CRITERIA_REQUEST_EMPTY_MSG = "You not select any Criteria";
+        #endregion
         #region GrowthStage
         public static int WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE = 404;
         public static string WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG = "Does not have any GrowthStage";
@@ -900,10 +964,19 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG = "Total area was user larger than area of landplot";
         public static int WARNING_ROW_NOT_EXIST_CODE = 400;
         public static string WARNING_ROW_NOT_EXIST_MSG = "This row not exist";
+        public static int WARNING_EMPTY_LAND_ROWS_CODE = 400;
+        public static string WARNING_EMPTY_LAND_ROWS_MSG = "No landrow to create";
+        public static int WARNING_DUPLICATE_ROW_INDEX_CODE = 400;
+        public static string WARNING_DUPLICATE_ROW_INDEX_MSG = "Duplicate row index when create";
+        public static string WARNING_GET_ALL_ROW_EMPTY_MSG = "Does not have any row in plot";
+        public static int WARNING_INVALID_FILTER_VALUE_CODE = 400;
+        public static string WARNING_INVALID_ROW_INDEX_FILTER_MSG = "RowIndex 'To' must greater than RowIndex 'From'";
+        public static string WARNING_INVALID_TREE_AMOUNT_FILTER_MSG = "Tree Amount 'To' must greater than Tree Amount 'From'";
+
         #endregion
 
         #region Plant
-        public static int WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE = 200;
+        public static int WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG = "Get plant in farm empty.";
         public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
         public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
@@ -969,14 +1042,20 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Report
-        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 400;
+        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 404;
         public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
-        public static int WARNING_GET_DASHBOARD_REPORT_CODE = 400;
+        public static int WARNING_GET_DASHBOARD_REPORT_CODE = 404;
         public static string WARNING_GET_DASHBOARD_REPORT_MSG = "Do not have any data to get dashboard report";
-        public static int WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE = 400;
+        public static int WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE = 404;
         public static string WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG = "Do not have any data to get materials in store report";
-        public static int WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static int WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 404;
         public static string WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Do not have any data to get productivity by plot in store report";
+        public static int WARNING_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 404;
+        public static string WARNING_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Do not have any data to get pomelo quality break down report";
+        public static int WARNING_GET_SEASON_YIELD_REPORT_CODE = 404;
+        public static string WARNING_GET_SEASON_YIELD_REPORT_MSG = "Do not have any data to get season yield report";
+        public static int WARNING_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 404;
+        public static string WARNING_GET_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Do not have any data to get work progress overview report";
         #endregion
         #region Task Feedback
         public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
@@ -1014,6 +1093,22 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_GET_PACKAGES_EMPTY_MSG = "No package were found";
         public static int WARNING_FARM_EXPIRED_CODE = 400;
         public static string WARNING_FARM_EXPIRED_MSG = "Your farm has no package in time";
+        #endregion
+
+        #region GraftedPlat
+        public static int WARNING_GET_GRAFTED_EMPTY_CODE = 400;
+        public static string WARNING_GET_GRAFTED_EMPTY_MSG = "Get plant in farm empty.";
+        //public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
+        //public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
+        //public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;
+        //public static string WARNING_GET_PLANTS_NOT_EXIST_MSG = "No plant was found.";
+        #endregion
+
+        #region Grafted Plant Note
+        public static int WARNING_GRAFTED_NOTE_NOT_EXIST_CODE = 400;
+        public static string WARNING_GRAFTED_NOTE_NOT_EXIST_MSG = "Grafted notenot exist.";
+        public static int WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE = 200;
+        public static string WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG = "Get Grafted note history empty.";
         #endregion
         #endregion
     }

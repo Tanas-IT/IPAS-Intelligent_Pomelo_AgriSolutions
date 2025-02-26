@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -67,6 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             HealthStatus = "Good",
                             GrowthStageID = 2,
                             UpdateDate = DateTime.Now,
+                            IsDeleted = false
                         };
                         await _unitOfWork.PlantRepository.Insert(newPlant);
                     }
@@ -357,7 +359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (plantLot == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
 
-                    var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(fillRequest.MasterTypeId, TypeNameInMasterEnum.CultivaType.ToString());
+                    var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(fillRequest.MasterTypeId, TypeNameInMasterEnum.Cultiva.ToString());
                     if (masterTypeExist == null)
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
 
@@ -450,6 +452,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> GetForSelectedByFarmId(int farmId)
+        {
+            try
+            {
+                Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
+                string includeProperties = "Partner";
+                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId, includeProperties: includeProperties, orderBy: orderBy);
+                if (plantLot != null)
+                {
+                    var result = _mapper.Map<IEnumerable<ForSelectedModels>>(plantLot);
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_LOT_BY_ID_CODE, Const.SUCCESS_GET_PLANT_LOT_BY_ID_MESSAGE, result);
+                }
+                else
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                }
+            }
+            catch (Exception ex)
+            {
 
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

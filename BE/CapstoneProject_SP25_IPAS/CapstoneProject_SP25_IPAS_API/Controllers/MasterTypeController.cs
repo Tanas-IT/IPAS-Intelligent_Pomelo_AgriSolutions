@@ -86,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
-        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeModel createMasterTypeModel)
+        public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeRequestModel createMasterTypeModel)
         {
             try
             {
@@ -168,6 +168,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _masterTypeService.SoftedMultipleDelete(MasterTypeIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.MasterType.getForSelected, Name = "getMasterTypeForSelected")]
+        public async Task<IActionResult> getMasterTypeForSelected([FromQuery] string typeName, string? target, int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue || string.IsNullOrEmpty(typeName))
+                    return BadRequest();
+                var result = await _masterTypeService.GetMasterTypeForSelected(MasterTypeName: typeName, farmId:farmId!.Value, target: target);
                 return Ok(result);
             }
             catch (Exception ex)

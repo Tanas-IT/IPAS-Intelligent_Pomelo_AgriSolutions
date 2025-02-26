@@ -5,19 +5,19 @@
   overflow: hidden;
   padding: 10px 24px;
   margin-top: 8px;
-  height: 100vh;
+  min-height: 100vh;
 
   .containerWrapper {
     width: 100%;
   }
-}
+
 
 .contentSectionTitleLeft {
   align-items: center;
   gap: 3rem;
 
   .title {
-    font-size: 24px;
+    font-size: 28px;
   }
 
   .iconTag {
@@ -37,6 +37,13 @@
     text-align: center;
     background-color: vars.$color_second;
     color: vars.$color_primary;
+  }
+
+  .inactive {
+    width: fit-content;
+    text-align: center;
+    background-color: vars.$color_second;
+    color: red;
   }
 
   .issue {
@@ -63,6 +70,41 @@
 .divider {
   margin: 10px 0;
   border-block-start: 1px solid vars.$color_divider;
+}
+
+.status {
+  margin-top: 10px;
+}
+
+
+
+.infoProcess {
+  margin-top: 20px;
+
+  .plotItemDetails {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    color: vars.$color_text_detail;
+    .plotItemDetail {
+      color: vars.$color_text_detail;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      svg {
+        margin-bottom: 4px;
+      }
+      label {
+        color: black;
+      }
+    }
+
+    
+  }
+
+  .infoDetail {
+    margin-top: 20px;
+  }
 }
 
 .buttonGroup {
@@ -110,4 +152,50 @@
 .noButton {
   background-color: vars.$color_no_btn;
   color: white;
+}
+
+
+.planList {
+  font-size: 14px;
+  padding: 5px 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px #bcd379;
+  .planListTitle {
+    font-size: 14px;
+  }
+
+  .planItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    .planName {
+      font-weight: lighter;
+    }
+  }
+}
+
+.noDataContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #fefefe;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+  .noDataImage {
+    width: 50px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .noDataText {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+  }
+}
 }

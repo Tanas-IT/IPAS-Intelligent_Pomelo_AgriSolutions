@@ -25,6 +25,7 @@ export {
   MdCategory as category,
   MdOutlineScatterPlot as lot,
   MdOutlineTerrain as soil,
+  MdAssignmentAdd as addPLan,
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -60,6 +61,7 @@ export {
   IoLanguageOutline as language,
   IoDocumentTextOutline as document,
   IoMapOutline as map,
+  IoCheckmarkDoneSharp as markAsRead
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";
@@ -74,4 +76,4 @@ export {
   IoIosWarning as warning,
 } from "react-icons/io";
 export { GrCycle as process } from "react-icons/gr";
-// export { TbListDetails as detail } from "react-icons/tb";
+export { GoPackage as package } from "react-icons/go";

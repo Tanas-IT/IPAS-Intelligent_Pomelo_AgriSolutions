@@ -25,15 +25,13 @@ public partial class GraftedPlant
 
     public int? PlantLotId { get; set; }
 
+    public bool? IsDeleted { get; set; }
 
+    public int? FarmId { get; set; }
+    public bool? IsCompleted { get; set; }
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
-
-
     public virtual Plant? Plant { get; set; }
-
     public virtual PlantLot? PlantLot { get; set; }
-
-    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
     public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
 }

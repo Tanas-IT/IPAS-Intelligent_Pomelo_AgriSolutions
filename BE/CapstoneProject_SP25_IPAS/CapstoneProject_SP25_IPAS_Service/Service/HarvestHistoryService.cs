@@ -19,6 +19,7 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -76,7 +77,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE, Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
                         foreach (var item in createRequest.HarvestTypeHistories)
                         {
-                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.Harvest.ToString());
                             if (checkMasterTypeExist == null)
                             {
                                 return new BusinessResult(Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE, Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG);
@@ -134,7 +135,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 1. Kiểm tra MasterType có tồn tại hay không
                     var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(
-                        createRequest.MasterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+                        createRequest.MasterTypeId, TypeNameInMasterEnum.Harvest.ToString());
 
                     if (masterType == null)
                         return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE,
@@ -308,7 +309,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var harvest = await _unitOfWork.HarvestHistoryRepository.GetByID(harvestId);
             if (harvest == null)
                 return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
-            var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(masterTypeId, TypeNameInMasterEnum.HarvestType.ToString());
+            var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(masterTypeId, TypeNameInMasterEnum.Harvest.ToString());
             if (masterType == null)
                 return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE, Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
             var historyTypes = await _unitOfWork.HarvestHistoryRepository.GetAllPlantOfHarvesType(harvestId, masterTypeId);
@@ -439,6 +440,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_CODE, Const.FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_MSG, ex.Message);
                 }
             }
+        }
+
+        public async Task<BusinessResult> getHarvestForSelectedByPlotId(int cropId)
+        {
+            Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.EndDate >= DateTime.Now;
+            Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
+
+            var harvest = await _unitOfWork.HarvestHistoryRepository.GetAllNoPaging(filter: filter, orderBy: orderBy );
+            if (harvest == null)
+                return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
+            var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(harvest);
+            return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
+
         }
     }
 }

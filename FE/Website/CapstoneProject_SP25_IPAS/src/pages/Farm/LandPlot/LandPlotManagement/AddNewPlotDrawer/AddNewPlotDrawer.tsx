@@ -9,7 +9,9 @@ import { rowStateType } from "@/types";
 import { useMapStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
-import { createPlotFormFields } from "@/constants";
+import { createPlotFormFields, MESSAGES } from "@/constants";
+import { LandPlotRequest } from "@/payloads/landPlot/requests";
+import { DEFAULT_LAND_PLOT, isPlantOverflowing } from "@/utils";
 
 const { Step } = Steps;
 
@@ -21,11 +23,11 @@ interface AddNewPlotDrawerProps {
 
 const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, onClose }) => {
   const { styles } = useStyle();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [form] = Form.useForm();
   const [isDirty, setIsDirty] = useState(false);
   const updateConfirmModal = useModal();
-  const [plotData, setPlotData] = useState({}); // Lưu dữ liệu từ bước 1
+  const [plotData, setPlotData] = useState<LandPlotRequest>(DEFAULT_LAND_PLOT); // Lưu dữ liệu từ bước 1
   const [rowsData, setRowsData] = useState<rowStateType[]>(fakeRowsData);
   const { clearPolygons, isOverlapping, newPolygon, setNewPolygon, setPolygonDimensions } =
     useMapStore();
@@ -33,37 +35,69 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, 
     form.getFieldValue(createPlotFormFields.rowOrientation) === "Horizontal" ? true : false;
 
   const handleSave = () => {
-    console.log("Saved rows:", rowsData);
+    const plotDataRequest: LandPlotRequest = {
+      ...plotData,
+      numberOfRows: rowsData.length,
+      landRows: rowsData.map((row) => ({
+        rowIndex: row.index,
+        plantsPerRow: row.plantsPerRow,
+        plantSpacing: row.plantSpacing,
+        length: row.length,
+        width: row.width,
+      })),
+    };
+    setPlotData(plotDataRequest);
 
-    // console.log("Saved values:", plotData);
-    // console.log("Saved newPolygon:", newPolygon);
+    console.log("Saved values:", plotDataRequest);
   };
 
   const handleNext = async () => {
     if (currentStep === 0) {
-      const values = await form.validateFields();
+      await form.validateFields();
       if (!newPolygon) {
-        toast.error("Please draw a plot before proceeding to the next step!");
+        toast.error(MESSAGES.DRAW_PLOT);
         return;
       }
       if (isOverlapping) {
-        toast.error("The new plot overlaps with an existing plot!");
+        toast.error(MESSAGES.OVERLAPPING_PLOT);
         return;
       }
-      setPlotData(values);
+      setPlotData((prev) => ({
+        ...prev,
+        landPlotName: form.getFieldValue(createPlotFormFields.landPlotName),
+        area: form.getFieldValue(createPlotFormFields.area),
+        plotLength: form.getFieldValue(createPlotFormFields.length),
+        plotWidth: form.getFieldValue(createPlotFormFields.width),
+        soilType: form.getFieldValue(createPlotFormFields.soilType),
+        description: form.getFieldValue(createPlotFormFields.description),
+        targetMarket: form.getFieldValue(createPlotFormFields.targetMarket),
+        landPlotCoordinations: newPolygon.coordinates[0].map(([longitude, latitude]) => ({
+          longitude,
+          latitude,
+        })),
+      }));
+
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 1) {
       const values = await form.validateFields();
       // const values = form.getFieldsValue();
-      const { rowLength, rowWidth, numberOfRows, plantsPerRow, plantSpacing } = values;
+      const {
+        [createPlotFormFields.rowLength]: rowLength,
+        [createPlotFormFields.rowWidth]: rowWidth,
+        [createPlotFormFields.numberOfRows]: numberOfRows,
+        [createPlotFormFields.plantsPerRow]: plantsPerRow,
+        [createPlotFormFields.plantSpacing]: plantSpacing,
+        [createPlotFormFields.rowOrientation]: rowOrientation,
+        [createPlotFormFields.lineSpacing]: lineSpacing,
+        [createPlotFormFields.rowsPerLine]: rowsPerLine,
+        [createPlotFormFields.rowSpacing]: rowSpacing,
+      } = values;
 
-      const outPlant = (Number(plantSpacing) + 24) * Number(plantsPerRow);
-      if (outPlant > rowLength) {
-        toast.error(
-          `The total number of plants exceeds the row's capacity. Please reduce the number of plants or adjust the spacing.`,
-        );
+      if (isPlantOverflowing(plantSpacing, plantsPerRow, rowLength)) {
+        toast.error(MESSAGES.OUT_PLANT);
         return;
       }
+
       const generatedRows: rowStateType[] = Array.from({ length: numberOfRows }, (_, index) => ({
         id: index + 1,
         length: rowLength,
@@ -74,6 +108,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, 
       }));
 
       setRowsData(generatedRows);
+      const isHorizontal = rowOrientation === "Horizontal" ? true : false;
+      setPlotData((prev) => ({
+        ...prev,
+        isHorizontal: isHorizontal,
+        lineSpacing: lineSpacing,
+        rowPerLine: rowsPerLine,
+        rowSpacing: rowSpacing,
+      }));
 
       setCurrentStep((prev) => prev + 1);
     } else {
@@ -143,15 +185,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, 
           <DraggableRow
             rowsData={rowsData}
             setRowsData={setRowsData}
-            form={form}
-            isHorizontal={isHorizontal}
-            rowsPerLine={Number(form.getFieldValue(createPlotFormFields.rowsPerLine))}
-            rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
-            lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
-            // isHorizontal={true}
-            // rowsPerLine={5}
-            // rowSpacing={50}
-            // lineSpacing={50}
+            // isHorizontal={isHorizontal}
+            // rowsPerLine={Number(form.getFieldValue(createPlotFormFields.rowsPerLine))}
+            // rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
+            // lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
+            isHorizontal={true}
+            rowsPerLine={5}
+            rowSpacing={50}
+            lineSpacing={50}
           />
         )}
       </Drawer>

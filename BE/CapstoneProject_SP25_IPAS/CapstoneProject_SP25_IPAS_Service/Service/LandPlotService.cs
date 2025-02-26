@@ -43,13 +43,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    if (createRequest.RowLength > createRequest.PlotLength)
-                        return new BusinessResult(Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_LENGHT_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
-                    if (createRequest.RowWidth > createRequest.PlotWidth)
-                        return new BusinessResult(Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_ROW_WIDTH_IN_LANDPLOT_LARGER_THAN_LANDPLOT_MSG);
-                    if (createRequest.LandPlotCoordinations.Count < 3)
-                        return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
-
+                    int lastId = await _unitOfWork.LandPlotRepository.GetLastID();
+                    var checkExistFarm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId && x.IsDeleted == false);
+                    if (checkExistFarm == null)
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                    // Kiểm tra dữ liệu đầu vào
+                    var validationResult = ValidateLandPlot(createRequest);
+                    if (validationResult != null) return validationResult;
+                    string LandPlotCode = CodeHelper.GenerateCode();
                     var landplotCreateEntity = new LandPlot()
                     {
                         LandPlotName = createRequest.LandPlotName,
@@ -60,42 +61,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = createRequest.PlotWidth,
                         Description = createRequest.Description,
                         FarmId = createRequest.FarmId,
+                        Status = FarmStatus.Active.ToString(),
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        RowPerLine = createRequest.RowPerLine,
+                        RowSpacing = createRequest.RowSpacing,
+                        LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",
                     };
-                    landplotCreateEntity.LandPlotCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDPLOT);
-                    landplotCreateEntity.Status = FarmStatus.Active.ToString();
-                    landplotCreateEntity.CreateDate = DateTime.Now;
-                    landplotCreateEntity.UpdateDate = DateTime.Now;
-                    var numberRowInPlot = CalculateRowsInPlot(createRequest.PlotLength, createRequest.RowLength, createRequest.RowSpace);
-                    for (int i = 0; i < numberRowInPlot; i++)
-                    {
-                        var landRow = new LandRow()
-                        {
-                            LandRowCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.LANDROW),
-                            RowIndex = i + 1, // Đánh số thứ tự hàng (1, 2, 3,...)
-                            Length = createRequest.RowLength,
-                            Width = createRequest.RowWidth,
-                            Distance = createRequest.DistanceInRow,
-                            Direction = createRequest.RowDirection,
-                            TreeAmount = CalculateTreeAmount(createRequest.RowLength, createRequest.DistanceInRow),
-                            Status = LandRowStatus.Active.ToString(),
-                            CreateDate = DateTime.Now,
-                        };
 
-                        landplotCreateEntity.LandRows.Add(landRow);
-                    }
-                    if (createRequest.LandPlotCoordinations?.Any() == true)
-                    {
-                        foreach (var coordination in createRequest.LandPlotCoordinations)
-                        {
-                            var landplotCoordination = new LandPlotCoordination()
-                            {
-                                Latitude = coordination.Latitude,
-                                Longitude = coordination.Longitude,
-                            };
-                            landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
-                        }
-                    }
+                    // Xử lý danh sách hàng trong thửa
+                    var landRowsResult = ProcessLandRows(createRequest, landplotCreateEntity, LandPlotCode);
+                    if (landRowsResult != null) return landRowsResult;
 
+                    // Xử lý tọa độ
+                    ProcessLandPlotCoordinations(createRequest, landplotCreateEntity);
+
+                    // Lưu vào DB
                     await _unitOfWork.LandPlotRepository.Insert(landplotCreateEntity);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -116,6 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
             }
         }
+
 
         //public async Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest)
         //{
@@ -254,7 +236,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
         }
 
@@ -264,7 +246,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
             Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
-            
+
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
             if (landplotInFarm.Any())
             {
@@ -273,7 +255,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
         }
 
@@ -283,7 +265,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == landPlotId, includeProperties: includeProperties);
             // kiem tra null
             if (landplot == null)
-                return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
             return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
@@ -408,160 +390,72 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private int CalculateRowsInPlot(double landPlotLength, double rowWidth, double? distanceRow)
+
+
+        private BusinessResult? ProcessLandRows(LandPlotCreateRequest createRequest, LandPlot landplotCreateEntity, string? SplitLandPlotCode = null)
         {
+            // Kiểm tra hàng có bị trùng index không
+            var duplicateRowIndex = createRequest.LandRows.GroupBy(r => r.RowIndex)
+                                                          .Where(g => g.Count() > 1)
+                                                          .Select(g => g.Key)
+                                                          .ToList();
 
-            double spacing = distanceRow ?? 0;
-            int numRows = (int)((landPlotLength + spacing) / (rowWidth + spacing));
+            if (duplicateRowIndex.Any())
+                return new BusinessResult(Const.WARNING_DUPLICATE_ROW_INDEX_CODE, $"{Const.WARNING_DUPLICATE_ROW_INDEX_MSG}: {string.Join(", ", duplicateRowIndex)}");
 
-            return numRows;
-        }
-
-        //private double CalculateRowLength(List<CoordinationCreateRequest> plotPoints, int rowIndex, int totalRows)
-        //{
-        //    if (plotPoints == null || plotPoints.Count < 3)
-        //        return 0; // Không đủ điểm để xác định chiều dài
-
-        //    double minLat = plotPoints.Min(p => p.Latitude);
-        //    double maxLat = plotPoints.Max(p => p.Latitude);
-        //    double rowLat = minLat + (maxLat - minLat) * ((double)rowIndex / (totalRows - 1));
-
-        //    List<CoordinationCreateRequest> rowIntersections = new List<CoordinationCreateRequest>();
-
-        //    //var plotPoints = plotPoints.ToList();
-        //    for (int i = 0; i < plotPoints.Count; i++)
-        //    {
-        //        var p1 = plotPoints[i];
-        //        var p2 = plotPoints[(i + 1) % plotPoints.Count];
-
-        //        if ((p1.Latitude <= rowLat && p2.Latitude >= rowLat) || (p1.Latitude >= rowLat && p2.Latitude <= rowLat))
-        //        {
-        //            double t = (rowLat - p1.Latitude) / (p2.Latitude - p1.Latitude);
-        //            double intersectLng = p1.Longitude + t * (p2.Longitude - p1.Longitude);
-
-        //            rowIntersections.Add(new CoordinationCreateRequest { Latitude = rowLat, Longitude = intersectLng });
-        //        }
-        //    }
-
-        //    if (rowIntersections.Count < 2)
-        //        return 0;
-
-        //    rowIntersections = rowIntersections.OrderBy(p => p.Longitude).ToList();
-        //    var distance = HaversineDistance(rowIntersections.First(), rowIntersections.Last());
-        //    return distance;
-        //}
-        private double CalculateRowLength_UTM(List<CoordinationCreateRequest> plotPoints, int rowIndex, int totalRows)
-        {
-            if (plotPoints == null || plotPoints.Count < 2)
-                return 0; // Ít hơn 2 điểm thì không thể tính chiều dài
-
-            double minLat = plotPoints.Min(p => p.Latitude);
-            double maxLat = plotPoints.Max(p => p.Latitude);
-
-            if (totalRows <= 1) return 0;
-
-            // Điều chỉnh rowLat để tránh trùng hoàn toàn với minLat/maxLat
-            double rowLat = minLat + (maxLat - minLat) * ((double)rowIndex / (totalRows - 1)) + double.Epsilon;
-
-            List<(double X, double Y)> rowIntersections = new List<(double X, double Y)>();
-
-            for (int i = 0; i < plotPoints.Count; i++)
+            // Kiểm tra kích thước hàng có hợp lệ không
+            foreach (var row in createRequest.LandRows)
             {
-                var p1 = plotPoints[i];
-                var p2 = plotPoints[(i + 1) % plotPoints.Count];
-
-                if ((p1.Latitude <= rowLat && p2.Latitude >= rowLat) || (p1.Latitude >= rowLat && p2.Latitude <= rowLat))
-                {
-                    double latDiff = p2.Latitude - p1.Latitude;
-                    if (Math.Abs(latDiff) < double.Epsilon) continue; // Tránh chia cho 0
-
-                    double t = (rowLat - p1.Latitude) / latDiff;
-                    double intersectLng = p1.Longitude + t * (p2.Longitude - p1.Longitude);
-
-                    var utmPoint = ConvertToUTM(rowLat, intersectLng);
-                    rowIntersections.Add(utmPoint);
-                }
+                if (row.Length > createRequest.PlotWidth || row.Width > createRequest.PlotLength)
+                    return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, $"{Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG}: RowIndex {row.RowIndex}");
             }
 
-            if (rowIntersections.Count < 2)
+            // Tạo danh sách hàng
+            foreach (var row in createRequest.LandRows)
             {
-                // Nếu chỉ có một điểm giao, dùng khoảng cách tối đa theo trục Y làm độ dài
-                if (rowIntersections.Count == 1)
+                var landRow = new LandRow()
                 {
-                    double minY = plotPoints.Min(p => ConvertToUTM(p.Latitude, p.Longitude).Y);
-                    double maxY = plotPoints.Max(p => ConvertToUTM(p.Latitude, p.Longitude).Y);
-                    double verticalLength = maxY - minY;
-                    Console.WriteLine($"Row {rowIndex}: Single intersection, using vertical length = {verticalLength}");
-                    return verticalLength;
-                }
+                    LandRowCode = $"{CodeAliasEntityConst.LANDPLOT}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}-{CodeHelper.GenerateCode()}",
+                    RowIndex = row.RowIndex,
+                    Length = row.Length,
+                    Width = row.Width,
+                    Distance = row.Distance,
+                    Direction = row.Direction,
+                    TreeAmount = row.TreeAmount,
+                    Description = row.Description,
+                    Status = LandRowStatus.Active.ToString(),
+                    CreateDate = DateTime.Now
+                };
 
-                Console.WriteLine($"Row {rowIndex}: No valid intersections found, returning 0.");
-                return 0;
+                landplotCreateEntity.LandRows.Add(landRow);
             }
 
-            // Sắp xếp giao điểm theo X để tính khoảng cách
-            rowIntersections = rowIntersections.OrderBy(p => p.X).ToList();
-
-            double rowLength = Math.Sqrt(Math.Pow(rowIntersections.Last().X - rowIntersections.First().X, 2) +
-                                         Math.Pow(rowIntersections.Last().Y - rowIntersections.First().Y, 2));
-
-            Console.WriteLine($"Row {rowIndex}: Length = {rowLength}");
-            return rowLength;
+            return null;
         }
 
-        private double GetDistance(CoordinationCreateRequest p1, CoordinationCreateRequest p2)
+        private void ProcessLandPlotCoordinations(LandPlotCreateRequest createRequest, LandPlot landplotCreateEntity)
         {
-            double latDiff = p2.Latitude - p1.Latitude;
-            double lngDiff = p2.Longitude - p1.Longitude;
-            return Math.Sqrt(Math.Pow(latDiff, 2) + Math.Pow(lngDiff, 2));
+            foreach (var coordination in createRequest.LandPlotCoordinations)
+            {
+                var landplotCoordination = new LandPlotCoordination()
+                {
+                    Latitude = coordination.Latitude,
+                    Longitude = coordination.Longitude,
+                };
+                landplotCreateEntity.LandPlotCoordinations.Add(landplotCoordination);
+            }
         }
 
-        private int CalculateTreeAmount(double rowLength, double treeDistance)
+        private BusinessResult? ValidateLandPlot(LandPlotCreateRequest createRequest)
         {
-            return (int)(rowLength / treeDistance);
+            if (createRequest.LandRows == null || !createRequest.LandRows.Any())
+                return new BusinessResult(Const.WARNING_EMPTY_LAND_ROWS_CODE, Const.WARNING_EMPTY_LAND_ROWS_MSG);
+
+            if (createRequest.LandPlotCoordinations.Count < 3)
+                return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
+
+            return null;
         }
 
-        private double HaversineDistance(CoordinationCreateRequest p1, CoordinationCreateRequest p2)
-        {
-            const double R = 6371000; // Bán kính Trái Đất (m)
-
-            double lat1 = Math.Round(p1.Latitude * Math.PI / 180, 10);
-            double lon1 = Math.Round(p1.Longitude * Math.PI / 180, 10);
-            double lat2 = Math.Round(p2.Latitude * Math.PI / 180, 10);
-            double lon2 = Math.Round(p2.Longitude * Math.PI / 180, 10);
-
-            double dLat = lat2 - lat1;
-            double dLon = lon2 - lon1;
-
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                       Math.Cos(lat1) * Math.Cos(lat2) *
-                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            var result = Math.Round(R * c, 5); // Giữ chính xác 5 chữ số sau dấu phẩy
-            return result;
-        }
-
-        private (double X, double Y) ConvertToUTM(double latitude, double longitude)
-        {
-            // Lấy hệ tọa độ WGS84
-            var csWGS84 = GeographicCoordinateSystem.WGS84;
-
-            // Xác định UTM Zone
-            int utmZone = (int)Math.Floor((longitude + 180) / 6) + 1;
-            bool isNorthernHemisphere = latitude >= 0;
-
-            // Hệ tọa độ UTM phù hợp
-            var csUTM = ProjectedCoordinateSystem.WGS84_UTM(utmZone, isNorthernHemisphere);
-
-            // Tạo bộ chuyển đổi tọa độ
-            var transform = new CoordinateTransformationFactory().CreateFromCoordinateSystems(csWGS84, csUTM);
-
-            // Chuyển đổi tọa độ gốc mà không làm tròn trước
-            double[] utmCoords = transform.MathTransform.Transform(new double[] { longitude, latitude });
-
-            // Làm tròn kết quả sau khi chuyển đổi
-            return (Math.Round(utmCoords[0], 10), Math.Round(utmCoords[1], 10));
-        }
     }
 }

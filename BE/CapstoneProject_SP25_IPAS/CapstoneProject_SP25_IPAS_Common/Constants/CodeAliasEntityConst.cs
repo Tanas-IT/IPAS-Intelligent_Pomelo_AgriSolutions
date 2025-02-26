@@ -26,5 +26,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string CROP = "CROP";
         public static string LEGAL_DOCUMENT = "DOC";
         public static string PLANT = "PLANT";
+        public static string CRITERIA = "CRI";
+        public static string GRAFTED_PLANT = "GRAPL";
+        public static string GRAFTED_PLANT_NOTE = "GRAPN";
     }
 }

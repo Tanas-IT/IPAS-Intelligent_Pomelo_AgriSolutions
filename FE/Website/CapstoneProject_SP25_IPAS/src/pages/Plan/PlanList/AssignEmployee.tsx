@@ -1,26 +1,44 @@
-// 
 import React from "react";
-import { Avatar, Button, Tooltip } from "antd";
-import { UserAddOutlined } from "@ant-design/icons";
-import style from "./AssignMembers.module.scss";
+import { Avatar, Button, Tooltip, Radio } from "antd";
 import { Icons } from "@/assets";
+import style from "./AssignMembers.module.scss";
 
-interface AssignMembersProps {
-  members: { fullName: string; avatarURL: string; userId: string }[];
-  onAssign: () => void;
+interface Employee {
+  fullName: string;
+  avatarURL: string;
+  userId: number;
 }
 
-const AssignEmployee: React.FC<AssignMembersProps> = ({ members, onAssign }) => {
+interface AssignMembersProps {
+  members: Employee[];
+  onAssign: () => void;
+  onReporterChange: (userId: number) => void;
+  selectedReporter: number | null;
+}
+
+const AssignEmployee: React.FC<AssignMembersProps> = ({ 
+  members, 
+  onAssign, 
+  onReporterChange, 
+  selectedReporter 
+}) => {
   return (
     <div className={style.assignMembers}>
       <span className={style.label}>Assigned to project</span>
       <div className={style.avatars}>
-        {members.slice(0, 3).map((member, index) => (
-          <Tooltip title={member.fullName} key={index}>
-            <Avatar src={member.avatarURL} className={style.avatar} />
+        {members.map((member) => (
+          <Tooltip title={member.fullName} key={member.userId}>
+            <div className={style.memberItem}>
+              <Avatar src={member.avatarURL} className={style.avatar} crossOrigin="anonymous" />
+              <Radio 
+                checked={selectedReporter === member.userId} 
+                onChange={() => onReporterChange(member.userId)}
+              >
+                Reporter
+              </Radio>
+            </div>
           </Tooltip>
         ))}
-        {members.length > 3 && <span className={style.more}>+{members.length - 3}</span>}
       </div>
       <Button className={style.btnAssign} icon={<Icons.addUser />} onClick={onAssign}>
         Assign Member

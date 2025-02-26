@@ -4,7 +4,7 @@ import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 
 interface ActionMenuProps {
-  id: string;
+  id: number;
   //   onEdit: (id: number, user: userUpdate) => void;
   //   onDelete: (id: number) => void;
 }

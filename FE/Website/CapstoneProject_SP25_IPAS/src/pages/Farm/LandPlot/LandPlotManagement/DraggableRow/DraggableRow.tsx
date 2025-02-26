@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Flex, FormInstance } from "antd";
+import { Divider, Flex, FormInstance } from "antd";
 import style from "./DraggableRow.module.scss";
 import { Icons } from "@/assets";
 import { rowStateType } from "@/types";
@@ -9,12 +9,13 @@ import RowItem from "./RowItem";
 import { ConfirmModal, CustomButton, MapControls } from "@/components";
 import RowItemModal from "./RowItemModal";
 import { useHasChanges, useModal } from "@/hooks";
-import { createPlotFormFields } from "@/constants";
+import { createPlotFormFields, MESSAGES } from "@/constants";
+import { toast } from "react-toastify";
+import { isPlantOverflowing } from "@/utils";
 
 interface DraggableRowProps {
   rowsData: rowStateType[];
   setRowsData: React.Dispatch<React.SetStateAction<rowStateType[]>>;
-  form: FormInstance;
   isHorizontal: boolean;
   rowSpacing: number;
   rowsPerLine: number;
@@ -24,7 +25,6 @@ interface DraggableRowProps {
 const DraggableRow: React.FC<DraggableRowProps> = ({
   rowsData,
   setRowsData,
-  form,
   isHorizontal,
   rowSpacing,
   rowsPerLine,
@@ -65,6 +65,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
               isHorizontal={isHorizontal}
               moveRow={moveRow}
               setIsPanning={setIsPanning}
+              onClick={() => formModal.showModal(row)}
             />
           ))}
         </Flex>,
@@ -117,6 +118,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
   };
 
   const formModal = useModal<rowStateType>();
+  const updateConfirmModal = useModal<{ row: rowStateType }>();
   const cancelConfirmModal = useModal();
 
   const hasChanges = useHasChanges<rowStateType>(rowsData);
@@ -132,8 +134,11 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
   };
 
   const handleAdd = (newRow: Omit<rowStateType, "id" | "index">) => {
-    console.log(newRow);
-    
+    if (isPlantOverflowing(newRow.plantSpacing, newRow.plantsPerRow, newRow.length)) {
+      toast.error(MESSAGES.OUT_PLANT);
+      return;
+    }
+
     setRowsData((prevRows) => {
       const lastRow = prevRows[prevRows.length - 1];
       const nextIndex = lastRow ? lastRow.index + 1 : 1;
@@ -147,36 +152,78 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
         plantsPerRow: Number(newRow.plantsPerRow),
         plantSpacing: Number(newRow.plantSpacing),
       };
-      console.log(updatedRow);
 
-      const currentNumberOfRows = form.getFieldValue(createPlotFormFields.numberOfRows) || 0;
-      form.setFieldValue(createPlotFormFields.numberOfRows, currentNumberOfRows + 1);
       formModal.hideModal();
       return [...prevRows, updatedRow];
     });
   };
 
+  const handleUpdateConfirm = (row: rowStateType) => {
+    if (hasChanges(row, "id")) {
+      updateConfirmModal.showModal({ row });
+    } else {
+      formModal.hideModal();
+    }
+  };
+
+  const handleUpdate = (updatedRow?: rowStateType) => {
+    if (!updatedRow) return;
+    if (isPlantOverflowing(updatedRow.plantSpacing, updatedRow.plantsPerRow, updatedRow.length)) {
+      updateConfirmModal.hideModal();
+      toast.error(MESSAGES.OUT_PLANT);
+      return;
+    }
+
+    setRowsData((prevRows) =>
+      prevRows.map((row) =>
+        row.id === updatedRow.id
+          ? {
+              ...row,
+              length: Number(updatedRow.length),
+              width: Number(updatedRow.width),
+              plantsPerRow: Number(updatedRow.plantsPerRow),
+              plantSpacing: Number(updatedRow.plantSpacing),
+            }
+          : row,
+      ),
+    );
+
+    updateConfirmModal.hideModal();
+    formModal.hideModal();
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div ref={containerRef}>
-        {/* Nút Zoom In/Out */}
-        <Flex className={style.zoomControls}>
-          <CustomButton
-            label={"Add New Row"}
-            icon={<Icons.plus />}
-            handleOnClick={() => formModal.showModal()}
-          />
-          <MapControls
-            icon={<Icons.zoomIn />}
-            label="Zoom In"
-            onClick={() => setScale((prev) => Math.min(prev + 0.1, 2))}
-          />
-          <MapControls
-            icon={<Icons.zoomOut />}
-            label=" Zoom Out"
-            onClick={() => setScale((prev) => Math.max(prev - 0.1, 0.5))}
-          />
+        <Flex className={style.rowHeader}>
+          <Flex className={style.rowInfoContainer}>
+            <span className={style.totalRowsLabel}>Total Rows: {rowsData.length}</span>
+            <Divider className={style.divider} />
+            <span className={style.rowOrientationLabel}>
+              Orientation: {isHorizontal ? "Horizontal" : "Vertical"}
+            </span>
+          </Flex>
+
+          {/* Nút Zoom In/Out */}
+          <Flex className={style.zoomControls}>
+            <CustomButton
+              label={"Add New Row"}
+              icon={<Icons.plus />}
+              handleOnClick={() => formModal.showModal()}
+            />
+            <MapControls
+              icon={<Icons.zoomIn />}
+              label="Zoom In"
+              onClick={() => setScale((prev) => Math.min(prev + 0.1, 2))}
+            />
+            <MapControls
+              icon={<Icons.zoomOut />}
+              label=" Zoom Out"
+              onClick={() => setScale((prev) => Math.max(prev - 0.1, 0.5))}
+            />
+          </Flex>
         </Flex>
+
         <Flex
           className={style.draggableRowContainer}
           style={{
@@ -202,8 +249,8 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
         <RowItemModal
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
-          // onSave={formModal.modalState.data ? {} : handleAdd}
-          onSave={handleAdd}
+          onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+          // onSave={handleAdd}
           rowData={formModal.modalState.data}
         />
         {/* Confirm Cancel Modal */}
@@ -215,6 +262,14 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
             formModal.hideModal();
           }}
           onCancel={cancelConfirmModal.hideModal}
+        />
+        {/* Confirm Update Modal */}
+        <ConfirmModal
+          visible={updateConfirmModal.modalState.visible}
+          onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.row)}
+          onCancel={updateConfirmModal.hideModal}
+          itemName="Stage"
+          actionType="update"
         />
       </div>
     </DndProvider>

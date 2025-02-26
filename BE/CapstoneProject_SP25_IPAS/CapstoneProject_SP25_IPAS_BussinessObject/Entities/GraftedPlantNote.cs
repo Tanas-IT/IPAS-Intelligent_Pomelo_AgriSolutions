@@ -7,11 +7,13 @@ public partial class GraftedPlantNote
 {
     public int GraftedPlantNoteId { get; set; }
 
-    public string? GraftedPlantNoteName { get; set; }
+    public string? GraftedPlantNoteCode { get; set; }
+
+    public string? IssueName { get; set; }
 
     public string? Content { get; set; }
 
-    public string? Image { get; set; }
+    //public string? Image { get; set; }
 
     public string? NoteTaker { get; set; }
 
@@ -20,6 +22,6 @@ public partial class GraftedPlantNote
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
-
+    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
     public virtual GraftedPlant? GraftedPlant { get; set; }
 }

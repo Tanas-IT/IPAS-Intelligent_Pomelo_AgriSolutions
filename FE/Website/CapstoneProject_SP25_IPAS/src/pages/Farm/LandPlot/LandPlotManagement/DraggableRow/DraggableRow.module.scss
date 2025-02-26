@@ -11,11 +11,28 @@
   height: 80vh;
   overflow: hidden;
 }
+.rowHeader {
+  justify-content: space-between;
+  align-items: center;
+  .rowInfoContainer {
+    align-items: center;
+    gap: 12px;
+    .divider {
+      min-width: 20px;
+      background-color: black;
+    }
+    .totalRowsLabel,
+    .rowOrientationLabel {
+      font-size: 18px;
+      white-space: nowrap;
+    }
+  }
 
-.zoomControls {
-  justify-content: flex-end;
-  margin-bottom: 12px;
-  gap: 20px;
+  .zoomControls {
+    justify-content: flex-end;
+    margin-bottom: 12px;
+    gap: 20px;
+  }
 }
 
 .row {

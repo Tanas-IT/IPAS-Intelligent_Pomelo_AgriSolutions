@@ -14,6 +14,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -24,6 +25,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
@@ -103,11 +105,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 EndDate = subProcess.EndDate,
                             };
 
-                            if(subProcess.ListPlan != null)
+                            if (subProcess.ListPlan != null)
                             {
-                                foreach (var plan in subProcess.ListPlan)
+                                foreach (var planRaw in subProcess.ListPlan)
                                 {
-                                    //var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
+                                    var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
                                     var newPlan = new Plan()
                                     {
                                         PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
@@ -164,7 +166,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -330,7 +332,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "GrowthStage,Farm,MasterType,SubProcesses");
+                var getProcess = await _unitOfWork.ProcessRepository.GetListProcessById(processId);
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<ProcessModel>(getProcess);
@@ -384,7 +386,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Order = createProcessModel.Order,
                     };
                     var result = await CreateProcess(newProcessModel, farmId);
-                    if(result.StatusCode == 200)
+                    if (result.StatusCode == 200)
                     {
                         checkInsertProcess++;
                     }
@@ -452,233 +454,412 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdateProcessInfo(UpdateProcessModel updateProcessModel)
         {
-            try
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
-                var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
-                if (checkExistProcess != null)
+                try
                 {
-                    if(checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true )
+                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
+                    var result = 0;
+                    if (checkExistProcess != null)
                     {
-                        throw new Exception("Process is running. Can not update");
-                    }
-                    if (updateProcessModel.ProcessName != null)
-                    {
-                        checkExistProcess.ProcessName = updateProcessModel.ProcessName;
-                    }
-                    if (updateProcessModel.StartDate != null)
-                    {
-                        checkExistProcess.StartDate = updateProcessModel.StartDate;
-                    }
-                    if (updateProcessModel.EndDate != null)
-                    {
-                        checkExistProcess.EndDate = updateProcessModel.EndDate;
-                    }
-                    if (updateProcessModel.ProcessName != null)
-                    {
-                        checkExistProcess.ProcessName = updateProcessModel.ProcessName;
-                    }
-                    if (updateProcessModel.IsActive != null)
-                    {
-                        checkExistProcess.IsActive = updateProcessModel.IsActive;
-                    }
-                    if (updateProcessModel.IsDefault != null)
-                    {
-                        checkExistProcess.IsDefault = updateProcessModel.IsDefault;
-                    }
-                    if (updateProcessModel.IsDeleted != null)
-                    {
-                        checkExistProcess.IsDeleted = updateProcessModel.IsDeleted;
-                    }
-                    if (updateProcessModel.FarmId != null)
-                    {
-                        checkExistProcess.FarmId = updateProcessModel.FarmId;
-                    }
-                    if (updateProcessModel.MasterTypeId != null)
-                    {
-                        checkExistProcess.MasterTypeId = updateProcessModel.MasterTypeId;
-                    }
-                    if (updateProcessModel.GrowthStageID != null)
-                    {
-                        checkExistProcess.GrowthStageId = updateProcessModel.GrowthStageID;
-                    }
-                    if (updateProcessModel.Order != null)
-                    {
-                        checkExistProcess.Order = updateProcessModel.Order;
-                    }
-                    var processData = checkExistProcess.ResourceUrl;
-                    if (updateProcessModel.UpdateProcessData != null)
-                    {
-                        if (processData != null)
+                        //if (checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true)
+                        //{
+                        //    throw new Exception("Process is running. Can not update");
+                        //}
+                        if (updateProcessModel.ProcessName != null)
                         {
-                            if (IsImageLink(processData))
+                            checkExistProcess.ProcessName = updateProcessModel.ProcessName;
+                        }
+                        if (updateProcessModel.StartDate != null)
+                        {
+                            checkExistProcess.StartDate = updateProcessModel.StartDate;
+                        }
+                        if (updateProcessModel.EndDate != null)
+                        {
+                            checkExistProcess.EndDate = updateProcessModel.EndDate;
+                        }
+                        if (updateProcessModel.ProcessName != null)
+                        {
+                            checkExistProcess.ProcessName = updateProcessModel.ProcessName;
+                        }
+                        if (updateProcessModel.IsActive != null)
+                        {
+                            checkExistProcess.IsActive = updateProcessModel.IsActive;
+                        }
+                        if (updateProcessModel.IsDefault != null)
+                        {
+                            checkExistProcess.IsDefault = updateProcessModel.IsDefault;
+                        }
+                        if (updateProcessModel.IsDeleted != null)
+                        {
+                            checkExistProcess.IsDeleted = updateProcessModel.IsDeleted;
+                        }
+                        if (updateProcessModel.MasterTypeId != null)
+                        {
+                            checkExistProcess.MasterTypeId = updateProcessModel.MasterTypeId;
+                        }
+                        if (updateProcessModel.GrowthStageID != null)
+                        {
+                            checkExistProcess.GrowthStageId = updateProcessModel.GrowthStageID;
+                        }
+                        if (updateProcessModel.Order != null)
+                        {
+                            checkExistProcess.Order = updateProcessModel.Order;
+                        }
+                        var processData = checkExistProcess.ResourceUrl;
+                        if (updateProcessModel.UpdateProcessData != null)
+                        {
+                            if (processData != null)
                             {
-                                await _cloudinaryService.DeleteImageByUrlAsync(processData);
+                                if (IsImageLink(processData))
+                                {
+                                    await _cloudinaryService.DeleteImageByUrlAsync(processData);
+                                }
+                                else
+                                {
+                                    await _cloudinaryService.DeleteVideoByUrlAsync(processData);
+                                }
+                            }
+                            var getLink = "";
+                            if (IsImageFile(updateProcessModel.UpdateProcessData))
+                            {
+                                getLink = await _cloudinaryService.UploadImageAsync(updateProcessModel.UpdateProcessData, "process/data");
                             }
                             else
                             {
-                                await _cloudinaryService.DeleteVideoByUrlAsync(processData);
+                                getLink = await _cloudinaryService.UploadVideoAsync(updateProcessModel.UpdateProcessData, "process/data");
+                            }
+                            checkExistProcess.ResourceUrl = getLink;
+                        }
+                        checkExistProcess.UpdateDate = DateTime.Now;
+                        if (updateProcessModel.ListUpdateSubProcess != null)
+                        {
+                            Dictionary<int, int> idMapping = new Dictionary<int, int>();
+                            foreach (var subProcessRaw in updateProcessModel.ListUpdateSubProcess)
+                            {
+                                var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
+
+                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcess.SubProcessId, "");
+                                if(subProcess.Status != null)
+                                {
+                                    if (subProcess.Status.ToLower().Equals("add"))
+                                    {
+                                        var newSubProcess = new SubProcess();
+
+                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
+                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
+                                                 : (int?)null;
+
+                                        // Chuyển đổi sang entity SubProcess
+                                        newSubProcess = new SubProcess()
+                                        {
+                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                            MasterTypeId = subProcess.MasterTypeId,
+                                            SubProcessName = subProcess.SubProcessName,
+                                            IsDefault = subProcess.IsDefault,
+                                            IsActive = subProcess.IsActive,
+                                            IsDeleted = subProcess.IsDeleted,
+                                            CreateDate = DateTime.Now,
+                                            UpdateDate = DateTime.Now,
+                                        };
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        newSubProcess.ParentSubProcessId = realParentId;
+
+                                        checkExistProcess.SubProcesses.Add(newSubProcess);
+                                        result = await _unitOfWork.SaveAsync();
+                                        idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+
+                                        if (subProcess.ListPlan != null)
+                                        {
+                                            foreach (var plan in subProcess.ListPlan)
+                                            {
+                                                var getPlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
+                                                if(plan.PlanStatus != null)
+                                                {
+                                                    if (plan.PlanStatus.ToLower().Equals("add"))
+                                                    {
+                                                        var newPlan = new Plan()
+                                                        {
+                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanName = plan.PlanName,
+                                                            PlanDetail = plan.PlanDetail,
+                                                            Notes = plan.PlanNote,
+                                                            FarmID = checkExistProcess.FarmId,
+                                                            GrowthStageId = plan.GrowthStageId,
+                                                            MasterTypeId = plan.MasterTypeId,
+                                                        };
+                                                        newSubProcess.Plans.Add(newPlan);
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                    {
+                                                        if (getPlanInDB != null)
+                                                        {
+                                                            if (plan.PlanName != null)
+                                                            {
+                                                                getPlanInDB.PlanName = plan.PlanName;
+                                                            }
+                                                            if (plan.PlanDetail != null)
+                                                            {
+                                                                getPlanInDB.PlanDetail = plan.PlanDetail;
+                                                            }
+                                                            if (plan.PlanNote != null)
+                                                            {
+                                                                getPlanInDB.Notes = plan.PlanNote;
+                                                            }
+                                                            if (plan.GrowthStageId != null)
+                                                            {
+                                                                getPlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                            }
+                                                            if (plan.MasterTypeId != null)
+                                                            {
+                                                                getPlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                            }
+                                                            getPlanInDB.UpdateDate = DateTime.Now;
+                                                        }
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                    {
+                                                        getPlanInDB.IsDelete = true;
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                    }
+                                    else if (subProcess.Status.ToLower().Equals("update"))
+                                    {
+                                        if (subProcessUpdate != null)
+                                        {
+                                            if (subProcess.ParentSubProcessId != null)
+                                            {
+                                                subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
+                                            }
+                                            if (subProcess.SubProcessName != null)
+                                            {
+                                                subProcessUpdate.SubProcessName = subProcess.SubProcessName;
+                                            }
+                                            if (subProcess.IsDefault != null)
+                                            {
+                                                subProcessUpdate.IsDefault = subProcess.IsDefault;
+                                            }
+                                            if (subProcess.IsActive != null)
+                                            {
+                                                subProcessUpdate.IsActive = subProcess.IsActive;
+                                            }
+                                            if (subProcess.IsDeleted != null)
+                                            {
+                                                subProcessUpdate.IsDeleted = subProcess.IsDeleted;
+                                            }
+                                            if (subProcess.MasterTypeId != null)
+                                            {
+                                                subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
+                                            }
+                                            if (subProcess.Order != null)
+                                            {
+                                                subProcessUpdate.Order = subProcess.MasterTypeId;
+                                            }
+                                            subProcessUpdate.UpdateDate = DateTime.Now;
+                                            if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
+                                            {
+                                                foreach (var plan in subProcess.ListPlan)
+                                                {
+                                                    var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
+                                                    if(plan.PlanStatus != null)
+                                                    {
+                                                        if (plan.PlanStatus.ToLower().Equals("add"))
+                                                        {
+                                                            var newPlan = new Plan()
+                                                            {
+                                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                                PlanName = plan.PlanName,
+                                                                PlanDetail = plan.PlanDetail,
+                                                                Notes = plan.PlanNote,
+                                                                FarmID = checkExistProcess.FarmId,
+                                                                GrowthStageId = plan.GrowthStageId,
+                                                                MasterTypeId = plan.MasterTypeId,
+                                                            };
+                                                            subProcessUpdate.Plans.Add(newPlan);
+                                                        }
+                                                        else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                        {
+                                                            if (getUpdatePlanInDB != null)
+                                                            {
+                                                                if (plan.PlanName != null)
+                                                                {
+                                                                    getUpdatePlanInDB.PlanName = plan.PlanName;
+                                                                }
+                                                                if (plan.PlanDetail != null)
+                                                                {
+                                                                    getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
+                                                                }
+                                                                if (plan.PlanNote != null)
+                                                                {
+                                                                    getUpdatePlanInDB.Notes = plan.PlanNote;
+                                                                }
+                                                                if (plan.GrowthStageId != null)
+                                                                {
+                                                                    getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                                }
+                                                                if (plan.MasterTypeId != null)
+                                                                {
+                                                                    getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                                }
+                                                                getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                            }
+                                                        }
+                                                        else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                        {
+                                                            getUpdatePlanInDB.IsDelete = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (subProcess.Status.ToLower().Equals("delete"))
+                                    {
+
+                                        subProcessUpdate.IsDeleted = true;
+                                        if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
+                                        {
+                                            foreach (var plan in subProcess.ListPlan)
+                                            {
+                                                var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(plan.PlanId != null ? plan.PlanId.Value : -1);
+                                                if(plan.PlanStatus != null)
+                                                {
+                                                    if (plan.PlanStatus.ToLower().Equals("add"))
+                                                    {
+                                                        var newPlan = new Plan()
+                                                        {
+                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanName = plan.PlanName,
+                                                            PlanDetail = plan.PlanDetail,
+                                                            Notes = plan.PlanNote,
+                                                            FarmID = checkExistProcess.FarmId,
+                                                            GrowthStageId = plan.GrowthStageId,
+                                                            MasterTypeId = plan.MasterTypeId,
+                                                        };
+                                                        subProcessUpdate.Plans.Add(newPlan);
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("update"))
+                                                    {
+                                                        if (getUpdatePlanInDB != null)
+                                                        {
+                                                            if (plan.PlanName != null)
+                                                            {
+                                                                getUpdatePlanInDB.PlanName = plan.PlanName;
+                                                            }
+                                                            if (plan.PlanDetail != null)
+                                                            {
+                                                                getUpdatePlanInDB.PlanDetail = plan.PlanDetail;
+                                                            }
+                                                            if (plan.PlanNote != null)
+                                                            {
+                                                                getUpdatePlanInDB.Notes = plan.PlanNote;
+                                                            }
+                                                            if (plan.GrowthStageId != null)
+                                                            {
+                                                                getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                            }
+                                                            if (plan.MasterTypeId != null)
+                                                            {
+                                                                getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
+                                                            }
+                                                            getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                        }
+                                                    }
+                                                    else if (plan.PlanStatus.ToLower().Equals("delete"))
+                                                    {
+                                                        getUpdatePlanInDB.IsDelete = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            if (updateProcessModel.ListPlan != null && updateProcessModel.ListPlan.Count > 0)
+                            {
+                                foreach (var updatePlanRaw in updateProcessModel.ListPlan)
+                                {
+                                    var updatePlan = JsonConvert.DeserializeObject<UpdatePlanInProcessModel>(updatePlanRaw);
+                                    var getUpdatePlanInDB = await _unitOfWork.PlanRepository.GetByID(updatePlan.PlanId != null ? updatePlan.PlanId.Value : -1);
+                                    if(updatePlan.PlanStatus != null)
+                                    {
+                                        if (updatePlan.PlanStatus.ToLower().Equals("add"))
+                                        {
+                                            var newPlan = new Plan()
+                                            {
+                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + updatePlan.MasterTypeId,
+                                                PlanName = updatePlan.PlanName,
+                                                PlanDetail = updatePlan.PlanDetail,
+                                                Notes = updatePlan.PlanNote,
+                                                FarmID = checkExistProcess.FarmId,
+                                                GrowthStageId = updatePlan.GrowthStageId,
+                                                MasterTypeId = updatePlan.MasterTypeId,
+                                            };
+                                            checkExistProcess.Plans.Add(newPlan);
+                                        }
+                                        else if (updatePlan.PlanStatus.ToLower().Equals("update"))
+                                        {
+                                            if (getUpdatePlanInDB != null)
+                                            {
+                                                if (updatePlan.PlanName != null)
+                                                {
+                                                    getUpdatePlanInDB.PlanName = updatePlan.PlanName;
+                                                }
+                                                if (updatePlan.PlanDetail != null)
+                                                {
+                                                    getUpdatePlanInDB.PlanDetail = updatePlan.PlanDetail;
+                                                }
+                                                if (updatePlan.PlanNote != null)
+                                                {
+                                                    getUpdatePlanInDB.Notes = updatePlan.PlanNote;
+                                                }
+                                                if (updatePlan.GrowthStageId != null)
+                                                {
+                                                    getUpdatePlanInDB.GrowthStageId = updatePlan.GrowthStageId;
+                                                }
+                                                if (updatePlan.MasterTypeId != null)
+                                                {
+                                                    getUpdatePlanInDB.MasterTypeId = updatePlan.MasterTypeId;
+                                                }
+                                                getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                            }
+                                        }
+                                        else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
+                                        {
+                                            getUpdatePlanInDB.IsDelete = true;
+                                        }
+                                    }
+                                }
                             }
                         }
-                        var getLink = "";
-                        if (IsImageFile(updateProcessModel.UpdateProcessData))
+                        var finalResult = await _unitOfWork.SaveAsync();
+                        if (result > 0 || finalResult > 0)
                         {
-                            getLink = await _cloudinaryService.UploadImageAsync(updateProcessModel.UpdateProcessData, "process/data");
+                            await transaction.CommitAsync();
+                            return new BusinessResult(Const.SUCCESS_UPDATE_PROCESS_CODE, Const.SUCCESS_UPDATE_PROCESS_MESSAGE, checkExistProcess);
                         }
                         else
                         {
-                            getLink = await _cloudinaryService.UploadVideoAsync(updateProcessModel.UpdateProcessData, "process/data");
+                            return new BusinessResult(Const.FAIL_UPDATE_PROCESS_CODE, Const.FAIL_UPDATE_PROCESS_MESSAGE, false);
                         }
-                        checkExistProcess.ResourceUrl = getLink;
-                    }
-                    checkExistProcess.UpdateDate = DateTime.Now;
-                    if (updateProcessModel.ListUpdateSubProcess != null)
-                    {
-                        foreach (var subProcessRaw in updateProcessModel.ListUpdateSubProcess)
-                        {
-                            var subProcess = JsonConvert.DeserializeObject<UpdateSubProcessModel>(subProcessRaw);
-                            var getListSubProcess = await _unitOfWork.SubProcessRepository.GetAllNoPaging();
-                            var getListSubProcessOfProcess = getListSubProcess.Where(x => x.ProcessId == checkExistProcess.ProcessId).ToList();
-                            var flag = false;
-                            foreach (var item in getListSubProcessOfProcess)
-                            {
-                                if (item.SubProcessID == subProcess.SubProcessId)
-                                {
-                                    flag = true;
-                                }
-                            }
-                            if (flag)
-                            {
-                                var subProcessUpdate = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcess.SubProcessId, "");
-                                if (subProcess.Status.ToLower().Equals("add"))
-                                {
-                                    var newSubProcess = new SubProcess()
-                                    {
-                                        SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
-                                        MasterTypeId = subProcess.MasterTypeId,
-                                        SubProcessName = subProcess.SubProcessName,
-                                        IsDefault = subProcess.IsDefault,
-                                        IsActive = subProcess.IsActive,
-                                        IsDeleted = subProcess.IsDeleted,
-                                        ParentSubProcessId = subProcess.ParentSubProcessId,
-                                        CreateDate = DateTime.Now,
-                                        UpdateDate = DateTime.Now,
-                                    };
-                                    checkExistProcess.SubProcesses.Add(newSubProcess);
-                                }
-                                else if (subProcess.Status.ToLower().Equals("update"))
-                                {
-                                    if (subProcessUpdate != null)
-                                    {
-                                        if (subProcess.ParentSubProcessId != null)
-                                        {
-                                            subProcessUpdate.ParentSubProcessId = subProcess.ParentSubProcessId;
-                                        }
-                                        if (subProcess.SubProcessName != null)
-                                        {
-                                            subProcessUpdate.SubProcessName = subProcess.SubProcessName;
-                                        }
-                                        if (subProcess.IsDefault != null)
-                                        {
-                                            subProcessUpdate.IsDefault = subProcess.IsDefault;
-                                        }
-                                        if (subProcess.IsActive != null)
-                                        {
-                                            subProcessUpdate.IsActive = subProcess.IsActive;
-                                        }
-                                        if (subProcess.IsDeleted != null)
-                                        {
-                                            subProcessUpdate.IsDeleted = subProcess.IsDeleted;
-                                        }
-                                        if (subProcess.MasterTypeId != null)
-                                        {
-                                            subProcessUpdate.MasterTypeId = subProcess.MasterTypeId;
-                                        }
-                                        if (subProcess.Order != null)
-                                        {
-                                            subProcessUpdate.Order = subProcess.MasterTypeId;
-                                        }
-                                        subProcessUpdate.UpdateDate = DateTime.Now;
-                                    }
-                                }
-                                else if (subProcess.Status.ToLower().Equals("delete"))
-                                {
-                                    var checkSubProcessDeletet = await _unitOfWork.SubProcessRepository.GetByID(subProcess.SubProcessId);
-                                    if (checkSubProcessDeletet != null)
-                                    {
-                                        _unitOfWork.SubProcessRepository.Delete(checkSubProcessDeletet);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                return new BusinessResult(Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_CODE, Const.FAIL_UPDATE_SUB_PROCESS_OF_PROCESS_MESSAGE);
-                            }
-                        }
-                        if (updateProcessModel.ListPlan != null)
-                        {
-                            foreach (var updatePlanRaw in updateProcessModel.ListPlan)
-                            {
-                                var updatePlan = JsonConvert.DeserializeObject<UpdatePlanInProcessModel>(updatePlanRaw);
-                                var getListPlan = await _unitOfWork.PlanRepository.GetAllNoPaging();
-                                var getListPlanOfProcess = getListPlan.Where(x => x.ProcessId == checkExistProcess.ProcessId).ToList();
-                                bool flag = false;
-                                foreach (var item in getListPlanOfProcess)
-                                {
-                                    if (item.PlanId == updatePlan.PlanId)
-                                    {
-                                        flag = true;
-                                    }
-                                }
-                                if (flag)
-                                {
-                                    var planUpdate = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlan.PlanId, "");
-                                    if (planUpdate != null)
-                                    {
-                                        if (updatePlan.PlanName != null)
-                                        {
-                                            planUpdate.PlanName = updatePlan.PlanName;
-                                        }
-                                        if (updatePlan.PlanDetail != null)
-                                        {
-                                            planUpdate.PlanDetail = updatePlan.PlanDetail;
-                                        }
-                                        if (updatePlan.PlanNote != null)
-                                        {
-                                            planUpdate.Notes = updatePlan.PlanNote;
-                                        }
-                                        if (updatePlan.GrowthStageId != null)
-                                        {
-                                            planUpdate.GrowthStageId = updatePlan.GrowthStageId;
-                                        }
-                                        if (updatePlan.MasterTypeId != null)
-                                        {
-                                            planUpdate.MasterTypeId = updatePlan.MasterTypeId;
-                                        }
-                                        planUpdate.UpdateDate = DateTime.Now;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PROCESS_CODE, Const.SUCCESS_UPDATE_PROCESS_MESSAGE, checkExistProcess);
                     }
                     else
                     {
-                        return new BusinessResult(Const.FAIL_UPDATE_PROCESS_CODE, Const.FAIL_UPDATE_PROCESS_MESSAGE, false);
+                        return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+
         }
         public bool IsImageFile(IFormFile file)
         {

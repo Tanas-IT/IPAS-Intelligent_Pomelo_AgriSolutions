@@ -25,5 +25,10 @@ namespace CapstoneProject_SP25_IPAS_Common.Upload
         public static string PLANT_GROWTH_HISTORY = PLANT + "/growth-history";
         #endregion
 
+        #region Grafted Plant
+        public static string GRAFTED_PLANT = "grafted-plant";
+        public static string GRAFTED_PLANT_NOTE = GRAFTED_PLANT + "/note";
+        #endregion
+
     }
 }

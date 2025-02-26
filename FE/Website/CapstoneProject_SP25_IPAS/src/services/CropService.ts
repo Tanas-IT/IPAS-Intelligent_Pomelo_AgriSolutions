@@ -25,3 +25,15 @@ export const getCropsOfFarmForSelect = async (farmId: string) => {
       cropName
     }));
 }
+
+export const getCropsOfLandPlotForSelect = async (landplotId: number) => {
+  console.log('landplotId', landplotId);
+  
+  const res = await axiosAuth.axiosJsonRequest.get(`crops/get-crop-of-landplot-selected?landplotId=${landplotId}`);
+  const apiResponse = res.data as ApiResponse<GetCrop[]>;
+  
+    return apiResponse.data.map(({ cropId, cropName }) => ({
+      cropId, 
+      cropName
+    }));
+}

@@ -1,0 +1,141 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+}
+
+.filterContent {
+  padding: 10px;
+
+  // input,
+  // label,
+  // span {
+  //   font-size: 16px !important;
+  // }
+
+  .filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: vars.$color_primary;
+
+    .icon {
+      font-size: 18px;
+      color: vars.$color_primary
+    }
+
+    .titleFilter {
+      margin: 0;
+      color: vars.$color_primary
+    }
+  }
+
+  .title {
+    color: vars.$color_primary !important;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .section {
+    max-width: 24vw;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .sectionStatus {
+    flex-direction: row;
+    margin-bottom: 10px;
+
+    .statusGroup {
+      flex-direction: column;
+      margin-left: 10px;
+    }
+  }
+
+  .titleModal {
+    font-size: 20px;
+    font-weight: lighter;
+  }
+
+  .btnAdd {
+    background-color: vars.$color_second;
+
+    &:hover {
+      background-color: #b8c39b;
+      color: #fff;
+    }
+  }
+
+  .form {
+    background-color: #b8c39b;
+  }
+}
+
+.contentSectionBody {
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: vars.$color_bg_detail;
+  gap: 24px;
+  padding: 20px;
+
+  .form {
+    // background-color: white;
+    border-radius: 10px;
+    // background-color: vars.$color_bg_detail;
+    flex-direction: column;
+    position: relative;
+
+    .divider {
+      background-color: #ccc;
+      height: 0.5px;
+    }
+
+    .btnGroup {
+      margin-top: 15px;
+    }
+
+    .monthGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+
+      .monthDay {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: vars.$color_bg_frequency;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .active {
+        background: vars.$color_selected_days;
+        color: vars.$color_bg_detail;
+        font-weight: bold;
+      }
+    }
+
+    .createdBy {
+      margin-top: 10px;
+
+      span {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .title {
+    color: vars.$color_primary;
+  }
+
+  .backIcon {
+    cursor: pointer;
+  }
+}

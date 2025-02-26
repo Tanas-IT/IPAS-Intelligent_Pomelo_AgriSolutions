@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -73,7 +74,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(x => x.GrowthStageName))
                .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
                .ReverseMap();
-            CreateMap<SubProcessInProcessModel, SubProcess>().ReverseMap();
+
+            CreateMap<Plan, UpdatePlanInProcessModel>()
+               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(x => x.MasterTypeId))
+               .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(x => x.GrowthStageId))
+               .ForMember(dest => dest.PlanName, opt => opt.MapFrom(x => x.PlanName))
+               .ForMember(dest => dest.PlanNote, opt => opt.MapFrom(x => x.Notes))
+               .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(x => x.PlanDetail))
+               .ForMember(dest => dest.PlanId, opt => opt.MapFrom(x => x.PlanId))
+              .ReverseMap();
+
+            CreateMap<SubProcess, SubProcessInProcessModel>()
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans))
+                .ReverseMap();
 
             CreateMap<GrowthStage, ProcessGrowthStageModel>()
                 .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(src => src.GrowthStageID))
@@ -90,6 +103,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId)))
                 .ReverseMap();
 
@@ -258,6 +272,53 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GrowthStageName))
               .ReverseMap();
 
+            CreateMap<PlantLot, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlantLotId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlantLotCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlantLotName))
+              .ReverseMap();
+
+            CreateMap<HarvestHistory, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.HarvestHistoryId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.HarvestHistoryCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.HarvestHistoryNote))
+              .ReverseMap();
+
+            CreateMap<LandRow, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandRowId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandRowCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RowIndex))
+              .ReverseMap();
+
+            CreateMap<MasterType, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MasterTypeId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.MasterTypeCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.MasterTypeName))
+              .ReverseMap();
+
+            CreateMap<Partner, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PartnerId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PartnerCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PartnerName))
+              .ReverseMap();
+
+            CreateMap<Plant, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlantId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlantCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlantName))
+              .ReverseMap();
+
+            CreateMap<GraftedPlant, ForSelectedModels>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GraftedPlantId))
+           .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GraftedPlantCode))
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GraftedPlantName))
+            .ReverseMap();
+
+            CreateMap<GraftedPlantNote, GraftedPlantModels>()
+                .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
+                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
+                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
+                .ReverseMap();
         }
     }
 }

@@ -21,9 +21,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public DateTime? EndDate { get; set; }
 
         // Chuỗi JSON chứa danh sách SubProcess (trong mỗi SubProcess có danh sách Plan)
-        [DefaultValue(new[] {
-    "{SubProcessName: \"Sub 1\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 1, ListPlan: [{PlanName: \"Plan 1\", PlanDetail: \"Chi tiết 1\", PlanNote: \"Ghi chú 1\", GrowthStageId: 2, MasterTypeId: 3}]}"
-})]
+      
+        [DefaultValue(new[] { "{SubProcessId: 0, SubProcessName: \"string\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 0, Status: \"string\", Order: 0}" })]
         public List<string>? ListSubProcess { get; set; }
 
         [DefaultValue(new[] { "{PlanName: \"string\", PlanDetail: \"string\", PlanNote: \"string\", GrowthStageId: 0, MasterTypeId: 0}" })]

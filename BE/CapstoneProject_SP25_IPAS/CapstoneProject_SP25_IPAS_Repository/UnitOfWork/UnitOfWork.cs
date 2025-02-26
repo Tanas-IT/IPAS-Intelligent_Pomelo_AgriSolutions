@@ -56,6 +56,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public PlanNotificationRepository _planNotificationRepository;
         public GraftedPlantRepository _graftedPlantRepo;
         public PlanTargetRepository _planTargetRepo;
+        public GraftedPlantNoteRepository _graftedPlantNoteRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -98,6 +99,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _planNotificationRepository = new PlanNotificationRepository(context);
             _graftedPlantRepo = new GraftedPlantRepository(context);
             _planTargetRepo = new PlanTargetRepository(context);
+            _graftedPlantNoteRepo = new GraftedPlantNoteRepository(context);
         }
 
         private bool disposed = false;
@@ -610,6 +612,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._planTargetRepo = new PlanTargetRepository(_context);
                 }
                 return _planTargetRepo;
+            }
+        }
+
+        public GraftedPlantNoteRepository GraftedPlantNoteRepository
+        {
+            get
+            {
+                if(_graftedPlantNoteRepo == null)
+                {
+                    this._graftedPlantNoteRepo = new GraftedPlantNoteRepository(_context);
+                }
+                return _graftedPlantNoteRepo;
             }
         }
     }

@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<BusinessResult> createPlantGrowthHistory(PlantGrowthHistoryCreateRequest historyCreateRequest)
+        public async Task<BusinessResult> createPlantGrowthHistory(CreatePlantGrowthHistoryRequest historyCreateRequest)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> updatePlantGrowthHistory(PlantGrowthHistoryUpdateRequest historyUpdateRequest)
+        public async Task<BusinessResult> updatePlantGrowthHistory(UpdatePlantGrowthHistoryRequest historyUpdateRequest)
         {
             try
             {

@@ -24,6 +24,7 @@ interface RowItemProps {
   isHorizontal: boolean;
   moveRow: (dragIndex: number, hoverIndex: number) => void;
   setIsPanning: React.Dispatch<React.SetStateAction<boolean>>;
+  onClick: () => void;
 }
 
 const RowItem: React.FC<RowItemProps> = ({
@@ -33,6 +34,7 @@ const RowItem: React.FC<RowItemProps> = ({
   isHorizontal,
   moveRow,
   setIsPanning,
+  onClick,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -93,7 +95,7 @@ const RowItem: React.FC<RowItemProps> = ({
           height: isHorizontal ? `${row.width}px` : `${row.length}px`,
           marginRight: `${rowSpacing}px`,
         }}
-        // onClick={() => formModal.showModal(row)}
+        onClick={onClick}
       >
         {Array.from({ length: row.plantsPerRow }).map((_, i) => (
           <img

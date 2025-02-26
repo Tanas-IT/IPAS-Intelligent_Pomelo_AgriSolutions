@@ -40,7 +40,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize("Admin,User", "Owner,Manager")]
-        [HttpGet(APIRoutes.LandRow.getLandRowOfPlot + "/{plotId}", Name = "getAllLandRowOfLandPlotNoPaginAsync")]
+        [HttpGet(APIRoutes.LandRow.getLandRowOfPlotNoPagin + "/{plotId}", Name = "getAllLandRowOfLandPlotNoPaginAsync")]
         public async Task<IActionResult> GetAllLandRowOfLandPlotNoPaginAsync([FromRoute(Name = "plotId")] int plotId)
         {
             try
@@ -60,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.LandRow.createLandRow, Name = "createLandRowAsync")]
-        public async Task<IActionResult> CreateLandRowAsync([FromBody] LandRowCreateRequest createRequest)
+        public async Task<IActionResult> CreateLandRowAsync([FromBody] CreateLandRowRequest createRequest)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.LandRow.updateLandRowInfo, Name = "updateLandRowInfoAsync")]
-        public async Task<IActionResult> UpdateLandRowInfoAsync([FromBody] LandRowUpdateRequest updateRequest)
+        public async Task<IActionResult> UpdateLandRowInfoAsync([FromBody] UpdateLandRowRequest updateRequest)
         {
             try
             {
@@ -111,6 +111,59 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _landRowService.DeleteLandRowOfFarm(rowId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        [HttpGet(APIRoutes.LandRow.getLandRowForSelected + "/{plot-id}", Name = "getLandRowForSelectedAsync")]
+        public async Task<IActionResult> getLandRowForSelectedAsync([FromRoute(Name = "plot-id")] int plotId)
+        {
+            try
+            {
+                var result = await _landRowService.GetLandRowForSelectedByPlotId(plotId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        [HttpGet(APIRoutes.LandRow.getLandRowOfPlotPagin, Name = "getLandRowOfPlotPaginAsync")]
+        public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromBody] GetPlantRowPaginRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = errors.ToString(),
+
+                    });
+                }
+                var result = await _landRowService.GetRowPaginByPlot(request);
                 return Ok(result);
             }
             catch (Exception ex)

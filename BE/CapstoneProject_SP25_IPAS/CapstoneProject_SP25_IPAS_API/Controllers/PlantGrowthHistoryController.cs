@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.PlantGrowthHistory.createPlantGrowthHistory, Name = "createPlantGrowthHistoryAsync")]
-        public async Task<IActionResult> CreatePlantGrowthHistoryAsync([FromForm] PlantGrowthHistoryCreateRequest request)
+        public async Task<IActionResult> CreatePlantGrowthHistoryAsync([FromForm] CreatePlantGrowthHistoryRequest request)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.PlantGrowthHistory.updatePlantGrowthHistoryInfo, Name = "updatePlantGrowthHistoryAsync")]
-        public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromBody] PlantGrowthHistoryUpdateRequest request)
+        public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromBody] UpdatePlantGrowthHistoryRequest request)
         {
             try
             {

@@ -4,6 +4,13 @@ import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
 import { LOCAL_STORAGE_KEYS } from "@/constants";
+import {
+  cropService,
+  growthStageService,
+  masterTypeService,
+  processService,
+  userService,
+} from "@/services";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -244,3 +251,95 @@ export const getBase64 = (file: FileType): Promise<string> =>
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
+
+export const fetchUserByRole = async (role: string) => {
+  const users = await userService.getUsersByRole(role);
+  return users.map((user) => ({
+    value: user.fullName,
+    label: user.fullName,
+  }));
+};
+
+export const fetchUserInfoByRole = async (role: string) => {
+  const users = await userService.getUsersByRole(role);
+  console.log("users", users);
+
+  return users.map((user) => ({
+    fullName: user.fullName,
+    avatarURL: user.avatarURL,
+    userId: user.userId,
+  }));
+};
+
+export const fetchCropOptions = async (farmId: string) => {
+  const crops = await cropService.getCropsOfFarmForSelect(farmId);
+  return crops.map((crop) => ({
+    value: crop.cropId,
+    label: crop.cropName,
+  }));
+};
+
+export const fetchGrowthStageOptions = async (farmId: number) => {
+  const growthStages = await growthStageService.getGrowthStagesOfFarmForSelect(farmId);
+
+  return growthStages.map((growthStage: { id: number; name: string }) => ({
+    value: growthStage.id,
+    label: growthStage.name,
+  }));
+};
+
+export const frequencyOptions = [
+  { value: "None", label: "None" },
+  { value: "Daily", label: "Daily" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" },
+];
+
+export const activeOptions = [
+  { label: "Active", value: true },
+  { label: "Inactive", value: false },
+];
+
+export const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Completed", value: "completed" },
+];
+
+// export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue: boolean) => {
+//   const types = await masterTypeService.getTypeByName(typeName);
+
+//   return types.map((type) => ({
+//     value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
+//     label: type.masterTypeName,
+//   }));
+// };
+
+export const fetchTypeOptionsByName = async (typeName: string) => {
+  const types = await masterTypeService.getTypeByName(typeName);
+
+  return types.map((type) => ({
+    value: type.masterTypeId,
+    label: type.masterTypeName,
+  }));
+};
+
+export const fetchProcessesOfFarm = async (farmId: number) => {
+  const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
+
+  return processFarms.map((processFarm) => ({
+    value: processFarm.processId,
+    label: processFarm.processName,
+  }));
+};
+
+export const generatePlanId = () => Math.floor(Date.now() / 1000000);
+
+export const isPlantOverflowing = (
+  plantSpacing: number,
+  plantsPerRow: number,
+  rowLength: number,
+): boolean => {
+  const totalPlantSpace = (Number(plantSpacing) + 24) * Number(plantsPerRow);
+  return totalPlantSpace > rowLength;
+};

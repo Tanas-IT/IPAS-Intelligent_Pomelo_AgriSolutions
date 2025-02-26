@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
 import { growthStageFormFields } from "@/constants";
-import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import { GetGrowthStage2, GrowthStageRequest } from "@/payloads";
 
 type GrowthStageModalProps = {
   isOpen: boolean;
   onClose: (values: GrowthStageRequest, isUpdate: boolean) => void;
   onSave: (values: GrowthStageRequest) => void;
-  growthStageData?: GetGrowthStage;
+  growthStageData?: GetGrowthStage2;
 };
 
 const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthStageModalProps) => {

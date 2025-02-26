@@ -1,5 +1,5 @@
 import { Images } from "@/assets";
-import { GetFarmDocuments, GetFarmInfo } from "@/payloads";
+import { GetFarmDocuments, GetFarmInfo, LandPlotRequest } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import { CoordsState, FilterMasterTypeState, LogoState, rowStateType } from "@/types";
 
@@ -44,7 +44,7 @@ export const defaultCoordsFarm: CoordsState = {
 };
 
 export const defaultPlanData: GetPlan = {
-  planId: "1",
+  planId: 1,
   planName: "Initial Planting",
   status: "Active",
   planCode: "P-001",
@@ -87,7 +87,22 @@ export const DEFAULT_ROW = (): rowStateType => ({
   width: 50,
   plantsPerRow: 10,
   plantSpacing: 5,
-  rowOrientation: "Horizontal",
   index: 0,
-  position: { x: 0, y: 0 },
+});
+
+export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
+  landPlotName: "",
+  area: 0,
+  plotLength: 0,
+  plotWidth: 0,
+  soilType: "",
+  description: "",
+  targetMarket: "",
+  numberOfRows: 0,
+  lineSpacing: 0,
+  isHorizontal: true,
+  rowPerLine: 0,
+  rowSpacing: 0,
+  landPlotCoordinations: [],
+  landRows: [],
 });

@@ -7,7 +7,7 @@ import {
   useTableDelete,
   useTableUpdate,
 } from "@/hooks";
-import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import { GetGrowthStage2, GrowthStageRequest } from "@/payloads";
 import { growthStageService } from "@/services";
 import { Flex } from "antd";
 import { useEffect } from "react";
@@ -18,7 +18,7 @@ import ActionMenuGrowthStage from "@/components/UI/ActionMenu/ActionMenuGrowthSt
 import GrowthStageModal from "./GrowthStageModal";
 
 function GrowthStage() {
-  const formModal = useModal<GetGrowthStage>();
+  const formModal = useModal<GetGrowthStage2>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ stage: GrowthStageRequest }>();
   const cancelConfirmModal = useModal();
@@ -39,7 +39,7 @@ function GrowthStage() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-  } = useFetchData<GetGrowthStage>({
+  } = useFetchData<GetGrowthStage2>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
       growthStageService.getGrowthStages(page, limit, sortField, sortDirection, searchValue),
   });
@@ -128,7 +128,7 @@ function GrowthStage() {
           isLoading={isLoading}
           caption="Master Type Management Table"
           notifyNoData="No data to display"
-          renderAction={(stage: GetGrowthStage) => (
+          renderAction={(stage: GetGrowthStage2) => (
             <ActionMenuGrowthStage
               onEdit={() => formModal.showModal(stage)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [stage.growthStageId] })}

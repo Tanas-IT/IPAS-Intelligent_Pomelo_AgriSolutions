@@ -22,5 +22,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> PermanentlyDeletePartner(int partnerId);
 
         public Task<BusinessResult> GetPartnerByRoleName(string roleName);
+
+        public Task<BusinessResult> GetPartnerForSelected(int farmId);
     }
 }

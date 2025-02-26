@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace CapstoneProject_SP25_IPAS_API.Payload
 {
     public static class APIRoutes
@@ -59,13 +61,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
 
         public static class PlantLot
         {
-            public const string createPlantLot = Base + "/plantLots";
-            public const string getPlantLotById = Base + "/plantLots/get-plantLot-by-id/{id}";
+            public const string createPlantLot = Base + "/plant-lots";
+            public const string getPlantLotById = Base + "/get-plantLot-by-id/{id}";
             public const string getPlantLotWithPagination = Base + "/plantLots";
-            public const string permanenlyDelete = Base + "/plantLots/delete-permanenly/{id}";
-            public const string updatePlantLotInfo = Base + "/plantLots/update-plantLot-info";
-            public const string createManyPlantFromPlantLot = Base + "/plantLots/create-many-plant";
+            public const string permanenlyDelete = Base + "/delete-permanenly/{id}";
+            public const string updatePlantLotInfo = Base + "/update-plantLot-info";
+            public const string createManyPlantFromPlantLot = Base + "/create-many-plant";
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
+            public const string GetPlantPlotForSelected = Base + "/get-for-selected";
         }
 
         public static class Resource
@@ -89,6 +92,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateMasterTypeInfo = Base + "/masterTypes/update-masterType-info";
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
+            public const string getForSelected = Base + "/masterTypes/get-for-selected";
+            
         }
 
         public static class Criteria
@@ -96,8 +101,16 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string prefix = Base + "/criterias";
             public const string updateListCriteriaType = prefix + "/update-list-criteria";
             public const string getCriteriaById = prefix + "";
-            public const string getCriteriaOfPlantById = prefix + "/get-criteria-of-plant";
-            public const string updateCriteriaInfo = prefix + "/update-criteria-info";
+            public const string getCriteriaOfObject = prefix + "/get-criteria-of-object";
+            public const string updateCriteriaInfo = prefix + "";
+            public const string createMasTypeCriteria = prefix + "/create-master-type-criteria";
+
+            public const string prefixCriteriaTarget = Base + "/criterias/target";
+            public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
+            public const string updateCriteriaTarget = prefixCriteriaTarget + "/update-criteria-target";
+            public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
+            public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
+            public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
         }
 
         public static class Authentication
@@ -124,6 +137,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string permanenlyDelete = Base + "/partners/delete-permanenly/{id}";
             public const string updatePartnerInfo = Base + "/partners/update-partner-info";
             public const string getPartnerByRoleName = Base + "/partners/get-partner-by-role-name/{roleName}";
+            public const string getForSelected = Base + "/partners/get-for-selected";
+
         }
 
         public static class GrowthStage
@@ -189,7 +204,10 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteLandRow = prefix + "";
             public const string updateLandRowInfo = prefix + "";
             public const string getLandRowById = prefix + "";
-            public const string getLandRowOfPlot = prefix + "/get-land-rows-of-plot";
+            public const string getLandRowOfPlotNoPagin = prefix + "/get-land-rows-of-plot";
+            public const string getLandRowForSelected = prefix + "/get-for-selected";
+            public const string getLandRowOfPlotPagin = prefix + "/get-land-rows-of-plot-pagin";
+
         }
 
         public static class Plant
@@ -200,9 +218,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
             public const string updatePlantInfo = prefix + "";
             public const string getPlantById = prefix + "";
-            public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
-            public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
+            //public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
+            //public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";
+            public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
+            public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
+            public const string getPlantPagin = prefix + "/get-plants-pagin";
+
         }
 
         public static class PlantGrowthHistory
@@ -212,7 +234,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePlantGrowthHistory = prefix + "";
             public const string updatePlantGrowthHistoryInfo = prefix + "";
             public const string getPlantGrowthHistoryById = prefix + "";
-            public const string getAllHistoryOfPlantById = prefix + "/get-plant-growth-history-of-plant";
+            public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
         }
 
         public static class Plan
@@ -277,6 +299,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestById = prefix + "";
             public const string getAllHarvestPagin = prefix + "";
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
+            public const string getHarvestForSelectedByPlotId = prefix + "/get-for-selected";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
@@ -299,10 +322,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Report
         {
             public const string prefix = Base + "/report";
-            public const string CropCareReport = prefix + "/crop-care/{landPlotId}/{year}";
-            public const string DashboardReport = prefix + "/dashboard/{farmId}";
-            public const string MaterialsInStore = prefix + "/dashboard/{farmId}/materials-in-store";
-            public const string ProductivityByPlot = prefix + "/dashboard/{farmId}/productivity-by-plot";
+            public const string CropCareReport = prefix + "/crop-care";
+            public const string DashboardReport = prefix + "/dashboard";
+            public const string MaterialsInStore = prefix + "/dashboard/materials-in-store";
+            public const string ProductivityByPlot = prefix + "/dashboard/productivity-by-plot";
+            public const string PomeloQualityBreakdown = prefix + "/dashboard/pomelo-quality-breakdown";
+            public const string SeasonYield = prefix + "/dashboard/season-yield";
+            public const string WorkProgressOverview = prefix + "/dashboard/work-progress-overview";
         }
 
         public static class TaskFeedback
@@ -323,5 +349,26 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllPackage = prefix + "";
             public const string getPackageById = prefix + "";
         }
+
+        public static class GraftedPlant
+        {
+            public const string prefix = Base + "/grafted-plant";
+            public const string createGrafted = prefix + "";
+            public const string deletePermanentlyGrafted = prefix + "";
+            public const string updateGraftedInfo = prefix + "";
+            public const string deleteSoftedGrafted = prefix + "/softed-delete";
+            public const string getGraftedById = prefix + "";
+            public const string getAllGraftedPagin = prefix + "";
+            public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
+
+            public const string graftedNotePrefix = prefix + "/note";
+            public const string createGraftedNote = graftedNotePrefix + "";
+            public const string deleteGraftedNote = graftedNotePrefix + "";
+            public const string updateGraftedNoteInfo = graftedNotePrefix + "";
+            public const string getGraftedNoteById = graftedNotePrefix + "";
+            public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
+        }
+
+        
     }
 }

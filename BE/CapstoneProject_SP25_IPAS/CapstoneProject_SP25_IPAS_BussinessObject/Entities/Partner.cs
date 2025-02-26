@@ -14,7 +14,7 @@ public partial class Partner
     public string? Province { get; set; }
     public string? District { get; set; }
     public string? Ward { get; set; }
-    public string? Avatar { get; set; }
+    //public string? Avatar { get; set; }
     public string? Description { get; set; }
     public string? Major { get; set; }
     public string? Status { get; set; }
@@ -33,8 +33,9 @@ public partial class Partner
     public string? National { get; set; }
 
     public int? RoleId { get; set; }
+    public int? FarmId { get; set; }
 
     public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
-
+    public virtual Farm Farm { get; set; }
     public virtual Role? Role { get; set; }
 }

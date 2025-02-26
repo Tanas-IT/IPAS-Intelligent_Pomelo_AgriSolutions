@@ -150,9 +150,35 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<Plant>> getPlantInclude()
         {
-           return await _context.Plants.Include(x => x.LandRow).Include(x => x.GrowthStage)
-                .Include(lr => lr.LandRow.LandPlot.LandPlotCoordinations)
-                .Include(x => x.LandRow.LandPlot.Farm).ToListAsync();
+            return await _context.Plants.Include(x => x.LandRow).Include(x => x.GrowthStage)
+                 .Include(lr => lr.LandRow.LandPlot.LandPlotCoordinations)
+                 .Include(x => x.LandRow.LandPlot.Farm).ToListAsync();
+        }
+
+        public virtual async Task<IEnumerable<Plant>> GetAllNoPaging(
+            Expression<Func<Plant, bool>> filter = null!,
+            Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = null!)
+        {
+            IQueryable<Plant> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            query = query
+                .Include(p => p.LandRow)
+                .ThenInclude(lr => lr!.LandPlot)
+                .Include(p => p.MasterType)
+                .Include(p => p.CriteriaTargets)
+                    .ThenInclude(pc => pc.Criteria)
+                    .ThenInclude(c => c.MasterType);
+
+            return await query.AsNoTracking().ToListAsync();
+
         }
     }
 }

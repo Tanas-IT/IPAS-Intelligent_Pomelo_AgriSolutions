@@ -18,17 +18,20 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<List<MasterType>> GetMasterTypeByName(string name, int farmId)
+        public async Task<List<MasterType>> GetMasterTypeByName(string name, int farmId, string target = null)
         {
-            var getMasterTypeByName = await _context.MasterTypes
+            var getMasterTypeByName = _context.MasterTypes
                 .Where(x => x.TypeName!.ToLower().Equals(name.ToLower()) 
                 && (x.FarmID == farmId || x.IsDefault == true)
                 && x.IsActive == true)
                 .OrderBy(x => x.MasterTypeId)
-                .ToListAsync();
-            if (getMasterTypeByName.Any())
+                .AsQueryable();
+            if (!string.IsNullOrEmpty(target))
+                getMasterTypeByName.Where(x => x.Target!.Contains(target));
+            var listMasterType = await getMasterTypeByName.OrderByDescending(x => x.MasterTypeId).ToListAsync();
+            if (listMasterType.Any())
             {
-                return getMasterTypeByName;
+                return listMasterType;
             }
             return null!;
         }

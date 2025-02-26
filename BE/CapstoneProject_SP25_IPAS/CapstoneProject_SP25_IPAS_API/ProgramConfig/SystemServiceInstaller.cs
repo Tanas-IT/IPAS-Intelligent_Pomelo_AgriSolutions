@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
@@ -14,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 {
     public static class SystemServiceInstaller
     {
-        public static void ConfigureServices(this IServiceCollection services)
+        public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Add services to the container.
             services.AddControllers();
@@ -29,6 +30,16 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             });
 
             services.AddSingleton(mapper.CreateMapper());
+
+            // read TypeName and Target of MasterType
+            var masterTypeConfig = new MasterTypeConfig();
+            configuration.GetSection("MasterTypeConfig").Bind(masterTypeConfig);
+            // Trim khoảng trắng trong danh sách
+            masterTypeConfig.TypeNames = masterTypeConfig.TypeNames.Select(x => x.Trim()).ToList();
+            masterTypeConfig.Targets = masterTypeConfig.Targets.Select(x => x.Trim()).ToList();
+            masterTypeConfig.GraftedTargetApply = masterTypeConfig.GraftedTargetApply.Select(x => x.Trim()).ToList();
+            services.AddSingleton(masterTypeConfig);
+
 
             // Register repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -69,6 +80,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IPlanNotificationRepository, PlanNotificationRepository>();
             services.AddScoped<IGraftedPlantRepository, GraftedPlantRepository>();
             services.AddScoped<IPlanTargetRepository, PlanTargetRepository>();
+            services.AddScoped<ICriteriaTargetRepository, CriteriaTargetRepository>();
+            services.AddScoped<IGraftedPlantNoteRepository, GraftedPlantNoteRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -101,6 +114,10 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<IValidator<IFormFile>, ExcelFileValidator>();
             services.AddScoped<IExcelReaderService, ExcelReaderService>();
+            services.AddScoped<ICriteriaTargetService, CriteriaTargetService>();
+            services.AddScoped<IGraftedPlantService, GraftedPlantService>();
+            services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
+
 
             services.AddHttpClient();
 

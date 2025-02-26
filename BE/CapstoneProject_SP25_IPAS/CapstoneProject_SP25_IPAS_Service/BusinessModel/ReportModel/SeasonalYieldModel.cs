@@ -8,7 +8,12 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportModel
 {
     public class SeasonalYieldModel
     {
-        public string Quater {  get; set; }
-        public double Quantity { get; set; }
+        public string HarvestSeason {  get; set; }
+        public List<QualityYieldStat> QualityStats { get; set; }
+    }
+    public class QualityYieldStat
+    {
+        public string QualityType { get; set; }
+        public int QuantityYield { get; set; }
     }
 }

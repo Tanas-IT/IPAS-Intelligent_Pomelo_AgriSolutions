@@ -155,7 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Farm, bool>> filter = null!;
+                Expression<Func<Farm, bool>> filter = x => x.IsDeleted == false;
                 Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -166,12 +166,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
-                    case "farmId":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.FarmId)
-                                   : x => x.OrderBy(x => x.FarmId)) : x => x.OrderBy(x => x.FarmId);
-                        break;
+                    //case "farmId":
+                    //    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                    //                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                    //               ? x => x.OrderByDescending(x => x.FarmId)
+                    //               : x => x.OrderBy(x => x.FarmId)) : x => x.OrderBy(x => x.FarmId);
+                        //break;
                     case "farmcode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -196,7 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.ClimateZone)
                                    : x => x.OrderBy(x => x.ClimateZone)) : x => x.OrderBy(x => x.ClimateZone);
                         break;
-                    case "CreateDate":
+                    case "createdate":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.CreateDate)
@@ -238,7 +238,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                      ? x => x.OrderByDescending(x => x.UpdateDate)
                                    : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
                         break;
-                    case "Status":
+                    case "status":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.Status)
@@ -251,8 +251,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.FarmRepository.Get(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<FarmModel>();
                 pagin.List = _mapper.Map<IEnumerable<FarmModel>>(entities).ToList();
-                Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
-                pagin.TotalRecord = await _unitOfWork.FarmRepository.Count(filter: filterCount);
+                //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
+                pagin.TotalRecord = await _unitOfWork.FarmRepository.Count(filter: filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -260,7 +260,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_MSG, pagin);
+                    return new BusinessResult(200, Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_MSG, pagin);
                 }
             }
             catch (Exception ex)

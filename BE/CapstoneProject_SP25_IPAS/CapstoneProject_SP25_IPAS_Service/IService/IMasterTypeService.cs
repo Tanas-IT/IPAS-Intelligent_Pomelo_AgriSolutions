@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllMasterTypePagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int farmId);
 
-        public Task<BusinessResult> CreateMasterType(CreateMasterTypeModel createMasterTypeModel);
+        public Task<BusinessResult> CreateMasterType(CreateMasterTypeRequestModel createMasterTypeModel);
 
         public Task<BusinessResult> UpdateMasterTypeInfo(UpdateMasterTypeModel updateriteriaTypeModel);
 
@@ -26,5 +26,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetMasterTypeByName(string MasterTypeName, int farmId);
         public Task<BusinessResult> PermanentlyDeleteManyMasterType(List<int> MasterTypeId);
+        public Task<BusinessResult> GetMasterTypeForSelected(string MasterTypeName,string target, int farmId);
+
+        //public Task CheckMasterType();
     }
 }

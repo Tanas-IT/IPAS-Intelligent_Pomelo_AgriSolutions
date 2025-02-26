@@ -16,6 +16,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<double> CalculatePlanProgress(int planId);
         public Task<bool> DeleteWorkLogAndUserWorkLog(WorkLog deleteWorkLog);
         public Task<bool> AssignTaskForUser(int employeeId, int workLogId);
+        public Task<List<WorkLog>> GetListWorkLogByYearAndMonth(int year, int month, int? farmId);
 
         public Task<List<WorkLog>> GetCalendarEvents(int? userId = null, int? planId = null, DateTime? startDate = null, DateTime? endDate = null);
         public Task<List<WorkLog>> GetWorkLog(Expression<Func<WorkLog, bool>> filter = null!,

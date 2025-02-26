@@ -91,6 +91,12 @@ const useStyle = createStyles(({ css }) => {
       .ant-segmented-item-label {
         color: ${primaryColor} !important;
       }
+
+      .ant-form-item-label >label,
+      .ant-form-item-required {
+        font-size: 16px;
+        color: ${primaryColor} !important;
+      }
     `,
     customTab: css`
       .ant-tabs-tab:hover,
@@ -168,13 +174,14 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customSwitch: css`
-      .ant-switch-handle:before {
-        background-color: ${primaryColor};
+      .ant-switch-handle:before,
+      .ant-switch.ant-switch-checked {
+        background-color: ${primaryColor} !important;
       }
 
-      .ant-switch-inner .ant-switch-inner-checked,
-      .ant-switch-inner .ant-switch-inner-unchecked {
-        color: ${primaryColor};
+      .ant-switch.ant-switch-checked,
+      .ant-switch-checked {
+        background: ${primaryColor} !important;
       }
     `,
     customButton: css`
@@ -194,6 +201,11 @@ const useStyle = createStyles(({ css }) => {
     customTimeline: css`
       .ant-timeline-item-tail {
         background-color: ${secondColor} !important;
+      }
+    `,
+    customFormItemInput: css`
+      .ant-form-item-label >label {
+        font-size: 16px;
       }
     `,
     customDateRange: css`

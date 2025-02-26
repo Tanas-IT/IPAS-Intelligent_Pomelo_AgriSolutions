@@ -1,20 +1,37 @@
+import { Dayjs } from "dayjs";
+
 export interface PlanRequest {
     planName: string;
-    startDate: Date;
-    endDate: Date;
-    startTime: Date;
-    endTime: Date;
+    startDate: string; // ISO format
+    endDate: string;   // ISO format
+    startTime: string;
+    endTime: string;
     isActive: boolean;
     planDetail: string;
-    responsibleBy: string[];
+    notes?: string; // Thêm theo Swagger
+    responsibleBy?: string; // Đổi từ string[] -> string
     frequency: string;
-    landPlot: number;
     assignorId: number;
-    processId: string;
-    cropId: string;
-    growthStageId: string;
+    pesticideName?: string; // Thêm theo Swagger
+    maxVolume?: number;
+    minVolume?: number;
+    processId: number;
+    cropId: number;
+    growthStageId: number;
+    isDelete?: boolean; // Thêm theo Swagger
     masterTypeId: number;
-    daysOfWeek: number[];
-    daysOfMonth: number[];
-    customDates : Date[];
+    dayOfWeek: number[];
+    dayOfMonth: number[];
+    customDates?: string[]; // Chuyển từ Dayjs[] -> string[]
+    listEmployee: {
+        userId: number;
+        isReporter: boolean;
+    }[];
+    planTargetModel?: {
+        landRowID: number;
+        landPlotID: number;
+        graftedPlantID: number;
+        plantLotID: number;
+        plantID: number;
+    }[];
 }
