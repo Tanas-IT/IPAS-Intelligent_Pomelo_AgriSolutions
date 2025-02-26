@@ -66,6 +66,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UpdateDate = DateTime.Now,
                         RowPerLine = createRequest.RowPerLine,
                         RowSpacing = createRequest.RowSpacing,
+                        IsRowHorizontal = createRequest.IsRowHorizontal,
+                        isDeleted = false,
                         LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",
                     };
 
@@ -363,7 +365,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var prop in typeof(LandPlotUpdateRequest).GetProperties())
                     {
                         var newValue = prop.GetValue(landPlotUpdateRequest);
-                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()))
+                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.Equals("string") && !newValue.Equals("0"))
                         {
                             var farmProp = typeof(Farm).GetProperty(prop.Name);
                             if (farmProp != null && farmProp.CanWrite)

@@ -68,6 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = createRequest.Width,
                         CreateDate = DateTime.Now,
                         Status = nameof(LandRowStatus.Active),
+                        isDeleted = false,
                         LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{createRequest.LandPlotId}-R{(createRequest.RowIndex)}",
                     };
                     await _unitOfWork.LandRowRepository.Insert(newRow);
@@ -133,6 +134,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<LandRowModel>>(rowsOfFarm);
+                foreach (var item in mapReturn)
+                {
+                    item.Plants = null!;
+                }
                 return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
             }
             catch (Exception ex)
@@ -320,6 +325,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: request.paginationParameter.PageIndex, pageSize: request.paginationParameter.PageSize);
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
+                //foreach (var item in pagin.List)
+                //{
+                //    item.Plants = null!;
+                //}
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
                 pagin.TotalRecord = await _unitOfWork.LandRowRepository.Count(filter: filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, request.paginationParameter.PageSize);
