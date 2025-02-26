@@ -5,10 +5,11 @@ import style from "./FormFieldModal.module.scss";
 interface FormFieldModalProps {
   label: string;
   description?: string;
-  name: string;
+  name?: string;
   rules?: any[];
   type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker";
   options?: { value: string; label: string }[];
+  value?: string | number | undefined;
   readonly?: boolean;
   onChange?: (value: any) => void;
   isLoading?: boolean;
@@ -26,6 +27,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   rules = [],
   type = "text",
   options = [],
+  value,
   readonly = false,
   onChange,
   isLoading = false,
@@ -87,6 +89,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
           <Input
             placeholder={placeholder}
             onChange={onChange}
+            value={value}
             readOnly={readonly}
             maxLength={255}
           />

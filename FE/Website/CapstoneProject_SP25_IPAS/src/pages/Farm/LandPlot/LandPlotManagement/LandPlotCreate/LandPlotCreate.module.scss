@@ -6,7 +6,7 @@
   .contentWrapper {
     gap: 20px;
     .formSection {
-      min-width: 24vw;
+      min-width: 25vw;
       background-color: #fff;
       border-radius: 8px;
       .formContainer {
@@ -14,14 +14,21 @@
       }
     }
     .mapSection {
+      position: relative;
       background-color: #fff;
       flex-direction: column;
       border-radius: 8px;
       width: 100%;
       height: 100%;
-      gap: 8px;
       .mapControls {
+        position: absolute;
+        width: 100%;
         gap: 8px;
+        top: 24px;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 4rem;
+        z-index: 99;
       }
     }
   }
