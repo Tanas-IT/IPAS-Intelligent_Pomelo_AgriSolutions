@@ -29,6 +29,18 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         public int RowPerLine { get; set; }
         [Required]
         public double RowSpacing { get; set; }
+        [Required]
+        public bool IsRowHorizontal { get; set; }
+        [Required]
+        public double LineSpacing { get; set; }
+        [Required]
+        public int NumberOfRows { get; set; }
+        [Required]
+        public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
+        public ICollection<CreateLandRowRequest> LandRows { get; set; } = new List<CreateLandRowRequest>();
+    }
+}
+
         //public int TreeAmountInRow { get; set; }
         //[Required]
         //public double DistanceInRow { get; set; }
@@ -40,8 +52,3 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         //public double? RowSpace { get; set; }
 
         //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
-        [Required]
-        public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
-        public ICollection<CreateLandRowRequest> LandRows { get; set; } = new List<CreateLandRowRequest>();
-    }
-}

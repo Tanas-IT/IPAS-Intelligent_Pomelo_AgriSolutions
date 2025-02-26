@@ -27,5 +27,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         public string Status { get; set; }
         public string? Description { get; set; }
         public string? TargetMarket { get; set; }
+        public bool? IsRowHorizontal { get; set; }
+        public double? LineSpacing { get; set; }
+        public int? NumberOfRows { get; set; }
+        public int? RowPerLine { get; set; }
+        public double? RowSpacing { get; set; }
     }
 }

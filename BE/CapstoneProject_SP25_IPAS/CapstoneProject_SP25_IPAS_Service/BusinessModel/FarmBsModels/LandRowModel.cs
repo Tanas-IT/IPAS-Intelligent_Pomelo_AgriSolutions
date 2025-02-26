@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
@@ -37,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? LandPlotname { get; set; }
         //public virtual LandPlotModel? LandPlot { get; set; }
-
-        //public virtual ICollection<PlantModel> Plants { get; set; } = new List<PlantModel>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public virtual ICollection<PlantModel> Plants { get; set; } = new List<PlantModel>();
     }
 }
