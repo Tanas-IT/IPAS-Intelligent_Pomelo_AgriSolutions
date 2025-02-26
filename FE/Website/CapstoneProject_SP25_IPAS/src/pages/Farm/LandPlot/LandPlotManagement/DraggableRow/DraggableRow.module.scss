@@ -1,0 +1,53 @@
+.draggableRowContainer {
+  position: relative;
+  flex-direction: column;
+  padding: 4rem 0;
+  border: 1px dashed #228b22; // Viền đậm
+  border-radius: 12px;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 80vh;
+  overflow: hidden;
+}
+.rowHeader {
+  justify-content: space-between;
+  align-items: center;
+  .rowInfoContainer {
+    align-items: center;
+    gap: 12px;
+    .divider {
+      min-width: 20px;
+      background-color: black;
+    }
+    .totalRowsLabel,
+    .rowOrientationLabel {
+      font-size: 18px;
+      white-space: nowrap;
+    }
+  }
+
+  .zoomControls {
+    justify-content: flex-end;
+    margin-bottom: 12px;
+    gap: 20px;
+  }
+}
+
+.row {
+  position: relative;
+  background-color: rgba(34, 139, 34, 0.3); // Màu xanh lá mờ
+  border: 2px dashed #228b22; // Viền đậm
+  border-radius: 8px;
+  cursor: move;
+  transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease; // Hiệu ứng di chuyển
+  justify-content: center;
+  align-items: center;
+}
+
+.plantImage {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}

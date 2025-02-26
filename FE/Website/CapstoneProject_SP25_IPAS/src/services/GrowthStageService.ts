@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import { ApiResponse, GetData, GetGrowthStage, GetGrowthStage2, GrowthStageRequest } from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getGrowthStages = async (
@@ -9,7 +9,7 @@ export const getGrowthStages = async (
   sortDirection?: string,
   searchValue?: string,
   additionalParams?: Record<string, any>,
-): Promise<GetData<GetGrowthStage>> => {
+): Promise<GetData<GetGrowthStage2>> => {
   const params = buildParams(
     currentPage,
     rowsPerPage,
@@ -19,8 +19,8 @@ export const getGrowthStages = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("growthStages", { params });
-  const apiResponse = res.data as ApiResponse<GetData<GetGrowthStage>>;
-  return apiResponse.data as GetData<GetGrowthStage>;
+  const apiResponse = res.data as ApiResponse<GetData<GetGrowthStage2>>;
+  return apiResponse.data as GetData<GetGrowthStage2>;
 };
 
 export const deleteGrowthStages = async (

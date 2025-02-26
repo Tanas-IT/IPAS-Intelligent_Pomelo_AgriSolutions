@@ -4,6 +4,7 @@
 .baseBtn {
   color: vars.$color_primary !important;
   border-color: vars.$color_border_btn_cancel !important;
+  background: #fff !important;
   outline: transparent !important;
   height: 28px;
   &:hover {

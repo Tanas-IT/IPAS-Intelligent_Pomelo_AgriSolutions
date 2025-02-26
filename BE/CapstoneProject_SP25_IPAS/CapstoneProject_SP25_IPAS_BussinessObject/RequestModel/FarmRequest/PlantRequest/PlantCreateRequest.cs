@@ -31,6 +31,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         public IFormFile? ImageUrl { get; set; }
         [Required]
         public int? LandRowId { get; set; }
+        public int? FarmId { get; set; }
 
     }
 }

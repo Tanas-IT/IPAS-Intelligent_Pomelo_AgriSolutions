@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 
         public bool? IsActive { get; set; }
 
-        //public string? CreateBy { get; set; }
+        public string? Target { get; set; }
 
         public string? TypeName { get; set; }
 

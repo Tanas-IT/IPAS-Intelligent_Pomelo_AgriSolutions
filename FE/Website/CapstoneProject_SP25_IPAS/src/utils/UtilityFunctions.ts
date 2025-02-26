@@ -4,7 +4,13 @@ import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
 import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { cropService, growthStageService, masterTypeService, processService, userService } from "@/services";
+import {
+  cropService,
+  growthStageService,
+  masterTypeService,
+  processService,
+  userService,
+} from "@/services";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -257,15 +263,13 @@ export const fetchUserByRole = async (role: string) => {
 export const fetchUserInfoByRole = async (role: string) => {
   const users = await userService.getUsersByRole(role);
   console.log("users", users);
-  
+
   return users.map((user) => ({
     fullName: user.fullName,
     avatarURL: user.avatarURL,
     userId: user.userId,
   }));
 };
-
-
 
 export const fetchCropOptions = async (farmId: string) => {
   const crops = await cropService.getCropsOfFarmForSelect(farmId);
@@ -283,7 +287,6 @@ export const fetchGrowthStageOptions = async (farmId: number) => {
     label: growthStage.name,
   }));
 };
-
 
 export const frequencyOptions = [
   { value: "None", label: "None" },
@@ -321,7 +324,6 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
   }));
 };
 
-
 export const fetchProcessesOfFarm = async (farmId: number) => {
   const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
 
@@ -329,5 +331,15 @@ export const fetchProcessesOfFarm = async (farmId: number) => {
     value: processFarm.processId,
     label: processFarm.processName,
   }));
-}
+};
 
+export const generatePlanId = () => Math.floor(Date.now() / 1000000);
+
+export const isPlantOverflowing = (
+  plantSpacing: number,
+  plantsPerRow: number,
+  rowLength: number,
+): boolean => {
+  const totalPlantSpace = (Number(plantSpacing) + 24) * Number(plantsPerRow);
+  return totalPlantSpace > rowLength;
+};

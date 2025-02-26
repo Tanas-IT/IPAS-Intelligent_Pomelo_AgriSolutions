@@ -11,3 +11,8 @@ export interface GetPlant {
   status: number;
   farms?: Farm[];
 }
+
+export interface GetPlantSelect {
+  plantId: string;
+  plantCode: string;
+}

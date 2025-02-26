@@ -127,7 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
            
 
             CreateMap<LandRow, LandRowModel>()
-                //.ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
+                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
                 .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ReverseMap();
 
@@ -271,6 +271,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GrowthStageCode))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GrowthStageName))
               .ReverseMap();
+
+            CreateMap<PlantLot, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlantLotId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlantLotCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlantLotName))
+              .ReverseMap();
+
+            CreateMap<HarvestHistory, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.HarvestHistoryId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.HarvestHistoryCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.HarvestHistoryNote))
+              .ReverseMap();
+
+            CreateMap<LandRow, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandRowId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandRowCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RowIndex))
+              .ReverseMap();
+
+            CreateMap<MasterType, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MasterTypeId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.MasterTypeCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.MasterTypeName))
+              .ReverseMap();
+
+            CreateMap<Partner, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PartnerId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PartnerCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PartnerName))
+              .ReverseMap();
+
+            CreateMap<Plant, ForSelectedModels>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlantId))
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlantCode))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlantName))
+              .ReverseMap();
+
+            CreateMap<GraftedPlant, ForSelectedModels>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GraftedPlantId))
+           .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.GraftedPlantCode))
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GraftedPlantName))
+            .ReverseMap();
 
             CreateMap<GraftedPlantNote, GraftedPlantModels>()
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))

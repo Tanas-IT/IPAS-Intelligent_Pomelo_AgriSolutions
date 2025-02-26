@@ -8,8 +8,10 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Management;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,12 +32,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IExcelReaderService _excelReaderService;
-        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService)
+        private readonly IFarmService _farmService;
+        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService, IFarmService farmService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _excelReaderService = excelReaderService;
+            _farmService = farmService;
         }
 
         public async Task<BusinessResult> createPlant(PlantCreateRequest plantCreateRequest)
@@ -61,6 +66,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Description = plantCreateRequest.Description,
                         MasterTypeId = plantCreateRequest.MasterTypeId,
                         LandRowId = plantCreateRequest.LandRowId,
+                        FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
                     };
 
@@ -174,57 +180,187 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllPlantOfFarm(int farmId, PaginationParameter paginationParameter)
+        //public async Task<BusinessResult> getAllPlantOfFarm(int farmId, PaginationParameter paginationParameter)
+        //{
+        //    try
+        //    {
+        //        var entities = await _unitOfWork.PlantRepository.GetPlantsInFarmPagin(farmId: farmId, search: paginationParameter.Search, sortBy: paginationParameter.SortBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize, direction: paginationParameter.Direction);
+        //        var pagin = new PageEntity<PlantModel>
+        //        {
+        //            List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList(),
+        //            TotalRecord = await _unitOfWork.PlantRepository.Count(x => x.LandRow != null && x.LandRow.LandPlot!.FarmId == farmId),
+        //        };
+        //        pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+
+        //        if (pagin.List.Any())
+        //        {
+        //            return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_MSG, pagin);
+        //        }
+        //        else
+        //        {
+        //            return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG, pagin);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
+
+
+        //public async Task<BusinessResult> getAllPlantOfPlot(int landplotId, PaginationParameter paginationParameter)
+        //{
+        //    try
+        //    {
+        //        var entities = await _unitOfWork.PlantRepository.GetPlantsInPlotPagin(landPlotId: landplotId, search: paginationParameter.Search, sortBy: paginationParameter.SortBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize, direction: paginationParameter.Direction);
+        //        var pagin = new PageEntity<PlantModel>
+        //        {
+        //            List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList(),
+        //            TotalRecord = await _unitOfWork.PlantRepository.Count(x => x.LandRow != null && x.LandRow.LandPlotId == landplotId),
+        //        };
+        //        pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+
+        //        if (pagin.List.Any())
+        //        {
+        //            return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_MSG, pagin);
+        //        }
+        //        else
+        //        {
+        //            return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG, pagin);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
+
+        public async Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request)
         {
             try
             {
-                var entities = await _unitOfWork.PlantRepository.GetPlantsInFarmPagin(farmId: farmId, search: paginationParameter.Search, sortBy: paginationParameter.SortBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize, direction: paginationParameter.Direction);
-                var pagin = new PageEntity<PlantModel>
-                {
-                    List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList(),
-                    TotalRecord = await _unitOfWork.PlantRepository.Count(x => x.LandRow != null && x.LandRow.LandPlot!.FarmId == farmId),
-                };
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                var checkParam = checkParamGetRequest(request);
+                if (checkParam.Success == false)
+                    return new BusinessResult(400, checkParam.ErorrMessage);
+                Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.PlantId).ThenByDescending(x => x.LandRowId);
+                
+                if (request.LandPlotId.HasValue)
+                    filter = filter.And(x => x.LandRow!.LandPlotId == request.LandPlotId);
+                if (request.LandRowId.HasValue)
+                    filter = filter.And(x => x.LandRowId == request.LandRowId);
+                if (!request.LandPlotId.HasValue && !request.LandRowId.HasValue && request.IsLocated == false)
+                    filter = filter.And(x => !x.LandRowId.HasValue);
 
+                if (!string.IsNullOrEmpty(request.paginationParameter!.Search))
+                {
+                    filter = filter.And(x => x.PlantCode!.ToLower().Contains(request.paginationParameter.Search.ToLower())
+                                  || x.Description!.ToLower().Contains(request.paginationParameter.Search.ToLower())
+                                  || x.PlantName!.ToLower().Contains(request.paginationParameter.Search.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(request.HealthStatus))
+                {
+                    List<string> filterList = Util.SplitByComma(request.HealthStatus);
+                    filter = filter.And(x => filterList.Contains(x.HealthStatus!.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(request.CultivarIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()!));
+                }
+                if (!string.IsNullOrEmpty(request.GrowthStageIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
+                    filter = filter.And(x => filterList.Contains(x.GrowthStageID.ToString()!));
+                }
+                if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
+                {
+                    filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);
+                }
+
+                if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
+                {
+
+                    filter = filter.And(x => x.PlantIndex >= request.PlantIndexFrom && x.PlantIndex <= request.PlantIndexTo);
+                }
+                if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                {
+                    filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate<= request.PlantingDateTo);
+                }
+
+                switch (request.paginationParameter.SortBy != null ? request.paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                {
+                    case "plantcode":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlantCode)
+                                   : x => x.OrderBy(x => x.PlantCode)) : x => x.OrderBy(x => x.PlantCode);
+                        break;
+                    case "plantname":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.HealthStatus!).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.PlantName).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantName).ThenBy(x => x.PlantId);
+                        break;
+                    case "plantindex":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlantIndex).ThenByDescending(x => x.LandRowId)
+                                   : x => x.OrderBy(x => x.PlantIndex).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.PlantIndex).ThenBy(x => x.LandRowId);
+                        break;
+                    case "plantingdate":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlantingDate).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.PlantingDate).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantingDate).ThenBy(x => x.PlantId);
+                        break;
+                    case "plantreferenceid":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlantReferenceId).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.PlantReferenceId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantReferenceId).ThenBy(x => x.PlantId);
+                        break;
+                    case "mastertypeid":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MasterTypeId).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.MasterTypeId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.MasterTypeId).ThenBy(x => x.PlantId);
+                        break;
+                    case "landrowid":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.LandRowId).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.LandRowId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.LandRowId).ThenBy(x => x.PlantId);
+                        break;
+                    case "growthstageid":
+                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
+                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.GrowthStageID).ThenByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.PlantId);
+                        break;
+                }
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter, orderBy: orderBy, pageIndex: request.paginationParameter.PageIndex, pageSize: request.paginationParameter.PageSize);
+                var pagin = new PageEntity<PlantModel>();
+                pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
+                //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
+                pagin.TotalRecord = await _unitOfWork.PlantRepository.Count(filter: filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, request.paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_MSG, pagin);
+                    return new BusinessResult(200, "Get plant pagin success", pagin);
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG, pagin);
+                    return new BusinessResult(200, "No record was found", pagin);
                 }
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
 
-
-        public async Task<BusinessResult> getAllPlantOfPlot(int landplotId, PaginationParameter paginationParameter)
-        {
-            try
-            {
-                var entities = await _unitOfWork.PlantRepository.GetPlantsInPlotPagin(landPlotId: landplotId, search: paginationParameter.Search, sortBy: paginationParameter.SortBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize, direction: paginationParameter.Direction);
-                var pagin = new PageEntity<PlantModel>
-                {
-                    List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList(),
-                    TotalRecord = await _unitOfWork.PlantRepository.Count(x => x.LandRow != null && x.LandRow.LandPlotId == landplotId),
-                };
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
-
-                if (pagin.List.Any())
-                {
-                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_MSG, pagin);
-                }
-                else
-                {
-                    return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG, pagin);
-                }
-            }
-            catch (Exception ex)
-            {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
@@ -305,8 +441,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    var checkFarmExist = await _farmService.GetFarmByID(request.FarmId!.Value);
+                    if (checkFarmExist.Data == null)
+                        return checkFarmExist;
                     List<PlantCSVImportRequest> plantCsvList = await _excelReaderService.ReadCsvFileAsync<PlantCSVImportRequest>(request.fileExcel);
-                    if(!plantCsvList.Any())
+                    if (!plantCsvList.Any())
                         return new BusinessResult(400, "File excel is empty. Please try again!");
                     bool fileHasError = false;
                     // 1. Kiểm tra trùng lặp trong file
@@ -373,12 +512,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         var referencePlant = await _unitOfWork.PlantRepository
                             .GetByCondition(x => x.PlantCode == plant.PlantReferenceCode) ?? null;
-                        if (referencePlant == null && !string.IsNullOrEmpty(plant.PlantReferenceCode) )
+                        if (referencePlant == null && !string.IsNullOrEmpty(plant.PlantReferenceCode))
                         {
                             fileHasError = true;
                             errorList = errorList + "\n" + $"Row {plant.NumberOrder}: Mother plant code not exist.";
                         }
-                        if (landRow != null && growthStage != null && masterType != null )
+                        if (landRow != null && growthStage != null && masterType != null)
                         {
                             var newPlant = new Plant
                             {
@@ -388,11 +527,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlantingDate = plant.PlantingDate,
                                 Description = plant.Description,
                                 CreateDate = DateTime.Now,
-                                GrowthStageID = growthStage!.GrowthStageID, 
+                                GrowthStageID = growthStage!.GrowthStageID,
                                 PlantReferenceId = referencePlant != null ? referencePlant.PlantId : null,
                                 LandRowId = landRow!.LandRowId,
                                 MasterTypeId = masterType!.MasterTypeId,
                                 IsDeleted = false,
+                                FarmId = 1,
                             };
                             //newPlant.GrowthStageID = growthStage?.GrowthStageID;
                             //newPlant.MasterTypeId = masterType?.MasterTypeId;
@@ -409,7 +549,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // 4. Thêm vào database
                     //foreach (var plant in validPlants)
                     //{
-                        await _unitOfWork.PlantRepository.InsertRangeAsync(plantList);
+                    await _unitOfWork.PlantRepository.InsertRangeAsync(plantList);
                     //}
 
                     int result = await _unitOfWork.SaveAsync();
@@ -428,5 +568,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+
+        public async Task<BusinessResult> getPlantInPlotForSelected(int landPlotId)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == landPlotId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getPlantInRowForSelected(int rowId)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRowId == rowId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        private (bool Success, string ErorrMessage) checkParamGetRequest(GetPlantPaginRequest request)
+        {
+            //if (!request.farmId.HasValue && !request.LandPlotId.HasValue && !request.LandRowId.HasValue)
+            //    return (false, "No destination to get plant");
+            if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue && request.RowIndexFrom.Value >= request.RowIndexTo)
+                return (false, "Row index 'From' must smaller than Row index 'To' ");
+            if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue && request.PlantIndexFrom.Value >= request.PlantIndexTo.Value)
+                return (false, "Plant index 'From' in row must smaller than plant index 'To' ");
+            if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue && request.PlantingDateFrom.Value >= request.PlantingDateTo.Value)
+                return (false, "Planting date 'From' must smaller than planting date 'To' ");
+            return (true, null!);
+        }
     }
 }

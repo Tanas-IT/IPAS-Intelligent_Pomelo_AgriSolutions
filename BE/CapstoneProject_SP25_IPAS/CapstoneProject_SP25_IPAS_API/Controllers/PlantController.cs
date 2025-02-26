@@ -19,11 +19,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         private readonly IPlantService _plantService;
         private readonly IValidator<IFormFile> _fileValidator;
-
-        public PlantController(IPlantService plantService, IValidator<IFormFile> fileValidator)
+        private readonly IJwtTokenService _jwtTokenService;
+        public PlantController(IPlantService plantService, IValidator<IFormFile> fileValidator, IJwtTokenService jwtTokenService)
         {
             _plantService = plantService;
             _fileValidator = fileValidator;
+            _jwtTokenService = jwtTokenService;
         }
 
         /// <summary>
@@ -51,12 +52,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>
-        [HttpGet(APIRoutes.Plant.getPlantOfPlot + "/{landplot-id}")]
-        public async Task<IActionResult> GetAllPlantsOfPlot([FromRoute(Name = "landplot-id")] int landplotId, [FromQuery] PaginationParameter paginationParameter)
+        [HttpGet(APIRoutes.Plant.getPlantPagin)]
+        public async Task<IActionResult> GetPlantPagin([FromQuery] GetPlantPaginRequest request)
         {
             try
             {
-                var result = await _plantService.getAllPlantOfPlot(landplotId, paginationParameter);
+                if (!request.farmId.HasValue)
+                    request.farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!ModelState.IsValid && !request.farmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm Id value is required",
+                    });
+                }
+                var result = await _plantService.getPlantPagin(request);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -72,23 +83,23 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả cây của một trang trại có phân trang
         /// </summary>
-        [HttpGet(APIRoutes.Plant.getPlantOfFarm + "/{farm-id}")]
-        public async Task<IActionResult> GetAllPlantsOfFarm([FromRoute(Name = "farm-id")] int farmId, [FromQuery] PaginationParameter paginationParameter)
-        {
-            try
-            {
-                var result = await _plantService.getAllPlantOfFarm(farmId, paginationParameter);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new BaseResponse
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                });
-            }
-        }
+        //[HttpGet(APIRoutes.Plant.getPlantOfFarm + "/{farm-id}")]
+        //public async Task<IActionResult> GetAllPlantsOfFarm([FromRoute(Name = "farm-id")] int farmId, [FromQuery] PaginationParameter paginationParameter)
+        //{
+        //    try
+        //    {
+        //        var result = await _plantService.getAllPlantOfFarm(farmId, paginationParameter);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new BaseResponse
+        //        {
+        //            StatusCode = StatusCodes.Status400BadRequest,
+        //            Message = ex.Message
+        //        });
+        //    }
+        //}
 
         /// <summary>
         /// Tạo mới một cây trồng
@@ -98,6 +109,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if(!plantCreateRequest.FarmId.HasValue)
+                    plantCreateRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!ModelState.IsValid && !plantCreateRequest.FarmId.HasValue)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = errors.ToString(),
+
+                    });
+                }
                 var result = await _plantService.createPlant(plantCreateRequest);
                 return Ok(result);
             }
@@ -119,6 +145,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = errors.ToString(),
+
+                    });
+                }
                 var result = await _plantService.updatePlant(plantUpdateRequest);
                 return Ok(result);
             }
@@ -179,7 +218,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-
+                if (!request.FarmId.HasValue)
+                    request.FarmId = _jwtTokenService.GetFarmIdFromToken();
                 var validationResult = await _fileValidator.ValidateAsync(request.fileExcel);
                 if (!validationResult.IsValid)
                 {
@@ -187,12 +227,63 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     {
                         StatusCode = StatusCodes.Status400BadRequest,
                         IsSuccess = false,
-                        Errors = validationResult.ToProblemDetails().Errors
+                        Message = validationResult.ToProblemDetails().Errors.ToString()
+                    });
+                }
+                if (!request.FarmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Message = "Farm Id is require"
                     });
                 }
                 var result = await _plantService.ImportPlantAsync(request);
                 return Ok(result);
             } catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Lấy tất cả cây của một thửa
+        /// </summary>
+        [HttpGet(APIRoutes.Plant.getForSelectedForPlot + "/{plot-id}")]
+        public async Task<IActionResult> GetForSelectedForPlot([FromRoute(Name = "plot-id")] int plotId)
+        {
+            try
+            {
+                var result = await _plantService.getPlantInPlotForSelected(plotId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Lấy tất cả cây của một hàng
+        /// </summary>
+        [HttpGet(APIRoutes.Plant.getForSelectedForRow + "/{row-id}")]
+        public async Task<IActionResult> GetForSelectedForRow([FromRoute(Name = "row-id")] int plotId)
+        {
+            try
+            {
+                var result = await _plantService.getPlantInRowForSelected(plotId);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new BaseResponse
                 {

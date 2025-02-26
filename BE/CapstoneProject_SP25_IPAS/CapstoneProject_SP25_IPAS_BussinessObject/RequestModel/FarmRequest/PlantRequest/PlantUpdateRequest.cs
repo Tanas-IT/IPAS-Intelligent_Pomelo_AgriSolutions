@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 {
     public class PlantUpdateRequest
     {
+        [Required]
         public int PlantId { get; set; }
 
         public string? PlantName { get; set; }
@@ -21,11 +23,11 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 
         public DateTime? PlantingDate { get; set; }
 
-        public int? PlantMotherId { get; set; }
+        public int? PlantReferenceId { get; set; }
 
         public string? Description { get; set; }
 
-        public int? PlantVarietiesId { get; set; }
+        public int? MasterTypeId { get; set; }
 
     }
 }

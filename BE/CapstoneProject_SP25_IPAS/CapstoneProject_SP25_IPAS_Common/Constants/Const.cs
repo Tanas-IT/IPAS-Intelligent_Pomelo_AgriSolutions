@@ -275,6 +275,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ROWS_SUCCESS_CODE = 200;
         public static string SUCCESS_GET_ROWS_SUCCESS_MSG = "Get rows success";
         public static string SUCCESS_GET_ROWS_EMPTY_MSG = "No resource was found";
+        public static int SUCCESS_GET_ROW_OF_PLOT_PAGINATION_CODE = 200;
+        public static string SUCCESS_GET_ROW_OF_PLOT_PAGINATION_MSG = "Get all row of plot success";
         #endregion
 
         #region Plant
@@ -962,6 +964,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG = "Total area was user larger than area of landplot";
         public static int WARNING_ROW_NOT_EXIST_CODE = 400;
         public static string WARNING_ROW_NOT_EXIST_MSG = "This row not exist";
+        public static int WARNING_EMPTY_LAND_ROWS_CODE = 400;
+        public static string WARNING_EMPTY_LAND_ROWS_MSG = "No landrow to create";
+        public static int WARNING_DUPLICATE_ROW_INDEX_CODE = 400;
+        public static string WARNING_DUPLICATE_ROW_INDEX_MSG = "Duplicate row index when create";
+        public static string WARNING_GET_ALL_ROW_EMPTY_MSG = "Does not have any row in plot";
+        public static int WARNING_INVALID_FILTER_VALUE_CODE = 400;
+        public static string WARNING_INVALID_ROW_INDEX_FILTER_MSG = "RowIndex 'To' must greater than RowIndex 'From'";
+        public static string WARNING_INVALID_TREE_AMOUNT_FILTER_MSG = "Tree Amount 'To' must greater than Tree Amount 'From'";
+
         #endregion
 
         #region Plant
@@ -1085,8 +1096,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region GraftedPlat
-        public static int WARNING_NO_GRAFTED_WAS_FOUND_CODE = 400;
-        public static string WARNING_NO_GRAFTED_WAS_FOUND_MSG = "Get plant in farm empty.";
+        public static int WARNING_GET_GRAFTED_EMPTY_CODE = 400;
+        public static string WARNING_GET_GRAFTED_EMPTY_MSG = "Get plant in farm empty.";
         //public static int WARNING_GET_PLANT_NOT_EXIST_CODE = 400;
         //public static string WARNING_GET_PLANT_NOT_EXIST_MSG = "Plant not exist.";
         //public static int WARNING_GET_PLANTS_NOT_EXIST_CODE = 400;

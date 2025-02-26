@@ -1,0 +1,29 @@
+﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest
+{
+    public class GetPlantPaginRequest
+    {
+        public int? farmId { get; set; }
+        public int? LandPlotId { get; set;}
+        public int? LandRowId { get; set; }
+        [DefaultValue(true)]
+        public bool? IsLocated { get; set; } = false;
+        public PaginationParameter? paginationParameter { get; set; } = new PaginationParameter();
+        public int? RowIndexFrom { get; set; }
+        public int? RowIndexTo { get; set; }
+        public int? PlantIndexFrom { get; set; }
+        public int? PlantIndexTo { get;set; }
+        public DateTime? PlantingDateFrom { get; set; }
+        public DateTime? PlantingDateTo { get; set; }
+        public string? HealthStatus { get; set; }
+        public string? CultivarIds { get; set; }
+        public string? GrowthStageIds { get; set; }
+    }
+}

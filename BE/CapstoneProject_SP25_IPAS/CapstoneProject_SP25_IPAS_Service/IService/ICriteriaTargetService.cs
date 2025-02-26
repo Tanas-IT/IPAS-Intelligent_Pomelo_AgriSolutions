@@ -14,10 +14,12 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> UpdateCriteriaMultipleTarget(CriteriaTargerRequest updateRequest, bool allowOverride);
 
-        public Task<BusinessResult> CheckCriteriaForPlant(CheckPlantCriteriaRequest checkPlantCriteriaRequest);
+        public Task<BusinessResult> CheckCriteriaForTarget(CheckPlantCriteriaRequest checkPlantCriteriaRequest);
 
         public Task<BusinessResult> UpdateCriteriaForSingleTarget(UpdateCriteriaTargetRequest updateRequest, bool allowOverride);
 
         public Task<BusinessResult> DelteteCriteriaForMultipleTarget(DeleteCriteriaTargetRequest createCriteriaTargerRequest);
+
+        public Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? PlantId, int? GraftedId, int? PlantLotId,List<string> TargetsList);
     }
 }

@@ -35,10 +35,9 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   typeName: "typeName",
   createDate: "createDate",
   isActive: "isActive",
-  masterTypeDetailModels: "masterTypeDetailModels",
 };
 
-export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
+export const growthStageFormFields = {
   growthStageId: "growthStageId",
   growthStageCode: "growthStageCode",
   growthStageName: "growthStageName",
@@ -67,6 +66,34 @@ export const feedbackFormFields = {
   managerId: "managerId",
   worklogId: "worklogId",
   worklogStatus: "worklogStatus",
+};
+
+export const createPlotFormFields = {
+  landPlotName: "landPlotName",
+  description: "description",
+  soilType: "soilType",
+  targetMarket: "targetMarket",
+  area: "area",
+  width: "width",
+  length: "length",
+  rowLength: "rowLength",
+  rowWidth: "rowWidth",
+  numberOfRows: "numberOfRows",
+  rowSpacing: "rowSpacing",
+  rowsPerLine: "rowsPerLine",
+  lineSpacing: "lineSpacing",
+  rowOrientation: "rowOrientation",
+  plantsPerRow: "plantsPerRow",
+  plantSpacing: "plantSpacing",
+};
+
+export const rowFormFields = {
+  id: "id",
+  index: "index",
+  width: "width",
+  length: "length",
+  plantsPerRow: "plantsPerRow",
+  plantSpacing: "plantSpacing",
 };
 
 export const addPlanFormFields = {

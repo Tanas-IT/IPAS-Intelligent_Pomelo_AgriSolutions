@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRowRequest
 {
-    public class LandRowCreateRequest
+    public class CreateLandRowRequest
     {
-        [Required]
         public int LandPlotId { get; set; }
         [Required]
         public int RowIndex { get; set; }

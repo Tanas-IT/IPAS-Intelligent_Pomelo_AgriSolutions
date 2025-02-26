@@ -41,6 +41,7 @@ export { default as Section } from "@/components/UI/FarmInfo/Section/Section";
 export { default as SectionHeader } from "@/components/UI/FarmInfo/SectionHeader/SectionHeader";
 export { default as MapAddress } from "@/components/UI/Maps/MapAddress/MapAddress";
 export { default as MapLandPlot } from "@/components/UI/Maps/MapLandPlot/MapLandPlot";
+export { default as MapNewLandPlot } from "@/components/UI/Maps/MapNewLandPlot/MapNewLandPlot";
 export { default as MapMarker } from "@/components/UI/Maps/MapMarker/MapMarker";
 export { default as ModalForm } from "@/components/UI/ModalForm/ModalForm";
 export { default as ConfirmModal } from "@/components/UI/ConfirmModal/ConfirmModal";

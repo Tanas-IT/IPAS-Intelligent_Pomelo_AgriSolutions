@@ -11,6 +11,7 @@ import {
     Checkbox,
     Modal,
     Flex,
+    Button,
 } from "antd";
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Section, Tooltip } from "@/components";
@@ -21,10 +22,10 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useLocalStorage, useUnsavedChangesWarning } from "@/hooks";
+import { useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
 import { fetchGrowthStageOptions, fetchProcessesOfFarm, fetchTypeOptionsByName, fetchUserInfoByRole, getFarmId, getUserId, RulesManager } from "@/utils";
-import { addPlanFormFields, frequencyOptions } from "@/constants";
-import { cropService, landPlotService, planService } from "@/services";
+import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
+import { cropService, landPlotService, landRowService, planService, plantService } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 
@@ -72,12 +73,62 @@ const AddPlan = () => {
     const [customDates, setCustomDates] = useState<Dayjs[]>([]); // Frequency: none
     const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
     const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
+    const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
+    const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
+    // Thêm state để lưu trữ các mục tiêu của kế hoạch
+    const [planTargets, setPlanTargets] = useState<{
+        landPlotID?: number;
+        landRowID?: number;
+        plantID?: number;
+    }[]>([]);
+
+    // Thêm hàm để thêm mục tiêu vào danh sách
+    const handleAddPlanTarget = (target: {
+        landPlotID?: number;
+        landRowID?: number;
+        plantID?: number;
+    }) => {
+        setPlanTargets((prev) => [...prev, target]);
+    };
+
+    // Thêm hàm để xóa mục tiêu khỏi danh sách
+    const handleRemovePlanTarget = (index: number) => {
+        setPlanTargets((prev) => prev.filter((_, i) => i !== index));
+    };
+    const [landRows, setLandRows] = useState<OptionType<number>[]>([]);
+    const [plants, setPlants] = useState<OptionType<number>[]>([]);
 
     const {
         isModalVisible,
         handleCancelNavigation,
         handleConfirmNavigation
     } = useUnsavedChangesWarning(isFormDirty);
+
+    useEffect(() => {
+        const fetchLandRows = async (landPlotId: number) => {
+            const rows = await landRowService.getLandRows(landPlotId);
+            // setLandRows(rows.map(row => ({
+            //     value: row.landRowId,
+            //     label: row.landRowCode,
+            // })));
+        };
+
+        const fetchPlants = async (landRowId: number) => {
+            const plants = await plantService.getPlants(landRowId);
+            // setPlants(plants.map(plant => ({
+            //     value: plant.id,
+            //     label: plant.name,
+            // })));
+        };
+
+        if (selectedLandPlot) {
+            fetchLandRows(selectedLandPlot);
+        }
+
+        if (selectedLandRow) {
+            fetchPlants(selectedLandRow);
+        }
+    }, [selectedLandPlot, selectedLandRow]);
 
     const handleLandPlotChange = async (landPlotId: number) => {
         setSelectedLandPlot(landPlotId);
@@ -120,8 +171,8 @@ const AddPlan = () => {
 
     const handleSubmit = async (values: any) => {
         console.log("bấm add");
-        
-        const { dateRange, timeRange } = values;
+
+        const { dateRange, timeRange, planTargetModel } = values;
         const startDate = new Date(dateRange?.[0]);
         const endDate = new Date(dateRange?.[1]);
 
@@ -139,25 +190,35 @@ const AddPlan = () => {
         const planData: PlanRequest = {
             planName: values.planName,
             planDetail: values.planDetail,
+            notes: values.notes || "",
             cropId: values.cropId,
-            landPlotId: values.landPlotId,
             processId: values.processId,
             growthStageId: values.growthStageId,
             frequency: values.frequency,
             isActive: values.isActive,
             masterTypeId: values.masterTypeId,
-            customDates,
             assignorId,
+            responsibleBy: values.responsibleBy || "",
+            pesticideName: values.pesticideName || "",
+            maxVolume: values.maxVolume || 0,
+            minVolume: values.minVolume || 0,
+            isDelete: values.isDelete || false,
             listEmployee: selectedEmployees.map(employee => ({
                 userId: employee.userId,
                 isReporter: employee.userId === selectedReporter,
             })),
             dayOfWeek,
             dayOfMonth,
+            customDates: customDates.map(date => date.toISOString()),
             startDate: adjustedStartDate.toISOString(),
             endDate: adjustedEndDate.toISOString(),
             startTime,
             endTime,
+            planTargetModel: planTargetModel.map((target: any) => ({
+                landPlotID: target.landPlotID,
+                landRowID: target.landRowID,
+                plantID: target.plantID,
+            })),
         };
 
         const result = await planService.addPlan(planData);
@@ -177,21 +238,21 @@ const AddPlan = () => {
         const fetchData = async () => {
             await fetchLandPlotOptions();
             setProcessFarmOptions(await fetchProcessesOfFarm(farmId));
-            setGrowthStageOptions(await fetchGrowthStageOptions(true, farmId));
-            setWorkTypeOptions(await fetchTypeOptionsByName("Work", true));
+            setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
+            // setWorkTypeOptions(await fetchTypeOptionsByName("Work", true));
             setEmployee(await fetchUserInfoByRole("Employee"));
         };
 
         fetchData();
     }, []);
     console.log("growthStageOptions", growthStageOptions);
-    
+
 
     const fetchLandPlotOptions = async () => {
         const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
         const formattedLandPlotOptions = landPlots.map((landPlot) => ({
-            value: landPlot.landPlotId,
-            label: landPlot.landPlotName,
+            value: landPlot.id,
+            label: landPlot.name,
         }));
         setLandPlotOptions(formattedLandPlotOptions);
     };
@@ -364,12 +425,85 @@ const AddPlan = () => {
 
                 <Divider className={style.divider} />
 
+                <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
+                    <Form.List name="planTargetModel">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Row key={key} gutter={16} align="middle">
+                                        <Col span={8}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'landPlotID']}
+                                                label="Land Plot"
+                                                rules={[{ required: true, message: 'Please select a land plot!' }]}
+                                            >
+                                                <Select placeholder="Select Land Plot">
+                                                    {landPlotOptions.map((plot) => (
+                                                        <Select.Option key={plot.value} value={plot.value}>
+                                                            {plot.label}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'landRowID']}
+                                                label="Land Row"
+                                                rules={[{ required: true, message: 'Please select a land row!' }]}
+                                            >
+                                                <Select placeholder="Select Land Row">
+                                                    {landRows.map((row) => (
+                                                        <Select.Option key={row.value} value={row.value}>
+                                                            {row.label}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'plantID']}
+                                                label="Plant"
+                                                rules={[{ required: true, message: 'Please select a plant!' }]}
+                                            >
+                                                <Select placeholder="Select Plant">
+                                                    {plants.map((plant) => (
+                                                        <Select.Option key={plant.value} value={plant.value}>
+                                                            {plant.label}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={2}>
+                                            <Button type="link" danger onClick={() => remove(name)}>
+                                                Remove
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                ))}
+                                <Form.Item>
+                                    <Button type="dashed" onClick={() => add()} block>
+                                        Add Target
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
+                </Section>
+
+                <Divider className={style.divider} />
+
                 {/* TASK ASSIGNMENT */}
                 <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
                     <InfoField
                         label="Type of Work"
                         name={addPlanFormFields.masterTypeId}
-                        options={workTypeOptions}
+                        options={processTypeOptions}
                         rules={RulesManager.getPlanTypeRules()}
                         isEditing={true}
                         type="select"

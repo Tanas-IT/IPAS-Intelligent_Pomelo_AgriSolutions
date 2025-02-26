@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
@@ -17,11 +20,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public MasterTypeService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly MasterTypeConfig _masterTypeConfig;
+        public MasterTypeService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _masterTypeConfig = masterTypeConfig;
         }
 
         public async Task<BusinessResult> CreateMasterType(CreateMasterTypeRequestModel createMasterTypeModel)
@@ -206,10 +210,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (masterTypeFilter.TypeName != null)
                 {
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
-                    foreach (var item in filterList)
-                    {
+                    //foreach (var item in filterList)
+                    //{
                         filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
-                    }
+                    //}
                 }
                 //if (masterTypeFilter.CreateBy != null)
                 //{
@@ -410,6 +414,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.TypeName))
                         {
+                            if (_masterTypeConfig.TypeNames.Contains(updateMasterTypeModel.TypeName))
+                                return new BusinessResult(400, "Type name not suitable with system");
+                            checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
+                        }
+                        if (!string.IsNullOrEmpty(updateMasterTypeModel.Target))
+                        {
+                            if (_masterTypeConfig.Targets.Contains(updateMasterTypeModel.Target) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
+                                return new BusinessResult(400, "Type name not suitable with system");
                             checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
                         }
                         if (updateMasterTypeModel.IsActive != null)
@@ -590,5 +602,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> GetMasterTypeForSelected(string typeName, string target, int farmId)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                var listMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypeByName(typeName, farmId, target: target);
+                if (listMasterType != null)
+                {
+                    var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(listMasterType);
+                    return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_NAME_MESSAGE, listMasterTypeModel);
+                }
+                return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }

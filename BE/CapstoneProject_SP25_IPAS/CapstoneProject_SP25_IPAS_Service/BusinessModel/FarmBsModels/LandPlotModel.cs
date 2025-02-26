@@ -37,7 +37,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public string? TargetMarket { get; set; }
         public double? FarmLongtitude { get; set; }
         public double? FarmLatitude { get; set; }
-
+        public int? RowPerLine { get; set; }
+        public double? RowSpacing { get; set; }
+        public bool? IsRowHorizontal { get; set; }
+        public double? LineSpacing { get; set; }
+        public int? NumberOfRows { get; set; }
         //public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
