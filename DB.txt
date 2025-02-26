@@ -248,8 +248,10 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
-        isDeleted bit NULL,
+    isDeleted bit NULL,
 	IsRowHorizontal bit NULL,
+   	LineSpacing float NULL,
+  	NumberOfRows int NULL,
 	TargetMarket nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__LandPlot__ADDF712A976DFB93 PRIMARY KEY (LandPlotID),
 	CONSTRAINT FK__LandPlot__FarmID__2739D489 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE
@@ -1106,19 +1108,20 @@ VALUES
     ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 2, 1, 1);
 GO
 
-INSERT INTO [ipas].dbo.LandPlot 
-( LandPlotCode, LandPlotName, Area, [Length], Width, SoilType, CreateDate, UpdateDate, Status, Description, FarmID, TargetMarket, IsRowHorizontal) 
-VALUES
-( 'LP001', 'Land Plot A', 500.0, 50.0, 10.0, 'Clay', '2024-01-01', '2024-01-05', 'Active', 'Suitable for rice farming', 1, 'Local Market', 0),
-( 'LP002', 'Land Plot B', 300.0, 30.0, 10.0, 'Sandy', '2024-01-02', '2024-01-06', 'Active', 'Used for vegetable cultivation', 1, 'Supermarkets', 0),
-( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 2, 'Export Market',0),
-( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 2, 'Organic Stores',0),
-( 'LP005', 'Land Plot E', 600.0, 60.0, 10.0, 'Peaty', '2024-01-05', '2024-01-09', 'Active', 'Large-scale crop production', 2, 'Food Processing Industry',0),
-( 'LP006', 'Land Plot F', 450.0, 45.0, 10.0, 'Chalky', '2024-01-06', '2024-01-10', 'Inactive', 'Experimental field', 2, 'Research Institutions',0),
-( 'LP007', 'Land Plot G', 550.0, 55.0, 10.0, 'Loamy', '2024-01-07', '2024-01-11', 'Active', 'High-yield production', 2, 'Supermarkets',0),
-( 'LP008', 'Land Plot H', 280.0, 28.0, 10.0, 'Sandy', '2024-01-08', '2024-01-12', 'Active', 'Ideal for root vegetables', 3, 'Local Market',0),
-( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution',0),
-( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market',0);
+INSERT INTO ipas.dbo.LandPlot (
+    LandPlotCode, LandPlotName, Area, [Length], Width, RowperLine, RowSpacing, SoilType, 
+    CreateDate, UpdateDate, Status, Description, FarmID, isDeleted, IsRowHorizontal, 
+    LineSpacing, NumberOfRows, TargetMarket
+) 
+VALUES 
+    ('LP001', 'Plot A', 500.5, 50, 10, 5, 1.5, 'Loamy', '2024-01-01', '2024-02-01', 'Active', 'Good for vegetables', 1, 0, 1, 2.0, 25, 'Local Market'),
+    ('LP002', 'Plot B', 300.2, 30, 10, 4, 1.2, 'Sandy', '2024-01-05', '2024-02-10', 'Active', 'Best for root crops', 2, 0, 0, 1.8, 20, 'Export'),
+    ('LP003', 'Plot C', 450.0, 45, 10, 6, 1.7, 'Clay', '2024-02-01', '2024-02-15', 'Inactive', 'Under maintenance', 1, 1, 1, 2.2, 30, 'Local Market'),
+    ('LP004', 'Plot D', 600.8, 60, 10, 5, 1.5, 'Loamy', '2024-02-05', '2024-02-20', 'Active', 'High yield potential', 2, 0, 1, 2.0, 28, 'Organic Stores'),
+    ('LP005', 'Plot E', 350.5, 35, 10, 4, 1.3, 'Silty', '2024-01-20', '2024-02-18', 'Active', 'Best for grains', 1, 0, 0, 1.9, 22, 'Wholesale'),
+    ('LP006', 'Plot F', 280.3, 28, 10, 3, 1.1, 'Peaty', '2024-02-10', '2024-02-25', 'Inactive', 'Too wet for now', 2, 1, 0, 1.5, 18, 'Local Market'),
+    ('LP007', 'Plot G', 550.7, 55, 10, 5, 1.6, 'Chalky', '2024-01-15', '2024-02-22', 'Active', 'Ideal for legumes', 1, 0, 1, 2.1, 27, 'Export'),
+    ('LP008', 'Plot H', 320.4, 32, 10, 4, 1.4, 'Loamy', '2024-02-12', '2024-02-26', 'Active', 'Good for fruits', 2, 0, 1, 1.8, 24, 'Local Market');
 
 GO
 
