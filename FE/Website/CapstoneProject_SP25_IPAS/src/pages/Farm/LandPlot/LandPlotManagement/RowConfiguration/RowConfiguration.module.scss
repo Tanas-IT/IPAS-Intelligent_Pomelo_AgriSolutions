@@ -1,0 +1,79 @@
+@use "@/styles/variables.scss" as vars;
+
+.rowConfigurationContainer {
+  flex-direction: column;
+  .plotInfoHeader {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    .plotLabel {
+      font-weight: 600;
+      color: vars.$color_role_name;
+      font-size: 18px;
+    }
+    .plotName {
+      font-weight: bold;
+      color: vars.$color_primary;
+      font-size: 18px;
+      background-color: vars.$color_second;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .separator {
+      color: #a0aec0; /* Màu xám nhẹ cho dấu phân cách */
+      font-size: 14px;
+    }
+
+    .orientationTag {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+      color: white;
+      font-size: 18px;
+      &.horizontal {
+        background-color: #38a169; /* Green for horizontal */
+      }
+
+      &.vertical {
+        background-color: #3182ce; /* Blue for vertical */
+      }
+    }
+  }
+  .autoFillButtonContainer {
+    margin-top: 14px;
+    justify-content: flex-end;
+  }
+  .rowContentSection {
+    .formContainer {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      gap: 20px;
+      .formSection {
+        flex-direction: column;
+        .sectionLabel {
+          font-weight: bold;
+        }
+        .setupSection {
+          flex-direction: column;
+          background-color: rgba(vars.$color_bg_main, 0.5);
+          padding: 24px 16px;
+          border-radius: 8px;
+          gap: 24px;
+          .row {
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 2rem;
+          }
+          .inputGroup {
+            min-width: 22vw;
+          }
+        }
+      }
+    }
+  }
+}

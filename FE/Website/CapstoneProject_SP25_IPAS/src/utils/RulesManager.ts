@@ -67,7 +67,16 @@ export class RulesManager {
   static getDocumentTypeRules = () => this.getRequiredRules("Document Type");
 
   static getLandPlotNameRules = () => this.getRequiredRules("Land Plot Name");
-
+  static getTargetMarketRules = () => this.getRequiredRules("Target Market");
+  static getRowLengthRules = () => this.getNumberRules("Row Length");
+  static getRowWidthRules = () => this.getNumberRules("Row Width");
+  static getNumberOfRowsRules = () => this.getNumberRules("Number of Rows");
+  static getRowSpacingRules = () => this.getNumberRules("Row Spacing");
+  static getRowsPerLineRules = () => this.getRequiredRules("Rows per Line");
+  static getLineSpacingRules = () => this.getRequiredRules("Line Spacing");
+  static getPlantsPerRowRules = () => this.getNumberRules("Plants per Row");
+  static getPlantSpacingRules = () => this.getNumberRules("Spacing Between Plants");
+  static getRowOrientationRules = () => this.getRequiredRules("Row Orientation");
 
   static getStageNameRules = () => this.getRequiredRules("Growth Stage Name");
   static getMonthAgeStartRules = () => this.getNumberRules("Month Age Start");

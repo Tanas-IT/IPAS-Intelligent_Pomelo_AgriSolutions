@@ -23,12 +23,12 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     if (isOpen) {
       if (isUpdate && growthStageData) {
         form.setFieldsValue({
-          growthStageId: growthStageData.growthStageId,
-          growthStageName: growthStageData.growthStageName,
-          description: growthStageData.description,
-          createDate: growthStageData.createDate,
-          monthAgeStart: growthStageData.monthAgeStart,
-          monthAgeEnd: growthStageData.monthAgeEnd,
+          [growthStageFormFields.growthStageId]: growthStageData.growthStageId,
+          [growthStageFormFields.growthStageName]: growthStageData.growthStageName,
+          [growthStageFormFields.description]: growthStageData.description,
+          [growthStageFormFields.createDate]: growthStageData.createDate,
+          [growthStageFormFields.monthAgeStart]: growthStageData.monthAgeStart,
+          [growthStageFormFields.monthAgeEnd]: growthStageData.monthAgeEnd,
         });
       }
     }

@@ -1,7 +1,7 @@
 import { Images } from "@/assets";
 import { GetFarmDocuments, GetFarmInfo } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
-import { CoordsState, FilterMasterTypeState, LogoState } from "@/types";
+import { CoordsState, FilterMasterTypeState, LogoState, rowStateType } from "@/types";
 
 export const getDefaultFarm = (): GetFarmInfo => ({
   farmCode: "",
@@ -80,3 +80,14 @@ export const DEFAULT_FILTERS: FilterMasterTypeState = {
   createDateTo: "",
   typeName: [] as string[],
 };
+
+export const DEFAULT_ROW = (): rowStateType => ({
+  id: 0,
+  length: 200,
+  width: 50,
+  plantsPerRow: 10,
+  plantSpacing: 5,
+  rowOrientation: "Horizontal",
+  index: 0,
+  position: { x: 0, y: 0 },
+});

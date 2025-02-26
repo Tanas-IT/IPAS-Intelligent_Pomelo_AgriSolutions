@@ -13,6 +13,8 @@ export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as LandPlot } from "@/pages/Farm/LandPlot/LandPlot";
 export { default as AddNewPlotDrawer } from "@/pages/Farm/LandPlot/LandPlotManagement/AddNewPlotDrawer/AddNewPlotDrawer";
 export { default as LandPlotCreate } from "@/pages/Farm/LandPlot/LandPlotManagement/LandPlotCreate/LandPlotCreate";
+export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManagement/RowConfiguration/RowConfiguration";
+export { default as DraggableRow } from "@/pages/Farm/LandPlot/LandPlotManagement/DraggableRow/DraggableRow";
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
 export { default as Weather } from "@/pages/Weather/Weather";

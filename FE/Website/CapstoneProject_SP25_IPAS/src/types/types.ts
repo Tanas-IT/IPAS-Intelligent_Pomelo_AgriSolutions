@@ -36,3 +36,13 @@ export interface LandPlotsStateType {
   latitude: number;
   landPlots: GetLandPlot[];
 }
+
+export interface rowStateType {
+  id: number;
+  length: number;
+  width: number;
+  plantsPerRow: number;
+  plantSpacing: number;
+  // rowOrientation: "Horizontal" | "Vertical";
+  index: number;
+}

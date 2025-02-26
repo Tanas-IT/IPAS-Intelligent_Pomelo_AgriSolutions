@@ -1,7 +1,7 @@
 export {
   AiOutlineCheckCircle as checkSuccuss,
   AiOutlineCloseCircle as closeFail,
-  AiOutlineAreaChart as area
+  AiOutlineAreaChart as area,
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
 export { CiTimer as timer, CiBoxes as box, CiMail as mail } from "react-icons/ci";
@@ -24,7 +24,7 @@ export {
   MdOutlineDescription as description,
   MdCategory as category,
   MdOutlineScatterPlot as lot,
-  MdOutlineTerrain as soil
+  MdOutlineTerrain as soil,
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -35,6 +35,8 @@ export {
   LuHistory as history,
   LuPhone as phone,
   LuUpload as upload,
+  LuZoomIn as zoomIn,
+  LuZoomOut  as zoomOut
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -46,7 +48,8 @@ export {
   FaCloud as cloud,
   FaCalendarAlt as calendarAlt,
   FaMapMarkerAlt as marker,
-  FaRegFolderOpen as folder
+  FaRegFolderOpen as folder,
+  FaDrawPolygon as drawPolygon,
 } from "react-icons/fa";
 export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";

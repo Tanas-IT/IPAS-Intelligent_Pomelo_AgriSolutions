@@ -1,4 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
 interface SidebarState {
@@ -43,4 +44,46 @@ interface LoadingState {
 export const useLoadingStore = create<LoadingState>((set) => ({
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),
+}));
+
+interface MapState {
+  mapRef: mapboxgl.Map | null;
+  drawRef: MapboxDraw | null;
+  setMapRef: (map: mapboxgl.Map | null) => void;
+  setDrawRef: (draw: MapboxDraw | null) => void;
+  isOverlapping: boolean;
+  setIsOverlapping: (value: boolean) => void;
+  newPolygon: PolygonInit | null;
+  setNewPolygon: (polygon: PolygonInit | null) => void;
+  area: number;
+  width: number;
+  length: number;
+  setPolygonDimensions: (area: number, width: number, length: number) => void;
+  startDrawingPolygon: () => void;
+  clearPolygons: () => void;
+}
+
+export const useMapStore = create<MapState>((set, get) => ({
+  mapRef: null,
+  drawRef: null,
+  setMapRef: (map) => set({ mapRef: map }),
+  setDrawRef: (draw) => set({ drawRef: draw }),
+  isOverlapping: false,
+  setIsOverlapping: (value) => set({ isOverlapping: value }),
+  newPolygon: null,
+  setNewPolygon: (polygon) => set({ newPolygon: polygon }),
+  area: 0,
+  width: 0,
+  length: 0,
+  setPolygonDimensions: (area, width, length) => set({ area, width, length }),
+  startDrawingPolygon: () => {
+    const draw = get().drawRef;
+    if (draw) {
+      draw.changeMode("draw_polygon");
+    }
+  },
+  clearPolygons: () => {
+    const draw = get().drawRef;
+    if (draw) draw.deleteAll();
+  },
 }));
