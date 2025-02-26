@@ -1361,6 +1361,7 @@ public partial class IpasContext : DbContext
         {
             entity.HasKey(e => e.PlanNotificationID).HasName("PK__PlanNotification__2EE54234ADBB5");
 
+            entity.ToTable("PlanNotification");
             entity.Property(e => e.PlanID).HasColumnName("PlanID");
             entity.Property(e => e.NotificationID).HasColumnName("NotificationID");
             entity.Property(e => e.UserID).HasColumnName("UserID");
@@ -1372,7 +1373,7 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__PlanNotification__Plan__32673C52");
 
             entity.HasOne(d => d.Notification).WithMany(p => p.PlanNotifications)
-                .HasForeignKey(d => d.PlanID)
+                .HasForeignKey(d => d.NotificationID)
                 .HasConstraintName("FK__PlanNotification__Notification__3B451819");
 
             entity.HasOne(d => d.User).WithMany(p => p.PlanNotifications)

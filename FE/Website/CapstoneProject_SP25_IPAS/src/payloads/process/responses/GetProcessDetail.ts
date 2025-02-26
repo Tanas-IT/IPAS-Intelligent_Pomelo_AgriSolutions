@@ -13,6 +13,16 @@ export interface SubProcess {
   listSubProcessData: SubProcess[];
 }
 
+export interface PlanType {
+  planId: number;
+  planName: string;
+  planNote: string;
+  planDetail: string;
+  growthStageId: number;
+  masterTypeId: number;
+  planStatus: string;
+}
+
 export interface GetProcessDetail {
   processId: number;
   processCode: string;
@@ -34,4 +44,5 @@ export interface GetProcessDetail {
   },
   subProcesses: SubProcess[];
   listProcessData: any[];
+  listPlan: PlanType[];
 }

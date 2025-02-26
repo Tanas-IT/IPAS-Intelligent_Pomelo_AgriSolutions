@@ -109,6 +109,7 @@ export class RulesManager {
   static getPlanTypeRules = () => this.getRequiredRules("Plan Type");
 
   static getProcessNameRules = () => this.getRequiredRules("Process Name");
+  static getSubProcessNameRules = () => this.getRequiredRules("Sub-Process Name");
   static getProcessTypeRules = () => this.getRequiredRules("Process Type");
 
 

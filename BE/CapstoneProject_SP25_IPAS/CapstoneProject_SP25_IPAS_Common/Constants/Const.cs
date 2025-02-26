@@ -445,6 +445,12 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report success"; 
         public static int SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
         public static string SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report success";
+        public static int SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 200;
+        public static string SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Get pomelo quality breakdown report success";
+        public static int SUCCESS_GET_SEASON_YIELD_REPORT_CODE = 200;
+        public static string SUCCESS_GET_SEASON_YIELD_REPORT_MSG = "Get season yield report success";
+        public static int SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 200;
+        public static string SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Get work progress overview success";
         #endregion
 
         #region Packages
@@ -771,8 +777,14 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_GET_DASHBOARD_REPORT_MSG = "Get dashboard report fail";
         public static int FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE = 500;
         public static string FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report fail";
-        public static int FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static int FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 500;
         public static string FAIL_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report fail";
+        public static int FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 500;
+        public static string FAIL_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Get pomelo quality breakdown report failed";
+        public static int FAIL_GET_SEASON_YIELD_REPORT_CODE = 500;
+        public static string FAIL_GET_SEASON_YIELD_REPORT_MSG = "Get season yield report failed";
+        public static int FAIL_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 500;
+        public static string FAIL_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Get work progress overview failed";
         #endregion
 
         #region Task Feedback fail code
@@ -1030,14 +1042,20 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Report
-        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 400;
+        public static int WARNING_GET_CROP_CARE_REPORT_CODE = 404;
         public static string WARNING_GET_CROP_CARE_REPORT_MSG = "Do not have any data to get crop care report";
-        public static int WARNING_GET_DASHBOARD_REPORT_CODE = 400;
+        public static int WARNING_GET_DASHBOARD_REPORT_CODE = 404;
         public static string WARNING_GET_DASHBOARD_REPORT_MSG = "Do not have any data to get dashboard report";
-        public static int WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE = 400;
+        public static int WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE = 404;
         public static string WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG = "Do not have any data to get materials in store report";
-        public static int WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
+        public static int WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 404;
         public static string WARNING_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Do not have any data to get productivity by plot in store report";
+        public static int WARNING_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 404;
+        public static string WARNING_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_MSG = "Do not have any data to get pomelo quality break down report";
+        public static int WARNING_GET_SEASON_YIELD_REPORT_CODE = 404;
+        public static string WARNING_GET_SEASON_YIELD_REPORT_MSG = "Do not have any data to get season yield report";
+        public static int WARNING_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE = 404;
+        public static string WARNING_GET_WORK_PROGRESS_OVERVIEW_REPORT_MSG = "Do not have any data to get work progress overview report";
         #endregion
         #region Task Feedback
         public static int WARNING_TASK_FEEDBACK_NOT_EXIST_CODE = 400;
