@@ -249,6 +249,7 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
         isDeleted bit NULL,
+	IsRowHorizontal bit NULL,
 	TargetMarket nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__LandPlot__ADDF712A976DFB93 PRIMARY KEY (LandPlotID),
 	CONSTRAINT FK__LandPlot__FarmID__2739D489 FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID) ON DELETE CASCADE
@@ -1106,18 +1107,18 @@ VALUES
 GO
 
 INSERT INTO [ipas].dbo.LandPlot 
-( LandPlotCode, LandPlotName, Area, [Length], Width, SoilType, CreateDate, UpdateDate, Status, Description, FarmID, TargetMarket) 
+( LandPlotCode, LandPlotName, Area, [Length], Width, SoilType, CreateDate, UpdateDate, Status, Description, FarmID, TargetMarket, IsRowHorizontal) 
 VALUES
-( 'LP001', 'Land Plot A', 500.0, 50.0, 10.0, 'Clay', '2024-01-01', '2024-01-05', 'Active', 'Suitable for rice farming', 1, 'Local Market'),
-( 'LP002', 'Land Plot B', 300.0, 30.0, 10.0, 'Sandy', '2024-01-02', '2024-01-06', 'Active', 'Used for vegetable cultivation', 1, 'Supermarkets'),
-( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 2, 'Export Market'),
-( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 2, 'Organic Stores'),
-( 'LP005', 'Land Plot E', 600.0, 60.0, 10.0, 'Peaty', '2024-01-05', '2024-01-09', 'Active', 'Large-scale crop production', 2, 'Food Processing Industry'),
-( 'LP006', 'Land Plot F', 450.0, 45.0, 10.0, 'Chalky', '2024-01-06', '2024-01-10', 'Inactive', 'Experimental field', 2, 'Research Institutions'),
-( 'LP007', 'Land Plot G', 550.0, 55.0, 10.0, 'Loamy', '2024-01-07', '2024-01-11', 'Active', 'High-yield production', 2, 'Supermarkets'),
-( 'LP008', 'Land Plot H', 280.0, 28.0, 10.0, 'Sandy', '2024-01-08', '2024-01-12', 'Active', 'Ideal for root vegetables', 3, 'Local Market'),
-( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution'),
-( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market');
+( 'LP001', 'Land Plot A', 500.0, 50.0, 10.0, 'Clay', '2024-01-01', '2024-01-05', 'Active', 'Suitable for rice farming', 1, 'Local Market', 0),
+( 'LP002', 'Land Plot B', 300.0, 30.0, 10.0, 'Sandy', '2024-01-02', '2024-01-06', 'Active', 'Used for vegetable cultivation', 1, 'Supermarkets', 0),
+( 'LP003', 'Land Plot C', 400.0, 40.0, 10.0, 'Loamy', '2024-01-03', '2024-01-07', 'Inactive', 'Ideal for fruit trees', 2, 'Export Market',0),
+( 'LP004', 'Land Plot D', 350.0, 35.0, 10.0, 'Silty', '2024-01-04', '2024-01-08', 'Active', 'For organic farming', 2, 'Organic Stores',0),
+( 'LP005', 'Land Plot E', 600.0, 60.0, 10.0, 'Peaty', '2024-01-05', '2024-01-09', 'Active', 'Large-scale crop production', 2, 'Food Processing Industry',0),
+( 'LP006', 'Land Plot F', 450.0, 45.0, 10.0, 'Chalky', '2024-01-06', '2024-01-10', 'Inactive', 'Experimental field', 2, 'Research Institutions',0),
+( 'LP007', 'Land Plot G', 550.0, 55.0, 10.0, 'Loamy', '2024-01-07', '2024-01-11', 'Active', 'High-yield production', 2, 'Supermarkets',0),
+( 'LP008', 'Land Plot H', 280.0, 28.0, 10.0, 'Sandy', '2024-01-08', '2024-01-12', 'Active', 'Ideal for root vegetables', 3, 'Local Market',0),
+( 'LP009', 'Land Plot I', 370.0, 37.0, 10.0, 'Clay', '2024-01-09', '2024-01-13', 'Inactive', 'Newly acquired land', 3, 'Wholesale Distribution',0),
+( 'LP010', 'Land Plot J', 520.0, 52.0, 10.0, 'Silty', '2024-01-10', '2024-01-14', 'Active', 'For mixed crops', 3, 'Export Market',0);
 
 GO
 
@@ -1333,4 +1334,14 @@ VALUES
 ('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,1, 2),
 ('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,1, 2),
 ('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,1, 2);
+GO
+INSERT INTO ipas.dbo.GrowthStage 
+    (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, Description)
+VALUES
+    ('GS001', N'Mầm non', 0, 3, 1, 1, 0, GETDATE(), N'Giai đoạn cây non mới nảy mầm'),
+    ('GS002', N'Sinh trưởng', 4, 6, 0, 1, 0, GETDATE(), N'Giai đoạn cây phát triển lá và rễ mạnh'),
+    ('GS003', N'Ra hoa', 7, 9, 0, 1, 0, GETDATE(), N'Giai đoạn cây bắt đầu ra hoa'),
+    ('GS004', N'Kết trái', 10, 12, 0, 2, 0, GETDATE(), N'Giai đoạn cây ra quả và phát triển quả'),
+    ('GS005', N'Thu hoạch', 13, 15, 0, 2, 0, GETDATE(), N'Giai đoạn thu hoạch sản phẩm'),
+    ('GS006', N'Nghỉ đông', 16, 18, 0, 3, 0, GETDATE(), N'Giai đoạn cây ít phát triển hoặc ngủ đông');
 GO

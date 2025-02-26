@@ -146,7 +146,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize("Admin,User", "Owner,Manager")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotPagin, Name = "getLandRowOfPlotPaginAsync")]
-        public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromBody] GetPlantRowPaginRequest request)
+        public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromQuery] GetPlantRowPaginRequest request)
         {
             try
             {

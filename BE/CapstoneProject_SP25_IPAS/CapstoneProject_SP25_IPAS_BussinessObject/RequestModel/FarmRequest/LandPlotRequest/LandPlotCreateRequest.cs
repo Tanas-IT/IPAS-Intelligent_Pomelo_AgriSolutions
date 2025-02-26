@@ -41,6 +41,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
 
         //public LandRowCreateRequest LandRow { get; set; } = new LandRowCreateRequest();
         [Required]
+        public bool IsRowHorizontal { get; set; }
+        [Required]
         public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
         public ICollection<CreateLandRowRequest> LandRows { get; set; } = new List<CreateLandRowRequest>();
     }

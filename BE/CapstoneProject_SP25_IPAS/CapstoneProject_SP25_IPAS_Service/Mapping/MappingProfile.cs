@@ -127,7 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
            
 
             CreateMap<LandRow, LandRowModel>()
-                //.ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
+                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
                 .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ReverseMap();
 
