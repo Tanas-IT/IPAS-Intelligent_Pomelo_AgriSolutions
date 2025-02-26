@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetScheduleEvents(ParamScheduleModel paramCalendarModel);
         public Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId);
-        public Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter);
+        public Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId);
         public Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel);
 
     }

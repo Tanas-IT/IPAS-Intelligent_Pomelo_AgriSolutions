@@ -851,9 +851,11 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	CriteriaID int NULL,
 	GraftedPlantID int NULL,
 	PlantLotID int NULL,
+        PlanID int NULL,
 	CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
 	CONSTRAINT CriteriaTarget_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
 	CONSTRAINT CriteriaTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+        CONSTRAINT CriteriaTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.Plan(PlanID),
 	CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
 	CONSTRAINT CriteriaTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
@@ -898,6 +900,7 @@ CREATE TABLE ipas.dbo.Resource (
 	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	WorkLogID int NULL,
+        UserID int NULL,
 	PlantGrowthHistoryID int NULL,
 	LegalDocumentID int NULL,
 	GraftedPlantNoteID int NULL,
