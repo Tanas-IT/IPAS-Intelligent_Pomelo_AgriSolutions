@@ -1,11 +1,4 @@
-Use [master]
-GO
-DROP DATABASE [IPAS]
-GO
-CREATE DATABASE [IPAS]
-GO
-USE [IPAS]
-GO
+
 
 -- ipas.dbo.Farm definition
 
@@ -864,7 +857,7 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
 	CONSTRAINT CriteriaTarget_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
 	CONSTRAINT CriteriaTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
-        CONSTRAINT CriteriaTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.Plan(PlanID),
+        CONSTRAINT CriteriaTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
 	CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
 	CONSTRAINT CriteriaTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
