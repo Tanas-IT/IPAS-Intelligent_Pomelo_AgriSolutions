@@ -34,7 +34,10 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             // read TypeName and Target of MasterType
             var masterTypeConfig = new MasterTypeConfig();
             configuration.GetSection("MasterTypeConfig").Bind(masterTypeConfig);
-
+            // Trim khoảng trắng trong danh sách
+            masterTypeConfig.TypeNames = masterTypeConfig.TypeNames.Select(x => x.Trim()).ToList();
+            masterTypeConfig.Targets = masterTypeConfig.Targets.Select(x => x.Trim()).ToList();
+            masterTypeConfig.GraftedTargetApply = masterTypeConfig.GraftedTargetApply.Select(x => x.Trim()).ToList();
             services.AddSingleton(masterTypeConfig);
 
 

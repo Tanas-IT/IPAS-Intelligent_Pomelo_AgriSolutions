@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -29,12 +30,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly IPlantService _plantService;
         private readonly ICriteriaTargetService _criteriaTargetService;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, IPlantService plantService, ICriteriaTargetService criteriaTargetService)
+        private readonly MasterTypeConfig _masterTypeConfig;
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, IPlantService plantService, ICriteriaTargetService criteriaTargetService, MasterTypeConfig masterTypeConfig)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _plantService = plantService;
             _criteriaTargetService = criteriaTargetService;
+            _masterTypeConfig = masterTypeConfig;
         }
 
         public async Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest)
@@ -48,9 +51,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return plantExist;
 
                     // kiem tra xem co apply va check criteria chua
-                    var criteriaResult = await _criteriaTargetService.CheckCriteriaComplete(PlantId: createRequest.PlantId, GraftedId: null, PlantLotId: null, TargetsList: "Grafted");
-                    if (criteriaResult.enable == false)
-                        return new BusinessResult(Const.FAIL_CREATE_GRAFTED_PLANT_CODE, criteriaResult.ErrorMessage);
+                    if (_masterTypeConfig.GraftedTargetApply.Any())
+                    {
+                        var criteriaResult = await _criteriaTargetService.CheckCriteriaComplete(PlantId: createRequest.PlantId, GraftedId: null, PlantLotId: null, TargetsList: _masterTypeConfig.GraftedTargetApply);
+                        if (criteriaResult.enable == false)
+                            return new BusinessResult(Const.FAIL_CREATE_GRAFTED_PLANT_CODE, criteriaResult.ErrorMessage);
+                    }
                     // Create the new Plant entity from the request
                     var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
 

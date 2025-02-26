@@ -210,10 +210,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (masterTypeFilter.TypeName != null)
                 {
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
-                    foreach (var item in filterList)
-                    {
+                    //foreach (var item in filterList)
+                    //{
                         filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
-                    }
+                    //}
                 }
                 //if (masterTypeFilter.CreateBy != null)
                 //{

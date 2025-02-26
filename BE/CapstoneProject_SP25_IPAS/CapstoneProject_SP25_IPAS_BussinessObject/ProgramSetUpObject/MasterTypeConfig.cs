@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject
     {
         public List<string> TypeNames { get; set; } = new();
         public List<string> Targets { get; set; } = new();
+        public List<string> GraftedTargetApply {  get; set; } = new();
     }
 
 }

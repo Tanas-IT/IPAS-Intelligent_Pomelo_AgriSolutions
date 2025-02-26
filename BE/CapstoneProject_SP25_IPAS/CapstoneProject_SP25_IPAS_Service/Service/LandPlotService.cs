@@ -236,7 +236,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
         }
 
@@ -255,7 +255,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
         }
 
@@ -265,7 +265,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == landPlotId, includeProperties: includeProperties);
             // kiem tra null
             if (landplot == null)
-                return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
             return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
