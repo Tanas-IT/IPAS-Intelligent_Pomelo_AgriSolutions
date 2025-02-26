@@ -1,5 +1,11 @@
-
-
+Use [master]
+GO
+DROP DATABASE [IPAS]
+GO
+CREATE DATABASE [IPAS]
+GO
+USE [IPAS]
+GO
 -- ipas.dbo.Farm definition
 
 -- Drop table
