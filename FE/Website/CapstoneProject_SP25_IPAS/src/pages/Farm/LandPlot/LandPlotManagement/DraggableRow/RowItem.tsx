@@ -94,6 +94,7 @@ const RowItem: React.FC<RowItemProps> = ({
           marginRight: `${rowSpacing}px`,
         }}
         onClick={onClick}
+        onMouseDown={(e) => e.stopPropagation()} 
       >
         {Array.from({ length: row.plantsPerRow }).map((_, i) => (
           <img

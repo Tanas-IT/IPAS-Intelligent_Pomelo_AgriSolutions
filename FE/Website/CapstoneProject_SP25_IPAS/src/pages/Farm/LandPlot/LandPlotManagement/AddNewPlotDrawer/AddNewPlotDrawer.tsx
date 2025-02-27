@@ -51,19 +51,22 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         distance: row.plantSpacing,
         length: row.length,
         width: row.width,
+        direction: form.getFieldValue(createPlotFormFields.rowOrientation),
+        description: form.getFieldValue(createPlotFormFields.description),
       })),
     };
     setPlotData(plotDataRequest);
-    console.log(plotDataRequest);
 
-    // var result = await landPlotService.createLandPlot(plotDataRequest);
-    // if (result.statusCode === 200) {
-    //   onClose();
-    //   await fetchLandPlots();
-    //   toast.success(result.message);
-    // } else {
-    //   toast.error(result.message);
-    // }
+    var result = await landPlotService.createLandPlot(plotDataRequest);
+    console.log(result);
+
+    if (result.statusCode === 200) {
+      onClose();
+      await fetchLandPlots();
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
   };
 
   const handleNext = async () => {
@@ -195,7 +198,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         {currentStep === 0 && (
           <LandPlotCreate landPlots={landPlots} form={form} setIsDirty={setIsDirty} />
         )}
-        {currentStep === 1 && <RowConfiguration form={form} />}
+        {currentStep === 1 && <RowConfiguration form={form} setIsDirty={setIsDirty} />}
         {currentStep === 2 && (
           <DraggableRow
             rowsData={rowsData}
