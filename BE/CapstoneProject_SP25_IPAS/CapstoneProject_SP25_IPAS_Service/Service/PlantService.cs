@@ -258,11 +258,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(400, checkParam.ErorrMessage);
                 Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
-                
+
                 if (request.LandPlotId.HasValue)
                     filter = filter.And(x => x.LandRow!.LandPlotId == request.LandPlotId);
-                if (request.LandRowIds!.Any())
-                    filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
+                if (!string.IsNullOrEmpty(request.LandRowIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.LandRowIds);
+                    filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
+                    //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
+                }
                 if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
                 if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == true)
@@ -280,17 +284,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => filterList.Contains(x.HealthStatus!.ToLower()));
                 }
 
-                if (request.CultivarIds.Any())
+                if (!string.IsNullOrEmpty(request.CultivarIds))
                 {
-                    //List<string> filterList = Util.SplitByComma(request.CultivarIds);
-                    //filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()));
-                    filter = filter.And(x => request.CultivarIds.Contains(x.MasterTypeId!.Value));
+                    List<string> filterList = Util.SplitByComma(request.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()!));
+                    //filter = filter.And(x => request.CultivarIds.Contains(x.MasterTypeId!.Value));
                 }
-                if (request.GrowthStageIds.Any())
+                if (!string.IsNullOrEmpty(request.GrowthStageIds))
                 {
-                    //List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
-                    //filter = filter.And(x => filterList.Contains(x.GrowthStageID!.ToString()));
-                    filter = filter.And(x => request.GrowthStageIds.Contains(x.GrowthStageID!.Value));
+                    List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
+                    filter = filter.And(x => filterList.Contains(x.GrowthStageID!.ToString()!));
+                    //filter = filter.And(x => request.GrowthStageIds.Contains(x.GrowthStageID!.Value));
                 }
                 if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
                 {
@@ -303,7 +307,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
                 {
-                    filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate<= request.PlantingDateTo);
+                    filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
                 }
 
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
@@ -361,7 +365,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "LandRow";
-                var entities = await _unitOfWork.PlantRepository.Get(filter: filter ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
