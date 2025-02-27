@@ -61,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         IsDefault = false,
+                        IsSample = createProcessModel.IsSample,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = false,
                         Order = createProcessModel.Order,
@@ -82,6 +83,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     newProcess.ResourceUrl = getLink;
                     await _unitOfWork.ProcessRepository.Insert(newProcess);
+                    if(createProcessModel.IsSample != null && createProcessModel.IsSample == true)
+                    {
+                        createProcessModel.ListPlan = null;
+                    } 
 
                     if (createProcessModel.ListSubProcess != null)
                     {
@@ -89,6 +94,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var subProcessRaw in createProcessModel.ListSubProcess)
                         {
                             var subProcess = JsonConvert.DeserializeObject<AddSubProcessModel>(subProcessRaw);
+                            if (createProcessModel.IsSample != null && createProcessModel.IsSample == true)
+                            {
+                                subProcess.ListPlan = null;
+                            }
                             var newSubProcess = new SubProcess()
                             {
                                 SubProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.SUB_PROCESS),

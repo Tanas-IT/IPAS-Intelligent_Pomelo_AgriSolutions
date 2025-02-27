@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string EndTime { get; set; }
 
         public List<PlanTargetModel>? PlanTargetModel { get; set; }
+        //public List<CriteriaData>? ListCriteria { get; set; }
         // ✅ Constructor mặc định
         public CreatePlanModel() { }
 

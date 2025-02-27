@@ -6,7 +6,6 @@ CREATE DATABASE [IPAS]
 GO
 USE [IPAS]
 GO
-
 -- ipas.dbo.Farm definition
 
 -- Drop table
@@ -528,6 +527,7 @@ CREATE TABLE ipas.dbo.Process (
 	FarmID int NULL,
 	GrowthStageID int NULL,
         [Order] int NULL,
+        IsSample bit NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -626,10 +626,12 @@ CREATE TABLE ipas.dbo.UserFarm (
 
 CREATE TABLE ipas.dbo.ChatRoom (
 	RoomID int IDENTITY(1,1) NOT NULL,
-	RoomCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	RoomCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	RoomName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	AIResponseID int NULL,
+        FarmID int NULL,
+        UserID int NULL,
 	CreateBy int NULL,
 	CONSTRAINT PK__ChatRoom__32863919A904C9FC PRIMARY KEY (RoomID),
 	CONSTRAINT FK__ChatRoom__Create__17C286CF FOREIGN KEY (CreateBy) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE
@@ -834,7 +836,7 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 
 CREATE TABLE ipas.dbo.ChatMessage (
 	MessageID int IDENTITY(1,1) NOT NULL,
-	MessageCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	MessageCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MessageContent nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
@@ -860,10 +862,10 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	CriteriaID int NULL,
 	GraftedPlantID int NULL,
 	PlantLotID int NULL,
-	CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
+        CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
 	CONSTRAINT CriteriaTarget_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
 	CONSTRAINT CriteriaTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
-	CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+        CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
 	CONSTRAINT CriteriaTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 -- ipas.dbo.WorkLog definition
@@ -907,6 +909,7 @@ CREATE TABLE ipas.dbo.Resource (
 	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	WorkLogID int NULL,
+        UserID int NULL,
 	PlantGrowthHistoryID int NULL,
 	LegalDocumentID int NULL,
 	GraftedPlantNoteID int NULL,

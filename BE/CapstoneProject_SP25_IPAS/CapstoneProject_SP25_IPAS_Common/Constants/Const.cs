@@ -487,6 +487,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_CREATE_GRAFTED_NOTE_MSG = "Create grafted growth success";
         #endregion
 
+        #region AI
+        public static int SUCCESS_ASK_AI_CODE = 200;
+        public static string SUCCESS_ASK_AI_MSG = "Get message from AI success";
+        public static int SUCCESS_PREDICT_IMAGE_BY_FILE_CODE = 200;
+        public static string SUCCESS_PREDICT_IMAGE_BY_FILE_MSG = "Predict image by file success";
+        public static int SUCCESS_PREDICT_IMAGE_BY_URL_CODE = 200;
+        public static string SUCCESS_PREDICT_IMAGE_BY_URL_MSG = "Predict image by url success";
+        #endregion
+
         #region Order
         public static int SUCCESS_CREATE_ORDER_CODE = 200;
         public static string SUCCESS_CREATE_ORDER_MSG = "Order create success";
@@ -837,6 +846,15 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_DELETE_PERMANETNLY_GRAFTED_PLANT_MSG = "Delete permanently fail";
         #endregion
 
+        #region AI
+        public static int FAIL_PREDICT_IMAGE_BY_FILE_CODE = 400;
+        public static string FAIL_PREDICT_IMAGE_BY_FILE_MSG = "Predict image by file failed";
+        public static int FAIL_PREDICT_IMAGE_BY_URL_CODE = 400;
+        public static string FAIL_PREDICT_IMAGE_BY_URL_MSG = "Predict image by url failed";
+        public static int FAIL_ASK_AI_CODE = 400;
+        public static string FAIL_ASK_AI_MSG = "Get message from AI failed";
+        #endregion
+
         #endregion
 
         #region WARNING
@@ -1114,6 +1132,13 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE = 200;
         public static string WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG = "Get Grafted note history empty.";
         #endregion
+        #region AI
+        public static int WARNING_IMAGE_PREDICT_NOT_EXIST_CODE = 400;
+        public static string WARNING_IMAGE_PREDICT_NOT_EXIST_MSG = "Do not have any image";
+        public static int WARNING_ASK_AI_CODE = 400;
+        public static string WARNING_ASK_AI_MSG = "Do not have any message";
+        #endregion
+
 
         #region Order
         public static int WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_CODE = 400;

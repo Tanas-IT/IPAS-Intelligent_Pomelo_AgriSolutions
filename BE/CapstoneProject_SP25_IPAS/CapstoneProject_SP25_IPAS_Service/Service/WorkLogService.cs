@@ -155,7 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate);
+                var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
                 var result =  calendar
                         .Select(wl => new ScheduleModel()
                         {
@@ -192,11 +192,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter)
+        public async Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
         {
             try
             {
-                Expression<Func<WorkLog, bool>> filter = null!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {

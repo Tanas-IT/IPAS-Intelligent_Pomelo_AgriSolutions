@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,23 +14,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class WorkLogController : ControllerBase
     {
         private readonly IWorkLogService _workLogService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public WorkLogController(IWorkLogService workLogService)
+        public WorkLogController(IWorkLogService workLogService, IJwtTokenService jwtTokenService)
         {
             _workLogService = workLogService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.WorkLog.getSchedule, Name = "GetSchedule")]
-        public async Task<IActionResult> GetSchedule(int userId, int planId, DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> GetSchedule(int userId, int planId, DateTime startDate, DateTime endDate, int? farmId)
         {
             try
             {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var paramCalendarModel = new ParamScheduleModel()
                 {
                     UserId = userId,
                     PlanId = planId,
                     StartDate = startDate,
-                    EndDate = endDate
+                    EndDate = endDate,
+                    FarmId = farmId
                 };
                 var result = await _workLogService.GetScheduleEvents(paramCalendarModel);
                 return Ok(result);
@@ -46,11 +52,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpGet(APIRoutes.WorkLog.getAllSchedule, Name = "GetAllSchedule")]
-        public async Task<IActionResult> GetAllSchedule(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter)
+        public async Task<IActionResult> GetAllSchedule(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
         {
             try
             {
-                var result = await _workLogService.GetScheduleWithFilters(paginationParameter,scheduleFilter);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.GetScheduleWithFilters(paginationParameter,scheduleFilter, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
