@@ -11,11 +11,11 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
     public class GetPlantPaginRequest
     {
         public int? farmId { get; set; }
-        public int? LandPlotId { get; set;}
-        public int? LandRowId { get; set; }
-        [DefaultValue(true)]
-        public bool? IsLocated { get; set; } = false;
-        public PaginationParameter? paginationParameter { get; set; } = new PaginationParameter();
+        public string? LandPlotIds { get; set;}
+        public string? LandRowIds { get; set; }
+        //[DefaultValue(true)]
+        public bool? IsLocated { get; set; }
+        //public PaginationParameter? paginationParameter { get; set; } = new PaginationParameter();
         public int? RowIndexFrom { get; set; }
         public int? RowIndexTo { get; set; }
         public int? PlantIndexFrom { get; set; }

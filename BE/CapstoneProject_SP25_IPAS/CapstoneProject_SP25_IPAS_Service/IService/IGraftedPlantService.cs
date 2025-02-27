@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest);
         public Task<BusinessResult> updateGraftedPlantAsync(UpdateGraftedPlantRequest updateRequest);
-        public Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest);
+        public Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> getGraftedByIdAsync(int graftedPlantId);
         public Task<BusinessResult> deletePermanentlyGrafteAsync(List<int> graftedPlantId);
         public Task<BusinessResult> deteSoftedGraftedAsync(List<int> graftedPlantId);

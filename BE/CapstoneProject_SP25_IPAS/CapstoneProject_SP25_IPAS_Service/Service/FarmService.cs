@@ -72,9 +72,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Latitude = farmCreateRequest.Latitude
 
                     };
-                    var index = await _unitOfWork.FarmRepository.GetLastFarmID();
-                    string haftCode = GenerateFarmCode(farmCreateRequest, index);
-                    farmCreateEntity.FarmCode = $"{CodeAliasEntityConst.FARM}-{DateTime.Now.ToString("ddmmyyyy")}-{haftCode}";
+                    //var index = await _unitOfWork.FarmRepository.GetLastFarmID();
+                    string haftCode = GenerateFarmCode(farmCreateRequest);
+                    farmCreateEntity.FarmCode = $"{CodeAliasEntityConst.FARM}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{haftCode}";
                     farmCreateEntity.Status = FarmStatus.Active.ToString();
                     farmCreateEntity.IsDeleted = false;
                     farmCreateEntity.CreateDate = DateTime.Now;
@@ -507,14 +507,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private string GenerateFarmCode(FarmCreateRequest farmRequest, int farmIndex)
+        private string GenerateFarmCode(FarmCreateRequest farmRequest)
         {
             string countryCode = CodeHelper.ConvertTextToCode("Viet Nam", 2);
             string provinceCode = CodeHelper.ConvertTextToCode(farmRequest.Province, 3);
             string districtCode = CodeHelper.ConvertTextToCode(farmRequest.District, 3);
             string geoHash = CodeHelper.GenerateGeoHash(farmRequest.Latitude!.Value, farmRequest.Longitude!.Value);
 
-            return $"{countryCode}-{provinceCode}-{districtCode}-{geoHash}-{farmIndex:D6}";
+            return $"{countryCode}-{provinceCode}-{districtCode}-{geoHash}";
         }
 
         public async Task<BusinessResult> GetAllUserOfFarmByRoleAsync(int farmId, List<int> roleIds)
@@ -745,6 +745,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<FarmModel> CheckFarmExist(int farmId)
+        {
+            var farm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+            // kiem tra null
+            if (farm == null)
+                return null!;
+            // neu khong null return ve mapper
+            var result = _mapper.Map<FarmModel>(farm);
+            return result;
         }
     }
 }

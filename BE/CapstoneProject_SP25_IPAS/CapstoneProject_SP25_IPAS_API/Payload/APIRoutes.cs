@@ -378,5 +378,21 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         }
 
 
+        public static class Order
+        {
+            public const string prefix = Base + "/order";
+            public const string createOrder = prefix + "";
+            public const string deletePermanentlyOrder = prefix + "";
+            public const string updateOrderInfo = prefix + "";
+            public const string deleteSoftedOrder = prefix + "/softed-delete";
+            public const string getOrders = prefix + "";
+        }
+
+        public static class Payment
+        {
+            public const string createPaymentLinkPayOS = Base + "/payment-payOS/create-payment-link";
+            public const string getPaymentInformation = Base + "/payment/get-payment-information";
+            public const string getPaymentStatistic = Base + "/payment-payOS/payment-statistic";
+        }
     }
 }

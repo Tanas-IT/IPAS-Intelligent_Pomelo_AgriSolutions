@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -8,6 +10,8 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using MimeKit.Tnef;
+using Newtonsoft.Json;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
@@ -22,11 +26,71 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IPackageService _packageService;
+        private readonly IFarmService _farmService;
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper, IPackageService packageService, IFarmService farmService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _packageService = packageService;
+            _farmService = farmService;
+        }
+
+        public async Task<BusinessResult> CreateOrder(OrderCreateRequest createRequest)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    // kiem tra package & farm exist
+                    var checkPackageExist = await _packageService.CheckPackageExistAndActive(createRequest.PackageId);
+                    if (checkPackageExist == null)
+                        return new BusinessResult(Const.WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_CODE, Const.WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_MSG);
+                    var checkFarmExist = await _farmService.GetFarmByID(createRequest.FarmId);
+                    if (checkFarmExist.StatusCode != 200 || checkFarmExist.Data == null)
+                        return checkFarmExist;
+                    // get farmcode and packagecode
+                    //var farmData = JsonConvert.DeserializeObject<FarmModel>(checkFarmExist.Data);
+                    var farmData = checkFarmExist.Data as FarmModel;
+
+                    var farmCode = Util.SplitByDash(farmData!.FarmCode!);
+                    var packagecode = Util.SplitByDash(checkPackageExist.PackageCode!);
+                    var orderWithPayment = new Order
+                    {
+                        OrderCode = $"{CodeAliasEntityConst.ORDER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode.First()}-{packagecode.First().ToUpper()}",
+                        OrderDate = DateTime.Now,
+                        TotalPrice = createRequest.TotalPrice,
+                        Notes = createRequest.Notes,
+                        EnrolledDate = DateTime.Now,
+                        ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),
+                        FarmId = farmData.FarmId,
+                        PackageId = checkPackageExist.PackageId,
+                    };
+                    string ordercode = Util.SplitByDash(orderWithPayment.OrderCode).First();
+                    var payment = new Payment
+                    {
+                        PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
+                        TransactionId = createRequest.TransactionId,
+                        CreateDate = DateTime.Now,
+                        PaymentMethod = createRequest.PaymentMethod,
+                        Status = createRequest.PaymentStatus,
+                    };
+                    orderWithPayment.Payment = payment;
+                    await _unitOfWork.OrdesRepository.Insert(orderWithPayment);
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        var mappedResult = _mapper.Map<OrderModel>(orderWithPayment);
+                        return new BusinessResult(Const.SUCCESS_CREATE_ORDER_CODE, Const.SUCCESS_CREATE_ORDER_MSG, mappedResult);
+                    }
+                    return new BusinessResult(Const.SUCCESS_CREATE_ORDER_CODE, Const.SUCCESS_CREATE_ORDER_MSG);
+
+                }
+                catch (Exception ex)
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
 
         public async Task<BusinessResult> GetOrderExpiredOfFarm(int farmId)
@@ -60,52 +124,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 switch (paginationParameter.SortBy)
                 {
                     case "ordercode":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.OrderCode)
-                               : x => x.OrderBy(x => x.OrderCode)) : x => x.OrderBy(x => x.OrderCode);
-                    break;
-                case "ordername":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.OrderName)
-                               : x => x.OrderBy(x => x.OrderName)) : x => x.OrderBy(x => x.OrderName);
-                    break;
-                case "totalprice":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.TotalPrice)
-                               : x => x.OrderBy(x => x.TotalPrice)) : x => x.OrderBy(x => x.TotalPrice);
-                    break;
-                case "orderdate":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.OrderDate)
-                               : x => x.OrderBy(x => x.OrderDate)) : x => x.OrderBy(x => x.OrderDate);
-                    break;
-                case "enrolleddate":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.EnrolledDate)
-                               : x => x.OrderBy(x => x.EnrolledDate)) : x => x.OrderBy(x => x.EnrolledDate);
-                    break;
-                case "expireddate":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.ExpiredDate)
-                               : x => x.OrderBy(x => x.ExpiredDate)) : x => x.OrderBy(x => x.ExpiredDate);
-                    break;
-                case "packagename":
-                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.Package!.PackageName)
-                               : x => x.OrderBy(x => x.Package!.PackageName)) : x => x.OrderBy(x => x.Package!.PackageName);
-                    break;
-                default:
-                    orderBy = x => x.OrderByDescending(x => x.FarmId);
-                    break;
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderCode)
+                                   : x => x.OrderBy(x => x.OrderCode)) : x => x.OrderBy(x => x.OrderCode);
+                        break;
+                    case "ordername":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderName)
+                                   : x => x.OrderBy(x => x.OrderName)) : x => x.OrderBy(x => x.OrderName);
+                        break;
+                    case "totalprice":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.TotalPrice)
+                                   : x => x.OrderBy(x => x.TotalPrice)) : x => x.OrderBy(x => x.TotalPrice);
+                        break;
+                    case "orderdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderDate)
+                                   : x => x.OrderBy(x => x.OrderDate)) : x => x.OrderBy(x => x.OrderDate);
+                        break;
+                    case "enrolleddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.EnrolledDate)
+                                   : x => x.OrderBy(x => x.EnrolledDate)) : x => x.OrderBy(x => x.EnrolledDate);
+                        break;
+                    case "expireddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ExpiredDate)
+                                   : x => x.OrderBy(x => x.ExpiredDate)) : x => x.OrderBy(x => x.ExpiredDate);
+                        break;
+                    case "packagename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Package!.PackageName)
+                                   : x => x.OrderBy(x => x.Package!.PackageName)) : x => x.OrderBy(x => x.Package!.PackageName);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.FarmId);
+                        break;
                 }
-                var entities = await _unitOfWork.OrdesRepository.Get( filter:filter, orderBy:orderBy , pageIndex :paginationParameter.PageIndex, pageSize:paginationParameter.PageSize);
+                var entities = await _unitOfWork.OrdesRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<OrderModel>();
                 pagin.List = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
                 Expression<Func<Order, bool>> filterCount = null!;
@@ -123,6 +187,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public Task<BusinessResult> UpdateOrder(UpdateOrderRequest updateRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

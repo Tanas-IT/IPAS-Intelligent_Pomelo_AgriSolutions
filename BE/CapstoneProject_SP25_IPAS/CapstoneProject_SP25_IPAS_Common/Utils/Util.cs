@@ -35,5 +35,17 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
                         .Select(s => s.Trim().ToLower()) 
                         .ToList();
         }
+
+        public static List<string> SplitByDash(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return new List<string>();
+            }
+
+            return input.Split('-', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim().ToLower())
+                        .ToList();
+        }
     }
 }

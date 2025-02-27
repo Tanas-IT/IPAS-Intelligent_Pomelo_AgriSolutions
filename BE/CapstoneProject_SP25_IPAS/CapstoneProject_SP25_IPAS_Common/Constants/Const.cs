@@ -454,7 +454,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Packages
-        public static int SUCCESS_GET_PACKAGES_CODE = 400;
+        public static int SUCCESS_GET_PACKAGES_CODE = 200;
         public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
         #endregion
 
@@ -496,6 +496,10 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_PREDICT_IMAGE_BY_URL_MSG = "Predict image by url success";
         #endregion
 
+        #region Order
+        public static int SUCCESS_CREATE_ORDER_CODE = 200;
+        public static string SUCCESS_CREATE_ORDER_MSG = "Order create success";
+        #endregion
         #endregion
 
         #region FAIL
@@ -1135,6 +1139,11 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_ASK_AI_MSG = "Do not have any message";
         #endregion
 
+
+        #region Order
+        public static int WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_CODE = 400;
+        public static string WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_MSG = "Package not exist or active, please try again";
+        #endregion
         #endregion
     }
 }

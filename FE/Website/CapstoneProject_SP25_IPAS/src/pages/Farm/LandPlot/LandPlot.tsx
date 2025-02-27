@@ -129,7 +129,12 @@ function LandPlot() {
           </Flex>
         </Flex>
       </div>
-      <AddNewPlotDrawer landPlots={landPlots} isOpen={isDrawerVisible} onClose={closeDrawer} />
+      <AddNewPlotDrawer
+        landPlots={landPlots}
+        fetchLandPlots={fetchLandPlotData}
+        isOpen={isDrawerVisible}
+        onClose={closeDrawer}
+      />
     </Flex>
   );
 }

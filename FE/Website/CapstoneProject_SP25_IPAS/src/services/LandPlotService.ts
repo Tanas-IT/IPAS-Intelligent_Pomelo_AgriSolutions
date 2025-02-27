@@ -1,16 +1,16 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetLandPlot } from "@/payloads";
+import { ApiResponse, GetLandPlot, GetLandPlotSelected, LandPlotRequest } from "@/payloads";
 import { getFarmId } from "@/utils";
 
 export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-selected?farmId=${farmId}`);
-  const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
+  const apiResponse = res.data as ApiResponse<GetLandPlotSelected[]>;
 
   return apiResponse.data.map(({ id, name }) => ({
     id,
-    name
+    name,
   }));
-}
+};
 
 export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetLandPlot[]>> => {
   const url = searchKey
@@ -18,5 +18,11 @@ export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetL
     : `landplots?farmId=${getFarmId()}`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
   const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
+  return apiResponse;
+};
+
+export const createLandPlot = async (plot: LandPlotRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post("landplots", plot);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

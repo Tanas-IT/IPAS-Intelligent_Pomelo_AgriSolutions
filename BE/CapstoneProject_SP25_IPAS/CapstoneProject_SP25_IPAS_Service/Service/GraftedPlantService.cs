@@ -58,7 +58,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.FAIL_CREATE_GRAFTED_PLANT_CODE, criteriaResult.ErrorMessage);
                     }
                     // Create the new Plant entity from the request
-                    var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
+                    //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
+                    var jsonData = plantExist.Data as PlantModel;
 
                     var graftedCreateEntity = new GraftedPlant()
                     {
@@ -197,7 +198,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest)
+        public async Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -230,32 +231,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
 
-                if (!string.IsNullOrEmpty(getRequest.paginationParameter.SortBy))
+                if (!string.IsNullOrEmpty(paginationParameter.SortBy))
                 {
-                    switch (getRequest.paginationParameter.SortBy.ToLower())
+                    switch (paginationParameter.SortBy.ToLower())
                     {
                         case "graftedplantid":
-                            orderBy = getRequest.paginationParameter.Direction!.ToLower() == "desc"
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.GraftedPlantId)
                                 : x => x.OrderBy(x => x.GraftedPlantId);
                             break;
                         case "grafteddate":
-                            orderBy = getRequest.paginationParameter.Direction!.ToLower() == "desc"
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.GraftedDate)
                                 : x => x.OrderBy(x => x.GraftedDate);
                             break;
                         case "growthstage":
-                            orderBy = getRequest.paginationParameter.Direction!.ToLower() == "desc"
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.GrowthStage)
                                 : x => x.OrderBy(x => x.GrowthStage);
                             break;
                         case "status":
-                            orderBy = getRequest.paginationParameter.Direction!.ToLower() == "desc"
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.Status)
                                 : x => x.OrderBy(x => x.Status);
                             break;
                         case "plantlotid":
-                            orderBy = getRequest.paginationParameter.Direction!.ToLower() == "desc"
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.PlantLotId)
                                 : x => x.OrderBy(x => x.PlantLotId);
                             break;
@@ -266,13 +267,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 string includeProperties = "PlantLot,Plant";
                 var entities = await _unitOfWork.GraftedPlantRepository.Get(
-                    filter, orderBy, includeProperties, getRequest.paginationParameter.PageIndex, getRequest.paginationParameter.PageSize);
+                    filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
 
                 var pagin = new PageEntity<GraftedPlantModels>
                 {
                     List = _mapper.Map<IEnumerable<GraftedPlantModels>>(entities).ToList(),
                     TotalRecord = await _unitOfWork.GraftedPlantRepository.Count(filter),
-                    TotalPage = PaginHelper.PageCount(await _unitOfWork.GraftedPlantRepository.Count(filter), getRequest.paginationParameter.PageSize)
+                    TotalPage = PaginHelper.PageCount(await _unitOfWork.GraftedPlantRepository.Count(filter), paginationParameter.PageSize)
                 };
 
                 if (pagin.List.Any())

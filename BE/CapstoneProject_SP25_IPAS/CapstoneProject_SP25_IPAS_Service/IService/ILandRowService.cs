@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandRowRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 
 namespace CapstoneProject_SP25_IPAS_Service.IService
@@ -13,6 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreateLandRow(CreateLandRowRequest createRequest);
         public Task<int> CreateMultipleRow(List<CreateLandRowRequest> createRequest);
         public Task<BusinessResult> GetLandRowForSelectedByPlotId(int landplotId);
-        public Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request);
+        public Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request, PaginationParameter paginationParameter);
     }
 }

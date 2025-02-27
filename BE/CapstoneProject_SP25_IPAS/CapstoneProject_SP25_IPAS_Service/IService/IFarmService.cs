@@ -46,5 +46,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> getUserFarmById(int farmId, int userId);
 
+        public Task<FarmModel> CheckFarmExist(int farmId);
+
+
     }
 }
