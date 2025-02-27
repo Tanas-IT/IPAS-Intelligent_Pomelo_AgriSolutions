@@ -142,6 +142,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             .Include(p => p.LandRow)
                 .ThenInclude(lr => lr!.LandPlot)
              .Include(p => p.MasterType)
+             .Include(p => p.GrowthStage)
              .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
@@ -173,6 +174,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.LandRow)
                 .ThenInclude(lr => lr!.LandPlot)
                 .Include(p => p.MasterType)
+                .Include(p => p.GrowthStage)
                 .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType);
@@ -201,6 +203,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(p => p.LandRow)
                 .ThenInclude(lr => lr!.LandPlot)
                 .Include(p => p.MasterType)
+                .Include(p => p.GrowthStage)
                 .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType);
@@ -209,7 +212,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 // Ensure the pageIndex and pageSize are valid
                 int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; 
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5;
 
                 query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
             }
