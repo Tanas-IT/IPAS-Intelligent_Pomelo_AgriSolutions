@@ -78,18 +78,32 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
       const { setIsOverlapping } = useMapStore.getState();
 
       const isOverlapping = landPlots.some((existingPlot) => {
-        // Bỏ qua polygon hiện tại nếu nó trùng với excludedId (trong trường hợp update)
-        if (existingPlot.landPlotId === excludedId) return false;
+        if (existingPlot.landPlotId.toString() === excludedId) return false;
 
-        const existingPolygon = turf.polygon([
-          existingPlot.landPlotCoordinations.map((coord) => [coord.longitude, coord.latitude]),
+        const coords = existingPlot.landPlotCoordinations.map((coord) => [
+          coord.longitude,
+          coord.latitude,
         ]);
+
+        // Đảm bảo polygon có ít nhất 4 điểm và được đóng vòng
+        if (coords.length < 3) return false;
+        if (
+          coords[0][0] !== coords[coords.length - 1][0] ||
+          coords[0][1] !== coords[coords.length - 1][1]
+        ) {
+          coords.push(coords[0]); // Đóng vòng polygon nếu chưa có
+        }
+
+        const existingPolygon = turf.polygon([coords]);
 
         return (
           turf.booleanOverlap(newPolygonFeature, existingPolygon) ||
-          turf.booleanIntersects(newPolygonFeature, existingPolygon)
+          turf.booleanIntersects(newPolygonFeature, existingPolygon) ||
+          turf.booleanContains(newPolygonFeature, existingPolygon) || // Kiểm tra nếu polygon mới bao toàn bộ polygon cũ
+          turf.booleanContains(existingPolygon, newPolygonFeature) // Kiểm tra nếu polygon cũ bao toàn bộ polygon mới
         );
       });
+
       setIsOverlapping(isOverlapping);
     };
 

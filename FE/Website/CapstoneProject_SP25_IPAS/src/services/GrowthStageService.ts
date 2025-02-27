@@ -1,5 +1,11 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetGrowthStage, GetGrowthStage2, GrowthStageRequest } from "@/payloads";
+import {
+  ApiResponse,
+  GetData,
+  GetGrowthStage,
+  GetGrowthStageSelected,
+  GrowthStageRequest,
+} from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getGrowthStages = async (
@@ -9,7 +15,7 @@ export const getGrowthStages = async (
   sortDirection?: string,
   searchValue?: string,
   additionalParams?: Record<string, any>,
-): Promise<GetData<GetGrowthStage2>> => {
+): Promise<GetData<GetGrowthStage>> => {
   const params = buildParams(
     currentPage,
     rowsPerPage,
@@ -19,8 +25,8 @@ export const getGrowthStages = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("growthStages", { params });
-  const apiResponse = res.data as ApiResponse<GetData<GetGrowthStage2>>;
-  return apiResponse.data as GetData<GetGrowthStage2>;
+  const apiResponse = res.data as ApiResponse<GetData<GetGrowthStage>>;
+  return apiResponse.data as GetData<GetGrowthStage>;
 };
 
 export const deleteGrowthStages = async (
@@ -49,10 +55,10 @@ export const createGrowthStage = async (
 
 export const getGrowthStagesOfFarmForSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`growthStages/get-for-select/${farmId}`);
-  const apiResponse = res.data as ApiResponse<GetGrowthStage[]>;
+  const apiResponse = res.data as ApiResponse<GetGrowthStageSelected[]>;
 
   return apiResponse.data.map(({ id, name }) => ({
     id,
-    name
+    name,
   }));
-}
+};

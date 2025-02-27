@@ -91,6 +91,8 @@ export const DEFAULT_ROW = (): rowStateType => ({
 });
 
 export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
+  landPlotId: "",
+  landPlotCode: "",
   landPlotName: "",
   area: 0,
   plotLength: 0,
@@ -100,7 +102,7 @@ export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
   targetMarket: "",
   numberOfRows: 0,
   lineSpacing: 0,
-  isHorizontal: true,
+  isRowHorizontal: true,
   rowPerLine: 0,
   rowSpacing: 0,
   landPlotCoordinations: [],
