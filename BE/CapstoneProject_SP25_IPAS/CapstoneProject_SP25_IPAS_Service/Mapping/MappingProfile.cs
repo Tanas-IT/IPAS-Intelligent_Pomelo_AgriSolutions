@@ -134,25 +134,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Plant, PlantModel>()
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
                 .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow!.RowIndex))
-                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName));
-                //.ForMember(dest => dest.Plans, opt => opt.MapFrom(src => src.Plans))
-                //.ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
-                //    src.PlantCriterias.GroupBy(pc => pc.Criteria.MasterType)
-                //    .Select(g => new
-                //    {
-                //        CriteriaType = g.Key!.MasterTypeName,
-                //        CheckedCount = g.Count(pc => pc.IsChecked == true),
-                //        TotalCount = g.Count()
-                //    })
-                //    .ToList())
-                //);
+                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName))
+                .ForMember(dest => dest.Characteristic, opt => opt.MapFrom(src => src.MasterType!.Characteristic))
+                .ReverseMap();
+
+
+            //.ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
+            //    src.PlantCriterias.GroupBy(pc => pc.Criteria.MasterType)
+            //    .Select(g => new
+            //    {
+            //        CriteriaType = g.Key!.MasterTypeName,
+            //        CheckedCount = g.Count(pc => pc.IsChecked == true),
+            //        TotalCount = g.Count()
+            //    })
+            //    .ToList())
+            //);
 
             //CreateMap<PlantCriteria, PlantCriteriaModel>()
             //    .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
             //    .ReverseMap();
 
-           
-            
+
+
 
             CreateMap<PlantGrowthHistory, PlantGrowthHistoryModel>()
                 .ForMember(dest => dest.PlantResources, opt => opt.MapFrom(src => src.Resources))
