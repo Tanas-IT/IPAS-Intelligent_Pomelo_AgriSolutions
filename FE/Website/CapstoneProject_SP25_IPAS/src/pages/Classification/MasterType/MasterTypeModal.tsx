@@ -37,13 +37,13 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     if (isOpen) {
       if (isUpdate && masterTypeData) {
         form.setFieldsValue({
-          masterTypeId: masterTypeData.masterTypeId,
-          masterTypeName: masterTypeData.masterTypeName,
-          masterTypeDescription: masterTypeData.masterTypeDescription,
-          backgroundColor: masterTypeData.backgroundColor,
-          textColor: masterTypeData.textColor,
-          characteristic: masterTypeData.characteristic,
-          typeName: masterTypeData.typeName,
+          [masterTypeFormFields.masterTypeId]: masterTypeData.masterTypeId,
+          [masterTypeFormFields.masterTypeName]: masterTypeData.masterTypeName,
+          [masterTypeFormFields.masterTypeDescription]: masterTypeData.masterTypeDescription,
+          [masterTypeFormFields.backgroundColor]: masterTypeData.backgroundColor,
+          [masterTypeFormFields.textColor]: masterTypeData.textColor,
+          [masterTypeFormFields.characteristic]: masterTypeData.characteristic,
+          [masterTypeFormFields.typeName]: masterTypeData.typeName,
         });
         setChecked(masterTypeData.isActive);
         setSelectedType(masterTypeData.typeName);

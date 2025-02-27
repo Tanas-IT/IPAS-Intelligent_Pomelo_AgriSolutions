@@ -20,7 +20,7 @@ export interface CoordsState {
 export interface PolygonInit {
   id: string;
   coordinates: number[][][];
-  landPlotId: number;
+  landPlotId?: number;
 }
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
@@ -35,4 +35,14 @@ export interface LandPlotsStateType {
   longitude: number;
   latitude: number;
   landPlots: GetLandPlot[];
+}
+
+export interface rowStateType {
+  id: number;
+  length: number;
+  width: number;
+  plantsPerRow: number;
+  plantSpacing: number;
+  // rowOrientation: "Horizontal" | "Vertical";
+  index: number;
 }

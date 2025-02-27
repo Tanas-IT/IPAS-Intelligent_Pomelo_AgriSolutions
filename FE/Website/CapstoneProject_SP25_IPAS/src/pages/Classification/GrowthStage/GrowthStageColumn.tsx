@@ -1,9 +1,9 @@
 import { TableColumn } from "@/types";
-import { GetGrowthStage } from "@/payloads";
+import { GetGrowthStage2 } from "@/payloads";
 import { formatDate } from "@/utils";
 import { TableCell } from "@/components";
 
-export const growthStageColumns: TableColumn<GetGrowthStage>[] = [
+export const growthStageColumns: TableColumn<GetGrowthStage2>[] = [
   {
     header: "Code",
     field: "growthStageCode",

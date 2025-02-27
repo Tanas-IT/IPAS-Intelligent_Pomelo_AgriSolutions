@@ -1,5 +1,11 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import {
+  ApiResponse,
+  GetData,
+  GetGrowthStage,
+  GetGrowthStageSelected,
+  GrowthStageRequest,
+} from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getGrowthStages = async (
@@ -49,10 +55,10 @@ export const createGrowthStage = async (
 
 export const getGrowthStagesOfFarmForSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`growthStages/get-for-select/${farmId}`);
-  const apiResponse = res.data as ApiResponse<GetGrowthStage[]>;
+  const apiResponse = res.data as ApiResponse<GetGrowthStageSelected[]>;
 
   return apiResponse.data.map(({ id, name }) => ({
     id,
-    name
+    name,
   }));
-}
+};

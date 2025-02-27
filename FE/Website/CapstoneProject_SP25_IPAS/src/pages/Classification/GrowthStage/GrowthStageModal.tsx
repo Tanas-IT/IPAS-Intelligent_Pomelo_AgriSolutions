@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
 import { growthStageFormFields } from "@/constants";
-import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import { GetGrowthStage2, GrowthStageRequest } from "@/payloads";
 
 type GrowthStageModalProps = {
   isOpen: boolean;
   onClose: (values: GrowthStageRequest, isUpdate: boolean) => void;
   onSave: (values: GrowthStageRequest) => void;
-  growthStageData?: GetGrowthStage;
+  growthStageData?: GetGrowthStage2;
 };
 
 const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthStageModalProps) => {
@@ -23,12 +23,12 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     if (isOpen) {
       if (isUpdate && growthStageData) {
         form.setFieldsValue({
-          growthStageId: growthStageData.growthStageId,
-          growthStageName: growthStageData.growthStageName,
-          description: growthStageData.description,
-          createDate: growthStageData.createDate,
-          monthAgeStart: growthStageData.monthAgeStart,
-          monthAgeEnd: growthStageData.monthAgeEnd,
+          [growthStageFormFields.growthStageId]: growthStageData.growthStageId,
+          [growthStageFormFields.growthStageName]: growthStageData.growthStageName,
+          [growthStageFormFields.description]: growthStageData.description,
+          [growthStageFormFields.createDate]: growthStageData.createDate,
+          [growthStageFormFields.monthAgeStart]: growthStageData.monthAgeStart,
+          [growthStageFormFields.monthAgeEnd]: growthStageData.monthAgeEnd,
         });
       }
     }
