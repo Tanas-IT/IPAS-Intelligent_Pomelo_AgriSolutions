@@ -81,7 +81,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         RoomCode = "IPAS_" + getFarmInfo.FarmName + "_ChatIPAS_" + DateTime.Now.Date,
                         RoomName = "Chat with IPAS",
                         CreateDate = DateTime.Now,
-                        FarmID = getFarmInfo.FarmId,
+                        FarmID = farmId,
                         UserID = userId > 0 ? userId.Value : null,
                     };
                     await _unitOfWork.ChatRoomRepository.Insert(checkRoomExist);
