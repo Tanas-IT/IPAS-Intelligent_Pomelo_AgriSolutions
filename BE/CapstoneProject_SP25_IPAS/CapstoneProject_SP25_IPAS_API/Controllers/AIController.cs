@@ -1,0 +1,93 @@
+﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Crmf;
+
+namespace CapstoneProject_SP25_IPAS_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AIController : ControllerBase
+    {
+        private readonly IAIService _aiService;
+        private readonly IJwtTokenService _jwtTokenService;
+
+        public AIController(IAIService aiService, IJwtTokenService jwtTokenService)
+        {
+            _aiService = aiService;
+            _jwtTokenService = jwtTokenService;
+        }
+
+        [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
+        public async Task<IActionResult> AskQuestion([FromBody] ChatRequest request, int? farmId, int? userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(request.Question))
+                {
+                    return BadRequest(new { Message = "Câu hỏi không được để trống." });
+                }
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetAnswerAsync(request.Question, farmId, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.AI.predictDiseaseByFile, Name = "predictDiseaseByFile")]
+        public async Task<IActionResult> PredictDiseaseByFile([FromForm] PredictRequest request)
+        {
+            try
+            {
+                var result = await _aiService.PredictDiseaseByFile(request.Image);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.AI.predictDiseaseByURL, Name = "predictDiseaseByURL")]
+        public async Task<IActionResult> PredictDiseaseByURL([FromBody] PredictImageByURLRequest request)
+        {
+            try
+            {
+                var result = await _aiService.PredictDiseaseByURL(request.ImageURL);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+    }
+}

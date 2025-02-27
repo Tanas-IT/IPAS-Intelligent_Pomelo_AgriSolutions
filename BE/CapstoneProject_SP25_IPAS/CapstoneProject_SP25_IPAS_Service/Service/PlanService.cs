@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -72,6 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
 
                     await _unitOfWork.PlanRepository.Insert(newPlan);
+
                     if (createPlanModel.PlanTargetModel != null && createPlanModel.PlanTargetModel.Count > 0)
                     {
                         foreach (var plantTarget in createPlanModel.PlanTargetModel)
@@ -101,6 +103,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     await _unitOfWork.NotificationRepository.Insert(addNotification);
                     await _unitOfWork.SaveAsync();
+                    //if (createPlanModel.ListCriteria != null)
+                    //{
+                    //    var newCriteriaTargerRequest = new CriteriaTargerRequest()
+                    //    {
+                    //        PlanID = new List<int>() { newPlan.PlanId },
+                    //        CriteriaData = createPlanModel.ListCriteria
+                    //    };
+                    //    await _criteriaTargetService.ApplyCriteriasForTarget(newCriteriaTargerRequest);
+                    //}
 
                     var addPlanNotification = new PlanNotification()
                     {
@@ -159,7 +170,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     bool validBool = false;
                     if (checkInt)
                     {
-                        filter = filter.And(x => x.PlanId == validInt  || x.ProcessId == validInt
+                        filter = filter.And(x => x.PlanId == validInt || x.ProcessId == validInt
                                             || x.MasterTypeId == validInt
                                             || x.MinVolume == validInt || x.MaxVolume == validInt
                                             || x.AssignorId == validInt || x.CropId == validInt || x.GrowthStageId == validInt);
@@ -363,7 +374,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.IsActive)
                                    : x => x.OrderBy(x => x.IsActive)) : x => x.OrderBy(x => x.IsActive);
                         break;
-                  
+
                     case "processname":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -575,7 +586,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.CropId = updatePlanModel.CropId;
                         }
-                       
+
                         if (updatePlanModel.MasterTypeId != null)
                         {
                             checkExistPlan.MasterTypeId = updatePlanModel.MasterTypeId;
@@ -592,7 +603,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.ProcessId = updatePlanModel.ProcessId;
                         }
-                       
+
                         if (updatePlanModel.Status != null)
                         {
                             checkExistPlan.Status = updatePlanModel.Status;
@@ -629,35 +640,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.MaxVolume = updatePlanModel.MaxVolume;
                         }
-                       
+
                         if (updatePlanModel.Frequency != null)
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
                         }
-                        if(updatePlanModel.UpdatePlanTargetModels != null)
+                        if (updatePlanModel.UpdatePlanTargetModels != null)
                         {
-                            foreach(var updatePlanTarget in  updatePlanModel.UpdatePlanTargetModels)
+                            foreach (var updatePlanTarget in updatePlanModel.UpdatePlanTargetModels)
                             {
                                 var getUpdatePlanTarget = await _unitOfWork.PlanTargetRepository.GetByCondition(x => x.PlanID == updatePlanTarget.PlanID);
                                 if (getUpdatePlanTarget != null)
                                 {
-                                    if(updatePlanTarget.PlantLotID != null)
+                                    if (updatePlanTarget.PlantLotID != null)
                                     {
                                         getUpdatePlanTarget.PlantLotID = updatePlanTarget.PlantLotID;
                                     }
-                                    if(updatePlanTarget.LandPlotID != null)
+                                    if (updatePlanTarget.LandPlotID != null)
                                     {
                                         getUpdatePlanTarget.LandPlotID = updatePlanTarget.LandPlotID;
                                     }
-                                    if(updatePlanTarget.LandRowID != null)
+                                    if (updatePlanTarget.LandRowID != null)
                                     {
                                         getUpdatePlanTarget.LandRowID = updatePlanTarget.LandRowID;
                                     }
-                                    if(updatePlanTarget.PlantID != null)
+                                    if (updatePlanTarget.PlantID != null)
                                     {
                                         getUpdatePlanTarget.PlantID = updatePlanTarget.PlantID;
                                     }
-                                    if(updatePlanTarget.GraftedPlantID != null)
+                                    if (updatePlanTarget.GraftedPlantID != null)
                                     {
                                         getUpdatePlanTarget.GraftedPlantID = updatePlanTarget.GraftedPlantID;
                                     }
@@ -1410,9 +1421,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
                 var getListPlan = new List<Plan>();
-                foreach(var planTarget in getListPlanTarget)
+                foreach (var planTarget in getListPlanTarget)
                 {
-                    if(planTarget.PlanID != null)
+                    if (planTarget.PlanID != null)
                     {
                         var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
                         if (getPlan != null && getPlan.IsDelete == false)
@@ -1429,7 +1440,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 if (listTemp != null)
                 {
-                    if(listTemp.Count > 0)
+                    if (listTemp.Count > 0)
                     {
                         return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_FARM_ID_CODE, Const.SUCCESS_GET_PLAN_BY_FARM_ID_MSG, listTemp); ;
                     }
