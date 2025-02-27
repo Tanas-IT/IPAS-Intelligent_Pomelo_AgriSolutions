@@ -31,6 +31,11 @@ export type FilterMasterTypeState = {
   typeName: string[];
 };
 
+export type FilterPlantState = {
+  createDateFrom: string;
+  createDateTo: string;
+};
+
 export interface LandPlotsStateType {
   longitude: number;
   latitude: number;

@@ -45,8 +45,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
       const hasDetails =
         (item.backgroundColor && item.backgroundColor.trim() !== "") ||
         (item.textColor && item.textColor.trim() !== "") ||
-        (item.characteristic && item.characteristic.trim() !== "") ||
-        (item.masterTypeDetailModels && item.masterTypeDetailModels.length > 0);
+        (item.characteristic && item.characteristic.trim() !== "");
 
       return hasDetails ? (
         <Collapse defaultActiveKey={[]} ghost expandIconPosition="right">

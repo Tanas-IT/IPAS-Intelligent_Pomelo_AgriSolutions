@@ -5,23 +5,18 @@ import dayjs from "dayjs";
 import { useStyle } from "@/hooks";
 import { FilterFooter, TagRender } from "@/components";
 import { DATE_FORMAT } from "@/utils";
+import { FilterPlantState } from "@/types";
 
 const { RangePicker } = DatePicker;
 
 type FilterProps = {
-  filters: {
-    createDateFrom: string;
-    createDateTo: string;
-    growthStages: string[];
-    status: string[];
-  };
-  updateFilters: (key: string, value: any) => void;
+  filters: FilterPlantState;
+  updateFilters: (key: keyof FilterPlantState, value: any) => void;
   onClear: () => void;
   onApply: () => void;
 };
 const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const { styles } = useStyle();
 
   const options = [
     { value: "gold" },
@@ -32,12 +27,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     { value: "as" },
   ];
 
-  const isFilterEmpty = !(
-    filters.createDateFrom ||
-    filters.createDateTo ||
-    filters.growthStages.length > 0 ||
-    filters.status.length > 0
-  );
+  const isFilterEmpty = !(filters.createDateFrom || filters.createDateTo);
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
   const handleApply = () => {
@@ -64,40 +54,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             }}
           />
         </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Growth Stages:</label>
-          <Select
-            mode="multiple"
-            placeholder="Please select"
-            tagRender={TagRender}
-            options={options}
-            value={filters.growthStages}
-            onChange={(value) => updateFilters("growthStages", value)}
-          />
-        </Flex>
-        <Flex className={style.sectionStatus}>
-          <label className={style.title}>Status:</label>
-          <Flex className={style.statusGroup}>
-            {["A", "B"].map((status) => (
-              <Checkbox
-                className={styles.customCheckbox}
-                key={status}
-                checked={filters.status.includes(status)}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  updateFilters(
-                    "status",
-                    checked
-                      ? [...filters.status, status]
-                      : filters.status.filter((val) => val !== status),
-                  );
-                }}
-              >
-                {status}
-              </Checkbox>
-            ))}
-          </Flex>
-        </Flex>
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}
