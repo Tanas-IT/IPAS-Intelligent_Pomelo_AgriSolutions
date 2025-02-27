@@ -527,6 +527,7 @@ CREATE TABLE ipas.dbo.Process (
 	FarmID int NULL,
 	GrowthStageID int NULL,
         [Order] int NULL,
+        IsSample bit NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
