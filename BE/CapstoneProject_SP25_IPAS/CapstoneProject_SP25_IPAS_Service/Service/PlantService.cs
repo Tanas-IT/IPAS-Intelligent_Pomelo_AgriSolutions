@@ -259,17 +259,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
 
-                if (request.LandPlotId.HasValue)
-                    filter = filter.And(x => x.LandRow!.LandPlotId == request.LandPlotId);
+                if (!string.IsNullOrEmpty(request.LandPlotIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.LandPlotIds!);
+                    filter = filter.And(x => filterList.Contains(x.LandRow!.LandPlotId.ToString()!));
+                }
                 if (!string.IsNullOrEmpty(request.LandRowIds))
                 {
                     List<string> filterList = Util.SplitByComma(request.LandRowIds);
                     filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
                     //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
                 }
-                if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == false)
+                if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
-                if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == true)
+                if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
                     filter = filter.And(x => x.LandRowId.HasValue);
 
                 if (!string.IsNullOrEmpty(paginationParameter.Search))

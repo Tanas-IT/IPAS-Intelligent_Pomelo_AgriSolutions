@@ -11,7 +11,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
     public class GetPlantPaginRequest
     {
         public int? farmId { get; set; }
-        public int? LandPlotId { get; set;}
+        public string? LandPlotIds { get; set;}
         public string? LandRowIds { get; set; }
         //[DefaultValue(true)]
         public bool? IsLocated { get; set; }
