@@ -48,6 +48,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+
+                    // kiem tra cac request
+                    var growthStage = await _unitOfWork.GrowthStageRepository
+                           .GetByCondition(x => x.GrowthStageID == plantCreateRequest.GrowthStageId && x.isDeleted == false);
+                    if (growthStage == null)
+                    {
+                        return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
+                    }
+                    var masterType = await _unitOfWork.MasterTypeRepository
+                        .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDelete == false && x.IsActive == true);
+                    if (masterType == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
+                    }
                     var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants");
                     if (landrowExist == null)
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
