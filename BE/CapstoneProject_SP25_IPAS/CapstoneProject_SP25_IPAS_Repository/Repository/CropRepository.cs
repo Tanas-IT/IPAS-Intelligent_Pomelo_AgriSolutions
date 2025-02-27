@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.WorkLogs)
                 .ThenInclude(x => x.UserWorkLogs)
                 .Include(x => x.HarvestHistories)
-                .ThenInclude(x => x.WorkLogs)
+                .ThenInclude(x => x.CarePlanSchedules)
                 .Include(x => x.HarvestHistories)
                 .ThenInclude(x => x.HarvestTypeHistories)
                 .FirstOrDefaultAsync(x => x.CropId == cropId);

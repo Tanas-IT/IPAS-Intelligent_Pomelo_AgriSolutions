@@ -24,5 +24,5 @@ public partial class HarvestHistory
 
     public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 
-    public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
+    public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
 }

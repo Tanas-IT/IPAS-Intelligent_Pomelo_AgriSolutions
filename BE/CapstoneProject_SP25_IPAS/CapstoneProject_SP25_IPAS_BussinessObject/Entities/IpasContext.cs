@@ -129,6 +129,17 @@ public partial class IpasContext : DbContext
                 .HasForeignKey<CarePlanSchedule>(d => d.CarePlanId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__CarePlanS__CareP__2180FB33");
+
+
+            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.CarePlanSchedules)
+                .HasForeignKey(d => d.HarvestHistoryID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CarePlanSchedule_HarvestHistory");
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.CarePlanSchedules)
+                .HasForeignKey(d => d.FarmID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_CarePlanSchedule_Farm");
         });
 
         modelBuilder.Entity<ChatMessage>(entity =>
@@ -1278,7 +1289,6 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.WorkLogId).HasColumnName("WorkLogID");
             entity.Property(e => e.Date).HasColumnType("datetime");
-            entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.Notes).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
             entity.Property(e => e.Status)
@@ -1289,10 +1299,6 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
 
-            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.WorkLogs)
-                .HasForeignKey(d => d.HarvestHistoryId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_WorkLog_HarvestHistory");
 
             entity.HasOne(d => d.Schedule).WithMany(p => p.WorkLogs)
                 .HasForeignKey(d => d.ScheduleId)

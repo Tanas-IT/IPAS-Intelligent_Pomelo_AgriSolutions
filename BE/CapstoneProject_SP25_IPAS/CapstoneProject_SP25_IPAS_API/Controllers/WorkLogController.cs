@@ -94,11 +94,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.WorkLog.addNewTask, Name = "AddNewTask")]
-        public async Task<IActionResult> AddNewTask([FromBody] AddNewTaskModel addNewTaskModel)
+        public async Task<IActionResult> AddNewTask([FromBody] AddNewTaskModel addNewTaskModel, int? farmId)
         {
             try
             {
-                var result = await _workLogService.AddNewTask(addNewTaskModel);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.AddNewTask(addNewTaskModel, farmId);
                 return Ok(result);
             }
             catch (Exception ex)

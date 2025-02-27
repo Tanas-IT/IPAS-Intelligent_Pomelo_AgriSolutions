@@ -823,8 +823,12 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CustomDates nvarchar(MAX) NULL,
+	FarmID int NULL,
+	HarvestHistoryID int NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
-	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
+	CONSTRAINT CarePlanSchedule_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
+	CONSTRAINT CarePlanSchedule_HarvestHistory_FK FOREIGN KEY (HarvestHistoryID) REFERENCES IPAS.dbo.HarvestHistory(HarvestHistoryID),
+	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES IPAS.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
 
 
@@ -877,17 +881,15 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 CREATE TABLE ipas.dbo.WorkLog (
 	WorkLogID int IDENTITY(1,1) NOT NULL,
 	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-        WorkLogName nvarchar(300) NULL,
+    WorkLogName nvarchar(300) NULL,
 	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Date] datetime NULL,
 	IsConfirm bit NULL,
 	ScheduleID int NULL,
-	HarvestHistoryID int NULL,
 	WarningID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
-	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
 	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
 );
