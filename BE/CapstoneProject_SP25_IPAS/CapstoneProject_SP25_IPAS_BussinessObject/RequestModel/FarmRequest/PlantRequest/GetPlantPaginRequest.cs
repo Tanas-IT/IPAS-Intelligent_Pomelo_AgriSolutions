@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
     {
         public int? farmId { get; set; }
         public int? LandPlotId { get; set;}
-        public List<int> LandRowIds { get; set; } = new List<int>();
+        public string? LandRowIds { get; set; }
         //[DefaultValue(true)]
         public bool? IsLocated { get; set; }
         //public PaginationParameter? paginationParameter { get; set; } = new PaginationParameter();
@@ -23,7 +23,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         public DateTime? PlantingDateFrom { get; set; }
         public DateTime? PlantingDateTo { get; set; }
         public string? HealthStatus { get; set; }
-        public List<int> CultivarIds { get; set; } = new List<int>();
-        public List<int> GrowthStageIds { get; set; } = new List<int>();
+        public string? CultivarIds { get; set; }
+        public string? GrowthStageIds { get; set; }
     }
 }
