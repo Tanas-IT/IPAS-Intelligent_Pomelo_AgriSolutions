@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Gra
     {
         [Required]
         public int PlantId { get; set; }
-        public PaginationParameter paginationParameter { get; set; } = new PaginationParameter();
+        //public PaginationParameter paginationParameter { get; set; } = new PaginationParameter();
 
         // filter here
         public string? GrowthStage { get; set; }

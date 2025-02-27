@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,11 +40,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         // Lấy danh sách cây ghép theo phân trang
         [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getGraftedOfPlantPagin")]
-        public async Task<IActionResult> GetGraftedOfPlantPaginAsync([FromQuery] GetGraftedPaginRequest getRequest)
+        public async Task<IActionResult> GetGraftedOfPlantPaginAsync([FromQuery] GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _graftedPlantService.getGraftedOfPlantPaginAsync(getRequest);
+                var result = await _graftedPlantService.getGraftedOfPlantPaginAsync(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)

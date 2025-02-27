@@ -68,6 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = createRequest.Width,
                         CreateDate = DateTime.Now,
                         Status = nameof(LandRowStatus.Active),
+                        Direction = createRequest.Direction,
                         isDeleted = false,
                         LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{createRequest.LandPlotId}-R{(createRequest.RowIndex)}",
                     };
@@ -223,16 +224,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-        public async Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request)
+        public async Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request, PaginationParameter paginationParameter)
         {
             try
             {
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId;
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(od => od.RowIndex).OrderByDescending(x => x.LandRowId);
-                if (!string.IsNullOrEmpty(request.paginationParameter.Search))
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
-                    filter = x => (x.LandRowCode!.ToLower().Contains(request.paginationParameter.Search.ToLower())
-                                  || x.Description!.ToLower().Contains(request.paginationParameter.Search.ToLower())
+                    filter = x => (x.LandRowCode!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Description!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   && x.isDeleted != true);
                 }
                 if (!string.IsNullOrEmpty(request.Direction))
@@ -262,7 +263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     filter = filter.And(x => x.TreeAmount >= request.TreeAmountFrom && x.TreeAmount <= request.TreeAmountTo);
                 }
-                switch (request.paginationParameter.SortBy != null ? request.paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     //case "farmId":
                     //    orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
@@ -271,50 +272,50 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //               : x => x.OrderBy(x => x.FarmId)) : x => x.OrderBy(x => x.FarmId);
                     //    break;
                     case "landrowcode":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.LandRowCode)
                                    : x => x.OrderBy(x => x.LandRowCode)) : x => x.OrderBy(x => x.LandRowCode);
                         break;
                     case "rowindex":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.RowIndex)
                                    : x => x.OrderBy(x => x.RowIndex)) : x => x.OrderBy(x => x.RowIndex);
                         break;
                     case "treeamount":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.TreeAmount).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.TreeAmount).OrderBy(x => x.LandRowId)) : x => x.OrderBy(x => x.TreeAmount).ThenBy(x => x.LandRowId);
                         break;
                     case "distance":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Distance).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.Distance).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Distance).ThenBy(x => x.LandRowId);
                         break;
                     case "length":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Length).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.Length).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Length).ThenBy(x => x.LandRowId);
                         break;
                     case "width":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Width).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.Width).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Width).ThenBy(x => x.LandRowId);
                         break;
                     case "direction":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.Direction).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.Direction).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Direction).ThenBy(x => x.LandRowId);
                         break;
                     case "status":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.Status).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.Status).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.Status).ThenBy(x => x.LandRowId);
                         break;
@@ -322,7 +323,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.LandRowId);
                         break;
                 }
-                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: request.paginationParameter.PageIndex, pageSize: request.paginationParameter.PageSize);
+                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
                 //foreach (var item in pagin.List)
@@ -331,7 +332,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
                 pagin.TotalRecord = await _unitOfWork.LandRowRepository.Count(filter: filter);
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, request.paginationParameter.PageSize);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
                     return new BusinessResult(Const.SUCCESS_GET_ROW_OF_PLOT_PAGINATION_CODE, Const.SUCCESS_GET_ROW_OF_PLOT_PAGINATION_MSG, pagin);

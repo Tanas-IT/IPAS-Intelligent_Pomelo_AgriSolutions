@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +34,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels
 
         //public FarmModel? Farm { get; set; }
 
+        //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public PackageModel? Package { get; set; }
 
-        //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public PaymentModel Payments { get; set; } = new PaymentModel();
     }
 }

@@ -41,7 +41,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _packageService.GetListPackage();
+                var result = await _packageService.GetListPackageToBuy();
                 return Ok(result);
             }
             catch (Exception ex)

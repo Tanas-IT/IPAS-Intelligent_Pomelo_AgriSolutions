@@ -21,7 +21,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         [Required]
         public double Width { get; set; }
         public string? Direction { get; set; }
-        [Required]
         public string? Description { get; set; }
 
     }
