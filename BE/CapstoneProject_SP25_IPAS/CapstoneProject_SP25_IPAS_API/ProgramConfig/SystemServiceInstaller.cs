@@ -7,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.Repository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
+using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -119,6 +120,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGraftedPlantService, GraftedPlantService>();
             services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IPayOSService, PayOSService>();
 
 
             services.AddHttpClient();

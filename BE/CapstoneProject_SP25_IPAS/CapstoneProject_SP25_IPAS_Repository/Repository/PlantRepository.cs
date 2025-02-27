@@ -178,7 +178,42 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     .ThenInclude(c => c.MasterType);
 
             return await query.AsNoTracking().ToListAsync();
+        }
 
+
+        public async Task<IEnumerable<Plant>> Get(
+            Expression<Func<Plant, bool>> filter = null!,
+            Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = null!,
+             int? pageIndex = null, // Optional parameter for pagination (page number)
+            int? pageSize = null)
+        {
+            IQueryable<Plant> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            query = query
+                .Include(p => p.LandRow)
+                .ThenInclude(lr => lr!.LandPlot)
+                .Include(p => p.MasterType)
+                .Include(p => p.CriteriaTargets)
+                    .ThenInclude(pc => pc.Criteria)
+                    .ThenInclude(c => c.MasterType);
+
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; 
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }
