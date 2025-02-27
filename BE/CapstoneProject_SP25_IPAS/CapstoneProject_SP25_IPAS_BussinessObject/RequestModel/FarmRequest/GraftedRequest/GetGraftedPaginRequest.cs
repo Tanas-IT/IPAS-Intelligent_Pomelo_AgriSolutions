@@ -25,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Gra
         public DateTime? GraftedDateFrom { get; set; }
         public DateTime? GraftedDateTo { get; set; }
 
-        public int? PlantLotId { get; set; }
+        public string? PlantLotId { get; set; }
 
     }
 }
