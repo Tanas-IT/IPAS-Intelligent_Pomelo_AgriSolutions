@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> getPlantInPlotForSelected(int plotId);
         public Task<BusinessResult> getPlantInRowForSelected(int rowId);
 
-        public Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request);
+        public Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request, PaginationParameter paginationParameter);
 
     }
 }

@@ -25,11 +25,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> GetListPackage()
+        public async Task<PackageModel> CheckPackageExistAndActive(int packageId)
         {
             try
             {
-                Expression<Func<Package,bool>> filter = x => x.IsActive == true;
+                Expression<Func<Package, bool>> filter = x => x.IsActive == true && x.PackageId == packageId;
+                string includeProperties = "PackageDetails";
+                var packages = await _unitOfWork.PackageRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                if (packages == null)
+                    return null!;
+                var mappedResult = _mapper.Map<PackageModel>(packages);
+                return mappedResult;
+            }
+            catch (Exception)
+            {
+                return null!;
+            }
+        }
+
+        public async Task<BusinessResult> GetAllPackage()
+        {
+            try
+            {
+                Expression<Func<Package, bool>> filter = null!;
                 Func<IQueryable<Package>, IOrderedQueryable<Package>> orderBy = x => x.OrderByDescending(x => x.PackageId);
                 string includeProperties = "PackageDetails";
                 var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
@@ -37,7 +55,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<PackageModel>>(packages);
                 return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetListPackageToBuy()
+        {
+            try
+            {
+                Expression<Func<Package, bool>> filter = x => x.IsActive == true;
+                Func<IQueryable<Package>, IOrderedQueryable<Package>> orderBy = x => x.OrderByDescending(x => x.PackageId);
+                string includeProperties = "PackageDetails";
+                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                if (packages == null)
+                    return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
+                var mappedResult = _mapper.Map<IEnumerable<PackageModel>>(packages);
+                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
+            }
+            catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
@@ -47,7 +85,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Package, bool>> filter = x => x.IsActive == true && x.PackageId == packageId;
+                Expression<Func<Package, bool>> filter = x => /*x.IsActive == true &&*/ x.PackageId == packageId;
                 string includeProperties = "PackageDetails";
                 var packages = await _unitOfWork.PackageRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (packages == null)

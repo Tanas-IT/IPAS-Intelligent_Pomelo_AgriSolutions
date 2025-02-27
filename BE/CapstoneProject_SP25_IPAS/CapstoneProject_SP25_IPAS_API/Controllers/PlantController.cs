@@ -53,13 +53,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>
         [HttpGet(APIRoutes.Plant.getPlantPagin)]
-        public async Task<IActionResult> GetPlantPagin([FromQuery] GetPlantPaginRequest request)
+        public async Task<IActionResult> GetPlantPagin([FromQuery] GetPlantPaginRequest request, PaginationParameter paginationParameter)
         {
             try
             {
                 if (!request.farmId.HasValue)
                     request.farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!ModelState.IsValid && !request.farmId.HasValue)
+                if (!ModelState.IsValid || !request.farmId.HasValue)
                 {
                     return BadRequest(new BaseResponse()
                     {
@@ -67,7 +67,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "Farm Id value is required",
                     });
                 }
-                var result = await _plantService.getPlantPagin(request);
+                var result = await _plantService.getPlantPagin(request, paginationParameter: paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)

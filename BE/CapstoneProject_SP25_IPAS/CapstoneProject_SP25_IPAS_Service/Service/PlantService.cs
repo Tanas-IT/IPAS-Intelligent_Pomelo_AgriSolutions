@@ -235,7 +235,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    }
         //}
 
-        public async Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request)
+        public async Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request, PaginationParameter paginationParameter)
         {
             try
             {
@@ -243,20 +243,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (checkParam.Success == false)
                     return new BusinessResult(400, checkParam.ErorrMessage);
                 Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
-                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.PlantId).ThenByDescending(x => x.LandRowId);
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
                 
                 if (request.LandPlotId.HasValue)
                     filter = filter.And(x => x.LandRow!.LandPlotId == request.LandPlotId);
-                if (request.LandRowId.HasValue)
-                    filter = filter.And(x => x.LandRowId == request.LandRowId);
-                if (!request.LandPlotId.HasValue && !request.LandRowId.HasValue && request.IsLocated == false)
+                if (request.LandRowIds!.Any())
+                    filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
+                if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
+                if (!request.LandPlotId.HasValue && !request.LandRowIds!.Any() && request.IsLocated.HasValue && request.IsLocated == true)
+                    filter = filter.And(x => x.LandRowId.HasValue);
 
-                if (!string.IsNullOrEmpty(request.paginationParameter!.Search))
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
-                    filter = filter.And(x => x.PlantCode!.ToLower().Contains(request.paginationParameter.Search.ToLower())
-                                  || x.Description!.ToLower().Contains(request.paginationParameter.Search.ToLower())
-                                  || x.PlantName!.ToLower().Contains(request.paginationParameter.Search.ToLower()));
+                    filter = filter.And(x => x.PlantCode!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Description!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PlantName!.ToLower().Contains(paginationParameter.Search.ToLower()));
                 }
                 if (!string.IsNullOrEmpty(request.HealthStatus))
                 {
@@ -264,15 +266,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => filterList.Contains(x.HealthStatus!.ToLower()));
                 }
 
-                if (!string.IsNullOrEmpty(request.CultivarIds))
+                if (request.CultivarIds.Any())
                 {
-                    List<string> filterList = Util.SplitByComma(request.CultivarIds);
-                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()!));
+                    //List<string> filterList = Util.SplitByComma(request.CultivarIds);
+                    //filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()));
+                    filter = filter.And(x => request.CultivarIds.Contains(x.MasterTypeId!.Value));
                 }
-                if (!string.IsNullOrEmpty(request.GrowthStageIds))
+                if (request.GrowthStageIds.Any())
                 {
-                    List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
-                    filter = filter.And(x => filterList.Contains(x.GrowthStageID.ToString()!));
+                    //List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
+                    //filter = filter.And(x => filterList.Contains(x.GrowthStageID!.ToString()));
+                    filter = filter.And(x => request.GrowthStageIds.Contains(x.GrowthStageID!.Value));
                 }
                 if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
                 {
@@ -281,7 +285,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
                 {
-
                     filter = filter.And(x => x.PlantIndex >= request.PlantIndexFrom && x.PlantIndex <= request.PlantIndexTo);
                 }
                 if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
@@ -289,53 +292,53 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate<= request.PlantingDateTo);
                 }
 
-                switch (request.paginationParameter.SortBy != null ? request.paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     case "plantcode":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.PlantCode)
                                    : x => x.OrderBy(x => x.PlantCode)) : x => x.OrderBy(x => x.PlantCode);
                         break;
                     case "plantname":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.HealthStatus!).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.PlantName).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantName).ThenBy(x => x.PlantId);
                         break;
                     case "plantindex":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.PlantIndex).ThenByDescending(x => x.LandRowId)
                                    : x => x.OrderBy(x => x.PlantIndex).ThenBy(x => x.LandRowId)) : x => x.OrderBy(x => x.PlantIndex).ThenBy(x => x.LandRowId);
                         break;
                     case "plantingdate":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.PlantingDate).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.PlantingDate).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantingDate).ThenBy(x => x.PlantId);
                         break;
                     case "plantreferenceid":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.PlantReferenceId).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.PlantReferenceId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantReferenceId).ThenBy(x => x.PlantId);
                         break;
                     case "mastertypeid":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.MasterTypeId).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.MasterTypeId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.MasterTypeId).ThenBy(x => x.PlantId);
                         break;
                     case "landrowid":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.LandRowId).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.LandRowId).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.LandRowId).ThenBy(x => x.PlantId);
                         break;
                     case "growthstageid":
-                        orderBy = !string.IsNullOrEmpty(request.paginationParameter.Direction)
-                                    ? (request.paginationParameter.Direction.ToLower().Equals("desc")
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.GrowthStageID).ThenByDescending(x => x.PlantId)
                                    : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId);
                         break;
@@ -343,12 +346,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.PlantId);
                         break;
                 }
-                var entities = await _unitOfWork.PlantRepository.Get(filter: filter, orderBy: orderBy, pageIndex: request.paginationParameter.PageIndex, pageSize: request.paginationParameter.PageSize);
+                string includeProperties = "LandRow";
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter,includeProperties: includeProperties ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
                 pagin.TotalRecord = await _unitOfWork.PlantRepository.Count(filter: filter);
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, request.paginationParameter.PageSize);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
                     return new BusinessResult(200, "Get plant pagin success", pagin);
@@ -609,12 +613,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             //if (!request.farmId.HasValue && !request.LandPlotId.HasValue && !request.LandRowId.HasValue)
             //    return (false, "No destination to get plant");
-            if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue && request.RowIndexFrom.Value >= request.RowIndexTo)
-                return (false, "Row index 'From' must smaller than Row index 'To' ");
-            if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue && request.PlantIndexFrom.Value >= request.PlantIndexTo.Value)
-                return (false, "Plant index 'From' in row must smaller than plant index 'To' ");
-            if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue && request.PlantingDateFrom.Value >= request.PlantingDateTo.Value)
-                return (false, "Planting date 'From' must smaller than planting date 'To' ");
+            if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue && request.RowIndexFrom.Value > request.RowIndexTo)
+                return (false, "Row index 'From' must smaller or equal than Row index 'To' ");
+            if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue && request.PlantIndexFrom.Value > request.PlantIndexTo.Value)
+                return (false, "Plant index 'From' in row must smaller or equal than plant index 'To' ");
+            if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue && request.PlantingDateFrom.Value > request.PlantingDateTo.Value)
+                return (false, "Planting date 'From' must smaller or equal than planting date 'To' ");
             return (true, null!);
         }
     }
