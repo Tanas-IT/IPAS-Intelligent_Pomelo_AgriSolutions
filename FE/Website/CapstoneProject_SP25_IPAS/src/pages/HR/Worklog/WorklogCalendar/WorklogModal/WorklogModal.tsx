@@ -67,7 +67,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     <ModalForm
       isOpen={isOpen}
       onClose={handleCancel}
-      isEdit={false}
+      isUpdate={false}
       title="Add New Worklog"
       onSave={handleAdd}
     >

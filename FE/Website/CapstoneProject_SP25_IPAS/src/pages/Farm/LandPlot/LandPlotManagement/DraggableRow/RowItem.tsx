@@ -4,8 +4,6 @@ import style from "./DraggableRow.module.scss";
 import { useEffect, useRef } from "react";
 import { useDrag, useDrop, XYCoord } from "react-dnd";
 import { Images } from "@/assets";
-import { useHasChanges, useModal } from "@/hooks";
-import RowItemModal from "./RowItemModal";
 
 const ItemTypes = {
   ROW: "ROW",

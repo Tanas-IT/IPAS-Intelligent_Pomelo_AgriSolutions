@@ -5,10 +5,15 @@ interface landPlotCoordinations {
   latitude: number;
 }
 
-export interface GetLandPlot {
-  landPlotId: number;
-  landPlotCode: string;
+export interface GetLandPlotSelected {
+  id: number;
   name: string;
+}
+
+export interface GetLandPlot {
+  landPlotId: string;
+  landPlotCode: string;
+  landPlotName: string;
   description: string;
   area: string;
   soilType: string;

@@ -12,18 +12,25 @@ import { fakeRowsData } from "../DraggableRow/fakeRowsData";
 import { createPlotFormFields, MESSAGES } from "@/constants";
 import { LandPlotRequest } from "@/payloads/landPlot/requests";
 import { DEFAULT_LAND_PLOT, isPlantOverflowing } from "@/utils";
+import { landPlotService } from "@/services";
 
 const { Step } = Steps;
 
 interface AddNewPlotDrawerProps {
   landPlots: GetLandPlot[];
+  fetchLandPlots: () => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, onClose }) => {
+const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
+  landPlots,
+  fetchLandPlots,
+  isOpen,
+  onClose,
+}) => {
   const { styles } = useStyle();
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
   const [isDirty, setIsDirty] = useState(false);
   const updateConfirmModal = useModal();
@@ -34,21 +41,29 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, 
   const isHorizontal =
     form.getFieldValue(createPlotFormFields.rowOrientation) === "Horizontal" ? true : false;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const plotDataRequest: LandPlotRequest = {
       ...plotData,
       numberOfRows: rowsData.length,
       landRows: rowsData.map((row) => ({
         rowIndex: row.index,
-        plantsPerRow: row.plantsPerRow,
-        plantSpacing: row.plantSpacing,
+        treeAmount: row.plantsPerRow,
+        distance: row.plantSpacing,
         length: row.length,
         width: row.width,
       })),
     };
     setPlotData(plotDataRequest);
+    console.log(plotDataRequest);
 
-    console.log("Saved values:", plotDataRequest);
+    // var result = await landPlotService.createLandPlot(plotDataRequest);
+    // if (result.statusCode === 200) {
+    //   onClose();
+    //   await fetchLandPlots();
+    //   toast.success(result.message);
+    // } else {
+    //   toast.error(result.message);
+    // }
   };
 
   const handleNext = async () => {
@@ -185,14 +200,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({ landPlots, isOpen, 
           <DraggableRow
             rowsData={rowsData}
             setRowsData={setRowsData}
-            // isHorizontal={isHorizontal}
-            // rowsPerLine={Number(form.getFieldValue(createPlotFormFields.rowsPerLine))}
-            // rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
-            // lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
-            isHorizontal={true}
-            rowsPerLine={5}
-            rowSpacing={50}
-            lineSpacing={50}
+            isHorizontal={isHorizontal}
+            rowsPerLine={Number(form.getFieldValue(createPlotFormFields.rowsPerLine))}
+            rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
+            lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
+            // isHorizontal={true}
+            // rowsPerLine={5}
+            // rowSpacing={50}
+            // lineSpacing={50}
           />
         )}
       </Drawer>
