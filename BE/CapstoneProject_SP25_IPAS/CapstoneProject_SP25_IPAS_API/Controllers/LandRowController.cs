@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -146,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize("Admin,User", "Owner,Manager")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotPagin, Name = "getLandRowOfPlotPaginAsync")]
-        public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromQuery] GetPlantRowPaginRequest request)
+        public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromQuery] GetPlantRowPaginRequest request, PaginationParameter paginationParameter)
         {
             try
             {
@@ -163,7 +164,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
                     });
                 }
-                var result = await _landRowService.GetRowPaginByPlot(request);
+                var result = await _landRowService.GetRowPaginByPlot(request, paginationParameter: paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)

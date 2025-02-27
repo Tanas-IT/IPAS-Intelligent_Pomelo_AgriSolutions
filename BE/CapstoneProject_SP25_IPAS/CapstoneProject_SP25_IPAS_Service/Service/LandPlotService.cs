@@ -406,11 +406,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.WARNING_DUPLICATE_ROW_INDEX_CODE, $"{Const.WARNING_DUPLICATE_ROW_INDEX_MSG}: {string.Join(", ", duplicateRowIndex)}");
 
             // Kiểm tra kích thước hàng có hợp lệ không
-            foreach (var row in createRequest.LandRows)
-            {
-                if (row.Length > createRequest.PlotWidth || row.Width > createRequest.PlotLength)
-                    return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, $"{Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG}: RowIndex {row.RowIndex}");
-            }
+            //foreach (var row in createRequest.LandRows)
+            //{
+            //    if (row.Length > createRequest.PlotWidth || row.Width > createRequest.PlotLength)
+            //        return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, $"{Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG}: RowIndex {row.RowIndex}");
+            //}
 
             // Tạo danh sách hàng
             foreach (var row in createRequest.LandRows)

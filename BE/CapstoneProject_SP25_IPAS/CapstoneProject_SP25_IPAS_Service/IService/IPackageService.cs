@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IPackageService
     {
         public Task<BusinessResult> GetPackageById(int packageId);
-        public Task<BusinessResult> GetListPackage();
+        public Task<BusinessResult> GetListPackageToBuy();
         //public Task<BusinessResult> GetPackageExpiredOfFarm(int farmId);
+        public Task<BusinessResult> GetAllPackage();
+        public Task<PackageModel> CheckPackageExistAndActive(int packageId);
     }
 }

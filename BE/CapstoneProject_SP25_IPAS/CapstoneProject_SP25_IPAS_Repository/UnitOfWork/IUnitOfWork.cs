@@ -57,5 +57,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public PlanTargetRepository PlanTargetRepository { get; }
 
         public GraftedPlantNoteRepository GraftedPlantNoteRepository { get; }
+        public PaymentRepository PaymentRepository { get; }
     }
 }
