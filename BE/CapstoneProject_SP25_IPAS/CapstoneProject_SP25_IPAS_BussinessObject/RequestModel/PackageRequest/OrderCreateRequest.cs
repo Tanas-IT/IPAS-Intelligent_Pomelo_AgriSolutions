@@ -11,7 +11,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
     public class OrderCreateRequest
     {
         public string? OrderName { get; set; }
-
+        [Required]
         public double TotalPrice { get; set; }
 
         public string? Notes { get; set; }
@@ -26,8 +26,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
         [Required]
         public int FarmId { get; set; }
         //payment request
-        public string? TransactionId { get; set; }
-
+        [Required]
+        public string TransactionId { get; set; }
         public string? PaymentMethod { get; set; }
         public string? PaymentStatus { get; set; }
 

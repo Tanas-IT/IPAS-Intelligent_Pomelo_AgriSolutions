@@ -347,7 +347,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "LandRow";
-                var entities = await _unitOfWork.PlantRepository.Get(filter: filter,includeProperties: includeProperties ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;

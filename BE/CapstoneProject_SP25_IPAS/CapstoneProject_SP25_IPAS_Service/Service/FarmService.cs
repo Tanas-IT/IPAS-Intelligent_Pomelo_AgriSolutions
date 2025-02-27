@@ -746,5 +746,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<FarmModel> CheckFarmExist(int farmId)
+        {
+            var farm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+            // kiem tra null
+            if (farm == null)
+                return null!;
+            // neu khong null return ve mapper
+            var result = _mapper.Map<FarmModel>(farm);
+            return result;
+        }
     }
 }

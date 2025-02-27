@@ -50,12 +50,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkFarmExist.StatusCode != 200 || checkFarmExist.Data == null)
                         return checkFarmExist;
                     // get farmcode and packagecode
-                    var farmData = JsonConvert.DeserializeObject<FarmModel>(checkFarmExist.Data!.ToString()!);
+                    //var farmData = JsonConvert.DeserializeObject<FarmModel>(checkFarmExist.Data);
+                    var farmData = checkFarmExist.Data as FarmModel;
+
                     var farmCode = Util.SplitByDash(farmData!.FarmCode!);
                     var packagecode = Util.SplitByDash(checkPackageExist.PackageCode!);
                     var orderWithPayment = new Order
                     {
-                        OrderCode = $"{CodeAliasEntityConst.ORDER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode.First()}-{packagecode.First()}",
+                        OrderCode = $"{CodeAliasEntityConst.ORDER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode.First()}-{packagecode.First().ToUpper()}",
                         OrderDate = DateTime.Now,
                         TotalPrice = createRequest.TotalPrice,
                         Notes = createRequest.Notes,
@@ -67,7 +69,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     string ordercode = Util.SplitByDash(orderWithPayment.OrderCode).First();
                     var payment = new Payment
                     {
-                        PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode}",
+                        PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
                         TransactionId = createRequest.TransactionId,
                         CreateDate = DateTime.Now,
                         PaymentMethod = createRequest.PaymentMethod,

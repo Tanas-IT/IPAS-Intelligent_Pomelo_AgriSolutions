@@ -454,7 +454,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Packages
-        public static int SUCCESS_GET_PACKAGES_CODE = 400;
+        public static int SUCCESS_GET_PACKAGES_CODE = 200;
         public static string SUCCESS_GET_PACKAGES_MSG = "Get packages success";
         #endregion
 

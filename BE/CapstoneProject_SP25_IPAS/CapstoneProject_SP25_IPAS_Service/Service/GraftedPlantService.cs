@@ -58,7 +58,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.FAIL_CREATE_GRAFTED_PLANT_CODE, criteriaResult.ErrorMessage);
                     }
                     // Create the new Plant entity from the request
-                    var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
+                    //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
+                    var jsonData = plantExist.Data as PlantModel;
 
                     var graftedCreateEntity = new GraftedPlant()
                     {
