@@ -11,5 +11,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<bool> DeleteDependenciesOfPlan(int planID);
         public Task<bool> IsScheduleConflicted(int carePlanId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime);
+        public Task<bool> IsScheduleConflictedForWorkLog(int? farmId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime);
     }
 }

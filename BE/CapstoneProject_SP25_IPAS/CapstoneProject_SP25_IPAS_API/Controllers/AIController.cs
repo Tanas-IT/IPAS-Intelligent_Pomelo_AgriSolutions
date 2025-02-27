@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
@@ -76,6 +77,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _aiService.PredictDiseaseByURL(request.ImageURL);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.AI.getHistoryOfChat, Name = "getHistoryOfChat")]
+        public async Task<IActionResult> HistoryOfChat(PaginationParameter paginationParameter, int? farmId, int? userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetHistoryChat(paginationParameter, farmId, userId);
                 return Ok(result);
             }
             catch (Exception ex)

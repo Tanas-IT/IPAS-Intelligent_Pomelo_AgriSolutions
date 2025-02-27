@@ -20,6 +20,11 @@ using GenerativeAI.Methods;
 using GenerativeAI.Models;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
+using System.Linq.Expressions;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -68,25 +73,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getFarmInfo = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
-                if (getFarmInfo == null)
-                {
-                    return new BusinessResult(Const.FAIL_ASK_AI_CODE, "Can not find any farm with this farmId");
-                }
                 var checkRoomExist = await _unitOfWork.ChatRoomRepository.GetByCondition(x => x.FarmID == farmId || x.UserID == userId);
                 if (checkRoomExist == null)
                 {
                     checkRoomExist = new ChatRoom()
                     {
-                        RoomCode = "IPAS_" + getFarmInfo.FarmName + "_ChatGemini_" + DateTime.Now.Date,
-                        RoomName = "Chat with Gemini",
+                        RoomCode = "IPAS_" + getFarmInfo.FarmName + "_ChatIPAS_" + DateTime.Now.Date,
+                        RoomName = "Chat with IPAS",
                         CreateDate = DateTime.Now,
-                        FarmID = getFarmInfo.FarmId,
+                        FarmID = farmId,
                         UserID = userId > 0 ? userId.Value : null,
                     };
                     await _unitOfWork.ChatRoomRepository.Insert(checkRoomExist);
                     await _unitOfWork.SaveAsync();
                 }
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo);
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(question);
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
@@ -194,7 +195,7 @@ const generationConfig = {
      responseMimeType: "text/plain",
    };
 */
-        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm farmInfo)
+        private async Task<string> GetAnswerFromGeminiAsync(string question)
         {
             try
             {
@@ -225,7 +226,7 @@ const generationConfig = {
             new InputContent
             {
                 Role = "model",
-                Parts = $"Xin chào! Tôi là IPAS, chuyên gia về cây bưởi, tôi có thể giúp gì cho trang trại {farmInfo.FarmName}... "
+                Parts = $"Xin chào! Tôi là IPAS, chuyên gia về cây bưởi, tôi có thể giúp gì cho bạn... "
             },
             new InputContent
             {
@@ -264,11 +265,108 @@ const generationConfig = {
         {
             try
             {
-                return new BusinessResult();
+                Expression<Func<ChatMessage, bool>> filter = x => x.Room.UserID == userId;
+                Func<IQueryable<ChatMessage>, IOrderedQueryable<ChatMessage>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+                    int validInt = 0;
+                    var checkInt = int.TryParse(paginationParameter.Search, out validInt);
+                    DateTime validDate = DateTime.Now;
+                    bool validBool = false;
+                    if (checkInt)
+                    {
+                        filter = filter.And(x => x.RoomId == validInt || x.SenderId == validInt);
+                    }
+                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
+                    {
+                        filter = filter.And(x => x.CreateDate == validDate || x.UpdateDate == validDate);
+                    }
+                    else if (Boolean.TryParse(paginationParameter.Search, out validBool))
+                    {
+                        filter = filter.And(x => x.IsUser == validBool);
+                    }
+                    else
+                    {
+                        filter = x => x.MessageCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.MessageContent.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      || x.MessageType.ToLower().Contains(paginationParameter.Search.ToLower());
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(paginationParameter.SortBy))
+                {
+                    switch (paginationParameter.SortBy.ToLower())
+                    {
+                        case "messageid":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.MessageId)
+                                       : x => x.OrderBy(x => x.MessageId)) : x => x.OrderBy(x => x.MessageId);
+                            break;
+                        case "messagecode":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.MessageCode)
+                                      : x => x.OrderBy(x => x.MessageCode)) : x => x.OrderBy(x => x.MessageCode);
+                            break;
+                        case "messagecontent":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.MessageContent)
+                                      : x => x.OrderBy(x => x.MessageContent)) : x => x.OrderBy(x => x.MessageContent);
+                            break;
+                        case "messagetype":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.MessageType)
+                                      : x => x.OrderBy(x => x.MessageType)) : x => x.OrderBy(x => x.MessageType);
+                            break;
+                        case "senderid":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.SenderId)
+                                      : x => x.OrderBy(x => x.SenderId)) : x => x.OrderBy(x => x.SenderId);
+                            break;
+                        case "roomname":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.Room.RoomName)
+                                      : x => x.OrderBy(x => x.Room.RoomName)) : x => x.OrderBy(x => x.Room.RoomName);
+                            break;
+                        case "createdate":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.CreateDate)
+                                      : x => x.OrderBy(x => x.CreateDate)) : x => x.OrderBy(x => x.CreateDate);
+                            break;
+                        case "updatedate":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                      ? x => x.OrderByDescending(x => x.UpdateDate)
+                                      : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
+                            break;
+                        default:
+                            orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                            break;
+                    }
+                }
+                string includeProperties = "Room";
+                var entities = await _unitOfWork.ChatMessageRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var pagin = new PageEntity<ChatMessageModel>();
+                pagin.List = _mapper.Map<IEnumerable<ChatMessageModel>>(entities).ToList();
+                pagin.TotalRecord = await _unitOfWork.ChatMessageRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    return new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, pagin);
+                }
+                else
+                {
+                    return new BusinessResult(Const.WARNING_GET_HISTORY_CHAT_CODE, Const.WARNIN_GET_HISTORY_CHAT_MSG, new PageEntity<MasterTypeModel>());
+                }
             }
             catch (Exception ex)
             {
-
                 // Xử lý lỗi
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
