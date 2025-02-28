@@ -15,5 +15,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<int> CreateMultipleRow(List<CreateLandRowRequest> createRequest);
         public Task<BusinessResult> GetLandRowForSelectedByPlotId(int landplotId);
         public Task<BusinessResult> GetRowPaginByPlot(GetPlantRowPaginRequest request, PaginationParameter paginationParameter);
+        public Task<BusinessResult> SoftedMultipleDelete(string rowIds);
     }
 }

@@ -41,6 +41,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateLandPlotInfo = prefix + "/update-info";
             public const string deleteLandPlotOfFarm = prefix + "";
             public const string getLandPlotById = prefix + "";
+            public const string getForMap = prefix + "/get-for-mapped";
+            public const string deleteSoftedLandPlotOfFarm = prefix + "/softed-delete";
 
         }
 
@@ -207,6 +209,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getLandRowOfPlotNoPagin = prefix + "/get-land-rows-of-plot";
             public const string getLandRowForSelected = prefix + "/get-for-selected";
             public const string getLandRowOfPlotPagin = prefix + "/get-land-rows-of-plot-pagin";
+            public const string softedDeleteMultipleRow = prefix + "/softed-delete";
 
         }
 
