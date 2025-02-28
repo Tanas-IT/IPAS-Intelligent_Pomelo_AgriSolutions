@@ -28,7 +28,8 @@ type PlanType = {
     planDetail: string;
     planNote: string
     growthStageId: number;
-    masterTypeId: number
+    masterTypeId: number;
+    planStatus: string;
 };
 
 const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
@@ -60,7 +61,8 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 PlanDetail: plan.planDetail,
                 PlanNote: plan.planNote,
                 GrowthStageId: plan.growthStageId,
-                MasterTypeId: plan.masterTypeId
+                MasterTypeId: plan.masterTypeId,
+                PlanStatus: plan.planStatus
             }));
 
             const payload: ProcessRequest = {

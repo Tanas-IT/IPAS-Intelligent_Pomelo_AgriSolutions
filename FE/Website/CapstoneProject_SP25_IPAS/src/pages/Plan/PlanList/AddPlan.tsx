@@ -309,6 +309,15 @@ const AddPlan = () => {
           subtitle="Enter the basic information for the care plan."
         >
           <InfoField
+            label="Process Name"
+            name={addPlanFormFields.processId}
+            options={processFarmOptions}
+            rules={RulesManager.getProcessRules()}
+            isEditing={true}
+            type="select"
+            hasFeedback={false}
+          />
+          <InfoField
             label="Name"
             name={addPlanFormFields.planName}
             rules={RulesManager.getPlanNameRules()}
@@ -332,55 +341,24 @@ const AddPlan = () => {
             type="textarea"
             placeholder="Enter care plan notes"
           />
-          <Row gutter={16}>
-            <Col span={12}>
-              <InfoField
-                label="Land Plot"
-                rules={RulesManager.getLandPlotRules()}
-                name={addPlanFormFields.landPlotId}
-                options={landPlotOptions}
-                isEditing={true}
-                type="select"
-                onChange={handleLandPlotChange}
-                hasFeedback={false}
-              />
-            </Col>
-            <Col span={12}>
-              <InfoField
-                label="Crop"
-                name={addPlanFormFields.cropId}
-                options={cropOptions}
-                isEditing={true}
-                rules={RulesManager.getCropRules()}
-                type="select"
-                hasFeedback={false}
-              />
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <InfoField
-                label="Process Name"
-                name={addPlanFormFields.processId}
-                options={processFarmOptions}
-                rules={RulesManager.getProcessRules()}
-                isEditing={true}
-                type="select"
-                hasFeedback={false}
-              />
-            </Col>
-            <Col span={12}>
-              <InfoField
-                label="Growth Stage"
-                name={addPlanFormFields.growthStageID}
-                options={growthStageOptions}
-                isEditing={true}
-                rules={RulesManager.getGrowthStageRules()}
-                type="select"
-                hasFeedback={false}
-              />
-            </Col>
-          </Row>
+          <InfoField
+            label="Crop"
+            name={addPlanFormFields.cropId}
+            options={cropOptions}
+            isEditing={true}
+            rules={RulesManager.getCropRules()}
+            type="select"
+            hasFeedback={false}
+          />
+          <InfoField
+            label="Growth Stage"
+            name={addPlanFormFields.growthStageID}
+            options={growthStageOptions}
+            isEditing={true}
+            rules={RulesManager.getGrowthStageRules()}
+            type="select"
+            hasFeedback={false}
+          />
           <InfoField
             label="Active"
             name={addPlanFormFields.isActive}
