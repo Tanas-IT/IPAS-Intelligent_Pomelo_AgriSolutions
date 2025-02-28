@@ -49,14 +49,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     if (landplot.Length < createRequest.Length || landplot.Width < landplot.Width)
                         return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG);
-                    double areaUsed = 0;
-                    foreach (var row in landplot.LandRows)
-                    {
-                        if (row.Length!.Value > 0 && row.Width!.Value > 0)
-                            areaUsed += row.Length.Value * row.Width.Value;
-                    }
-                    if (areaUsed + (createRequest.Length * createRequest.Width) > (landplot.Length!.Value * landplot.Width!.Value))
-                        return new BusinessResult(Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG);
+                    //double areaUsed = 0;
+                    //foreach (var row in landplot.LandRows)
+                    //{
+                    //    if (row.Length!.Value > 0 && row.Width!.Value > 0)
+                    //        areaUsed += row.Length.Value * row.Width.Value;
+                    //}
+                    //if (areaUsed + (createRequest.Length * createRequest.Width) > (landplot.Length!.Value * landplot.Width!.Value))
+                    //    return new BusinessResult(Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG);
+                    var landPlotCode = Util.SplitByDash(landplot.LandPlotCode!).First();
                     var newRow = new LandRow
                     {
                         LandPlotId = createRequest.LandPlotId,
@@ -70,7 +71,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = nameof(LandRowStatus.Active),
                         Direction = createRequest.Direction,
                         isDeleted = false,
-                        LandRowCode = $"{CodeAliasEntityConst.LANDROW}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.LANDPLOT}{createRequest.LandPlotId}-R{(createRequest.RowIndex)}",
+                        LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{landPlotCode}-R{(createRequest.RowIndex)}",
                     };
                     await _unitOfWork.LandRowRepository.Insert(newRow);
                     int result = await _unitOfWork.SaveAsync();
@@ -130,8 +131,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
+                string includeProperties = "LandPlot";
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
-                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter,includeProperties: includeProperties ,orderBy: orderBy);
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<LandRowModel>>(rowsOfFarm);
@@ -153,7 +155,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
-                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                string includeProperties = "LandPlot";
+                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter,includeProperties: includeProperties, orderBy: orderBy);
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(rowsOfFarm);
@@ -170,7 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<LandRow, bool>> filter = x => x.LandRowId == landRowId;
-                string includeProperties = "Plants";
+                string includeProperties = "Plants,LandPlot";
                 // set up them trong context moi xoa dc tat ca 1 lan
                 var row = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (row == null)
@@ -190,7 +193,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var landRow = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == updateLandRowRequest.LandRowId);
+                    string includeProperties = "LandPlot";
+                    var landRow = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == updateLandRowRequest.LandRowId, includeProperties);
                     if (landRow == null)
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (updateLandRowRequest.TreeAmount.HasValue)
@@ -323,7 +327,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.LandRowId);
                         break;
                 }
-                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                string includeProperties = "LandPlot";
+                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, includeProperties: includeProperties,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
                 //foreach (var item in pagin.List)
