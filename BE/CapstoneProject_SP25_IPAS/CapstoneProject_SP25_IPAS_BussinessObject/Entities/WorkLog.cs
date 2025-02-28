@@ -21,11 +21,7 @@ public partial class WorkLog
 
     public int? ScheduleId { get; set; }
 
-    public int? HarvestHistoryId { get; set; }
-
     public int? WarningId { get; set; }
-
-    public virtual HarvestHistory? HarvestHistory { get; set; }
 
     public virtual CarePlanSchedule? Schedule { get; set; }
 

@@ -1,42 +1,29 @@
-import { Button, Checkbox, DatePicker, Flex, Select, Space } from "antd";
+import { Flex, Space, TreeSelect } from "antd";
 import { useState } from "react";
 import style from "./PlantList.module.scss";
-import dayjs from "dayjs";
-import { useStyle } from "@/hooks";
-import { FilterFooter, TagRender } from "@/components";
-import { DATE_FORMAT } from "@/utils";
-
-const { RangePicker } = DatePicker;
+import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
+import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
+import { FilterPlantState } from "@/types";
+import { MASTER_TYPE } from "@/constants";
 
 type FilterProps = {
-  filters: {
-    createDateFrom: string;
-    createDateTo: string;
-    growthStages: string[];
-    status: string[];
-  };
-  updateFilters: (key: string, value: any) => void;
+  filters: FilterPlantState;
+  updateFilters: (key: keyof FilterPlantState, value: any) => void;
   onClear: () => void;
   onApply: () => void;
 };
 const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const { styles } = useStyle();
-
-  const options = [
-    { value: "gold" },
-    { value: "lime" },
-    { value: "green" },
-    { value: "cyan" },
-    { value: "ds" },
-    { value: "as" },
-  ];
+  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR, true);
+  const { options: growthStageOptions } = useGrowthStageOptions();
 
   const isFilterEmpty = !(
-    filters.createDateFrom ||
-    filters.createDateTo ||
-    filters.growthStages.length > 0 ||
-    filters.status.length > 0
+    filters.plantingDateFrom ||
+    filters.plantingDateTo ||
+    (filters.cultivarIds && filters.cultivarIds.length > 0) ||
+    (filters.growthStageIds && filters.growthStageIds.length > 0) ||
+    (filters.healthStatus && filters.healthStatus.length > 0) ||
+    filters.isLocated !== undefined
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -47,57 +34,80 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     }
   };
 
+  const plotTreeData = [
+    {
+      title: "Plot A",
+      value: "plot_A", // ID thửa đất
+      children: [
+        { title: "Row 1", value: "row_1" },
+        { title: "Row 2", value: "row_2" },
+      ],
+    },
+    {
+      title: "Plot B",
+      value: "plot_B",
+      children: [
+        { title: "Row 3", value: "row_3" },
+        { title: "Row 4", value: "row_4" },
+      ],
+    },
+  ];
+
   return (
     <Flex className={style.filterContent}>
-      <Space direction="vertical">
-        <Flex className={style.section}>
-          <label className={style.title}>Create Date:</label>
-          <RangePicker
-            format={DATE_FORMAT}
-            value={[
-              filters.createDateFrom ? dayjs(filters.createDateFrom) : null,
-              filters.createDateTo ? dayjs(filters.createDateTo) : null,
-            ]}
-            onChange={(dates) => {
-              updateFilters("createDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
-              updateFilters("createDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
-            }}
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <FormFieldFilter
+          label="Planting Date:"
+          fieldType="date"
+          value={[filters.plantingDateFrom, filters.plantingDateTo]}
+          onChange={(dates) => {
+            updateFilters("plantingDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+            updateFilters("plantingDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+          }}
+        />
+        <Flex className={style.row}>
+          <FormFieldFilter
+            label="Cultivar:"
+            fieldType="select"
+            value={filters.cultivarIds}
+            options={cultivarTypeOptions}
+            onChange={(value) => updateFilters("cultivarIds", value)}
+          />
+
+          <FormFieldFilter
+            label="Growth Stage:"
+            fieldType="select"
+            value={filters.growthStageIds}
+            options={growthStageOptions}
+            onChange={(value) => updateFilters("growthStageIds", value)}
           />
         </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Growth Stages:</label>
-          <Select
-            mode="multiple"
-            placeholder="Please select"
-            tagRender={TagRender}
-            options={options}
-            value={filters.growthStages}
-            onChange={(value) => updateFilters("growthStages", value)}
-          />
-        </Flex>
-        <Flex className={style.sectionStatus}>
-          <label className={style.title}>Status:</label>
-          <Flex className={style.statusGroup}>
-            {["A", "B"].map((status) => (
-              <Checkbox
-                className={styles.customCheckbox}
-                key={status}
-                checked={filters.status.includes(status)}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  updateFilters(
-                    "status",
-                    checked
-                      ? [...filters.status, status]
-                      : filters.status.filter((val) => val !== status),
-                  );
-                }}
-              >
-                {status}
-              </Checkbox>
-            ))}
-          </Flex>
-        </Flex>
+
+        <FormFieldFilter
+          label="Is Assigned: "
+          fieldType="radio"
+          value={filters.isLocated}
+          options={[
+            { value: true, label: "Assigned" },
+            { value: false, label: "Not Assigned" },
+          ]}
+          onChange={(value) => updateFilters("isLocated", value)}
+          direction="row"
+        />
+
+        {/* <TreeSelect
+          className={`${styles.customSelect}`}
+          treeData={plotTreeData}
+          style={{ width: "100%" }}
+          tagRender={TagRender}
+          onChange={(values) => {
+            console.log("Selected values:", values); // Debug giá trị
+          }}
+          treeCheckable
+          showCheckedStrategy={TreeSelect.SHOW_CHILD}
+          placeholder="Select Plot or Row"
+        /> */}
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

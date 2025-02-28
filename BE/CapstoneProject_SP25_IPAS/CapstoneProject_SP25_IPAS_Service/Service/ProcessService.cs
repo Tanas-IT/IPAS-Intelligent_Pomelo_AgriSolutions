@@ -61,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         IsDefault = false,
+                        IsSample = createProcessModel.IsSample,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = false,
                         Order = createProcessModel.Order,
@@ -82,6 +83,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     newProcess.ResourceUrl = getLink;
                     await _unitOfWork.ProcessRepository.Insert(newProcess);
+                    if(createProcessModel.IsSample != null && createProcessModel.IsSample == true)
+                    {
+                        createProcessModel.ListPlan = null;
+                    } 
 
                     if (createProcessModel.ListSubProcess != null)
                     {
@@ -89,6 +94,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var subProcessRaw in createProcessModel.ListSubProcess)
                         {
                             var subProcess = JsonConvert.DeserializeObject<AddSubProcessModel>(subProcessRaw);
+                            if (createProcessModel.IsSample != null && createProcessModel.IsSample == true)
+                            {
+                                subProcess.ListPlan = null;
+                            }
                             var newSubProcess = new SubProcess()
                             {
                                 SubProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.SUB_PROCESS),
@@ -902,13 +911,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetForSelect(int farmId, string? searchValue)
+        public async Task<BusinessResult> GetForSelect(int farmId, string? searchValue, bool isSample)
         {
             try
             {
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false && x.IsSample == isSample;
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.ProcessName!.ToLower().Contains(searchValue.ToLower()));
@@ -930,11 +939,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
-        }
-
-        public Task<BusinessResult> GetProcessByFarmId(int farmId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

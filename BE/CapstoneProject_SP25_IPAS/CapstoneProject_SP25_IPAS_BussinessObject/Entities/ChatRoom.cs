@@ -16,6 +16,8 @@ public partial class ChatRoom
     public int? AiresponseId { get; set; }
 
     public int? CreateBy { get; set; }
+    public int? FarmID { get; set; }
+    public int? UserID { get; set; }
 
     public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
 

@@ -6,7 +6,6 @@ CREATE DATABASE [IPAS]
 GO
 USE [IPAS]
 GO
-
 -- ipas.dbo.Farm definition
 
 -- Drop table
@@ -528,6 +527,7 @@ CREATE TABLE ipas.dbo.Process (
 	FarmID int NULL,
 	GrowthStageID int NULL,
         [Order] int NULL,
+        IsSample bit NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -626,10 +626,12 @@ CREATE TABLE ipas.dbo.UserFarm (
 
 CREATE TABLE ipas.dbo.ChatRoom (
 	RoomID int IDENTITY(1,1) NOT NULL,
-	RoomCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	RoomCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	RoomName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	AIResponseID int NULL,
+        FarmID int NULL,
+        UserID int NULL,
 	CreateBy int NULL,
 	CONSTRAINT PK__ChatRoom__32863919A904C9FC PRIMARY KEY (RoomID),
 	CONSTRAINT FK__ChatRoom__Create__17C286CF FOREIGN KEY (CreateBy) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE
@@ -821,8 +823,12 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CustomDates nvarchar(MAX) NULL,
+	FarmID int NULL,
+	HarvestHistoryID int NULL,
 	CONSTRAINT PK__CarePlan__9C8A5B694338D9F1 PRIMARY KEY (ScheduleID),
-	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE
+	CONSTRAINT CarePlanSchedule_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
+	CONSTRAINT CarePlanSchedule_HarvestHistory_FK FOREIGN KEY (HarvestHistoryID) REFERENCES IPAS.dbo.HarvestHistory(HarvestHistoryID),
+	CONSTRAINT FK__CarePlanS__CareP__2180FB33 FOREIGN KEY (CarePlanID) REFERENCES IPAS.dbo.[Plan](PlanID) ON DELETE CASCADE
 );
 
 
@@ -834,7 +840,7 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 
 CREATE TABLE ipas.dbo.ChatMessage (
 	MessageID int IDENTITY(1,1) NOT NULL,
-	MessageCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	MessageCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MessageContent nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
@@ -860,10 +866,10 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	CriteriaID int NULL,
 	GraftedPlantID int NULL,
 	PlantLotID int NULL,
-	CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
+        CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
 	CONSTRAINT CriteriaTarget_Criteria_FK FOREIGN KEY (CriteriaID) REFERENCES ipas.dbo.Criteria(CriteriaID),
 	CONSTRAINT CriteriaTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
-	CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+        CONSTRAINT CriteriaTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
 	CONSTRAINT CriteriaTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 -- ipas.dbo.WorkLog definition
@@ -875,17 +881,15 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 CREATE TABLE ipas.dbo.WorkLog (
 	WorkLogID int IDENTITY(1,1) NOT NULL,
 	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-        WorkLogName nvarchar(300) NULL,
+    WorkLogName nvarchar(300) NULL,
 	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Date] datetime NULL,
 	IsConfirm bit NULL,
 	ScheduleID int NULL,
-	HarvestHistoryID int NULL,
 	WarningID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
-	CONSTRAINT FK_WorkLog_HarvestHistory FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
 	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
 );
@@ -907,6 +911,7 @@ CREATE TABLE ipas.dbo.Resource (
 	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	WorkLogID int NULL,
+        UserID int NULL,
 	PlantGrowthHistoryID int NULL,
 	LegalDocumentID int NULL,
 	GraftedPlantNoteID int NULL,
@@ -1156,18 +1161,22 @@ VALUES
 
 
 INSERT INTO [ipas].dbo.Plant 
-( PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
+(PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
 VALUES
-( 'P001', 'Tomato', 1, 'Healthy', '2024-01-01', '2024-01-05', '2023-12-25', NULL, 'Cherry tomato variety', 1, 'https://example.com/tomato.jpg', 1,1,1),
-( 'P002', 'Lettuce', 2, 'Healthy', '2024-01-02', '2024-01-06', '2023-12-20', NULL, 'Green leafy lettuce', 2, 'https://example.com/lettuce.jpg', 1,2,1),
-( 'P003', 'Carrot', 3, 'Healthy', '2024-01-03', '2024-01-07', '2023-12-18', NULL, 'Orange root vegetable', 1, 'https://example.com/carrot.jpg', 1,3,1),
-( 'P004', 'Cabbage', 4, 'Healthy', '2024-01-04', '2024-01-08', '2023-12-15', NULL, 'Round green cabbage', 2, 'https://example.com/cabbage.jpg', 1,1,1),
-( 'P005', 'Strawberry', 5, 'Moderate', '2024-01-05', '2024-01-09', '2023-12-10', NULL, 'Red juicy strawberry', 1, 'https://example.com/strawberry.jpg', 2,4,1),
-( 'P006', 'Spinach', 6, 'Healthy', '2024-01-06', '2024-01-10', '2023-12-08', NULL, 'Rich in iron', 2, 'https://example.com/spinach.jpg', 2,5,1),
-( 'P007', 'Pepper', 7, 'Unhealthy', '2024-01-07', '2024-01-11', '2023-12-05', NULL, 'Spicy red pepper', 1, 'https://example.com/pepper.jpg', 2,2,1),
-( 'P008', 'Pumpkin', 8, 'Moderate', '2024-01-08', '2024-01-12', '2023-12-01', NULL, 'Large orange pumpkin', 2, 'https://example.com/pumpkin.jpg', 2,1,1),
-( 'P009', 'Potato', 9, 'Healthy', '2024-01-09', '2024-01-13', '2023-11-28', NULL, 'Underground tuber', 1, 'https://example.com/potato.jpg', 2,2,1),
-( 'P010', 'Onion', 10, 'Moderate', '2024-01-10', '2024-01-14', '2023-11-25', NULL, 'Pungent bulb vegetable', 2, 'https://example.com/onion.jpg', 2,3,1);
+-- 5 cây có PlantIndex và LandRowID
+('P001', 'Green Skin Pomelo A', 1, 'Healthy', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
+('P002', 'Green Skin Pomelo B', 2, 'Moderate', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
+('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2024-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
+('P004', 'Green Skin Pomelo D', 4, 'Unhealthy', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
+('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2024-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
+
+-- 5 cây có PlantIndex và LandRowID NULL
+('P006', 'Green Skin Pomelo F', NULL, 'Moderate', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', NULL, 1, 1),
+('P007', 'Green Skin Pomelo G', NULL, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', NULL, 1, 1),
+('P008', 'Green Skin Pomelo H', NULL, 'Unhealthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', NULL, 2, 1),
+('P009', 'Green Skin Pomelo I', NULL, 'Moderate', '2024-02-09', '2024-02-13', '2023-12-28', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', NULL, 3, 1),
+('P010', 'Green Skin Pomelo J', NULL, 'Healthy', '2024-02-10', '2024-02-14', '2023-12-25', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', NULL, 4, 1);
+
 
 GO
 -- Chèn dữ liệu vào bảng LegalDocument

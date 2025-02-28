@@ -370,6 +370,16 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
         }
 
+        public static class AI
+        {
+            public const string prefix = Base + "/ai";
+            public const string chatbox = prefix + "/chat";
+            public const string predictDiseaseByFile = prefix + "/predict-disease-by-file";
+            public const string predictDiseaseByURL = prefix + "/predict-disease-by-url";
+            public const string getHistoryOfChat = prefix + "/history-of-chat";
+        }
+
+
         public static class Order
         {
             public const string prefix = Base + "/order";

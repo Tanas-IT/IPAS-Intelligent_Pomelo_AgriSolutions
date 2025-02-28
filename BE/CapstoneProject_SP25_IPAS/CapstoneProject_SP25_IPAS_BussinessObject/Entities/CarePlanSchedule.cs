@@ -17,8 +17,12 @@ public partial class CarePlanSchedule
     public TimeSpan? EndTime { get; set; }
 
     public int? CarePlanId { get; set; }
+    public int? FarmID { get; set; }
+    public int? HarvestHistoryID { get; set; }
 
     public virtual Plan? CarePlan { get; set; }
+    public virtual Farm? Farm { get; set; }
+    public virtual HarvestHistory? HarvestHistory { get; set; }
 
     public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
 }

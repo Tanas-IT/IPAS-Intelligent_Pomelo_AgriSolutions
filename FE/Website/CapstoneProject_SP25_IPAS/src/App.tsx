@@ -6,33 +6,51 @@ import { GuestLayout } from "./layouts";
 import "aos/dist/aos.css";
 import { ToastContainer } from "react-toastify";
 import { ScrollToTop } from "./components";
+import { ConfigProvider } from "antd";
 
 function App() {
   return (
     <>
-      <Router>
-        <ScrollToTop />
-        <div className="App">
-          <Routes>
-            {publicRoutes.map((route, index) => {
-              const Layout = route.layout === null ? Fragment : route.layout || GuestLayout;
-              const Page = route.component;
-              return (
-                <Route
-                  key={index}
-                  path={route.path}
-                  element={
-                    <Layout>
-                      <Page />
-                    </Layout>
-                  }
-                />
-              );
-            })}
-          </Routes>
-        </div>
-      </Router>
-      <ToastContainer />
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#326E2F",
+          },
+          components: {
+            Select: {
+              optionSelectedColor: "#20461e",
+              optionSelectedBg: "#bcd379",
+            },
+            DatePicker: {
+              cellActiveWithRangeBg: "#bcd379",
+            },
+          },
+        }}
+      >
+        <Router>
+          <ScrollToTop />
+          <div className="App">
+            <Routes>
+              {publicRoutes.map((route, index) => {
+                const Layout = route.layout === null ? Fragment : route.layout || GuestLayout;
+                const Page = route.component;
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={
+                      <Layout>
+                        <Page />
+                      </Layout>
+                    }
+                  />
+                );
+              })}
+            </Routes>
+          </div>
+        </Router>
+        <ToastContainer />
+      </ConfigProvider>
     </>
   );
 }

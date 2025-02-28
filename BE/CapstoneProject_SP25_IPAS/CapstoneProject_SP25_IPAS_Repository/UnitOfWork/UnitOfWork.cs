@@ -58,6 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public PlanTargetRepository _planTargetRepo;
         public GraftedPlantNoteRepository _graftedPlantNoteRepo;
         public PaymentRepository _paymentRepo;
+        public ChatMessageRepository _chatMessageRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -638,6 +639,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._paymentRepo = new PaymentRepository(_context);
                 }
                 return _paymentRepo;
+            }
+        }
+
+        public ChatMessageRepository ChatMessageRepository
+        {
+            get
+            {
+                if (_chatMessageRepo == null)
+                {
+                    this._chatMessageRepo = new ChatMessageRepository(_context);
+                }
+                return _chatMessageRepo;
             }
         }
     }

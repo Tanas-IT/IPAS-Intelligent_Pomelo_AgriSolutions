@@ -32,7 +32,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
       <Flex>
         {isDisplayEdit &&
           (isEditing ? (
-            <EditActions handleCancel={handleCancel} handleSave={handleSave} />
+            <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} />
           ) : (
             <Icons.edit className={style.iconEdit} onClick={handleEdit} />
           ))}

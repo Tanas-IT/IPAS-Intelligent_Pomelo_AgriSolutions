@@ -1,1 +1,1 @@
-export * from "./GetPlant";
+export * from "./PlantResponse";
