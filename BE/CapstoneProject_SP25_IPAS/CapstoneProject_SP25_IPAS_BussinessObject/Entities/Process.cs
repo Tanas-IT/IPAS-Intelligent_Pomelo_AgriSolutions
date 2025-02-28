@@ -22,6 +22,7 @@ public partial class Process
     public DateTime? UpdateDate { get; set; }
 
     public bool? IsDeleted { get; set; }
+    public bool? IsSample { get; set; }
 
     public int? FarmId { get; set; }
 

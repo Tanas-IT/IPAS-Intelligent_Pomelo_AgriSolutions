@@ -43,6 +43,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? MasterTypeName { get; set; }
         public string? Characteristic { get; set; }
+        public int? GrowthStageID { get; set; }
+        public string? GrowthStageName { get; set; }
 
 
         //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();

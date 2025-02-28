@@ -18,6 +18,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -136,6 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow!.RowIndex))
                 .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName))
                 .ForMember(dest => dest.Characteristic, opt => opt.MapFrom(src => src.MasterType!.Characteristic))
+                .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
                 .ReverseMap();
 
 
@@ -321,6 +323,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                 .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
                 .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
+                .ReverseMap();
+
+            CreateMap<ChatMessage, ChatMessageModel>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Room.UserID))
+                .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.Room.FarmID))
                 .ReverseMap();
         }
     }

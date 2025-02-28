@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel)
+        public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId)
         {
             using(var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -46,49 +46,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         throw new Exception("Start time must be less than End Time");
                     }
-                    var newPlan = new Plan()
-                    {
-                        PlanCode = await GeneratePlanCode(null, addNewTaskModel.LandPlotId, addNewTaskModel.TypeOfPlan.Value),
-                        CropId = addNewTaskModel.CropId,
-                        PlanName = addNewTaskModel.TaskName,
-                        MasterTypeId = addNewTaskModel.TypeOfPlan,
-                        ProcessId = addNewTaskModel.ProcessId,
-                        AssignorId = addNewTaskModel.AssignorId,
-                        StartDate = addNewTaskModel.DateWork,
-                        EndDate = addNewTaskModel.DateWork,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now,
-                    };
                    
-
-                    await _unitOfWork.PlanRepository.Insert(newPlan);
-                    foreach(var planTarget in addNewTaskModel.ListPlanTargetModel)
-                    {
-                        var newPlantTarget = new PlanTarget()
-                        {
-                            GraftedPlantID = planTarget.GraftedPlantID,
-                            LandPlotID = planTarget.LandPlotID,
-                            PlantLotID = planTarget.PlantLotID,
-                            LandRowID = planTarget.LandRowID,
-                            PlantID = planTarget.PlantID,
-                        };
-                        newPlan.PlanTargets.Add(newPlantTarget);
-                    }
-                    
-                    await _unitOfWork.SaveAsync();
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
 
                     var newSchedule = new CarePlanSchedule()
                     {
-                        CarePlanId = getLastPlan.PlanId,
                         CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
                         StarTime = TimeSpan.Parse(addNewTaskModel.StartTime),
                         EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
+                        FarmID = farmId,
                         Status = "Active",
                     };
                     await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                     
-                    var checkConflict = await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflicted(newPlan.PlanId, addNewTaskModel.DateWork.Value, addNewTaskModel.DateWork.Value, TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime));
+                    var checkConflict = await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflictedForWorkLog(farmId, addNewTaskModel.DateWork.Value, addNewTaskModel.DateWork.Value, TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime));
                     if(checkConflict)
                     {
                         throw new Exception($"The date {addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy")} with StartTime: {addNewTaskModel.StartTime} and EndTime: {addNewTaskModel.EndTime} is conflicted. Please try another");
@@ -155,7 +126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate);
+                var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
                 var result =  calendar
                         .Select(wl => new ScheduleModel()
                         {
@@ -192,11 +163,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter)
+        public async Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
         {
             try
             {
-                Expression<Func<WorkLog, bool>> filter = null!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {

@@ -1,64 +1,42 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Common.Utils;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Crmf;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WorkLogController : ControllerBase
+    public class AIController : ControllerBase
     {
-        private readonly IWorkLogService _workLogService;
+        private readonly IAIService _aiService;
         private readonly IJwtTokenService _jwtTokenService;
 
-        public WorkLogController(IWorkLogService workLogService, IJwtTokenService jwtTokenService)
+        public AIController(IAIService aiService, IJwtTokenService jwtTokenService)
         {
-            _workLogService = workLogService;
+            _aiService = aiService;
             _jwtTokenService = jwtTokenService;
         }
 
-        [HttpGet(APIRoutes.WorkLog.getSchedule, Name = "GetSchedule")]
-        public async Task<IActionResult> GetSchedule(int userId, int planId, DateTime startDate, DateTime endDate, int? farmId)
+        [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
+        public async Task<IActionResult> AskQuestion([FromBody] ChatRequest request, int? farmId, int? userId)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(request.Question))
+                {
+                    return BadRequest(new { Message = "Câu hỏi không được để trống." });
+                }
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var paramCalendarModel = new ParamScheduleModel()
-                {
-                    UserId = userId,
-                    PlanId = planId,
-                    StartDate = startDate,
-                    EndDate = endDate,
-                    FarmId = farmId
-                };
-                var result = await _workLogService.GetScheduleEvents(paramCalendarModel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
-        [HttpGet(APIRoutes.WorkLog.getAllSchedule, Name = "GetAllSchedule")]
-        public async Task<IActionResult> GetAllSchedule(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
-        {
-            try
-            {
-                if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _workLogService.GetScheduleWithFilters(paginationParameter,scheduleFilter, farmId);
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetAnswerAsync(request.Question, farmId, userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -73,12 +51,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.WorkLog.assignTask, Name = "AssignTask")]
-        public async Task<IActionResult> AssignTask(int employeeId, int workLogId)
+        [HttpPost(APIRoutes.AI.predictDiseaseByFile, Name = "predictDiseaseByFile")]
+        public async Task<IActionResult> PredictDiseaseByFile([FromForm] PredictRequest request)
         {
             try
             {
-                var result = await _workLogService.AssignTaskForEmployee(employeeId, workLogId);
+                var result = await _aiService.PredictDiseaseByFile(request.Image);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -93,14 +71,36 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.WorkLog.addNewTask, Name = "AddNewTask")]
-        public async Task<IActionResult> AddNewTask([FromBody] AddNewTaskModel addNewTaskModel, int? farmId)
+        [HttpPost(APIRoutes.AI.predictDiseaseByURL, Name = "predictDiseaseByURL")]
+        public async Task<IActionResult> PredictDiseaseByURL([FromBody] PredictImageByURLRequest request)
+        {
+            try
+            {
+                var result = await _aiService.PredictDiseaseByURL(request.ImageURL);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.AI.getHistoryOfChat, Name = "getHistoryOfChat")]
+        public async Task<IActionResult> HistoryOfChat(PaginationParameter paginationParameter, int? farmId, int? userId)
         {
             try
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _workLogService.AddNewTask(addNewTaskModel, farmId);
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetHistoryChat(paginationParameter, farmId, userId);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -84,6 +84,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ICriteriaTargetRepository, CriteriaTargetRepository>();
             services.AddScoped<IGraftedPlantNoteRepository, GraftedPlantNoteRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
             // Register servicies
             services.AddScoped<IUserService, UserService>();
@@ -119,6 +120,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ICriteriaTargetService, CriteriaTargetService>();
             services.AddScoped<IGraftedPlantService, GraftedPlantService>();
             services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
+            services.AddScoped<IAIService, AIService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IPayOSService, PayOSService>();
 
