@@ -318,6 +318,8 @@ function ProcessDetails() {
   };
 
   const convertTreeToList = (nodes: CustomTreeDataNode[], parentId: number | null = null): any[] => {
+    console.log("nodes", nodes);
+    
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
       const hasChangedPlan = node.listPlan?.some(plan => 

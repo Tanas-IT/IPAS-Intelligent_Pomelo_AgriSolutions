@@ -119,27 +119,27 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                     isEditing
                     type="switch" />
                 <Divider />
-                <h3 className={style.titleAddPlan}>Add Plans</h3>
+                {/* <h3 className={style.titleAddPlan}>Add Plans</h3>
                 <PlanList
                     plans={plans}
                     onEdit={handleEditPlan}
                     onDelete={handleDeletePlan}
                     isEditing={true} />
-                <Button type="dashed" onClick={handleOpenModal}>+ Add Plan</Button>
+                <Button type="dashed" onClick={handleOpenModal}>+ Add Plan</Button> */}
                 <Divider />
                 <Flex justify="end">
                     <Button onClick={handleCancel} style={{ marginRight: 10 }}>Cancel</Button>
                     <CustomButton label="Add Process" htmlType="submit" handleOnClick={handleOk} />
                 </Flex>
             </Form>
-            <AddPlanModal
+            {/* <AddPlanModal
                 isOpen={isPlanModalOpen}
                 onClose={handleCloseModal}
                 onSave={handleAddPlan}
                 editPlan={editPlan}
                 growthStageOptions={growthStageOptions}
                 processTypeOptions={processTypeOptions}
-            />
+            /> */}
         </Modal>
     );
 };
