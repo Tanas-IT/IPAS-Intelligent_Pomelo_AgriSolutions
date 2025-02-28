@@ -71,6 +71,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createManyPlantFromPlantLot = Base + "/create-many-plant";
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
+            public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
         }
 
         public static class Resource
