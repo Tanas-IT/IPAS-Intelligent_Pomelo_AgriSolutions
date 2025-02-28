@@ -46,7 +46,7 @@ function PlantList() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, searchValue]);
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
 
   // const { handleDelete } = useTableDelete(
   //   {
@@ -80,10 +80,7 @@ function PlantList() {
         <Table
           columns={plantColumns}
           rows={data}
-          rowKey="userCode"
-          expandedColumns={ExpandedColumns}
-          expandedRowName="farms"
-          expandedRowKey="farmId"
+          rowKey="plantCode"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
@@ -94,8 +91,7 @@ function PlantList() {
           isLoading={isLoading}
           caption="Plant Management Board"
           notifyNoData="No plants to display"
-          renderAction={(plant: GetPlant) => <ActionMenuPlant id={plant.userId} />}
-          renderExpandedAction={(farm: Farm) => <ActionMenuPlant id={farm.farmId} />}
+          renderAction={(plant: GetPlant) => <ActionMenuPlant id={plant.plantId} />}
         />
 
         <NavigationDot

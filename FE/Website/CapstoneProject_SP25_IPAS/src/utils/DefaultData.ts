@@ -88,8 +88,8 @@ export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
 };
 
 export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
-  createDateFrom: "",
-  createDateTo: "",
+  plantingDateFrom: "",
+  plantingDateTo: "",
 };
 
 export const DEFAULT_ROW = (): rowStateType => ({

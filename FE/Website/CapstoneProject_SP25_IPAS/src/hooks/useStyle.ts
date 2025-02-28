@@ -92,7 +92,7 @@ const useStyle = createStyles(({ css }) => {
         color: ${primaryColor} !important;
       }
 
-      .ant-form-item-label >label,
+      .ant-form-item-label > label,
       .ant-form-item-required {
         font-size: 16px;
         color: ${primaryColor} !important;
@@ -204,7 +204,7 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customFormItemInput: css`
-      .ant-form-item-label >label {
+      .ant-form-item-label > label {
         font-size: 16px;
       }
     `,
