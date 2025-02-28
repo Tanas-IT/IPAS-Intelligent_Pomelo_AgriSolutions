@@ -111,7 +111,7 @@ const DocumentModal = ({ isOpen, onClose, onSave, documentData }: DocumentModalP
       isOpen={isOpen}
       onClose={handleCancel}
       onSave={handleOk}
-      isEdit={isEdit}
+      isUpdate={isEdit}
       title={isEdit ? "Update Document" : "Add New Document"} // Thay đổi tiêu đề theo mode
     >
       <Form form={form} layout="vertical" className={style.modalContainer}>

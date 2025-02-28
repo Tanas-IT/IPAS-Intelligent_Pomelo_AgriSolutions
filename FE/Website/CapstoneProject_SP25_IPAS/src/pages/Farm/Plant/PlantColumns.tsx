@@ -1,60 +1,63 @@
 import { TableColumn } from "@/types";
 import { GetPlant } from "@/payloads";
-import style from "./PlantList.module.scss";
+import { TableCell } from "@/components";
+import { formatDate } from "@/utils";
 
 export const plantColumns: TableColumn<GetPlant>[] = [
   {
-    header: "Họ và tên",
-    field: "fullname",
-    accessor: (plant) => plant.fullname,
-    width: 150,
+    header: "Code",
+    field: "plantCode",
+    accessor: (item) => <TableCell value={item.plantCode} />,
+    width: 160,
   },
   {
-    header: "Tên tài khoản",
-    field: "userName",
-    accessor: (plant) => <div className={style.tableText}>{plant.userName}</div>,
+    header: "Cultivar",
+    field: "masterTypeName",
+    accessor: (item) => <TableCell value={item.masterTypeName} />,
+    width: 160,
+  },
+  {
+    header: "Health Status",
+    field: "healthStatus",
+    accessor: (item) => <TableCell value={item.healthStatus} />,
+    width: 180,
+  },
+  {
+    header: "Planting Date",
+    field: "plantingDate",
+    accessor: (item) => <TableCell value={formatDate(item.plantingDate)} />,
+    width: 180,
+  },
+  {
+    header: "Growth Stage",
+    field: "growthStageName",
+    accessor: (item) => <TableCell value={item.growthStageName} />,
+    width: 180,
+  },
+  {
+    header: "Plant Location",
+    field: "plantIndex",
+    accessor: (item) => (
+      <TableCell
+        value={
+          item.landPlotName && item.rowIndex && item.plantIndex
+            ? `${item.landPlotName} - Row ${item.rowIndex} - Plant #${item.plantIndex}`
+            : "Not Assigned"
+        }
+      />
+    ),
+    width: 200,
+  },
+  {
+    header: "Description",
+    field: "description",
+    accessor: (item) => <TableCell value={item.description} />,
     width: 300,
   },
   {
-    header: "Số điện thoại",
-    field: "phone",
-    accessor: (plant) =>  <div className={style.tableText}>{plant.phone}</div>,
+    header: "Created Date",
+    field: "createDate",
+    accessor: (item) => <TableCell value={formatDate(item.createDate)} />,
     width: 150,
-  },
-  {
-    header: "Số điện thoại",
-    field: "phone",
-    accessor: (plant) =>  <div className={style.tableText}>{plant.phone}</div>,
-    width: 150,
-  },
-  {
-    header: "Số điện thoại",
-    field: "phone",
-    accessor: (plant) =>  <div className={style.tableText}>{plant.phone}</div>,
-    width: 150,
-  },
-  {
-    header: "Số điện thoại",
-    field: "phone",
-    accessor: (plant) =>  <div className={style.tableText}>{plant.phone}</div>,
-    width: 150,
-  },
-  {
-    header: "Số điện thoại",
-    field: "phone",
-    accessor: (plant) =>  <div className={style.tableText}>{plant.phone}</div>,
-    width: 150,
-  },
-  {
-    header: "Vai trò",
-    field: "roleId",
-    accessor: (plant) => plant.roleId,
-    width: 100,
-  },
-  {
-    header: "Đang hoạt động",
-    field: "isActive",
-    accessor: (plant) => (plant.isActive ? "Có" : "Không"),
-    width: 170,
   },
 ];

@@ -1,17 +1,16 @@
-import { Flex, Form, FormInstance, InputNumber, Select, Switch } from "antd";
+import { Flex, Form, FormInstance } from "antd";
 import style from "./RowConfiguration.module.scss";
 import React, { useEffect } from "react";
-import { Option } from "antd/es/mentions";
 import { CustomButton, InfoField } from "@/components";
 import { RulesManager } from "@/utils";
 import { createPlotFormFields } from "@/constants";
-import { useMapStore } from "@/stores";
 
 interface RowConfigurationProps {
   form: FormInstance;
+  setIsDirty: (dirty: boolean) => void;
 }
 
-const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) => {
+const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form, setIsDirty }) => {
   const handleAutoFill = () => {
     form.setFieldsValue({
       [createPlotFormFields.rowLength]: 210,
@@ -24,6 +23,15 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
       [createPlotFormFields.plantsPerRow]: 5,
       [createPlotFormFields.plantSpacing]: 10,
     });
+    setIsDirty(true);
+  };
+
+  const handleInputChange = (value: string | number) => {
+    if (value !== null && value !== undefined && value !== "") {
+      setIsDirty(true);
+    } else {
+      setIsDirty(false);
+    }
   };
 
   return (
@@ -52,6 +60,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                   label="Length (px)"
                   name={createPlotFormFields.rowLength}
                   rules={RulesManager.getRowLengthRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
 
                 <InfoField
@@ -59,18 +68,21 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                   label="Width (px)"
                   name={createPlotFormFields.rowWidth}
                   rules={RulesManager.getRowWidthRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
                 <InfoField
                   type="text"
                   label="Number of Rows"
                   name={createPlotFormFields.numberOfRows}
                   rules={RulesManager.getNumberOfRowsRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
                 <InfoField
                   type="text"
                   label="Spacing Between Rows (px)"
                   name={createPlotFormFields.rowSpacing}
                   rules={RulesManager.getRowSpacingRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
               </Flex>
               <Flex className={style.row}>
@@ -80,6 +92,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                     label="Rows per Line"
                     name={createPlotFormFields.rowsPerLine}
                     rules={RulesManager.getRowsPerLineRules()}
+                    onChange={(e) => handleInputChange(e.target.value)}
                   />
                 </div>
                 <div className={style.inputGroup}>
@@ -88,6 +101,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                     label="Line Spacing (px)"
                     name={createPlotFormFields.lineSpacing}
                     rules={RulesManager.getLineSpacingRules()}
+                    onChange={(e) => handleInputChange(e.target.value)}
                   />
                 </div>
                 <div className={style.inputGroup}>
@@ -96,6 +110,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                     label="Row Orientation"
                     name={createPlotFormFields.rowOrientation}
                     rules={RulesManager.getRowOrientationRules()}
+                    onChange={(e) => handleInputChange(e.target.value)}
                     options={[
                       { value: "Horizontal", label: "Horizontal" },
                       { value: "Vertical", label: "Vertical" },
@@ -116,6 +131,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                   label="Plants per Row"
                   name={createPlotFormFields.plantsPerRow}
                   rules={RulesManager.getPlantsPerRowRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
 
                 <InfoField
@@ -123,6 +139,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                   label="Spacing Between Plants (px)"
                   name={createPlotFormFields.plantSpacing}
                   rules={RulesManager.getPlantSpacingRules()}
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
               </Flex>
             </Flex>

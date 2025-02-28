@@ -35,7 +35,7 @@ const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
     <ModalForm
       isOpen={isOpen}
       onClose={handleCancel}
-      isEdit={false}
+      isUpdate={false}
       title="Feedback Worklog"
       onSave={handleSave}
     >

@@ -6,7 +6,7 @@ import { DraggableRow, LandPlotCreate, RowConfiguration } from "@/pages";
 import style from "./AddNewPlotDrawer.module.scss";
 import { useModal, useStyle } from "@/hooks";
 import { rowStateType } from "@/types";
-import { useMapStore } from "@/stores";
+import { useLoadingStore, useMapStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
 import { createPlotFormFields, MESSAGES } from "@/constants";
@@ -40,8 +40,10 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     useMapStore();
   const isHorizontal =
     form.getFieldValue(createPlotFormFields.rowOrientation) === "Horizontal" ? true : false;
+  const { isLoading, setIsLoading } = useLoadingStore();
 
   const handleSave = async () => {
+    setIsLoading(true);
     const plotDataRequest: LandPlotRequest = {
       ...plotData,
       numberOfRows: rowsData.length,
@@ -51,19 +53,24 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         distance: row.plantSpacing,
         length: row.length,
         width: row.width,
+        direction: form.getFieldValue(createPlotFormFields.rowOrientation),
+        description: form.getFieldValue(createPlotFormFields.description),
       })),
     };
     setPlotData(plotDataRequest);
-    console.log(plotDataRequest);
+    try {
+      var result = await landPlotService.createLandPlot(plotDataRequest);
 
-    // var result = await landPlotService.createLandPlot(plotDataRequest);
-    // if (result.statusCode === 200) {
-    //   onClose();
-    //   await fetchLandPlots();
-    //   toast.success(result.message);
-    // } else {
-    //   toast.error(result.message);
-    // }
+      if (result.statusCode === 200 || result.statusCode === 201) {
+        onClose();
+        await fetchLandPlots();
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNext = async () => {
@@ -183,6 +190,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
               handleBtn2={handleNext}
               labelBtn1={currentStep === 0 ? "Cancel" : "Previous"}
               labelBtn2={currentStep === 2 ? "Finish" : "Next"}
+              isLoading={isLoading}
             />
           </Flex>
         }
@@ -195,7 +203,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         {currentStep === 0 && (
           <LandPlotCreate landPlots={landPlots} form={form} setIsDirty={setIsDirty} />
         )}
-        {currentStep === 1 && <RowConfiguration form={form} />}
+        {currentStep === 1 && <RowConfiguration form={form} setIsDirty={setIsDirty} />}
         {currentStep === 2 && (
           <DraggableRow
             rowsData={rowsData}
