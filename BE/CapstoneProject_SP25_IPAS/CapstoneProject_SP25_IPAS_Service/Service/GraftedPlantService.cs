@@ -226,8 +226,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.GraftedDate >= getRequest.GraftedDateFrom && x.GraftedDate <= getRequest.GraftedDateTo);
                 }
 
-                if (getRequest.PlantLotId.HasValue)
-                    filter = filter.And(x => x.PlantLotId == getRequest.PlantLotId);
+                if (!string.IsNullOrEmpty(getRequest.PlantLotId))
+                {
+                    List<string> filterList = Util.SplitByComma(getRequest.PlantLotId);
+                    filter = filter.And(x => filterList.Contains(x.PlantLotId.ToString()!));
+                }
 
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
 

@@ -28,6 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public DateTime? EndDate { get; set; }
 
         public bool? IsDeleted { get; set; }
+        public bool? IsSample { get; set; }
 
         public string? FarmName { get; set; }
 

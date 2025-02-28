@@ -14,6 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public string? LandRowCode { get; set; }
 
+        public string? LandRowName { get; set; }
         public int? RowIndex { get; set; }
 
         public int? TreeAmount { get; set; }
