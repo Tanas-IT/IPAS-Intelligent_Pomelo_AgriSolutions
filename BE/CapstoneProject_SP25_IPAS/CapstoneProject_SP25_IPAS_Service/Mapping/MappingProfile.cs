@@ -129,6 +129,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<LandRow, LandRowModel>()
                 .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
                 .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
+                .ForMember(dest => dest.LandRowName, opt => opt.MapFrom(src => src.LandPlot!.LandPlotName + "-" + src.RowIndex.ToString()))
                 .ReverseMap();
 
             CreateMap<Plant, PlantModel>()
@@ -291,7 +292,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<LandRow, ForSelectedModels>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandRowId))
              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandRowCode))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RowIndex))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LandPlot!.LandPlotName + "-" + src.RowIndex.ToString()))
               .ReverseMap();
 
             CreateMap<MasterType, ForSelectedModels>()
