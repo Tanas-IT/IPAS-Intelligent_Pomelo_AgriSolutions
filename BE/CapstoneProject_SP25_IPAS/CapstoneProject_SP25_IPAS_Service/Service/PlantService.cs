@@ -669,18 +669,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return (true, null!);
         }
 
-        public async Task<BusinessResult> SoftedMultipleDelete(string plantIds)
+        public async Task<BusinessResult> SoftedMultipleDelete(List<int> plantIdList)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(plantIds))
-                        return new BusinessResult(400, "No plant Id to delete");
-                    List<string> plantIdList = Util.SplitByComma(plantIds);
+                    //if (string.IsNullOrEmpty(plantIds))
+                    //    return new BusinessResult(400, "No plant Id to delete");
+                    //List<string> plantIdList = Util.SplitByComma(plantIds);
                     //foreach (var MasterTypeId in plantIdList)
                     //{
-                    Expression<Func<Plant, bool>> filter = x => plantIdList.Contains(x.PlantId.ToString()) && x.IsDeleted == false;
+                    Expression<Func<Plant, bool>> filter = x => plantIdList.Contains(x.PlantId) && x.IsDeleted == false;
                     var plantsExistGet = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter);
                     foreach (var item in plantsExistGet)
                     {

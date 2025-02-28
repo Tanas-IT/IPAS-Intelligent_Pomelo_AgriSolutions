@@ -295,7 +295,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.Plant.softDeletePlant, Name = "SoftedDeletePlant")]
-        public async Task<IActionResult> SoftedDeletePlant([FromBody] string plantIds)
+        public async Task<IActionResult> SoftedDeletePlant([FromBody] List<int> plantIds)
         {
             try
             {

@@ -475,5 +475,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> softedMultipleDelete(List<int> plantLotIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    //if (string.IsNullOrEmpty(plantIds))
+                    //    return new BusinessResult(400, "No plant Id to delete");
+                    //List<string> plantIdList = Util.SplitByComma(plantIds);
+                    //foreach (var MasterTypeId in plantIdList)
+                    //{
+                    Expression<Func<PlantLot, bool>> filter = x => plantLotIds.Contains(x.PlantLotId) && x.isDeleted == false;
+                    var plantsExistGet = await _unitOfWork.PlantLotRepository.GetAllNoPaging(filter: filter);
+                    foreach (var item in plantsExistGet)
+                    {
+
+                        item.isDeleted = true;
+                        _unitOfWork.PlantLotRepository.Update(item);
+                    }
+                    //}
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_PLANT_LOT_CODE, $"Delete {result.ToString()} plant success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_PLANT_LOT_CODE, Const.FAIL_DELETE_PLANT_LOT_MESSAGE, new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
     }
 }

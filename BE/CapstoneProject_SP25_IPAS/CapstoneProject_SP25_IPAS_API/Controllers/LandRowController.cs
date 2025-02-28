@@ -179,7 +179,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.LandRow.softedDeleteMultipleRow, Name = "softedDeleteMultipleRow")]
-        public async Task<IActionResult> softedDeleteMultipleRow([FromBody] string rowIds)
+        public async Task<IActionResult> softedDeleteMultipleRow([FromBody] List<int> rowIds)
         {
             try
             {
