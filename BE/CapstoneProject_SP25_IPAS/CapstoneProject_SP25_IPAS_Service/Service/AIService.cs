@@ -265,7 +265,7 @@ const generationConfig = {
         {
             try
             {
-                Expression<Func<ChatMessage, bool>> filter = x => x.Room.UserID == userId;
+                Expression<Func<ChatMessage, bool>> filter = x => x.Room.UserID == userId && x.Room.FarmID == farmId;
                 Func<IQueryable<ChatMessage>, IOrderedQueryable<ChatMessage>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
