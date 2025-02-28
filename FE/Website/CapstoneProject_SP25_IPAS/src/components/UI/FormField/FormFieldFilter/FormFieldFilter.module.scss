@@ -1,9 +1,14 @@
 @use "@/styles/variables.scss" as vars;
 
 .section {
-  max-width: 24vw;
+  width: 100%;
+  max-width: 30vw;
   flex-direction: column;
   margin-bottom: 10px;
+  &.row {
+    gap: 20px;
+    flex-direction: row;
+  }
   .title {
     color: vars.$color_primary !important;
     font-weight: bold;

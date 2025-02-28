@@ -10,6 +10,7 @@ export interface GetPlant {
   plantingDate: Date;
   description: string;
   masterTypeName: string;
+  growthStageName: string;
   imageUrl: string;
   rowIndex: number;
   landPlotName: string;

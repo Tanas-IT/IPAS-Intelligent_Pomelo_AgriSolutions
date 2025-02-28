@@ -16,6 +16,15 @@ function App() {
           token: {
             colorPrimary: "#326E2F",
           },
+          components: {
+            Select: {
+              optionSelectedColor: "#20461e",
+              optionSelectedBg: "#bcd379",
+            },
+            DatePicker: {
+              cellActiveWithRangeBg: "#bcd379",
+            },
+          },
         }}
       >
         <Router>

@@ -77,6 +77,9 @@ const useStyle = createStyles(({ css }) => {
     `,
 
     customSelect: css`
+      ant-select-item ant-select-item-option ant-select-item-option-selected {
+        background-color: ${primaryColor} !important;
+      }
       .ant-pagination-item-link-icon {
         color: ${primaryColor} !important;
       }

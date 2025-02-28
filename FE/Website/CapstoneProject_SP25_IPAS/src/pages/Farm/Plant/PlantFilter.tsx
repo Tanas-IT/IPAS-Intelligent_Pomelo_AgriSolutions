@@ -1,9 +1,10 @@
 import { Flex, Space, TreeSelect } from "antd";
 import { useState } from "react";
 import style from "./PlantList.module.scss";
-import { useStyle } from "@/hooks";
+import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
 import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
 import { FilterPlantState } from "@/types";
+import { MASTER_TYPE } from "@/constants";
 
 type FilterProps = {
   filters: FilterPlantState;
@@ -12,10 +13,18 @@ type FilterProps = {
   onApply: () => void;
 };
 const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
-  const { styles } = useStyle();
   const [prevFilters, setPrevFilters] = useState(filters);
+  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR, true);
+  const { options: growthStageOptions } = useGrowthStageOptions();
 
-  const isFilterEmpty = !(filters.plantingDateFrom || filters.plantingDateTo);
+  const isFilterEmpty = !(
+    filters.plantingDateFrom ||
+    filters.plantingDateTo ||
+    (filters.cultivarIds && filters.cultivarIds.length > 0) ||
+    (filters.growthStageIds && filters.growthStageIds.length > 0) ||
+    (filters.healthStatus && filters.healthStatus.length > 0) ||
+    filters.isLocated !== undefined
+  );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
   const handleApply = () => {
@@ -46,7 +55,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
 
   return (
     <Flex className={style.filterContent}>
-      <Space direction="vertical">
+      <Space direction="vertical" style={{ width: "100%" }}>
         <FormFieldFilter
           label="Planting Date:"
           fieldType="date"
@@ -56,35 +65,48 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             updateFilters("plantingDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
           }}
         />
+        <Flex className={style.row}>
+          <FormFieldFilter
+            label="Cultivar:"
+            fieldType="select"
+            value={filters.cultivarIds}
+            options={cultivarTypeOptions}
+            onChange={(value) => updateFilters("cultivarIds", value)}
+          />
 
-        {/* <FormFieldFilter
-          label="Type Name:"
-          fieldType="select"
-          value={filters.typeName}
-          options={options}
-          onChange={(value) => updateFilters("typeName", value)}
-        /> */}
+          <FormFieldFilter
+            label="Growth Stage:"
+            fieldType="select"
+            value={filters.growthStageIds}
+            options={growthStageOptions}
+            onChange={(value) => updateFilters("growthStageIds", value)}
+          />
+        </Flex>
 
-        <TreeSelect
+        <FormFieldFilter
+          label="Is Assigned: "
+          fieldType="radio"
+          value={filters.isLocated}
+          options={[
+            { value: true, label: "Assigned" },
+            { value: false, label: "Not Assigned" },
+          ]}
+          onChange={(value) => updateFilters("isLocated", value)}
+          direction="row"
+        />
+
+        {/* <TreeSelect
           className={`${styles.customSelect}`}
           treeData={plotTreeData}
-          // dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
           style={{ width: "100%" }}
           tagRender={TagRender}
-          // value={[...selectedPlots, ...selectedRows]}
-          // onChange={(values) => {
-          //   const plots = values.filter((v) => v.startsWith("plot_"));
-          //   const rows = values.filter((v) => v.startsWith("row_"));
-          //   setFilterState((prev) => ({
-          //     ...prev,
-          //     selectedPlots: plots,
-          //     selectedRows: rows,
-          //   }));
-          // }}
+          onChange={(values) => {
+            console.log("Selected values:", values); // Debug giá trị
+          }}
           treeCheckable
           showCheckedStrategy={TreeSelect.SHOW_CHILD}
           placeholder="Select Plot or Row"
-        />
+        /> */}
 
         <FilterFooter
           isFilterEmpty={isFilterEmpty}

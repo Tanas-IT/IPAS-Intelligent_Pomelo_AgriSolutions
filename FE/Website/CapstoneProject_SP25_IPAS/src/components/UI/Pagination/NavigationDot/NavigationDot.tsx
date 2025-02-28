@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Pagination, Row, Col, Select, Typography, Flex, ConfigProvider } from "antd";
+import { Pagination, Row, Col, Select, Typography, Flex } from "antd";
 import style from "./NavigationDot.module.scss";
 import { NavigationDotProps } from "@/types";
 import { Icons } from "@/assets";
@@ -88,29 +88,18 @@ const NavigationDot: React.FC<NavigationDotProps> = ({
             <Text>Rows per page:</Text>
           </Col>
           <Col>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Select: {
-                    optionSelectedColor: "#20461e",
-                    optionSelectedBg: "#bcd379",
-                  },
-                },
-              }}
+            <Select
+              value={rowsPerPage.toString()}
+              onChange={handleRowsPerPageChange}
+              showSearch
+              className={`${style.navDotSelect}  ${styles.customSelect}`}
             >
-              <Select
-                value={rowsPerPage.toString()}
-                onChange={handleRowsPerPageChange}
-                showSearch
-                className={`${style.navDotSelect}  ${styles.customSelect}`}
-              >
-                {rowsPerPageOptions.map((row) => (
-                  <Option key={row} value={row.toString()}>
-                    <span className={style.navDotSelectText}>{row}</span>
-                  </Option>
-                ))}
-              </Select>
-            </ConfigProvider>
+              {rowsPerPageOptions.map((row) => (
+                <Option key={row} value={row.toString()}>
+                  <span className={style.navDotSelectText}>{row}</span>
+                </Option>
+              ))}
+            </Select>
           </Col>
         </Row>
       </Col>

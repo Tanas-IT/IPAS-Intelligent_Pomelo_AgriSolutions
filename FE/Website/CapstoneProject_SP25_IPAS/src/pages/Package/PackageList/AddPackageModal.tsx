@@ -34,7 +34,7 @@ const AddPackageModal = ({ isOpen, onClose, onSave, data }: PackageModalProps) =
             isOpen={isOpen}
             onClose={handleCancel}
             onSave={handleOk}
-            isEdit={false}
+            isUpdate={false}
             title="Add New Package"
         >
             <Form>

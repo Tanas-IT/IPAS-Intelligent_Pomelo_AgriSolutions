@@ -29,11 +29,21 @@ export const plantColumns: TableColumn<GetPlant>[] = [
     width: 180,
   },
   {
+    header: "Growth Stage",
+    field: "growthStageName",
+    accessor: (item) => <TableCell value={item.growthStageName} />,
+    width: 180,
+  },
+  {
     header: "Plant Location",
     field: "plantIndex",
     accessor: (item) => (
       <TableCell
-        value={`${item.landPlotName} - Row ${item.rowIndex} - Plant #${item.plantIndex}`}
+        value={
+          item.landPlotName && item.rowIndex && item.plantIndex
+            ? `${item.landPlotName} - Row ${item.rowIndex} - Plant #${item.plantIndex}`
+            : "Not Assigned"
+        }
       />
     ),
     width: 200,

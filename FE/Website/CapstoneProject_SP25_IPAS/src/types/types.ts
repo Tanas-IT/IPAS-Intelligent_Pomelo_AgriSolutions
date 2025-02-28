@@ -29,13 +29,15 @@ export type FilterMasterTypeState = {
   createDateFrom: string;
   createDateTo: string;
   typeName: string[];
-  
 };
 
 export type FilterPlantState = {
   plantingDateFrom: string;
   plantingDateTo: string;
-
+  cultivarIds: string[];
+  growthStageIds: string[];
+  healthStatus: string[];
+  isLocated: boolean;
 };
 
 export interface LandPlotsStateType {
