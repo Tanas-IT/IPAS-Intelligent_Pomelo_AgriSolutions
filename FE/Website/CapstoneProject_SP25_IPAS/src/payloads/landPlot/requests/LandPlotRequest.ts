@@ -8,6 +8,8 @@ interface landRows {
   distance: number; // cần có
   length: number;
   width: number;
+  direction: string;
+  description: string;
 }
 
 export interface LandPlotRequest {

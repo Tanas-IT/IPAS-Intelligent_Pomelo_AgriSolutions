@@ -19,7 +19,7 @@ import {
   useHasChanges,
 } from "@/hooks";
 import { useEffect } from "react";
-import { DEFAULT_FILTERS, getOptions } from "@/utils";
+import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
 import { masterTypeService } from "@/services";
 import { masterTypeColumns } from "./MasterTypeColumn";
 import MasterTypeFilter from "./MasterTypeFilter";
@@ -33,7 +33,7 @@ function MasterType() {
   const cancelConfirmModal = useModal();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
-    DEFAULT_FILTERS,
+    DEFAULT_MASTER_TYPE_FILTERS,
     () => fetchData(),
   );
 
