@@ -23,8 +23,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> ImportPlantAsync(ImportExcelRequest request);
         public Task<BusinessResult> getPlantInPlotForSelected(int plotId);
         public Task<BusinessResult> getPlantInRowForSelected(int rowId);
-
         public Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request, PaginationParameter paginationParameter);
+        public Task<BusinessResult> SoftedMultipleDelete(string plantIds);
 
     }
 }

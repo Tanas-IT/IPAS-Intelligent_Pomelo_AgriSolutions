@@ -224,6 +224,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
             public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
             public const string getPlantPagin = prefix + "/get-plants-pagin";
+            public const string softDeletePlant = prefix + "/soft-delete";
 
         }
 
