@@ -354,5 +354,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> SoftedMultipleDelete(string rowIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(rowIds))
+                        return new BusinessResult(500, "No row Id to delete");
+                    List<string> rowList = Util.SplitByComma(rowIds);
+                    //foreach (var MasterTypeId in plantIdList)
+                    //{
+                    Expression<Func<LandRow, bool>> filter = x => rowList.Contains(x.LandRowId.ToString()) && x.isDeleted == false;
+                    var rowsExistGet = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter);
+                    foreach (var item in rowsExistGet)
+                    {
+
+                        item.isDeleted = true;
+                        _unitOfWork.LandRowRepository.Update(item);
+                    }
+                    //}
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_ONE_ROW_CODE, $"Delete {result.ToString()} row success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(400, "Delete row fail", new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
     }
+    
 }

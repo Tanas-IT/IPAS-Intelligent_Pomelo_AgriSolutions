@@ -178,5 +178,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPatch(APIRoutes.LandRow.softedDeleteMultipleRow, Name = "softedDeleteMultipleRow")]
+        public async Task<IActionResult> softedDeleteMultipleRow([FromBody] string rowIds)
+        {
+            try
+            {
+                var result = await _landRowService.SoftedMultipleDelete(rowIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 }

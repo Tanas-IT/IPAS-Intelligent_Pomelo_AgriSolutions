@@ -32,6 +32,73 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return null!;
         }
 
+        public async Task<LandPlot> GetForMapped(int landplotId)
+        {
+            if (landplotId > 0)
+            {
+                //var landPlot = await _context.LandPlots
+                //    .Where(x => x.LandPlotId == landplotId && x.isDeleted == false)
+                //    .Include( x => x.Farm)
+                //    .Include(x => x.LandRows)
+                //    .ThenInclude(x => x.Plants)
+
+                //    .FirstOrDefaultAsync();
+                var landPlot = await _context.LandPlots
+            .Where(lp => lp.LandPlotId == landplotId && lp.isDeleted == false)
+            .Select(lp => new LandPlot
+            {
+                LandPlotId = lp.LandPlotId,
+                LandPlotCode = lp.LandPlotCode,
+                LandPlotName = lp.LandPlotName,
+                Area = lp.Area,
+                Length = lp.Length,
+                Width = lp.Width,
+                SoilType = lp.SoilType,
+                CreateDate = lp.CreateDate,
+                UpdateDate = lp.UpdateDate,
+                Status = lp.Status,
+                Description = lp.Description,
+                FarmId = lp.FarmId,
+                isDeleted = lp.isDeleted,
+                IsRowHorizontal = lp.IsRowHorizontal,
+                TargetMarket = lp.TargetMarket,
+                RowPerLine = lp.RowPerLine,
+                RowSpacing = lp.RowSpacing,
+                LineSpacing = lp.LineSpacing,
+                NumberOfRows = lp.NumberOfRows,
+                Farm = lp.Farm, // Lấy toàn bộ Farm
+                LandRows = lp.LandRows.Select(lr => new LandRow
+                {
+                    LandRowId = lr.LandRowId,
+                    LandRowCode = lr.LandRowCode,
+                    RowIndex = lr.RowIndex,
+                    TreeAmount = lr.TreeAmount,
+                    Distance = lr.Distance,
+                    Length = lr.Length,
+                    Width = lr.Width,
+                    Direction = lr.Direction,
+                    CreateDate = lr.CreateDate,
+                    UpdateDate = lr.UpdateDate,
+                    Status = lr.Status,
+                    Description = lr.Description,
+                    isDeleted = lr.isDeleted,
+                    LandPlotId = lr.LandPlotId,
+                    FarmId = lr.FarmId,
+                    Plants = lr.Plants.Select(p => new Plant
+                    {
+                        PlantId = p.PlantId,
+                        PlantCode = p.PlantCode,
+                        PlantIndex = p.PlantIndex,
+                        HealthStatus = p.HealthStatus
+                    }).ToList()
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+                return landPlot!;
+            }
+            return null!;
+        }
+
         public async Task<List<LandPlot>> GetLandPlotInclude()
         {
            var result = await _context.LandPlots
