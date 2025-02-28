@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using FluentValidation;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -290,6 +291,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     StatusCode = StatusCodes.Status400BadRequest,
                     Message = ex.Message
                 });
+            }
+        }
+
+        [HttpPatch(APIRoutes.Plant.softDeletePlant, Name = "SoftedDeletePlant")]
+        public async Task<IActionResult> SoftedDeletePlant([FromBody] string plantIds)
+        {
+            try
+            {
+                var result = await _plantService.SoftedMultipleDelete(plantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
             }
         }
     }

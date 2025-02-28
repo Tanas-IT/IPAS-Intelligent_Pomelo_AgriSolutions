@@ -23,6 +23,7 @@ using System.Linq.Expressions;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -33,13 +34,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IExcelReaderService _excelReaderService;
         private readonly IFarmService _farmService;
-        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService, IFarmService farmService)
+        private readonly IGrowthStageService _growthStageService;
+        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService, IFarmService farmService, IGrowthStageService growthStageService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _excelReaderService = excelReaderService;
             _farmService = farmService;
+            this._growthStageService = growthStageService;
         }
 
         public async Task<BusinessResult> createPlant(PlantCreateRequest plantCreateRequest)
@@ -50,11 +53,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     // kiem tra cac request
-                    var growthStage = await _unitOfWork.GrowthStageRepository
-                           .GetByCondition(x => x.GrowthStageID == plantCreateRequest.GrowthStageId && x.isDeleted == false);
+                    var growthStage = await _growthStageService
+                           .GetGrowthStageIdByPlantingDate(farmId: plantCreateRequest.FarmId.Value, plantingDate: plantCreateRequest.PlantingDate);
                     if (growthStage == null)
                     {
-                        return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
+                        return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
                     }
                     var masterType = await _unitOfWork.MasterTypeRepository
                         .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDelete == false && x.IsActive == true);
@@ -62,20 +65,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                     }
-                    var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants");
-                    if (landrowExist == null)
-                        return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
-                    if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
-                        return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
+
+
                     // Create the new Plant entity from the request
+                    string code = CodeHelper.GenerateCode();
                     var plantCreateEntity = new Plant()
                     {
-                        PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{landrowExist.LandPlotId}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-{CodeHelper.GenerateCode()}",
-                        PlantName = plantCreateRequest.PlantName,
+                        PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
+                        //PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}",
                         PlantIndex = plantCreateRequest.PlantIndex,
-                        GrowthStageID = plantCreateRequest.GrowthStageId,
+                        GrowthStageID = growthStage.GrowthStageId,
                         HealthStatus = plantCreateRequest.HealthStatus,
-                        PlantingDate = plantCreateRequest.PlantingDate!.Value,
+                        PlantingDate = plantCreateRequest.PlantingDate,
                         PlantReferenceId = plantCreateRequest.MotherPlantId,
                         Description = plantCreateRequest.Description,
                         MasterTypeId = plantCreateRequest.MasterTypeId,
@@ -83,6 +84,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
                     };
+
+                    if (plantCreateRequest.MotherPlantId.HasValue)
+                    {
+                        var plantReference = await getById(plantCreateRequest.MotherPlantId.Value);
+                        if (plantReference.StatusCode != 200 || plantReference.Data != null)
+                            return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, "Mother plant not exist in data");
+                        var jsonData = plantReference.Data as PlantModel;
+
+                        plantCreateEntity.PlantReferenceId = jsonData.PlantId;
+                        plantCreateEntity.PlantCode += $"-{Util.SplitByDash(jsonData.PlantCode!).First()}";
+                    }
+                    if (plantCreateRequest.LandRowId.HasValue)
+                    {
+                        var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants,LandPlot");
+                        if (landrowExist == null)
+                            return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                        if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
+                            return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
+                        plantCreateEntity.PlantCode += $"{Util.SplitByDash(landrowExist.LandRowCode!).First()}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-";
+                        plantCreateEntity.PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
+                    }
+                    else
+                    {
+                        plantCreateEntity.PlantName = $"Plant {code}";
+                    }
 
                     // Upload image to Cloudinary if needed
                     if (plantCreateRequest.ImageUrl != null)
@@ -270,7 +296,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
                     //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
                 }
-                if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
+                if (string.IsNullOrEmpty(request.LandPlotIds) && string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
                 if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
                     filter = filter.And(x => x.LandRowId.HasValue);
@@ -415,7 +441,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     // Find the plant entity by the PlantId (or an appropriate unique identifier)
-                    Expression<Func<Plant, bool>> condition = x => x.PlantId == plantUpdateRequest.PlantId /*&& x.IsDelete != true*/ ;
+                    Expression<Func<Plant, bool>> condition = x => x.PlantId == plantUpdateRequest.PlantId && x.IsDeleted != true;
                     var plantEntityUpdate = await _unitOfWork.PlantRepository.GetByCondition(condition);
 
                     if (plantEntityUpdate == null)
@@ -641,6 +667,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue && request.PlantingDateFrom.Value > request.PlantingDateTo.Value)
                 return (false, "Planting date 'From' must smaller or equal than planting date 'To' ");
             return (true, null!);
+        }
+
+        public async Task<BusinessResult> SoftedMultipleDelete(string plantIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(plantIds))
+                        return new BusinessResult(400, "No plant Id to delete");
+                    List<string> plantIdList = Util.SplitByComma(plantIds);
+                    //foreach (var MasterTypeId in plantIdList)
+                    //{
+                    Expression<Func<Plant, bool>> filter = x => plantIdList.Contains(x.PlantId.ToString()) && x.IsDeleted == false;
+                    var plantsExistGet = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter);
+                    foreach (var item in plantsExistGet)
+                    {
+
+                        item.IsDeleted = true;
+                        _unitOfWork.PlantRepository.Update(item);
+                    }
+                    //}
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE, $"Delete {result.ToString()} plant success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_PLANT_CODE, Const.FAIL_DELETE_PLANT_MSG, new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
     }
 }

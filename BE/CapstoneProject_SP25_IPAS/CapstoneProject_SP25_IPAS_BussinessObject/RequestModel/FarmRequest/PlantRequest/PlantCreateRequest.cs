@@ -11,26 +11,26 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 {
     public class PlantCreateRequest
     {
-        [Required]
-        public string? PlantName { get; set; }
-        [Required]
+        //[Required]
+        //public string? PlantName { get; set; }
+        //[Required]
         public int? PlantIndex { get; set; }
+        //[Required]
+        //public int? GrowthStageId { get; set; }
+        public string HealthStatus { get; set; }
         [Required]
-        public int? GrowthStageId { get; set; }
-        [Required]
-        public string? HealthStatus { get; set; }
-        [Required]
-        public DateTime? PlantingDate { get; set; }
-        [Required]
+        public DateTime PlantingDate { get; set; }
+        //[Required]
         public int? MotherPlantId { get; set; }
-        [Required]
+        //[Required]
         public string? Description { get; set; }
         [Required]
         public int? MasterTypeId { get; set; }
-        [Required]
+        //[Required]
         public IFormFile? ImageUrl { get; set; }
-        [Required]
+        //[Required]
         public int? LandRowId { get; set; }
+        
         public int? FarmId { get; set; }
 
     }
