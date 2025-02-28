@@ -65,7 +65,12 @@
 }
 
 @mixin filterContent {
+  width: 100%;
   padding: 10px;
+  .row {
+    flex-direction: row;
+    gap: 12px;
+  }
 
   input,
   label,

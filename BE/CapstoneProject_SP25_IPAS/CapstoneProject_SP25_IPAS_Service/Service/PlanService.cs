@@ -566,6 +566,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedules");
                     if (checkExistPlan != null)
                     {
+                        if(checkExistPlan.StartDate <= DateTime.Now)
+                        {
+                            return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, "Cannot update the plan because it has already started.");
+                        }
                         if (updatePlanModel.PlanName != null)
                         {
                             checkExistPlan.PlanName = updatePlanModel.PlanName;

@@ -77,6 +77,9 @@ const useStyle = createStyles(({ css }) => {
     `,
 
     customSelect: css`
+      ant-select-item ant-select-item-option ant-select-item-option-selected {
+        background-color: ${primaryColor} !important;
+      }
       .ant-pagination-item-link-icon {
         color: ${primaryColor} !important;
       }
@@ -92,7 +95,7 @@ const useStyle = createStyles(({ css }) => {
         color: ${primaryColor} !important;
       }
 
-      .ant-form-item-label >label,
+      .ant-form-item-label > label,
       .ant-form-item-required {
         font-size: 16px;
         color: ${primaryColor} !important;
@@ -204,7 +207,7 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customFormItemInput: css`
-      .ant-form-item-label >label {
+      .ant-form-item-label > label {
         font-size: 16px;
       }
     `,
