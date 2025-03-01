@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { growthStageService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected } from "@/payloads";
+import { growthStageService, landPlotService, landRowService } from "@/services";
+import { ApiResponse, GetGrowthStageSelected, GetLandPlot, GetLandRow } from "@/payloads";
 import { getFarmId } from "@/utils";
 
 interface SelectOption {
@@ -8,19 +8,19 @@ interface SelectOption {
   label: string;
 }
 
-const useGrowthStageOptions = (isUseValueAsName: boolean) => {
+const useLandPlotOptions = () => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const result: ApiResponse<GetGrowthStageSelected[]> =
-        await growthStageService.getGrowthStagesSelect(Number(getFarmId()));
-        console.log(result);
+      const result: ApiResponse<GetLandPlot[]> =
+        await landPlotService.getLandPlots();
+        console.log('ggggggg',result);
         
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
-          value: isUseValueAsName ? item.name : item.id,
-          label: item.name,
+          value: item.landPlotId,
+          label: item.landPlotName,
         }));
         setOptions(mappedOptions);
       }
@@ -31,4 +31,4 @@ const useGrowthStageOptions = (isUseValueAsName: boolean) => {
 
   return { options };
 };
-export default useGrowthStageOptions;
+export default useLandPlotOptions;

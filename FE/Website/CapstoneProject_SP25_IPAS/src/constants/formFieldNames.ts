@@ -132,4 +132,5 @@ export const processFormFields = {
   masterTypeId: "masterTypeId",
   growthStageId: "growthStageId",
   listPlan: "listPlan",
+  isSample: "isSample",
 };
