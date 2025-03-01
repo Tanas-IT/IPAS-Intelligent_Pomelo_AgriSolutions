@@ -1,5 +1,11 @@
 import { Images } from "@/assets";
-import { GetFarmDocuments, GetFarmInfo, LandPlotRequest } from "@/payloads";
+import {
+  GetFarmDocuments,
+  GetFarmInfo,
+  GetPlant,
+  LandPlotRequest,
+  GetPlantDetail,
+} from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
@@ -90,6 +96,12 @@ export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
 export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   plantingDateFrom: "",
   plantingDateTo: "",
+  LandPlotIds: [] as string[],
+  landRowIds: [] as string[],
+  cultivarIds: [] as string[],
+  growthStageIds: [] as string[],
+  healthStatus: [] as string[],
+  isLocated: null,
 };
 
 export const DEFAULT_ROW = (): rowStateType => ({
@@ -119,3 +131,20 @@ export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
   landPlotCoordinations: [],
   landRows: [],
 });
+
+export const DEFAULT_PLANT: GetPlantDetail = {
+  plantId: 0,
+  plantCode: "",
+  plantName: "", // Không bắt buộc nên để trống
+  plantIndex: 0,
+  healthStatus: "",
+  createDate: new Date(),
+  plantingDate: new Date(),
+  description: "",
+  masterTypeName: "",
+  growthStageName: "",
+  imageUrl: "",
+  rowIndex: 0,
+  landPlotName: "",
+  characteristic: "",
+};

@@ -25,6 +25,57 @@
     }
   }
 
+  .imageUpload {
+ 
+    width: 100%;
+
+    .previewContainer {
+      position: relative;
+      display: inline-block;
+
+      .previewImage {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #d9d9d9;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .deleteButton {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: red;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+          background: darkred;
+        }
+      }
+    }
+  }
+
+  .date {
+    width: 100%;
+    &:hover,
+    &:focus,
+    &:focus-within {
+      border-color: vars.$color_primary !important;
+      box-shadow: none;
+    }
+  }
+
   .colorPicker {
     border-color: vars.$color_primary !important;
     box-shadow: none;

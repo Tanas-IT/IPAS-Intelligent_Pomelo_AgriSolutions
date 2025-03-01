@@ -11,6 +11,7 @@ type ModalFormProps = {
   isUpdate?: boolean;
   cancelLabel?: string;
   saveLabel?: string;
+  size?: "normal" | "large";
 };
 
 const ModalForm = ({
@@ -22,9 +23,12 @@ const ModalForm = ({
   isUpdate = false,
   cancelLabel = "Cancel",
   saveLabel,
+  size = "normal",
 }: ModalFormProps) => {
   return (
     <Modal
+    
+      className={`${style.modalContainer} ${style[size]}`}
       open={isOpen}
       onCancel={onClose}
       footer={[

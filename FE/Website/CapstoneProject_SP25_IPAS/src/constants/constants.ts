@@ -9,3 +9,8 @@ export const MASTER_TYPE = {
   HARVEST: "Harvest",
   NOTIFICATION: "Notification",
 };
+
+export const HEALTH_STATUS = {
+  NORMAL: "Healthy",
+  ISSUE: "Has Issues",
+};

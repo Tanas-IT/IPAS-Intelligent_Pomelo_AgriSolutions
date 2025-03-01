@@ -1,7 +1,12 @@
 export interface PlantRequest {
-  growthStageId: number;
-  growthStageName: string;
+  plantId: number;
+  plantCode: string;
+  healthStatus: string;
   description: string;
-  monthAgeStart: string;
-  monthAgeEnd: string;
+  masterTypeId: number;
+  imageUrl: File | string | undefined;
+  plantingDate: string;
+  landPlotId: number;
+  landRowId: number;
+  plantIndex: number;
 }

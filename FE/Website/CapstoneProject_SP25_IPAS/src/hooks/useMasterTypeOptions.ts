@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import { masterTypeService } from "@/services";
 import { ApiResponse, GetMasterType } from "@/payloads";
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
+import { SelectOption } from "@/types";
 
 const useMasterTypeOptions = (type: string, isDocument: boolean = false) => {
   const [options, setOptions] = useState<SelectOption[]>([]);

@@ -1,12 +1,28 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetLandRow } from "@/payloads";
+import { ApiResponse, GetLandRow, GetLandRowSelected } from "@/payloads";
 import { getFarmId } from "@/utils";
 
 export const getLandRows = async (landPlotId: number) => {
-    const res = await axiosAuth.axiosJsonRequest.get(`landRows/get-land-rows-of-plot/${landPlotId}`);
-    const apiResponse = res.data as ApiResponse<GetLandRow[]>;
-    return apiResponse.data.map(({ landRowId, landRowCode }) => ({
-        landRowId,
-        landRowCode
-      }));
+  const res = await axiosAuth.axiosJsonRequest.get(`landRows/get-land-rows-of-plot/${landPlotId}`);
+  const apiResponse = res.data as ApiResponse<GetLandRow[]>;
+  return apiResponse.data.map(({ landRowId, landRowCode }) => ({
+    landRowId,
+    landRowCode,
+  }));
+};
+
+export const getLandRowsSelected = async (
+  landPlotId: number,
+): Promise<ApiResponse<GetLandRowSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`landRows/get-for-selected/${landPlotId}`);
+  const apiResponse = res.data as ApiResponse<GetLandRowSelected[]>;
+  return apiResponse;
+};
+
+export const getPlantIndexesByRowId = async (rowId: number): Promise<ApiResponse<number[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `landRows/get-for-selected/index-empty/${rowId}`,
+  );
+  const apiResponse = res.data as ApiResponse<number[]>;
+  return apiResponse;
 };

@@ -18,6 +18,8 @@ export const handleApiError = async (error: any) => {
   if (error.message === "Network Error" && !error.response) {
     toast.error(MESSAGES.NETWORK_ERROR);
   } else if (error.response) {
+    console.log(error);
+
     switch (error.response.status) {
       case 401:
         const message = error.response.data.Message;

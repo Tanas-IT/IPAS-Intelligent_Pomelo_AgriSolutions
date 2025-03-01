@@ -1,13 +1,23 @@
 @use "@/styles/variables.scss" as vars;
 
-.titleModal {
-  color: vars.$color_primary;
-  font-size: 20px;
-  font-weight: lighter;
-}
+.modalContainer {
+  width: 100% !important;
+  &.normal {
+    max-width: 34rem;
+  }
+  &.large {
+    max-width: 38rem;
+    top: 50px;
+  }
+  .titleModal {
+    color: vars.$color_primary;
+    font-size: 20px;
+    font-weight: lighter;
+  }
 
-.dividerModal {
-  margin: 6px 0 14px;
-  background: vars.$color_divider_modal;
-  opacity: 0.2;
+  .dividerModal {
+    margin: 6px 0 14px;
+    background: vars.$color_divider_modal;
+    opacity: 0.2;
+  }
 }

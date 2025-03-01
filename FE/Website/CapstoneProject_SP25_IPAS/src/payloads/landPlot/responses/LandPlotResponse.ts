@@ -7,6 +7,7 @@ interface landPlotCoordinations {
 
 export interface GetLandPlotSelected {
   id: number;
+  code: string;
   name: string;
 }
 

@@ -7,7 +7,11 @@ interface TableCellProps {
 }
 
 const TableCell: React.FC<TableCellProps> = ({ value, className }) => {
-  return <div className={`${style.tableText} ${className || ""}`.trim()}>{value}</div>;
+  const isEmpty =
+    value === undefined || value === null || (typeof value === "string" && value.trim() === "");
+  return (
+    <div className={`${style.tableText} ${className || ""}`.trim()}> {isEmpty ? "N/A" : value}</div>
+  );
 };
 
 export default TableCell;

@@ -12,6 +12,12 @@ export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
   }));
 };
 
+export const getLandPlotsSelected = async (): Promise<ApiResponse<GetLandPlotSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-selected`);
+  const apiResponse = res.data as ApiResponse<GetLandPlotSelected[]>;
+  return apiResponse;
+};
+
 export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetLandPlot[]>> => {
   const url = searchKey
     ? `landplots?farmId=${getFarmId()}&searchKey=${searchKey}`
