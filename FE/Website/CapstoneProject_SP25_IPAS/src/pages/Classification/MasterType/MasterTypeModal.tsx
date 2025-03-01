@@ -36,15 +36,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     resetForm();
     if (isOpen) {
       if (isUpdate && masterTypeData) {
-        form.setFieldsValue({
-          [masterTypeFormFields.masterTypeId]: masterTypeData.masterTypeId,
-          [masterTypeFormFields.masterTypeName]: masterTypeData.masterTypeName,
-          [masterTypeFormFields.masterTypeDescription]: masterTypeData.masterTypeDescription,
-          [masterTypeFormFields.backgroundColor]: masterTypeData.backgroundColor,
-          [masterTypeFormFields.textColor]: masterTypeData.textColor,
-          [masterTypeFormFields.characteristic]: masterTypeData.characteristic,
-          [masterTypeFormFields.typeName]: masterTypeData.typeName,
-        });
+        form.setFieldsValue({ ...masterTypeData });
         setChecked(masterTypeData.isActive);
         setSelectedType(masterTypeData.typeName);
       }
@@ -95,13 +87,13 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
     >
       <Form form={form} layout="vertical">
         <FormFieldModal
-          label="Type Name:"
+          label="Type Name"
           name={masterTypeFormFields.masterTypeName}
           rules={RulesManager.getTypeNameRules()}
           placeholder="Enter the type name"
         />
         <FormFieldModal
-          label="Description:"
+          label="Description"
           type="textarea"
           name={masterTypeFormFields.masterTypeDescription}
           rules={RulesManager.getFarmDescriptionRules()}
@@ -110,7 +102,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
 
         <FormFieldModal
           type="select"
-          label="Type:"
+          label="Type"
           name={masterTypeFormFields.typeName}
           rules={RulesManager.getTypeRules()}
           options={typeOptions}
@@ -122,14 +114,14 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
             <Flex justify="space-between" gap={40}>
               <FormFieldModal
                 type="colorPicker"
-                label="Background Color:"
+                label="Background Color"
                 name={masterTypeFormFields.backgroundColor}
                 placeholder="Enter background color"
                 direction="row"
               />
               <FormFieldModal
                 type="colorPicker"
-                label="Text Color:"
+                label="Text Color"
                 name={masterTypeFormFields.textColor}
                 placeholder="Enter text color"
                 direction="row"
@@ -142,7 +134,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
           <>
             <FormFieldModal
               type="textarea"
-              label="Characteristic:"
+              label="Characteristic"
               name={masterTypeFormFields.characteristic}
               rules={RulesManager.getCharacteristicRules()}
               placeholder="Enter characteristic"
@@ -152,7 +144,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
 
         <FormFieldModal
           type="switch"
-          label="Status:"
+          label="Status"
           name={masterTypeFormFields.isActive}
           onChange={handleSwitchChange}
           isCheck={checked}

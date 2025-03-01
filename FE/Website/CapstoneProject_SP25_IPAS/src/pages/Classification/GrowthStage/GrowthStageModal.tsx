@@ -22,14 +22,7 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     resetForm();
     if (isOpen) {
       if (isUpdate && growthStageData) {
-        form.setFieldsValue({
-          [growthStageFormFields.growthStageId]: growthStageData.growthStageId,
-          [growthStageFormFields.growthStageName]: growthStageData.growthStageName,
-          [growthStageFormFields.description]: growthStageData.description,
-          [growthStageFormFields.createDate]: growthStageData.createDate,
-          [growthStageFormFields.monthAgeStart]: growthStageData.monthAgeStart,
-          [growthStageFormFields.monthAgeEnd]: growthStageData.monthAgeEnd,
-        });
+        form.setFieldsValue({ ...growthStageData });
       }
     }
   }, [isOpen, growthStageData]);
@@ -59,20 +52,20 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     >
       <Form form={form} layout="vertical">
         <FormFieldModal
-          label="Growth Stage Name:"
+          label="Growth Stage Name"
           name={growthStageFormFields.growthStageName}
           rules={RulesManager.getStageNameRules()}
           placeholder="Enter the growth stage name"
         />
         <Flex justify="space-between" gap={20}>
           <FormFieldModal
-            label="Month Age Start:"
+            label="Month Age Start"
             name={growthStageFormFields.monthAgeStart}
             rules={RulesManager.getMonthAgeStartRules()}
             placeholder="Enter the starting month age"
           />
           <FormFieldModal
-            label="Month Age End:"
+            label="Month Age End"
             name={growthStageFormFields.monthAgeEnd}
             dependencies={[growthStageFormFields.monthAgeStart]}
             rules={[
@@ -97,7 +90,7 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
           />
         </Flex>
         <FormFieldModal
-          label="Description:"
+          label="Description"
           type="textarea"
           name={growthStageFormFields.description}
           rules={RulesManager.getFarmDescriptionRules()}

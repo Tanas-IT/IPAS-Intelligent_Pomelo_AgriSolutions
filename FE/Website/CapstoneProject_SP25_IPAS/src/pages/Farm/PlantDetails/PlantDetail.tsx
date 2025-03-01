@@ -2,7 +2,11 @@ import { useLocation } from "react-router-dom";
 import style from "./PlantDetail.module.scss";
 import { Divider, Flex, Image, Tag } from "antd";
 import { Icons } from "@/assets";
-import { Tooltip } from "@/components";
+import { LoadingSkeleton, Tooltip } from "@/components";
+import { useEffect, useState } from "react";
+import { DEFAULT_PLANT, formatDayMonth, formatDayMonthAndTime } from "@/utils";
+import { plantService } from "@/services";
+import { GetPlantDetail } from "@/payloads";
 
 const InfoField = ({
   icon: Icon,
@@ -30,83 +34,126 @@ const SectionHeader = ({
   title: string;
   code: string;
   status: string;
-}) => (
-  <Flex className={style.contentSectionHeader}>
-    <Flex className={style.contentSectionTitle}>
-      <Flex className={style.contentSectionTitleLeft}>
-        <label className={style.title}>{title}</label>
-        <Tooltip title="Hello">
-          <Icons.tag className={style.iconTag} />
-        </Tooltip>
-        <Tag
-          className={`${style.statusTag} ${
-            status.toLowerCase() === "normal" ? style.normal : style.issue
-          }`}
-        >
-          {status}
-        </Tag>
+}) => {
+  const normalStatuses = ["healthy", "normal"];
+  const isNormal = normalStatuses.some((s) => status.toLowerCase().includes(s));
+  return (
+    <Flex className={style.contentSectionHeader}>
+      <Flex className={style.contentSectionTitle}>
+        <Flex className={style.contentSectionTitleLeft}>
+          <label className={style.title}>{title}</label>
+          <Tooltip title="Hello">
+            <Icons.tag className={style.iconTag} />
+          </Tooltip>
+          <Tag className={`${style.statusTag} ${isNormal ? style.normal : style.issue}`}>
+            {status}
+          </Tag>
+        </Flex>
+        {/* <Flex>
+      <Icons.edit
+        className={style.iconEdit}
+        onClick={() => {
+          console.log(1);
+        }}
+      />
+    </Flex> */}
       </Flex>
-      <Flex>
-        <Icons.edit
-          className={style.iconEdit}
-          onClick={() => {
-            console.log(1);
-          }}
-        />
-      </Flex>
+      <label className={style.subTitle}>Code: {code}</label>
     </Flex>
-    <label className={style.subTitle}>Code: {code}</label>
-  </Flex>
-);
+  );
+};
 
-const DescriptionSection = ({ description, images }: { description: string; images: string[] }) => (
-  <Flex className={style.descriptionSection}>
-    <Flex className={`${style.infoField} ${style.infoFieldColumn}`}>
-      <Flex className={style.fieldLabelWrapper}>
-        <Icons.description className={style.fieldIcon} />
-        <label className={style.fieldLabel}>Description:</label>
-      </Flex>
-      <label className={style.fieldValue}>{description}</label>
-      <Flex className={style.imageWrapper}>
-        {images.map((src, index) => (
-          <Image key={index} width={160} src={src} />
-        ))}
+const DescriptionSection = ({ description, image }: { description: string; image: string }) => {
+  const isShortDescription = description.length < 50; // Điều kiện kiểm tra mô tả ngắn
+
+  return (
+    <Flex className={style.descriptionSection}>
+      <Flex className={`${style.infoField} ${style.infoFieldColumn}`}>
+        {isShortDescription ? (
+          // Nếu mô tả ngắn, hiển thị trong cùng một dòng
+          <Flex className={style.infoField}>
+            <Flex className={style.fieldLabelWrapper}>
+              <Icons.description className={style.fieldIcon} />
+              <label className={style.fieldLabel}>Description:</label>
+            </Flex>
+            <label className={style.fieldValue}>{description}</label>
+          </Flex>
+        ) : (
+          // Nếu mô tả dài, hiển thị thành nhiều dòng
+          <>
+            <Flex className={style.fieldLabelWrapper}>
+              <Icons.description className={style.fieldIcon} />
+              <label className={style.fieldLabel}>Description:</label>
+            </Flex>
+            <label className={style.fieldValue}>{description}</label>
+          </>
+        )}
+        {image && (
+          <Flex className={style.imageWrapper}>
+            <Image crossOrigin="anonymous" width={160} src={image} />
+          </Flex>
+        )}
       </Flex>
     </Flex>
-  </Flex>
-);
+  );
+};
 
 function PlantDetail() {
   const location = useLocation();
   const pathnames = location.pathname.split("/");
-  const secondLastPart = pathnames[pathnames.length - 2];
+  const plantId = pathnames[pathnames.length - 2];
+  const [plant, setPlant] = useState<GetPlantDetail>(DEFAULT_PLANT);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchLandPlots = async () => {
+      setIsLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // ⏳ Delay 1 giây
+      try {
+        const res = await plantService.getPlant(Number(plantId));
+        if (res.statusCode === 200) {
+          setPlant(res.data);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLandPlots();
+  }, []);
 
   const infoFieldsLeft = [
-    { label: "Growth Status", value: "Full-growth", icon: Icons.growth },
+    { label: "Growth Status", value: plant.growthStageName, icon: Icons.growth },
     { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
-    { label: "Create At", value: "Sunday, 1st December 2024, 8:30 A.M", icon: Icons.time },
+    { label: "Mother Plant", value: "P001", icon: Icons.plant },
+    { label: "Create Date", value: formatDayMonthAndTime(plant.createDate), icon: Icons.time },
   ];
 
   const infoFieldsRight = [
     {
       label: "Plant Location",
-      value: "Green Pomelo Plot 2 - Row A - Plant #2",
+      value:
+        plant.landPlotName && plant.rowIndex !== undefined && plant.plantIndex !== undefined
+          ? `${plant.landPlotName} - Row ${plant.rowIndex} - Plant #${plant.plantIndex}`
+          : "Not Assigned",
       icon: Icons.location,
     },
-    { label: "Cultivar", value: "Green Skin Pomelo", icon: Icons.plant },
+    {
+      label: "Cultivar",
+      value: `${plant.masterTypeName} - ${plant.characteristic}`,
+      icon: Icons.plant,
+    },
+    { label: "Planting Date", value: formatDayMonth(plant.plantingDate), icon: Icons.time },
   ];
 
-  const description =
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
+  const description = plant.description ?? "N/A";
 
-  const images = [
-    "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-  ];
+  const image = typeof plant.imageUrl === "string" ? plant.imageUrl : "";
+
+  if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
     <Flex className={style.contentWrapper}>
-      <SectionHeader title="Green skin pomelo 1" code="WL00000001" status="Normal" />
+      <SectionHeader title={plant.plantName} code={plant.plantCode} status={plant.healthStatus} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
         <Flex className={style.col}>
@@ -120,7 +167,7 @@ function PlantDetail() {
           ))}
         </Flex>
       </Flex>
-      <DescriptionSection description={description} images={images} />
+      <DescriptionSection description={description} image={image} />
     </Flex>
   );
 }

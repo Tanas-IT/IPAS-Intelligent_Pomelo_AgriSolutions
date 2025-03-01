@@ -1,4 +1,4 @@
-import { DatePicker, Flex, Radio, Select } from "antd";
+import { DatePicker, Flex, Radio, Select, TreeSelect } from "antd";
 import { TagRender } from "@/components";
 import { DATE_FORMAT } from "@/utils";
 import style from "./FormFieldFilter.module.scss";
@@ -7,13 +7,23 @@ import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
+type TreeNode = {
+  title: string;
+  value: string | number;
+  key?: string;
+  children?: TreeNode[];
+  isLeaf?: boolean;
+};
+
 type FormFieldFilterProps = {
   label: string;
-  fieldType: "date" | "select" | "radio"; // Định nghĩa kiểu field là date hoặc select
+  fieldType: "date" | "select" | "radio" | "treeSelect";
   value: any;
-  options?: { value: string | number | boolean; label: string }[]; // Include label in options
-  onChange: (value: any) => void; // Hàm để cập nhật giá trị filter
-  direction?: "row" | "column"; // Thêm hướng hiển thị
+  options?: { value: string | number | boolean; label: string }[];
+  treeData?: TreeNode[];
+  onChange: (value: any) => void;
+  loadData?: (node: any) => Promise<void>;
+  direction?: "row" | "column";
 };
 
 const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
@@ -21,7 +31,9 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
   fieldType,
   value,
   options,
+  treeData,
   onChange,
+  loadData,
   direction = "column",
 }) => {
   const { styles } = useStyle();
@@ -60,6 +72,22 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
               ))}
           </Radio.Group>
         );
+      case "treeSelect":
+        return (
+          <TreeSelect
+            className={`${styles.customSelect}`}
+            style={{ width: "100%" }}
+            treeData={treeData}
+            tagRender={TagRender}
+            treeCheckable
+            value={value}
+            showCheckedStrategy={TreeSelect.SHOW_CHILD}
+            onChange={onChange}
+            loadData={loadData}
+            placeholder="Select Plot or Row"
+          />
+        );
+
       default:
         return null;
     }
