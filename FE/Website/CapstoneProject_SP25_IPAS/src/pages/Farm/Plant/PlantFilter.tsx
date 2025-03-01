@@ -15,7 +15,7 @@ type FilterProps = {
 const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
   const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR, true);
-  const { options: growthStageOptions } = useGrowthStageOptions();
+  const { options: growthStageOptions } = useGrowthStageOptions(false);
 
   const isFilterEmpty = !(
     filters.plantingDateFrom ||

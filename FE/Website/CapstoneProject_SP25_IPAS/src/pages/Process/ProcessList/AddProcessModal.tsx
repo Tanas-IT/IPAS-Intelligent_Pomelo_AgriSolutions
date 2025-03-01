@@ -1,6 +1,6 @@
 import { Button, Divider, Flex, Form, Input, Modal, Select, Switch } from "antd";
 import { useState, useEffect } from "react";
-import { CustomButton, InfoField } from "@/components";
+import { CustomButton, FormFieldModal, InfoField, ModalForm } from "@/components";
 import style from "./ProcessList.module.scss";
 import { fetchGrowthStageOptions, fetchTypeOptionsByName, getFarmId, RulesManager } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
@@ -38,12 +38,15 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
     const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
     const farmId = Number(getFarmId());
     const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
-    const { 
-        plans, planForm, isPlanModalOpen, editPlan, 
-        handleAddPlan, handleEditPlan, handleDeletePlan, 
-        handleCloseModal, handleOpenModal, setPlans 
+    const {
+        plans, planForm, isPlanModalOpen, editPlan,
+        handleAddPlan, handleEditPlan, handleDeletePlan,
+        handleCloseModal, handleOpenModal, setPlans
     } = usePlanManager();
-    
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const [isSample, setIsSample] = useState<boolean>(false);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -71,7 +74,8 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 MasterTypeId: values.masterTypeId,
                 GrowthStageId: values.growthStageId,
                 IsActive: values.isActive,
-                ListPlan: formattedPlans
+                ListPlan: formattedPlans,
+                IsSample: values.isSample
             };
 
             onSave(payload);
@@ -88,61 +92,69 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
         onClose();
     };
 
+    const handleIsActiveChange = (newChecked: boolean) => {
+        setIsActive(newChecked);
+    };
+
+    const handleIsSampleChange = (newChecked: boolean) => {
+        setIsSample(newChecked);
+    };
+
+
     return (
-        <Modal open={isOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-            <h2 className={style.titleModal}>Add New Process</h2>
-            <Divider style={{ margin: "10px 0" }} />
+        <ModalForm isOpen={isOpen} onSave={handleOk} onClose={handleCancel} title="Add New Process" isUpdate={false}>
+            {/* <h2 className={style.titleModal}>Add New Process</h2> */}
+            {/* <Divider style={{ margin: "10px 0" }} /> */}
             <Form form={planForm} layout="vertical">
-                <InfoField
-                    label="Process Name"
+                <FormFieldModal
+                    label="Process Name:"
                     name={processFormFields.processName}
                     rules={RulesManager.getProcessNameRules()}
-                    isEditing
-                    placeholder="Enter process name" />
+                    placeholder="Enter process name"
+                />
                 <Flex gap={26}>
-                    <InfoField
-                        label="Growth Stage"
+                    <FormFieldModal
+                        label="Growth Stage:"
                         name={processFormFields.growthStageId}
                         options={growthStageOptions}
-                        isEditing
                         rules={RulesManager.getGrowthStageRules()}
                         type="select" />
-                    <InfoField
+                    <FormFieldModal
                         label="Process Type"
                         name={processFormFields.masterTypeId}
                         options={processTypeOptions}
-                        isEditing
                         rules={RulesManager.getProcessTypeRules()}
                         type="select" />
                 </Flex>
-                <InfoField
-                    label="Status"
-                    name={processFormFields.isActive}
-                    isEditing
-                    type="switch" />
-                <Divider />
-                {/* <h3 className={style.titleAddPlan}>Add Plans</h3>
-                <PlanList
-                    plans={plans}
-                    onEdit={handleEditPlan}
-                    onDelete={handleDeletePlan}
-                    isEditing={true} />
-                <Button type="dashed" onClick={handleOpenModal}>+ Add Plan</Button> */}
-                <Divider />
-                <Flex justify="end">
-                    <Button onClick={handleCancel} style={{ marginRight: 10 }}>Cancel</Button>
-                    <CustomButton label="Add Process" htmlType="submit" handleOnClick={handleOk} />
+                <Flex vertical>
+                    <FormFieldModal
+                        type="switch"
+                        label="Define Process Mode:"
+                        name={processFormFields.isSample}
+                        onChange={handleIsSampleChange}
+                        isCheck={isSample}
+                        direction="row"
+                        checkedChildren="Guide"
+                        unCheckedChildren="Plans"
+                    />
+                    <span style={{ fontSize: "12px", color: "#888", marginTop: "-20px" }}>
+                        {isSample
+                            ? "This process serves as a guide and only contains sub-processes."
+                            : "This process includes both sub-processes and plan lists."}
+                    </span>
                 </Flex>
+                <div style={{ marginTop: "20px" }}>
+                    <FormFieldModal
+                        type="switch"
+                        label="Status:"
+                        name={processFormFields.isActive}
+                        onChange={handleIsActiveChange}
+                        isCheck={isActive}
+                        direction="row"
+                    />
+                </div>
             </Form>
-            {/* <AddPlanModal
-                isOpen={isPlanModalOpen}
-                onClose={handleCloseModal}
-                onSave={handleAddPlan}
-                editPlan={editPlan}
-                growthStageOptions={growthStageOptions}
-                processTypeOptions={processTypeOptions}
-            /> */}
-        </Modal>
+        </ModalForm>
     );
 };
 

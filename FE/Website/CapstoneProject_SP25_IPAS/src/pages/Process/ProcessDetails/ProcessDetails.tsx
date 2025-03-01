@@ -368,7 +368,8 @@ function ProcessDetails() {
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
       ...convertDeletedNodesToList(deletedNodes),
-    ].filter(sub => sub.Status !== "no_change");
+    ].filter(sub => sub.Status !== "no_change")  // Loại bỏ các node không có thay đổi
+      .filter(sub => !(sub.Status === "delete" && !sub.SubProcessId));
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
       ProcessName: processDetail?.processName || "New Process",

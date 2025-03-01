@@ -42,6 +42,9 @@ import {
 } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
+import PlanTarget from "./PlanTarget";
+import useLandRowOptions from "@/hooks/useLandRowOptions";
+import useLandPlotOptions from "@/hooks/useLandPlotOptions";
 
 const { RangePicker } = DatePicker;
 
@@ -77,7 +80,7 @@ const AddPlan = () => {
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [cropOptions, setCropOptions] = useState<OptionType<string>[]>([]);
-  const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
+  // const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
   const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
   const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
@@ -88,8 +91,14 @@ const AddPlan = () => {
   const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
+
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
-  // Thêm state để lưu trữ các mục tiêu của kế hoạch
+  const { options: landPlots } = useLandPlotOptions();
+  const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
+  console.log("landplot id", selectedLandPlot);
+  console.log("landRowOptions", landRowOptions);
+
+
   const [planTargets, setPlanTargets] = useState<
     {
       landPlotID?: number;
@@ -107,55 +116,24 @@ const AddPlan = () => {
     setPlanTargets((prev) => [...prev, target]);
   };
 
-  // Thêm hàm để xóa mục tiêu khỏi danh sách
   const handleRemovePlanTarget = (index: number) => {
     setPlanTargets((prev) => prev.filter((_, i) => i !== index));
   };
-  const [landRows, setLandRows] = useState<OptionType<number>[]>([]);
+  // const [landRows, setLandRows] = useState<OptionType<number>[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([]);
+
   const [plants, setPlants] = useState<OptionType<number>[]>([]);
 
   const { isModalVisible, handleCancelNavigation, handleConfirmNavigation } =
     useUnsavedChangesWarning(isFormDirty);
 
-  useEffect(() => {
-    const fetchLandRows = async (landPlotId: number) => {
-      const rows = await landRowService.getLandRows(landPlotId);
-      // setLandRows(rows.map(row => ({
-      //     value: row.landRowId,
-      //     label: row.landRowCode,
-      // })));
-    };
-
-    const fetchPlants = async (landRowId: number) => {
-      const plants = await plantService.getPlants(landRowId);
-      // setPlants(plants.map(plant => ({
-      //     value: plant.id,
-      //     label: plant.name,
-      // })));
-    };
-
-    if (selectedLandPlot) {
-      fetchLandRows(selectedLandPlot);
-    }
-
-    if (selectedLandRow) {
-      fetchPlants(selectedLandRow);
-    }
-  }, [selectedLandPlot, selectedLandRow]);
-
-  const handleLandPlotChange = async (landPlotId: number) => {
+  const handleLandPlotChange = (landPlotId: number) => {
     setSelectedLandPlot(landPlotId);
-    setCropOptions([]);
+  };
 
-    if (landPlotId) {
-      const crops = await cropService.getCropsOfLandPlotForSelect(landPlotId);
-      setCropOptions(
-        crops.map((crop) => ({
-          value: crop.cropId,
-          label: crop.cropName,
-        })),
-      );
-    }
+
+  const handleLandRowChange = (landRowId: number) => {
+    // Xử lý logic khi Land Row thay đổi
   };
 
   const handleReporterChange = (userId: number) => {
@@ -248,25 +226,25 @@ const AddPlan = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchLandPlotOptions();
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId));
       setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
       // setWorkTypeOptions(await fetchTypeOptionsByName("Work", true));
-      setEmployee(await fetchUserInfoByRole("Employee"));
+      setEmployee(await fetchUserInfoByRole("User"));
+      console.log("employee", employee);
+      
     };
 
     fetchData();
   }, []);
-  console.log("growthStageOptions", growthStageOptions);
 
-  const fetchLandPlotOptions = async () => {
-    const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
-    const formattedLandPlotOptions = landPlots.map((landPlot) => ({
-      value: landPlot.id,
-      label: landPlot.name,
-    }));
-    setLandPlotOptions(formattedLandPlotOptions);
-  };
+  // const fetchLandPlotOptions = async () => {
+  //   const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
+  //   const formattedLandPlotOptions = landPlots.map((landPlot) => ({
+  //     value: landPlot.id,
+  //     label: landPlot.name,
+  //   }));
+  //   setLandPlotOptions(formattedLandPlotOptions);
+  // };
 
   return (
     <div className={style.contentSectionBody}>
@@ -299,8 +277,8 @@ const AddPlan = () => {
         // onValuesChange={() => setIsFormDirty(true)}
         initialValues={{ isActive: true }}
         onValuesChange={(changedValues, allValues) => {
-          console.log("Changed:", changedValues);
-          console.log("All Values:", allValues);
+          // console.log("Changed:", changedValues);
+          // console.log("All Values:", allValues);
         }}
       >
         {/* BASIC INFORMATION */}
@@ -308,15 +286,30 @@ const AddPlan = () => {
           title="Basic Information"
           subtitle="Enter the basic information for the care plan."
         >
-          <InfoField
-            label="Process Name"
-            name={addPlanFormFields.processId}
-            options={processFarmOptions}
-            rules={RulesManager.getProcessRules()}
-            isEditing={true}
-            type="select"
-            hasFeedback={false}
-          />
+          <Row gutter={16}>
+            <Col span={12}>
+              <InfoField
+                label="Process Name"
+                name={addPlanFormFields.processId}
+                options={processFarmOptions}
+                rules={RulesManager.getProcessRules()}
+                isEditing={true}
+                type="select"
+                hasFeedback={false}
+              />
+            </Col>
+            <Col span={12}>
+              <InfoField
+                label="Growth Stage"
+                name={addPlanFormFields.growthStageID}
+                options={growthStageOptions}
+                isEditing={true}
+                rules={RulesManager.getGrowthStageRules()}
+                type="select"
+                hasFeedback={false}
+              />
+            </Col>
+          </Row>
           <InfoField
             label="Name"
             name={addPlanFormFields.planName}
@@ -341,7 +334,7 @@ const AddPlan = () => {
             type="textarea"
             placeholder="Enter care plan notes"
           />
-          <InfoField
+          {/* <InfoField
             label="Crop"
             name={addPlanFormFields.cropId}
             options={cropOptions}
@@ -349,16 +342,8 @@ const AddPlan = () => {
             rules={RulesManager.getCropRules()}
             type="select"
             hasFeedback={false}
-          />
-          <InfoField
-            label="Growth Stage"
-            name={addPlanFormFields.growthStageID}
-            options={growthStageOptions}
-            isEditing={true}
-            rules={RulesManager.getGrowthStageRules()}
-            type="select"
-            hasFeedback={false}
-          />
+          /> */}
+
           <InfoField
             label="Active"
             name={addPlanFormFields.isActive}
@@ -439,77 +424,15 @@ const AddPlan = () => {
         </Section>
 
         <Divider className={style.divider} />
-
-        <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
-          <Form.List name="planTargetModel">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Row key={key} gutter={16} align="middle">
-                    <Col span={8}>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "landPlotID"]}
-                        label="Land Plot"
-                        rules={[{ required: true, message: "Please select a land plot!" }]}
-                      >
-                        <Select placeholder="Select Land Plot">
-                          {landPlotOptions.map((plot) => (
-                            <Select.Option key={plot.value} value={plot.value}>
-                              {plot.label}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "landRowID"]}
-                        label="Land Row"
-                        rules={[{ required: true, message: "Please select a land row!" }]}
-                      >
-                        <Select placeholder="Select Land Row">
-                          {landRows.map((row) => (
-                            <Select.Option key={row.value} value={row.value}>
-                              {row.label}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "plantID"]}
-                        label="Plant"
-                        rules={[{ required: true, message: "Please select a plant!" }]}
-                      >
-                        <Select placeholder="Select Plant">
-                          {plants.map((plant) => (
-                            <Select.Option key={plant.value} value={plant.value}>
-                              {plant.label}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={2}>
-                      <Button type="link" danger onClick={() => remove(name)}>
-                        Remove
-                      </Button>
-                    </Col>
-                  </Row>
-                ))}
-                <Form.Item>
-                  <Button type="dashed" onClick={() => add()} block>
-                    Add Target
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
-        </Section>
+        <PlanTarget
+          landPlotOptions={landPlots}
+          landRows={landRowOptions}
+          plants={plants}
+          plantLots={[]}
+          graftedPlants={[]}
+          onLandPlotChange={handleLandPlotChange}
+          onLandRowChange={handleLandRowChange}
+        />
 
         <Divider className={style.divider} />
 

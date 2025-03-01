@@ -7,6 +7,12 @@ export interface GetProcessList {
     updateDate: Date;
     isDeleted: boolean;
     farmName: string;
-    masterTypeName: string;
-    growthStageName: string;
+    processMasterTypeModel: {
+      masterTypeId: number;
+      masterTypeName: string;
+    },
+    processGrowthStageModel: {
+      growthStageId: number;
+      growthStageName: string;
+    },
   }

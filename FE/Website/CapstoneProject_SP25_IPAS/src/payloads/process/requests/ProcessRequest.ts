@@ -17,6 +17,7 @@ export interface ProcessRequest {
     GrowthStageId: number;
     IsActive: boolean;
     ListPlan: ListPlan[]
+    IsSample: boolean;
 }
 
 export interface SubProcess {

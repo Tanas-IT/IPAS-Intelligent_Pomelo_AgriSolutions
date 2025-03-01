@@ -8,7 +8,7 @@ interface FormFieldModalProps {
   name?: string;
   rules?: any[];
   type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker";
-  options?: { value: string; label: string }[];
+  options?: { value: string | number; label: string }[];
   value?: string | number | undefined;
   readonly?: boolean;
   onChange?: (value: any) => void;
@@ -18,6 +18,8 @@ interface FormFieldModalProps {
   placeholder?: string;
   direction?: "row" | "col";
   dependencies?: string[];
+  checkedChildren?: string;
+  unCheckedChildren?: string;
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
@@ -36,6 +38,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   placeholder = `Enter ${label.toLowerCase()}`,
   direction = "col",
   dependencies,
+  checkedChildren,
+  unCheckedChildren
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -67,8 +71,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "switch":
         return (
           <Switch
-            checkedChildren="Active"
-            unCheckedChildren="Inactive"
+          checkedChildren={checkedChildren || "Active"}
+          unCheckedChildren={unCheckedChildren || "Inactive"}
             checked={isCheck}
             onChange={onChange}
             className={`${styles.customSwitch} ${isCheck ? style.active : style.inActive}`}
