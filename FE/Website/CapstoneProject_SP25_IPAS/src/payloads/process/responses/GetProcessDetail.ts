@@ -45,4 +45,5 @@ export interface GetProcessDetail {
   subProcesses: SubProcess[];
   listProcessData: any[];
   listPlan: PlanType[];
+  isSample: boolean;
 }

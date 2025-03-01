@@ -1,4 +1,4 @@
-interface landPlotCoordinations {
+export interface landPlotCoordinations {
   landPlotCoordinationId: string;
   landPlotCoordinationCode: string;
   longitude: number;

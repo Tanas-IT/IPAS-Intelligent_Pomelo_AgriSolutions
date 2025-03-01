@@ -1,6 +1,6 @@
 export interface GetLandRow {
-  landRowId: string;
-  landRowCode: string;
+  id: string;
+  code: string;
 }
 
 export interface GetLandRowSelected {

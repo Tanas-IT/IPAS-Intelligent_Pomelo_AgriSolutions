@@ -4,7 +4,7 @@ import { ApiResponse, GetGrowthStageSelected } from "@/payloads";
 import { getFarmId } from "@/utils";
 import { SelectOption } from "@/types";
 
-const useGrowthStageOptions = () => {
+const useGrowthStageOptions = (isUseValueAsName: boolean = false) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const useGrowthStageOptions = () => {
         await growthStageService.getGrowthStagesSelect(Number(getFarmId()));
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
-          value: item.id,
+          value: isUseValueAsName ? item.name : item.id,
           label: item.name,
         }));
         setOptions(mappedOptions);

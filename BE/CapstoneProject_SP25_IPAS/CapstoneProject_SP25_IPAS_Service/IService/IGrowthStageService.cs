@@ -26,5 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<GrowthStageModel?> GetGrowthStageIdByPlantingDate(int farmId, DateTime plantingDate);
 
+        public List<string> ValidateActiveFunction(string activeFunctionRequest);
+
     }
 }

@@ -12,7 +12,7 @@ interface ButtonActionsProps {
     onEdit: () => void;
     onDelete: () => void;
     onAdd: () => void;
-    onAddPlan: (key: string) => void;
+    onAddPlan?: (key: string) => void;
 }
 
 const ButtonActions: React.FC<ButtonActionsProps> = ({
@@ -55,9 +55,12 @@ const ButtonActions: React.FC<ButtonActionsProps> = ({
                 </>
             ) : (
                 <>
-                    <Tooltip title="Add Plan">
-                        <Button icon={<Icons.addPLan />} onClick={() => onAddPlan(nodeKey)} size="small" />
-                    </Tooltip>
+                    {onAddPlan && (
+                        <Tooltip title="Add Plan">
+                            <Button icon={<Icons.addPLan />} onClick={() => onAddPlan(nodeKey)} size="small" />
+                        </Tooltip>
+                    )}
+
                     <Tooltip title="Add Task">
                         <Button icon={<Icons.plus />} onClick={onAdd} size="small" />
                     </Tooltip>
@@ -92,7 +95,7 @@ const ButtonActions: React.FC<ButtonActionsProps> = ({
                 ]}
             >
                 <div className={style.modal}>
-                    <Icons.warning className={style.icon}/>
+                    <Icons.warning className={style.icon} />
                     <h3 className={style.confirmTitle}>
                         Are you sure?
                     </h3>
