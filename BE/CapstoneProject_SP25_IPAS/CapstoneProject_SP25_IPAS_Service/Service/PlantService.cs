@@ -705,5 +705,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> getPlantNotYetPlanting(int farmId)
+        {
+            try
+            {
+                var checkFarmExixt = await _farmService.CheckFarmExist(farmId);
+                if (checkFarmExixt == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                Expression<Func<Plant, bool>> filter = x => x.FarmId == farmId && !x.LandRowId.HasValue && x.IsDeleted == false;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE, "Get plant not yet planting success", mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

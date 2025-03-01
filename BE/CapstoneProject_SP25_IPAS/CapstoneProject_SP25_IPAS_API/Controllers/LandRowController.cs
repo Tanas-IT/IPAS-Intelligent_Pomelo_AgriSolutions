@@ -197,5 +197,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        [HttpGet(APIRoutes.LandRow.getSelectedIndexEmptyInRow + "/{row-id}", Name = "getSelectedIndexEmptyInRowAsync")]
+        public async Task<IActionResult> getSelectedIndexEmptyInRowAsync([FromRoute(Name = "row-id")] int rowId)
+        {
+            try
+            {
+                var result = await _landRowService.GetForSelectedIndexEmptyInRow(rowId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

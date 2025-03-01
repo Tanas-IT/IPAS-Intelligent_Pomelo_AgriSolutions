@@ -25,6 +25,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> getPlantInRowForSelected(int rowId);
         public Task<BusinessResult> getPlantPagin(GetPlantPaginRequest request, PaginationParameter paginationParameter);
         public Task<BusinessResult> SoftedMultipleDelete(List<int> plantIdList);
+        public Task<BusinessResult> getPlantNotYetPlanting(int farmId);
+
 
     }
 }
