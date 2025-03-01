@@ -264,7 +264,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
             string includeProperties = "LandPlotCoordinations,Farm";
-            var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == landPlotId, includeProperties: includeProperties);
+            Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId;
+
+            var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
             // kiem tra null
             if (landplot == null)
                 return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
@@ -274,6 +276,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
+        public async Task<BusinessResult> GetForMapped(int landplotId)
+        {
+
+            var landplot = await _unitOfWork.LandPlotRepository.GetForMapped(landplotId);
+            // kiem tra null
+            if (landplot == null)
+                return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+            // neu khong null return ve mapper
+            var mappedResult = _mapper.Map<LandPlotModel>(landplot);
+            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
+        }
 
         public async Task<BusinessResult> UpdateLandPlotCoordination(LandPlotUpdateCoordinationRequest updateRequest)
         {
@@ -392,7 +405,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> SofteDelete(int landPlotId)
+        {
+            try
+            {
 
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                {
+                    Expression<Func<LandPlot, bool>> condition = x => x.LandPlotId == landPlotId && x.Farm!.IsDeleted != true;
+                    var landplotEntityUpdate = await _unitOfWork.LandPlotRepository.GetByCondition(condition);
+
+                    if (landplotEntityUpdate == null)
+                    {
+                        return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                    }
+                    // Lấy danh sách thuộc tính từ model
+                    landplotEntityUpdate.isDeleted = true;
+                    _unitOfWork.LandPlotRepository.Update(landplotEntityUpdate);
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, new {success = true});
+                    }
+                    else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
 
         private BusinessResult? ProcessLandRows(LandPlotCreateRequest createRequest, LandPlot landplotCreateEntity, string? SplitLandPlotCode = null)
         {

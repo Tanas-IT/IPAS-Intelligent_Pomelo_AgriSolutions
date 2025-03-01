@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? LandRowId { get; set; }
 
         public int? RowIndex { get; set; }
-
+        public int? LandPlotId { get; set; }
         public string? LandPlotName { get; set; }
 
         public string? MasterTypeName { get; set; }

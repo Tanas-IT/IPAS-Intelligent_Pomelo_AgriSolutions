@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -340,5 +341,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<GrowthStageModel?> GetGrowthStageIdByPlantingDate(int farmId, DateTime plantingDate)
+        {
+            // Tính số tháng tuổi từ ngày trồng đến hiện tại
+            int monthAge = (DateTime.Now.Year - plantingDate.Year) * 12 + (DateTime.Now.Month - plantingDate.Month);
+
+            // Truy vấn trực tiếp từ database
+            var matchedStage = await _unitOfWork.GrowthStageRepository
+                .GetByCondition(x => x.FarmID == farmId
+                               && x.isDeleted == false
+                               && x.MonthAgeStart <= monthAge
+                               && x.MonthAgeEnd >= monthAge);
+            if (matchedStage != null)
+            {
+                var mappedResult = _mapper.Map<GrowthStageModel>(matchedStage);
+                return mappedResult; // Trả về ID nếu tìm thấy, nếu không trả về null
+            }
+            return null;
+        }
+
     }
 }
