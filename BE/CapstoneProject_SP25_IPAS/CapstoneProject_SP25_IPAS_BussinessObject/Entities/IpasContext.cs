@@ -14,6 +14,7 @@ public partial class IpasContext : DbContext
     public IpasContext(DbContextOptions<IpasContext> options)
         : base(options)
     {
+        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
     public virtual DbSet<CarePlanSchedule> CarePlanSchedules { get; set; }
