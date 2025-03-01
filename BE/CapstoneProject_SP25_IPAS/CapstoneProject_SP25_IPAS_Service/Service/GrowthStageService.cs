@@ -27,11 +27,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
-        public GrowthStageService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
+        private readonly IFarmService _farmService;
+        public GrowthStageService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IFarmService farmService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = configuration;
+            _farmService = farmService;
         }
         //public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId)
         //{
@@ -100,6 +102,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkFarmExist = await _farmService.CheckFarmExist(farmId);
+                    if (checkFarmExist == null)
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     // Lấy danh sách GrowthStage của farm, sắp xếp theo MonthAgeStart
                     var existingGrowthStages = (await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
                         filter: gs => gs.FarmID == farmId && gs.isDeleted == false
@@ -123,9 +128,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
 
+                    // creat growthstage
+                    string farmCode = Util.SplitByDash(checkFarmExist.FarmCode!).First();
                     var createGrowthStage = new GrowthStage()
                     {
-                        GrowthStageCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.GROWTHSTAGE),
+                        GrowthStageCode = $"{CodeAliasEntityConst.GROWTHSTAGE}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode}",
                         GrowthStageName = createGrowthStageModel.GrowthStageName,
                         MonthAgeStart = newMonthAgeStart,
                         MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
