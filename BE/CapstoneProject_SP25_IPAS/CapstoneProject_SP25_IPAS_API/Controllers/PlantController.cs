@@ -312,5 +312,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Plant.getPlantNotLocate )]
+        public async Task<IActionResult> GetForSelectedForRow([FromQuery(Name = "farmId")] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Message = "Farm Id is require"
+                    });
+                }
+                var result = await _plantService.getPlantNotYetPlanting(farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }
