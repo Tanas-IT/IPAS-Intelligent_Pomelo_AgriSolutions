@@ -10,5 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface IGrowthStageRepository
     {
         public Task<List<GrowthStage>> GetGrowthStagesByFarmId (int? farmId);    
+        public Task<int> GetMaxAge (int farmId);
     }
 }

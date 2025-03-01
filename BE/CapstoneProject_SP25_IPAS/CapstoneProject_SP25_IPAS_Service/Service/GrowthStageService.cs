@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using static Org.BouncyCastle.Math.EC.ECCurve;
@@ -220,6 +221,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.MonthAgeStart);
                         break;
                 }
+                var maxAgeStartNew = await _unitOfWork.GrowthStageRepository.GetMaxAge(farmId);
                 string includeProperties = "Farm";
                 var entities = await _unitOfWork.GrowthStageRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<GrowthStageModel>();
@@ -228,11 +230,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTHSTAGE_CODE, Const.SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE, pagin);
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTHSTAGE_CODE, Const.SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE, new { pagin, MaxAgeStart = maxAgeStartNew });
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG, new PageEntity<GrowthStageModel>());
+                    return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG, new { pagin, MaxAgeStart = maxAgeStartNew });
                 }
             }
             catch (Exception ex)
