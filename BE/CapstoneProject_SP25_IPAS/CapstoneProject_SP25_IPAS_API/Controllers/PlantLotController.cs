@@ -15,10 +15,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class PlantLotController : ControllerBase
     {
         private readonly IPlantLotService _plantLotService;
-
-        public PlantLotController(IPlantLotService plantLotService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public PlantLotController(IPlantLotService plantLotService, IJwtTokenService jwtTokenService)
         {
             _plantLotService = plantLotService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.PlantLot.getPlantLotWithPagination, Name = "getPlantLotWithPagination")]
@@ -159,11 +160,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.PlantLot.GetPlantPlotForSelected, Name = "GetPlantPlotForSelected")]
-        public async Task<IActionResult> GetPlantPlotForSelected([FromQuery] int id)
+        public async Task<IActionResult> GetPlantPlotForSelected([FromQuery] int? farmId)
         {
             try
             {
-                var result = await _plantLotService.GetPlantLotById(id);
+                if(!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    var response = new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm Id is required"
+                    };
+                    return BadRequest(response);
+                }
+                var result = await _plantLotService.GetForSelectedByFarmId(farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
