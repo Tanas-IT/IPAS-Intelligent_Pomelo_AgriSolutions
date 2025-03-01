@@ -15,6 +15,7 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -681,12 +682,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //foreach (var MasterTypeId in plantIdList)
                     //{
                     Expression<Func<Plant, bool>> filter = x => plantIdList.Contains(x.PlantId) && x.IsDeleted == false;
-                    var plantsExistGet = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter);
+                    var plantsExistGet = await _unitOfWork.PlantRepository.GetAllForDelete(filter: filter);
                     foreach (var item in plantsExistGet)
                     {
-
                         item.IsDeleted = true;
                         _unitOfWork.PlantRepository.Update(item);
+                        //_unitOfWork.PlantRepository.Update(item);
                     }
                     //}
                     var result = await _unitOfWork.SaveAsync();
