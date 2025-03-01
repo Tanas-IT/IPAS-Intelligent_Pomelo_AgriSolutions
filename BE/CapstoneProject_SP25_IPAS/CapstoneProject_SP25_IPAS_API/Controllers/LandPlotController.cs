@@ -96,5 +96,32 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             var result = await _landPlotService.deleteLandPlotOfFarm(landPlotId);
             return Ok(result);
         }
+
+        [HttpGet(APIRoutes.LandPlot.getForMap + "/{landplot-id}", Name = "getForMapAsync")]
+        public async Task<IActionResult> GetForMapped([FromRoute(Name = "landplot-id")] int landplotId)
+        {
+            var result = await _landPlotService.GetForMapped(landplotId);
+            return Ok(result);
+
+        }
+
+        [HttpPatch(APIRoutes.LandPlot.deleteSoftedLandPlotOfFarm, Name = "deleteSoftedLandPlotOfFarm")]
+        public async Task<IActionResult> deleteSoftedLandPlotOfFarm([FromBody] int plantIds)
+        {
+            try
+            {
+                var result = await _landPlotService.SofteDelete(plantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

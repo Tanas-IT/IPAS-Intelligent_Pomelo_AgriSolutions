@@ -41,6 +41,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateLandPlotInfo = prefix + "/update-info";
             public const string deleteLandPlotOfFarm = prefix + "";
             public const string getLandPlotById = prefix + "";
+            public const string getForMap = prefix + "/get-for-mapped";
+            public const string deleteSoftedLandPlotOfFarm = prefix + "/softed-delete";
 
         }
 
@@ -69,6 +71,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createManyPlantFromPlantLot = Base + "/create-many-plant";
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
+            public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
         }
 
         public static class Resource
@@ -207,6 +210,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getLandRowOfPlotNoPagin = prefix + "/get-land-rows-of-plot";
             public const string getLandRowForSelected = prefix + "/get-for-selected";
             public const string getLandRowOfPlotPagin = prefix + "/get-land-rows-of-plot-pagin";
+            public const string softedDeleteMultipleRow = prefix + "/softed-delete";
+            public const string getSelectedIndexEmptyInRow = prefix + "/get-for-selected/index-empty";
 
         }
 
@@ -224,6 +229,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
             public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
             public const string getPlantPagin = prefix + "/get-plants-pagin";
+            public const string softDeletePlant = prefix + "/soft-delete";
+            public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
 
         }
 

@@ -167,6 +167,19 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
         }
 
+        public virtual void UpdateProperty<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty>> propertyExpression, TProperty newValue)
+        {
+            var entry = context.Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                dbSet.Attach(entity);
+            }
+
+            entry.Property(propertyExpression).CurrentValue = newValue;
+            entry.Property(propertyExpression).IsModified = true;
+        }
+
+
         public virtual async Task<int> Count(Expression<Func<TEntity, bool>> filter = null!)
         {
             IQueryable<TEntity> query = dbSet;

@@ -186,7 +186,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Process.getProcessesForSelect, Name = "getProcessesForSelectAsync")]
-        public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue)
+        public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue, bool isSample)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
-                var result = await _processService.GetForSelect(farmId!.Value, searchValue);
+                var result = await _processService.GetForSelect(farmId!.Value, searchValue, isSample);
                 return Ok(result);
             }
             catch (Exception ex)

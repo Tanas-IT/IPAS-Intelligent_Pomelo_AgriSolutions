@@ -133,7 +133,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
                 string includeProperties = "LandPlot";
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
-                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter,includeProperties: includeProperties ,orderBy: orderBy);
+                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<LandRowModel>>(rowsOfFarm);
@@ -156,7 +156,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
                 string includeProperties = "LandPlot";
-                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter,includeProperties: includeProperties, orderBy: orderBy);
+                var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_EMPTY_MSG, rowsOfFarm);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(rowsOfFarm);
@@ -328,7 +328,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "LandPlot";
-                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, includeProperties: includeProperties,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
                 //foreach (var item in pagin.List)
@@ -354,5 +354,72 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> SoftedMultipleDelete(List<int> rowList)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    //if (string.IsNullOrEmpty(rowIds))
+                    //    return new BusinessResult(500, "No row Id to delete");
+                    //List<string> rowList = Util.SplitByComma(rowIds);
+                    //foreach (var MasterTypeId in plantIdList)
+                    //{
+                    Expression<Func<LandRow, bool>> filter = x => rowList.Contains(x.LandRowId) && x.isDeleted == false;
+                    var rowsExistGet = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter);
+                    foreach (var item in rowsExistGet)
+                    {
+
+                        item.isDeleted = true;
+                        _unitOfWork.LandRowRepository.Update(item);
+                    }
+                    //}
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_ONE_ROW_CODE, $"Delete {result.ToString()} row success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(400, "Delete row fail", new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+        public async Task<BusinessResult> GetForSelectedIndexEmptyInRow(int rowId)
+        {
+            try
+            {
+                Expression<Func<LandRow, bool>> filter = x => x.LandRowId == rowId;
+                //Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
+                string includeProperties = "Plants";
+                var landRow = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                if (landRow == null)
+                    return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                if (!landRow.Plants.Any() || !landRow.TreeAmount.HasValue || landRow.TreeAmount.Value == landRow.Plants.Count())
+                    return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, "This row has no index to plant");
+
+                // Danh sách index có thể trồng từ 1 đến TreeAmount
+                var allIndexes = Enumerable.Range(1, landRow.TreeAmount.Value).ToList();
+
+                // Lấy danh sách các index đã có cây trồng
+                var usedIndexes = landRow.Plants.Where(p => p.PlantIndex.HasValue).Select(p => p.PlantIndex!.Value).ToList();
+
+                // Lọc ra các index còn trống
+                var emptyIndexes = allIndexes.Except(usedIndexes).ToList();
+                //var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(landRow);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, emptyIndexes);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
+
 }
