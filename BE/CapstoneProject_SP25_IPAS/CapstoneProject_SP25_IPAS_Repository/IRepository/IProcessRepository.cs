@@ -9,6 +9,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IProcessRepository
     {
-        public Task<Process> GetListProcessById(int processId);
+        public Task<Process> GetProcessByIdInclude(int processId);
     }
 }

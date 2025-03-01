@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> UpdateProcessInfo(UpdateProcessModel updateProcessModel);
 
         public Task<BusinessResult> PermanentlyDeleteProcess(int processId);
-        public Task<BusinessResult> SoftDeleteProcess(int processId);
+        public Task<BusinessResult> SoftDeleteProcess(List<int> listProcessId);
 
         public Task<BusinessResult> GetProcessByName(string processName);
         public Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel, int? farmId);

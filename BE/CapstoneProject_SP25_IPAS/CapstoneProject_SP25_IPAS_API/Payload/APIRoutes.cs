@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
             public const string getProcessWithPagination = Base + "/processes";
             public const string permanenlyDelete = Base + "/processes/delete-permanenly/{id}";
-            public const string softDeleteProcess = Base + "/processes/soft-delete/{id}";
+            public const string softDeleteProcess = Base + "/processes/soft-delete";
             public const string updateProcessInfo = Base + "/processes/update-process-info";
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
