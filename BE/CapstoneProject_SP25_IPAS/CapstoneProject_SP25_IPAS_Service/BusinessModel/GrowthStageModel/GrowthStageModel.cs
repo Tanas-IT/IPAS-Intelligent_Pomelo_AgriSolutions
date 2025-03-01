@@ -23,5 +23,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel
         public string? Description { get; set; }
         public string? FarmName { get; set; }
         public string? FarmId { get; set; }
+        public string? ActiveFunction { get; set; }
     }
 }
