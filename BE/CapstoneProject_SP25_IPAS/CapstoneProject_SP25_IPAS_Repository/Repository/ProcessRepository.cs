@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<Process> GetListProcessById(int processId)
+        public async Task<Process> GetProcessByIdInclude(int processId)
         {
             var result = await _context.Processes
                                 .Include(x => x.GrowthStage)
