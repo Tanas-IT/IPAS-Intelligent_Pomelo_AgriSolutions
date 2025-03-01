@@ -99,6 +99,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!updateGrowthStageModel.FarmId.HasValue)
+                    updateGrowthStageModel.FarmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var badRequest = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "FarmId is required"
+                };
                 var result = await _growthStageService.UpdateGrowthStageInfo(updateGrowthStageModel);
                 return Ok(result);
             }

@@ -11,12 +11,14 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -24,36 +26,124 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public GrowthStageService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IConfiguration _config;
+        public GrowthStageService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _config = configuration;
         }
+        //public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId)
+        //{
+        //    using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            // Lấy danh sách GrowthStage của farm hiện tại
+        //            var existingGrowthStages = await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
+        //                filter: gs => gs.FarmID == farmId && gs.isDeleted == false
+        //            );
+
+        //            // Kiểm tra xung đột với khoảng thời gian
+        //            bool isConflict = existingGrowthStages.Any(gs =>
+        //                !(createGrowthStageModel.MonthAgeEnd < gs.MonthAgeStart || createGrowthStageModel.MonthAgeStart > gs.MonthAgeEnd)
+        //            );
+
+        //            if (isConflict)
+        //            {
+        //                return new BusinessResult(400, "The Growth Stage duration overlaps or is nested with an existing Growth Stage.");
+        //            }
+
+        //            // Đọc danh sách ActiveFunction từ GrowthStage
+        //            if (!string.IsNullOrEmpty(createGrowthStageModel.ActiveFunction))
+        //            {
+        //                var invalidFunctions = await ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
+        //                if (invalidFunctions.Any())
+        //                {
+        //                    return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
+        //                }
+        //            }
+
+        //            var createGrowthStage = new GrowthStage()
+        //            {
+        //                GrowthStageCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.GROWTHSTAGE),
+        //                GrowthStageName = createGrowthStageModel.GrowthStageName,
+        //                MonthAgeStart = createGrowthStageModel.MonthAgeStart,
+        //                MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
+        //                CreateDate = DateTime.Now,
+        //                Description = createGrowthStageModel.Description,
+        //                FarmID = farmId,
+        //                ActiveFunction = createGrowthStageModel.ActiveFunction,
+        //                isDefault = false,
+        //                isDeleted = false,
+        //            };
+        //            await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
+        //            var result = await _unitOfWork.SaveAsync();
+        //            await transaction.CommitAsync();
+        //            if (result > 0)
+        //            {
+        //                return new BusinessResult(Const.SUCCESS_CREATE_GROWTHSTAGE_CODE, Const.SUCCESS_CREATE_GROWTHSTAGE_MESSAGE, result > 0);
+        //            }
+        //            return new BusinessResult(Const.FAIL_CREATE_GROWTHSTAGE_CODE, Const.FAIL_CREATE_GROWTHSTAGE_MESSAGE, false);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //        }
+        //    }
+        //}
+
         public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
+                    // Lấy danh sách GrowthStage của farm, sắp xếp theo MonthAgeStart
+                    var existingGrowthStages = (await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
+                        filter: gs => gs.FarmID == farmId && gs.isDeleted == false
+                    )).OrderBy(gs => gs.MonthAgeStart).ToList();
+
+                    // Xác định MonthAgeStart từ giai đoạn trước đó
+                    int newMonthAgeStart = existingGrowthStages.Any() ? existingGrowthStages.Last().MonthAgeEnd.GetValueOrDefault() + 1 : 1;
+
+                    if (createGrowthStageModel.MonthAgeEnd <= newMonthAgeStart)
+                    {
+                        return new BusinessResult(400, "MonthAgeEnd must be greater than the previous stage's MonthAgeEnd.");
+                    }
+
+                    // Kiểm tra ActiveFunction
+                    if (!string.IsNullOrEmpty(createGrowthStageModel.ActiveFunction))
+                    {
+                        var invalidFunctions = ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
+                        if (invalidFunctions.Any())
+                        {
+                            return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
+                        }
+                    }
+
                     var createGrowthStage = new GrowthStage()
                     {
                         GrowthStageCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.GROWTHSTAGE),
                         GrowthStageName = createGrowthStageModel.GrowthStageName,
-                        MonthAgeStart = createGrowthStageModel.MonthAgeStart,
+                        MonthAgeStart = newMonthAgeStart,
                         MonthAgeEnd = createGrowthStageModel.MonthAgeEnd,
                         CreateDate = DateTime.Now,
                         Description = createGrowthStageModel.Description,
                         FarmID = farmId,
+                        ActiveFunction = createGrowthStageModel.ActiveFunction,
                         isDefault = false,
                         isDeleted = false,
                     };
+
                     await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
                     var result = await _unitOfWork.SaveAsync();
                     await transaction.CommitAsync();
+
                     if (result > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_CREATE_GROWTHSTAGE_CODE, Const.SUCCESS_CREATE_GROWTHSTAGE_MESSAGE, result > 0);
+                        return new BusinessResult(Const.SUCCESS_CREATE_GROWTHSTAGE_CODE, Const.SUCCESS_CREATE_GROWTHSTAGE_MESSAGE, true);
                     }
                     return new BusinessResult(Const.FAIL_CREATE_GROWTHSTAGE_CODE, Const.FAIL_CREATE_GROWTHSTAGE_MESSAGE, false);
                 }
@@ -64,6 +154,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
 
         public async Task<BusinessResult> GetAllGrowthStagePagination(PaginationParameter paginationParameter, int farmId)
         {
@@ -119,7 +210,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.MonthAgeEnd)) : x => x.OrderBy(x => x.MonthAgeEnd);
                         break;
                     default:
-                        orderBy = x => x.OrderByDescending(x => x.GrowthStageID);
+                        orderBy = x => x.OrderByDescending(x => x.MonthAgeStart);
                         break;
                 }
                 string includeProperties = "Farm";
@@ -292,55 +383,136 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel)
+        //public async Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel)
+        //{
+        //    try
+        //    {
+        //        var checkExistGrowthStage = await _unitOfWork.GrowthStageRepository.GetByID(updateriteriaTypeModel.GrowthStageId);
+        //        if (checkExistGrowthStage != null)
+        //        {
+        //            if (updateriteriaTypeModel.GrowthStageName != null)
+        //            {
+        //                checkExistGrowthStage.GrowthStageName = updateriteriaTypeModel.GrowthStageName;
+        //            }
+        //            if (updateriteriaTypeModel.MonthAgeStart != null)
+        //            {
+        //                checkExistGrowthStage.MonthAgeStart = updateriteriaTypeModel.MonthAgeStart;
+        //            }
+        //            if (updateriteriaTypeModel.MonthAgeEnd != null)
+        //            {
+        //                checkExistGrowthStage.MonthAgeEnd = updateriteriaTypeModel.MonthAgeEnd;
+        //            }
+        //            if (updateriteriaTypeModel.Description != null)
+        //            {
+        //                checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
+        //            }
+        //            if (updateriteriaTypeModel.FarmId != null)
+        //            {
+        //                checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmId;
+        //            }
+        //            if (updateriteriaTypeModel.isDefault != null)
+        //            {
+        //                checkExistGrowthStage.isDefault = updateriteriaTypeModel.isDefault;
+        //            }
+        //            if (updateriteriaTypeModel.isDeleted != null)
+        //            {
+        //                checkExistGrowthStage.isDeleted = updateriteriaTypeModel.isDeleted;
+        //            }
+        //            var result = await _unitOfWork.SaveAsync();
+        //            if (result > 0)
+        //            {
+        //                return new BusinessResult(Const.SUCCESS_UPDATE_GROWTHSTAGE_CODE, Const.SUCCESS_UPDATE_GROWTHSTAGE_MESSAGE, checkExistGrowthStage);
+        //            }
+        //            return new BusinessResult(Const.FAIL_UPDATE_GROWTHSTAGE_CODE, Const.FAIL_UPDATE_GROWTHSTAGE_MESSAGE, false);
+        //        }
+        //        return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
+        public async Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateModel)
         {
             try
             {
-                var checkExistGrowthStage = await _unitOfWork.GrowthStageRepository.GetByID(updateriteriaTypeModel.GrowthStageId);
-                if (checkExistGrowthStage != null)
+                var existingStage = await _unitOfWork.GrowthStageRepository.GetByID(updateModel.GrowthStageId);
+                if (existingStage == null)
                 {
-                    if (updateriteriaTypeModel.GrowthStageName != null)
-                    {
-                        checkExistGrowthStage.GrowthStageName = updateriteriaTypeModel.GrowthStageName;
-                    }
-                    if (updateriteriaTypeModel.MonthAgeStart != null)
-                    {
-                        checkExistGrowthStage.MonthAgeStart = updateriteriaTypeModel.MonthAgeStart;
-                    }
-                    if (updateriteriaTypeModel.MonthAgeEnd != null)
-                    {
-                        checkExistGrowthStage.MonthAgeEnd = updateriteriaTypeModel.MonthAgeEnd;
-                    }
-                    if (updateriteriaTypeModel.Description != null)
-                    {
-                        checkExistGrowthStage.Description = updateriteriaTypeModel.Description;
-                    }
-                    if (updateriteriaTypeModel.FarmId != null)
-                    {
-                        checkExistGrowthStage.FarmID = updateriteriaTypeModel.FarmId;
-                    }
-                    if (updateriteriaTypeModel.isDefault != null)
-                    {
-                        checkExistGrowthStage.isDefault = updateriteriaTypeModel.isDefault;
-                    }
-                    if (updateriteriaTypeModel.isDeleted != null)
-                    {
-                        checkExistGrowthStage.isDeleted = updateriteriaTypeModel.isDeleted;
-                    }
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_GROWTHSTAGE_CODE, Const.SUCCESS_UPDATE_GROWTHSTAGE_MESSAGE, checkExistGrowthStage);
-                    }
-                    return new BusinessResult(Const.FAIL_UPDATE_GROWTHSTAGE_CODE, Const.FAIL_UPDATE_GROWTHSTAGE_MESSAGE, false);
+                    return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE,
+                                              Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                 }
-                return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
+
+                int? newStart = updateModel.MonthAgeStart ?? existingStage.MonthAgeStart;
+                int? newEnd = updateModel.MonthAgeEnd ?? existingStage.MonthAgeEnd;
+
+                // Lấy danh sách GrowthStage khác của cùng Farm để kiểm tra conflict
+                var allStages = (await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
+                    filter: gs => gs.FarmID == existingStage.FarmID && gs.GrowthStageID != existingStage.GrowthStageID && gs.isDeleted == false
+                )).OrderBy(gs => gs.MonthAgeStart).ToList();
+
+                // Kiểm tra conflict với các GrowthStage khác
+                bool isConflict = allStages.Any(gs =>
+                    !(newEnd < gs.MonthAgeStart || newStart > gs.MonthAgeEnd)
+                );
+
+                if (isConflict)
+                {
+                    return new BusinessResult(400, "The GrowthStage duration overlaps or is nested with an existing GrowthStage.");
+                }
+
+                // ✅ Cập nhật thông tin GrowthStage
+                if (!string.IsNullOrEmpty(updateModel.GrowthStageName)) existingStage.GrowthStageName = updateModel.GrowthStageName;
+                if (updateModel.MonthAgeStart.HasValue) existingStage.MonthAgeStart = updateModel.MonthAgeStart;
+                if (updateModel.MonthAgeEnd.HasValue) existingStage.MonthAgeEnd = updateModel.MonthAgeEnd;
+                if (!string.IsNullOrEmpty(updateModel.Description)) existingStage.Description = updateModel.Description;
+                //if (updateModel.FarmId.HasValue) existingStage.FarmID = updateModel.FarmId;
+                //if (updateModel.isDefault != null) existingStage.isDefault = updateModel.isDefault;
+                // ✅ Kiểm tra và cập nhật ActiveFunction
+                if (!string.IsNullOrEmpty(updateModel.ActiveFunction))
+                {
+                    var invalidFunctions = ValidateActiveFunction(updateModel.ActiveFunction);
+                    if (invalidFunctions.Any())
+                    {
+                        return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
+                    }
+                    existingStage.ActiveFunction = updateModel.ActiveFunction;
+                }
+                _unitOfWork.GrowthStageRepository.Update(existingStage);
+                // ✅ Cập nhật giai đoạn trước nếu cần
+                var previousStage = allStages.LastOrDefault(gs => gs.MonthAgeEnd < newStart);
+                if (previousStage != null)
+                {
+                    previousStage.MonthAgeEnd = newStart - 1;
+                    _unitOfWork.GrowthStageRepository.Update(previousStage);
+
+                }
+
+                // ✅ Cập nhật giai đoạn sau nếu cần
+                var nextStage = allStages.FirstOrDefault(gs => gs.MonthAgeStart > newEnd);
+                if (nextStage != null)
+                {
+                    nextStage.MonthAgeStart = newEnd + 1;
+                    _unitOfWork.GrowthStageRepository.Update(nextStage);
+                }
+
+
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(Const.SUCCESS_UPDATE_GROWTHSTAGE_CODE,
+                                              Const.SUCCESS_UPDATE_GROWTHSTAGE_MESSAGE,
+                                              existingStage);
+                }
+                return new BusinessResult(Const.FAIL_UPDATE_GROWTHSTAGE_CODE, Const.FAIL_UPDATE_GROWTHSTAGE_MESSAGE, false);
             }
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+
 
         public async Task<GrowthStageModel?> GetGrowthStageIdByPlantingDate(int farmId, DateTime plantingDate)
         {
@@ -360,6 +532,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             return null;
         }
+
+        public List<string> ValidateActiveFunction(string activeFunctionRequest)
+        {
+            // Lấy danh sách ActiveFunction hợp lệ từ appsettings
+            var activeFunctionList = _config.GetSection("GrowthStage:ActiveFunction").Get<List<string>>() ?? new List<string>();
+
+            if (!activeFunctionList.Any())
+            {
+                return new List<string> { "No active function list was found in system" };
+            }
+
+            // Chuyển chuỗi request thành danh sách
+            List<string> actFuncRequest = Util.SplitByComma(activeFunctionRequest);
+
+            // Kiểm tra giá trị không hợp lệ
+            var invalidFunctions = actFuncRequest
+                .Where(func => !activeFunctionList.Any(validFunc => validFunc.Equals(func, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            return invalidFunctions; // Trả về danh sách giá trị sai, nếu rỗng nghĩa là hợp lệ
+        }
+
+
 
     }
 }
