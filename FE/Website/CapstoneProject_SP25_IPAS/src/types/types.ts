@@ -23,6 +23,11 @@ export interface PolygonInit {
   landPlotId?: number;
 }
 
+export interface SelectOption {
+  value: string | number;
+  label: string;
+}
+
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 export type FilterMasterTypeState = {
@@ -34,10 +39,12 @@ export type FilterMasterTypeState = {
 export type FilterPlantState = {
   plantingDateFrom: string;
   plantingDateTo: string;
+  LandPlotIds: string[];
+  landRowIds: string[];
   cultivarIds: string[];
   growthStageIds: string[];
   healthStatus: string[];
-  isLocated: boolean;
+  isLocated: boolean | null;
 };
 
 export interface LandPlotsStateType {

@@ -87,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.ChatRoomRepository.Insert(checkRoomExist);
                     await _unitOfWork.SaveAsync();
                 }
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(question);
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo);
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
@@ -195,7 +195,7 @@ const generationConfig = {
      responseMimeType: "text/plain",
    };
 */
-        private async Task<string> GetAnswerFromGeminiAsync(string question)
+        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm getFarmInfo)
         {
             try
             {
@@ -232,6 +232,11 @@ const generationConfig = {
             {
                 Role = "model",
                 Parts = "Đã hiểu. Tôi là IPAS, tôi sẽ cung cấp lời khuyên chuyên môn cho..."
+            },
+             new InputContent
+            {
+                Role = "model",
+                Parts = $"Dựa vào đặc tính đất đai của trang trại của bạn là {getFarmInfo.SoilType}, tôi có thể đưa ra lời khuyên như sau..."
             },
             new InputContent
             {

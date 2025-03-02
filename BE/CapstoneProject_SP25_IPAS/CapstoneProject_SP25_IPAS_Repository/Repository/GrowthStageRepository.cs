@@ -22,12 +22,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
            var result = await _context.GrowthStages.
                 Include(x => x.Processes)
+                .Include(x => x.GrowthStagePlans)
                 .Include(x => x.Plants)
-                .Include(x => x.Plans)
                 .Include(x => x.MasterTypes)
                 .Include(x => x.Farm).
                 Where(x => x.FarmID == farmId && x.isDeleted == false).ToListAsync();
             return result;
+        }
+
+        public async Task<int> GetMaxAge(int farmId)
+        {
+            var maxAgeStart = await _context.GrowthStages
+                .Where(x => x.FarmID == farmId && x.isDeleted == false)
+                .MaxAsync(x => x.MonthAgeEnd);
+            if (!maxAgeStart.HasValue)
+                return 1; // start age month begin from 1
+            return maxAgeStart.Value + 1; // begin from max end + 1
         }
     }
 }

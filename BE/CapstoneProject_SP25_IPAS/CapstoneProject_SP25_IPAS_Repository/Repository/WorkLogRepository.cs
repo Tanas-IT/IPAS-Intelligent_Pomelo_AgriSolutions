@@ -30,7 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             // Lấy thời gian bắt đầu và kết thúc của công việc này
-            var startTime = workLog.Schedule.StarTime;
+            var startTime = workLog.Schedule.StartTime;
             var endTime = workLog.Schedule.EndTime;
             var workLogDate = workLog.Date;
 
@@ -41,9 +41,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .AnyAsync(uwl => uwl.UserId == employeeId &&
                     uwl.WorkLog.Date == workLogDate && // Cùng ngày
                     (
-                        (uwl.WorkLog.Schedule.StarTime < endTime && uwl.WorkLog.Schedule.EndTime > startTime) ||  // TH1: Trùng giờ trong cùng ngày
-                        (uwl.WorkLog.Schedule.StarTime > uwl.WorkLog.Schedule.EndTime && // TH2: Công việc kéo dài qua ngày
-                            (startTime >= uwl.WorkLog.Schedule.StarTime || endTime <= uwl.WorkLog.Schedule.EndTime))
+                        (uwl.WorkLog.Schedule.StartTime < endTime && uwl.WorkLog.Schedule.EndTime > startTime) ||  // TH1: Trùng giờ trong cùng ngày
+                        (uwl.WorkLog.Schedule.StartTime > uwl.WorkLog.Schedule.EndTime && // TH2: Công việc kéo dài qua ngày
+                            (startTime >= uwl.WorkLog.Schedule.StartTime || endTime <= uwl.WorkLog.Schedule.EndTime))
                     ));
 
             if (isConflicted)
@@ -198,7 +198,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 var schedule = await _context.CarePlanSchedules
                     .FirstOrDefaultAsync(x => x.ScheduleId == workLog.ScheduleId);
 
-                if (schedule != null && schedule.StarTime.HasValue && schedule.EndTime.HasValue)
+                if (schedule != null && schedule.StartTime.HasValue && schedule.EndTime.HasValue)
                 {
                     scheduleList.Add(schedule);
                 }
@@ -208,7 +208,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             foreach (var schedule in scheduleList)
             {
                 bool isOverlap = newStartTime < schedule.EndTime &&
-                                 newEndTime > schedule.StarTime;
+                                 newEndTime > schedule.StartTime;
 
                 if (isOverlap)
                     return true; // Có xung đột
@@ -217,7 +217,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return false; // Không có xung đột, có thể thêm WorkLog mới
         }
 
-        public async Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, int? treeId, int? rowId, int? plotId)
+        public async Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, List<int>? treeIds, List<int>? rowIds, List<int?> plotIds)
         {
             return await _context.WorkLogs
                            .Include(w => w.Schedule)
@@ -225,12 +225,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                            .ThenInclude(c => c.PlanTargets)
                            .Where(w =>
                                w.Date == date &&
-                               ((w.Schedule.StarTime < endTime && w.Schedule.EndTime > startTime) ||
-                                (startTime < w.Schedule.EndTime && endTime > w.Schedule.StarTime)) &&
+                               ((w.Schedule.StartTime < endTime && w.Schedule.EndTime > startTime) ||
+                                (startTime < w.Schedule.EndTime && endTime > w.Schedule.StartTime)) &&
                                w.Schedule.CarePlan.PlanTargets.Any(pt =>
-                                   (treeId != null && pt.PlantID == treeId) ||
-                                   (rowId != null && pt.LandRowID == rowId) ||
-                                   (plotId != null && pt.LandPlotID == plotId)
+                                  (treeIds != null && treeIds.Contains(pt.PlantID ?? -1)) ||
+                                    (rowIds != null && rowIds.Contains(pt.LandRowID ?? -1)) ||
+                                    (plotIds != null && plotIds.Contains(pt.LandPlotID ?? -1))
                                )
                            )
                            .ToListAsync();

@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
             public const string getProcessWithPagination = Base + "/processes";
             public const string permanenlyDelete = Base + "/processes/delete-permanenly/{id}";
-            public const string softDeleteProcess = Base + "/processes/soft-delete/{id}";
+            public const string softDeleteProcess = Base + "/processes/soft-delete";
             public const string updateProcessInfo = Base + "/processes/update-process-info";
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
@@ -231,6 +231,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantPagin = prefix + "/get-plants-pagin";
             public const string softDeletePlant = prefix + "/soft-delete";
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
+            public const string getPlantByGrowthFunc = prefix + "/get-for-selected/growth-stage-function";
 
         }
 
@@ -256,6 +257,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
             public const string getPlanByFarmId = prefix + "/get-for-select/{farm-id}";
+            public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
         }
 
         public static class UserWorkLog

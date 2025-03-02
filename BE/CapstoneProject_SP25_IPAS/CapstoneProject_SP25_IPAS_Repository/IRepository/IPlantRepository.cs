@@ -18,5 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<IEnumerable<Plant>> GetAllForDelete(
           Expression<Func<Plant, bool>> filter = null!,
           Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = null!);
+
+        public Task<List<int>> getPlantByRowId(int rowId);
     }
 }

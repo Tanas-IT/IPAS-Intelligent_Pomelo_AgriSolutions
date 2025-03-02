@@ -74,10 +74,11 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	GrowthStageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MonthAgeStart int NULL,
 	MonthAgeEnd int NULL,
-	isDefault bit NULL,
+	isDefault bit NULL DEFAULT 0,
 	FarmID int NULL,
         isDeleted bit NULL DEFAULT 0,
 	CreateDate datetime NULL,
+	ActiveFunction nvarchar(200),
 	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID),
 	CONSTRAINT GrowthStage_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
@@ -500,10 +501,12 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PartnerID int NULL,
 	PlantLotReferenceID int NULL,
 	FarmID int NULL,
-	isDeleted bit NULL DEFAULT 0,
+	isDeleted bit NULL,
+	GrowthStageID int NULL,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
 
@@ -523,18 +526,18 @@ CREATE TABLE ipas.dbo.Process (
 	UpdateDate datetime NULL,
 	StartDate datetime NULL,
 	EndDate datetime NULL,
-	isDeleted bit NULL DEFAULT 0,
+	isDeleted bit DEFAULT 0 NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
-        [Order] int NULL,
-        IsSample bit NULL,
+	[Order] int NULL,
+	IsSample bit NULL,
 	MasterTypeID int NULL,
 	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__Process__1B39A976EDEF5BD5 PRIMARY KEY (ProcessID),
-	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
-	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID) ON DELETE SET NULL,
-	CONSTRAINT Process_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
+	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
+	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES IPAS.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT Process_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
 );
 
 
@@ -654,12 +657,14 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	GraftedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantID int NULL,
-	IsDeleted bit NULL DEFAULT 0,
+	IsDeleted bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
 	FarmID int NULL,
+	GrowthStageID int NULL,
 	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
 	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT GraftedPlant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
 );
 
@@ -762,18 +767,16 @@ CREATE TABLE ipas.dbo.[Plan] (
 	MinVolume float NULL,
 	ProcessID int NULL,
 	CropID int NULL,
-	GrowthStageID int NULL,
-	IsDelete bit NULL DEFAULT 0,
+	IsDelete bit DEFAULT 0 NULL,
 	MasterTypeID int NULL,
 	SubProcessID int NULL,
 	FarmID int NULL,
 	CONSTRAINT PK__Plan__755C22D7C27C8EF5 PRIMARY KEY (PlanID),
-	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID),
-	CONSTRAINT FK_Plan_GrowthStage FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
-	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
-	CONSTRAINT Plan_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
-	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
+	CONSTRAINT FK_Plan_Crop FOREIGN KEY (CropID) REFERENCES IPAS.dbo.Crop(CropID),
+	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES IPAS.dbo.Process(ProcessID) ON DELETE CASCADE,
+	CONSTRAINT Plan_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
+	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
+	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES IPAS.dbo.SubProcess(SubProcessID)
 );
 
 -- ipas.dbo.RefreshToken definition
@@ -818,7 +821,7 @@ CREATE TABLE ipas.dbo.CarePlanSchedule (
 	ScheduleID int IDENTITY(1,1) NOT NULL,
 	DayOfWeek nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) NULL,
-	StarTime time(7) NULL,
+	StartTime time(7) NULL,
 	EndTime time(7) NULL,
 	CarePlanID int NULL,
 	DayOfMonth nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -886,6 +889,8 @@ CREATE TABLE ipas.dbo.WorkLog (
 	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Date] datetime NULL,
 	IsConfirm bit NULL,
+        ActualStartTime time(7) NULL,
+	ActualEndTime time(7) NULL,
 	ScheduleID int NULL,
 	WarningID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -973,6 +978,15 @@ CREATE TABLE ipas.dbo.PlanTarget (
 	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
 	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
+
+CREATE TABLE IPAS.dbo.GrowthStagePlan (
+	GrowthStagePlanID int IDENTITY(0,1) NOT NULL,
+	GrowthStageID int NULL,
+	PlanID int NULL,
+	CONSTRAINT GrowthStagePlan_PK PRIMARY KEY (GrowthStagePlanID),
+	CONSTRAINT GrowthStagePlan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT GrowthStagePlan_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID)
+);
 GO
 
 INSERT INTO [ipas].[dbo].[Farm] 
@@ -1037,19 +1051,23 @@ VALUES
 (3,3,5),
 (4,3,5);
 GO
-INSERT INTO [ipas].[dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd], [IsDefault], 
-    [IsDeleted], 
-    [FarmID], 
-    [CreateDate], 
-    [Description])  
-VALUES  
-   ('GS001', N'Germination', 0, 2, 0, 0, 1, GETDATE(), N'Seed begins to sprout.'),
-    ('GS002', N'Seedling', 3, 12, 0, 0, 1, GETDATE(), N'Young plant growth stage.'),
-    ('GS003', N'Vegetative Growth', 13, 36, 0, 0, 1, GETDATE(), N'Focuses on leaf and stem development.'),
-    ('GS004', N'Flowering', 37, 48, 0, 0, 1, GETDATE(), N'Plant produces flowers.'),
-    ('GS005', N'Fruit Set', 49, 60, 0, 0, 1, GETDATE(), N'Initial fruit formation after pollination.'),
-    ('GS006', N'Fruit Development', 61, 96, 0, 0, 1, GETDATE(), N'Fruits grow and mature.'),
-    ('GS007', N'Harvest', 97, 120, 0, 0, 1, GETDATE(), N'Fully developed fruits are collected.');
+-- Fake data cho bảng GrowthStage với FarmID = 1
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+VALUES
+('GS101', 'Giai đoạn nảy mầm', 1, 2, 1, 1, 0, GETDATE(), NULL, 'Giai đoạn cây non'),
+('GS102', 'Giai đoạn cây con', 3, 5, 0, 1, 0, GETDATE(), Null,'Cây bắt đầu phát triển'),
+('GS103', 'Giai đoạn sinh trưởng', 6, 10, 0, 1, 0, GETDATE(), NULL,'Cây phát triển mạnh, tăng sinh khối'),
+('GS104', 'Giai đoạn ra hoa', 11, 14, 0, 1, 0, GETDATE(), 'Harvest', 'Cây trưởng thành'),
+('GS105', 'Giai đoạn thu hoạch', 15, 18, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Trái cây cây già');
+GO
+-- Fake data cho bảng GrowthStage với FarmID = 2
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+VALUES
+('GS201', 'Giai đoạn nảy mầm', 1, 3, 1, 2, 0, GETDATE(), '', 'Giai đoạn hạt giống bắt đầu nảy mầm'),
+('GS202', 'Giai đoạn cây con', 4, 7, 0, 2, 0, GETDATE(), '', 'Cây bắt đầu phát triển lá và rễ'),
+('GS203', 'Giai đoạn sinh trưởng', 8, 12, 0, 2, 0, GETDATE(), '', 'Cây phát triển mạnh, tăng sinh khối'),
+('GS204', 'Giai đoạn ra hoa', 13, 16, 0, 2, 0, GETDATE(), 'Harvest', 'Cây cây có thể ra hoa'),
+('GS205', 'Giai đoạn thu hoạch', 17, 20, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Cây trưởng thành');
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDelete], [isActive], [CreateDate], [IsDefault], [FarmID])
@@ -1346,14 +1364,3 @@ VALUES
 ('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,1, 2),
 ('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,1, 2),
 ('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,1, 2);
-GO
-INSERT INTO ipas.dbo.GrowthStage 
-    (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, Description)
-VALUES
-    ('GS001', N'Mầm non', 0, 3, 1, 1, 0, GETDATE(), N'Giai đoạn cây non mới nảy mầm'),
-    ('GS002', N'Sinh trưởng', 4, 6, 0, 1, 0, GETDATE(), N'Giai đoạn cây phát triển lá và rễ mạnh'),
-    ('GS003', N'Ra hoa', 7, 9, 0, 1, 0, GETDATE(), N'Giai đoạn cây bắt đầu ra hoa'),
-    ('GS004', N'Kết trái', 10, 12, 0, 2, 0, GETDATE(), N'Giai đoạn cây ra quả và phát triển quả'),
-    ('GS005', N'Thu hoạch', 13, 15, 0, 2, 0, GETDATE(), N'Giai đoạn thu hoạch sản phẩm'),
-    ('GS006', N'Nghỉ đông', 16, 18, 0, 3, 0, GETDATE(), N'Giai đoạn cây ít phát triển hoặc ngủ đông');
-GO

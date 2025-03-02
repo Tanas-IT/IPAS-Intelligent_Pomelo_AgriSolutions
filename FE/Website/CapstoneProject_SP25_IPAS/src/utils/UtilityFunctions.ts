@@ -92,6 +92,7 @@ export const buildParams = (
     Object.entries(params).filter(
       ([_, value]) =>
         value !== undefined &&
+        value !== null &&
         value !== "" &&
         (!Array.isArray(value) || value.length > 0) &&
         (typeof value !== "object" || Object.keys(value).length > 0),
@@ -117,28 +118,6 @@ export const getOptions = (total: number): number[] => {
   if (total > 10) return [5, 10, 20];
   if (total > 5) return [5, 10];
   return [5];
-};
-
-export const getBrandOptions = (total: number): number[] => {
-  if (total > 50) return [6, 10, 20, 50, 100];
-  if (total > 20) return [6, 10, 20, 50];
-  if (total > 10) return [6, 10, 20];
-  if (total > 6) return [6, 10];
-  return [6];
-};
-
-export const formatCurrencyMenu = (amount: string): string => {
-  const number = parseFloat(amount.replace(/,/g, ""));
-  if (isNaN(number)) {
-    return amount;
-  }
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  })
-    .format(number)
-    .replace("₫", "")
-    .replace(".000", "");
 };
 
 export const formatCurrencyVND = (amount: string): string => {
@@ -176,26 +155,20 @@ export const getCurrentDate = (): string => {
   return moment().format("dddd, DD/MM/YYYY");
 };
 
-export const formatToISO8601 = (dateInput: string | Date): string => {
-  if (!dateInput) {
-    throw new Error("Invalid date input");
-  }
-
-  const formattedDate = moment(dateInput).toISOString();
-
-  if (!formattedDate) {
-    throw new Error("Failed to convert date to ISO 8601");
-  }
-
-  return formattedDate;
-};
-
 export const formatDate = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY");
 };
 
 export const formatDateAndTime = (date: Date): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
+};
+
+export const formatDayMonthAndTime = (date: Date): string => {
+  return moment(date).format("dddd, Do MMMM YYYY, h:mm A");
+};
+
+export const formatDayMonth = (date: Date | string): string => {
+  return moment(date).format("dddd, Do MMMM YYYY");
 };
 
 export const getRoleId = (): string => {

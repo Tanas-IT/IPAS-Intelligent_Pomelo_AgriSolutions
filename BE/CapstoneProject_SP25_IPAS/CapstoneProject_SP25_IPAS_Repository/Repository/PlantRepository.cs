@@ -143,6 +143,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(lr => lr!.LandPlot)
              .Include(p => p.MasterType)
              .Include(p => p.GrowthStage)
+             .Include(p => p.PlantReference)
              .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
@@ -229,6 +230,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(lr => lr!.LandPlot)
                 .Include(p => p.MasterType)
                 .Include(p => p.GrowthStage)
+                .Include(p => p.PlantReference)
                 .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType);
@@ -242,6 +244,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
             }
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<int>> getPlantByRowId(int rowId)
+        {
+            var getListPlan = await _context.Plants.Where(x => x.LandRowId == rowId).Select(x => x.PlantId).ToListAsync();
+            return getListPlan;
         }
     }
 }

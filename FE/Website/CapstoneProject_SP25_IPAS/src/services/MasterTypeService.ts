@@ -28,13 +28,12 @@ export const getTypeByName = async (name: string) => {
   const res = await axiosAuth.axiosJsonRequest.get(`masterTypes?typeName=${name}`);
   const apiResponse = res.data as ApiResponse<{ list: GetType[] }>;
   console.log("apiResponse", apiResponse);
-  
 
   return apiResponse.data.list.map(({ masterTypeId, masterTypeName }) => ({
     masterTypeId,
-    masterTypeName
+    masterTypeName,
   }));
-}
+};
 
 export const getSelectMasterTypes = async (
   typeName: string,
@@ -57,8 +56,6 @@ export const deleteMasterTypes = async (ids: number[] | string[]): Promise<ApiRe
 export const updateMasterType = async (
   type: MasterTypeRequest,
 ): Promise<ApiResponse<GetMasterType>> => {
-  console.log(type);
-  
   const res = await axiosAuth.axiosJsonRequest.put("masterTypes/update-masterType-info", type);
   const apiResponse = res.data as ApiResponse<GetMasterType>;
   return apiResponse;

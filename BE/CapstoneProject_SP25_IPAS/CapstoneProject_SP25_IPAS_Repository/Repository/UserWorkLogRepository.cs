@@ -33,13 +33,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                     ) &&
                                     (
                                         // TH1: Công việc trong cùng một ngày
-                                        (uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
+                                        (uwl.WorkLog.Schedule.StartTime < uwl.WorkLog.Schedule.EndTime &&
                                          startTime < uwl.WorkLog.Schedule.EndTime &&
-                                         endTime > uwl.WorkLog.Schedule.StarTime)
+                                         endTime > uwl.WorkLog.Schedule.StartTime)
 
                                         // TH2: Công việc kéo dài qua ngày mới
-                                        || (uwl.WorkLog.Schedule.StarTime > uwl.WorkLog.Schedule.EndTime &&
-                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StarTime))
+                                        || (uwl.WorkLog.Schedule.StartTime > uwl.WorkLog.Schedule.EndTime &&
+                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StartTime))
                                     )
                                 );
         }
@@ -54,12 +54,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                             uwl.UserId == userId &&
                                             uwl.WorkLog.Date.Value.Date == dateCheck.Date && // Chỉ kiểm tra trong ngày
                                             (
-                                                uwl.WorkLog.Schedule.StarTime < uwl.WorkLog.Schedule.EndTime &&
+                                                uwl.WorkLog.Schedule.StartTime < uwl.WorkLog.Schedule.EndTime &&
                                                 startTime < uwl.WorkLog.Schedule.EndTime &&
-                                                endTime > uwl.WorkLog.Schedule.StarTime
+                                                endTime > uwl.WorkLog.Schedule.StartTime
                                                 ||
-                                           (uwl.WorkLog.Schedule.StarTime > uwl.WorkLog.Schedule.EndTime &&
-                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StarTime))
+                                           (uwl.WorkLog.Schedule.StartTime > uwl.WorkLog.Schedule.EndTime &&
+                                            (startTime < uwl.WorkLog.Schedule.EndTime || endTime > uwl.WorkLog.Schedule.StartTime))
                                             )
                                         );
             return isConflicted;
@@ -73,8 +73,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(uwl => uwl.Schedule)
                         .AnyAsync(uwl => uwl.UserId == userId &&
                                      EF.Functions.DateDiffDay(uwl.WorkLog.Date, workLog.Date) == 0 &&
-                                    !(checkTimeSchedule.EndTime < uwl.WorkLog.Schedule.StarTime ||
-                                      checkTimeSchedule.StarTime > uwl.WorkLog.Schedule.EndTime));
+                                    !(checkTimeSchedule.EndTime < uwl.WorkLog.Schedule.StartTime ||
+                                      checkTimeSchedule.StartTime > uwl.WorkLog.Schedule.EndTime));
             return isConflicted;
         }
     }

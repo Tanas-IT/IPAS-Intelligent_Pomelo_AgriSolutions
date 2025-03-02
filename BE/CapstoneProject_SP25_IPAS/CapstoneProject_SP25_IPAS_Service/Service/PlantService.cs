@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -394,8 +395,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.PlantId);
                         break;
                 }
-                string includeProperties = "LandRow";
-                var entities = await _unitOfWork.PlantRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                string includeProperties = "LandRow,PlantReference";
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
@@ -727,5 +728,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+        public async Task<BusinessResult> getPlantByGrowthActiveFunc(int farmId, string activeFunction)
+        {
+            try
+            {
+                var checkFarmExixt = await _farmService.CheckFarmExist(farmId);
+                if (checkFarmExixt == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                var invalidFunctions = _growthStageService.ValidateActiveFunction(activeFunction);
+                if(invalidFunctions.Any())
+                {
+                    //var invalidFunctions = ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
+                    if (invalidFunctions.Any())
+                    {
+                        return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
+                    }
+                }
+                var listFuncRequest = Util.SplitByComma(activeFunction);
+                Expression<Func<Plant, bool>> filter = x => x.FarmId == farmId
+                    && !x.LandRowId.HasValue
+                    && x.IsDeleted == false
+                    && x.GrowthStage != null
+                    && listFuncRequest.Any(validFunc => x.GrowthStage.ActiveFunction!.Contains(validFunc));
+
+                string includeProperties = "GrowthStage";
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties ,orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE, "Get plant not yet planting success", mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }

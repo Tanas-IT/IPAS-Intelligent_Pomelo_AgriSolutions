@@ -40,9 +40,10 @@ body {
 input:hover,
 textarea:hover,
 input:focus,
-textarea:focus {
+textarea:focus,
+button:focus {
   border-color: var(--primary-color) !important;
-  outline: none;
+  outline: none !important;
   box-shadow: none !important;
 }
 
