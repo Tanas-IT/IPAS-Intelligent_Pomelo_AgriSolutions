@@ -174,6 +174,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region landplot
         public static int SUCCESS_GET_ALL_LANDPLOT_IN_FARM_CODE = 200;
         public static string SUCCESS_GET_ALL_LANDPLOT_IN_FARM_MSG = "Get all landplot of farm success";
+        public static int SUCCESS_FILTER_BY_GROWTHSTAGE_CODE = 200;
+        public static string SUCCESS_FILTER_BY_GROWTHSTAGE_MSG = "Filter By GrowthStage success";
         public static int SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE = 200;
         public static string SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG = "Update landplot coordination success";
         public static int SUCCESS_UPDATE_LANDPLOT_CODE = 200;
@@ -559,6 +561,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_CREATE_MANY_PLANT_FROM_PLANT_LOT_MESSAGE = "Create many plant from plant lot failed";
         public static int FAIL_CREATE_MANY_PLANT_BECAUSE_CRITERIA_INVALID_CODE = 500;
         public static string FAIL_CREATE_MANY_PLANT_BECAUSE_CRITERIA_INVALID_MESSAGE = "Some criteria invalid";
+        public static int FAIL_FILTER_BY_GROWTHSTAGE_CODE = 200;
+        public static string FAIL_FILTER_BY_GROWTHSTAGE_MSG = "Filter By GrowthStage failed";
         #endregion
 
         #region MasterType Fail code
@@ -914,6 +918,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string WARNING_INVALID_PLOT_COORDINATIONS_MSG = "Plot need at least 3 point to create";
         public static int WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_CODE = 400;
         public static string WARNING_LANDPLOT_NOT_HAVE_ANY_ROW_MSG = "Land plot not have any row";
+        public static int WARNING_FILTER_BY_GROWTHSTAGE_CODE = 200;
+        public static string WARNING_FILTER_BY_GROWTHSTAGE_MSG = "Do not have any GrowthStage to filter";
         #endregion
 
         #region MasterType

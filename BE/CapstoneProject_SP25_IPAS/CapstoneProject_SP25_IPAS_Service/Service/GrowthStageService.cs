@@ -304,9 +304,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getDeleteGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageId, includeProperties);
                 if (getDeleteGrowthStage != null)
                 {
-                    foreach (var plan in getDeleteGrowthStage.Plans.ToList())
+                    foreach (var plan in getDeleteGrowthStage.GrowthStagePlans.ToList())
                     {
-                        plan.GrowthStageId = null;
+                        plan.GrowthStageID = null;
                     }
                     foreach (var process in getDeleteGrowthStage.Processes.ToList())
                     {

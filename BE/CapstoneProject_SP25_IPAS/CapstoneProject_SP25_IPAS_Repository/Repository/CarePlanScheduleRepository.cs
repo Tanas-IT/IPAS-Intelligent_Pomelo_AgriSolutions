@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<bool> IsScheduleConflicted(int carePlanId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime)
         {
             // Lấy danh sách lịch trình của CarePlan
-            var schedules = await _context.CarePlanSchedules.Where(x => x.StarTime == startTime && x.EndTime == endTime).ToListAsync();
+            var schedules = await _context.CarePlanSchedules.Where(x => x.StartTime == startTime && x.EndTime == endTime).ToListAsync();
             var plan = await _context.Plans.FirstOrDefaultAsync(x => x.PlanId == carePlanId);
 
             foreach (var schedule in schedules)
@@ -106,7 +106,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     || (dayOfMonthList != null && dayOfMonthList.Intersect(GetValidDaysOfMonth(startDate, endDate)).Any()); // Nếu là Monthly
 
                 // Nếu ngày trùng và thời gian bị trùng -> Conflict
-                if (isDateMatched && (schedule.StarTime < endTime && schedule.EndTime > startTime))
+                if (isDateMatched && (schedule.StartTime < endTime && schedule.EndTime > startTime))
                 {
                     return true; // Bị trùng
                 }
@@ -118,7 +118,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<bool> IsScheduleConflictedForWorkLog(int? farmId, DateTime startDate, DateTime endDate, TimeSpan startTime, TimeSpan endTime)
         {
             // Lấy danh sách lịch trình của CarePlan
-            var schedules = await _context.CarePlanSchedules.Where(x => x.StarTime == startTime && x.EndTime == endTime).ToListAsync();
+            var schedules = await _context.CarePlanSchedules.Where(x => x.StartTime == startTime && x.EndTime == endTime).ToListAsync();
             var plan = await _context.Plans.FirstOrDefaultAsync(x => x.FarmID == farmId);
 
             foreach (var schedule in schedules)
@@ -166,7 +166,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     || (dayOfMonthList != null && dayOfMonthList.Intersect(GetValidDaysOfMonth(startDate, endDate)).Any()); // Nếu là Monthly
 
                 // Nếu ngày trùng và thời gian bị trùng -> Conflict
-                if (isDateMatched && (schedule.StarTime < endTime && schedule.EndTime > startTime))
+                if (isDateMatched && (schedule.StartTime < endTime && schedule.EndTime > startTime))
                 {
                     return true; // Bị trùng
                 }

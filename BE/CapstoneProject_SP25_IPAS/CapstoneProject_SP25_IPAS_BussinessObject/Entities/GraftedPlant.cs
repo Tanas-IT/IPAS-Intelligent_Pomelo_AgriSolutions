@@ -29,6 +29,8 @@ public partial class GraftedPlant
 
     public int? FarmId { get; set; }
     public bool? IsCompleted { get; set; }
+    public int? GrowthStageID { get; set; }
+    public virtual GrowthStage? GrowthStageInclude { get; set; }
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
     public virtual Plant? Plant { get; set; }
     public virtual PlantLot? PlantLot { get; set; }
