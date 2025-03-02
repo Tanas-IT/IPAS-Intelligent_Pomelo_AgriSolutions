@@ -1,0 +1,42 @@
+.statBox {
+    width: 100%;
+    margin: 0 30px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  
+    &Header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  
+    &IconTitle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  
+    &Title {
+      font-weight: bold;
+      color: #333;
+    }
+  
+    &Footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+  
+    &Subtitle {
+      font-size: 16px;
+      color: #52c41a;
+    }
+  
+    &Increase {
+      font-size: 16px;
+      font-style: italic;
+      color: #389e0d;
+    }
+  }
+  
