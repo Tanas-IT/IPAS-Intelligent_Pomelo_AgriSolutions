@@ -230,7 +230,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTHSTAGE_CODE, Const.SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE, new { pagin, MaxAgeStart = maxAgeStartNew });
+                    //return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTHSTAGE_CODE, Const.SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE, new { pagin, MaxAgeStart = maxAgeStartNew });
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTHSTAGE_CODE,
+                          Const.SUCCESS_GET_ALL_GROWTHSTAGE_MESSAGE,
+                          new
+                          {
+                              list = pagin.List,
+                              totalPage = pagin.TotalPage,
+                              totalRecord = pagin.TotalRecord,
+                              maxAgeStart = maxAgeStartNew
+                          });
+
                 }
                 else
                 {

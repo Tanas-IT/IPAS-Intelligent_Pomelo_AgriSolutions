@@ -341,5 +341,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
+
+        [HttpGet(APIRoutes.Plant.getPlantByGrowthFunc)]
+        public async Task<IActionResult> getPlantByGrowthFunc([FromQuery(Name = "farmId")] int? farmId, string activeFunction)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Message = "Farm Id is require"
+                    });
+                }
+                var result = await _plantService.getPlantByGrowthActiveFunc(farmId.Value, activeFunction);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }

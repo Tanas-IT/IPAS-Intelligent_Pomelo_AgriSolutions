@@ -140,6 +140,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName))
                 .ForMember(dest => dest.Characteristic, opt => opt.MapFrom(src => src.MasterType!.Characteristic))
                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
+                .ForMember(dest => dest.PlantReferenceCode, opt => opt.MapFrom(src => src.PlantReference.PlantCode))
                 .ReverseMap();
 
 
