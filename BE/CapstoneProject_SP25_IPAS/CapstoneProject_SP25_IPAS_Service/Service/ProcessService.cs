@@ -126,9 +126,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         PlanDetail = plan.PlanDetail,
                                         Notes = plan.PlanNote,
                                         FarmID = farmId,
-                                        GrowthStageId = plan.GrowthStageId,
                                         MasterTypeId = plan.MasterTypeId,
                                     };
+
+                                    var growthStagePlan = new GrowthStagePlan()
+                                    {
+                                        GrowthStageID = plan.GrowthStageId,
+                                    };
+                                    newPlan.GrowthStagePlans.Add(growthStagePlan);
 
                                     newSubProcess.Plans.Add(newPlan);
                                 }
@@ -148,9 +153,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlanDetail = plan.PlanDetail,
                                 Notes = plan.PlanNote,
                                 FarmID = farmId,
-                                GrowthStageId = plan.GrowthStageId,
                                 MasterTypeId = plan.MasterTypeId,
                             };
+
+                            var newGrowthStagePlan = new GrowthStagePlan()
+                            {
+                                GrowthStageID = plan.GrowthStageId
+                            };
+                            newPlan.GrowthStagePlans.Add(newGrowthStagePlan);
 
                             newProcess.Plans.Add(newPlan);
                         }
@@ -236,6 +246,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (processFilters.GrowthStage != null)
                 {
+
                     filter = filter.And(x => x.GrowthStage.GrowthStageName.Contains(processFilters.GrowthStage));
                 }
 
@@ -596,9 +607,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
-                                                            GrowthStageId = plan.GrowthStageId,
                                                             MasterTypeId = plan.MasterTypeId,
                                                         };
+                                                        var addNewGrowthStages = new GrowthStagePlan()
+                                                        {
+                                                            GrowthStageID = plan.GrowthStageId,
+                                                        };
+                                                        newPlan.GrowthStagePlans.Add(addNewGrowthStages);
                                                         newSubProcess.Plans.Add(newPlan);
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
@@ -617,9 +632,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             {
                                                                 getPlanInDB.Notes = plan.PlanNote;
                                                             }
-                                                            if (plan.GrowthStageId != null)
+                                                            if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                             {
-                                                                getPlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                                int newGrowthStageId = plan.GrowthStageId.Value;
+
+                                                                // Xóa những GrowthStagePlans không trùng với GrowthStageId mới
+                                                                getPlanInDB.GrowthStagePlans = getPlanInDB.GrowthStagePlans
+                                                                  .Where(x => x.GrowthStageID == newGrowthStageId)
+                                                                  .ToList();
+
+                                                                // Kiểm tra nếu chưa có GrowthStageID mới trong danh sách thì thêm vào
+                                                                if (!getPlanInDB.GrowthStagePlans.Any(x => x.GrowthStageID == newGrowthStageId))
+                                                                {
+                                                                    getPlanInDB.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newGrowthStageId });
+                                                                }
                                                             }
                                                             if (plan.MasterTypeId != null)
                                                             {
@@ -687,9 +713,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 PlanDetail = plan.PlanDetail,
                                                                 Notes = plan.PlanNote,
                                                                 FarmID = checkExistProcess.FarmId,
-                                                                GrowthStageId = plan.GrowthStageId,
                                                                 MasterTypeId = plan.MasterTypeId,
                                                             };
+                                                            if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
+                                                            {
+                                                                newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
+                                                            }
                                                             subProcessUpdate.Plans.Add(newPlan);
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
@@ -708,9 +737,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 {
                                                                     getUpdatePlanInDB.Notes = plan.PlanNote;
                                                                 }
-                                                                if (plan.GrowthStageId != null)
+                                                                if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                                 {
-                                                                    getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                                    int newGrowthStageId = plan.GrowthStageId.Value;
+
+                                                                    // Xóa những GrowthStagePlans không trùng với GrowthStageId mới
+                                                                    getUpdatePlanInDB.GrowthStagePlans = getUpdatePlanInDB.GrowthStagePlans
+                                                                      .Where(x => x.GrowthStageID == newGrowthStageId)
+                                                                      .ToList();
+
+                                                                    // Kiểm tra nếu chưa có GrowthStageID mới trong danh sách thì thêm vào
+                                                                    if (!getUpdatePlanInDB.GrowthStagePlans.Any(x => x.GrowthStageID == newGrowthStageId))
+                                                                    {
+                                                                        getUpdatePlanInDB.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newGrowthStageId });
+                                                                    }
                                                                 }
                                                                 if (plan.MasterTypeId != null)
                                                                 {
@@ -748,9 +788,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
-                                                            GrowthStageId = plan.GrowthStageId,
                                                             MasterTypeId = plan.MasterTypeId,
                                                         };
+                                                        if (plan.GrowthStageId != null)
+                                                        {
+                                                            newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = plan.GrowthStageId });
+                                                        }
                                                         subProcessUpdate.Plans.Add(newPlan);
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
@@ -769,9 +812,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             {
                                                                 getUpdatePlanInDB.Notes = plan.PlanNote;
                                                             }
-                                                            if (plan.GrowthStageId != null)
+                                                            if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                             {
-                                                                getUpdatePlanInDB.GrowthStageId = plan.GrowthStageId;
+                                                                int newGrowthStageId = plan.GrowthStageId.Value;
+
+                                                                // Xóa những GrowthStagePlans không trùng với GrowthStageId mới
+                                                                getUpdatePlanInDB.GrowthStagePlans = getUpdatePlanInDB.GrowthStagePlans
+                                                                  .Where(x => x.GrowthStageID == newGrowthStageId)
+                                                                  .ToList();
+
+                                                                // Kiểm tra nếu chưa có GrowthStageID mới trong danh sách thì thêm vào
+                                                                if (!getUpdatePlanInDB.GrowthStagePlans.Any(x => x.GrowthStageID == newGrowthStageId))
+                                                                {
+                                                                    getUpdatePlanInDB.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newGrowthStageId });
+                                                                }
                                                             }
                                                             if (plan.MasterTypeId != null)
                                                             {
@@ -808,9 +862,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 PlanDetail = updatePlan.PlanDetail,
                                                 Notes = updatePlan.PlanNote,
                                                 FarmID = checkExistProcess.FarmId,
-                                                GrowthStageId = updatePlan.GrowthStageId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
                                             };
+                                            if(updatePlan.GrowthStageId != null)
+                                            {
+                                                newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
+                                            }
                                             checkExistProcess.Plans.Add(newPlan);
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
@@ -829,9 +886,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 {
                                                     getUpdatePlanInDB.Notes = updatePlan.PlanNote;
                                                 }
-                                                if (updatePlan.GrowthStageId != null)
+                                                if (updatePlan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                 {
-                                                    getUpdatePlanInDB.GrowthStageId = updatePlan.GrowthStageId;
+                                                    int newGrowthStageId = updatePlan.GrowthStageId.Value;
+
+                                                    // Xóa những GrowthStagePlans không trùng với GrowthStageId mới
+                                                    getUpdatePlanInDB.GrowthStagePlans = getUpdatePlanInDB.GrowthStagePlans
+                                                      .Where(x => x.GrowthStageID == newGrowthStageId)
+                                                      .ToList();
+
+                                                    // Kiểm tra nếu chưa có GrowthStageID mới trong danh sách thì thêm vào
+                                                    if (!getUpdatePlanInDB.GrowthStagePlans.Any(x => x.GrowthStageID == newGrowthStageId))
+                                                    {
+                                                        getUpdatePlanInDB.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newGrowthStageId });
+                                                    }
                                                 }
                                                 if (updatePlan.MasterTypeId != null)
                                                 {
@@ -926,7 +994,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var subProcess in checkExistProcess.SubProcesses)
                             {
-                                if(subProcess.StartDate <= DateTime.Now)
+                                if (subProcess.StartDate <= DateTime.Now)
                                 {
                                     hasActivePlan = true;
                                 }
@@ -1001,13 +1069,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> GetForSelect(int farmId, string? searchValue, bool isSample)
+        public async Task<BusinessResult> GetForSelect(int farmId, string? searchValue, bool? isSample)
         {
             try
             {
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false && x.IsSample == isSample;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                if (isSample != null)
+                {
+                    filter = filter.And(x => x.IsSample == isSample);
+                }
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.ProcessName!.ToLower().Contains(searchValue.ToLower()));

@@ -28,6 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public bool? IsActive { get; set; }
 
         public string? Notes { get; set; }
+        public string? Status { get; set; }
 
         public string? PlanDetail { get; set; }
 
@@ -53,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public string? CropName { get; set; }
 
-        public string? GrowthStageName { get; set; }
+        public List<string>? GrowthStageName { get; set; }
 
         public List<string>? PlantLotNames { get; set; }
         public List<int>? RowIndexs { get; set; }

@@ -22,8 +22,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
            var result = await _context.GrowthStages.
                 Include(x => x.Processes)
+                .Include(x => x.GrowthStagePlans)
                 .Include(x => x.Plants)
-                .Include(x => x.Plans)
                 .Include(x => x.MasterTypes)
                 .Include(x => x.Farm).
                 Where(x => x.FarmID == farmId && x.isDeleted == false).ToListAsync();

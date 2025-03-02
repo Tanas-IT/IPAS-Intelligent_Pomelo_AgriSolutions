@@ -186,7 +186,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Process.getProcessesForSelect, Name = "getProcessesForSelectAsync")]
-        public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue, bool isSample)
+        public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue, bool? isSample)
         {
             try
             {

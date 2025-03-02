@@ -52,7 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var newSchedule = new CarePlanSchedule()
                     {
                         CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
-                        StarTime = TimeSpan.Parse(addNewTaskModel.StartTime),
+                        StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
                         EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                         FarmID = farmId,
                         Status = "Active",
@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Status = wl.Status,
                             Notes = wl.Notes,
                             ScheduleId = wl.ScheduleId,
-                            StartTime = wl.Schedule.StarTime,
+                            StartTime = wl.Schedule.StartTime,
                             EndTime = wl.Schedule.EndTime,
                             PlanId = wl.Schedule.CarePlan.PlanId,
                             PlanName = wl.Schedule.CarePlan.PlanName,
@@ -224,8 +224,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_INVALID_TIME_FILTER_CODE, Const.WARNING_INVALID_TIME_FILTER_MSG);
                     }
 
-                    filter = filter.And(x => x.Schedule.StarTime.Value.Hours == TimeSpan.Parse(scheduleFilter.FromTime).Hours &&
-                                             x.Schedule.StarTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.FromTime).Minutes &&
+                    filter = filter.And(x => x.Schedule.StartTime.Value.Hours == TimeSpan.Parse(scheduleFilter.FromTime).Hours &&
+                                             x.Schedule.StartTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.FromTime).Minutes &&
                                              x.Schedule.EndTime.Value.Hours == TimeSpan.Parse(scheduleFilter.ToTime).Hours &&
                                              x.Schedule.EndTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.ToTime).Minutes);
                 }
@@ -286,8 +286,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     case "starttime":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.StarTime)
-                                   : x => x.OrderBy(x => x.Schedule.StarTime)) : x => x.OrderBy(x => x.Schedule.StarTime);
+                                   ? x => x.OrderByDescending(x => x.Schedule.StartTime)
+                                   : x => x.OrderBy(x => x.Schedule.StartTime)) : x => x.OrderBy(x => x.Schedule.StartTime);
                         break;
                     case "endtime":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -323,7 +323,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                            Status = wl.Status,
                            Notes = wl.Notes,
                            ScheduleId = wl.ScheduleId,
-                           StartTime = wl.Schedule.StarTime,
+                           StartTime = wl.Schedule.StartTime,
                            EndTime = wl.Schedule.EndTime,
                            PlanId = wl.Schedule.CarePlan.PlanId,
                            PlanName = wl.Schedule.CarePlan.PlanName,

@@ -78,7 +78,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Plan, UpdatePlanInProcessModel>()
                .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(x => x.MasterTypeId))
-               .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(x => x.GrowthStageId))
+               .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(x => x.GrowthStagePlans.Select(x => x.GrowthStageID)))
                .ForMember(dest => dest.PlanName, opt => opt.MapFrom(x => x.PlanName))
                .ForMember(dest => dest.PlanNote, opt => opt.MapFrom(x => x.Notes))
                .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(x => x.PlanDetail))
@@ -183,6 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
                .ReverseMap();
 
+
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
                 .ForMember(dest => dest.LandPlotNames, opt => opt.MapFrom(src =>
@@ -193,7 +194,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                             src.PlanTargets.Where(pt => pt.Plant != null).Select(pt => pt.Plant.PlantName).Distinct().ToList()))
                .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : ""))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : ""))
-               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage != null ? src.GrowthStage.GrowthStageName : ""))
+               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStagePlans.Select(x => x.GrowthStage.GrowthStageName)))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : ""))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : ""))
@@ -203,7 +204,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .SelectMany(wl => wl.UserWorkLogs)
                                                                     .Where(uwl => uwl.IsReporter == true)
                                                                     .Select(uwl => uwl.User)
-                                                                    .Distinct()
+                                                                    .GroupBy(user => user.UserId)
+                                                                    .Select(group => group.First())
                                                                     .ToList() : new List<User>()))
                .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src =>
                                                                 src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
@@ -211,9 +213,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .SelectMany(wl => wl.UserWorkLogs)
                                                                     .Where(uwl => uwl.IsReporter == false)
                                                                     .Select(uwl => uwl.User)
-                                                                    .Distinct()
+                                                                    .GroupBy(user => user.UserId)
+                                                                    .Select(group => group.First())
                                                                     .ToList(): new List<User>()))
-               .ForMember(dest => dest.StarTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StarTime : null))
+               .ForMember(dest => dest.StarTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StartTime : null))
                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.EndTime: null))
                .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfWeek : null))
                .ForMember(dest => dest.DayOfMonth, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfMonth : null))

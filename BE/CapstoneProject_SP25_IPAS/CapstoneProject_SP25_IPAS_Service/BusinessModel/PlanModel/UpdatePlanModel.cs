@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public int? CropId { get; set; }
 
-        public int? GrowthStageId { get; set; }
+        public List<int>? GrowthStageId { get; set; }
 
         public int? PlantLotId { get; set; }
 
