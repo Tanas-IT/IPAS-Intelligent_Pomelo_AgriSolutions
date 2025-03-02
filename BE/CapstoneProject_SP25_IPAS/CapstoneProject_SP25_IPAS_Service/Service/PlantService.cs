@@ -90,7 +90,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (plantCreateRequest.MotherPlantId.HasValue)
                     {
                         var plantReference = await getById(plantCreateRequest.MotherPlantId.Value);
-                        if (plantReference.StatusCode != 200 || plantReference.Data != null)
+                        if (plantReference.StatusCode != 200 || plantReference.Data == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, "Mother plant not exist in data");
                         var jsonData = plantReference.Data as PlantModel;
 
@@ -396,7 +396,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "LandRow,PlantReference";
-                var entities = await _unitOfWork.PlantRepository.Get(filter: filter ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlantRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
@@ -736,7 +736,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (checkFarmExixt == null)
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                 var invalidFunctions = _growthStageService.ValidateActiveFunction(activeFunction);
-                if(invalidFunctions.Any())
+                if (invalidFunctions.Any())
                 {
                     //var invalidFunctions = ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
                     if (invalidFunctions.Any())
@@ -753,7 +753,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 string includeProperties = "GrowthStage";
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
-                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties ,orderBy: orderBy);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);

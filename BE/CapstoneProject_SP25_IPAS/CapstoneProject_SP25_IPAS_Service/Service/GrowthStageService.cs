@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -35,6 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
             _config = configuration;
             _farmService = farmService;
+
         }
         //public async Task<BusinessResult> CreateGrowthStage(CreateGrowthStageModel createGrowthStageModel, int farmId)
         //{
@@ -366,31 +368,121 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId)
+        //public async Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId)
+        //{
+        //    using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            var deletedNames = new List<string>();
+        //            foreach (var growthStageDeleteId in growthStagesId)
+        //            {
+        //                Expression<Func<GrowthStage, bool>> filter = x => x.GrowthStageID == growthStageDeleteId && x.isDefault == false && x.isDeleted == false;
+        //                var checkExistGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageDeleteId);
+        //                if (checkExistGrowthStage != null)
+        //                {
+        //                    checkExistGrowthStage.isDeleted = true;
+        //                    deletedNames.Add(checkExistGrowthStage.GrowthStageName);
+        //                    _unitOfWork.GrowthStageRepository.Update(checkExistGrowthStage);
+        //                }
+        //            }
+        //            var result = await _unitOfWork.SaveAsync();
+        //            if (result == growthStagesId.Count)
+        //            {
+        //                await transaction.CommitAsync();
+        //                return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE,
+        //                    $"Successfully deleted {result} GrowthStage: {string.Join(", ", deletedNames)}", true);
+        //            }
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.FAIL_DELETE_GROWTHSTAGE_CODE, Const.FAIL_DELETE_GROWTHSTAGE_MESSAGE, false);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //        }
+        //    }
+        //}
+
+        public async Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId, int farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
+                    var checkExistFarm = await _farmService.CheckFarmExist(farmId);
+                    if (checkExistFarm == null)
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                    // Lấy toàn bộ GrowthStage chưa bị xóa để kiểm tra logic
+                    var allGrowthStages = await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
+                        filter: x => x.isDeleted != true && x.FarmID == farmId,
+                        orderBy: q => q.OrderBy(x => x.MonthAgeStart));
+
+                    // Kiểm tra nếu người dùng định xóa hết GrowthStage thì từ chối
+                    if (allGrowthStages.Count() - growthStagesId.Count < 1)
+                    {
+                        return new BusinessResult(Const.FAIL_DELETE_GROWTHSTAGE_CODE, "Cannot delete all GrowthStages.", false);
+                    }
+
                     var deletedNames = new List<string>();
+                    var plantsToUpdate = new Dictionary<int, List<int>>(); // Lưu danh sách PlantId theo GrowthStage mới
+
                     foreach (var growthStageDeleteId in growthStagesId)
                     {
-                        Expression<Func<GrowthStage, bool>> filter = x => x.GrowthStageID == growthStageDeleteId && x.isDefault == false && x.isDeleted == false;
-                        var checkExistGrowthStage = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == growthStageDeleteId);
-                        if (checkExistGrowthStage != null)
+                        // Tìm GrowthStage cần xóa
+                        var stageToDelete = allGrowthStages.FirstOrDefault(x => x.GrowthStageID == growthStageDeleteId);
+                        if (stageToDelete == null) continue;
+
+                        // Tìm GrowthStage trước và sau
+                        var previousStage = allGrowthStages.LastOrDefault(x => x.MonthAgeEnd < stageToDelete.MonthAgeStart);
+                        var nextStage = allGrowthStages.FirstOrDefault(x => x.MonthAgeStart > stageToDelete.MonthAgeEnd);
+
+                        // Cập nhật GrowthStage để lấp khoảng trống
+                        if (previousStage != null && nextStage != null)
                         {
-                            checkExistGrowthStage.isDeleted = true;
-                            deletedNames.Add(checkExistGrowthStage.GrowthStageName);
-                            _unitOfWork.GrowthStageRepository.Update(checkExistGrowthStage);
+                            previousStage.MonthAgeEnd = stageToDelete.MonthAgeEnd;
+                            _unitOfWork.GrowthStageRepository.Update(previousStage);
                         }
+                        else if (previousStage == null && nextStage != null)
+                        {
+                            nextStage.MonthAgeStart = stageToDelete.MonthAgeStart;
+                            _unitOfWork.GrowthStageRepository.Update(nextStage);
+                        }
+
+                        // Lấy tất cả cây trồng sử dụng GrowthStage bị xóa
+                        var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(
+                            filter: p => p.GrowthStageID == growthStageDeleteId, includeProperties: null!);
+
+                        // Gán tất cả cây đó vào danh sách cập nhật
+                        int? newGrowthStageId = previousStage?.GrowthStageID ?? nextStage?.GrowthStageID;
+                        if (newGrowthStageId.HasValue && plants.Any())
+                        {
+                            plantsToUpdate.TryAdd(newGrowthStageId.Value, new List<int>());
+                            plantsToUpdate[newGrowthStageId.Value].AddRange(plants.Select(p => p.PlantId));
+                        }
+
+                        // Đánh dấu GrowthStage đã bị xóa
+                        stageToDelete.isDeleted = true;
+                        deletedNames.Add(stageToDelete.GrowthStageName!);
+                        _unitOfWork.GrowthStageRepository.Update(stageToDelete);
                     }
+
+                    // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
-                    if (result == growthStagesId.Count)
+                    if (result > 0)
                     {
                         await transaction.CommitAsync();
+
+                        // Gọi `UpdatePlantGrowthStage` một lần duy nhất cho mỗi GrowthStage
+                        foreach (var entry in plantsToUpdate)
+                        {
+                            await UpdatePlantGrowthStage(entry.Value, entry.Key);
+                        }
+
                         return new BusinessResult(Const.SUCCESS_DELETE_MASTER_TYPE_CODE,
-                            $"Successfully deleted {result} GrowthStage: {string.Join(", ", deletedNames)}", true);
+                            $"Successfully deleted {deletedNames.Count()} GrowthStages: {string.Join(", ", deletedNames)}", true);
                     }
+
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_DELETE_GROWTHSTAGE_CODE, Const.FAIL_DELETE_GROWTHSTAGE_MESSAGE, false);
                 }
@@ -401,6 +493,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+
 
         //public async Task<BusinessResult> UpdateGrowthStageInfo(UpdateGrowthStageModel updateriteriaTypeModel)
         //{
@@ -573,7 +667,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return invalidFunctions; // Trả về danh sách giá trị sai, nếu rỗng nghĩa là hợp lệ
         }
 
+        public async Task<BusinessResult> UpdatePlantGrowthStage(List<int> plantIds, int? newGrowthStageId)
+        {
+            if (plantIds == null || !plantIds.Any())
+            {
+                return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, "No plants provided for update.", false);
+            }
 
+            var plantsToUpdate = await _unitOfWork.PlantRepository.GetAllNoPaging(
+                filter: p => plantIds.Contains(p.PlantId), includeProperties: null!);
+
+            if (!plantsToUpdate.Any())
+            {
+                return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, "No matching plants found.", false);
+            }
+
+            foreach (var plant in plantsToUpdate)
+            {
+                plant.GrowthStageID = newGrowthStageId;
+                _unitOfWork.PlantRepository.Update(plant);
+            }
+
+            var result = await _unitOfWork.SaveAsync();
+            if (result > 0)
+            {
+                return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE,
+                    $"Successfully updated GrowthStage for {result} plants.", true);
+            }
+            return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, "Failed to update GrowthStage for plants.", false);
+        }
 
     }
 }
