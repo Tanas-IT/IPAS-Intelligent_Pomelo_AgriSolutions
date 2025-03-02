@@ -12,7 +12,7 @@ public partial class CarePlanSchedule
     public string? CustomDates { get; set; }
     public string? Status { get; set; }
 
-    public TimeSpan? StarTime { get; set; }
+    public TimeSpan? StartTime { get; set; }
 
     public TimeSpan? EndTime { get; set; }
 

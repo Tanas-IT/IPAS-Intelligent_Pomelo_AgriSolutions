@@ -22,5 +22,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel
         public DateTime? createDateTo { get; set; }
         [FromQuery(Name = "isActive")]
         public bool? isActive { get; set; }
+        public bool? isSample { get; set; }
     }
 }

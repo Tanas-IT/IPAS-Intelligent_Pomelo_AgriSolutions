@@ -110,7 +110,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ToListAsync();
             return result;
         }
-        
+
+        public async Task<List<LandPlot>> GetLandPlotIncludeByFarmId(int farmId)
+        {
+            var landPlots = await _context.LandPlots
+                   .Where(lp => lp.FarmId == farmId)
+                   .Include(lp => lp.LandRows)  // Bao gồm các Rows của LandPlot
+                       .ThenInclude(r => r.Plants) // Bao gồm cả cây trồng trong Rows
+                   .ToListAsync();
+            return landPlots;
+        }
 
         public async Task<int> GetLastID()
         {

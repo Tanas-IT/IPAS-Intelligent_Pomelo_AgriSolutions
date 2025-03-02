@@ -1,8 +1,8 @@
 import { Flex } from "antd";
 import style from "./ProcessList.module.scss";
-import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
+import { ActionMenuPlant, ConfirmModal, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
-import { useFetchData, useModal, useTableAdd } from "@/hooks";
+import { useFetchData, useModal, useTableAdd, useTableDelete } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { processService, userService } from "@/services";
@@ -16,12 +16,13 @@ import ProcessModal from "./AddProcessModal";
 
 function ProcessList() {
   const formModal = useModal<GetProcessList>();
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
-    growthStages: [] as string[],
-    processTypes: [] as string[],
-    status: [] as string[],
+    growthStage: [] as string[],
+    masterTypeName: [] as string[],
+    isActive: [] as string[],
   });
 
   const {
@@ -60,9 +61,9 @@ function ProcessList() {
     setFilters({
       createDateFrom: "",
       createDateTo: "",
-      growthStages: [],
-      processTypes: [],
-      status: [],
+      growthStage: [],
+      masterTypeName: [],
+      isActive: [],
     });
   };
 
@@ -80,6 +81,23 @@ function ProcessList() {
       onApply={handleApply}
     />
   );
+  console.log(data);
+  const { handleDelete } = useTableDelete(
+      {
+        deleteFunction: processService.deleteProcess,
+        fetchData,
+        onSuccess: () => {
+          deleteConfirmModal.hideModal();
+        },
+      },
+      {
+        currentPage,
+        rowsPerPage,
+        totalRecords,
+        handlePageChange,
+      },
+    );
+  
 
   return (
     <Flex className={style.container}>
@@ -105,7 +123,7 @@ function ProcessList() {
           isLoading={false}
           caption="Process Management Table"
           notifyNoData="No data to display"
-          renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} />}
+          renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} onDelete={() => deleteConfirmModal.showModal({ ids: [process.processId] })} />}
         />
 
         <NavigationDot
@@ -121,6 +139,13 @@ function ProcessList() {
         isOpen={formModal.modalState.visible}
         onClose={formModal.hideModal}
         onSave={handleAdd} />
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Process"
+        actionType="delete"
+      />
     </Flex>
   );
 }

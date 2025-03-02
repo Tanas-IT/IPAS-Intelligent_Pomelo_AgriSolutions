@@ -1,1 +1,1 @@
-export * from "./LandPlotResponse";
+export * from "./GetLandPlot";

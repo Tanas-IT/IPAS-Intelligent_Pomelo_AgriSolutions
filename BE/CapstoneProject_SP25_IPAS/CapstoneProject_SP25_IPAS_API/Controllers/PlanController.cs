@@ -220,5 +220,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
+        public async Task<IActionResult> FilterByGrowthStage([FromBody] List<int?> listGrowthStage, int? farmId, string unit)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _planService.GetListPlantByFilterGrowthStage(listGrowthStage,farmId.Value,unit);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
