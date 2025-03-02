@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public DateTime? PlantingDate { get; set; }
 
         public int? PlantReferenceId { get; set; }
-
+        public string? PlantReferenceCode { get; set; }
         public string? Description { get; set; }
 
         public int? MasterTypeId { get; set; }

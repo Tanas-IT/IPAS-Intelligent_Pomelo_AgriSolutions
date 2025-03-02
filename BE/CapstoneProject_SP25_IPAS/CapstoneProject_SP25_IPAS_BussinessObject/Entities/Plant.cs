@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities;
@@ -42,7 +43,8 @@ public partial class Plant
     public virtual LandRow? LandRow { get; set; }
     public virtual GrowthStage? GrowthStage { get; set; }
 
-
+    public virtual Plant? PlantReference { get; set; }
+    public virtual ICollection<Plant> ChildPlants { get; set; } = new List<Plant>();
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
 
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
