@@ -96,19 +96,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                    g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
                                                );
                 var plantHeathStatus = totalPlant
-                                               .Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId && !string.IsNullOrEmpty(p.HealthStatus)) // Bỏ cây không có Status
+                                               .Where(p => p.FarmId == farmId && !string.IsNullOrEmpty(p.HealthStatus)) // Bỏ cây không có Status
                                                .GroupBy(p => p.HealthStatus)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
                                                );
 
                 var filteredTask = toltalTask
                                      .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
                                      .Where(p =>
                                          p.Schedule.CarePlan.PlanTargets.Any(pt =>
-                                             (pt.LandPlot != null && pt.LandPlot.Farm.FarmId == farmId) || // Kiểm tra LandPlot thuộc Farm
-                                             (pt.Plant != null && pt.LandRow != null && pt.LandRow.LandPlot.Farm.FarmId == farmId) // Kiểm tra Plant và LandRow
+                                             (pt.LandPlot != null && pt.LandPlot.FarmId == farmId) || // Kiểm tra LandPlot thuộc Farm
+                                             (pt.Plant != null && pt.LandRow != null && pt.LandRow.FarmId == farmId) // Kiểm tra Plant và LandRow
                                          )
                                      )
                                      .ToList(); // Tránh gọi Count() nhiều lần
@@ -149,7 +149,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var dashboardModel = new DashboardModel()
                 {
-                    TotalPlant = totalPlant.Where(p => p.LandRow.LandPlot.Farm.FarmId == farmId).ToList().Count(),
+                    TotalPlant = totalPlant.Where(p => p.FarmId == farmId).ToList().Count(),
                     TotalEmployee = totalEmployee,
                     TotalTask = totalFilteredTask,
                     PlantDevelopmentDistribution = growthStagePercentage,
