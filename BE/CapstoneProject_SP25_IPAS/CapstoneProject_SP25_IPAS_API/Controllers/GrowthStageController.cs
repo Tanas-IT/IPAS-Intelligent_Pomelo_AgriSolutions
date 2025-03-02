@@ -79,7 +79,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
 
                 if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    var response = new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId is required",
+                    };
+                    return BadRequest(response);
+                }
                 var result = await _growthStageService.CreateGrowthStage(createGrowthStageModel, farmId.Value);
                 return Ok(result);
             }
@@ -148,6 +157,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
+                if (!farmId.HasValue)
+                {
+                    var response = new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId is required",
+                    };
+                    return BadRequest(response);
+                }
                 var result = await _growthStageService.GetGrowthStageByFarmId(farmId);
                 return Ok(result);
             }
@@ -182,11 +200,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.GrowthStage.softDeleteManyGrowthStage, Name = "SoftedDeleteManyGrowthStage")]
-        public async Task<IActionResult> SoftedDeleteManyGrowthStage([FromBody] List<int> GrowthStageIds)
+        public async Task<IActionResult> SoftedDeleteManyGrowthStage([FromBody] List<int> GrowthStageIds, int? farmId)
         {
             try
             {
-                var result = await _growthStageService.SoftedMultipleDelete(GrowthStageIds);
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if(!farmId.HasValue)
+                {
+                    var response = new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId is required",
+                    };
+                    return BadRequest(response);
+                }    
+                var result = await _growthStageService.SoftedMultipleDelete(GrowthStageIds, farmId: farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

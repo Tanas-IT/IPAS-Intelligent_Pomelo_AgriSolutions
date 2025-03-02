@@ -21,12 +21,14 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> PermanentlyDeleteGrowthStage(int growthStageId);
         public Task<BusinessResult> GetGrowthStageByFarmId(int? farmId);
-        public Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId);
+        public Task<BusinessResult> SoftedMultipleDelete(List<int> growthStagesId, int farmId);
         public Task<BusinessResult> PermanentlyDeleteManyGrowthStage(List<int> growthStagesId);
 
         public Task<GrowthStageModel?> GetGrowthStageIdByPlantingDate(int farmId, DateTime plantingDate);
 
         public List<string> ValidateActiveFunction(string activeFunctionRequest);
+
+        public Task<BusinessResult> UpdatePlantGrowthStage(List<int> plantIds, int? newGrowthStageId);
 
     }
 }

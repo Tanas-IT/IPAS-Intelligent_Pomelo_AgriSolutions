@@ -51,6 +51,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == createPlanModel.ProcessId);
+                    if (checkExistProcess != null)
+                    {
+                        if (createPlanModel.StartDate < checkExistProcess.StartDate ||
+                             createPlanModel.StartDate > checkExistProcess.EndDate ||
+                             createPlanModel.EndDate < checkExistProcess.StartDate ||
+                             createPlanModel.EndDate > checkExistProcess.EndDate)
+                                            {
+                            throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
+                                $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
+                        }
+                    }
                     var newPlan = new Plan()
                     {
                         PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + createPlanModel.MasterTypeId.Value,
