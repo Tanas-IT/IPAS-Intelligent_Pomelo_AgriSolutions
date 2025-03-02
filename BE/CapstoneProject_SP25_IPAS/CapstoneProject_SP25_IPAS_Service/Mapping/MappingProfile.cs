@@ -76,9 +76,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
                .ReverseMap();
 
+            
             CreateMap<Plan, UpdatePlanInProcessModel>()
                .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(x => x.MasterTypeId))
-               .ForMember(dest => dest.GrowthStageId, opt => opt.MapFrom(x => x.GrowthStagePlans.Select(x => x.GrowthStageID)))
                .ForMember(dest => dest.PlanName, opt => opt.MapFrom(x => x.PlanName))
                .ForMember(dest => dest.PlanNote, opt => opt.MapFrom(x => x.Notes))
                .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(x => x.PlanDetail))
