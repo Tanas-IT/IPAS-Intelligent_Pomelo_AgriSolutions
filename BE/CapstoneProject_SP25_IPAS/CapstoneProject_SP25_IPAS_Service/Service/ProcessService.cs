@@ -486,7 +486,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true)
                         {
-                            throw new Exception("Process is running. Can not update");
+                            if(checkExistProcess.Plans.Count > 0)
+                            {
+                                throw new Exception("Process is running. Can not update");
+                            }
                         }
                         if (updateProcessModel.ProcessName != null)
                         {
