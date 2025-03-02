@@ -586,12 +586,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             IsDeleted = subProcess.IsDeleted,
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
+                                            ProcessId = checkExistProcess.ProcessId
                                         };
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
                                         newSubProcess.ParentSubProcessId = realParentId;
 
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
-                                        result = await _unitOfWork.SaveAsync();
+                                        await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
+                                        result += await _unitOfWork.SaveAsync();
                                         idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
 
                                         if (subProcess.ListPlan != null)
