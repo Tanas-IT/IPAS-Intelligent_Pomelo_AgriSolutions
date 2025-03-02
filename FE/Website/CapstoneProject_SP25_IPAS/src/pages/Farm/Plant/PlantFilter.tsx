@@ -1,10 +1,11 @@
-import { Flex, Space, TreeSelect } from "antd";
-import { useState } from "react";
+import { Flex, Space } from "antd";
+import { useEffect, useState } from "react";
 import style from "./PlantList.module.scss";
 import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
-import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
+import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterPlantState } from "@/types";
 import { MASTER_TYPE } from "@/constants";
+import { landPlotService, landRowService } from "@/services";
 
 type FilterProps = {
   filters: FilterPlantState;
@@ -14,12 +15,85 @@ type FilterProps = {
 };
 const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR, true);
+  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
   const { options: growthStageOptions } = useGrowthStageOptions();
+
+  const [treeData, setTreeData] = useState<any[]>([]);
+  const [loadingPlots, setLoadingPlots] = useState(false);
+  const [loadingRows, setLoadingRows] = useState<{ [key: number]: boolean }>({});
+  const [selectedTreeValues, setSelectedTreeValues] = useState<string[]>(
+    filters.landRowIds || filters.LandPlotIds || [],
+  );
+
+  useEffect(() => {
+    const fetchLandPlots = async () => {
+      setLoadingPlots(true);
+      try {
+        const res = await landPlotService.getLandPlotsSelected();
+        if (res.statusCode === 200) {
+          const plots = res.data.map((plot) => ({
+            title: `${plot.code} - ${plot.name}`,
+            value: `plot_${plot.id}`,
+            key: `plot_${plot.id}`,
+            isLeaf: false,
+          }));
+          setTreeData(plots);
+        }
+      } finally {
+        setLoadingPlots(false);
+      }
+    };
+    fetchLandPlots();
+  }, []);
+
+  const handleLoadData = async (node: any) => {
+    if (node.children) return;
+
+    const plotId = parseInt(node.value.split("_")[1]);
+
+    setLoadingRows((prev) => ({ ...prev, [plotId]: true }));
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay
+
+      const res = await landRowService.getLandRowsSelected(plotId);
+      if (res.statusCode === 200) {
+        const rows = res.data.map((row) => ({
+          title: `${row.code} - ${row.name} `,
+          value: `row_${row.id}`,
+          key: `row_${row.id}`,
+          isLeaf: true, // Hàng (row) là lá
+        }));
+
+        setTreeData((prev) =>
+          prev.map((plot) => (plot.value === node.value ? { ...plot, children: rows } : plot)),
+        );
+      }
+    } finally {
+      setLoadingRows((prev) => ({ ...prev, [plotId]: false }));
+    }
+  };
+
+  const handleTreeSelectChange = (values: string[]) => {
+    setSelectedTreeValues(values); // Cập nhật state hiển thị
+
+    const rowIds = values.filter((v) => v.startsWith("row_")).map((v) => v.split("_")[1]);
+    const plotIds = values.filter((v) => v.startsWith("plot_")).map((v) => v.split("_")[1]);
+
+    updateFilters("landRowIds", rowIds);
+    updateFilters("LandPlotIds", plotIds);
+  };
+
+  const handleClear = () => {
+    onClear();
+    setSelectedTreeValues([]);
+  };
 
   const isFilterEmpty = !(
     filters.plantingDateFrom ||
     filters.plantingDateTo ||
+    (filters.landRowIds && filters.landRowIds.length > 0) ||
+    selectedTreeValues.length > 0 ||
     (filters.cultivarIds && filters.cultivarIds.length > 0) ||
     (filters.growthStageIds && filters.growthStageIds.length > 0) ||
     (filters.healthStatus && filters.healthStatus.length > 0) ||
@@ -34,25 +108,6 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     }
   };
 
-  const plotTreeData = [
-    {
-      title: "Plot A",
-      value: "plot_A", // ID thửa đất
-      children: [
-        { title: "Row 1", value: "row_1" },
-        { title: "Row 2", value: "row_2" },
-      ],
-    },
-    {
-      title: "Plot B",
-      value: "plot_B",
-      children: [
-        { title: "Row 3", value: "row_3" },
-        { title: "Row 4", value: "row_4" },
-      ],
-    },
-  ];
-
   return (
     <Flex className={style.filterContent}>
       <Space direction="vertical" style={{ width: "100%" }}>
@@ -65,6 +120,16 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             updateFilters("plantingDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
           }}
         />
+
+        <FormFieldFilter
+          label="Plant Location: "
+          fieldType="treeSelect"
+          value={selectedTreeValues}
+          treeData={treeData}
+          onChange={handleTreeSelectChange}
+          loadData={handleLoadData}
+        />
+
         <Flex className={style.row}>
           <FormFieldFilter
             label="Cultivar:"
@@ -95,23 +160,10 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           direction="row"
         />
 
-        {/* <TreeSelect
-          className={`${styles.customSelect}`}
-          treeData={plotTreeData}
-          style={{ width: "100%" }}
-          tagRender={TagRender}
-          onChange={(values) => {
-            console.log("Selected values:", values); // Debug giá trị
-          }}
-          treeCheckable
-          showCheckedStrategy={TreeSelect.SHOW_CHILD}
-          placeholder="Select Plot or Row"
-        /> */}
-
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}
-          onClear={onClear}
+          onClear={handleClear}
           handleApply={handleApply}
         />
       </Space>

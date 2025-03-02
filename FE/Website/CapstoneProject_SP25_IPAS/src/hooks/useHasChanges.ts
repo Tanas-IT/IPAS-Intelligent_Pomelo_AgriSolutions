@@ -11,12 +11,27 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
 
         return Object.keys(newData).some((key) => {
           const typedKey = key as keyof T;
+          if (!(typedKey in oldData) && !(typedKey in newData)) return false;
+          if (
+            !(typedKey in oldData) &&
+            typedKey in newData &&
+            newData[typedKey] != null &&
+            newData[typedKey] != undefined &&
+            newData[typedKey] !== ""
+          ) {
+            return true;
+          }
           const oldValue = oldData[typedKey];
           const newValue = newData[typedKey];
 
           // Nếu là string thì trim trước khi so sánh
-          if (typeof oldValue === "string" && typeof newValue === "string") {
-            return oldValue.trim() !== newValue.trim();
+          if (
+            typeof oldValue === "string" &&
+            typeof newValue === "string" &&
+            oldValue.includes("T") && // Kiểm tra nếu có T00:00:00
+            newValue.length === 10 // Kiểm tra nếu chỉ có YYYY-MM-DD
+          ) {
+            return oldValue.substring(0, 10) !== newValue; // So sánh chỉ phần YYYY-MM-DD
           }
 
           // Nếu oldValue không có giá trị mà newValue có
@@ -36,6 +51,7 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
         // Xử lý cho add với defaultValues
         return Object.keys(newData).some((key) => {
           const typedKey = key as keyof T;
+
           const defaultValue = defaultValues?.[typedKey];
           const newValue = newData[typedKey];
 
@@ -46,7 +62,12 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
 
           // Nếu không có giá trị mặc định thì kiểm tra nếu newValue có dữ liệu
           if (defaultValue === undefined) {
-            return newValue !== null && newValue !== undefined && newValue !== "";
+            return (
+              newValue !== null &&
+              newValue !== undefined &&
+              newValue !== "" &&
+              !Number.isNaN(newValue)
+            );
           }
 
           // So sánh thông thường hoặc nếu defaultValue không có

@@ -58,7 +58,7 @@ export const getProcessDetail = async (processId: string) => {
     listProcessData: apiResponse.data.listProcessData,
     order: apiResponse.data.order,
     listPlan: apiResponse.data.listPlan,
-
+    isSample: apiResponse.data.isSample
   };
 };
 
@@ -116,5 +116,9 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
   return apiResponse;
 };
 
+export const deleteProcess = async (processId: number[] | string[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`processes/soft-delete/${processId}`);
+  return res.data as ApiResponse<Object>;
+}
 
 

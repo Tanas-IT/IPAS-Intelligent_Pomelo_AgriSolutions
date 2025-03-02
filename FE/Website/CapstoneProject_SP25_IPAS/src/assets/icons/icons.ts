@@ -37,7 +37,7 @@ export {
   LuPhone as phone,
   LuUpload as upload,
   LuZoomIn as zoomIn,
-  LuZoomOut  as zoomOut
+  LuZoomOut as zoomOut,
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -51,6 +51,7 @@ export {
   FaMapMarkerAlt as marker,
   FaRegFolderOpen as folder,
   FaDrawPolygon as drawPolygon,
+  FaRegEye as eye,
 } from "react-icons/fa";
 export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
@@ -61,7 +62,7 @@ export {
   IoLanguageOutline as language,
   IoDocumentTextOutline as document,
   IoMapOutline as map,
-  IoCheckmarkDoneSharp as markAsRead
+  IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";

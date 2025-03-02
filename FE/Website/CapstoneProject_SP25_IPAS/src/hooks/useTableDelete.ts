@@ -40,6 +40,7 @@ export default function useDelete(
       try {
         setIsLoading(true);
         const result = await deleteFunction(deleteIds, ...args);
+
         if (result.statusCode === 200) {
           const deletedCount = deleteIds.length;
           if ((totalRecords - deletedCount) % rowsPerPage === 0 && currentPage > 1) {

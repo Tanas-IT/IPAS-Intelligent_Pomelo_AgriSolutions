@@ -10,7 +10,7 @@ import { useLoadingStore, useMapStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
 import { createPlotFormFields, MESSAGES } from "@/constants";
-import { LandPlotRequest } from "@/payloads/landPlot/requests";
+import { LandPlotRequest } from "@/payloads/landplot/requests";
 import { DEFAULT_LAND_PLOT, isPlantOverflowing } from "@/utils";
 import { landPlotService } from "@/services";
 

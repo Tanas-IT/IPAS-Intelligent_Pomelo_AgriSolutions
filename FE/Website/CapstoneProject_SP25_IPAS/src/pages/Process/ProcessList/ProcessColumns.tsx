@@ -24,14 +24,14 @@ export const processColumns: TableColumn<GetProcessList>[] = [
   },
   {
     header: "Growth Stage",
-    field: "growthStageName",
-    accessor: (process) => <div className={style.tableText}>{process.growthStageName}</div>,
+    field: "processGrowthStageModel",
+    accessor: (process) => <div className={style.tableText}>{process?.processGrowthStageModel?.growthStageName}</div>,
     width: 150,
   },
   {
     header: "Type",
-    field: "masterTypeName",
-    accessor: (process) =>  <div className={style.tableText}>{process.masterTypeName}</div>,
+    field: "processMasterTypeModel",
+    accessor: (process) =>  <div className={style.tableText}>{process?.processMasterTypeModel?.masterTypeName}</div>,
     width: 150,
   },
   {

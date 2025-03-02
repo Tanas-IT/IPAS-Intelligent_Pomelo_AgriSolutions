@@ -1,4 +1,4 @@
-import { GetGrowthStage, GetMasterType, MasterTypeDetail } from "@/payloads";
+import { GetGrowthStage, GetMasterType, GetPlant, MasterTypeDetail } from "@/payloads";
 
 export const farmFormFields = {
   farmName: "farmName",
@@ -24,6 +24,25 @@ export const farmDocumentFormFields = {
   documents: "documents",
 };
 
+export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
+  plantId: "plantId",
+  plantCode: "plantCode",
+  plantName: "plantName",
+  plantIndex: "plantIndex",
+  healthStatus: "healthStatus",
+  createDate: "createDate",
+  plantingDate: "plantingDate",
+  description: "description",
+  masterTypeId: "masterTypeId",
+  masterTypeName: "masterTypeName",
+  growthStageName: "growthStageName",
+  imageUrl: "imageUrl",
+  landPlotId: "landPlotId",
+  landRowId: "landRowId",
+  rowIndex: "rowIndex",
+  landPlotName: "landPlotName",
+};
+
 export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {
   masterTypeId: "masterTypeId",
   masterTypeCode: "masterTypeCode",
@@ -35,9 +54,10 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   typeName: "typeName",
   createDate: "createDate",
   isActive: "isActive",
+  masterTypeDetailModels: "masterTypeDetailModels",
 };
 
-export const growthStageFormFields = {
+export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
   growthStageId: "growthStageId",
   growthStageCode: "growthStageCode",
   growthStageName: "growthStageName",
@@ -132,4 +152,5 @@ export const processFormFields = {
   masterTypeId: "masterTypeId",
   growthStageId: "growthStageId",
   listPlan: "listPlan",
+  isSample: "isSample",
 };

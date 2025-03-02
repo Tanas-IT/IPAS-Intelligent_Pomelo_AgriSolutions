@@ -1,4 +1,4 @@
-interface landPlotCoordinations {
+export interface landPlotCoordinations {
   landPlotCoordinationId: string;
   landPlotCoordinationCode: string;
   longitude: number;
@@ -7,6 +7,7 @@ interface landPlotCoordinations {
 
 export interface GetLandPlotSelected {
   id: number;
+  code: string;
   name: string;
 }
 

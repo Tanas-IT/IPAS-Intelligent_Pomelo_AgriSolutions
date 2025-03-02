@@ -74,10 +74,11 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	GrowthStageName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MonthAgeStart int NULL,
 	MonthAgeEnd int NULL,
-	isDefault bit NULL,
+	isDefault bit NULL DEFAULT 0,
 	FarmID int NULL,
         isDeleted bit NULL DEFAULT 0,
 	CreateDate datetime NULL,
+	ActiveFunction nvarchar(200),
 	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT PK__GrowthSt__B81FB6A5CB51E95C PRIMARY KEY (GrowthStageID),
 	CONSTRAINT GrowthStage_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID)
@@ -1046,19 +1047,23 @@ VALUES
 (3,3,5),
 (4,3,5);
 GO
-INSERT INTO [ipas].[dbo].[GrowthStage] ([GrowthStageCode], [GrowthStageName], [MonthAgeStart], [MonthAgeEnd], [IsDefault], 
-    [IsDeleted], 
-    [FarmID], 
-    [CreateDate], 
-    [Description])  
-VALUES  
-   ('GS001', N'Germination', 0, 2, 0, 0, 1, GETDATE(), N'Seed begins to sprout.'),
-    ('GS002', N'Seedling', 3, 12, 0, 0, 1, GETDATE(), N'Young plant growth stage.'),
-    ('GS003', N'Vegetative Growth', 13, 36, 0, 0, 1, GETDATE(), N'Focuses on leaf and stem development.'),
-    ('GS004', N'Flowering', 37, 48, 0, 0, 1, GETDATE(), N'Plant produces flowers.'),
-    ('GS005', N'Fruit Set', 49, 60, 0, 0, 1, GETDATE(), N'Initial fruit formation after pollination.'),
-    ('GS006', N'Fruit Development', 61, 96, 0, 0, 1, GETDATE(), N'Fruits grow and mature.'),
-    ('GS007', N'Harvest', 97, 120, 0, 0, 1, GETDATE(), N'Fully developed fruits are collected.');
+-- Fake data cho bảng GrowthStage với FarmID = 1
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+VALUES
+('GS101', 'Giai đoạn nảy mầm', 1, 2, 1, 1, 0, GETDATE(), NULL, 'Giai đoạn cây non'),
+('GS102', 'Giai đoạn cây con', 3, 5, 0, 1, 0, GETDATE(), Null,'Cây bắt đầu phát triển'),
+('GS103', 'Giai đoạn sinh trưởng', 6, 10, 0, 1, 0, GETDATE(), NULL,'Cây phát triển mạnh, tăng sinh khối'),
+('GS104', 'Giai đoạn ra hoa', 11, 14, 0, 1, 0, GETDATE(), 'Harvest', 'Cây trưởng thành'),
+('GS105', 'Giai đoạn thu hoạch', 15, 18, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Trái cây cây già');
+GO
+-- Fake data cho bảng GrowthStage với FarmID = 2
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+VALUES
+('GS201', 'Giai đoạn nảy mầm', 1, 3, 1, 2, 0, GETDATE(), '', 'Giai đoạn hạt giống bắt đầu nảy mầm'),
+('GS202', 'Giai đoạn cây con', 4, 7, 0, 2, 0, GETDATE(), '', 'Cây bắt đầu phát triển lá và rễ'),
+('GS203', 'Giai đoạn sinh trưởng', 8, 12, 0, 2, 0, GETDATE(), '', 'Cây phát triển mạnh, tăng sinh khối'),
+('GS204', 'Giai đoạn ra hoa', 13, 16, 0, 2, 0, GETDATE(), 'Harvest', 'Cây cây có thể ra hoa'),
+('GS205', 'Giai đoạn thu hoạch', 17, 20, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Cây trưởng thành');
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDelete], [isActive], [CreateDate], [IsDefault], [FarmID])
@@ -1355,14 +1360,3 @@ VALUES
 ('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,1, 2),
 ('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,1, 2),
 ('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,1, 2);
-GO
-INSERT INTO ipas.dbo.GrowthStage 
-    (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, Description)
-VALUES
-    ('GS001', N'Mầm non', 0, 3, 1, 1, 0, GETDATE(), N'Giai đoạn cây non mới nảy mầm'),
-    ('GS002', N'Sinh trưởng', 4, 6, 0, 1, 0, GETDATE(), N'Giai đoạn cây phát triển lá và rễ mạnh'),
-    ('GS003', N'Ra hoa', 7, 9, 0, 1, 0, GETDATE(), N'Giai đoạn cây bắt đầu ra hoa'),
-    ('GS004', N'Kết trái', 10, 12, 0, 2, 0, GETDATE(), N'Giai đoạn cây ra quả và phát triển quả'),
-    ('GS005', N'Thu hoạch', 13, 15, 0, 2, 0, GETDATE(), N'Giai đoạn thu hoạch sản phẩm'),
-    ('GS006', N'Nghỉ đông', 16, 18, 0, 3, 0, GETDATE(), N'Giai đoạn cây ít phát triển hoặc ngủ đông');
-GO

@@ -93,7 +93,7 @@
       }
 
       .contentSectionBody {
-        width: 80%;
+        width: 90%;
         justify-content: space-between;
         .col {
           flex-direction: column;
@@ -112,7 +112,7 @@
         width: 100%;
         justify-content: flex-start;
         align-items: center;
-        gap: 2rem;
+        gap: 3rem;
 
         &.infoFieldColumn {
           flex-direction: column;
@@ -121,7 +121,7 @@
         }
 
         .fieldLabelWrapper {
-          min-width: 8rem;
+          min-width: 9rem;
           justify-content: flex-start;
           align-items: center;
           gap: 10px;

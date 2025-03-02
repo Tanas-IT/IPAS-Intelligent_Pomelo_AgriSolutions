@@ -29,5 +29,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 Where(x => x.FarmID == farmId && x.isDeleted == false).ToListAsync();
             return result;
         }
+
+        public async Task<int> GetMaxAge(int farmId)
+        {
+            var maxAgeStart = await _context.GrowthStages
+                .Where(x => x.FarmID == farmId && x.isDeleted == false)
+                .MaxAsync(x => x.MonthAgeEnd);
+            if (!maxAgeStart.HasValue)
+                return 1; // start age month begin from 1
+            return maxAgeStart.Value + 1; // begin from max end + 1
+        }
     }
 }

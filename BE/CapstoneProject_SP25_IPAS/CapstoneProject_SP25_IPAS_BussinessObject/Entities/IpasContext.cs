@@ -908,7 +908,12 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.GrowthStage).WithMany(p => p.Plants)
                .HasForeignKey(d => d.GrowthStageID)
                .HasConstraintName("Plant_GrowthStage_FK");
-        });
+
+            entity.HasOne(p => p.PlantReference)   // Một cây có 1 cây mẹ
+                    .WithMany(p => p.ChildPlants)    // Một cây mẹ có nhiều cây con
+                    .HasForeignKey(p => p.PlantReferenceId)   // Khóa ngoại
+                    .OnDelete(DeleteBehavior.Restrict);
+                    });
 
         modelBuilder.Entity<PlantGrowthHistory>(entity =>
         {

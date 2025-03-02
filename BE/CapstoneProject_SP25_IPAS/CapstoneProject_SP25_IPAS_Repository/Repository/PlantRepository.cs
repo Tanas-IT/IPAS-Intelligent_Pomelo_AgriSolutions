@@ -143,6 +143,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(lr => lr!.LandPlot)
              .Include(p => p.MasterType)
              .Include(p => p.GrowthStage)
+             .Include(p => p.PlantReference)
              .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
@@ -229,6 +230,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(lr => lr!.LandPlot)
                 .Include(p => p.MasterType)
                 .Include(p => p.GrowthStage)
+                .Include(p => p.PlantReference)
                 .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType);

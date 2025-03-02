@@ -12,6 +12,8 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
@@ -212,7 +214,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
                     //foreach (var item in filterList)
                     //{
-                        filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
+                    filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
                     //}
                 }
                 //if (masterTypeFilter.CreateBy != null)
@@ -349,7 +351,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistMasterType.Criterias.Remove(criteria);
                     }
-                    
+
                     var listHarvestTypeHistories = checkExistMasterType.HarvestTypeHistories.ToList();
                     foreach (var harvestTypeHistories in listHarvestTypeHistories)
                     {
@@ -414,13 +416,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.TypeName))
                         {
-                            if (_masterTypeConfig.TypeNames.Contains(updateMasterTypeModel.TypeName))
+                            if (!_masterTypeConfig.TypeNames.Any(type => type.Equals(updateMasterTypeModel.TypeName, StringComparison.OrdinalIgnoreCase)
+))
                                 return new BusinessResult(400, "Type name not suitable with system");
                             checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
                         }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.Target))
                         {
-                            if (_masterTypeConfig.Targets.Contains(updateMasterTypeModel.Target) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
+                            if (!_masterTypeConfig.Targets.Any(target => target.Equals(updateMasterTypeModel.Target, StringComparison.OrdinalIgnoreCase)) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
                                 return new BusinessResult(400, "Type name not suitable with system");
                             checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
                         }
@@ -515,7 +518,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    };
                         //    checkExistMasterType.MasterTypeDetails.Add(newRes);
                         //}
-
+                        _unitOfWork.MasterTypeRepository.Update(checkExistMasterType);
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
