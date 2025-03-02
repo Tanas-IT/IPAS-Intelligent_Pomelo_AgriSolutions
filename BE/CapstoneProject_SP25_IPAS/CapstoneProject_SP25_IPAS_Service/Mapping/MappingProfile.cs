@@ -190,6 +190,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
+               .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.CarePlanSchedule.CarePlan.Frequency))
                 .ForMember(dest => dest.LandPlotNames, opt => opt.MapFrom(src =>
                                                            src.PlanTargets.Where(pt => pt.LandPlot != null).Select(pt => pt.LandPlot.LandPlotName).Distinct().ToList()))
                .ForMember(dest => dest.PlantLotNames, opt => opt.MapFrom(src =>
