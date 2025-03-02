@@ -45,6 +45,8 @@ import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import PlanTarget from "./PlanTarget";
 import useLandRowOptions from "@/hooks/useLandRowOptions";
 import useLandPlotOptions from "@/hooks/useLandPlotOptions";
+import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
+import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 
 const { RangePicker } = DatePicker;
 
@@ -95,6 +97,8 @@ const AddPlan = () => {
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: landPlots } = useLandPlotOptions();
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
+  const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
+  const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
   console.log("landplot id", selectedLandPlot);
   console.log("landRowOptions", landRowOptions);
 
@@ -134,6 +138,7 @@ const AddPlan = () => {
 
   const handleLandRowChange = (landRowId: number) => {
     // Xử lý logic khi Land Row thay đổi
+    setSelectedLandRow(landRowId);
   };
 
   const handleReporterChange = (userId: number) => {
@@ -292,7 +297,6 @@ const AddPlan = () => {
                 label="Process Name"
                 name={addPlanFormFields.processId}
                 options={processFarmOptions}
-                rules={RulesManager.getProcessRules()}
                 isEditing={true}
                 type="select"
                 hasFeedback={false}
@@ -304,7 +308,6 @@ const AddPlan = () => {
                 name={addPlanFormFields.growthStageID}
                 options={growthStageOptions}
                 isEditing={true}
-                rules={RulesManager.getGrowthStageRules()}
                 type="select"
                 hasFeedback={false}
               />
@@ -427,9 +430,9 @@ const AddPlan = () => {
         <PlanTarget
           landPlotOptions={landPlots}
           landRows={landRowOptions}
-          plants={plants}
+          plants={plantsOptions}
           plantLots={[]}
-          graftedPlants={[]}
+          graftedPlants={graftedPlantsOptions}
           onLandPlotChange={handleLandPlotChange}
           onLandRowChange={handleLandRowChange}
         />

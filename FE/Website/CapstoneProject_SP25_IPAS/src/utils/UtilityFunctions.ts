@@ -343,3 +343,30 @@ export const isPlantOverflowing = (
   const totalPlantSpace = (Number(plantSpacing) + 24) * Number(plantsPerRow);
   return totalPlantSpace > rowLength;
 };
+
+export const formatDateW = (dateString: string): string => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+  };
+
+  const day = date.getDate();
+  const suffix = getDaySuffix(day);
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
+  return formattedDate.replace(/\d+/, `${day}${suffix}`);
+};
+
+const getDaySuffix = (day: number): string => {
+  if (day >= 11 && day <= 13) return "th";
+  const lastDigit = day % 10;
+  switch (lastDigit) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+  }
+};

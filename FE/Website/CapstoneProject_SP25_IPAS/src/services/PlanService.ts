@@ -79,3 +79,10 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 }
+
+export const getPlanDetail = async (planId: string) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plan/get-plan-by-id/${planId}`);
+  const apiResponse = res.data as ApiResponse<GetPlan>;
+
+  return apiResponse.data;
+}

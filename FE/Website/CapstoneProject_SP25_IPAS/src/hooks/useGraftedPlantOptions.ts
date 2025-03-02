@@ -1,40 +1,38 @@
 import { useState, useEffect } from "react";
-import { growthStageService, landRowService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected, GetLandRow } from "@/payloads";
-import { getFarmId } from "@/utils";
+import { graftedPlantService } from "@/services";
+import { ApiResponse, GetGraftedPlantSelected } from "@/payloads";
 
 interface SelectOption {
   value: number | string;
   label: string;
 }
 
-const useLandRowOptions = (landPlotId: number | null) => {
+const useGraftedPlantOptions = (farmId: number | null) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
-    if (landPlotId === null) {
+    if (farmId === null) {
       setOptions([]);
       return;
     }
 
     const fetchOptions = async () => {
-      const result: ApiResponse<GetLandRow[]> =
-        await landRowService.getLandRows(landPlotId);
-      console.log("apiResponse landRowOptions", result);
+      const result: ApiResponse<GetGraftedPlantSelected[]> =
+        await graftedPlantService.getGraftedPlantSelect(farmId);
 
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
           value: item.id,
-          label: item.code,
+          label: item.name,
         }));
         setOptions(mappedOptions);
       }
     };
 
     fetchOptions();
-  }, [landPlotId]);
+  }, [farmId]);
 
   return { options };
 };
 
-export default useLandRowOptions;
+export default useGraftedPlantOptions;

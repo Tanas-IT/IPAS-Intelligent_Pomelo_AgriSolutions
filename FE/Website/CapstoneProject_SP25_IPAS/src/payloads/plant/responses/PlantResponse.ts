@@ -20,3 +20,8 @@ export interface GetPlantSelect {
   plantId: string;
   plantCode: string;
 }
+
+export interface GetPlantOfRowSelect {
+  id: number;
+  code: string;
+}

@@ -28,8 +28,8 @@ export const getProcesses = async (
   return apiResponse.data as GetData<GetProcessList>;
 };
 
-export const getProcessesOfFarmForSelect = async (farmId: number) => {
-  const res = await axiosAuth.axiosJsonRequest.get(`proceesses/get-for-select?farmId=${farmId}`);
+export const getProcessesOfFarmForSelect = async (farmId: number, isSample?: boolean) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`proceesses/get-for-select?farmId=${farmId}&isSample=${isSample}`);
   const apiResponse = res.data as ApiResponse<GetProcess[]>;
 
   return apiResponse.data.map(({ processId, processName }) => ({

@@ -239,6 +239,15 @@ const useStyle = createStyles(({ css }) => {
         }
       }
     `,
+    customeTable: css`
+      .ant-table-cell {
+        background-color: #326E2F !important;
+        color: white !important;
+      },
+      .ant-table-tbody > tr:hover {
+        background-color:rgb(153, 25, 25) !important;
+      }
+      `
   };
 });
 
