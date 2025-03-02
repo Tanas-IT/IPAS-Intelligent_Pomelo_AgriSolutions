@@ -70,6 +70,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
                         ScheduleId = newSchedule.ScheduleId,
                         Status = "Not Started",
+                        ActualStartTime = newSchedule.StartTime,
+                        ActualEndTime = newSchedule.EndTime,
                         Date = addNewTaskModel.DateWork,
                         WorkLogName = addNewTaskModel.TaskName,
                         IsConfirm = false,

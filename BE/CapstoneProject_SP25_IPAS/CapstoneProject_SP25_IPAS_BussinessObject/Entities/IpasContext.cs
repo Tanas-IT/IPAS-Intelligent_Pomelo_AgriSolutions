@@ -351,6 +351,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.PlantLotId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("GraftedPlant_PlantLot_FK");
+
+            entity.HasOne(d => d.GrowthStageInclude).WithMany(p => p.GraftedPlants)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("GraftedPlant_GrowthStage_FK");
         });
 
         modelBuilder.Entity<GraftedPlantNote>(entity =>
@@ -976,6 +980,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Farm).WithMany(p => p.PlantLots)
                .HasForeignKey(d => d.FarmID)
                .HasConstraintName("FK_PlantLot_Farm");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.PlantLots)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("PlantLot_GrowthStage_FK");
 
         });
 

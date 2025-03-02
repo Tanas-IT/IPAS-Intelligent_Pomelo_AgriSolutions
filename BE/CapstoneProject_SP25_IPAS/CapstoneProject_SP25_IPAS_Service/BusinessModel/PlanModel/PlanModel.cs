@@ -28,7 +28,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public bool? IsActive { get; set; }
 
         public string? Notes { get; set; }
-        public string? Status { get; set; }
 
         public string? PlanDetail { get; set; }
 

@@ -1372,6 +1372,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
                 Status = "Not Started",
+                ActualStartTime = schedule.StartTime,
+                ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
@@ -1399,6 +1401,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
                 Status = "Pending",
+                ActualStartTime = schedule.StartTime,
+                ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
@@ -1692,7 +1696,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         case "plantlot":
                             var validPlantLotsTemp = await _unitOfWork.PlantLotRepository.GetAllNoPaging();
-                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId)
+                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && growthStageIds.Contains(pl.GrowthStageID))
                                 .ToList();
 
                             if (validPlantLots.Any())
@@ -1706,7 +1710,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         case "graftedplant":
                             var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
-                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId)
+                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && growthStageIds.Contains(pl.GrowthStageID))
                                 .ToList();
 
                             if (validGraftedPlants.Any())
@@ -1719,7 +1723,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             break;
 
                         default:
-                            throw new ArgumentException("Unit không hợp lệ.");
+                            throw new ArgumentException("Unit is not valid.");
                     }
                 }
 
@@ -1727,24 +1731,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lọc dữ liệu: " + ex.Message);
+                throw new Exception("Error when filter: " + ex.Message);
             }
         }
 
-        public async Task<BusinessResult> GetListPlantByFilterGrowthStage(List<int> growthStageId, int farmId, string unit)
+        public async Task<BusinessResult> GetListPlantByFilterGrowthStage(List<int?> growthStageId, int farmId, string unit)
         {
             try
             {
                 var result = await GetPlantByListGrowthStage(growthStageId, farmId, unit);
                 if(result != null)
                 {
-                    return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE);
+                    return new BusinessResult(Const.SUCCESS_FILTER_BY_GROWTHSTAGE_CODE, Const.SUCCESS_FILTER_BY_GROWTHSTAGE_MSG, result);
                 }
-                return new BusinessResult();
+                return new BusinessResult(Const.FAIL_FILTER_BY_GROWTHSTAGE_CODE, Const.FAIL_FILTER_BY_GROWTHSTAGE_MSG);
             }
             catch (Exception ex)
             {
-
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }

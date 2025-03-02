@@ -179,6 +179,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<WorkLog, WorkLogInPlanModel>()
                 .ForMember(dest => dest.WorkLogID, opt => opt.MapFrom(src => src.WorkLogId))
                 .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLogName))
+                .ForMember(dest => dest.ActualStartTime, opt => opt.MapFrom(src => src.ActualStartTime))
+                .ForMember(dest => dest.ActualEndTime, opt => opt.MapFrom(src => src.ActualEndTime))
+                .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLogName))
                 .ForMember(dest => dest.DateWork, opt => opt.MapFrom(src => src.Date))
                 .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.FullName).FirstOrDefault()))
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
@@ -223,6 +226,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.DayOfMonth, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfMonth : null))
                .ForMember(dest => dest.CustomDates, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.CustomDates : null))
                .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs: null))
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ReverseMap();
 
             CreateMap<LegalDocument, LegalDocumentModel>()

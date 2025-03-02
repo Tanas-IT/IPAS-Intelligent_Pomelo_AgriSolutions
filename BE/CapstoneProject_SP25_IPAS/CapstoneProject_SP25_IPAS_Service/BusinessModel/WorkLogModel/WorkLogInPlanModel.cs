@@ -13,6 +13,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public DateTime DateWork {  get; set; }
         public string Status { get; set; }
         public string Reporter { get; set; }
+        public TimeSpan? ActualStartTime { get; set; }
+
+        public TimeSpan? ActualEndTime { get; set; }
         public string AvatarOfReporter { get; set; }
     }
 }
