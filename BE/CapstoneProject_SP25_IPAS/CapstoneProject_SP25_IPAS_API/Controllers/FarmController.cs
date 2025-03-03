@@ -276,15 +276,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Farm.getUsersOfFarm, Name = "getUserOfFarmAsync")]
-        public async Task<IActionResult> getUserOfFarmAsync(int? farmId, PaginationParameter paginationParameter)
+        public async Task<IActionResult> getUserOfFarmAsync([FromQuery]GetUserFarmRequest userFarmRequest, [FromQuery]PaginationParameter paginationParameter)
         {
             try
             {
-                if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken();
-                if(!farmId.HasValue)
-                    return BadRequest();
-                var result = await _farmService.getUserOfFarm(farmId!.Value ,paginationParameter);
+                if (!userFarmRequest.farmId.HasValue)
+                    userFarmRequest.farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!userFarmRequest.farmId.HasValue)
+                {
+                    var response = new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm id is required"
+                    };
+                    return BadRequest(response);
+                }
+                var result = await _farmService.getUserOfFarm(userFarmRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
