@@ -1673,8 +1673,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
-                                    Rows = validRows,
-                                    Plants = validPlants
+                                    Unit= unit,
                                 });
                             }
                             break;
@@ -1686,8 +1685,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
+                                    Unit = unit,
                                     Rows = validRows,
-                                    Plants = validPlants
                                 });
                             }
                             break;
@@ -1699,6 +1698,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
+                                    Unit = unit,
                                     Rows = validRows,
                                     Plants = validPlants
                                 });
@@ -1715,6 +1715,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 result.Add(new LandPlotFilterModel
                                 {
+                                    FarmId = farmId,
+                                    Unit = unit,
                                     PlantLots = validPlantLots.Select(pl => new PlantLotFilterModel { PlantLotId = pl.PlantLotId, PlantLotName = pl.PlantLotName }).ToList()
                                 });
                             }
@@ -1729,6 +1731,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 result.Add(new LandPlotFilterModel
                                 {
+                                    FarmId = farmId,
+                                    Unit = unit,
                                     GraftedPlants = validGraftedPlants.Select(gp => new GraftedPlantFilterModel { GraftedPlantId = gp.GraftedPlantId, GraftedPlantName = gp.GraftedPlantName }).ToList()
                                 });
                             }
