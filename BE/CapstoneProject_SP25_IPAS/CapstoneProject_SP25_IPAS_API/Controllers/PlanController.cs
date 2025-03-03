@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -221,8 +222,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
-        public async Task<IActionResult> FilterByGrowthStage([FromBody] List<int?> listGrowthStage, int? farmId, string unit)
+        [HttpPost(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
+        public async Task<IActionResult> FilterByGrowthStage([FromBody] ListGrowthStageModel listGrowthStageModel, int? farmId, string unit)
         {
             try
             {
@@ -230,7 +231,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
-                var result = await _planService.GetListPlantByFilterGrowthStage(listGrowthStage,farmId.Value,unit);
+                var result = await _planService.GetListPlantByFilterGrowthStage(listGrowthStageModel.ListGrowthStage, farmId.Value,unit);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -13,12 +13,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
     public class GenericRepository<TEntity> where TEntity : class
     {
-        internal IpasContext context;
+        internal IpasContext _context;
         internal DbSet<TEntity> dbSet;
 
         public GenericRepository(IpasContext context)
         {
-            this.context = context;
+            this._context = context;
             this.dbSet = context.Set<TEntity>();
         }
 
@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public virtual void Delete(TEntity entityToDelete)
         {
-            if (context.Entry(entityToDelete).State == EntityState.Detached)
+            if (_context.Entry(entityToDelete).State == EntityState.Detached)
             {
                 dbSet.Attach(entityToDelete);
             }
@@ -152,7 +152,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public virtual void Update(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            context.Entry(entityToUpdate).State = EntityState.Modified;
+            _context.Entry(entityToUpdate).State = EntityState.Modified;
         }
 
         public void UpdateRange(IEnumerable<TEntity> entities)
@@ -163,13 +163,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             foreach (var entity in entities)
             {
                 dbSet.Attach(entity);
-                context.Entry(entity).State = EntityState.Modified;
+                _context.Entry(entity).State = EntityState.Modified;
             }
         }
 
         public virtual void UpdateProperty<TProperty>(TEntity entity, Expression<Func<TEntity, TProperty>> propertyExpression, TProperty newValue)
         {
-            var entry = context.Entry(entity);
+            var entry = _context.Entry(entity);
             if (entry.State == EntityState.Detached)
             {
                 dbSet.Attach(entity);

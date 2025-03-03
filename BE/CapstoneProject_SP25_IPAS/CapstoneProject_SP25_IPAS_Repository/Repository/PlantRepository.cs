@@ -251,5 +251,31 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var getListPlan = await _context.Plants.Where(x => x.LandRowId == rowId).Select(x => x.PlantId).ToListAsync();
             return getListPlan;
         }
+
+        public async Task<bool> CheckIfPlantCanBeGraftedAsync(int plantId, string targetType)
+        {
+            // Lấy cây từ database
+            var plant = await _context.Plants
+                .Where( p => p.PlantId == plantId && p.IsDeleted == false)
+                .Include(p => p.GrowthStage)
+                .FirstOrDefaultAsync();
+                   
+            // Kiểm tra cây có tồn tại không
+            if (plant == null)
+            {
+                throw new ArgumentException("Cây không tồn tại hoặc đã bị xóa.");
+            }
+
+            // Kiểm tra cây có giai đoạn sinh trưởng không
+            if (plant.GrowthStage == null)
+            {
+                return false; // Không có giai đoạn -> Không thể chiết
+            }
+
+            // Kiểm tra ActiveFunction có chứa "Grafted" không
+            bool canBeGrafted = (Util.SplitByComma(plant.GrowthStage.ActiveFunction?.Trim()!)).Contains(targetType.ToLower());
+
+            return canBeGrafted;
+        }
     }
 }

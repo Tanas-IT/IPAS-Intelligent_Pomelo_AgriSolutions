@@ -66,6 +66,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UpdateDate = DateTime.Now,
                         RowPerLine = createRequest.RowPerLine,
                         RowSpacing = createRequest.RowSpacing,
+                        LineSpacing = createRequest.LineSpacing,
+                        NumberOfRows = createRequest.NumberOfRows,
                         IsRowHorizontal = createRequest.IsRowHorizontal,
                         isDeleted = false,
                         LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",

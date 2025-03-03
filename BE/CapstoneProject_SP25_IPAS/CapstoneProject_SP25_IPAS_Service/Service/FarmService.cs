@@ -542,14 +542,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getUserOfFarm(int farmId, PaginationParameter paginationParameter)
+        public async Task<BusinessResult> getUserOfFarm(GetUserFarmRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                var farmexist = await _unitOfWork.FarmRepository.GetByID(farmId);
+                var farmexist = await _unitOfWork.FarmRepository.GetByID(getRequest.farmId!.Value);
                 if (farmexist == null)
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-                Expression<Func<UserFarm, bool>> filter = x => x.FarmId == farmId && !(x.Role.RoleName!.ToUpper().Equals(RoleEnum.OWNER.ToString().ToUpper()));
+                Expression<Func<UserFarm, bool>> filter = x => x.FarmId == getRequest.farmId.Value && !(x.Role!.RoleName!.ToUpper().Equals(RoleEnum.OWNER.ToString().ToUpper()));
+                if (!string.IsNullOrEmpty(getRequest.RoleName))
+                {
+                    var listRoles = Util.SplitByComma(getRequest.RoleName);
+                    filter = filter.And(x => listRoles.Contains(x.Role!.RoleName!));
+                }
                 Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -618,20 +623,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    Expression<Func<UserFarm, bool>> filter = x => x.UserId == updateRequest.UserId && x.FarmId == updateRequest.FarmId.Value;
+                    Expression<Func<UserFarm, bool>> filter = x => x.UserId == updateRequest.UserId && x.FarmId == updateRequest.FarmId!.Value;
                     string includeProperties = "Role,Farm,User";
                     var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter, includeProperties);
                     if (userInfarm == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
                     }
-                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleId == updateRequest.RoleId && x.IsSystem == true);
+                    if (string.IsNullOrEmpty(updateRequest.RoleName))
+                        return new BusinessResult(Const.WARNING_GET_ROLE_NOTE_EXIST_CODE, Const.WARNING_GET_ROLE_NOTE_EXIST_MSG);
+                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(updateRequest.RoleName!.ToLower()) && x.IsSystem == true);
                     if (checkRoleExist == null)
                     {
                         return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
                     }
 
-                    userInfarm.RoleId = updateRequest.RoleId;
+                    userInfarm.RoleId = checkRoleExist.RoleId;
                     _unitOfWork.UserFarmRepository.Update(userInfarm);
 
                     int result = await _unitOfWork.SaveAsync();
@@ -692,7 +699,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId!.Value && x.IsDeleted == false);
                     var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDelete == false);
-                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleId == createRequest.RoleId && x.IsSystem == true);
+                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(RoleEnum.EMPLOYEE.ToString().ToLower()) && x.IsSystem == true);
                     if (checkFarmExist == null || checkUserExist == null || checkRoleExist == null)
                         return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                     Expression<Func<UserFarm, bool>> filter = x => x.UserId == createRequest.UserId && x.FarmId == createRequest.FarmId;
@@ -705,7 +712,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         UserId = createRequest.UserId,
                         FarmId = createRequest.FarmId!.Value,
-                        RoleId = createRequest.RoleId
+                        RoleId = checkRoleExist.RoleId
                     };
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);
                     int result = await _unitOfWork.SaveAsync();
