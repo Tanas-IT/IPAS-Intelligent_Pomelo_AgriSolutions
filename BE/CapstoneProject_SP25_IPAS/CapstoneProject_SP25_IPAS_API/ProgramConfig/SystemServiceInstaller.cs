@@ -38,7 +38,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             // Trim khoảng trắng trong danh sách
             masterTypeConfig.TypeNames = masterTypeConfig.TypeNames.Select(x => x.Trim()).ToList();
             masterTypeConfig.Targets = masterTypeConfig.Targets.Select(x => x.Trim()).ToList();
-            masterTypeConfig.GraftedTargetApply = masterTypeConfig.GraftedTargetApply.Select(x => x.Trim()).ToList();
+            masterTypeConfig.GraftedConditionApply = masterTypeConfig.GraftedConditionApply!.Trim();
+            masterTypeConfig.GraftedEvaluationApply = masterTypeConfig.GraftedEvaluationApply!.Trim();
             services.AddSingleton(masterTypeConfig);
 
 

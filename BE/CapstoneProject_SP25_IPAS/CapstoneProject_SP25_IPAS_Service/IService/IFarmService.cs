@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllUserOfFarmByRoleAsync(int farmId, List<int> roleIds);
 
-        public Task<BusinessResult> getUserOfFarm(int farmId, PaginationParameter paginationParameter);
+        public Task<BusinessResult> getUserOfFarm(GetUserFarmRequest getRequest, PaginationParameter paginationParameter);
 
         public Task<BusinessResult> updateRoleOfUserInFarm(UserFarmRequest updateRequest);
 

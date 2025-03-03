@@ -238,7 +238,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    }
         //}
 
-        public async Task<BusinessResult> CheckCriteriaForTarget(CheckPlantCriteriaRequest request)
+        public async Task<BusinessResult> CheckingCriteriaForTarget(CheckPlantCriteriaRequest request)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {

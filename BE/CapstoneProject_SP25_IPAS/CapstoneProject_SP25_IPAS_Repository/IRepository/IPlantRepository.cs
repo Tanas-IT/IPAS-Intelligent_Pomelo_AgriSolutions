@@ -20,5 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
           Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = null!);
 
         public Task<List<int>> getPlantByRowId(int rowId);
+        public Task<bool> CheckIfPlantCanBeGraftedAsync(int plantId, string targetType);
+
     }
 }
