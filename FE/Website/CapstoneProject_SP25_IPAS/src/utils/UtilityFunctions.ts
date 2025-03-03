@@ -297,8 +297,8 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
   }));
 };
 
-export const fetchProcessesOfFarm = async (farmId: number) => {
-  const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
+export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
+  const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
 
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,

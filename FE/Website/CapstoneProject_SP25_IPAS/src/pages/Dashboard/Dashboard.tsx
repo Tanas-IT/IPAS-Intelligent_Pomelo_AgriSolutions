@@ -2,6 +2,7 @@ import { Col, Flex, Row } from "antd";
 import style from "./Dashboard.module.scss";
 import StatBox from "./components/StatBox/StatBox";
 import { Icons } from "@/assets";
+import WeatherCard from "./components/WeatherCard/WeatherCard";
 
 const statsData = [
   {
@@ -26,13 +27,6 @@ const statsData = [
     increase: "+10%",
   },
   {
-    title: "Plant Lots",
-    subtitle: "32",
-    icon: <Icons.addPLan style={{ fontSize: 24, color: "#eb2f96" }} />,
-    progress: 0.8,
-    increase: "+3",
-  },
-  {
     title: "Land Plots",
     subtitle: "50",
     icon: <Icons.plot style={{ fontSize: 24, color: "#722ed1" }} />,
@@ -40,6 +34,18 @@ const statsData = [
     increase: "+2",
   },
 ];
+
+const weatherData = {
+  currentTemp: 29.04,
+  tempMax: 29.04,
+  tempMin: 29.04,
+  status: "Clouds",
+  description: "broken clouds",
+  humidity: 51,
+  visibility: 10000,
+  windSpeed: "2.02 m/s",
+  clouds: 55
+};
 
 function Dashboard() {
   return (
@@ -56,6 +62,7 @@ function Dashboard() {
             />
           </Flex>
         ))}
+        <WeatherCard weather={weatherData} />
       </Flex>
     </Flex>
   );

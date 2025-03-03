@@ -86,3 +86,13 @@ export const getPlanDetail = async (planId: string) => {
 
   return apiResponse.data;
 }
+
+export const filterTargetByUnitGrowthStage = async (unit: string, growthStageId: number[]) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-target-by-unit-growth-stage`, {
+    unit,
+    growthStageId
+  });
+  const apiResponse = res.data as ApiResponse<GetPlant[]>;
+
+  return apiResponse.data;
+};

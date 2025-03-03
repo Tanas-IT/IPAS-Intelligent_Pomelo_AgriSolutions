@@ -22,7 +22,7 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
+import { useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
 import {
   fetchGrowthStageOptions,
   fetchProcessesOfFarm,
@@ -84,7 +84,7 @@ const AddPlan = () => {
   const [cropOptions, setCropOptions] = useState<OptionType<string>[]>([]);
   // const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
-  const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
+  // const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
   const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
   const [assignorId, setAssignorId] = useState<number>();
@@ -93,8 +93,10 @@ const AddPlan = () => {
   const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
+  const [selectedGrowthStage, setSelectedGrowthStage] = useState<number | null>(null);
 
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
+  const { options: growthStageOptions } = useGrowthStageOptions(true);
   const { options: landPlots } = useLandPlotOptions();
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
@@ -231,9 +233,7 @@ const AddPlan = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setProcessFarmOptions(await fetchProcessesOfFarm(farmId));
-      setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
-      // setWorkTypeOptions(await fetchTypeOptionsByName("Work", true));
+      setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setEmployee(await fetchUserInfoByRole("User"));
       console.log("employee", employee);
       
@@ -241,15 +241,6 @@ const AddPlan = () => {
 
     fetchData();
   }, []);
-
-  // const fetchLandPlotOptions = async () => {
-  //   const landPlots = await landPlotService.getLandPlotsOfFarmForSelect(farmId);
-  //   const formattedLandPlotOptions = landPlots.map((landPlot) => ({
-  //     value: landPlot.id,
-  //     label: landPlot.name,
-  //   }));
-  //   setLandPlotOptions(formattedLandPlotOptions);
-  // };
 
   return (
     <div className={style.contentSectionBody}>
@@ -308,6 +299,7 @@ const AddPlan = () => {
                 name={addPlanFormFields.growthStageID}
                 options={growthStageOptions}
                 isEditing={true}
+                onChange={(value) => setSelectedGrowthStage(value)}
                 type="select"
                 hasFeedback={false}
               />
@@ -337,15 +329,6 @@ const AddPlan = () => {
             type="textarea"
             placeholder="Enter care plan notes"
           />
-          {/* <InfoField
-            label="Crop"
-            name={addPlanFormFields.cropId}
-            options={cropOptions}
-            isEditing={true}
-            rules={RulesManager.getCropRules()}
-            type="select"
-            hasFeedback={false}
-          /> */}
 
           <InfoField
             label="Active"
