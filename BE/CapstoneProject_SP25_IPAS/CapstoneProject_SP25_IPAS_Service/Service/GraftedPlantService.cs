@@ -21,6 +21,7 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -477,6 +478,55 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<string> CheckPlantBeforeGrafted(int plantId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<BusinessResult> getHistoryOfGraftedPlant(int farmId, int plantId)
+        {
+            try
+            {
+                var getPlantInfo = await _unitOfWork.PlantRepository.GetByCondition(x => x.FarmId == farmId && x.PlantId == plantId);
+
+                if (getPlantInfo == null)
+                {
+                    return new BusinessResult(Const.FAIL_GET_GRAFTED_PLANT_CODE, "No plant was found");
+                }
+
+                // Tìm cây gốc (F0)
+                var rootPlant = await GetRootPlantAsync(getPlantInfo);
+
+                // Lấy toàn bộ lịch sử chiết cành từ cây gốc
+                var history = GetPlantGraftingHistory(rootPlant, 0);
+
+                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, history);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        // Hàm tìm cây gốc (F0)
+        private async Task<Plant> GetRootPlantAsync(Plant plant)
+        {
+            while (plant.PlantReferenceId != null)
+            {
+                plant = await _unitOfWork.PlantRepository.GetByID(plant.PlantReferenceId.Value);
+            }
+            return plant;
+        }
+
+        // Đệ quy lấy lịch sử chiết cành
+        private PlantGraftingHistoryModel GetPlantGraftingHistory(Plant plant, int generation)
+        {
+            return new PlantGraftingHistoryModel
+            {
+                PlantId = plant.PlantId,
+                PlantName = plant.PlantName,
+                Generation = generation,
+                PlantingDate = plant.PlantingDate,
+                ChildPlants = plant.ChildPlants.Select(child => GetPlantGraftingHistory(child, generation + 1)).ToList()
+            };
         }
     }
 }
