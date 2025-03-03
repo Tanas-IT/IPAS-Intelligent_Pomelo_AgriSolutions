@@ -474,5 +474,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return (int)Math.Floor(maxBranches);
         }
 
+        public async Task<string> CheckPlantBeforeGrafted(int plantId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
