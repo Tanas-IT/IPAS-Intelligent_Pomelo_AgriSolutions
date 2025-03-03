@@ -257,6 +257,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string unSoftDeletePlan = prefix + "/un-soft-delete-plan/{id}";
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
             public const string getPlanByFarmId = prefix + "/get-for-select/{farm-id}";
+            public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
         }
 
         public static class UserWorkLog

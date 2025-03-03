@@ -26,5 +26,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetPlanByName(string planName, int? farmId);
         public Task<BusinessResult> UnSoftDeletePlan(int planId);
         public Task<BusinessResult> GetPlanByFarmId(int? farmId);
+        public Task<BusinessResult> GetListPlantByFilterGrowthStage(List<int?> growthStageId, int farmId, string unit);
     }
 }

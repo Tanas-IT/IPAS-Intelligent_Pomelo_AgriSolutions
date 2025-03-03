@@ -28,7 +28,8 @@ public partial class PlantLot
     public bool? isDeleted { get; set; }
 
     public int? PlantLotReferenceId { get; set; }
-
+    public int? GrowthStageID { get; set; }
+    public virtual GrowthStage? GrowthStage { get; set; }
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
     public virtual ICollection<PlantLot> InversePlantLotReference { get; set; } = new List<PlantLot>();

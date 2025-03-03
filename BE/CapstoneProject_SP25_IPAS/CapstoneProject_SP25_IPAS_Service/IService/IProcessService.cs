@@ -26,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetProcessByName(string processName);
         public Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel, int? farmId);
 
-        public Task<BusinessResult> GetForSelect(int farmId, string? search, bool isSample);
+        public Task<BusinessResult> GetForSelect(int farmId, string? search, bool? isSample);
 
 
     }

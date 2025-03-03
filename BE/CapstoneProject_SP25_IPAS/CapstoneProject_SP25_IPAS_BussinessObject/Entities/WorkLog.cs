@@ -16,6 +16,9 @@ public partial class WorkLog
     public string? ReasonDelay { get; set; }
 
     public DateTime? Date { get; set; }
+    public TimeSpan? ActualStartTime { get; set; }
+
+    public TimeSpan? ActualEndTime { get; set; }
 
     public bool? IsConfirm { get; set; }
 

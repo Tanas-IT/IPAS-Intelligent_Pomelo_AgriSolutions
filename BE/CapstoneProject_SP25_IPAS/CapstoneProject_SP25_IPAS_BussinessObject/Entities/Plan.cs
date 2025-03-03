@@ -45,9 +45,6 @@ public partial class Plan
 
     public int? CropId { get; set; }
 
-    public int? GrowthStageId { get; set; }
-
-
     public bool? IsDelete { get; set; }
 
     public int? MasterTypeId { get; set; }
@@ -61,11 +58,11 @@ public partial class Plan
 
 
     public virtual Process? Process { get; set; }
-    public virtual GrowthStage? GrowthStage { get; set; }
     public virtual User? User { get; set; }
     public virtual Crop? Crop { get; set; }
     public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
+    public virtual ICollection<GrowthStagePlan> GrowthStagePlans { get; set; } = new List<GrowthStagePlan>();
     public virtual SubProcess? SubProcess { get; set; }
     public virtual Farm? Farm { get; set; }
 }

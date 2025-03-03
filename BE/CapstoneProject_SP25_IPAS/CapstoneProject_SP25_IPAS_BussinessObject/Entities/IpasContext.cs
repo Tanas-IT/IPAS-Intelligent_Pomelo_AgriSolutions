@@ -99,6 +99,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<Type_Type> Type_Types { get; set; }
     public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
     public virtual DbSet<CriteriaTarget> CriteriaTargets { get; set; }
+    public virtual DbSet<GrowthStagePlan> GrowthStagePlans { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -124,7 +125,7 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.EndTime).HasColumnType("time");
-            entity.Property(e => e.StarTime).HasColumnType("time");
+            entity.Property(e => e.StartTime).HasColumnType("time");
 
             entity.HasOne(d => d.CarePlan).WithOne(p => p.CarePlanSchedule)
                 .HasForeignKey<CarePlanSchedule>(d => d.CarePlanId)
@@ -350,6 +351,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.PlantLotId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("GraftedPlant_PlantLot_FK");
+
+            entity.HasOne(d => d.GrowthStageInclude).WithMany(p => p.GraftedPlants)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("GraftedPlant_GrowthStage_FK");
         });
 
         modelBuilder.Entity<GraftedPlantNote>(entity =>
@@ -800,7 +805,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Frequency)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.GrowthStageId).HasColumnName("GrowthStageID");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.Notes)
@@ -830,10 +834,7 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("Plan_MasterType_FK");
 
-            entity.HasOne(d => d.GrowthStage).WithMany(p => p.Plans)
-                .HasForeignKey(d => d.GrowthStageId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("Plan_GrowStage_FK");
+           
 
 
 
@@ -979,6 +980,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Farm).WithMany(p => p.PlantLots)
                .HasForeignKey(d => d.FarmID)
                .HasConstraintName("FK_PlantLot_Farm");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.PlantLots)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("PlantLot_GrowthStage_FK");
 
         });
 
@@ -1461,6 +1466,24 @@ public partial class IpasContext : DbContext
                .HasConstraintName("FK_CriteriaTarget_PlantLot__345267C52");
 
 
+        });
+
+        modelBuilder.Entity<GrowthStagePlan>(entity =>
+        {
+            entity.HasKey(e => e.GrowthStagePlanID).HasName("PK__GrowthStagePlan__26743GHYRT5");
+            entity.ToTable("GrowthStagePlan");
+
+            entity.Property(e => e.GrowthStagePlanID).HasColumnName("GrowthStagePlanID");
+            entity.Property(e => e.GrowthStageID).HasColumnName("GrowthStageID");
+            entity.Property(e => e.PlanID).HasColumnName("PlanID");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.GrowthStagePlans)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("FK_GrowthStagePlan_GrowthStage__35672C52");
+
+            entity.HasOne(d => d.Plan).WithMany(p => p.GrowthStagePlans)
+                .HasForeignKey(d => d.PlanID)
+                .HasConstraintName("FK_GrowthStagePlan_Plan__32314C52");
         });
         OnModelCreatingPartial(modelBuilder);
     }
