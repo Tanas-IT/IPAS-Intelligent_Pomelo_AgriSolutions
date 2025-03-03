@@ -1,42 +1,52 @@
 .statBox {
-    width: 100%;
-    margin: 0 30px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  
-    &Header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  
-    &IconTitle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-  
-    &Title {
-      font-weight: bold;
-      color: #333;
-    }
-  
-    &Footer {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 5px;
-    }
-  
-    &Subtitle {
-      font-size: 16px;
-      color: #52c41a;
-    }
-  
-    &Increase {
-      font-size: 16px;
-      font-style: italic;
-      color: #389e0d;
-    }
+  width: 233px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+
+  &Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
-  
+
+  &IconWrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f0f0f0;
+  }
+
+  &IconTitle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &Increase {
+    font-size: 14px;
+    font-style: italic;
+    color: #389e0d;
+  }
+
+  &Footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 5px;
+  }
+
+  &Subtitle {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  &Title {
+    font-size: 14px;
+    color: #666;
+  }
+}

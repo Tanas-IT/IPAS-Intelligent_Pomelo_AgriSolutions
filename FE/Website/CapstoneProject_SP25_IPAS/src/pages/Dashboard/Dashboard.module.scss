@@ -1,4 +1,9 @@
 .container {
   width: 100%;
   flex-direction: column;
+
+  .statBoxContainer {
+    display: flex;
+    gap: 20px;
+  }
 }

@@ -38,6 +38,7 @@ export {
   LuUpload as upload,
   LuZoomIn as zoomIn,
   LuZoomOut as zoomOut,
+  LuLandPlot as plot
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -53,7 +54,7 @@ export {
   FaDrawPolygon as drawPolygon,
   FaRegEye as eye,
 } from "react-icons/fa";
-export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target } from "react-icons/pi";
+export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target, PiPlantFill as plantFill } from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
 export { BiShareAlt as share, BiDetail as detail } from "react-icons/bi";
 
@@ -65,7 +66,7 @@ export {
   IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
-export { GrOverview as overview, GrMapLocation as location } from "react-icons/gr";
+export { GrOverview as overview, GrMapLocation as location, GrPlan as plan } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
 export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
 export { FaWind as wind } from "react-icons/fa6";
