@@ -6,6 +6,7 @@ type ModalFormProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
+  isLoading?: boolean;
   title: string;
   children: React.ReactNode;
   isUpdate?: boolean;
@@ -18,6 +19,7 @@ const ModalForm = ({
   isOpen,
   onClose,
   onSave,
+  isLoading = false,
   title,
   children,
   isUpdate = false,
@@ -27,7 +29,6 @@ const ModalForm = ({
 }: ModalFormProps) => {
   return (
     <Modal
-    
       className={`${style.modalContainer} ${style[size]}`}
       open={isOpen}
       onCancel={onClose}
@@ -38,6 +39,7 @@ const ModalForm = ({
           label={saveLabel ?? (isUpdate ? "Save Changes" : "Add New")}
           handleOnClick={onSave}
           isModal={true}
+          isLoading={isLoading}
         />,
       ]}
     >

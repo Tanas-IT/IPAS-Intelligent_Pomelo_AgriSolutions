@@ -6,6 +6,8 @@ export interface GetPlant {
   healthStatus: string;
   createDate: Date;
   plantingDate: string;
+  plantReferenceId: number; 
+  plantReferenceCode: string;
   description: string;
   masterTypeId: number;
   masterTypeName: string;

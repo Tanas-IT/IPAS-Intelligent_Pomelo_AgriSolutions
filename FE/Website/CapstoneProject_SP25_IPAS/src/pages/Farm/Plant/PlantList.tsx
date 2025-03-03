@@ -26,9 +26,14 @@ import { plantColumns } from "./PlantColumns";
 import { FilterPlantState } from "@/types";
 import PlantModel from "./PlantModal";
 import { HEALTH_STATUS } from "@/constants";
+import PlantImportModal from "./PlantImportModal";
+import { toast } from "react-toastify";
 
 function PlantList() {
   const formModal = useModal<GetPlant>();
+  const [isImportLoading, setIsImportLoading] = useState(false);
+  const importErrorModal = useModal<{ errors: string[] }>();
+  const importModal = useModal();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ plant: PlantRequest }>();
   const cancelConfirmModal = useModal();
@@ -92,7 +97,7 @@ function PlantList() {
   const handleCancelConfirm = (plant: PlantRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(plant, "plantId")
-      : hasChanges(plant, undefined, { healthStatus: HEALTH_STATUS.NORMAL });
+      : hasChanges(plant, undefined, { healthStatus: HEALTH_STATUS.HEALTHY });
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
@@ -101,7 +106,7 @@ function PlantList() {
     }
   };
 
-  const { handleUpdate } = useTableUpdate<PlantRequest>({
+  const { handleUpdate, isUpdating } = useTableUpdate<PlantRequest>({
     updateService: plantService.updatePlant,
     fetchData: fetchData,
     onSuccess: () => {
@@ -113,11 +118,36 @@ function PlantList() {
     },
   });
 
-  const { handleAdd } = useTableAdd({
+  const { handleAdd, isAdding } = useTableAdd({
     addService: plantService.createPlant,
     fetchData: fetchData,
     onSuccess: () => formModal.hideModal(),
   });
+
+  const handleImportClose = (file: File | null) => {
+    if (file) {
+      cancelConfirmModal.showModal();
+    } else {
+      importModal.hideModal();
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    try {
+      setIsImportLoading(true);
+      var res = await plantService.importPlants(file);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        await fetchData();
+      } else {
+        // console.log(res.message);
+        const errorList = res.message.split("\n").filter((error) => error.trim() !== "");
+        importErrorModal.showModal({ errors: errorList });
+      }
+    } finally {
+      setIsImportLoading(false);
+    }
+  };
 
   const filterContent = (
     <PlantFilter
@@ -141,8 +171,11 @@ function PlantList() {
             <TableTitle
               onSearch={handleSearch}
               filterContent={filterContent}
-              addLabel="Add New Type"
+              addLabel="Add New Plant"
+              importLabel="Import Plants"
               onAdd={() => formModal.showModal()}
+              onImport={() => importModal.showModal()}
+              noImport={false}
             />
           }
           handleSortClick={handleSortChange}
@@ -176,7 +209,14 @@ function PlantList() {
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
           onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+          isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
           plantData={formModal.modalState.data}
+        />
+        <PlantImportModal
+          isOpen={importModal.modalState.visible}
+          onClose={handleImportClose}
+          onSave={handleImport}
+          isLoadingAction={isImportLoading}
         />
         {/* Confirm Delete Modal */}
         <ConfirmModal
@@ -201,8 +241,20 @@ function PlantList() {
           onConfirm={() => {
             cancelConfirmModal.hideModal();
             formModal.hideModal();
+            importModal.hideModal();
           }}
           onCancel={cancelConfirmModal.hideModal}
+        />
+        {/* Confirm Error Modal */}
+        <ConfirmModal
+          visible={importErrorModal.modalState.visible}
+          onConfirm={importErrorModal.hideModal}
+          onCancel={importErrorModal.hideModal}
+          actionType="error"
+          title="Import Failed"
+          noCancel={true}
+          description="There were errors in your imported file. Please review the details below."
+          errorMessages={importErrorModal.modalState.data?.errors}
         />
       </Flex>
     </Flex>

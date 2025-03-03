@@ -15,12 +15,12 @@ export default function useTableUpdate<T>({
   onSuccess,
   onError,
 }: UseHandleUpdateProps<T>) {
-  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUpdate = useCallback(
     async (data?: T, ...args: any[]) => {
       if (!data) return;
-      setIsUpdateLoading(true);
+      setIsUpdating(true);
       try {
         const result = await updateService(data, ...args);
         if (result.statusCode === 200) {
@@ -32,11 +32,11 @@ export default function useTableUpdate<T>({
           onError?.();
         }
       } finally {
-        setIsUpdateLoading(false);
+        setIsUpdating(false);
       }
     },
     [updateService, fetchData],
   );
 
-  return { handleUpdate, isUpdateLoading };
+  return { handleUpdate, isUpdating };
 }

@@ -25,7 +25,7 @@ interface FormFieldModalProps {
   type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker" | "image";
   options?: { value: string | number; label: string }[];
   value?: string | string[] | number | undefined;
-  image?: File;
+  image?: File | string;
   readonly?: boolean;
   onChange?: (value: any) => void;
   isLoading?: boolean;
@@ -58,14 +58,18 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   direction = "col",
   dependencies,
   checkedChildren,
-  unCheckedChildren
+  unCheckedChildren,
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
-  const [imageUrl, setImageUrl] = useState<string | null>(value as string | null);
+  const [imageUrl, setImageUrl] = useState<string | null>();
 
   useEffect(() => {
-    if (!image) setImageUrl(null);
+    if (typeof image === "string" && image) {
+      setImageUrl(image);
+    } else {
+      setImageUrl(null);
+    }
   }, [image]);
 
   const handleUpload = (file: File) => {
@@ -157,8 +161,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "switch":
         return (
           <Switch
-          checkedChildren={checkedChildren || "Active"}
-          unCheckedChildren={unCheckedChildren || "Inactive"}
+            checkedChildren={checkedChildren || "Active"}
+            unCheckedChildren={unCheckedChildren || "Inactive"}
             checked={isCheck}
             onChange={onChange}
             className={`${styles.customSwitch} ${isCheck ? style.active : style.inActive}`}

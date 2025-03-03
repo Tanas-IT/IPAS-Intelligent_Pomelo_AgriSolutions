@@ -1,3 +1,4 @@
+import { GROWTH_ACTIONS, growthStageFormFields } from "@/constants";
 import { useCallback } from "react";
 
 function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
@@ -23,6 +24,23 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           }
           const oldValue = oldData[typedKey];
           const newValue = newData[typedKey];
+
+          if (typedKey === growthStageFormFields.activeFunction && newValue) {
+            const normalize = (val: string) =>
+              val
+                .split(",")
+                .map((s) => s.trim())
+                .sort()
+                .join(",");
+
+            // Nếu newValue là "Both", đổi thành "Grafted,Harvest" để so sánh
+            const formattedNewValue =
+              newValue === "Both"
+                ? `${GROWTH_ACTIONS.GRAFTED},${GROWTH_ACTIONS.HARVEST}`
+                : newValue;
+
+            return normalize(oldValue) !== normalize(formattedNewValue);
+          }
 
           // Nếu là string thì trim trước khi so sánh
           if (
@@ -71,7 +89,7 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           }
 
           // So sánh thông thường hoặc nếu defaultValue không có
-          return defaultValue !== newValue;
+          return String(defaultValue).trim() !== String(newValue).trim();
         });
       }
     },

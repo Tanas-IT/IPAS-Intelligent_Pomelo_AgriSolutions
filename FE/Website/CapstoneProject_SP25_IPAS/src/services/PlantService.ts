@@ -1,4 +1,5 @@
 import { axiosAuth } from "@/api";
+import { GROWTH_ACTIONS } from "@/constants";
 import {
   ApiResponse,
   GetData,
@@ -58,11 +59,30 @@ export const createPlant = async (plant: PlantRequest): Promise<ApiResponse<GetP
   const formData = new FormData();
   Object.entries(plant).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      formData.append(key, value instanceof File ? value : value.toString());
+      const fieldName = key === "plantReferenceId" ? "MotherPlantId" : key;
+      formData.append(fieldName, value instanceof File ? value : value.toString());
     }
   });
 
   const res = await axiosAuth.axiosMultipartForm.post(`plants`, formData);
   const apiResponse = res.data as ApiResponse<GetPlant>;
+  return apiResponse;
+};
+
+export const importPlants = async (file: File): Promise<ApiResponse<GetPlant>> => {
+  const formData = new FormData();
+  formData.append("fileExcel", file);
+  formData.append("skipDuplicate", "false");
+
+  const res = await axiosAuth.axiosMultipartForm.post(`plants/import-excel`, formData);
+  const apiResponse = res.data as ApiResponse<GetPlant>;
+  return apiResponse;
+};
+
+export const getMotherPlantSelect = async (): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `plants/get-for-selected/growth-stage-function?activeFunction=${GROWTH_ACTIONS.GRAFTED}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
   return apiResponse;
 };

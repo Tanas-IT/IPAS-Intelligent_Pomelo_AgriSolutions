@@ -8,8 +8,11 @@ type TableTitleProps = {
   filterContent?: JSX.Element;
   filterLabel?: string;
   addLabel?: string;
+  importLabel?: string;
   onAdd: () => void;
+  onImport?: () => void;
   noFilter?: boolean;
+  noImport?: boolean;
 };
 
 const TableTitle = ({
@@ -17,8 +20,11 @@ const TableTitle = ({
   filterContent,
   filterLabel = "Filter",
   addLabel = "Add New",
+  importLabel = "Import",
   onAdd,
+  onImport,
   noFilter = false,
+  noImport = true,
 }: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
@@ -33,6 +39,9 @@ const TableTitle = ({
         )}
       </Flex>
       <Flex className={style.sectionRight}>
+        {!noImport && (
+          <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
+        )}
         <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />
       </Flex>
     </Flex>
