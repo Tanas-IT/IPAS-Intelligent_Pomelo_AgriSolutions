@@ -221,7 +221,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
+        [HttpPost(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
         public async Task<IActionResult> FilterByGrowthStage([FromBody] List<int?> listGrowthStage, int? farmId, string unit)
         {
             try

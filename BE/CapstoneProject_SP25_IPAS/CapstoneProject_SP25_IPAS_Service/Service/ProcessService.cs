@@ -480,7 +480,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateProcessModel.ProcessId, "");
+                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByID(updateProcessModel.ProcessId);
                     var result = 0;
                     if (checkExistProcess != null)
                     {
@@ -586,12 +586,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             IsDeleted = subProcess.IsDeleted,
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
+                                            ProcessId = checkExistProcess.ProcessId
                                         };
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
                                         newSubProcess.ParentSubProcessId = realParentId;
 
-                                        checkExistProcess.SubProcesses.Add(newSubProcess);
-                                        result = await _unitOfWork.SaveAsync();
+                                        await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
+                                        result += await _unitOfWork.SaveAsync();
                                         idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
 
                                         if (subProcess.ListPlan != null)
@@ -611,13 +611,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
+                                                            SubProcessId = newSubProcess.SubProcessID
                                                         };
+                                                        await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         var addNewGrowthStages = new GrowthStagePlan()
                                                         {
                                                             GrowthStageID = plan.GrowthStageId,
                                                         };
                                                         newPlan.GrowthStagePlans.Add(addNewGrowthStages);
-                                                        newSubProcess.Plans.Add(newPlan);
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
                                                     {
@@ -717,12 +718,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 Notes = plan.PlanNote,
                                                                 FarmID = checkExistProcess.FarmId,
                                                                 MasterTypeId = plan.MasterTypeId,
+                                                                SubProcessId = subProcess.SubProcessId,
                                                             };
+                                                            await _unitOfWork.PlanRepository.Insert(newPlan);
                                                             if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                             {
                                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
                                                             }
-                                                            subProcessUpdate.Plans.Add(newPlan);
+                                                           
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
                                                         {
@@ -792,12 +795,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
+                                                            SubProcessId = subProcessUpdate.SubProcessID
                                                         };
+                                                        await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         if (plan.GrowthStageId != null)
                                                         {
                                                             newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = plan.GrowthStageId });
                                                         }
-                                                        subProcessUpdate.Plans.Add(newPlan);
+                                                        
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
                                                     {
@@ -866,12 +871,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 Notes = updatePlan.PlanNote,
                                                 FarmID = checkExistProcess.FarmId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
+                                                ProcessId = checkExistProcess.ProcessId
                                             };
-                                            if(updatePlan.GrowthStageId != null)
+                                            await _unitOfWork.PlanRepository.Insert(newPlan);
+                                            if (updatePlan.GrowthStageId != null)
                                             {
                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
+
                                             }
-                                            checkExistProcess.Plans.Add(newPlan);
+                                            
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
                                         {

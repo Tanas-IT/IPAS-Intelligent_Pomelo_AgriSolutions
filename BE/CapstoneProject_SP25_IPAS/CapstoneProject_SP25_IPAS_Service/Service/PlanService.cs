@@ -51,6 +51,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == createPlanModel.ProcessId);
+                    if (checkExistProcess != null)
+                    {
+                        if (createPlanModel.StartDate < checkExistProcess.StartDate ||
+                             createPlanModel.StartDate > checkExistProcess.EndDate ||
+                             createPlanModel.EndDate < checkExistProcess.StartDate ||
+                             createPlanModel.EndDate > checkExistProcess.EndDate)
+                                            {
+                            throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
+                                $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
+                        }
+                    }
                     var newPlan = new Plan()
                     {
                         PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + createPlanModel.MasterTypeId.Value,
@@ -1661,8 +1673,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
-                                    Rows = validRows,
-                                    Plants = validPlants
+                                    Unit= unit,
                                 });
                             }
                             break;
@@ -1674,8 +1685,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
+                                    Unit = unit,
                                     Rows = validRows,
-                                    Plants = validPlants
                                 });
                             }
                             break;
@@ -1687,6 +1698,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
+                                    Unit = unit,
                                     Rows = validRows,
                                     Plants = validPlants
                                 });
@@ -1703,6 +1715,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 result.Add(new LandPlotFilterModel
                                 {
+                                    FarmId = farmId,
+                                    Unit = unit,
                                     PlantLots = validPlantLots.Select(pl => new PlantLotFilterModel { PlantLotId = pl.PlantLotId, PlantLotName = pl.PlantLotName }).ToList()
                                 });
                             }
@@ -1717,6 +1731,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 result.Add(new LandPlotFilterModel
                                 {
+                                    FarmId = farmId,
+                                    Unit = unit,
                                     GraftedPlants = validGraftedPlants.Select(gp => new GraftedPlantFilterModel { GraftedPlantId = gp.GraftedPlantId, GraftedPlantName = gp.GraftedPlantName }).ToList()
                                 });
                             }
