@@ -560,49 +560,86 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlantInfo = await _unitOfWork.PlantRepository.GetByCondition(x => x.FarmId == farmId && x.PlantId == plantId);
-
-                if (getPlantInfo == null)
+                var plant = await _unitOfWork.PlantRepository.GetByCondition(x => x.FarmId == farmId && x.PlantId == plantId, "ChildPlants");
+                if (plant == null)
                 {
                     return new BusinessResult(Const.FAIL_GET_GRAFTED_PLANT_CODE, "No plant was found");
                 }
 
                 // Tìm cây gốc (F0)
-                var rootPlant = await GetRootPlantAsync(getPlantInfo);
+                var rootPlant = await GetRootPlantAsync(plant);
 
-                // Lấy toàn bộ lịch sử chiết cành từ cây gốc
-                var history = GetPlantGraftingHistory(rootPlant, 0);
+                // Lấy danh sách tổ tiên từ F0 đến cây hiện tại
+                var ancestors = await GetAncestorsAsync(rootPlant, plant);
 
-                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, history);
+                // Xác định thế hệ hiện tại (F của plant)
+                int currentGeneration = ancestors.Count; // Nếu ancestors có 2 phần tử -> cây hiện tại là F2
+
+                // Lấy danh sách con cháu (tính thế hệ từ currentGeneration + 1)
+                var descendants = GetDescendants(plant, currentGeneration + 1);
+
+                var result = new PlantGraftingHistoryResult
+                {
+                    PlantId = plant.PlantId,
+                    PlantName = plant.PlantName,
+                    Generation = currentGeneration,
+                    PlantingDate = plant.PlantingDate,
+                    Ancestors = ancestors,
+                    Descendants = descendants
+                };
+
+                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, result);
             }
             catch (Exception ex)
             {
-
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
-        // Hàm tìm cây gốc (F0)
         private async Task<Plant> GetRootPlantAsync(Plant plant)
         {
             while (plant.PlantReferenceId != null)
             {
-                plant = await _unitOfWork.PlantRepository.GetByID(plant.PlantReferenceId.Value);
+                plant = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plant.PlantReferenceId.Value, "ChildPlants");
             }
             return plant;
         }
 
-        // Đệ quy lấy lịch sử chiết cành
-        private PlantGraftingHistoryModel GetPlantGraftingHistory(Plant plant, int generation)
+        private async Task<List<PlantGraftingHistoryModel>> GetAncestorsAsync(Plant root, Plant targetPlant)
         {
-            return new PlantGraftingHistoryModel
+            var ancestors = new List<PlantGraftingHistoryModel>();
+            int generation = 0; // Bắt đầu từ F0
+
+            Plant current = root;
+            while (current.PlantId != targetPlant.PlantId)
             {
-                PlantId = plant.PlantId,
-                PlantName = plant.PlantName,
-                Generation = generation,
-                PlantingDate = plant.PlantingDate,
-                ChildPlants = plant.ChildPlants.Select(child => GetPlantGraftingHistory(child, generation + 1)).ToList()
-            };
+                ancestors.Add(new PlantGraftingHistoryModel
+                {
+                    PlantId = current.PlantId,
+                    PlantName = current.PlantName,
+                    Generation = generation++,
+                    PlantingDate = current.PlantingDate
+                });
+
+                if (current.ChildPlants.Any(p => p.PlantId == targetPlant.PlantId))
+                    break; // Dừng lại khi tìm thấy cây hiện tại trong danh sách con
+
+                current = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == targetPlant.PlantReferenceId.Value, "ChildPlants");
+            }
+            return ancestors;
         }
+
+        private List<PlantGraftingHistoryModel> GetDescendants(Plant plant, int generation)
+        {
+            return plant.ChildPlants.Select(child => new PlantGraftingHistoryModel
+            {
+                PlantId = child.PlantId,
+                PlantName = child.PlantName,
+                Generation = generation,
+                PlantingDate = child.PlantingDate,
+                ChildPlants = GetDescendants(child, generation + 1)
+            }).ToList();
+        }
+
     }
 }
