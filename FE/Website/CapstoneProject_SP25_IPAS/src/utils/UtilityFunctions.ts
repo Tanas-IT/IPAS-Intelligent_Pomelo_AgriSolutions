@@ -299,6 +299,8 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
 
 export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
   const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
+  console.log("process farm", processFarms);
+  
 
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,

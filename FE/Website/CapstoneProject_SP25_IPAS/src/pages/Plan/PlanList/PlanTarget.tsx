@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Select, Row, Col, Button, Table, message } from 'antd';
+import { Form, Select, Row, Col, Button, Table, message, Modal } from 'antd';
 import { Section } from '@/components';
 import { Icons } from '@/assets';
 import { planService } from '@/services';
@@ -25,6 +25,16 @@ interface PlantOption {
     plantName: string;
 }
 
+interface PlantLotOption {
+    plantLotId: number;
+    plantLotName: string;
+}
+
+interface GraftedPlantOption {
+    graftedPlantId: number;
+    graftedPlantName: string;
+}
+
 interface RowOption {
     landRowId: number;
     rowIndex: number;
@@ -37,8 +47,8 @@ interface SelectedTargets {
     landPlotName: string;
     rows: RowOption[];
     plants: PlantOption[];
-    plantLots: OptionType[];
-    graftedPlants: OptionType[];
+    plantLots: PlantLotOption[];
+    graftedPlants: GraftedPlantOption[];
 }
 
 const PlanTarget = ({
@@ -96,6 +106,23 @@ const PlanTarget = ({
         }
     }, [selectedGrowthStage]);
 
+    const updateTargets = (
+        newTargets: SelectedTargets[],
+        index: number,
+        newTarget: SelectedTargets[],
+        setSelectedTargets: React.Dispatch<React.SetStateAction<SelectedTargets[]>>,
+        setSelectedUnits: React.Dispatch<React.SetStateAction<string[]>>
+    ) => {
+        newTargets.splice(index, 1, ...newTarget); // Chèn nhiều phần tử vào danh sách target
+        setSelectedTargets([...newTargets]);
+    
+        setSelectedUnits((prev) => {
+            const newSelectedUnits = [...prev];
+            newSelectedUnits.splice(index, 1, ...newTarget.map((t) => t.unit));
+            return newSelectedUnits;
+        });
+    };
+
     const handleUnitChange = async (value: string, index: number) => {
         if (!selectedGrowthStage) {
             message.warning("Please select a growth stage first.");
@@ -108,8 +135,10 @@ const PlanTarget = ({
 
             const formattedData = response.map((item) => ({
                 unit: value,
-                landPlotId: item.landPlotId,
-                landPlotName: item.landPlotName,
+                landPlotId: item.landPlotId ?? null, // Kiểm tra nếu có landPlotId
+                landPlotName: item.landPlotName ?? "",
+            
+                // Nếu unit là row hoặc plant, cần lấy thông tin rows
                 rows: value === "row" || value === "plant"
                     ? item.rows.map(row => ({
                         landRowId: row.landRowId,
@@ -120,23 +149,83 @@ const PlanTarget = ({
                         }))
                     }))
                     : [],
-                plants: value === "plant" ? item.plants : [],
-                plantLots: value === "plantLot" ? item.plantLots : [],
-                graftedPlants: value === "graftedPlant" ? item.graftedPlants : [],
+            
+                // Nếu unit là plant, lấy trực tiếp từ item.plants
+                plants: value === "plant" ? item.plants.map(plant => ({
+                    plantId: plant.plantId,
+                    plantName: plant.plantName
+                })) : [],
+            
+                // Nếu unit là plantlot, lấy từ item.plantLots
+                plantLots: value === "plantlot" ? item.plantLots.map(lot => ({
+                    plantLotId: lot.plantLotId,
+                    plantLotName: lot.plantLotName
+                })) : [],
+            
+                // Nếu unit là graftedPlant, lấy từ item.graftedPlants
+                graftedPlants: value === "graftedplant" ? item.graftedPlants.map(grafted => ({
+                    graftedPlantId: grafted.graftedPlantId,
+                    graftedPlantName: grafted.graftedPlantName
+                })) : [],
             }));
 
-            // Cập nhật state, giữ nguyên dữ liệu cũ
-            setSelectedTargets((prev) => {
-                const newSelectedTargets = [...prev];
-                newSelectedTargets[index] = formattedData[0]; // Lấy phần tử đầu tiên (vì API trả về mảng)
-                return newSelectedTargets;
-            });
+            let newTargets = [...selectedTargets];
+            console.log("newTargets", newTargets);
+            
 
-            setSelectedUnits((prev) => {
-                const newSelectedUnits = [...prev];
-                newSelectedUnits[index] = value; // Cập nhật unit tại vị trí index
-                return newSelectedUnits;
-            });
+        // 🔹 Kiểm tra nếu chọn "plot" nhưng đã có target nhỏ hơn trong cùng plot
+        if (formattedData.some((t) => t.landPlotId !== null)) {
+            const hasSubTarget = newTargets.some(
+                (t) =>
+                    formattedData.some((newT) => t.landPlotId === newT.landPlotId) &&
+                    t.unit !== "landplot"
+            );
+
+            if (value === "landplot" && hasSubTarget) {
+                Modal.confirm({
+                    title: "Trùng lặp mục tiêu",
+                    content: "Bạn đã chọn một plot chứa các mục tiêu nhỏ hơn. Bạn có muốn giữ lựa chọn cũ không?",
+                    okText: "Giữ nguyên",
+                    cancelText: "Xóa mục tiêu cũ",
+                    onOk: () => {
+                        message.info("Vui lòng chọn plot khác.");
+                    },
+                    onCancel: () => {
+                        newTargets = newTargets.filter(
+                            (t) => !formattedData.some((newT) => t.landPlotId === newT.landPlotId)
+                        );
+                        updateTargets(newTargets, index, formattedData, setSelectedTargets, setSelectedUnits);
+                    }
+                });
+                return;
+            }
+
+            const hasPlotTarget = newTargets.some(
+                (t) =>
+                    t.unit === "landplot" &&
+                    formattedData.some((newT) => t.landPlotId === newT.landPlotId)
+            );
+
+            if (value === "plant" && hasPlotTarget) {
+                message.warning("Plot đã được chọn, không thể chọn từng plant.");
+                return;
+            }
+        }
+
+        updateTargets(newTargets, index, formattedData, setSelectedTargets, setSelectedUnits);
+            
+
+            // setSelectedTargets((prev) => {
+            //     const newSelectedTargets = [...prev];
+            //     newSelectedTargets[index] = formattedData[0]; // Lấy phần tử đầu tiên (vì API trả về mảng)
+            //     return newSelectedTargets;
+            // });
+
+            // setSelectedUnits((prev) => {
+            //     const newSelectedUnits = [...prev];
+            //     newSelectedUnits[index] = value; // Cập nhật unit tại vị trí index
+            //     return newSelectedUnits;
+            // });
         } catch (error) {
             console.error("Error fetching data:", error);
             message.error("Failed to fetch data. Please try again.");
@@ -338,8 +427,8 @@ const PlanTarget = ({
                                 onChange={(value) => handlePlantLotChange(value, name)}
                             >
                                 {selectedTarget?.plantLots.map((lot) => (
-                                    <Option key={lot.value} value={lot.value}>
-                                        {lot.label}
+                                    <Option key={lot.plantLotId} value={lot.plantLotId}>
+                                        {lot.plantLotName}
                                     </Option>
                                 ))}
                             </Select>
@@ -360,8 +449,8 @@ const PlanTarget = ({
                                 onChange={(value) => handleGraftedPlantChange(value, name)}
                             >
                                 {selectedTarget?.graftedPlants.map((grafted) => (
-                                    <Option key={grafted.value} value={grafted.value}>
-                                        {grafted.label}
+                                    <Option key={grafted.graftedPlantId} value={grafted.graftedPlantId}>
+                                        {grafted.graftedPlantName}
                                     </Option>
                                 ))}
                             </Select>
@@ -400,12 +489,12 @@ const PlanTarget = ({
                     break;
                 case 'plantLot':
                     details = `Plant Lot: ${selectedTarget?.plantLots
-                        .map((lot) => lot.label)
+                        .map((lot) => lot.plantLotName)
                         .join(", ")}`;
                     break;
                 case 'graftedPlant':
                     details = `Grafted Plant: ${selectedTarget?.graftedPlants
-                        .map((grafted) => grafted.label)
+                        .map((grafted) => grafted.graftedPlantName)
                         .join(", ")}`;
                     break;
                 default:

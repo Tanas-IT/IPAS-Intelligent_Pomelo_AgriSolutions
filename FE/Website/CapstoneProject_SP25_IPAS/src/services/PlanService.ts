@@ -67,15 +67,15 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
     startTime: plan.startTime,
     endTime: plan.endTime,
     planTargetModel: plan.planTargetModel?.map(target => ({
-        landRowID: target.landRowID,
-        landPlotID: target.landPlotID,
-        graftedPlantID: target.graftedPlantID,
-        plantLotID: target.plantLotID,
-        plantID: target.plantID
+      landPlotID: target.landPlotID ?? 0,
+      landRowID: Array.isArray(target.landRowID) ? target.landRowID : [],
+      plantID: Array.isArray(target.plantID) ? target.plantID : [],
+      graftedPlantID: Array.isArray(target.graftedPlantID) ? target.graftedPlantID : [],
+      plantLotID: Array.isArray(target.plantLotID) ? target.plantLotID : [],
     })) || []
 };
 
-  const res = await axiosAuth.axiosJsonRequest.post(`plan`, formData);
+  const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 }

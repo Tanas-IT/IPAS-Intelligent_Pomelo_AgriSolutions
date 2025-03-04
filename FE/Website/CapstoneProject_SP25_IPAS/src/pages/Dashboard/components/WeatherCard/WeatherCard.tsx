@@ -1,4 +1,4 @@
-import { Card, Typography } from "antd";
+import { Card, Flex, Typography } from "antd";
 import { FC } from "react";
 import style from "./WeatherCard.module.scss";
 import { CloudOutlined, SunOutlined, ThunderboltOutlined } from "@ant-design/icons";
@@ -54,11 +54,12 @@ const WeatherCard: FC<WeatherCardProps> = ({ weather }) => {
         backgroundPosition: "center",
       }}>
       <div className={style.weatherHeader}>
-        {/* <div className={style.weatherIconWrapper}>
-          {getWeatherIcon(weather.status)}
-        </div> */}
+        <Flex justify="space-between">
           <Title level={5} className={style.tempText}>{weather.currentTemp}°C</Title>
-          <Text className={style.weatherDescription}>{weather.description}</Text>
+          <p className={style.weatherDescription}>{weather.description}</p>
+          </Flex>
+          <p className={style.weatherWindSpeed}>Wind: {weather.windSpeed}</p>
+          <p className={style.weatherWindSpeed}>Humidity: {weather.humidity}</p>
       </div>
     </Card>
   );

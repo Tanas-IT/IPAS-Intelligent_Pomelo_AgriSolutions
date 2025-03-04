@@ -4,47 +4,24 @@
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     height: 100px;
-  }
-  
-  .weatherHeader {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    margin-top: 10px;
-  }
-  
-  .weatherIconWrapper {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #f0f0f0;
-  }
-  
-  .weatherIcon {
-    font-size: 32px;
-    color: #1890ff;
-  }
-  
-  .tempText {
-    margin: 0;
-    margin-top: 30px;
-    font-size: 20px;
-  }
-  
-  .weatherDescription {
-    font-size: 14px;
-    color: #666;
-  }
-  
-  .weatherDetails {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 14px;
+
+    .weatherHeader {
+      margin-top: 10px;
+
+      .tempText {
+        margin: 0;
+        margin-top: -30px;
+        font-size: 16px;
+      }
+
+      .weatherDescription {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .weatherWindSpeed {
+        color: rgb(10, 126, 65);
+      }
+    }
   }
   

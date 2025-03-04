@@ -173,6 +173,8 @@ const AddPlan = () => {
     const { dateRange, timeRange, planTargetModel } = values;
     const startDate = new Date(dateRange?.[0]);
     const endDate = new Date(dateRange?.[1]);
+    console.log("planTargetModel", planTargetModel);
+    
 
     const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
     const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
@@ -210,12 +212,14 @@ const AddPlan = () => {
       customDates: customDates.map((date) => date.toISOString()),
       startDate: adjustedStartDate.toISOString(),
       endDate: adjustedEndDate.toISOString(),
-      startTime,
-      endTime,
+      startTime: startTime,
+      endTime: endTime,
       planTargetModel: planTargetModel.map((target: any) => ({
-        landPlotID: target.landPlotID,
-        landRowID: target.landRowID,
-        plantID: target.plantID,
+        landPlotID: target.landPlotID ?? 0,
+        landRowID: target.landRowID ?? [],
+        plantID: target.plantID ?? [],
+        graftedPlantID: target.graftedPlantID ?? [],
+        plantLotID: target.plantLotID ?? [],
       })),
     };
 
@@ -234,8 +238,11 @@ const AddPlan = () => {
   useEffect(() => {
     const fetchData = async () => {
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+      console.log("d");
       setEmployee(await fetchUserInfoByRole("User"));
       console.log("employee", employee);
+      console.log("hhhhhhhh");
+      
       
     };
 
