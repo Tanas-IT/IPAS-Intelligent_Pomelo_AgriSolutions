@@ -93,16 +93,16 @@ const AddPlan = () => {
   const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
-  const [selectedGrowthStage, setSelectedGrowthStage] = useState<number | null>(null);
+  const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
+  console.log("các id", selectedGrowthStage);
+  
 
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
-  const { options: growthStageOptions } = useGrowthStageOptions(true);
+  const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
-  console.log("landplot id", selectedLandPlot);
-  console.log("landRowOptions", landRowOptions);
 
 
   const [planTargets, setPlanTargets] = useState<
@@ -301,6 +301,7 @@ const AddPlan = () => {
                 isEditing={true}
                 onChange={(value) => setSelectedGrowthStage(value)}
                 type="select"
+                multiple
                 hasFeedback={false}
               />
             </Col>
@@ -418,6 +419,7 @@ const AddPlan = () => {
           graftedPlants={graftedPlantsOptions}
           onLandPlotChange={handleLandPlotChange}
           onLandRowChange={handleLandRowChange}
+          selectedGrowthStage={selectedGrowthStage}
         />
 
         <Divider className={style.divider} />

@@ -30,3 +30,28 @@ export interface GetPlantOfRowSelect {
   id: number;
   code: string;
 }
+
+export interface Plant {
+  plantId: number;
+  plantName: string;
+}
+
+export interface LandRow {
+  landRowId: number;
+  rowIndex: number;
+  plants: Plant[];
+}
+
+export interface LandPlot {
+  landPlotId: number;
+  landPlotName: string;
+  unit: string;
+  rows: LandRow[];
+  plants: Plant[];
+  plantLots: any[];
+  graftedPlants: any[];
+}
+
+export interface GetPlantTargetResponse {
+  landPlots: LandPlot[];
+}

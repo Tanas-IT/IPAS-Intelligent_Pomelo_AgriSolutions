@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetPlant } from "@/payloads";
+import { ApiResponse, GetData, GetPlant, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
@@ -87,12 +87,14 @@ export const getPlanDetail = async (planId: string) => {
   return apiResponse.data;
 }
 
-export const filterTargetByUnitGrowthStage = async (unit: string, growthStageId: number[]) => {
-  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-target-by-unit-growth-stage`, {
-    unit,
-    growthStageId
-  });
-  const apiResponse = res.data as ApiResponse<GetPlant[]>;
-
+export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
+  console.log("Request body:", JSON.stringify({ listGrowthStage }));
+  
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
+      listGrowthStage);
+  console.log('ressssss', res);
+  
+  const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
   return apiResponse.data;
 };
+
