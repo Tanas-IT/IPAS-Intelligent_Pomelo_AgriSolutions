@@ -461,7 +461,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (existingCriteria.Any())
                     return (false, "You must apply criteria before.");
                 //var targetSplit = Util.SplitByComma(TargetsList);
-                existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked == true);
+                existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked != true);
                 if (!existingCriteria.Any())
                     return (false, $"You must completed all criteria of {string.Join(", ", TargetsList)} before.");
                 return (true, "All of criteria is complete");
@@ -491,7 +491,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         );
             return existingCriteriaTargets.ToList();
         }
-
+        /// <summary>
+        /// tu criteria truyen vao - criteria da co - bo nhung cai da trung voi nhau --> Add criteria vao
+        /// </summary>
+        /// <param name="criteriaData">Criteria se add vao tu ben ngoai</param>
+        /// <param name="plantIds"></param>
+        /// <param name="graftedPlantIds"></param>
+        /// <param name="plantLotIds"></param>
+        /// <param name="existingCriteriaTargets">Cac criteria da duoc add vao tu truoc</param>
+        /// <returns></returns>
         private List<CriteriaTarget> GenerateNewCriteriaTargets( List<CriteriaData> criteriaData, List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds, List<CriteriaTarget> existingCriteriaTargets)
         {
             return criteriaData
@@ -515,8 +523,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Priority = criteria.Priority
             };
         }
-
         private bool IsDuplicate(CriteriaTarget newTarget, List<CriteriaTarget> existingTargets)
+        // kiem tra xem criteria do da dc ap dung cho cay do chua
         {
             return existingTargets.Any(e =>
                 (e.PlantID == newTarget.PlantID && newTarget.PlantID != null) ||
