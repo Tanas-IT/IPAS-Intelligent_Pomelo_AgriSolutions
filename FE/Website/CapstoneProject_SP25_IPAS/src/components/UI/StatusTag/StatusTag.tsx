@@ -2,13 +2,13 @@ import { Tag } from "antd";
 import style from "./StatusTag.module.scss";
 
 const STATUS_COLORS: Record<string, string> = {
-    pending: "orange",
-    progress: "blue",
-    completed: "green",
-    overdue: "red",
-    cancelled: "gray",
-    reviewing: "purple",
-    approved: "cyan",
+    Pending: "orange",
+    InProgress: "blue",
+    Completed: "green",
+    Overdue: "red",
+    Cancelled: "gray",
+    Reviewing: "purple",
+    Done: "cyan",
 };
 
 interface StatusTagProps {

@@ -27,7 +27,7 @@ const useLandRowOptions = (landPlotId: number | null) => {
     };
 
     fetchOptions();
-  }, [landPlotId]); // 👈 Lắng nghe thay đổi của `landPlotId`
+  }, [landPlotId]);
 
   return { options };
 };

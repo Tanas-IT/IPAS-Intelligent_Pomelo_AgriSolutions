@@ -1,20 +1,48 @@
 export interface GetPlan {
   planId: number;
   planName: string;
-  status: string;
   planCode: string;
-  createDate: Date;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   isActive: boolean;
   notes: string;
+  status: string;
   planDetail: string;
-  frequency: string;
+  progress: number;
+  isDelete: boolean;
   assignorName: string;
   processName: string;
   cropName: string;
   growthStageName: string;
-  isDelete: boolean;
   masterTypeName: string;
-  landPlotName: string;
+  avatarOfAssignor: string;
+  plantNames: string[];
+  landPlotNames: string[];
+  plantLotNames: string[];
+  rowIndexs: number[];
+  dayOfWeek: number[];
+  startTime: string;
+  endTime: string;
+  listReporter: Reporter[];
+  listEmployee: Employee[];
+  listWorkLog: WorkLog[];
+}
+
+export interface Reporter {
+  fullName: string;
+  avatar: string;
+}
+
+export interface Employee {
+  fullName: string;
+  avatar: string;
+}
+
+export interface WorkLog {
+  workLogID: number;
+  workLogName: string;
+  dateWork: string;
+  status: string;
+  reporter: string;
+  avatarOfReporter: string;
 }

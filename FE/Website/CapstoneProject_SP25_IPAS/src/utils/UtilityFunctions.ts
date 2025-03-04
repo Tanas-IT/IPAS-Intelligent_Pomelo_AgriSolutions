@@ -298,8 +298,10 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
   }));
 };
 
-export const fetchProcessesOfFarm = async (farmId: number) => {
-  const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
+export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
+  const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
+  console.log("process farm", processFarms);
+  
 
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,
@@ -339,3 +341,30 @@ export const normalizeRow = (row: landRowSimulate | rowStateType) => ({
         })),
   rowIndex: "rowIndex" in row ? row.rowIndex : row.index,
 });
+
+export const formatDateW = (dateString: string): string => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+  };
+
+  const day = date.getDate();
+  const suffix = getDaySuffix(day);
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
+  return formattedDate.replace(/\d+/, `${day}${suffix}`);
+};
+
+const getDaySuffix = (day: number): string => {
+  if (day >= 11 && day <= 13) return "th";
+  const lastDigit = day % 10;
+  switch (lastDigit) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+  }
+};

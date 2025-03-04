@@ -21,11 +21,22 @@ import { useModal } from '@/hooks'
 import { CreateWorklogRequest } from '@/payloads/worklog'
 import WorklogModal from './WorklogModal/WorklogModal'
 import { useNavigate } from 'react-router-dom'
+import { worklogService } from '@/services'
+import dayjs from 'dayjs'
+
+type Worklog = {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  status: string;
+};
 
 
 function Worklog() {
   const eventsService = useState(() => createEventsServicePlugin())[0];
   const navigate = useNavigate();
+  const [worklog, setWorklog] = useState<Worklog[]>([]);
 
   const [filters, setFilters] = useState({
     createDateFrom: "",
@@ -47,6 +58,32 @@ function Worklog() {
     // fetchData();
   };
 
+  const fetchData = async () => {
+    try {
+      const response = await worklogService.getWorklog();
+      if (response) {
+        const worklogs = response.data.list.map((log) => ({
+          id: log.workLogId.toString(),
+          title: log.workLogName,
+          start: dayjs(`${log.date.split('T')[0]} ${log.startTime}`).format('YYYY-MM-DD HH:mm'),
+          end: dayjs(`${log.date.split('T')[0]} ${log.endTime}`).format('YYYY-MM-DD HH:mm'),
+          status: log.status,
+        }));
+        setWorklog(worklogs);
+      } else {
+        console.error('errorrr', response);
+      }
+    } catch (error) {
+      console.error('errorrr:', error);
+    }
+  };
+
+  console.log('worklogsssssssss', worklog);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleClear = () => {
     setFilters({
       createDateFrom: "",
@@ -60,45 +97,38 @@ function Worklog() {
     });
   };
 
-  const fakeWorklogs = [
-    {
-      id: '1',
-      title: 'Tưới nước',
-      start: '2025-02-12 02:00',
-      end: '2025-02-12 03:00',
-      status: 'Completed',
-    },
-  ];
-
-  // const eventModal = createEventModalPlugin({
-  //   renderEventModal: ({ event, closeModal }) => (
-  //     <div className="custom-modal">
-  //       <h3>{event.title}</h3>
-  //       <p>Bắt đầu: {event.start}</p>
-  //       <p>Kết thúc: {event.end}</p>
-  //       <button onClick={closeModal}>Đóng</button>
-  //     </div>
-  //   ),
-  // });
-
+  useEffect(() => {
+    if (eventsService) {
+      eventsService.set(
+        worklog.map((log) => ({
+          id: log.id,
+          title: `${log.title} (${log.status})`,
+          start: log.start,
+          end: log.end,
+        }))
+      );
+    }
+  }, [worklog, eventsService]);
   
 
+  useEffect(() => {
+    console.log("Worklog sau khi fetch:", worklog);
+  }, [worklog]);
 
   const calendar = useCalendarApp({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-    events: fakeWorklogs.map((log) => ({
+    events: worklog.map((log) => ({
       id: log.id,
-      title: `${log.title} (${log.status})`,
+      title: `${log.title}`,
       start: log.start,
       end: log.end,
     })),
-    selectedDate: "2025-02-12",
+    selectedDate: dayjs().format("YYYY-MM-DD"),
     plugins: [eventsService],
 
   })
 
   useEffect(() => {
-    // Giả lập việc lấy dữ liệu từ API
     eventsService.getAll()
   }, [])
 
