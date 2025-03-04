@@ -91,13 +91,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(pt => pt.GraftedPlant)
                     .Include(x => x.MasterType)
                     .Include(x => x.Process)
-                    .Include(x => x.GrowthStagePlans)
                     .Include(x => x.User)
                     .Include(x => x.Crop)
                     .Include(x => x.CarePlanSchedule)
                         .ThenInclude(cs => cs.WorkLogs)
                             .ThenInclude(wl => wl.UserWorkLogs)
-                                .ThenInclude(uwl => uwl.User);
+                                .ThenInclude(uwl => uwl.User)
+                    .Include(x => x.GrowthStagePlans)
+                    .ThenInclude(x => x.GrowthStage);
 
 
             if (orderBy != null)
