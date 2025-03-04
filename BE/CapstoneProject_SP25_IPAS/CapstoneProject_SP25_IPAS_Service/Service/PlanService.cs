@@ -1676,6 +1676,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Unit= unit,
                                 });
                             }
+                            else
+                            {
+                                result.Add(new LandPlotFilterModel
+                                {
+                                    FarmId = farmId,
+                                    Unit = unit,
+                                });
+                                return result;
+                            }
                             break;
 
                         case "row":
@@ -1688,6 +1697,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Unit = unit,
                                     Rows = validRows,
                                 });
+                            }
+                            else
+                            {
+                                result.Add(new LandPlotFilterModel
+                                {
+                                    FarmId = farmId,
+                                    Unit = unit,
+                                });
+                                return result;
                             }
                             break;
 
@@ -1702,6 +1720,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Rows = validRows,
                                     Plants = validPlants
                                 });
+                            }
+                            else
+                            {
+                                result.Add(new LandPlotFilterModel
+                                {
+                                    FarmId = farmId,
+                                    Unit = unit,
+                                });
+                                return result;
                             }
                             break;
 
@@ -1719,9 +1746,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Unit = unit,
                                     PlantLots = validPlantLots.Select(pl => new PlantLotFilterModel { PlantLotId = pl.PlantLotId, PlantLotName = pl.PlantLotName }).ToList()
                                 });
+                                return result;
                             }
-                            break;
-
+                            else
+                            {
+                                result.Add(new LandPlotFilterModel
+                                {
+                                    FarmId = farmId,
+                                    Unit = unit,
+                                });
+                                return result;
+                            }
                         case "graftedplant":
                             var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
                             var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && growthStageIds.Contains(pl.GrowthStageID))
@@ -1735,8 +1770,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Unit = unit,
                                     GraftedPlants = validGraftedPlants.Select(gp => new GraftedPlantFilterModel { GraftedPlantId = gp.GraftedPlantId, GraftedPlantName = gp.GraftedPlantName }).ToList()
                                 });
+                                return result;
                             }
-                            break;
+                            else
+                            {
+                                result.Add(new LandPlotFilterModel
+                                {
+                                    FarmId = farmId,
+                                    Unit = unit,
+                                });
+                                return result;
+                            }
 
                         default:
                             throw new ArgumentException("Unit is not valid.");
