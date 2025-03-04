@@ -71,7 +71,7 @@ const PlanTarget = ({
     const [selectedTargets, setSelectedTargets] = useState<SelectedTargets[]>([]);
 
     useEffect(() => {
-        if (selectedTargets.length > 0 && selectedGrowthStage) {
+        if (selectedTargets.length > 0) {
             const currentUnit = selectedTargets[selectedTargets.length - 1].unit;
             if (!currentUnit) return;
 
@@ -113,7 +113,7 @@ const PlanTarget = ({
         setSelectedTargets: React.Dispatch<React.SetStateAction<SelectedTargets[]>>,
         setSelectedUnits: React.Dispatch<React.SetStateAction<string[]>>
     ) => {
-        newTargets.splice(index, 1, ...newTarget); // Chèn nhiều phần tử vào danh sách target
+        newTargets.splice(index, 1, ...newTarget);
         setSelectedTargets([...newTargets]);
     
         setSelectedUnits((prev) => {
@@ -462,7 +462,6 @@ const PlanTarget = ({
         }
     };
 
-    // Lấy dữ liệu summary để hiển thị trong bảng
     const getSummaryData = () => {
         const values = form.getFieldsValue().planTargetModel || [];
 

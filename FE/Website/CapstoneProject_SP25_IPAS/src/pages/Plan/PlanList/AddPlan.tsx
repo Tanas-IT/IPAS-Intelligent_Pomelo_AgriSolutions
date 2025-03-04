@@ -369,6 +369,7 @@ const AddPlan = () => {
             label="Frequency"
             name={addPlanFormFields.frequency}
             options={frequencyOptions}
+            rules={[{ required: true, message: "Please select the frequency!" }]}
             isEditing
             type="select"
             hasFeedback={false}
