@@ -18,6 +18,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             _graftedPlantService = graftedPlantService;
             _jwtTokenService = jwtTokenService;
+
         }
 
         // Lấy cây ghép theo ID
