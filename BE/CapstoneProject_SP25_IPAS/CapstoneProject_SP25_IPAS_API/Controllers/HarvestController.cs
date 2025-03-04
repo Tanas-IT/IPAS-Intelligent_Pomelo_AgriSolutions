@@ -210,5 +210,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Harvest.statisticOfPlantByYear, Name = "statisticOfPlantByYear")]
+        public async Task<IActionResult> statisticOfPlantByYear([FromQuery] int plantId, int year)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.statisticOfPlantByYear(plantId, year);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

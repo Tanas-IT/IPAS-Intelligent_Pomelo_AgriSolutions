@@ -192,5 +192,55 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
+
+        [HttpGet(APIRoutes.GraftedPlant.getHistoryOfGraftedPlantById, Name = "getHistoryOfGraftedPlantById")]
+        public async Task<IActionResult> getHistoryOfGraftedByPlantId([FromQuery] int? farmId, int plantId)
+        {
+            try
+            {
+                if(!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _graftedPlantService.getHistoryOfGraftedPlant(farmId.Value, plantId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPut(APIRoutes.GraftedPlant.CompleteGraftedPlant, Name = "CompleteGraftedPlant")]
+        public async Task<IActionResult> CompleteGraftedPlant([FromBody] CompletedGraftedPlantRequest Request)
+        {
+            try
+            {
+                if (!Request.FarmId.HasValue)
+                    Request.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!Request.FarmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId is Required"
+                    });
+                }
+                var result = await _graftedPlantService.CompletedGraftedPlant(Request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }

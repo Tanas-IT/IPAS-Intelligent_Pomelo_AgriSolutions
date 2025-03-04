@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+
+using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -22,6 +23,8 @@ using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
+using System.Net.WebSockets;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -31,12 +34,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         //private readonly IPlantService _plantService;
         private readonly MasterTypeConfig _masterTypeConfig;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig)
+        private readonly ICriteriaTargetService _criteriaTargetService;
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             //_plantService = plantService;
             _masterTypeConfig = masterTypeConfig;
+            _criteriaTargetService = criteriaTargetService;
         }
 
         public async Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest)
@@ -48,12 +53,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var plantExist = await _unitOfWork.PlantRepository.getById(createRequest.PlantId);
                     if (plantExist == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
-                    
+
                     // Kiểm tra các điều kiện để chiết cành
                     var validationResult = await CheckPlantBeforeGrafted(createRequest.PlantId);
                     if (!string.IsNullOrEmpty(validationResult))
                         return new BusinessResult(400, validationResult);
-                   
+
                     // Kiểm tra cây đã hoàn thành đủ điều kiện để chiết cành chưa
                     var criteriaResult = await CheckGraftedConditionCompletedAsync(plantId: createRequest.PlantId, null);
                     if (criteriaResult.StatusCode != 200)
@@ -335,7 +340,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     existingGraftedPlant.Note = updateRequest.Note;
 
                 if (updateRequest.PlantLotId.HasValue && updateRequest.PlantLotId.Value >= 0)
+                {
+                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.isDeleted != true);
+                    if (checkPlantLotExist == null)
+                        return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     existingGraftedPlant.PlantLotId = updateRequest.PlantLotId.Value;
+                }
 
                 // Cập nhật thời gian chỉnh sửa
                 //existingPlant.UpdateDate = DateTime.UtcNow;
@@ -346,6 +356,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result > 0)
                 {
+                    var mappedResult = _mapper.Map<GraftedPlantModels>(existingGraftedPlant);
                     return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_PLANT_CODE, Const.SUCCESS_UPDATE_GRAFTED_PLANT_MSG, existingGraftedPlant);
                 }
 
@@ -416,7 +427,58 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
         /// <summary>
-        /// Kiểm tra xem cây đã hoàn thành đủ tiêu chí làm cây mẹ chưa.
+        /// kiem tra da check het dieu kien evalution chua
+        /// --> update graftedPlant -> them PlantId, CompletedDate, PlantLotId (neu co)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BusinessResult> CompletedGraftedPlant(CompletedGraftedPlantRequest request)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantId && x.IsDeleted!.Value == false);
+                    if (checkGraftedExist == null)
+                        return new BusinessResult(400, "Grafted Plant Not exist");
+                    //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
+                    // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
+                    var checkCriteriaBefore = await CheckGraftedConditionCompletedAsync(null, graftedId: request.GraftedPlantId);
+                    if (checkCriteriaBefore.StatusCode != 200)
+                        return checkCriteriaBefore;
+                    if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
+                    {
+                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
+                        if (checkPlantLotExist == null)
+                            return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                        checkGraftedExist.PlantLotId = request.PlantLotId.Value;
+                    }
+                    checkGraftedExist.IsCompleted = true;
+                    checkGraftedExist.SeparatedDate = DateTime.Now;
+
+                    _unitOfWork.GraftedPlantRepository.Update(checkGraftedExist);
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mappedResult = _mapper.Map<GraftedPlantModels>(checkGraftedExist);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_PLANT_CODE, Const.SUCCESS_UPDATE_GRAFTED_PLANT_MSG, mappedResult);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, Const.FAIL_UPDATE_PLANT_MSG);
+
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra xem cây đã HOÀN THÀNH đủ Tiêu chí làm cây mẹ(GraftedCondition)/Tiêu chí để cây chiết(GraftedEvalution) --> CÂY chưa.
         /// </summary>
         public async Task<BusinessResult> CheckGraftedConditionCompletedAsync(int? plantId, int? graftedId)
         {
@@ -437,12 +499,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkGraftedId = await getGraftedByIdAsync(graftedId.Value);
                 if (checkGraftedId.StatusCode != 200 || checkGraftedId.Data == null)
                     return checkGraftedId;
-                appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
-                targetType = _masterTypeConfig.GraftedConditionApply!;
+                appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(graftedPlantId: graftedId);
+                targetType = _masterTypeConfig.GraftedEvaluationApply!;
             }
             // Lọc danh sách tiêu chí có TypeName = "Criteria" và Target = "GraftedCondition"
             var graftedConditions = appliedCriterias.Where(x =>
-                x.Criteria!.MasterType!.TypeName == "Criteria" &&
+                x.Criteria!.MasterType!.TypeName!.Equals(TypeNameInMasterEnum.Criteria.ToString(), StringComparison.OrdinalIgnoreCase) &&
                 x.Criteria.MasterType.Target == targetType).ToList();
 
             // Kiểm tra xem có tiêu chí nào chưa hoàn thành không
@@ -454,7 +516,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(400, $"The tree has not yet complete the criteria: {string.Join(",", uncompletedNames)}");
             }
 
-            return new BusinessResult(200, "The tree has complete all the criteria to be a mother tree");
+            return new BusinessResult(200, "The tree has complete all the criteria to be conducted a function");
         }
         /// <summary>
         /// hàm để tính được số nhánh có thể chiết được trên cây, dựa theo công thức tuyến tính 
@@ -515,49 +577,87 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlantInfo = await _unitOfWork.PlantRepository.GetByCondition(x => x.FarmId == farmId && x.PlantId == plantId);
-
-                if (getPlantInfo == null)
+                var plant = await _unitOfWork.PlantRepository.GetByCondition(x => x.FarmId == farmId && x.PlantId == plantId, "ChildPlants");
+                if (plant == null)
                 {
                     return new BusinessResult(Const.FAIL_GET_GRAFTED_PLANT_CODE, "No plant was found");
                 }
 
                 // Tìm cây gốc (F0)
-                var rootPlant = await GetRootPlantAsync(getPlantInfo);
+                var rootPlant = await GetRootPlantAsync(plant);
 
-                // Lấy toàn bộ lịch sử chiết cành từ cây gốc
-                var history = GetPlantGraftingHistory(rootPlant, 0);
+                // Lấy danh sách tổ tiên từ F0 đến cây hiện tại
+                var ancestors = await GetAncestorsAsync(rootPlant, plant);
 
-                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, history);
+                // Xác định thế hệ hiện tại (F của plant)
+                int currentGeneration = ancestors.Count; // Nếu ancestors có 2 phần tử -> cây hiện tại là F2
+
+                // Lấy danh sách con cháu (tính thế hệ từ currentGeneration + 1)
+                var descendants = GetDescendants(plant, currentGeneration + 1);
+
+                var result = new PlantGraftingHistoryResult
+                {
+                    PlantId = plant.PlantId,
+                    PlantName = plant.PlantName,
+                    Generation = currentGeneration,
+                    PlantingDate = plant.PlantingDate,
+                    Ancestors = ancestors,
+                    Descendants = descendants
+                };
+
+                return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, result);
             }
             catch (Exception ex)
             {
-
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
-        // Hàm tìm cây gốc (F0)
         private async Task<Plant> GetRootPlantAsync(Plant plant)
         {
             while (plant.PlantReferenceId != null)
             {
-                plant = await _unitOfWork.PlantRepository.GetByID(plant.PlantReferenceId.Value);
+                plant = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plant.PlantReferenceId.Value, "ChildPlants");
             }
             return plant;
         }
 
-        // Đệ quy lấy lịch sử chiết cành
-        private PlantGraftingHistoryModel GetPlantGraftingHistory(Plant plant, int generation)
+        private async Task<List<PlantGraftingHistoryModel>> GetAncestorsAsync(Plant root, Plant targetPlant)
         {
-            return new PlantGraftingHistoryModel
+            var ancestors = new List<PlantGraftingHistoryModel>();
+            int generation = 0; // Bắt đầu từ F0
+
+            Plant current = root;
+            while (current.PlantId != targetPlant.PlantId)
             {
-                PlantId = plant.PlantId,
-                PlantName = plant.PlantName,
-                Generation = generation,
-                PlantingDate = plant.PlantingDate,
-                ChildPlants = plant.ChildPlants.Select(child => GetPlantGraftingHistory(child, generation + 1)).ToList()
-            };
+                ancestors.Add(new PlantGraftingHistoryModel
+                {
+                    PlantId = current.PlantId,
+                    PlantName = current.PlantName,
+                    Generation = generation++,
+                    PlantingDate = current.PlantingDate
+                });
+
+                if (current.ChildPlants.Any(p => p.PlantId == targetPlant.PlantId))
+                    break; // Dừng lại khi tìm thấy cây hiện tại trong danh sách con
+
+                current = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == targetPlant.PlantReferenceId.Value, "ChildPlants");
+            }
+            return ancestors;
         }
+
+        private List<PlantGraftingHistoryModel> GetDescendants(Plant plant, int generation)
+        {
+            return plant.ChildPlants.Select(child => new PlantGraftingHistoryModel
+            {
+                PlantId = child.PlantId,
+                PlantName = child.PlantName,
+                Generation = generation,
+                PlantingDate = child.PlantingDate,
+                ChildPlants = GetDescendants(child, generation + 1)
+            }).ToList();
+        }
+
     }
 }
+
