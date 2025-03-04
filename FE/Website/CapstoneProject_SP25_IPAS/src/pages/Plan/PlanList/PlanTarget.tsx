@@ -20,11 +20,23 @@ interface PlanTargetProps {
     onLandRowChange: (landPlotId: number) => void;
 }
 
+interface PlantOption {
+    plantId: number;
+    plantName: string;
+}
+
+interface RowOption {
+    landRowId: number;
+    rowIndex: number;
+    plants: PlantOption[];
+}
+
 interface SelectedTargets {
     unit: string;
-    landPlots: OptionType[];
-    landRows: OptionType[];
-    plants: OptionType[];
+    landPlotId: number;
+    landPlotName: string;
+    rows: RowOption[];
+    plants: PlantOption[];
     plantLots: OptionType[];
     graftedPlants: OptionType[];
 }
@@ -46,60 +58,91 @@ const PlanTarget = ({
     const [selectedPlantLots, setSelectedPlantLots] = useState<number[][]>([]);
     const [selectedGraftedPlants, setSelectedGraftedPlants] = useState<number[][]>([]);
     const [form] = Form.useForm();
-    const [selectedTargets, setSelectedTargets] = useState<SelectedTargets>({
-        unit: "",
-        landPlots: [],
-        landRows: [],
-        plants: [],
-        plantLots: [],
-        graftedPlants: [],
-    });
+    const [selectedTargets, setSelectedTargets] = useState<SelectedTargets[]>([]);
 
-    // Gọi API khi unit hoặc selectedGrowthStage thay đổi
     useEffect(() => {
-        if (selectedTargets.unit && selectedGrowthStage) {
+        if (selectedTargets.length > 0 && selectedGrowthStage) {
+            const currentUnit = selectedTargets[selectedTargets.length - 1].unit;
+            if (!currentUnit) return;
+
             planService
-                .filterTargetByUnitGrowthStage(selectedTargets.unit, selectedGrowthStage, Number(getFarmId()))
+                .filterTargetByUnitGrowthStage(currentUnit, selectedGrowthStage, Number(getFarmId()))
                 .then((response) => {
                     console.log("Filtered Data: ", response);
-                    setSelectedTargets((prev) => ({ ...prev, ...response.data }));
+
+                    const formattedData = response.map((item) => ({
+                        unit: currentUnit,
+                        landPlotId: item.landPlotId,
+                        landPlotName: item.landPlotName,
+                        rows: currentUnit === "row" ? item.rows.map(row => ({
+                            landRowId: row.landRowId,
+                            rowIndex: row.rowIndex,
+                            plants: row.plants.map(plant => ({
+                                plantId: plant.plantId,
+                                plantName: plant.plantName
+                            }))
+                        })) : [],
+                        plants: currentUnit === "plant" ? item.plants : [],
+                        plantLots: currentUnit === "plantLot" ? item.plantLots : [],
+                        graftedPlants: currentUnit === "graftedPlant" ? item.graftedPlants : [],
+                    }));
+
+                    setSelectedTargets((prev) => [...prev, ...formattedData]);
                 })
                 .catch((error) => {
-                    console.error('Error fetching data:', error);
-                    message.error('Failed to fetch data. Please try again.');
+                    console.error("Error fetching data:", error);
+                    message.error("Failed to fetch data. Please try again.");
                 });
         }
-    }, [selectedTargets.unit, selectedGrowthStage]);
+    }, [selectedGrowthStage]);
 
-    // Xử lý khi người dùng chọn Unit
     const handleUnitChange = async (value: string, index: number) => {
-        setSelectedTargets((prev) => ({ ...prev, unit: value }));
-
-        // Kiểm tra nếu growth stage chưa được chọn
         if (!selectedGrowthStage) {
-            message.warning('Please select a growth stage first.');
+            message.warning("Please select a growth stage first.");
             return;
         }
 
-        // Gọi API để lấy dữ liệu phù hợp
         try {
             const response = await planService.filterTargetByUnitGrowthStage(value, selectedGrowthStage, Number(getFarmId()));
             console.log("Filtered Data: ", response);
 
-            // Cập nhật state dựa trên unit được chọn
-            setSelectedTargets((prev) => ({
-                ...prev,
-                landPlots: value === 'landPlot' ? response.data : prev.landPlots,
-                landRows: value === 'row' ? response.data : prev.landRows,
-                plants: value === 'plant' ? response.data : prev.plants,
-                plantLots: value === 'plantLot' ? response.data : prev.plantLots,
-                graftedPlants: value === 'graftedPlant' ? response.data : prev.graftedPlants,
+            const formattedData = response.map((item) => ({
+                unit: value,
+                landPlotId: item.landPlotId,
+                landPlotName: item.landPlotName,
+                rows: value === "row" || value === "plant"
+                    ? item.rows.map(row => ({
+                        landRowId: row.landRowId,
+                        rowIndex: row.rowIndex,
+                        plants: row.plants.map(plant => ({
+                            plantId: plant.plantId,
+                            plantName: plant.plantName
+                        }))
+                    }))
+                    : [],
+                plants: value === "plant" ? item.plants : [],
+                plantLots: value === "plantLot" ? item.plantLots : [],
+                graftedPlants: value === "graftedPlant" ? item.graftedPlants : [],
             }));
+
+            // Cập nhật state, giữ nguyên dữ liệu cũ
+            setSelectedTargets((prev) => {
+                const newSelectedTargets = [...prev];
+                newSelectedTargets[index] = formattedData[0]; // Lấy phần tử đầu tiên (vì API trả về mảng)
+                return newSelectedTargets;
+            });
+
+            setSelectedUnits((prev) => {
+                const newSelectedUnits = [...prev];
+                newSelectedUnits[index] = value; // Cập nhật unit tại vị trí index
+                return newSelectedUnits;
+            });
         } catch (error) {
-            console.error('Error fetching data:', error);
-            message.error('Failed to fetch data. Please try again.');
+            console.error("Error fetching data:", error);
+            message.error("Failed to fetch data. Please try again.");
         }
     };
+
 
     // Xử lý khi người dùng chọn Land Plot
     const handleLandPlotChange = (value: number, index: number) => {
@@ -147,14 +190,17 @@ const PlanTarget = ({
             return newSelectedGraftedPlants;
         });
     };
+    console.log("selectedTargets", selectedTargets);
+
 
     // Render các trường dựa trên unit được chọn
     const renderFields = (unit: string, name: number) => {
-        const selectedLandPlot = selectedLandPlots[name];
-        const selectedLandRow = selectedLandRows[name];
+        const selectedTarget = selectedTargets[name];
+        console.log("render unit", unit);
+
 
         switch (unit) {
-            case 'landPlot':
+            case 'landplot':
                 return (
                     <Col span={6}>
                         <Form.Item
@@ -166,11 +212,11 @@ const PlanTarget = ({
                                 placeholder="Select Land Plot"
                                 onChange={(value) => handleLandPlotChange(value, name)}
                             >
-                                {selectedTargets.landPlots.map((plot) => (
-                                    <Option key={plot.value} value={plot.value}>
-                                        {plot.label}
+                                {selectedTarget && (
+                                    <Option key={selectedTarget.landPlotId} value={selectedTarget.landPlotId}>
+                                        {selectedTarget.landPlotName}
                                     </Option>
-                                ))}
+                                )}
                             </Select>
                         </Form.Item>
                     </Col>
@@ -188,11 +234,11 @@ const PlanTarget = ({
                                     placeholder="Select Land Plot"
                                     onChange={(value) => handleLandPlotChange(value, name)}
                                 >
-                                    {selectedTargets.landPlots.map((plot) => (
-                                        <Option key={plot.value} value={plot.value}>
-                                            {plot.label}
+                                    {selectedTarget && (
+                                        <Option key={selectedTarget.landPlotId} value={selectedTarget.landPlotId}>
+                                            {selectedTarget.landPlotName}
                                         </Option>
-                                    ))}
+                                    )}
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -207,9 +253,9 @@ const PlanTarget = ({
                                     placeholder="Select Land Row"
                                     onChange={(value) => handleLandRowChange(value, name)}
                                 >
-                                    {selectedTargets.landRows.map((row) => (
-                                        <Option key={row.value} value={row.value}>
-                                            {row.label}
+                                    {selectedTarget?.rows.map((row) => (
+                                        <Option key={row.landRowId} value={row.landRowId}>
+                                            {`Row ${row.rowIndex}`}
                                         </Option>
                                     ))}
                                 </Select>
@@ -230,11 +276,11 @@ const PlanTarget = ({
                                     placeholder="Select Land Plot"
                                     onChange={(value) => handleLandPlotChange(value, name)}
                                 >
-                                    {selectedTargets.landPlots.map((plot) => (
-                                        <Option key={plot.value} value={plot.value}>
-                                            {plot.label}
+                                    {selectedTarget && (
+                                        <Option key={selectedTarget.landPlotId} value={selectedTarget.landPlotId}>
+                                            {selectedTarget.landPlotName}
                                         </Option>
-                                    ))}
+                                    )}
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -249,9 +295,9 @@ const PlanTarget = ({
                                     placeholder="Select Land Row"
                                     onChange={(value) => handleLandRowChange(value, name)}
                                 >
-                                    {selectedTargets.landRows.map((row) => (
-                                        <Option key={row.value} value={row.value}>
-                                            {row.label}
+                                    {selectedTarget?.rows.map((row) => (
+                                        <Option key={row.landRowId} value={row.landRowId}>
+                                            {`Row ${row.rowIndex}`}
                                         </Option>
                                     ))}
                                 </Select>
@@ -268,9 +314,9 @@ const PlanTarget = ({
                                     placeholder="Select Plant"
                                     onChange={(value) => handlePlantChange(value, name)}
                                 >
-                                    {selectedTargets.plants.map((plant) => (
-                                        <Option key={plant.value} value={plant.value}>
-                                            {plant.label}
+                                    {selectedTarget?.plants.map((plant) => (
+                                        <Option key={plant.plantId} value={plant.plantId}>
+                                            {plant.plantName}
                                         </Option>
                                     ))}
                                 </Select>
@@ -278,7 +324,7 @@ const PlanTarget = ({
                         </Col>
                     </>
                 );
-            case 'plantLot':
+            case 'plantlot':
                 return (
                     <Col span={6}>
                         <Form.Item
@@ -291,7 +337,7 @@ const PlanTarget = ({
                                 placeholder="Select Plant Lot"
                                 onChange={(value) => handlePlantLotChange(value, name)}
                             >
-                                {selectedTargets.plantLots.map((lot) => (
+                                {selectedTarget?.plantLots.map((lot) => (
                                     <Option key={lot.value} value={lot.value}>
                                         {lot.label}
                                     </Option>
@@ -300,7 +346,7 @@ const PlanTarget = ({
                         </Form.Item>
                     </Col>
                 );
-            case 'graftedPlant':
+            case 'graftedplant':
                 return (
                     <Col span={6}>
                         <Form.Item
@@ -313,7 +359,7 @@ const PlanTarget = ({
                                 placeholder="Select Grafted Plant"
                                 onChange={(value) => handleGraftedPlantChange(value, name)}
                             >
-                                {selectedTargets.graftedPlants.map((grafted) => (
+                                {selectedTarget?.graftedPlants.map((grafted) => (
                                     <Option key={grafted.value} value={grafted.value}>
                                         {grafted.label}
                                     </Option>
@@ -331,25 +377,36 @@ const PlanTarget = ({
     const getSummaryData = () => {
         const values = form.getFieldsValue().planTargetModel || [];
 
-        return values.map((target, index: number) => {
+        return values.map((target: any, index: number) => {
             const unit = selectedUnits[index];
+            const selectedTarget = selectedTargets[index];
             let details = '';
 
             switch (unit) {
                 case 'landPlot':
-                    details = `Land Plot: ${selectedTargets.landPlots.find((plot) => plot.value === target.landPlotID)?.label}`;
+                    details = `Land Plot: ${selectedTarget?.landPlotName}`;
                     break;
                 case 'row':
-                    details = `Land Plot: ${selectedTargets.landPlots.find((plot) => plot.value === target.landPlotID)?.label}, Land Row: ${selectedTargets.landRows.find((row) => row.value === target.landRowID)?.label}`;
+                    details = `Land Plot: ${selectedTarget?.landPlotName}, Land Row: ${selectedTarget?.rows
+                        .map((row) => `Row ${row.rowIndex}`)
+                        .join(", ")}`;
                     break;
                 case 'plant':
-                    details = `Land Plot: ${selectedTargets.landPlots.find((plot) => plot.value === target.landPlotID)?.label}, Land Row: ${selectedTargets.landRows.find((row) => row.value === target.landRowID)?.label}, Plant: ${selectedTargets.plants.find((plant) => plant.value === target.plantID)?.label}`;
+                    details = `Land Plot: ${selectedTarget?.landPlotName}, Land Row: ${selectedTarget?.rows
+                        .map((row) => `Row ${row.rowIndex}`)
+                        .join(", ")}, Plant: ${selectedTarget?.plants
+                            .map((plant) => plant.plantName)
+                            .join(", ")}`;
                     break;
                 case 'plantLot':
-                    details = `Plant Lot: ${selectedTargets.plantLots.find((lot) => lot.value === target.plantLotID)?.label}`;
+                    details = `Plant Lot: ${selectedTarget?.plantLots
+                        .map((lot) => lot.label)
+                        .join(", ")}`;
                     break;
                 case 'graftedPlant':
-                    details = `Grafted Plant: ${selectedTargets.graftedPlants.find((grafted) => grafted.value === target.graftedPlantID)?.label}`;
+                    details = `Grafted Plant: ${selectedTarget?.graftedPlants
+                        .map((grafted) => grafted.label)
+                        .join(", ")}`;
                     break;
                 default:
                     details = 'No selection';
@@ -376,6 +433,9 @@ const PlanTarget = ({
         },
     ];
 
+    console.log("selectedUnits", selectedUnits);
+
+
     return (
         <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
             <Form.List name="planTargetModel">
@@ -394,11 +454,11 @@ const PlanTarget = ({
                                             placeholder="Select Unit"
                                             onChange={(value) => handleUnitChange(value, name)}
                                         >
-                                            <Option value="landPlot">Land Plot</Option>
+                                            <Option value="landplot">Land Plot</Option>
                                             <Option value="row">Row</Option>
                                             <Option value="plant">Plant</Option>
-                                            <Option value="plantLot">Plant Lot</Option>
-                                            <Option value="graftedPlant">Grafted Plant</Option>
+                                            <Option value="plantlot">Plant Lot</Option>
+                                            <Option value="graftedplant">Grafted Plant</Option>
                                         </Select>
                                     </Form.Item>
                                 </Col>

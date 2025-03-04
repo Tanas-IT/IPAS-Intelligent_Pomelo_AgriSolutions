@@ -12,4 +12,5 @@ export * as growthStageService from "./GrowthStageService";
 export * as masterTypeService from "./MasterTypeService";
 export * as packageService from "./PackageService";
 export * as graftedPlantService from "./GraftedPlantService";
+export * as plantLotService from "./PlantLotService";
 

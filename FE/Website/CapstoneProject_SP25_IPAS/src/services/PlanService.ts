@@ -91,7 +91,7 @@ export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStag
   console.log("Request body:", JSON.stringify({ listGrowthStage }));
   
   const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
-      listGrowthStage);
+      { listGrowthStage });
   console.log('ressssss', res);
   
   const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;

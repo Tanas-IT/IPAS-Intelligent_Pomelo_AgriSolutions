@@ -42,7 +42,7 @@ export interface LandRow {
   plants: Plant[];
 }
 
-export interface LandPlot {
+export interface GetPlantTargetResponse {
   landPlotId: number;
   landPlotName: string;
   unit: string;
@@ -50,8 +50,4 @@ export interface LandPlot {
   plants: Plant[];
   plantLots: any[];
   graftedPlants: any[];
-}
-
-export interface GetPlantTargetResponse {
-  landPlots: LandPlot[];
 }

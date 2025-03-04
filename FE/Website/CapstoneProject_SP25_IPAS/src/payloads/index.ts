@@ -9,6 +9,7 @@ export * from "./landRow";
 export * from "./masterType";
 export * from "./growthStage";
 export * from "./graftedPlant";
+export * from "./plantLot";
 
 
 
