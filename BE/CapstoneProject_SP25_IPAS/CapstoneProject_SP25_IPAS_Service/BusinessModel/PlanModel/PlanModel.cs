@@ -52,6 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? ProcessName { get; set; }
 
         public string? CropName { get; set; }
+        public List<string>? GraftedPlantName { get; set; }
 
         public List<string>? GrowthStageName { get; set; }
 
