@@ -38,6 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? LandPlotId { get; set; }
 
         public string? LandPlotname { get; set; }
+        public int? IndexUsed { get; set; }
         //public virtual LandPlotModel? LandPlot { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ICollection<PlantModel> Plants { get; set; } = new List<PlantModel>();
