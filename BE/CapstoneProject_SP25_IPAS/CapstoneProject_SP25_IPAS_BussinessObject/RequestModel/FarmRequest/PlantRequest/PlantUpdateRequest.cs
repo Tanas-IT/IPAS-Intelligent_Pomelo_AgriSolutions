@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 
         public int? PlantIndex { get; set; }
 
-        public string? GrowthStage { get; set; }
+        public int? GrowthStageId { get; set; }
 
         public string? HealthStatus { get; set; }
 
@@ -29,5 +29,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 
         public int? MasterTypeId { get; set; }
 
+        public int? LandRowId { get; set; }
     }
 }

@@ -73,8 +73,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     string code = CodeHelper.GenerateCode();
                     var plantCreateEntity = new Plant()
                     {
-                        PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
-                        //PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}",
+                        PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-PL{plantCreateRequest.PlantingDate.ToString("ddMMyy")}",
+                        PlantName = $"Plant {code}",
                         PlantIndex = plantCreateRequest.PlantIndex,
                         GrowthStageID = growthStage.GrowthStageId,
                         HealthStatus = plantCreateRequest.HealthStatus,
@@ -94,8 +94,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, "Mother plant not exist in data");
                         var jsonData = plantReference.Data as PlantModel;
 
-                        plantCreateEntity.PlantReferenceId = jsonData.PlantId;
-                        plantCreateEntity.PlantCode += $"-{Util.SplitByDash(jsonData.PlantCode!).First()}";
+                        plantCreateEntity.PlantReferenceId = jsonData!.PlantId;
+                        //plantCreateEntity.PlantCode += $"-{Util.SplitByDash(jsonData.PlantCode!).First()}";
                     }
                     if (plantCreateRequest.LandRowId.HasValue)
                     {
@@ -104,7 +104,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                         if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
                             return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
-                        plantCreateEntity.PlantCode += $"{Util.SplitByDash(landrowExist.LandRowCode!).First()}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-";
+                        //plantCreateEntity.PlantCode += $"{Util.SplitByDash(landrowExist.LandRowCode!).First()}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-";
                         plantCreateEntity.PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
                     }
                     else
@@ -450,20 +450,64 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
                     }
-
-                    // Update the plant properties based on the request model
-                    foreach (var prop in typeof(PlantUpdateRequest).GetProperties())
+                    if (plantUpdateRequest.PlantReferenceId.HasValue && plantUpdateRequest.PlantReferenceId != 0)
                     {
-                        var newValue = prop.GetValue(plantUpdateRequest);
-                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()))
-                        {
-                            var plantProp = typeof(Plant).GetProperty(prop.Name);
-                            if (plantProp != null && plantProp.CanWrite)
-                            {
-                                plantProp.SetValue(plantEntityUpdate, newValue);
-                            }
-                        }
+                        // check plantReferceId la chinh no
+                        if (plantEntityUpdate.PlantId == plantUpdateRequest.PlantReferenceId)
+                            return new BusinessResult(400, "Can not choose Mother plant by it seft");
+                        // check plantRefernce Exist;
+                        var checkPlantReferce = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plantUpdateRequest.PlantReferenceId);
+                        if (plantEntityUpdate == null)
+                            return new BusinessResult(400, "Mother Plant not exist");
+                        plantEntityUpdate.PlantReferenceId = plantUpdateRequest.PlantReferenceId;
                     }
+
+                    // check hang da du cho chưa
+                    if (plantUpdateRequest.LandRowId.HasValue)
+                    {
+                        var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantUpdateRequest.LandRowId, "Plants,LandPlot");
+                        if (landrowExist == null)
+                            return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                        if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
+                            return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
+                        // check trung index trong row
+                        if (landrowExist.Plants.Any(x => x.PlantIndex == plantUpdateRequest.PlantIndex && x.IsDeleted != true))
+                            return new BusinessResult(400, "Index has have a plant");
+                        // cap nhat lai code cua 
+                        plantEntityUpdate.PlantName = $"Plant {plantUpdateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
+                        plantEntityUpdate.LandRowId = plantUpdateRequest.LandRowId;
+                        plantEntityUpdate.PlantIndex = plantUpdateRequest.PlantIndex;
+                    }
+
+                    // check Growstage eixst
+                    if (plantUpdateRequest.GrowthStageId.HasValue && plantUpdateRequest.GrowthStageId != 0)
+                    {
+                        var checkGrowStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == plantUpdateRequest.GrowthStageId && x.isDeleted != true);
+                        if (checkGrowStageExist == null)
+                            return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
+                        plantEntityUpdate.GrowthStageID = checkGrowStageExist.GrowthStageID;
+                    }
+                    // mapping 
+                    // Kiểm tra và cập nhật các giá trị khác
+                    if (!string.IsNullOrEmpty(plantUpdateRequest.PlantName) && plantEntityUpdate.PlantName != plantUpdateRequest.PlantName)
+                        plantEntityUpdate.PlantName = plantUpdateRequest.PlantName;
+
+                    if (!string.IsNullOrEmpty(plantUpdateRequest.HealthStatus) && plantEntityUpdate.HealthStatus != plantUpdateRequest.HealthStatus)
+                        plantEntityUpdate.HealthStatus = plantUpdateRequest.HealthStatus;
+
+                    if (plantUpdateRequest.PlantingDate.HasValue && plantEntityUpdate.PlantingDate != plantUpdateRequest.PlantingDate)
+                        plantEntityUpdate.PlantingDate = plantUpdateRequest.PlantingDate;
+
+                    if (!string.IsNullOrEmpty(plantUpdateRequest.Description) && plantEntityUpdate.Description != plantUpdateRequest.Description)
+                        plantEntityUpdate.Description = plantUpdateRequest.Description;
+
+                    if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
+                    {
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != false );
+                        if (checkMasterTypeExist == null)
+                            return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
+                        plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
+                    }    
 
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantEntityUpdate);
