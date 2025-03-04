@@ -333,11 +333,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.GraftedPlantName))
             .ReverseMap();
 
-            CreateMap<GraftedPlantNote, GraftedPlantModels>()
+            CreateMap<GraftedPlantNote, GraftedPlantNoteModel>()
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                 .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
                 .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
                 .ReverseMap();
+
+            CreateMap<GraftedPlant, GraftedPlantModels>()
+               .ForMember(dest => dest.PlandCode, opt => opt.MapFrom(src => src.Plant.PlantCode))
+               .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot!.PlantLotName))
+               .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot!.PlantLotCode))
+               .ReverseMap();
 
             CreateMap<ChatMessage, ChatMessageModel>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Room.UserID))
