@@ -25,8 +25,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedMo
 
         public DateTime? UpdateDate { get; set; }
 
+        public int? NumberImage { get; set; }
+        public int? NumberVideos { get; set; }
         //public virtual GraftedPlantModels? GraftedPlant { get; set; }
-        public ICollection<Resource> Resources { get; set; } = new List<Resource>();
+        public ICollection<ResourceModel> Resources { get; set; } = new List<ResourceModel>();
 
     }
 }

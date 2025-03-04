@@ -10,11 +10,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Gra
 {
     public class GetGraftedPaginRequest
     {
-        [Required]
-        public int PlantId { get; set; }
+        public int? FarmId { get; set; }
         //public PaginationParameter paginationParameter { get; set; } = new PaginationParameter();
 
         // filter here
+        public string? PlantIds { get; set; }
+
         public string? GrowthStage { get; set; }
 
         public DateTime? SeparatedDateFrom { get; set; }
