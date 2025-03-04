@@ -40,6 +40,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             masterTypeConfig.Targets = masterTypeConfig.Targets.Select(x => x.Trim()).ToList();
             masterTypeConfig.GraftedConditionApply = masterTypeConfig.GraftedConditionApply!.Trim();
             masterTypeConfig.GraftedEvaluationApply = masterTypeConfig.GraftedEvaluationApply!.Trim();
+
             services.AddSingleton(masterTypeConfig);
 
 
