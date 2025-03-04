@@ -1632,7 +1632,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = new List<LandPlotFilterModel>();
 
                 // Lọc ra các Rows hợp lệ và lấy Plants hợp lệ trong từng Row
-                
+                // Nếu growthStageIds null hoặc không có phần tử, lấy tất cả
+                bool getAllPlants = growthStageIds == null || !growthStageIds.Any();
 
                 foreach (var landPlot in landPlots)
                 {
@@ -1642,7 +1643,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LandRowId = row.LandRowId,
                         RowIndex = row.RowIndex,
                         Plants = row.Plants
-                            .Where(plant => growthStageIds.Contains(plant.GrowthStageID))
+                            .Where(plant => getAllPlants || growthStageIds.Contains(plant.GrowthStageID))
                             .Select(plant => new PlantFilterModel
                             {
                                 PlantId = plant.PlantId,
@@ -1650,13 +1651,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             })
                             .ToList()
                     })
-                    .Where(row => row.Plants.Any()) // Chỉ lấy Rows có ít nhất một cây hợp lệ
+                    .Where(row => getAllPlants || row.Plants.Any())
                     .ToList();
 
                     // Lọc trực tiếp các cây trồng trên LandPlot (nếu có)
                     var validPlants = landPlot.LandRows
                         .SelectMany(row => row.Plants)
-                        .Where(plant => growthStageIds.Contains(plant.GrowthStageID))
+                        .Where(plant => getAllPlants || growthStageIds.Contains(plant.GrowthStageID))
                         .Select(plant => new PlantFilterModel
                         {
 
@@ -1708,7 +1709,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         case "plantlot":
                             var validPlantLotsTemp = await _unitOfWork.PlantLotRepository.GetAllNoPaging();
-                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && growthStageIds.Contains(pl.GrowthStageID))
+                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
                                 .ToList();
 
                             if (validPlantLots.Any())
@@ -1732,7 +1733,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         case "graftedplant":
                             var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
-                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && growthStageIds.Contains(pl.GrowthStageID))
+                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
                                 .ToList();
 
                             if (validGraftedPlants.Any())
