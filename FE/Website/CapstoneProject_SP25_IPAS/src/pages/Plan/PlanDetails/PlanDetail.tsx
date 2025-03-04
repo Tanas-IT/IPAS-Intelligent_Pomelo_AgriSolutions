@@ -84,7 +84,7 @@ function PlanDetail() {
     }, [id]);
 
     const infoFieldsLeft = [
-        { label: "Crop", value: processDetail?.cropName, icon: Icons.growth },
+        { label: "Crop", value: processDetail?.cropName || "No data", icon: Icons.growth },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
     ];
 
