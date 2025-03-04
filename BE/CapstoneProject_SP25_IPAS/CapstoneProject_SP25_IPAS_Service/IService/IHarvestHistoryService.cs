@@ -22,5 +22,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> updateHarvesTypeHistory(UpdateHarvesTypeHistoryRequest updateRequest);
         public Task<BusinessResult> getAllHistoryPlantOfHarvest(int harvestId, int masterTypeId);
         public Task<BusinessResult> deleteHarvestType(int harvestHistory, int masterTypeId, int? plantId);
+        public Task<BusinessResult> statisticOfPlantByYear(int plantId, int year);
     }
 }

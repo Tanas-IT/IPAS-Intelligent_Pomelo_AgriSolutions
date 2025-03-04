@@ -19,6 +19,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
