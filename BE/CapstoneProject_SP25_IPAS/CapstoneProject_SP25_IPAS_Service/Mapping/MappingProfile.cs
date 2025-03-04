@@ -132,6 +132,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
                 .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ForMember(dest => dest.LandRowName, opt => opt.MapFrom(src => src.LandPlot!.LandPlotName + "-" + src.RowIndex.ToString()))
+                .ForMember(dest => dest.IndexUsed, opt => opt.MapFrom(src => src.Plants.Count()))
                 .ReverseMap();
 
             CreateMap<Plant, PlantModel>()

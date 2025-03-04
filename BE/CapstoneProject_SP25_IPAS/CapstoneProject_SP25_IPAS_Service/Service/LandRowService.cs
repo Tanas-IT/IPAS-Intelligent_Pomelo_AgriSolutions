@@ -327,14 +327,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.LandRowId);
                         break;
                 }
-                string includeProperties = "LandPlot";
+                string includeProperties = "LandPlot,Plants";
                 var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
-                //foreach (var item in pagin.List)
-                //{
-                //    item.Plants = null!;
-                //}
+                foreach (var item in pagin.List)
+                {
+                    item.Plants = null!;
+                }
                 //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
                 pagin.TotalRecord = await _unitOfWork.LandRowRepository.Count(filter: filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
