@@ -502,7 +502,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantEntityUpdate.Description = plantUpdateRequest.Description;
 
                     if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
+                    {
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != false );
+                        if (checkMasterTypeExist == null)
+                            return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
+                    }    
 
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantEntityUpdate);
