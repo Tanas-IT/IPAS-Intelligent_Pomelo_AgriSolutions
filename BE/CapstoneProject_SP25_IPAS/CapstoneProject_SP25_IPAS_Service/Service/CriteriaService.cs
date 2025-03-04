@@ -160,7 +160,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (!criteriaByType.Any())
                 {
-                    return new BusinessResult(Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
+                    return new BusinessResult(200, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
                 }
 
                 var groupedData = criteriaByType

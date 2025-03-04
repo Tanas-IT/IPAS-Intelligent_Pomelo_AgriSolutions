@@ -129,9 +129,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var resultSave = await _unitOfWork.SaveAsync();
                         if (resultSave > 0)
                         {
+                            int numberObjectHasApply = 0;
+                            numberObjectHasApply = request.PlantId!.Any() ?  request.PlantId!.Count() : numberObjectHasApply;
+                            numberObjectHasApply = request.PlantLotId!.Any() ?  request.PlantLotId!.Count() : numberObjectHasApply;
+                            numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
+
                             await transaction.CommitAsync();
                             return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
-                                $"Apply {request.CriteriaData.Count()} criteria for selected {newCriteriaTargets.Count} objects success", new { success = true });
+                                $"Apply {request.CriteriaData.Count()} criteria for selected {numberObjectHasApply} objects success", new { success = true });
                         }
                     }
 
@@ -154,33 +159,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     // Kiểm tra đầu vào hợp lệ
-                    if (!updateRequest.PlantID!.Any() && !updateRequest.GraftedPlantID!.Any() && !updateRequest.PlantLotID!.Any())
+                    if (!updateRequest.PlantId!.Any() && !updateRequest.GraftedPlantId!.Any() && !updateRequest.PlantLotId!.Any())
                     {
                         return new BusinessResult(Const.FAIL_UPDATE_CRITERIA_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
                     int countTarget = 0;
                     // Cập nhật tiêu chí cho từng nhóm đối tượng (Plant / GraftedPlant / PlantLot)
-                    if (updateRequest.PlantID.Any())
+                    if (updateRequest.PlantId.Any())
                     {
-                        foreach (var plantId in updateRequest.PlantID)
+                        foreach (var plantId in updateRequest.PlantId)
                         {
                             await UpdateCriteria(plantId, null, null, updateRequest.CriteriaData, allowOverride);
                             countTarget++;
                         }
                     }
 
-                    if (updateRequest.GraftedPlantID.Any())
+                    if (updateRequest.GraftedPlantId.Any())
                     {
-                        foreach (var graftedPlantId in updateRequest.GraftedPlantID)
+                        foreach (var graftedPlantId in updateRequest.GraftedPlantId)
                         {
                             await UpdateCriteria(null, graftedPlantId, null, updateRequest.CriteriaData, allowOverride);
                             countTarget++;
                         }
                     }
 
-                    if (updateRequest.PlantLotID.Any())
+                    if (updateRequest.PlantLotId.Any())
                     {
-                        foreach (var plantLotId in updateRequest.PlantLotID)
+                        foreach (var plantLotId in updateRequest.PlantLotId)
                         {
                             await UpdateCriteria(null, null, plantLotId, updateRequest.CriteriaData, allowOverride);
                             countTarget++;
@@ -475,9 +480,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private (List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds) ExtractTargetIds(CriteriaTargerRequest request)
         {
             return (
-                request.PlantID ?? new List<int>(),
-                request.GraftedPlantID ?? new List<int>(),
-                request.PlantLotID ?? new List<int>()
+                request.PlantId ?? new List<int>(),
+                request.GraftedPlantId ?? new List<int>(),
+                request.PlantLotId ?? new List<int>()
             );
         }
 

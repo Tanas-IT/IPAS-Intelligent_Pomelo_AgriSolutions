@@ -764,7 +764,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
-                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                var mapReturn = _mapper.Map<IEnumerable<PlantModel>>(plantInPlot);
                 return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_FARM_PAGINATION_CODE, "Get plant not yet planting success", mapReturn);
             }
             catch (Exception ex)
