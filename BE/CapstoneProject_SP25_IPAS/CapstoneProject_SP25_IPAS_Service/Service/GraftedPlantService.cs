@@ -596,7 +596,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        // 📌 Tìm cây tổ tiên (F0)
         private async Task<Plant> GetRootPlantAsync(Plant plant)
         {
             while (plant.PlantReferenceId != null)
