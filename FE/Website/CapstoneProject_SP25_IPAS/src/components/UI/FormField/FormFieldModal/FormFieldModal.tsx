@@ -150,7 +150,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
         return (
           <Select
             placeholder={`Select ${label.toLowerCase()}`}
-            className={`${styles.customSelect}`}
+            className={`${style.select} ${styles.customSelect}`}
             options={options}
             showSearch={isSearch}
             loading={isLoading}

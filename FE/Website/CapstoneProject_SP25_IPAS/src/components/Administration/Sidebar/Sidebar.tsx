@@ -144,13 +144,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           activePaths: [PATHS.FARM.FARM_INFO],
         },
         {
-          key: "Manage Plants",
-          label: "Manage Plants",
-          icon: Images.radius,
-          to: PATHS.FARM.FARM_PLANT_LIST,
-          activePaths: [PATHS.FARM.FARM_PLANT_LIST, PATHS.FARM.FARM_PLANT_DETAIL],
-        },
-        {
           key: "Manage Plots",
           label: "Manage Plots",
           icon: Images.radius,
@@ -161,8 +154,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Manage Rows",
           label: "Manage Rows",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.FARM.FARM_ROW_LIST,
+          activePaths: [PATHS.FARM.FARM_ROW_LIST],
+        },
+        {
+          key: "Manage Plants",
+          label: "Manage Plants",
+          icon: Images.radius,
+          to: PATHS.FARM.FARM_PLANT_LIST,
+          activePaths: [PATHS.FARM.FARM_PLANT_LIST, PATHS.FARM.FARM_PLANT_DETAIL],
         },
         {
           key: "Manage Plant Lot",
@@ -209,8 +209,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Manage Employees",
           label: "Manage Employees",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.HR.EMPLOYEES,
+          activePaths: [PATHS.HR.EMPLOYEES],
         },
         {
           key: "Work Schedules",

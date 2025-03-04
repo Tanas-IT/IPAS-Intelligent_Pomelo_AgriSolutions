@@ -15,4 +15,5 @@ export { default as weatherImg } from "@/assets/images/resources/weatherImg.png"
 export { default as imgImg } from "@/assets/images/resources/imgImg.png";
 export { default as videoImg } from "@/assets/images/resources/videoImg.png";
 export { default as plant } from "@/assets/images/resources/plant.png";
+export { default as plant2 } from "@/assets/images/resources/plantSvg.svg";
 export { default as empty } from "@/assets/images/resources/empty.png";

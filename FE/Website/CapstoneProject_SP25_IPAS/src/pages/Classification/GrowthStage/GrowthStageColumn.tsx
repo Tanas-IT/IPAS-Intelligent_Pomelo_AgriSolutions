@@ -7,7 +7,7 @@ export const growthStageColumns: TableColumn<GetGrowthStage>[] = [
   {
     header: "Code",
     field: "growthStageCode",
-    accessor: (item) => <TableCell value={item.growthStageCode} />,
+    accessor: (item) => <TableCell value={item.growthStageCode} isCopyable={true} />,
     width: 160,
   },
   {

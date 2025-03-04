@@ -12,7 +12,6 @@ import {
   FilterMasterTypeState,
   FilterPlantState,
   LogoState,
-  rowStateType,
 } from "@/types";
 
 export const getDefaultFarm = (): GetFarmInfo => ({
@@ -104,14 +103,14 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   isLocated: null,
 };
 
-export const DEFAULT_ROW = (): rowStateType => ({
-  id: 0,
-  length: 200,
-  width: 50,
-  plantsPerRow: 10,
-  plantSpacing: 5,
-  index: 0,
-});
+// export const DEFAULT_ROW = (): rowStateType => ({
+//   id: 0,
+//   length: 200,
+//   width: 50,
+//   plantsPerRow: 10,
+//   plantSpacing: 5,
+//   index: 0,
+// });
 
 export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
   landPlotId: "",
@@ -139,7 +138,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   plantIndex: 0,
   healthStatus: "",
   createDate: new Date(),
-  plantingDate: new Date(),
+  plantingDate: "",
   description: "",
   masterTypeName: "",
   growthStageName: "",

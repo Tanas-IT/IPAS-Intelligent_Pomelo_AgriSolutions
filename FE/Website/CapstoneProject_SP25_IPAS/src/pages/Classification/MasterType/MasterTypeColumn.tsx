@@ -10,7 +10,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
   {
     header: "Code",
     field: "masterTypeCode",
-    accessor: (item) => <TableCell value={item.masterTypeCode} />,
+    accessor: (item) => <TableCell value={item.masterTypeCode} isCopyable={true} />,
     width: 160,
   },
   {

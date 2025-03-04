@@ -21,11 +21,16 @@ export const healthStatusColors: Record<string, string> = {
   Healthy: "green",
   "Minor Issues": "orange",
   "Serious Issues": "red",
-  Dead: "gray",
+  Dead: "#444",
 };
 
 export const GROWTH_ACTIONS = {
   GRAFTED: "Grafted",
   HARVEST: "Harvest",
   BOTH: "Both",
+} as const;
+
+export const VIEW_MODE = {
+  TABLE: "Table",
+  SIMULATION: "Simulation",
 } as const;

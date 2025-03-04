@@ -1,5 +1,11 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetLandPlot, GetLandPlotSelected, LandPlotRequest } from "@/payloads";
+import {
+  ApiResponse,
+  GetLandPlot,
+  GetLandPlotSelected,
+  GetLandPlotSimulate,
+  LandPlotRequest,
+} from "@/payloads";
 import { getFarmId } from "@/utils";
 
 export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
@@ -24,6 +30,14 @@ export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetL
     : `landplots?farmId=${getFarmId()}`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
   const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
+  return apiResponse;
+};
+
+export const getLandPlotSimulate = async (
+  landPlotId: number,
+): Promise<ApiResponse<GetLandPlotSimulate>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-mapped/${landPlotId}`);
+  const apiResponse = res.data as ApiResponse<GetLandPlotSimulate>;
   return apiResponse;
 };
 

@@ -7,6 +7,7 @@ import "aos/dist/aos.css";
 import { ToastContainer } from "react-toastify";
 import { ScrollToTop } from "./components";
 import { ConfigProvider } from "antd";
+import { themeColors } from "./styles";
 
 function App() {
   return (
@@ -14,15 +15,19 @@ function App() {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "#326E2F",
+            colorPrimary: themeColors.highlight,
           },
           components: {
             Select: {
-              optionSelectedColor: "#20461e",
-              optionSelectedBg: "#bcd379",
+              optionSelectedColor: themeColors.primary,
+              optionSelectedBg: themeColors.secondary,
             },
             DatePicker: {
-              cellActiveWithRangeBg: "#bcd379",
+              cellActiveWithRangeBg: themeColors.secondary,
+            },
+            Segmented: {
+              itemSelectedBg: themeColors.secondary,
+              itemSelectedColor: themeColors.primary,
             },
           },
         }}

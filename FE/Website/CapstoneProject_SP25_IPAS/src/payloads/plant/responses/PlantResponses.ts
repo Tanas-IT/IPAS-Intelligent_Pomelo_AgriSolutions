@@ -6,7 +6,7 @@ export interface GetPlant {
   healthStatus: string;
   createDate: Date;
   plantingDate: string;
-  plantReferenceId: number; 
+  plantReferenceId: number;
   plantReferenceCode: string;
   description: string;
   masterTypeId: number;
@@ -24,6 +24,13 @@ export interface GetPlantDetail extends GetPlant {
 }
 
 export interface GetPlantSelect {
-  plantId: string;
+  id: string;
+  code: string;
+}
+
+export interface plantSimulate {
+  plantId: number;
   plantCode: string;
+  plantIndex: number;
+  healthStatus: string;
 }

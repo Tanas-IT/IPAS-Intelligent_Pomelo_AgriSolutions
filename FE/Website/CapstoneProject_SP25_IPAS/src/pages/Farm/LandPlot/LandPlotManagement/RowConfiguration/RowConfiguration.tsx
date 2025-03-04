@@ -110,7 +110,11 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form, se
                     label="Row Orientation"
                     name={createPlotFormFields.rowOrientation}
                     rules={RulesManager.getRowOrientationRules()}
-                    onChange={(e) => handleInputChange(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target && e.target.value !== undefined) {
+                        handleInputChange(e.target.value);
+                      }
+                    }}
                     options={[
                       { value: "Horizontal", label: "Horizontal" },
                       { value: "Vertical", label: "Vertical" },

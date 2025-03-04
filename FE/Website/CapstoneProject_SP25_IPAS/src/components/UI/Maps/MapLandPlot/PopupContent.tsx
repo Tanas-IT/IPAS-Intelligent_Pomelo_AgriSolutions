@@ -9,19 +9,18 @@ import { formatDate } from "@/utils";
 interface PopupContentProps {
   plot: GetLandPlot;
   onClose: () => void;
+  onViewRows?: (plotId: number) => void;
+  onUpdatePlot?: (plot: GetLandPlot) => void;
+  onDeletePlot?: (plotId: number) => void;
 }
 
-const PopupContent: React.FC<PopupContentProps> = ({ plot, onClose }) => {
-  const handleDelete = () => {
-    console.log("Xóa lô đất!");
-    // TODO: Gọi API hoặc thực hiện logic xóa ở đây
-  };
-
-  const handleUpdate = () => {
-    console.log("Cập nhật lô đất!");
-    // TODO: Gọi API hoặc mở modal chỉnh sửa
-  };
-
+const PopupContent: React.FC<PopupContentProps> = ({
+  plot,
+  onClose,
+  onViewRows = () => {},
+  onUpdatePlot = () => {},
+  onDeletePlot = () => {},
+}) => {
   return (
     <div className={style.popupContainer}>
       <Flex className={style.popupHeader}>
@@ -83,11 +82,25 @@ const PopupContent: React.FC<PopupContentProps> = ({ plot, onClose }) => {
         </Flex>
       </Flex>
       <Flex className={style.popupFooter}>
-        <Button type="primary" danger onClick={handleDelete} className={style.btn}>
-          Delete
-        </Button>
-        <Button onClick={handleUpdate} className={`${style.btn} ${style.updateBtn}`}>
-          Update
+        <Flex gap={20}>
+          <Button
+            type="primary"
+            danger
+            onClick={() => onDeletePlot(Number(plot.landPlotId))}
+            className={style.btn}
+          >
+            Delete
+          </Button>
+          <Button onClick={() => onUpdatePlot(plot)} className={`${style.btn} ${style.updateBtn}`}>
+            Update
+          </Button>
+        </Flex>
+
+        <Button
+          onClick={() => onViewRows(Number(plot.landPlotId))}
+          className={`${style.btn} ${style.updateBtn}`}
+        >
+          View Rows
         </Button>
       </Flex>
     </div>

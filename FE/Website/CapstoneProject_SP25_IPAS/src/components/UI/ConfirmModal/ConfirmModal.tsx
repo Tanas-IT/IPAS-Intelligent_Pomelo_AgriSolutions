@@ -123,7 +123,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         <Icons.warning className={style.icon} />
         <h3 className={style.confirmTitle}>{title || generatedTitle}</h3>
         <p className={style.confirmDesc}>{description || generatedDescription}</p>
-        {errorMessages && errorMessages.length > 0 ? (
+        {errorMessages && errorMessages.length > 0 && (
           <div className={style.errorList}>
             <ul>
               {errorMessages.map((msg, index) => (
@@ -131,8 +131,6 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               ))}
             </ul>
           </div>
-        ) : (
-          <p className={style.confirmDesc}>{description || generatedDescription}</p>
         )}
       </div>
     </Modal>

@@ -37,7 +37,7 @@ export const handleApiError = async (error: any) => {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
           } else if (result.statusCode === 500 || result.statusCode === 400) {
-            redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
+            // redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
           }
         } else {
           redirectToHomeWithMessage("", false);

@@ -140,7 +140,6 @@ function PlantList() {
         toast.success(res.message);
         await fetchData();
       } else {
-        // console.log(res.message);
         const errorList = res.message.split("\n").filter((error) => error.trim() !== "");
         importErrorModal.showModal({ errors: errorList });
       }

@@ -79,10 +79,16 @@ export const importPlants = async (file: File): Promise<ApiResponse<GetPlant>> =
   return apiResponse;
 };
 
-export const getMotherPlantSelect = async (): Promise<ApiResponse<GetPlantDetail>> => {
+export const getMotherPlantSelect = async (): Promise<ApiResponse<GetPlantSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `plants/get-for-selected/growth-stage-function?activeFunction=${GROWTH_ACTIONS.GRAFTED}`,
   );
-  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
+  const apiResponse = res.data as ApiResponse<GetPlantSelect[]>;
+  return apiResponse;
+};
+
+export const getPlantNoPositionSelect = async (): Promise<ApiResponse<GetPlant[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plants/get-for-selected/not-yet-plant`);
+  const apiResponse = res.data as ApiResponse<GetPlant[]>;
   return apiResponse;
 };

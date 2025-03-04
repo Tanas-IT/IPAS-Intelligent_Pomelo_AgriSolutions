@@ -1,12 +1,23 @@
 .headerWrapper {
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   .sectionLeft {
     width: 100%;
+    min-width: 30rem;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
   }
+
+  .extraContent {
+    width: 100%;
+    min-width: 24rem;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+  }
+
   .sectionRight {
     width: 100%;
     justify-content: flex-end;

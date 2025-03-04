@@ -17,10 +17,11 @@ const PlantImportModal = ({ isOpen, onClose, onSave, isLoadingAction }: PlantImp
 
   useEffect(() => {
     if (!isOpen) return;
-    setSelectedFile(null);
+    handleRemoveFile();
   }, [isOpen]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return;
     const file = event.target.files?.[0];
     if (file) {
       if (!file.name.endsWith(".csv")) {
@@ -33,9 +34,7 @@ const PlantImportModal = ({ isOpen, onClose, onSave, isLoadingAction }: PlantImp
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset input file
-    }
+    if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input file
   };
 
   const handleSave = () => {

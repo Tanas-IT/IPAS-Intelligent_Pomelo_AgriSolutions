@@ -1,11 +1,10 @@
 import { Drawer, Steps, Flex, Form } from "antd";
 import { useEffect, useState } from "react";
-import { GetLandPlot } from "@/payloads";
+import { GetLandPlot, landRowSimulate } from "@/payloads";
 import { ConfirmModal, EditActions } from "@/components";
 import { DraggableRow, LandPlotCreate, RowConfiguration } from "@/pages";
 import style from "./AddNewPlotDrawer.module.scss";
 import { useModal, useStyle } from "@/hooks";
-import { rowStateType } from "@/types";
 import { useLoadingStore, useMapStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
@@ -35,7 +34,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const [isDirty, setIsDirty] = useState(false);
   const updateConfirmModal = useModal();
   const [plotData, setPlotData] = useState<LandPlotRequest>(DEFAULT_LAND_PLOT); // Lưu dữ liệu từ bước 1
-  const [rowsData, setRowsData] = useState<rowStateType[]>(fakeRowsData);
+  const [rowsData, setRowsData] = useState<landRowSimulate[]>(fakeRowsData);
   const { clearPolygons, isOverlapping, newPolygon, setNewPolygon, setPolygonDimensions } =
     useMapStore();
   const isHorizontal =
@@ -43,14 +42,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const { isLoading, setIsLoading } = useLoadingStore();
 
   const handleSave = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
     const plotDataRequest: LandPlotRequest = {
       ...plotData,
       numberOfRows: rowsData.length,
       landRows: rowsData.map((row) => ({
-        rowIndex: row.index,
-        treeAmount: row.plantsPerRow,
-        distance: row.plantSpacing,
+        rowIndex: row.rowIndex,
+        treeAmount: row.treeAmount,
+        distance: row.distance,
         length: row.length,
         width: row.width,
         direction: form.getFieldValue(createPlotFormFields.rowOrientation),
@@ -107,33 +106,35 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         [createPlotFormFields.rowLength]: rowLength,
         [createPlotFormFields.rowWidth]: rowWidth,
         [createPlotFormFields.numberOfRows]: numberOfRows,
-        [createPlotFormFields.plantsPerRow]: plantsPerRow,
-        [createPlotFormFields.plantSpacing]: plantSpacing,
+        [createPlotFormFields.plantsPerRow]: treeAmount,
+        [createPlotFormFields.plantSpacing]: distance,
         [createPlotFormFields.rowOrientation]: rowOrientation,
         [createPlotFormFields.lineSpacing]: lineSpacing,
         [createPlotFormFields.rowsPerLine]: rowsPerLine,
         [createPlotFormFields.rowSpacing]: rowSpacing,
       } = values;
 
-      if (isPlantOverflowing(plantSpacing, plantsPerRow, rowLength)) {
+      if (isPlantOverflowing(distance, treeAmount, rowLength)) {
         toast.error(MESSAGES.OUT_PLANT);
         return;
       }
 
-      const generatedRows: rowStateType[] = Array.from({ length: numberOfRows }, (_, index) => ({
-        id: index + 1,
+      const generatedRows: landRowSimulate[] = Array.from({ length: numberOfRows }, (_, index) => ({
+        landRowId: index + 1,
+        landRowCode: "",
         length: rowLength,
         width: rowWidth,
-        plantsPerRow,
-        plantSpacing,
-        index: index + 1,
+        treeAmount,
+        distance,
+        rowIndex: index + 1,
+        plants: [],
       }));
 
       setRowsData(generatedRows);
       const isHorizontal = rowOrientation === "Horizontal" ? true : false;
       setPlotData((prev) => ({
         ...prev,
-        isHorizontal: isHorizontal,
+        isRowHorizontal: isHorizontal,
         lineSpacing: lineSpacing,
         rowPerLine: rowsPerLine,
         rowSpacing: rowSpacing,

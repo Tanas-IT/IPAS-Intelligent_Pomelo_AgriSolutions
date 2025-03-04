@@ -11,8 +11,10 @@ type TableTitleProps = {
   importLabel?: string;
   onAdd: () => void;
   onImport?: () => void;
+  noAdd?: boolean;
   noFilter?: boolean;
   noImport?: boolean;
+  extraContent?: React.ReactNode;
 };
 
 const TableTitle = ({
@@ -23,8 +25,10 @@ const TableTitle = ({
   importLabel = "Import",
   onAdd,
   onImport,
+  noAdd = false,
   noFilter = false,
   noImport = true,
+  extraContent,
 }: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
@@ -38,11 +42,12 @@ const TableTitle = ({
           </Popover>
         )}
       </Flex>
+      {extraContent && <Flex className={style.extraContent}>{extraContent}</Flex>}
       <Flex className={style.sectionRight}>
         {!noImport && (
           <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
         )}
-        <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />
+        {!noAdd && <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />}
       </Flex>
     </Flex>
   );

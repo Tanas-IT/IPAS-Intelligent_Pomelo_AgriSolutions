@@ -146,8 +146,10 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     setLoading((prev) => ({ ...prev, indexes: true }));
     try {
       const res = await landRowService.getPlantIndexesByRowId(rowId);
+
       if (res.statusCode === 200) {
-        setPlantIndexes(res.data.map((index) => ({ value: index, label: `Plant #${index}` })));
+        if (res.data)
+          setPlantIndexes(res.data.map((index) => ({ value: index, label: `Plant #${index}` })));
       }
     } finally {
       setLoading((prev) => ({ ...prev, indexes: false }));
@@ -225,34 +227,41 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
           )}
         </Flex>
 
-        <fieldset className={style.plantLocationContainer}>
-          <legend>Plant Location</legend>
-          <Flex justify="space-between" gap={20}>
-            <FormFieldModal
-              type="select"
-              label="Plot"
-              name={plantFormFields.landPlotId}
-              options={plots}
-              isLoading={loading.plots}
-              onChange={handlePlotChange}
-            />
-            <FormFieldModal
-              type="select"
-              label="Row"
-              name={plantFormFields.landRowId}
-              options={rows}
-              isLoading={loading.rows}
-              onChange={handleRowChange}
-            />
-            <FormFieldModal
-              type="select"
-              label="Plant Index"
-              name={plantFormFields.plantIndex}
-              options={plantIndexes}
-              isLoading={loading.indexes}
-            />
-          </Flex>
-        </fieldset>
+        {!isUpdate && (
+          <fieldset className={style.plantLocationContainer}>
+            <legend>Plant Location</legend>
+            <Flex justify="space-between" vertical>
+              <FormFieldModal
+                type="select"
+                label="Plot"
+                name={plantFormFields.landPlotId}
+                options={plots}
+                isLoading={loading.plots}
+                onChange={handlePlotChange}
+                rules={RulesManager.getSelectPlotRules()}
+              />
+              <Flex gap={20}>
+                <FormFieldModal
+                  type="select"
+                  label="Row"
+                  name={plantFormFields.landRowId}
+                  options={rows}
+                  isLoading={loading.rows}
+                  onChange={handleRowChange}
+                  rules={RulesManager.getSelectRowRules()}
+                />
+                <FormFieldModal
+                  type="select"
+                  label="Plant Index"
+                  name={plantFormFields.plantIndex}
+                  options={plantIndexes}
+                  isLoading={loading.indexes}
+                  rules={RulesManager.getSelectPlantIndexRules()}
+                />
+              </Flex>
+            </Flex>
+          </fieldset>
+        )}
 
         <FormFieldModal
           label="Description"
