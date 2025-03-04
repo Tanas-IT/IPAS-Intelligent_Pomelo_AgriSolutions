@@ -52,8 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName)
         {
             var getMasterTypeByName = await _context.MasterTypes
-                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower())
-                &&(x.IsDefault == true))
+                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower()) )
                 .FirstOrDefaultAsync();
             return getMasterTypeByName!;
         }

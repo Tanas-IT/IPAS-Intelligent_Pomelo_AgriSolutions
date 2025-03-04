@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+
+using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -23,6 +24,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using System.Net.WebSockets;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -338,7 +340,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     existingGraftedPlant.Note = updateRequest.Note;
 
                 if (updateRequest.PlantLotId.HasValue && updateRequest.PlantLotId.Value >= 0)
+                {
+                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.isDeleted != true);
+                    if (checkPlantLotExist == null)
+                        return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     existingGraftedPlant.PlantLotId = updateRequest.PlantLotId.Value;
+                }
 
                 // Cập nhật thời gian chỉnh sửa
                 //existingPlant.UpdateDate = DateTime.UtcNow;
@@ -349,6 +356,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result > 0)
                 {
+                    var mappedResult = _mapper.Map<GraftedPlantModels>(existingGraftedPlant);
                     return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_PLANT_CODE, Const.SUCCESS_UPDATE_GRAFTED_PLANT_MSG, existingGraftedPlant);
                 }
 
@@ -420,7 +428,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         /// <summary>
         /// kiem tra da check het dieu kien evalution chua
-        /// --> new Plant Moi -> saveAsyc de co plantId,
         /// --> update graftedPlant -> them PlantId, CompletedDate, PlantLotId (neu co)
         /// </summary>
         /// <param name="request"></param>
@@ -434,27 +441,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantId && x.IsDeleted!.Value == false);
                     if (checkGraftedExist == null)
                         return new BusinessResult(400, "Grafted Plant Not exist");
-                    var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
+                    //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
+                    // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
                     var checkCriteriaBefore = await CheckGraftedConditionCompletedAsync(null, graftedId: request.GraftedPlantId);
                     if (checkCriteriaBefore.StatusCode != 200)
                         return checkCriteriaBefore;
-                    string code = CodeHelper.GenerateCode();
-                    var plantAfterGrafted = new Plant
+                    if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
                     {
-                        PlantCode = $"{CodeAliasEntityConst.PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
-                        PlantName = $"Plant {code}",
-                        MasterTypeId = plantExist.MasterTypeId,
-                        PlantReferenceId = plantExist.PlantReferenceId,
-                        CreateDate = DateTime.Now,
-                        HealthStatus = HealthStatusConst.HEALTHY,
-                        FarmId = request.FarmId,
+                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
+                        if (checkPlantLotExist == null)
+                            return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                        checkGraftedExist.PlantLotId = request.PlantLotId.Value;
+                    }
+                    checkGraftedExist.IsCompleted = true;
+                    checkGraftedExist.SeparatedDate = DateTime.Now;
 
-                    };
-                    return new BusinessResult();
+                    _unitOfWork.GraftedPlantRepository.Update(checkGraftedExist);
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mappedResult = _mapper.Map<GraftedPlantModels>(checkGraftedExist);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_PLANT_CODE, Const.SUCCESS_UPDATE_GRAFTED_PLANT_MSG, mappedResult);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, Const.FAIL_UPDATE_PLANT_MSG);
 
                 }
                 catch (Exception ex)
                 {
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
@@ -643,3 +660,4 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
     }
 }
+

@@ -712,7 +712,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         UserId = createRequest.UserId,
                         FarmId = createRequest.FarmId!.Value,
-                        RoleId = checkRoleExist.RoleId
+                        RoleId = checkRoleExist.RoleId,
+                        Status = UserFarmStatusEnum.Active.ToString(),
                     };
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);
                     int result = await _unitOfWork.SaveAsync();
