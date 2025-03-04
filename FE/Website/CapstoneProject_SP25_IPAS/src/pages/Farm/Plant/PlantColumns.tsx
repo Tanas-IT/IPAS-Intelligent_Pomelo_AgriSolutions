@@ -2,13 +2,25 @@ import { TableColumn } from "@/types";
 import { GetPlant } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
+import { Button, Popover, QRCode, Tag, Typography } from "antd";
+import { HEALTH_STATUS, healthStatusColors } from "@/constants";
+
+const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 
 export const plantColumns: TableColumn<GetPlant>[] = [
   {
     header: "Code",
     field: "plantCode",
-    accessor: (item) => <TableCell value={item.plantCode} />,
-    width: 160,
+    accessor: (item) => (
+      <Popover
+        content={<QRCode type="svg" value={`${baseUrl}/farm/plants/${item.plantId}/details`} />}
+      >
+        <>
+          <TableCell value={item.plantCode} isCopyable={true} />
+        </>
+      </Popover>
+    ),
+    width: 200,
   },
   {
     header: "Cultivar",
@@ -19,9 +31,15 @@ export const plantColumns: TableColumn<GetPlant>[] = [
   {
     header: "Health Status",
     field: "healthStatus",
-    accessor: (item) => <TableCell value={item.healthStatus} />,
+    accessor: (item) => {
+      const statusText = item.healthStatus; // Dữ liệu đã là text
+      return (
+        <Tag color={healthStatusColors[statusText] || "default"}>{statusText || "Unknown"}</Tag>
+      );
+    },
     width: 180,
   },
+
   {
     header: "Planting Date",
     field: "plantingDate",
@@ -46,6 +64,12 @@ export const plantColumns: TableColumn<GetPlant>[] = [
         }
       />
     ),
+    width: 200,
+  },
+  {
+    header: "Mother Plant",
+    field: "plantReferenceCode",
+    accessor: (item) => <TableCell value={item.plantReferenceCode} />,
     width: 200,
   },
   {

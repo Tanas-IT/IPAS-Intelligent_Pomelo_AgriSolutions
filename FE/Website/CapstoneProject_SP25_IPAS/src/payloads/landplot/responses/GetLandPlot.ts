@@ -1,3 +1,5 @@
+import { landRowSimulate } from "@/payloads/landRow";
+
 export interface landPlotCoordinations {
   landPlotCoordinationId: string;
   landPlotCoordinationCode: string;
@@ -24,4 +26,16 @@ export interface GetLandPlot {
   farmLongtitude: number;
   farmLatitude: number;
   landPlotCoordinations: landPlotCoordinations[];
+}
+
+export interface GetLandPlotSimulate {
+  landPlotId: number;
+  landPlotCode: string;
+  landPlotName: string;
+  rowPerLine: number;
+  rowSpacing: number;
+  isRowHorizontal: boolean;
+  lineSpacing: number;
+  numberOfRows: number;
+  landRows: landRowSimulate[];
 }

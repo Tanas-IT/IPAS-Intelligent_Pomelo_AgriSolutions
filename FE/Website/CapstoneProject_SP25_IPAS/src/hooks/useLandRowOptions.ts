@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { growthStageService, landRowService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected, GetLandRow } from "@/payloads";
+import { ApiResponse, GetGrowthStageSelected, GetLandRowSelected } from "@/payloads";
 import { getFarmId } from "@/utils";
-
-interface SelectOption {
-  value: number | string;
-  label: string;
-}
+import { SelectOption } from "@/types";
 
 const useLandRowOptions = (landPlotId: number | null) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
@@ -18,10 +14,9 @@ const useLandRowOptions = (landPlotId: number | null) => {
     }
 
     const fetchOptions = async () => {
-      const result: ApiResponse<GetLandRow[]> =
-        await landRowService.getLandRows(landPlotId);
-      console.log("apiResponse landRowOptions", result);
-
+      const result: ApiResponse<GetLandRowSelected[]> = await landRowService.getLandRowsSelected(
+        landPlotId,
+      );
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
           value: item.id,

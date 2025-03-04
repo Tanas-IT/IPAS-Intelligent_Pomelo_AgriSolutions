@@ -8,6 +8,8 @@ export * from "./thirdParty";
 export * from "./landRow";
 export * from "./masterType";
 export * from "./growthStage";
+export * from "./employee";
+
 
 
 

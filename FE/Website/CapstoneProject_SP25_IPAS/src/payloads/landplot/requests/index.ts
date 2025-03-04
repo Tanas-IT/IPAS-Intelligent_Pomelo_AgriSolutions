@@ -1,1 +1,1 @@
-export * from "./LandPlotRequest";
+export * from "./LandPlotRequests";

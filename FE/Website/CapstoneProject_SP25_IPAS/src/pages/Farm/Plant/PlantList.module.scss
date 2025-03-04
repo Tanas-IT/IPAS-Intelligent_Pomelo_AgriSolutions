@@ -20,5 +20,54 @@
     font-weight: bold;
     font-size: 14px;
     padding: 0 8px;
+    margin-bottom: 0;
+  }
+}
+
+.importModal {
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 16px 16px;
+
+  .titleSection {
+    padding-bottom: 10px;
+    border-bottom: 2px solid #bfbfbf;
+    label {
+      font-size: 18px;
+    }
+  }
+
+  .importSection {
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+
+    label {
+      font-size: 16px;
+      min-width: 10rem;
+      font-weight: bold;
+    }
+
+    .fileDisplay {
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fileName {
+      font-weight: bold;
+      color: vars.$color_primary;
+    }
+
+    .downloadLink {
+      font-weight: bold;
+      color: vars.$color_primary;
+      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
   }
 }

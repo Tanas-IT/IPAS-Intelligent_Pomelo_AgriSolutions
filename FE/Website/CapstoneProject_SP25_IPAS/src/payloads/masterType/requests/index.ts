@@ -1,1 +1,1 @@
-export * from "./MasterTypeRequest";
+export * from "./MasterTypeRequests";
