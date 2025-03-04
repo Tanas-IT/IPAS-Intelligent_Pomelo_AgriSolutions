@@ -19,6 +19,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -131,6 +132,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
                 .ForMember(dest => dest.LandPlotname, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ForMember(dest => dest.LandRowName, opt => opt.MapFrom(src => src.LandPlot!.LandPlotName + "-" + src.RowIndex.ToString()))
+                .ForMember(dest => dest.IndexUsed, opt => opt.MapFrom(src => src.Plants.Count()))
                 .ReverseMap();
 
             CreateMap<Plant, PlantModel>()
@@ -187,7 +189,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
                .ReverseMap();
 
-
+            
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
              .ForMember(dest => dest.Frequency,
@@ -202,7 +204,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                             src.PlanTargets.Where(pt => pt.Plant != null).Select(pt => pt.Plant.PlantName).Distinct().ToList()))
                .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : ""))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : ""))
-               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStagePlans.Select(x => x.GrowthStage != null ? x.GrowthStage.GrowthStageName : "")))
+               .ForMember(dest => dest.GraftedPlantName, opt => opt.MapFrom(src =>
+                                                            src.PlanTargets.Where(pt => pt.GraftedPlant != null).Select(pt => pt.GraftedPlant.GraftedPlantName).Distinct().ToList()))
+               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => pt.GrowthStage.GrowthStageName).Distinct().ToList()))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : ""))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : ""))

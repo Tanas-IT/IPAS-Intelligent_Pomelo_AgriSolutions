@@ -309,6 +309,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllHarvestPagin = prefix + "";
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
             public const string getHarvestForSelectedByPlotId = prefix + "/get-for-selected";
+            public const string statisticOfPlantByYear = prefix + "/plant-statistic-in-year";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
@@ -371,6 +372,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
+            public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
 
             public const string graftedNotePrefix = prefix + "/note";
             public const string createGraftedNote = graftedNotePrefix + "";

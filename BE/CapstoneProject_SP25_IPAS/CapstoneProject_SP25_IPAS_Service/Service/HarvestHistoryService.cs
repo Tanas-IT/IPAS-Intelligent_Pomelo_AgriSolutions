@@ -7,7 +7,6 @@ using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -20,6 +19,7 @@ using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -454,5 +454,61 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
 
         }
+
+        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year)
+        {
+            try
+            {
+                // Lọc dữ liệu theo năm cụ thể
+                DateTime startDate = new DateTime(year, 1, 1);
+                DateTime endDate = new DateTime(year, 12, 31);
+
+                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                    .GetAllNoPaging(x => x.PlantId == plantId &&
+                                             x.HarvestHistory.DateHarvest.HasValue &&
+                                             x.HarvestHistory.DateHarvest >= startDate &&
+                                             x.HarvestHistory.DateHarvest <= endDate,
+                                        includeProperties: "HarvestHistory,MasterType");
+
+                if (harvestData == null || !harvestData.Any())
+                {
+                    return new BusinessResult(200, "No harvest data found for this plant in the selected year.");
+                }
+
+                var yearlyStatistic = new YearlyStatistic
+                {
+                    Year = year,
+                    MonthlyData = harvestData
+                        .Where(x => x.Quantity.HasValue)
+                        .GroupBy(x => x.HarvestHistory.DateHarvest.Value.Month)
+                        .OrderBy(g => g.Key)
+                        .Select(monthGroup => new MonthlyStatistic
+                        {
+                            Month = monthGroup.Key,
+                            TotalQuatity = monthGroup.Sum(x => x.Quantity ?? 0),
+                            HarvestDetails = monthGroup
+                                .GroupBy(x => x.MasterTypeId)
+                                .Select(mtGroup => new HarvestStatistic
+                                {
+                                    MasterTypeId = mtGroup.Key,
+                                    MasterTypeCode = mtGroup.FirstOrDefault()!.MasterType.MasterTypeCode,
+                                    MasterTypeName = mtGroup.FirstOrDefault()!.MasterType?.MasterTypeName,
+                                    TotalQuantity = mtGroup.Sum(x => x.Quantity ?? 0)
+                                }).ToList()
+                        }).ToList()
+                };
+
+                // Tính tổng sản lượng của cả năm
+                yearlyStatistic.TotalYearlyQuantity = yearlyStatistic.MonthlyData
+                    .Sum(m => m.HarvestDetails.Sum(h => h.TotalQuantity));
+
+                return new BusinessResult(200, "Successfully retrieved statistics.", yearlyStatistic);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }

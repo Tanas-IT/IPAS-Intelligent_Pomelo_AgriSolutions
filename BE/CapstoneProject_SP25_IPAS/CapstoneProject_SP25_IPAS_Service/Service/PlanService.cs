@@ -1326,7 +1326,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             int count = 0;
             foreach (var plantTarget in createPlanModel.PlanTargetModel)
             {
-                if (plantTarget.LandPlotID != null)
+                if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
                 {
                     var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
                     if (count > 0)
@@ -1339,7 +1339,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-                if (plantTarget.LandRowID != null)
+                if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
                 {
                     foreach (var landRowId in plantTarget.LandRowID)
                     {
@@ -1349,7 +1349,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
 
-                if (plantTarget.PlantID != null)
+                if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
                 {
                     foreach (var plantId in plantTarget.PlantID)
                     {
@@ -1359,7 +1359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
 
-                if (plantTarget.GraftedPlantID != null)
+                if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
                 {
                     foreach (var graftedPlantId in plantTarget.GraftedPlantID)
                     {
@@ -1368,7 +1368,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-                if (plantTarget.PlantLotID != null)
+                if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
                 {
                     foreach (var plantLotID in plantTarget.PlantLotID)
                     {
@@ -1675,18 +1675,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     LandPlotName = landPlot.LandPlotName,
                                     Unit= unit,
                                 });
-                            }
-                            else
-                            {
-                                result.Add(new LandPlotFilterModel
-                                {
-                                    FarmId = farmId,
-                                    Unit = unit,
-                                });
-                                return result;
+                               
                             }
                             break;
-
+                          
                         case "row":
                             if (validRows.Any())
                             {
@@ -1698,17 +1690,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Rows = validRows,
                                 });
                             }
-                            else
-                            {
-                                result.Add(new LandPlotFilterModel
-                                {
-                                    FarmId = farmId,
-                                    Unit = unit,
-                                });
-                                return result;
-                            }
                             break;
-
                         case "plant":
                             if (validPlants.Any())
                             {
@@ -1720,15 +1702,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     Rows = validRows,
                                     Plants = validPlants
                                 });
-                            }
-                            else
-                            {
-                                result.Add(new LandPlotFilterModel
-                                {
-                                    FarmId = farmId,
-                                    Unit = unit,
-                                });
-                                return result;
                             }
                             break;
 

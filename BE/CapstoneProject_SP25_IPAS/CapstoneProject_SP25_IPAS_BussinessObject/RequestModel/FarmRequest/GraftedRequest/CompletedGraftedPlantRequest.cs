@@ -10,6 +10,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Gra
     {
         public int GraftedPlantId { get; set; }
         public int? FarmId { get; set; }
-        public int? LandPlotId { get; set; }
+        public int? PlantLotId { get; set; }
     }
 }

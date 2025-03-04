@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
+namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels
 {
-    public  class HarvestHistoryModel
+    public class HarvestHistoryModel
     {
         public int HarvestHistoryId { get; set; }
 
@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? FarmId { get; set; }
 
         public string? CropName { get; set; }
-      
+
 
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
