@@ -22,6 +22,7 @@ using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -31,12 +32,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         //private readonly IPlantService _plantService;
         private readonly MasterTypeConfig _masterTypeConfig;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig)
+        private readonly ICriteriaTargetService _criteriaTargetService;
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             //_plantService = plantService;
             _masterTypeConfig = masterTypeConfig;
+            _criteriaTargetService = criteriaTargetService;
         }
 
         public async Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest)
@@ -48,12 +51,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var plantExist = await _unitOfWork.PlantRepository.getById(createRequest.PlantId);
                     if (plantExist == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
-                    
+
                     // Kiểm tra các điều kiện để chiết cành
                     var validationResult = await CheckPlantBeforeGrafted(createRequest.PlantId);
                     if (!string.IsNullOrEmpty(validationResult))
                         return new BusinessResult(400, validationResult);
-                   
+
                     // Kiểm tra cây đã hoàn thành đủ điều kiện để chiết cành chưa
                     var criteriaResult = await CheckGraftedConditionCompletedAsync(plantId: createRequest.PlantId, null);
                     if (criteriaResult.StatusCode != 200)
@@ -416,7 +419,49 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
         /// <summary>
-        /// Kiểm tra xem cây đã hoàn thành đủ tiêu chí làm cây mẹ chưa.
+        /// kiem tra da check het dieu kien evalution chua
+        /// --> new Plant Moi -> saveAsyc de co plantId,
+        /// --> update graftedPlant -> them PlantId, CompletedDate, PlantLotId (neu co)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BusinessResult> CompletedGraftedPlant(CompletedGraftedPlantRequest request)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantId && x.IsDeleted!.Value == false);
+                    if (checkGraftedExist == null)
+                        return new BusinessResult(400, "Grafted Plant Not exist");
+                    var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
+                    var checkCriteriaBefore = await CheckGraftedConditionCompletedAsync(null, graftedId: request.GraftedPlantId);
+                    if (checkCriteriaBefore.StatusCode != 200)
+                        return checkCriteriaBefore;
+                    string code = CodeHelper.GenerateCode();
+                    var plantAfterGrafted = new Plant
+                    {
+                        PlantCode = $"{CodeAliasEntityConst.PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
+                        PlantName = $"Plant {code}",
+                        MasterTypeId = plantExist.MasterTypeId,
+                        PlantReferenceId = plantExist.PlantReferenceId,
+                        CreateDate = DateTime.Now,
+                        HealthStatus = HealthStatusConst.HEALTHY,
+                        FarmId = request.FarmId,
+
+                    };
+                    return new BusinessResult();
+
+                }
+                catch (Exception ex)
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra xem cây đã HOÀN THÀNH đủ Tiêu chí làm cây mẹ(GraftedCondition)/Tiêu chí để cây chiết(GraftedEvalution) --> CÂY chưa.
         /// </summary>
         public async Task<BusinessResult> CheckGraftedConditionCompletedAsync(int? plantId, int? graftedId)
         {
@@ -437,12 +482,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkGraftedId = await getGraftedByIdAsync(graftedId.Value);
                 if (checkGraftedId.StatusCode != 200 || checkGraftedId.Data == null)
                     return checkGraftedId;
-                appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
-                targetType = _masterTypeConfig.GraftedConditionApply!;
+                appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(graftedPlantId: graftedId);
+                targetType = _masterTypeConfig.GraftedEvaluationApply!;
             }
             // Lọc danh sách tiêu chí có TypeName = "Criteria" và Target = "GraftedCondition"
             var graftedConditions = appliedCriterias.Where(x =>
-                x.Criteria!.MasterType!.TypeName == "Criteria" &&
+                x.Criteria!.MasterType!.TypeName!.Equals(TypeNameInMasterEnum.Criteria.ToString(), StringComparison.OrdinalIgnoreCase) &&
                 x.Criteria.MasterType.Target == targetType).ToList();
 
             // Kiểm tra xem có tiêu chí nào chưa hoàn thành không
@@ -454,7 +499,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(400, $"The tree has not yet complete the criteria: {string.Join(",", uncompletedNames)}");
             }
 
-            return new BusinessResult(200, "The tree has complete all the criteria to be a mother tree");
+            return new BusinessResult(200, "The tree has complete all the criteria to be conducted a function");
         }
         /// <summary>
         /// hàm để tính được số nhánh có thể chiết được trên cây, dựa theo công thức tuyến tính 
