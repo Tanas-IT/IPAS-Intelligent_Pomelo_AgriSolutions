@@ -18,5 +18,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> deletePermanentlyGrafteAsync(List<int> graftedPlantId);
         public Task<BusinessResult> deteSoftedGraftedAsync(List<int> graftedPlantId);
         public Task<BusinessResult> getGraftedForSelected(int farmId);
+        public Task<BusinessResult> getHistoryOfGraftedPlant(int farmId, int plantId);
     }
 }

@@ -13,10 +13,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class GraftedPlantController : ControllerBase
     {
         private readonly IGraftedPlantService _graftedPlantService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public GraftedPlantController(IGraftedPlantService graftedPlantService)
+        public GraftedPlantController(IGraftedPlantService graftedPlantService, IJwtTokenService jwtTokenService)
         {
             _graftedPlantService = graftedPlantService;
+            _jwtTokenService = jwtTokenService;
+
         }
 
         // Lấy cây ghép theo ID
@@ -141,6 +144,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _graftedPlantService.getGraftedForSelected(farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet(APIRoutes.GraftedPlant.getHistoryOfGraftedPlantById, Name = "getHistoryOfGraftedPlantAsync")]
+        public async Task<IActionResult> getHistoryOfGraftedPlantByIdAsync(int? farmId, int plantId)
+        {
+            try
+            {
+                if(!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _graftedPlantService.getHistoryOfGraftedPlant(farmId.Value, plantId);
                 return Ok(result);
             }
             catch (Exception ex)

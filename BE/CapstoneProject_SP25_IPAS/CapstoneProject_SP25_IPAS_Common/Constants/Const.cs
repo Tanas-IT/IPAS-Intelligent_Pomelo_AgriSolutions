@@ -487,6 +487,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_DELETE_MULTIPLE_GRAFTED_NOTE_MSG = "Delete multiple grafted growth success";
         public static int SUCCESS_CREATE_GRAFTED_NOTE_CODE = 200;
         public static string SUCCESS_CREATE_GRAFTED_NOTE_MSG = "Create grafted growth success";
+        public static int SUCCESS_GET_HISTORY_GRAFTED_PLANT_CODE = 200;
+        public static string SUCCESS_GET_HISTORY_GRAFTED_NOTE_MSG = "Get history grafted plant success";
         #endregion
 
         #region AI
@@ -850,6 +852,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string FAIL_UPDATE_GRAFTED_PLANT_MSG = "Update plant fail";
         public static int FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 400;
         public static string FAIL_DELETE_PERMANETNLY_GRAFTED_PLANT_MSG = "Delete permanently fail";
+        public static int FAIL_GET_GRAFTED_PLANT_CODE = 400;
+        public static string FAIL_GET_GRAFTED_PLANT_MSG = "Get plant fail";
         #endregion
 
         #region AI

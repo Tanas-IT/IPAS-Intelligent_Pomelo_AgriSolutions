@@ -765,5 +765,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+
+        //public async Task<BusinessResult> CheckIfPlantCanBeActionAsync(int plantId, string target)
+        //{
+
+        //    bool canBeAction = await _unitOfWork.PlantRepository.CheckIfPlantCanBeGraftedAsync(plantId, target);
+        //    if (canBeAction)
+        //        return new BusinessResult(400, $"This plant can not be {target}");
+        //    return new BusinessResult(200);
+        //}
     }
 }
