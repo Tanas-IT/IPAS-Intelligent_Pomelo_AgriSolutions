@@ -14,6 +14,9 @@ interface MapLandPlotProps {
   longitude: number;
   landPlots: GetLandPlot[];
   highlightedPlots?: string[];
+  onViewRows?: (plotId: number) => void;
+  onUpdatePlot?: (plot: GetLandPlot) => void;
+  onDeletePlot?: (plotId: number) => void;
 }
 
 const MapLandPlot: React.FC<MapLandPlotProps> = ({
@@ -21,6 +24,9 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   longitude,
   landPlots,
   highlightedPlots = [],
+  onViewRows = () => {},
+  onUpdatePlot = () => {},
+  onDeletePlot = () => {},
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -104,28 +110,35 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
             if (popupRef.current) popupRef.current.remove();
 
             const closePopup = (removePopup: boolean = true) => {
+              if (!mapRef.current) return;
               if (removePopup) popup.remove();
+              if (map.getStyle() && map.getLayer("polygon-fill")) {
+                const fillColor: DataDrivenPropertyValueSpecification<string> =
+                  highlightedPlots.length > 0
+                    ? [
+                        "match",
+                        ["get", "id"],
+                        ...highlightedPlots.flatMap((id) => [id, "#ff9800"]), // Màu cam cho các thửa đất trong highlightedPlots
+                        "#e8c048", // Màu mặc định
+                      ]
+                    : "#e8c048"; // Nếu không có thửa đất nào được highlight, dùng màu mặc định
 
-              const fillColor: DataDrivenPropertyValueSpecification<string> =
-                highlightedPlots.length > 0
-                  ? [
-                      "match",
-                      ["get", "id"],
-                      ...highlightedPlots.flatMap((id) => [id, "#ff9800"]), // Màu cam cho các thửa đất trong highlightedPlots
-                      "#e8c048", // Màu mặc định
-                    ]
-                  : "#e8c048"; // Nếu không có thửa đất nào được highlight, dùng màu mặc định
-
-              map.setPaintProperty("polygon-fill", "fill-color", fillColor);
+                map.setPaintProperty("polygon-fill", "fill-color", fillColor);
+              }
             };
-
             // Tạo popup mới
             const popupContainer = document.createElement("div");
             createRoot(popupContainer).render(
-              <PopupContent plot={landPlot} onClose={closePopup} />,
+              <PopupContent
+                plot={landPlot}
+                onClose={closePopup}
+                onViewRows={onViewRows}
+                onUpdatePlot={onUpdatePlot}
+                onDeletePlot={onDeletePlot}
+              />,
             );
 
-            const popup = new mapboxgl.Popup({ closeOnClick: true })
+            const popup = new mapboxgl.Popup({ closeOnClick: true, maxWidth: "400px" })
               .setLngLat(centroid)
               .setDOMContent(popupContainer)
               .addTo(map);
@@ -149,7 +162,6 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
                     "#00AEEF", // Màu xanh nếu được chọn
                     "#e8c048", // Màu mặc định nếu không được chọn
                   ];
-
             map.setPaintProperty("polygon-fill", "fill-color", fillColor);
 
             const closeButton = document.querySelector(

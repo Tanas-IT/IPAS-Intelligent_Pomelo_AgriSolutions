@@ -11,6 +11,26 @@ export const MASTER_TYPE = {
 };
 
 export const HEALTH_STATUS = {
-  NORMAL: "Healthy",
-  ISSUE: "Has Issues",
+  HEALTHY: "Healthy",
+  MINOR_ISSUE: "Minor Issues",
+  SERIOUS_ISSUE: "Serious Issues",
+  DEAD: "Dead",
+} as const;
+
+export const healthStatusColors: Record<string, string> = {
+  Healthy: "green",
+  "Minor Issues": "orange",
+  "Serious Issues": "red",
+  Dead: "#444",
 };
+
+export const GROWTH_ACTIONS = {
+  GRAFTED: "Grafted",
+  HARVEST: "Harvest",
+  BOTH: "Both",
+} as const;
+
+export const VIEW_MODE = {
+  TABLE: "Table",
+  SIMULATION: "Simulation",
+} as const;

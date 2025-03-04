@@ -1,26 +1,19 @@
 import { useState, useEffect } from "react";
-import { growthStageService, landPlotService, landRowService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected, GetLandPlot, GetLandRow } from "@/payloads";
-import { getFarmId } from "@/utils";
-
-interface SelectOption {
-  value: number | string;
-  label: string;
-}
+import { landPlotService } from "@/services";
+import { ApiResponse, GetLandPlotSelected } from "@/payloads";
+import { SelectOption } from "@/types";
 
 const useLandPlotOptions = () => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const result: ApiResponse<GetLandPlot[]> =
-        await landPlotService.getLandPlots();
-        console.log('ggggggg',result);
-        
+      const result: ApiResponse<GetLandPlotSelected[]> =
+        await landPlotService.getLandPlotsSelected();
       if (result.statusCode === 200) {
-        const mappedOptions = result.data.map((item) => ({
-          value: item.landPlotId,
-          label: item.landPlotName,
+        const mappedOptions = result.data.map((plot) => ({
+          value: plot.id,
+          label: `${plot.code} - ${plot.name}`,
         }));
         setOptions(mappedOptions);
       }

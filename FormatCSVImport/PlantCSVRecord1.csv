@@ -1,4 +1,4 @@
-NumberOrder,PlantName,PlantIndex,HealthStatuss,PlantingDate,PlantReferenceCode,Description,LandRowCode,GrowthStageCode,MasterTypeCode,LandPlotCode
+NumberOrder,PlantName,PlantIndex,HealthStatus,PlantingDate,PlantReferenceCode,Description,LandRowCode,GrowthStageCode,MasterTypeCode,LandPlotCode
 1,a,1,Good,2/20/2025,,OI,LR004,GS001,MT020,LR001
 2,b,2,Good,2/21/2025,,OI,LR004,GS001,MT020,LR001
 3,c,3,Good,2/22/2025,,OI,LR004,GS001,MT020,LR001

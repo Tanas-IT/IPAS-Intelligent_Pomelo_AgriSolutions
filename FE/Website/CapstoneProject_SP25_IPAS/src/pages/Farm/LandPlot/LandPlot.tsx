@@ -10,8 +10,10 @@ import { GetLandPlot } from "@/payloads";
 import { useDebounce } from "use-debounce";
 import ColorGuide from "./ColorGuide";
 import { AddNewPlotDrawer } from "@/pages";
+import { PATHS } from "@/routes";
 
 function LandPlot() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [landPlots, setLandPlots] = useState<GetLandPlot[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,7 +73,13 @@ function LandPlot() {
     setFilteredLandPlotIds(filtered);
   };
 
-  const handleDelete = () => {
+  const handleClick = (plotId: number) => {
+    navigate(PATHS.FARM.FARM_ROW_LIST, {
+      state: { plotId, viewMode: "simulate" },
+    });
+  };
+
+  const handleDelete = (plotId: number) => {
     console.log("Xóa lô đất!");
     // TODO: Gọi API hoặc thực hiện logic xóa ở đây
   };
@@ -92,6 +100,8 @@ function LandPlot() {
           latitude={landPlots[0]?.farmLatitude ?? 0}
           landPlots={landPlots}
           highlightedPlots={filteredLandPlotIds}
+          onDeletePlot={handleDelete}
+          onViewRows={handleClick}
         />
         <Flex className={style.mapControls}>
           <Input.Search

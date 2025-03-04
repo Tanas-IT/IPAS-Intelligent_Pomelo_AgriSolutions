@@ -6,7 +6,11 @@
     max-width: 34rem;
   }
   &.large {
-    max-width: 38rem;
+    max-width: 40rem;
+    top: 50px;
+  }
+  &.largeXL {
+    max-width: 70rem;
     top: 50px;
   }
   .titleModal {

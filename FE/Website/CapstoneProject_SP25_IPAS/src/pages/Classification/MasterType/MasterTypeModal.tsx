@@ -9,10 +9,17 @@ type MasterTypeModelProps = {
   isOpen: boolean;
   onClose: (values: MasterTypeRequest, isUpdate: boolean) => void;
   onSave: (values: MasterTypeRequest) => void;
+  isLoadingAction?: boolean;
   masterTypeData?: GetMasterType;
 };
 
-const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterTypeModelProps) => {
+const MasterTypeModel = ({
+  isOpen,
+  onClose,
+  onSave,
+  masterTypeData,
+  isLoadingAction,
+}: MasterTypeModelProps) => {
   const [form] = Form.useForm();
   const [selectedType, setSelectedType] = useState<string>("");
   const [checked, setChecked] = useState<boolean>(false);
@@ -83,6 +90,7 @@ const MasterTypeModel = ({ isOpen, onClose, onSave, masterTypeData }: MasterType
       onClose={handleCancel}
       onSave={handleOk}
       isUpdate={isUpdate}
+      isLoading={isLoadingAction}
       title={isUpdate ? "Update Type" : "Add New Type"}
     >
       <Form form={form} layout="vertical">

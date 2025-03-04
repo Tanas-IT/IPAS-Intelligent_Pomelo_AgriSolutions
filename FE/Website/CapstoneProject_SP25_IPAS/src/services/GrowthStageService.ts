@@ -3,9 +3,11 @@ import {
   ApiResponse,
   GetData,
   GetGrowthStage,
+  GetGrowthStageData,
   GetGrowthStageSelected,
   GrowthStageRequest,
 } from "@/payloads";
+import { useGrowthStageStore } from "@/stores";
 import { buildParams } from "@/utils";
 
 export const getGrowthStages = async (
@@ -15,7 +17,7 @@ export const getGrowthStages = async (
   sortDirection?: string,
   searchValue?: string,
   additionalParams?: Record<string, any>,
-): Promise<GetData<GetGrowthStage>> => {
+): Promise<GetGrowthStageData<GetGrowthStage>> => {
   const params = buildParams(
     currentPage,
     rowsPerPage,
@@ -25,8 +27,9 @@ export const getGrowthStages = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("growthStages", { params });
-  const apiResponse = res.data as ApiResponse<GetData<GetGrowthStage>>;
-  return apiResponse.data as GetData<GetGrowthStage>;
+  const apiResponse = res.data as ApiResponse<GetGrowthStageData<GetGrowthStage>>;
+  useGrowthStageStore.getState().setMaxAgeStart(apiResponse.data.maxAgeStart);
+  return apiResponse.data as GetGrowthStageData<GetGrowthStage>;
 };
 
 export const deleteGrowthStages = async (

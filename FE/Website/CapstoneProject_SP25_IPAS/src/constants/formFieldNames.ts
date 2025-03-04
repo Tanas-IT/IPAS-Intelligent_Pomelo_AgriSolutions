@@ -32,6 +32,8 @@ export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
   healthStatus: "healthStatus",
   createDate: "createDate",
   plantingDate: "plantingDate",
+  plantReferenceId: "plantReferenceId",
+  plantReferenceCode: "plantReferenceCode",
   description: "description",
   masterTypeId: "masterTypeId",
   masterTypeName: "masterTypeName",
@@ -65,6 +67,7 @@ export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowth
   monthAgeStart: "monthAgeStart",
   monthAgeEnd: "monthAgeEnd",
   createDate: "createDate",
+  activeFunction: "activeFunction",
 };
 
 export const worklogFormFields = {

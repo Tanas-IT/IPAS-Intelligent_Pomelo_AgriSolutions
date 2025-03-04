@@ -3,12 +3,13 @@ import style from "./PlantDetail.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import PlantDetail from "./PlantDetail";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
+  const { plotId } = useParams();
   const navigate = useNavigate();
   const { styles } = useStyle();
 
@@ -39,6 +40,16 @@ function PlantDetails() {
     },
   ];
 
+  const handleBack = () => {
+    if (plotId) {
+      navigate(PATHS.FARM.FARM_ROW_LIST, {
+        state: { plotId, viewMode: "simulate" },
+      });
+    } else {
+      navigate(PATHS.FARM.FARM_PLANT_LIST);
+    }
+  };
+
   const onChange = (key: string) => {
     console.log(key);
   };
@@ -55,12 +66,7 @@ function PlantDetails() {
             <Flex className={style.extraContent}>
               <Tooltip
                 title="Back to List"
-                children={
-                  <Icons.back
-                    className={style.backIcon}
-                    onClick={() => navigate(PATHS.FARM.FARM_PLANT_LIST)}
-                  />
-                }
+                children={<Icons.back className={style.backIcon} onClick={handleBack} />}
               />
             </Flex>
           ),

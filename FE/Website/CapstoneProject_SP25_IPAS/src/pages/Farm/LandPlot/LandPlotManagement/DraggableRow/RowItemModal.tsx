@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
 import { rowFormFields } from "@/constants";
-import { rowStateType } from "@/types";
+import { landRowSimulate } from "@/payloads";
 
 type RowItemModalProps = {
   isOpen: boolean;
-  onClose: (values: rowStateType, isUpdate: boolean) => void;
-  onSave: (values: rowStateType) => void;
-  rowData?: rowStateType;
+  onClose: (values: landRowSimulate, isUpdate: boolean) => void;
+  onSave: (values: landRowSimulate) => void;
+  rowData?: landRowSimulate;
 };
 
 const RowItemModal = ({ isOpen, onClose, onSave, rowData }: RowItemModalProps) => {
@@ -23,24 +23,26 @@ const RowItemModal = ({ isOpen, onClose, onSave, rowData }: RowItemModalProps) =
     if (isOpen) {
       if (isUpdate && rowData) {
         form.setFieldsValue({
-          id: rowData.id,
-          index: rowData.index,
+          [rowFormFields.id]: rowData.landRowId,
+          [rowFormFields.index]: rowData.rowIndex,
           [rowFormFields.length]: rowData.length,
           [rowFormFields.width]: rowData.width,
-          [rowFormFields.plantsPerRow]: rowData.plantsPerRow,
-          [rowFormFields.plantSpacing]: rowData.plantSpacing,
+          [rowFormFields.plantsPerRow]: rowData.treeAmount,
+          [rowFormFields.plantSpacing]: rowData.distance,
         });
       }
     }
   }, [isOpen, rowData]);
 
-  const getFormData = (): rowStateType => ({
-    id: form.getFieldValue(rowFormFields.id),
-    index: form.getFieldValue(rowFormFields.index),
+  const getFormData = (): landRowSimulate => ({
+    landRowId: form.getFieldValue(rowFormFields.id),
+    landRowCode: "",
+    rowIndex: form.getFieldValue(rowFormFields.index),
     length: form.getFieldValue(rowFormFields.length),
     width: form.getFieldValue(rowFormFields.width),
-    plantsPerRow: form.getFieldValue(rowFormFields.plantsPerRow),
-    plantSpacing: form.getFieldValue(rowFormFields.plantSpacing),
+    treeAmount: form.getFieldValue(rowFormFields.plantsPerRow),
+    distance: form.getFieldValue(rowFormFields.plantSpacing),
+    plants: [],
   });
 
   const handleOk = async () => {

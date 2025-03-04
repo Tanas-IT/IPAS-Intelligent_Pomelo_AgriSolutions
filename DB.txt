@@ -1052,23 +1052,25 @@ VALUES
 (3,3,5),
 (4,3,5);
 GO
--- Fake data cho bảng GrowthStage với FarmID = 1
+-- Fake data for GrowthStage table with FarmID = 1
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
 VALUES
-('GS101', 'Giai đoạn nảy mầm', 1, 2, 1, 1, 0, GETDATE(), NULL, 'Giai đoạn cây non'),
-('GS102', 'Giai đoạn cây con', 3, 5, 0, 1, 0, GETDATE(), Null,'Cây bắt đầu phát triển'),
-('GS103', 'Giai đoạn sinh trưởng', 6, 10, 0, 1, 0, GETDATE(), NULL,'Cây phát triển mạnh, tăng sinh khối'),
-('GS104', 'Giai đoạn ra hoa', 11, 14, 0, 1, 0, GETDATE(), 'Harvest', 'Cây trưởng thành'),
-('GS105', 'Giai đoạn thu hoạch', 15, 18, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Trái cây cây già');
+('GS101', 'Germination Stage', 0, 3, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
+('GS102', 'Seedling Stage', 4, 8, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
+('GS103', 'Vegetative Growth Stage', 9, 18, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
+('GS104', 'Flowering Stage', 19, 24, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
+('GS105', 'Fruiting & Harvest Stage', 25, 36, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
 GO
--- Fake data cho bảng GrowthStage với FarmID = 2
+
+-- Fake data for GrowthStage table with FarmID = 2
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
 VALUES
-('GS201', 'Giai đoạn nảy mầm', 1, 3, 1, 2, 0, GETDATE(), '', 'Giai đoạn hạt giống bắt đầu nảy mầm'),
-('GS202', 'Giai đoạn cây con', 4, 7, 0, 2, 0, GETDATE(), '', 'Cây bắt đầu phát triển lá và rễ'),
-('GS203', 'Giai đoạn sinh trưởng', 8, 12, 0, 2, 0, GETDATE(), '', 'Cây phát triển mạnh, tăng sinh khối'),
-('GS204', 'Giai đoạn ra hoa', 13, 16, 0, 2, 0, GETDATE(), 'Harvest', 'Cây cây có thể ra hoa'),
-('GS205', 'Giai đoạn thu hoạch', 17, 20, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Cây trưởng thành');
+('GS201', 'Germination Stage', 0, 3, 0, 2, 0, GETDATE(), '', 'Seed starts sprouting and developing initial roots'),
+('GS202', 'Seedling Stage', 4, 9, 0, 2, 0, GETDATE(), '', 'Early stage of leaf and root development'),
+('GS203', 'Vegetative Growth Stage', 10, 20, 0, 2, 0, GETDATE(), '', 'Tree strengthens its structure and expands canopy'),
+('GS204', 'Flowering Stage', 21, 27, 0, 2, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and begins to flower'),
+('GS205', 'Fruiting & Harvest Stage', 28, 40, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Fruits develop and ripen for harvesting');
+
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDelete], [isActive], [CreateDate], [IsDefault], [FarmID])
