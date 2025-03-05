@@ -162,35 +162,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             // **Insert mỗi PlantLotID một dòng riêng**
-                            foreach (var plantLotId in plantTarget.PlantLotID)
+                           if(plantTarget.PlantLotID != null)
                             {
-                                var newPlantLotTarget = new PlanTarget()
+                                foreach (var plantLotId in plantTarget.PlantLotID)
                                 {
-                                    LandPlotID = null,
-                                    LandRowID = null,
-                                    PlantID = null,
-                                    PlantLotID = plantLotId,
-                                    GraftedPlantID = null
-                                };
+                                    var newPlantLotTarget = new PlanTarget()
+                                    {
+                                        LandPlotID = null,
+                                        LandRowID = null,
+                                        PlantID = null,
+                                        PlantLotID = plantLotId,
+                                        GraftedPlantID = null
+                                    };
 
-                                newPlan.PlanTargets.Add(newPlantLotTarget);
+                                    newPlan.PlanTargets.Add(newPlantLotTarget);
+                                }
+
                             }
-
                             // **Insert mỗi GraftedPlantID một dòng riêng**
-                            foreach (var graftedPlantId in plantTarget.GraftedPlantID)
+                            if(plantTarget.GraftedPlantID != null)
                             {
-                                var newGraftedPlantTarget = new PlanTarget()
+                                foreach (var graftedPlantId in plantTarget.GraftedPlantID)
                                 {
-                                    LandPlotID = null,
-                                    LandRowID = null,
-                                    PlantID = null,
-                                    PlantLotID = null,
-                                    GraftedPlantID = graftedPlantId
-                                };
+                                    var newGraftedPlantTarget = new PlanTarget()
+                                    {
+                                        LandPlotID = null,
+                                        LandRowID = null,
+                                        PlantID = null,
+                                        PlantLotID = null,
+                                        GraftedPlantID = graftedPlantId
+                                    };
 
-                                newPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                    newPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                }
+
                             }
-
                             await _unitOfWork.SaveAsync();
                         }
                     }
@@ -284,9 +290,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
-                if(getDetailWorkLog != null)
+                var result =  _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
+                if(result != null)
                 {
-                    return new BusinessResult(200, "Get Detail WorkLog Sucesss", getDetailWorkLog);
+                    return new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
                 }
                 return new BusinessResult(400, "Get Detail WorkLog Failed");
 

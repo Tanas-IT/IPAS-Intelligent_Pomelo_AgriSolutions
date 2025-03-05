@@ -173,33 +173,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             // **Insert mỗi PlantLotID một dòng riêng**
-                            foreach (var plantLotId in plantTarget.PlantLotID)
+                            if(plantTarget.PlantLotID != null)
                             {
-                                var newPlantLotTarget = new PlanTarget()
+                                foreach (var plantLotId in plantTarget.PlantLotID)
                                 {
-                                    LandPlotID =null,
-                                    LandRowID = null,
-                                    PlantID = null,
-                                    PlantLotID = plantLotId,
-                                    GraftedPlantID = null
-                                };
+                                    var newPlantLotTarget = new PlanTarget()
+                                    {
+                                        LandPlotID = null,
+                                        LandRowID = null,
+                                        PlantID = null,
+                                        PlantLotID = plantLotId,
+                                        GraftedPlantID = null
+                                    };
 
-                                newPlan.PlanTargets.Add(newPlantLotTarget);
+                                    newPlan.PlanTargets.Add(newPlantLotTarget);
+                                }
+
                             }
 
                             // **Insert mỗi GraftedPlantID một dòng riêng**
-                            foreach (var graftedPlantId in plantTarget.GraftedPlantID)
+                            if(plantTarget.GraftedPlantID != null)
                             {
-                                var newGraftedPlantTarget = new PlanTarget()
+                                foreach (var graftedPlantId in plantTarget.GraftedPlantID)
                                 {
-                                    LandPlotID = null,
-                                    LandRowID = null,
-                                    PlantID = null,
-                                    PlantLotID = null,
-                                    GraftedPlantID = graftedPlantId
-                                };
+                                    var newGraftedPlantTarget = new PlanTarget()
+                                    {
+                                        LandPlotID = null,
+                                        LandRowID = null,
+                                        PlantID = null,
+                                        PlantLotID = null,
+                                        GraftedPlantID = graftedPlantId
+                                    };
 
-                                newPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                    newPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                }
+
                             }
 
                             await _unitOfWork.SaveAsync();
@@ -786,7 +794,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var updatePlanTarget in updatePlanModel.UpdatePlanTargetModels)
                             {
-                                var getUpdatePlanTarget = await _unitOfWork.PlanTargetRepository.GetByCondition(x => x.PlanID == updatePlanTarget.PlanID);
+                                var getUpdatePlanTarget = await _unitOfWork.PlanTargetRepository.GetByCondition(x => x.PlanTargetID == updatePlanTarget.PlanTargetID);
                                 if (getUpdatePlanTarget != null)
                                 {
                                     if (updatePlanTarget.PlantLotID != null)
@@ -850,7 +858,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task<bool> GeneratePlanSchedule(Plan plan, CreatePlanModel createPlanModel)
         {
             CarePlanSchedule schedule = new CarePlanSchedule();
-
+            var result = 0;
             DateTime currentDate = createPlanModel.StartDate;
             if (currentDate <= DateTime.Now)
             {
@@ -873,6 +881,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+                result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
@@ -898,6 +908,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
                             : createPlanModel;
+                        
                         await GenerateWorkLogs(schedule, customeDate, createPlanModel);
                     }
 
@@ -968,9 +979,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
                 }
             }
-            await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
-            var result = await _unitOfWork.SaveAsync();
-            while (currentDate <= plan.EndDate)
+            if(schedule.ScheduleId <= 0)
+            {
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+            }
+            result += await _unitOfWork.SaveAsync();
+            while (currentDate <= plan.EndDate && plan.Frequency.ToLower() != "none")
             {
                 if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
                 {
@@ -1001,6 +1015,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var tempModel = conflictDatesInWeekly.Contains(nextDay)
                                 ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
                                 : createPlanModel;
+                            
                             await GenerateWorkLogs(schedule, nextDay, tempModel);
                         }
                     }

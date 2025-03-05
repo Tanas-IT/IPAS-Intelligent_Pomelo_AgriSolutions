@@ -14,5 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public int? PlantLotID { get; set; }
         public int? PlantID { get; set; }
         public int? PlanID { get; set; }
+        public int? PlanTargetID { get; set; }
     }
 }
