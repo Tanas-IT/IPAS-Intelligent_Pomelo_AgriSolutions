@@ -40,5 +40,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> LoginGoogleHandler(string GoogleToken);
         public Task<BusinessResult> ValidateRoleOfUserInFarm(string jwtToken, int farmId);
         public Task<BusinessResult> UpdateTokenOfUser(string jwtToken);
+        public Task<BusinessResult> SearchByEmail(string? email);
     }
 }
