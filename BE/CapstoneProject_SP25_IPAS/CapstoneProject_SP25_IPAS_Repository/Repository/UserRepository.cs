@@ -93,7 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<User>> SearchByEmail(string searchEmail)
         {
             var result = await _context.Users
-                                        .Where(x => x.Email!.ToLower().Contains(searchEmail.ToLower())
+                                        .Where(x => x.Email!.ToLower().StartsWith(searchEmail.ToLower())
                                         && x.IsDelete != true
                                         && x.Status!.ToLower().Equals(UserStatus.Active.ToString().ToLower()))
                                         .Take(5)
