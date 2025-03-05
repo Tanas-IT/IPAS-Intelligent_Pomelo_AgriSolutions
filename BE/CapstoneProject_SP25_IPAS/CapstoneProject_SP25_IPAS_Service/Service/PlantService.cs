@@ -463,7 +463,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // check hang da du cho chưa
-                    if (plantUpdateRequest.LandRowId.HasValue)
+                    if (plantUpdateRequest.LandRowId.HasValue && plantUpdateRequest.LandRowId.Value != 0)
                     {
                         var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantUpdateRequest.LandRowId, "Plants,LandPlot");
                         if (landrowExist == null)
@@ -503,7 +503,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
                     {
-                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != false );
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != true );
                         if (checkMasterTypeExist == null)
                             return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
