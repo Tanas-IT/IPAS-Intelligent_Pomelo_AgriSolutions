@@ -14,6 +14,7 @@ public partial class Criteria
     public string? CriteriaDescription { get; set; }
 
     public int? Priority { get; set; }
+    public int? FrequencyDate { get; set; }
 
     public bool? IsActive { get; set; }
 

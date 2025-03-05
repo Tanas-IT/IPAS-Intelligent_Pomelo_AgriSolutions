@@ -35,6 +35,10 @@ public partial class LandPlot
     public double? RowSpacing { get; set; }
     public double? LineSpacing { get; set; }
     public int? NumberOfRows { get; set; }
+    public double? MinLength { get; set; }
+    public double? MaxLength { get; set; }
+    public double? MinWidth { get; set; }
+    public double? MaxWidth { get; set; }
     public virtual Farm? Farm { get; set; }
 
     public virtual ICollection<LandPlotCoordination> LandPlotCoordinations { get; set; } = new List<LandPlotCoordination>();

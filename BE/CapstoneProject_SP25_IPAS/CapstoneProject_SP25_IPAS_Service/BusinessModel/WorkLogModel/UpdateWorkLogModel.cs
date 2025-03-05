@@ -1,23 +1,21 @@
 ﻿using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
 {
-    public class AddNewTaskModel
+    public class UpdateWorkLogModel
     {
+        public int TaskId { get; set; }
         public string? TaskName { get; set; }
         [JsonProperty("Labels")]
         public int? TypeOfPlan { get; set; }
         public int? ProcessId { get; set; }
-        public int? MasterTypeId { get; set; }
         public int? CropId { get; set; }
         public int? LandPlotId { get; set; }
         public int? AssignorId { get; set; }
@@ -28,8 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string? EndTime { get; set; }
         public DateTime? DateWork { get; set; }
-        public List<EmployeeModel>? listEmployee {  get; set; }
-        public List<PlanTargetModel> PlanTargetModel { get; set; }
-        public List<int> GrowthStageIds { get; set; }
+        public List<EmployeeModel>? listEmployee { get; set; }
+        public List<PlanTargetModel> ListPlanTargetModel { get; set; }
     }
 }

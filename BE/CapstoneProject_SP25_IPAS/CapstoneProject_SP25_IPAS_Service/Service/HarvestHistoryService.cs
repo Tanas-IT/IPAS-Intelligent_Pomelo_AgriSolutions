@@ -85,19 +85,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var historyType = new HarvestTypeHistory()
                             {
                                 MasterTypeId = item.MasterTypeId,
-                                Price = item.Price,
+                                SellPrice = item.Price,
                                 Unit = item.Unit,
                                 Quantity = item.Quantity,
                                 //ProcessId = item.ProcessId ?? null,
                             };
-                            if (item.ProcessId.HasValue)
-                            {
-                                var processExists = await _unitOfWork.ProcessRepository.GetByID(item.ProcessId.Value);
-                                if (processExists != null)
-                                {
-                                    historyType.ProcessId = item.ProcessId;
-                                }
-                            }
+                            //if (item.ProcessId.HasValue)
+                            //{
+                            //    var processExists = await _unitOfWork.ProcessRepository.GetByID(item.ProcessId.Value);
+                            //    if (processExists != null)
+                            //    {
+                            //        historyType.ProcessId = item.ProcessId;
+                            //    }
+                            //}
                             harvestHistory.HarvestTypeHistories.Add(historyType);
                         }
                     }
@@ -192,7 +192,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             HarvestHistoryId = createRequest.HarvestHistoryId.Value,
                             //PlantId = createRequest.PlantId,  // Có thể NULL nếu chưa có cây cụ thể
                             Unit = createRequest.Unit,
-                            Price = createRequest.Price,
+                            SellPrice = createRequest.Price,
                             Quantity = createRequest.Quantity
                         };
                         await _unitOfWork.HarvestTypeHistoryRepository.Insert(newHarvestEntry);
