@@ -1389,5 +1389,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> SearchByEmail(string? searchEmail)
+        {
+            if (string.IsNullOrEmpty(searchEmail))
+                return new BusinessResult(200, "No resource found");
+            var getUser = await _unitOfWork.UserRepository.SearchByEmail(searchEmail);
+            if (getUser != null)
+            {
+                var result = _mapper.Map<IEnumerable<UserModel>>(getUser);
+                return new BusinessResult(Const.SUCCESS_GET_USER_CODE, Const.SUCCESS_GET_USER_BY_EMAIL_MSG, result);
+            }
+            return new BusinessResult(Const.FAIL_GET_USER_CODE, Const.FAIL_GET_USER_BY_EMAIL_MSG, null);
+        }
+
     }
 }

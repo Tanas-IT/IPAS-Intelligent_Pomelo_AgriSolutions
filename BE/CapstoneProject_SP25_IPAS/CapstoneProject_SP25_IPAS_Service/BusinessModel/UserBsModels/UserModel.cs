@@ -36,5 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels
 
         public string? RoleName { get; set; }
         public int? RemainDays { get; set; }
+        public string? AvatarURL { get; set; }
+
     }
 }
