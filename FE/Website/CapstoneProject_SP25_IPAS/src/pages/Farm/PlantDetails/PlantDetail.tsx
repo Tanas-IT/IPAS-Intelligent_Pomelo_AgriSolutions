@@ -1,12 +1,13 @@
 import { useLocation } from "react-router-dom";
 import style from "./PlantDetail.module.scss";
-import { Divider, Flex, Image, Tag } from "antd";
+import { Divider, Flex, QRCode, Tag } from "antd";
 import { Icons } from "@/assets";
-import { LoadingSkeleton, Tooltip } from "@/components";
+import { CustomButton, LoadingSkeleton, Tooltip } from "@/components";
 import { useEffect, useState } from "react";
 import { DEFAULT_PLANT, formatDayMonth, formatDayMonthAndTime } from "@/utils";
 import { plantService } from "@/services";
 import { GetPlantDetail } from "@/payloads";
+import { healthStatusColors } from "@/constants";
 
 const InfoField = ({
   icon: Icon,
@@ -35,8 +36,6 @@ const SectionHeader = ({
   code: string;
   status: string;
 }) => {
-  const normalStatuses = ["healthy", "normal"];
-  const isNormal = normalStatuses.some((s) => status.toLowerCase().includes(s));
   return (
     <Flex className={style.contentSectionHeader}>
       <Flex className={style.contentSectionTitle}>
@@ -45,8 +44,8 @@ const SectionHeader = ({
           <Tooltip title="Hello">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
-          <Tag className={`${style.statusTag} ${isNormal ? style.normal : style.issue}`}>
-            {status}
+          <Tag className={style.statusTag} color={healthStatusColors[status] || "default"}>
+            {status || "Unknown"}
           </Tag>
         </Flex>
         {/* <Flex>
@@ -63,9 +62,35 @@ const SectionHeader = ({
   );
 };
 
-const DescriptionSection = ({ description, image }: { description: string; image: string }) => {
+const DescriptionSection = ({
+  description,
+  id,
+  code,
+}: {
+  description: string;
+  id: number;
+  code: string;
+}) => {
   const isShortDescription = description.length < 50; // Điều kiện kiểm tra mô tả ngắn
+  function doDownload(url: string, fileName: string) {
+    const a = document.createElement("a");
+    a.download = fileName;
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // Giải phóng bộ nhớ
+  }
 
+  const downloadSvgQRCode = () => {
+    const svg = document.getElementById("myqrcode")?.querySelector<SVGElement>("svg");
+    const svgData = new XMLSerializer().serializeToString(svg!);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    doDownload(url, `QRCode-${code}.svg`);
+  };
+  const baseUrl = import.meta.env.VITE_APP_BASE_URL;
   return (
     <Flex className={style.descriptionSection}>
       <Flex className={`${style.infoField} ${style.infoFieldColumn}`}>
@@ -88,11 +113,15 @@ const DescriptionSection = ({ description, image }: { description: string; image
             <label className={style.fieldValue}>{description}</label>
           </>
         )}
-        {image && (
-          <Flex className={style.imageWrapper}>
-            <Image crossOrigin="anonymous" width={160} src={image} />
-          </Flex>
-        )}
+        <Flex vertical gap={10} justify="center">
+          <QRCode
+            id="myqrcode"
+            type="svg"
+            value={`${baseUrl}/farm/plants/${id}/details`}
+            size={180}
+          />
+          <CustomButton label="Download" handleOnClick={downloadSvgQRCode} />
+        </Flex>
       </Flex>
     </Flex>
   );
@@ -124,7 +153,7 @@ function PlantDetail() {
   const infoFieldsLeft = [
     { label: "Growth Status", value: plant.growthStageName, icon: Icons.growth },
     { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
-    { label: "Mother Plant", value: "P001", icon: Icons.plant },
+    { label: "Mother Plant", value: plant.plantReferenceCode ?? "N/A", icon: Icons.plant },
     { label: "Create Date", value: formatDayMonthAndTime(plant.createDate), icon: Icons.time },
   ];
 
@@ -147,8 +176,6 @@ function PlantDetail() {
 
   const description = plant.description ?? "N/A";
 
-  const image = typeof plant.imageUrl === "string" ? plant.imageUrl : "";
-
   if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
@@ -167,7 +194,7 @@ function PlantDetail() {
           ))}
         </Flex>
       </Flex>
-      <DescriptionSection description={description} image={image} />
+      <DescriptionSection description={description} id={plant.plantId} code={plant.plantCode} />
     </Flex>
   );
 }

@@ -1,1 +1,1 @@
-export * from "./PlantRequest";
+export * from "./PlantRequests";

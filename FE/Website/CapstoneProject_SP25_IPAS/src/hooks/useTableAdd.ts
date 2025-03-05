@@ -9,12 +9,12 @@ interface UseHandleAddProps<T> {
 }
 
 export default function useTableAdd<T>({ addService, fetchData, onSuccess }: UseHandleAddProps<T>) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const handleAdd = useCallback(
     async (data: T) => {
       if (!data) return;
-      setIsLoading(true);
+      setIsAdding(true);
       try {
         const result = await addService(data);
         if (result.statusCode === 200) {
@@ -25,11 +25,11 @@ export default function useTableAdd<T>({ addService, fetchData, onSuccess }: Use
           toast.error(result.message);
         }
       } finally {
-        setIsLoading(false);
+        setIsAdding(false);
       }
     },
     [addService, fetchData, onSuccess],
   );
 
-  return { handleAdd, isLoading };
+  return { handleAdd, isAdding };
 }
