@@ -1,8 +1,43 @@
 @use "@/styles/variables.scss" as vars;
+
 .event {
     cursor: pointer;
     padding: 5px;
-    background-color: vars.$color_second;
     color: vars.$color_primary;
     border-left: 4px solid vars.$color_primary;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    font-size: clamp(10px, 1vw, 14px);
+    width: 100%;
+}
+
+.eventnotStarted {
+    background-color: #E1BEE7;
+    color: #880E4F;
+    border-left: 4px solid #880E4F;
+}
+
+.eventinProgress {
+    background-color: #BBDEFB;
+    color: #0D47A1;
+    border-left: 4px solid #0D47A1;
+}
+
+.eventoverdue {
+    background-color: #FFCDD2;
+    color: #B71C1C;
+    border-left: 4px solid #B71C1C;
+}
+
+.eventreviewing {
+    background-color: #FFECB3;
+    color: #FF6F00;
+    border-left: 4px solid #FF6F00;
+}
+
+.eventdone {
+    background-color: #C8E6C9;
+    color: #1B5E20;
+    border-left: 4px solid #1B5E20;
 }

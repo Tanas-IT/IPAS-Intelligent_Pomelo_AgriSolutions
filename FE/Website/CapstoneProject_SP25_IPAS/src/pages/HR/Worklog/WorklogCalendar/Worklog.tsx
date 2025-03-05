@@ -32,6 +32,14 @@ type Worklog = {
   status: string;
 };
 
+type CalendarEvent = {
+  id: string | number;
+  title: string;
+  start: string;
+  end: string;
+  calendarId: string;
+};
+
 
 function Worklog() {
   const eventsService = useState(() => createEventsServicePlugin())[0];
@@ -97,44 +105,134 @@ function Worklog() {
     });
   };
 
-  useEffect(() => {
-    if (eventsService) {
-      eventsService.set(
-        worklog.map((log) => ({
-          id: log.id,
-          title: `${log.title} (${log.status})`,
-          start: log.start,
-          end: log.end,
-        }))
-      );
-    }
-  }, [worklog, eventsService]);
-  
+  const statusToCalendarId = (status: string): string => {
+    const cleanStatus = status.trim().toLowerCase(); 
+    const mapping: Record<string, string> = {
+      "not started": "notStarted",
+      "in progress": "inProgress",
+      "overdue": "overdue",
+      "reviewing": "reviewing",
+      "done": "done",
+    };
+    const result = mapping[cleanStatus] || "notStarted";
+    return result;
+  };
 
   useEffect(() => {
-    console.log("Worklog sau khi fetch:", worklog);
-  }, [worklog]);
+    if (eventsService) {
+      const formattedEvents = worklog.map((log) => {
+        const calendarId = statusToCalendarId(log.status);
+        return {
+          id: log.id,
+          title: `${log.title}`,
+          start: log.start,
+          end: log.end,
+          calendarId, 
+        };
+      });
+      const groupedEvents = groupEventsByTime(formattedEvents);
+      eventsService.set(formattedEvents);
+    }
+  }, [eventsService, worklog]);
+
+  const groupEventsByTime = (events: CalendarEvent[]): CalendarEvent[][] => {
+    const grouped: Record<string, CalendarEvent[]> = {};
+  
+    events.forEach((event) => {
+      if (!grouped[event.start]) {
+        grouped[event.start] = [];
+      }
+      grouped[event.start].push(event);
+    });
+  
+    return Object.values(grouped);
+  };
 
   const calendar = useCalendarApp({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
+    calendars: {
+      notStarted: {
+        colorName: 'notStarted',
+        lightColors: {
+          main: '#B0BEC5',
+          container: '#ECEFF1',
+          onContainer: '#37474F',
+        },
+        darkColors: {
+          main: '#90A4AE',
+          container: '#455A64',
+          onContainer: '#CFD8DC',
+        },
+      },
+      inProgress: {
+        colorName: 'inProgress',
+        lightColors: {
+          main: '#42A5F5',
+          container: '#BBDEFB',
+          onContainer: '#0D47A1',
+        },
+        darkColors: {
+          main: '#64B5F6',
+          container: '#1E3A8A',
+          onContainer: '#E3F2FD',
+        },
+      },
+      overdue: {
+        colorName: 'overdue',
+        lightColors: {
+          main: '#E53935',
+          container: '#FFCDD2',
+          onContainer: '#B71C1C',
+        },
+        darkColors: {
+          main: '#EF5350',
+          container: '#7F1D1D',
+          onContainer: '#FFEBEE',
+        },
+      },
+      reviewing: {
+        colorName: 'reviewing',
+        lightColors: {
+          main: '#FFB300',
+          container: '#FFE082',
+          onContainer: '#795548',
+        },
+        darkColors: {
+          main: '#FFCA28',
+          container: '#5D4037',
+          onContainer: '#FFF3E0',
+        },
+      },
+      done: {
+        colorName: 'done',
+        lightColors: {
+          main: '#4CAF50',
+          container: '#A5D6A7',
+          onContainer: '#1B5E20',
+        },
+        darkColors: {
+          main: '#66BB6A',
+          container: '#2E7D32',
+          onContainer: '#E8F5E9',
+        },
+      }
+    },
     events: worklog.map((log) => ({
       id: log.id,
       title: `${log.title}`,
       start: log.start,
       end: log.end,
+      calendarId: statusToCalendarId(log.status),
     })),
     selectedDate: dayjs().format("YYYY-MM-DD"),
     plugins: [eventsService],
-
+    
   })
+  
 
   useEffect(() => {
     eventsService.getAll()
-  }, [])
-
-  const handleOpenFilter = () => {
-
-  }
+  }, []);
 
   const handleAdd = () => {
 
@@ -160,7 +258,7 @@ function Worklog() {
             <HeaderContentAppend filterContent={filterContent} addModal={addModal} />
           )
         }}
-         />
+      />
       <WorklogModal
         isOpen={addModal.modalState.visible}
         onClose={addModal.hideModal}

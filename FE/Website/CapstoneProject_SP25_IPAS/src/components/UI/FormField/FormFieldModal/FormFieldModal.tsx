@@ -10,19 +10,21 @@ import {
   Image,
   Button,
   Upload,
+  TimePicker,
 } from "antd";
 import style from "./FormFieldModal.module.scss";
 import { DATE_FORMAT } from "@/utils";
 import { useEffect, useState } from "react";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 interface FormFieldModalProps {
   label: string;
   description?: string;
   name?: string;
   rules?: any[];
-  type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker" | "image";
+  type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker" | "image" | "time";
   options?: { value: string | number; label: string }[];
   value?: string | string[] | number | undefined;
   image?: File | string;
@@ -178,6 +180,14 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             className={`${style.colorPicker}`}
           />
         );
+      case "time":
+        return (
+          <TimePicker.RangePicker
+            onChange={(time) => onChange?.(time)}
+            defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')}
+            className={style.timePicker}
+          />
+        )
       default:
         return (
           <Input

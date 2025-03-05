@@ -16,7 +16,7 @@ import {
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
 import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
@@ -47,6 +47,9 @@ import useLandRowOptions from "@/hooks/useLandRowOptions";
 import useLandPlotOptions from "@/hooks/useLandPlotOptions";
 import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
 import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
+import isBetween from "dayjs/plugin/isBetween";
+
+dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
 
@@ -95,7 +98,7 @@ const AddPlan = () => {
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
   console.log("các id", selectedGrowthStage);
-  
+
 
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: growthStageOptions } = useGrowthStageOptions(false);
@@ -103,6 +106,9 @@ const AddPlan = () => {
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
+
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
 
   const [planTargets, setPlanTargets] = useState<
@@ -112,6 +118,20 @@ const AddPlan = () => {
       plantID?: number;
     }[]
   >([]);
+
+  const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
+    if (!dates || dates.some(date => date === null)) {
+      setDateRange(null);
+      setDateError("Please select a valid date range!");
+      return;
+    }
+  
+    setDateRange(dates as [Dayjs, Dayjs]);
+    setDateError(null);
+  };
+  
+
+
 
   // Thêm hàm để thêm mục tiêu vào danh sách
   const handleAddPlanTarget = (target: {
@@ -156,8 +176,22 @@ const AddPlan = () => {
   };
 
   const handleDateChange = (dates: Dayjs[]) => {
-    setCustomDates(dates);
+    if (!dateRange) {
+      setDateError("Please select the date range first!");
+      return;
+    }
+
+    const [startDate, endDate] = dateRange;
+    const isValid = dates.every((date) => date.isBetween(startDate, endDate, "day", "[]"));
+
+    if (!isValid) {
+      setDateError("Selected dates must be within the date range.");
+    } else {
+      setDateError(null);
+      setCustomDates(dates);
+    }
   };
+
 
   const handleWeeklyDaySelection = (days: number[]) => {
     setDayOfWeek(days);
@@ -174,7 +208,7 @@ const AddPlan = () => {
     const startDate = new Date(dateRange?.[0]);
     const endDate = new Date(dateRange?.[1]);
     console.log("planTargetModel", planTargetModel);
-    
+
 
     const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
     const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
@@ -242,8 +276,8 @@ const AddPlan = () => {
       setEmployee(await fetchUserInfoByRole("User"));
       console.log("employee", employee);
       console.log("hhhhhhhh");
-      
-      
+
+
     };
 
     fetchData();
@@ -356,7 +390,7 @@ const AddPlan = () => {
             name="dateRange"
             rules={[{ required: true, message: "Please select the date range!" }]}
           >
-            <RangePicker style={{ width: "100%" }} />
+            <RangePicker style={{ width: "100%" }} onChange={handleDateRangeChange} />
           </Form.Item>
           <Form.Item
             label="Time Range"
@@ -406,6 +440,8 @@ const AddPlan = () => {
             <Form.Item
               label="Select Specific Dates"
               rules={[{ required: true, message: "Please select the dates!" }]}
+              validateStatus={dateError ? "error" : ""}
+              help={dateError}
             >
               <DatePicker
                 format="YYYY-MM-DD"
