@@ -87,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 }
             }
 
-            return await query.FirstOrDefaultAsync()!;
+            return await query.AsNoTracking().FirstOrDefaultAsync();
         }
 
         public virtual async Task<IEnumerable<TEntity>> GetAllNoPaging(

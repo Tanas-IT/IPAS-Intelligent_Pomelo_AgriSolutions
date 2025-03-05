@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,13 +35,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));  
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
         }
 
         public async Task<User?> GetUserByIdAsync(int userId)
         {
             var getUser = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
-            if(getUser != null)
+            if (getUser != null)
             {
                 return getUser;
             }
@@ -58,13 +59,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 return result;
             }
             return 0;
-            
+
         }
 
         public async Task<bool> AddOtpToUser(string email, string otpCode, DateTime expiredOtpTime)
         {
             var checkUser = await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
-            if(checkUser != null)
+            if (checkUser != null)
             {
                 checkUser.Otp = otpCode;
                 checkUser.ExpiredOtpTime = expiredOtpTime;
@@ -82,10 +83,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<int> GetAllEmployeeByFarmId(int? farmId)
         {
-           var listEmployee = await _context.Users.Include(x => x.UserFarms).ThenInclude(x => x.Farm)
-                                    .Where(x => x.UserFarms.Any(x => x.FarmId == farmId && x.RoleId == 5))
-                                    .ToListAsync();
+            var listEmployee = await _context.Users.Include(x => x.UserFarms).ThenInclude(x => x.Farm)
+                                     .Where(x => x.UserFarms.Any(x => x.FarmId == farmId && x.RoleId == 5))
+                                     .ToListAsync();
             return listEmployee.Count;
+        }
+
+        public async Task<List<User>> SearchByEmail(string searchEmail)
+        {
+            var result = await _context.Users
+                                        .Where(x => x.Email!.ToLower().Contains(searchEmail.ToLower())
+                                        && x.IsDelete != true
+                                        && x.Status!.ToLower().Equals(UserStatus.Active.ToString().ToLower()))
+                                        .Take(5)
+                                        .OrderByDescending(x => x.UserId)
+                                        .ToListAsync();
+            return result;
         }
     }
 }
