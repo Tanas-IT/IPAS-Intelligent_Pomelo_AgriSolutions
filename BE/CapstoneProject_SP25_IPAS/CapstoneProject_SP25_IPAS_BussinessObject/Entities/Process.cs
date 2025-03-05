@@ -42,5 +42,4 @@ public partial class Process
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
 
     public virtual ICollection<SubProcess> SubProcesses { get; set; } = new List<SubProcess>();
-    public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
 }

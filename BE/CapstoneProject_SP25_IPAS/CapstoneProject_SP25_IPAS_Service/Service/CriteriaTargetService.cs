@@ -276,7 +276,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var isChecked))
                         {
-                            plantCriteria.isChecked = isChecked;
+                            plantCriteria.IsChecked = isChecked;
                         }
                     }
 
@@ -372,10 +372,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (existing != null)
                 {
-                    if (!allowOverride && existing.isChecked.HasValue)
+                    if (!allowOverride && existing.IsChecked.HasValue)
                         continue;
 
-                    existing.isChecked = criteria.IsChecked;
+                    existing.IsChecked = criteria.IsChecked;
                     existing.Priority = criteria.Priority;
                     _unitOfWork.CriteriaTargetRepository.Update(existing);
                 }
@@ -384,7 +384,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     criteriaToAdd.Add(new CriteriaTarget
                     {
                         CriteriaID = criteria.CriteriaId,
-                        isChecked = criteria.IsChecked,
+                        IsChecked = criteria.IsChecked,
                         Priority = criteria.Priority,
                         PlantID = plantId,
                         GraftedPlantID = graftedPlantId,
@@ -466,7 +466,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (existingCriteria.Any())
                     return (false, "You must apply criteria before.");
                 //var targetSplit = Util.SplitByComma(TargetsList);
-                existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.isChecked != true);
+                existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.IsChecked != true);
                 if (!existingCriteria.Any())
                     return (false, $"You must completed all criteria of {string.Join(", ", TargetsList)} before.");
                 return (true, "All of criteria is complete");
@@ -524,7 +524,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 GraftedPlantID = graftedPlantId,
                 PlantLotID = plantLotId,
                 CriteriaID = criteria.CriteriaId,
-                isChecked = criteria.IsChecked,
+                IsChecked = criteria.IsChecked,
                 Priority = criteria.Priority
             };
         }

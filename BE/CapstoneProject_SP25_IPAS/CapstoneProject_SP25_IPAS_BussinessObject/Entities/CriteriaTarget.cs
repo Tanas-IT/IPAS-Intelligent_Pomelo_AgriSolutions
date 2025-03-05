@@ -10,7 +10,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
     {
         public int CriteriaTargetId { get; set; }
 
-        public bool? isChecked { get; set; }
+        public bool? IsChecked { get; set; }
+        public bool? IsPassed { get; set; }
+        public string? Note { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         public int? Priority { get; set; }
 

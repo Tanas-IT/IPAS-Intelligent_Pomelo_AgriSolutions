@@ -178,7 +178,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Priority = pc.Priority,
                             CriteriaId = pc.Criteria!.CriteriaId,
                             CriteriaName = pc.Criteria!.CriteriaName!,
-                            IsChecked = pc.isChecked
+                            IsChecked = pc.IsChecked
                         }).ToList()
                     })
                     .ToList();

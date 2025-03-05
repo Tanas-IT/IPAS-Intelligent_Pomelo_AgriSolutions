@@ -189,7 +189,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
                .ReverseMap();
 
-            
+            CreateMap<PlanTarget, PlanTargetDisplayModel>()
+                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
+                .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+                .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow.RowIndex))
+                .ForMember(dest => dest.GraftedPlantName, opt => opt.MapFrom(src => src.GraftedPlant.GraftedPlantName))
+                .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot.PlantLotName))
+                .ReverseMap();
+
+
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
              .ForMember(dest => dest.Frequency,
@@ -228,13 +236,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => group.First())
                                                                     .ToList(): new List<User>()))
-               .ForMember(dest => dest.StarTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StartTime : null))
+               .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StartTime : null))
                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.EndTime: null))
                .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfWeek : null))
                .ForMember(dest => dest.DayOfMonth, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfMonth : null))
                .ForMember(dest => dest.CustomDates, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.CustomDates : null))
                .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs: null))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+               .ForMember(dest => dest.PlanTargetModels, opt => opt.MapFrom(src => src.PlanTargets))
                .ReverseMap();
 
             CreateMap<LegalDocument, LegalDocumentModel>()

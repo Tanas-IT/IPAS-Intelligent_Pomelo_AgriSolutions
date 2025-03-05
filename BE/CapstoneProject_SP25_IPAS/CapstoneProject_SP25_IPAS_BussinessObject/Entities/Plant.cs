@@ -30,6 +30,8 @@ public partial class Plant
 
     public string? ImageUrl { get; set; }
     public bool? IsDeleted { get; set; }
+    public bool? IsPassed { get; set; }
+    public DateTime? PassedDate { get; set; }
 
     public int? LandRowId { get; set; }
 
