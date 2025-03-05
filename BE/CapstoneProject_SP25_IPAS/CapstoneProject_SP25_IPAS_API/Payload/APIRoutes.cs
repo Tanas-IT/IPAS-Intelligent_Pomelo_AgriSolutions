@@ -59,6 +59,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softedDeleteUser = Base + "/users/softed-delete-user/{userId}";
             public const string updateUserInfo = Base + "/users/update-user-info";
             public const string updateUserAvatar = Base + "/users/update-user-avatar/{userId}";
+            public const string searchUserByEmail = Base + "/users/search-by-email/";
         }
 
         public static class PlantLot
@@ -327,6 +328,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllSchedule = prefix + "/get-all-schedule";
             public const string assignTask = prefix + "/assign-task";
             public const string addNewTask = prefix + "/add-new-task";
+            public const string getDetailTask = prefix + "/detail/{workLogId}";
         }
 
         public static class Report

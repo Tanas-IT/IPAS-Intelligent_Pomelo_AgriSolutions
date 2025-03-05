@@ -624,8 +624,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     Expression<Func<UserFarm, bool>> filter = x => x.UserId == updateRequest.UserId && x.FarmId == updateRequest.FarmId!.Value;
-                    string includeProperties = "Role,Farm,User";
-                    var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter, includeProperties);
+                    //string includeProperties = "Role,Farm,User";
+                    var userInfarm = await _unitOfWork.UserFarmRepository.GetByCondition(filter);
                     if (userInfarm == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
@@ -639,6 +639,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     userInfarm.RoleId = checkRoleExist.RoleId;
+
                     _unitOfWork.UserFarmRepository.Update(userInfarm);
 
                     int result = await _unitOfWork.SaveAsync();
@@ -650,7 +651,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         mappedResult.User = null!;
                         return new BusinessResult(Const.SUCCESS_UPDATE_USER_IN_FARM_CODE, Const.SUCCESS_UPDATE_USER_IN_FARM_MSG, mappedResult);
                     }
-                    else return new BusinessResult(Const.FAIL_UPDATE_USER_IN_FARM_CODE, Const.FAIL_UPDATE_USER_IN_FARM_MSG);
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                        return new BusinessResult(Const.FAIL_UPDATE_USER_IN_FARM_CODE, Const.FAIL_UPDATE_USER_IN_FARM_MSG);
+                    } 
                 }
                 catch (Exception ex)
                 {
