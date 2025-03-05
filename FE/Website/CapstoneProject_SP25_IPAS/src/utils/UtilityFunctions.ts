@@ -2,8 +2,8 @@ import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
-import { DecodedToken, FileType } from "@/types";
-import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { DecodedToken, FileType, rowStateType } from "@/types";
+import { HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
   growthStageService,
@@ -11,6 +11,7 @@ import {
   processService,
   userService,
 } from "@/services";
+import { landRowSimulate } from "@/payloads";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -297,8 +298,10 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
   }));
 };
 
-export const fetchProcessesOfFarm = async (farmId: number) => {
-  const processFarms = await processService.getProcessesOfFarmForSelect(farmId);
+export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
+  const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
+  console.log("process farm", processFarms);
+  
 
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,
@@ -315,4 +318,53 @@ export const isPlantOverflowing = (
 ): boolean => {
   const totalPlantSpace = (Number(plantSpacing) + 24) * Number(plantsPerRow);
   return totalPlantSpace > rowLength;
+};
+
+export const normalizeRow = (row: landRowSimulate | rowStateType) => ({
+  rowId: "landRowId" in row ? row.landRowId : row.id,
+  rowCode: "landRowCode" in row ? row.landRowCode : "", // Nếu không có thì gán chuỗi rỗng
+  length: row.length,
+  width: row.width,
+  treeAmount: "treeAmount" in row ? row.treeAmount : row.plantsPerRow,
+  distance: "distance" in row ? row.distance : row.plantSpacing,
+  plants:
+    "plants" in row
+      ? row.plants.map((plant) => ({
+          plantId: plant.plantId,
+          plantCode: plant.plantCode,
+          plantIndex: plant.plantIndex,
+          healthStatus: plant.healthStatus ?? HEALTH_STATUS.HEALTHY,
+        }))
+      : Array.from({ length: row.plantsPerRow }).map((_, i) => ({
+          id: i,
+          healthStatus: HEALTH_STATUS.HEALTHY,
+        })),
+  rowIndex: "rowIndex" in row ? row.rowIndex : row.index,
+});
+
+export const formatDateW = (dateString: string): string => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+  };
+
+  const day = date.getDate();
+  const suffix = getDaySuffix(day);
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
+  return formattedDate.replace(/\d+/, `${day}${suffix}`);
+};
+
+const getDaySuffix = (day: number): string => {
+  if (day >= 11 && day <= 13) return "th";
+  const lastDigit = day % 10;
+  switch (lastDigit) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+  }
 };

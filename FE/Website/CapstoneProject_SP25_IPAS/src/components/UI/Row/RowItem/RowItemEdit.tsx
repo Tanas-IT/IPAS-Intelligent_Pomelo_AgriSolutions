@@ -1,9 +1,9 @@
-import { rowStateType } from "@/types";
 import { Flex } from "antd";
-import style from "./DraggableRow.module.scss";
 import { useEffect, useRef } from "react";
 import { useDrag, useDrop, XYCoord } from "react-dnd";
+import style from "./RowItem.module.scss";
 import { Images } from "@/assets";
+import { landRowSimulate } from "@/payloads";
 
 const ItemTypes = {
   ROW: "ROW",
@@ -15,17 +15,17 @@ interface DragItem {
   type: string;
 }
 
-interface RowItemProps {
-  row: rowStateType;
+interface RowItemEditProps {
+  row: landRowSimulate;
   rowSpacing: number;
   index: number;
   isHorizontal: boolean;
-  moveRow: (dragIndex: number, hoverIndex: number) => void;
-  setIsPanning: React.Dispatch<React.SetStateAction<boolean>>;
-  onClick: () => void;
+  moveRow?: (dragIndex: number, hoverIndex: number) => void;
+  setIsPanning?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClick?: () => void;
 }
 
-const RowItem: React.FC<RowItemProps> = ({
+const RowItemEdit: React.FC<RowItemEditProps> = ({
   row,
   rowSpacing,
   index,
@@ -35,7 +35,6 @@ const RowItem: React.FC<RowItemProps> = ({
   onClick,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: string | null }>({
     accept: ItemTypes.ROW,
     collect(monitor: any) {
@@ -44,7 +43,7 @@ const RowItem: React.FC<RowItemProps> = ({
       };
     },
     hover(item, monitor) {
-      if (!ref.current) return;
+      if (!ref.current || !moveRow) return;
 
       const dragIndex = item.index;
       const hoverIndex = index;
@@ -69,7 +68,7 @@ const RowItem: React.FC<RowItemProps> = ({
 
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.ROW,
-    item: { id: row.id, index },
+    item: { id: row.landRowId, index },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -77,14 +76,20 @@ const RowItem: React.FC<RowItemProps> = ({
 
   // Lắng nghe trạng thái kéo
   useEffect(() => {
-    setIsPanning(false);
+    if (setIsPanning) setIsPanning(false);
   }, [isDragging]);
 
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
 
   return (
-    <Flex justify="flex-start" ref={ref} style={{ opacity }} data-handler-id={handlerId}>
+    <Flex
+      justify="flex-start"
+      ref={ref}
+      style={{ opacity }}
+      data-handler-id={handlerId}
+      className={style.rowContainer}
+    >
       <Flex
         className={style.row}
         vertical={!isHorizontal}
@@ -92,23 +97,24 @@ const RowItem: React.FC<RowItemProps> = ({
           width: isHorizontal ? `${row.length}px` : `${row.width}px`,
           height: isHorizontal ? `${row.width}px` : `${row.length}px`,
           marginRight: `${rowSpacing}px`,
+          cursor: "grab",
         }}
         onClick={onClick}
-        onMouseDown={(e) => e.stopPropagation()} 
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        {Array.from({ length: row.plantsPerRow }).map((_, i) => (
+        {Array.from({ length: row.treeAmount }).map((_, i) => (
           <img
             key={i}
-            src={Images.plant}
+            src={Images.plant2}
             alt="Plant"
             className={style.plantImage}
             style={{
               ...(isHorizontal
-                ? i !== row.plantsPerRow - 1
-                  ? { marginRight: `${row.plantSpacing}px` }
+                ? i !== row.treeAmount - 1
+                  ? { marginRight: `${row.distance}px` }
                   : {}
-                : i !== row.plantsPerRow - 1
-                ? { marginBottom: `${row.plantSpacing}px` }
+                : i !== row.treeAmount - 1
+                ? { marginBottom: `${row.distance}px` }
                 : {}),
             }}
           />
@@ -118,4 +124,4 @@ const RowItem: React.FC<RowItemProps> = ({
   );
 };
 
-export default RowItem;
+export default RowItemEdit;

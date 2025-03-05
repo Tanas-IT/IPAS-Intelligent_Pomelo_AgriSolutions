@@ -16,12 +16,14 @@ import { getOptions } from "@/utils";
 import { growthStageColumns } from "./GrowthStageColumn";
 import ActionMenuGrowthStage from "@/components/UI/ActionMenu/ActionMenuGrowthStage";
 import GrowthStageModal from "./GrowthStageModal";
+import { useGrowthStageStore } from "@/stores";
 
 function GrowthStage() {
   const formModal = useModal<GetGrowthStage>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ stage: GrowthStageRequest }>();
   const cancelConfirmModal = useModal();
+  const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
 
   const {
     data,
@@ -75,7 +77,11 @@ function GrowthStage() {
   };
 
   const handleCancelConfirm = (stage: GrowthStageRequest, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate ? hasChanges(stage, "growthStageId") : hasChanges(stage);
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(stage, "growthStageId")
+      : hasChanges(stage, undefined, {
+          monthAgeStart: maxAgeStart ?? undefined,
+        });
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
@@ -84,7 +90,7 @@ function GrowthStage() {
     }
   };
 
-  const { handleUpdate } = useTableUpdate<GrowthStageRequest>({
+  const { handleUpdate, isUpdating } = useTableUpdate<GrowthStageRequest>({
     updateService: growthStageService.updateGrowthStage,
     fetchData: fetchData,
     onSuccess: () => {
@@ -96,7 +102,7 @@ function GrowthStage() {
     },
   });
 
-  const { handleAdd } = useTableAdd({
+  const { handleAdd, isAdding } = useTableAdd({
     addService: growthStageService.createGrowthStage,
     fetchData: fetchData,
     onSuccess: () => formModal.hideModal(),
@@ -149,6 +155,7 @@ function GrowthStage() {
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+        isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
         growthStageData={formModal.modalState.data}
       />
       {/* Confirm Delete Modal */}
@@ -166,6 +173,8 @@ function GrowthStage() {
         onCancel={updateConfirmModal.hideModal}
         itemName="Stage"
         actionType="update"
+        description={`Updating the growth stage will adjust the surrounding stages accordingly.
+          Are you sure you want to update this stage? This action cannot be undone.`}
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal

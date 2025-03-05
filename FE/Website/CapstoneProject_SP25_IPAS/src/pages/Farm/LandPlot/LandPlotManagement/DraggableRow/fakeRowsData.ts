@@ -1,14 +1,16 @@
-import { rowStateType } from "@/types";
+import { landRowSimulate } from "@/payloads";
 
-export const fakeRowsData: rowStateType[] = [
+export const fakeRowsData: landRowSimulate[] = [
   // Thêm 20 hàng mới giống nhau
   ...Array.from({ length: 20 }, (_, i) => ({
-    id: 1 + i,
+    landRowId: 1 + i,
+    landRowCode: "",
     length: 210,
     width: 50,
-    plantsPerRow: 5,
-    plantSpacing: 10,
-    index: 1 + i,
+    treeAmount: 5,
+    distance: 10,
+    rowIndex: 1 + i,
+    plants: [],
   })),
   // {
   //   id: 20,

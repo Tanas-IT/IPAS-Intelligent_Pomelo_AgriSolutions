@@ -1,3 +1,4 @@
+import { GROWTH_ACTIONS, growthStageFormFields } from "@/constants";
 import { useCallback } from "react";
 
 function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
@@ -6,6 +7,8 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
       if (keyField) {
         // Xử lý cho update
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
+        console.log(oldData);
+        console.log(newData);
 
         if (!oldData) return false;
 
@@ -23,6 +26,27 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           }
           const oldValue = oldData[typedKey];
           const newValue = newData[typedKey];
+
+          if (typeof oldValue === "object" && typeof newValue === "object") {
+            return JSON.stringify(oldValue) !== JSON.stringify(newValue);
+          }
+
+          if (typedKey === growthStageFormFields.activeFunction && newValue) {
+            const normalize = (val: string) =>
+              val
+                .split(",")
+                .map((s) => s.trim())
+                .sort()
+                .join(",");
+
+            // Nếu newValue là "Both", đổi thành "Grafted,Harvest" để so sánh
+            const formattedNewValue =
+              newValue === "Both"
+                ? `${GROWTH_ACTIONS.GRAFTED},${GROWTH_ACTIONS.HARVEST}`
+                : newValue;
+
+            return normalize(oldValue) !== normalize(formattedNewValue);
+          }
 
           // Nếu là string thì trim trước khi so sánh
           if (
@@ -55,23 +79,28 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           const defaultValue = defaultValues?.[typedKey];
           const newValue = newData[typedKey];
 
-          // Nếu là string thì trim trước khi so sánh
-          if (typeof defaultValue === "string" && typeof newValue === "string") {
-            return defaultValue.trim() !== newValue.trim();
-          }
-
           // Nếu không có giá trị mặc định thì kiểm tra nếu newValue có dữ liệu
           if (defaultValue === undefined) {
             return (
               newValue !== null &&
               newValue !== undefined &&
               newValue !== "" &&
-              !Number.isNaN(newValue)
+              !Number.isNaN(newValue) &&
+              (!Array.isArray(newValue) || newValue.length > 0)
             );
           }
 
+          if (typeof newValue === "object" && newValue !== null) {
+            return JSON.stringify(defaultValue) !== JSON.stringify(newValue);
+          }
+
+          // Nếu là string thì trim trước khi so sánh
+          if (typeof defaultValue === "string" && typeof newValue === "string") {
+            return defaultValue.trim() !== newValue.trim();
+          }
+
           // So sánh thông thường hoặc nếu defaultValue không có
-          return defaultValue !== newValue;
+          return String(defaultValue).trim() !== String(newValue).trim();
         });
       }
     },

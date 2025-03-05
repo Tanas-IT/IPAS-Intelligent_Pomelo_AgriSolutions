@@ -14,6 +14,7 @@ public partial class MasterType
     public string? MasterTypeDescription { get; set; }
 
     public bool? IsActive { get; set; }
+    public bool? IsConflict { get; set; }
 
     public DateTime? CreateDate { get; set; }
 

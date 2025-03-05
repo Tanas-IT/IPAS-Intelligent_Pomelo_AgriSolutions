@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
            int? pageSize = null);
 
         public Task<List<WorkLog>> GetWorkLogInclude();
+        public Task<WorkLog> GetWorkLogIncludeById(int workLogId);
         public Task<bool> CheckConflictTimeOfWorkLog(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck);
         public Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, List<int>? treeIds, List<int>? rowIds, List<int?> plotIds);
 

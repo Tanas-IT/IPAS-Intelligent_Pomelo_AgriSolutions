@@ -87,3 +87,13 @@ export const useMapStore = create<MapState>((set, get) => ({
     if (draw) draw.deleteAll();
   },
 }));
+
+interface GrowthStageStore {
+  maxAgeStart: number | null;
+  setMaxAgeStart: (value: number) => void;
+}
+
+export const useGrowthStageStore = create<GrowthStageStore>((set) => ({
+  maxAgeStart: null,
+  setMaxAgeStart: (value) => set({ maxAgeStart: value }),
+}));

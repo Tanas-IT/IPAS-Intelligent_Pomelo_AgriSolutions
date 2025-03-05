@@ -12,6 +12,7 @@ public partial class UserFarm
     public int? RoleId { get; set; }
 
     public string? Status { get; set; }
+    public bool? IsActive { get; set; }
 
     public virtual Farm Farm { get; set; } = null!;
 

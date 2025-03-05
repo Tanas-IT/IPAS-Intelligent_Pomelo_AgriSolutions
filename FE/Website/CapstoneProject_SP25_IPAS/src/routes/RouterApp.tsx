@@ -25,13 +25,15 @@ import {
   PackageList,
   MasterType,
   GrowthStage,
+  LandRow,
+  EmployeeList,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
 
 interface RouteItem {
   path: string;
-  component: () => JSX.Element;
+  component: () => JSX.Element | undefined;
   layout?: React.ComponentType<any> | null;
   props?: Record<string, any>;
 }
@@ -62,6 +64,12 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLOT_LIST, component: LandPlot, layout: ManagementLayout },
+  { path: PATHS.FARM.FARM_ROW_LIST, component: LandRow, layout: ManagementLayout },
+  {
+    path: PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+    component: PlantDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
@@ -71,6 +79,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },
+  { path: PATHS.HR.EMPLOYEES, component: EmployeeList, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
 ];
 

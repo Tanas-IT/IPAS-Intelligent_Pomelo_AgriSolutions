@@ -37,6 +37,8 @@ export const PATHS = {
     FARM_PLANT_DETAIL: "/farm/plants/:id/details",
     FARM_PLOT_LIST: "/farm/land-plots",
     FARM_PLOT_CREATE: "/farm/land-plots/create",
+    FARM_ROW_LIST: "/farm/land-rows",
+    FARM_PLANT_DETAIL_FROM_ROW: "/farm/land-rows/:plotId/plants/:plantId/details",
   },
 
   // Process Management
@@ -62,10 +64,11 @@ export const PATHS = {
   HR: {
     WORKLOG_CALENDAR: "/hr-management/worklogs",
     WORKLOG_DETAIL: "/hr-management/worklogs/:id",
+    EMPLOYEES: "/hr-management/employees",
   },
 
   //Package Management
   PACKAGE: {
-    PACKAGE_LIST: "/packages"
-  }
+    PACKAGE_LIST: "/packages",
+  },
 };

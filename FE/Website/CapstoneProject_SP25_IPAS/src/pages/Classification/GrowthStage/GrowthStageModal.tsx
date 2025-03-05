@@ -2,19 +2,28 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { growthStageFormFields } from "@/constants";
+import { GROWTH_ACTIONS, growthStageFormFields } from "@/constants";
 import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
+import { useGrowthStageStore } from "@/stores";
 
 type GrowthStageModalProps = {
   isOpen: boolean;
   onClose: (values: GrowthStageRequest, isUpdate: boolean) => void;
   onSave: (values: GrowthStageRequest) => void;
+  isLoadingAction?: boolean;
   growthStageData?: GetGrowthStage;
 };
 
-const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthStageModalProps) => {
+const GrowthStageModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  growthStageData,
+  isLoadingAction,
+}: GrowthStageModalProps) => {
   const [form] = Form.useForm();
   const isUpdate = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
+  const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
 
   const resetForm = () => form.resetFields();
 
@@ -22,7 +31,19 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     resetForm();
     if (isOpen) {
       if (isUpdate && growthStageData) {
-        form.setFieldsValue({ ...growthStageData });
+        form.setFieldsValue({
+          ...growthStageData,
+          [growthStageFormFields.activeFunction]: growthStageData.activeFunction
+            ? growthStageData.activeFunction.replace(/\s/g, "") ===
+              `${GROWTH_ACTIONS.GRAFTED},${GROWTH_ACTIONS.HARVEST}`.replace(/\s/g, "")
+              ? "Both"
+              : growthStageData.activeFunction
+            : undefined, // Nếu không có giá trị, set undefined hoặc "" tùy vào form
+        });
+      } else {
+        form.setFieldsValue({
+          [growthStageFormFields.monthAgeStart]: maxAgeStart,
+        });
       }
     }
   }, [isOpen, growthStageData]);
@@ -33,6 +54,7 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
     description: form.getFieldValue(growthStageFormFields.description),
     monthAgeStart: form.getFieldValue(growthStageFormFields.monthAgeStart),
     monthAgeEnd: form.getFieldValue(growthStageFormFields.monthAgeEnd),
+    activeFunction: form.getFieldValue(growthStageFormFields.activeFunction),
   });
 
   const handleOk = async () => {
@@ -48,6 +70,7 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
       onClose={handleCancel}
       onSave={handleOk}
       isUpdate={isUpdate}
+      isLoading={isLoadingAction}
       title={isUpdate ? "Update Stage" : "Add New Stage"}
     >
       <Form form={form} layout="vertical">
@@ -61,8 +84,9 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
           <FormFieldModal
             label="Month Age Start"
             name={growthStageFormFields.monthAgeStart}
-            rules={RulesManager.getMonthAgeStartRules()}
+            rules={isUpdate ? RulesManager.getMonthAgeStartRules() : []}
             placeholder="Enter the starting month age"
+            readonly={!isUpdate && true}
           />
           <FormFieldModal
             label="Month Age End"
@@ -89,6 +113,18 @@ const GrowthStageModal = ({ isOpen, onClose, onSave, growthStageData }: GrowthSt
             placeholder="Enter the ending month age"
           />
         </Flex>
+        <FormFieldModal
+          type="select"
+          label="Stage Actions"
+          name={growthStageFormFields.activeFunction}
+          options={Object.keys(GROWTH_ACTIONS).map((key) => ({
+            value:
+              key === "BOTH"
+                ? `${GROWTH_ACTIONS.GRAFTED}, ${GROWTH_ACTIONS.HARVEST}`
+                : GROWTH_ACTIONS[key as keyof typeof GROWTH_ACTIONS],
+            label: GROWTH_ACTIONS[key as keyof typeof GROWTH_ACTIONS],
+          }))}
+        />
         <FormFieldModal
           label="Description"
           type="textarea"

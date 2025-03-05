@@ -34,20 +34,3 @@
     gap: 20px;
   }
 }
-
-.row {
-  position: relative;
-  background-color: rgba(34, 139, 34, 0.3); // Màu xanh lá mờ
-  border: 2px dashed #228b22; // Viền đậm
-  border-radius: 8px;
-  cursor: move;
-  transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease; // Hiệu ứng di chuyển
-  justify-content: center;
-  align-items: center;
-}
-
-.plantImage {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}

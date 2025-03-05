@@ -1,13 +1,13 @@
 import { TableColumn } from "@/types";
-import { GetGrowthStage2 } from "@/payloads";
 import { formatDate } from "@/utils";
 import { TableCell } from "@/components";
+import { GetGrowthStage } from "@/payloads";
 
-export const growthStageColumns: TableColumn<GetGrowthStage2>[] = [
+export const growthStageColumns: TableColumn<GetGrowthStage>[] = [
   {
     header: "Code",
     field: "growthStageCode",
-    accessor: (item) => <TableCell value={item.growthStageCode} />,
+    accessor: (item) => <TableCell value={item.growthStageCode} isCopyable={true} />,
     width: 160,
   },
   {
@@ -27,6 +27,12 @@ export const growthStageColumns: TableColumn<GetGrowthStage2>[] = [
     field: "monthAgeEnd",
     accessor: (item) => <TableCell value={item.monthAgeEnd} />,
     width: 150,
+  },
+  {
+    header: "Stage Actions",
+    field: "activeFunction",
+    accessor: (item) => <TableCell value={item.activeFunction} />,
+    width: 200,
   },
   {
     header: "Description",

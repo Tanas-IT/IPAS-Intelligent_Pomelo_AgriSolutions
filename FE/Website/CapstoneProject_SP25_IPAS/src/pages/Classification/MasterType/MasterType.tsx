@@ -99,7 +99,7 @@ function MasterType() {
     }
   };
 
-  const { handleUpdate } = useTableUpdate<MasterTypeRequest>({
+  const { handleUpdate, isUpdating } = useTableUpdate<MasterTypeRequest>({
     updateService: masterTypeService.updateMasterType,
     fetchData: fetchData,
     onSuccess: () => {
@@ -111,7 +111,7 @@ function MasterType() {
     },
   });
 
-  const { handleAdd } = useTableAdd({
+  const { handleAdd, isAdding } = useTableAdd({
     addService: masterTypeService.createMasterType,
     fetchData: fetchData,
     onSuccess: () => formModal.hideModal(),
@@ -173,6 +173,7 @@ function MasterType() {
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+        isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
         masterTypeData={formModal.modalState.data}
       />
       {/* Confirm Delete Modal */}

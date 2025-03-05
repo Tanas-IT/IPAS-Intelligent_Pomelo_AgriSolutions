@@ -1,1 +1,1 @@
-export * from "./GrowthStageRequest";
+export * from "./GrowthStageRequests";

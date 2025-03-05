@@ -508,7 +508,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 x.Criteria.MasterType.Target == targetType).ToList();
 
             // Kiểm tra xem có tiêu chí nào chưa hoàn thành không
-            var uncompletedCriterias = graftedConditions.Where(x => !x.isChecked!.Value).ToList();
+            var uncompletedCriterias = graftedConditions.Where(x => !x.IsChecked!.Value).ToList();
 
             if (uncompletedCriterias.Any())
             {

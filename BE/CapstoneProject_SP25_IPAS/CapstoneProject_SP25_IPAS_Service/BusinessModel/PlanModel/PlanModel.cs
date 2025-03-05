@@ -52,6 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? ProcessName { get; set; }
 
         public string? CropName { get; set; }
+        public List<string>? GraftedPlantName { get; set; }
 
         public List<string>? GrowthStageName { get; set; }
 
@@ -67,9 +68,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? DayOfWeek { get; set; }
         public string? DayOfMonth { get; set; }
         public string? CustomDates { get; set; }
-        public TimeSpan? StarTime { get; set; }
+        public TimeSpan? StartTime { get; set; }
 
         public TimeSpan? EndTime { get; set; }
         public List<WorkLogInPlanModel>? ListWorkLog { get; set; }
+        public List<PlanTargetDisplayModel>? PlanTargetModels { get; set; }
     }
 }

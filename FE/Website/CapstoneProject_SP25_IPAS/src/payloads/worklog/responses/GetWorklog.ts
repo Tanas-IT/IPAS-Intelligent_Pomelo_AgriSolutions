@@ -1,15 +1,27 @@
+export interface User {
+  userId: number;
+  fullName: string;
+  isReporter: boolean;
+}
+
+export interface WorkLog {
+  workLogId: number;
+  workLogName: string;
+  workLogCode: string;
+  date: string;
+  status: string;
+  scheduleId: number;
+  startTime: string;
+  endTime: string;
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  users: User[];
+}
+
 export interface GetWorklog {
-    worklogId: string;
-    date: Date;
-    name: string;
-    status: number;
-    startTime: string;
-    endTime: string;
-    isConfirm: boolean;
-    notes?: string;
-    userId: string[];
-    typeId: string;
-    backgroundColor: string;
-    textColor: string;
-  }
-  
+  list: WorkLog[];
+  totalPage: number;
+  totalRecord: number;
+}

@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetPlant } from "@/payloads";
+import { ApiResponse, GetData, GetPlant, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
@@ -67,15 +67,34 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
     startTime: plan.startTime,
     endTime: plan.endTime,
     planTargetModel: plan.planTargetModel?.map(target => ({
-        landRowID: target.landRowID,
-        landPlotID: target.landPlotID,
-        graftedPlantID: target.graftedPlantID,
-        plantLotID: target.plantLotID,
-        plantID: target.plantID
+      landPlotID: target.landPlotID ?? 0,
+      landRowID: Array.isArray(target.landRowID) ? target.landRowID : [],
+      plantID: Array.isArray(target.plantID) ? target.plantID : [],
+      graftedPlantID: Array.isArray(target.graftedPlantID) ? target.graftedPlantID : [],
+      plantLotID: Array.isArray(target.plantLotID) ? target.plantLotID : [],
     })) || []
 };
 
-  const res = await axiosAuth.axiosJsonRequest.post(`plan`, formData);
+  const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 }
+
+export const getPlanDetail = async (planId: string) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plan/get-plan-by-id/${planId}`);
+  const apiResponse = res.data as ApiResponse<GetPlan>;
+
+  return apiResponse.data;
+}
+
+export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
+  console.log("Request body:", JSON.stringify({ listGrowthStage }));
+  
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
+      { listGrowthStage });
+  console.log('ressssss', res);
+  
+  const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
+  return apiResponse.data;
+};
+
