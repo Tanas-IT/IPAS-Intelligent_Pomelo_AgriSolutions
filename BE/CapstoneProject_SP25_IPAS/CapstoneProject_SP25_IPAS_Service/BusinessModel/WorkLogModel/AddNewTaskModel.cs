@@ -15,7 +15,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
     {
         public string? TaskName { get; set; }
         [JsonProperty("Labels")]
-        public int? TypeOfPlan { get; set; }
         public int? ProcessId { get; set; }
         public int? MasterTypeId { get; set; }
         public int? CropId { get; set; }

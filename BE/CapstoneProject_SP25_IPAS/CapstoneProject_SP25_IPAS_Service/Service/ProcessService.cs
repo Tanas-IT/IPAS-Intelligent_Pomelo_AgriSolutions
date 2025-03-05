@@ -557,6 +557,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             checkExistProcess.ResourceUrl = getLink;
                         }
                         checkExistProcess.UpdateDate = DateTime.Now;
+                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
+                        result += await _unitOfWork.SaveAsync();
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
@@ -701,6 +703,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 subProcessUpdate.Order = subProcess.MasterTypeId;
                                             }
                                             subProcessUpdate.UpdateDate = DateTime.Now;
+                                            _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
+                                            result += await _unitOfWork.SaveAsync();
                                             if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                             {
                                                 foreach (var plan in subProcess.ListPlan)
