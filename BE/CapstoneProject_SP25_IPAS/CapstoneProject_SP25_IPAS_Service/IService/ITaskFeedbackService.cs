@@ -1,7 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
