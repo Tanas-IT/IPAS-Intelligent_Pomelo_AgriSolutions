@@ -34,3 +34,8 @@ export const VIEW_MODE = {
   TABLE: "Table",
   SIMULATION: "Simulation",
 } as const;
+
+export const ROLE = {
+  EMPLOYEE: "Employee",
+  MANAGER: "Manager",
+} as const;

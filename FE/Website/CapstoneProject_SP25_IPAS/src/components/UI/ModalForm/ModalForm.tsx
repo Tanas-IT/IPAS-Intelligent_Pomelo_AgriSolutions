@@ -14,6 +14,7 @@ type ModalFormProps = {
   saveLabel?: string;
   size?: "normal" | "large" | "largeXL";
   noCancel?: boolean;
+  noDivider?: boolean;
 };
 
 const ModalForm = ({
@@ -28,6 +29,7 @@ const ModalForm = ({
   saveLabel,
   size = "normal",
   noCancel = false,
+  noDivider = false,
 }: ModalFormProps) => {
   return (
     <Modal
@@ -35,7 +37,7 @@ const ModalForm = ({
       open={isOpen}
       onCancel={onClose}
       footer={[
-        <Divider className={style.dividerModal} />,
+        ...(noDivider ? [] : [<Divider className={style.dividerModal} key="divider" />]),
         ...(!noCancel
           ? [<CustomButton key="cancel" label={cancelLabel} isCancel handleOnClick={onClose} />]
           : []),
@@ -49,7 +51,7 @@ const ModalForm = ({
     >
       <div>
         <h2 className={style.titleModal}>{title}</h2>
-        <Divider className={style.dividerModal} />
+        {!noDivider && <Divider className={style.dividerModal} />}
       </div>
       {children}
     </Modal>

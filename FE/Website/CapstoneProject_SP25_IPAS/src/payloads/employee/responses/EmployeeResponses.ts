@@ -10,6 +10,7 @@ interface user {
   status: string;
 }
 export interface GetEmployee {
+  userId: number;
   roleId: number;
   roleName: string;
   user: user

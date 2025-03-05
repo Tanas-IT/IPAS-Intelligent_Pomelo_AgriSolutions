@@ -69,7 +69,7 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       // Xử lý danh sách thửa đất
       if (landPlotRes.statusCode === 200 && Array.isArray(landPlotRes.data)) {
         setPlots(
-          landPlotRes.data.map(({ id, code, name }) => ({ value: id, label: `${code} - ${name}` })),
+          landPlotRes.data.map(({ id, code, name }) => ({ value: id, label: `${name} - ${code}` })),
         );
       }
 
@@ -129,7 +129,7 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     try {
       const res = await landRowService.getLandRowsSelected(plotId);
       if (res.statusCode === 200) {
-        setRows(res.data.map(({ id, code, name }) => ({ value: id, label: `${code} - ${name}` })));
+        setRows(res.data.map(({ id, code, name }) => ({ value: id, label: `${name} - ${code}` })));
       }
     } finally {
       setLoading((prev) => ({ ...prev, rows: false }));
@@ -171,9 +171,11 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     // imageUrl: image || form.getFieldValue(plantFormFields.imageUrl),
     imageUrl: image !== undefined ? image : plantData?.imageUrl,
     plantingDate: form.getFieldValue(plantFormFields.plantingDate)?.format("YYYY-MM-DD") || "",
-    landPlotId: form.getFieldValue(plantFormFields.landPlotId),
-    landRowId: form.getFieldValue(plantFormFields.landRowId),
-    plantIndex: form.getFieldValue(plantFormFields.plantIndex),
+    ...(!isUpdate && {
+      landPlotId: form.getFieldValue(plantFormFields.landPlotId),
+      landRowId: form.getFieldValue(plantFormFields.landRowId),
+      plantIndex: form.getFieldValue(plantFormFields.plantIndex),
+    }),
   });
 
   return (
@@ -182,6 +184,7 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       onClose={() => onClose(getFormData(), isUpdate)}
       onSave={async () => {
         await form.validateFields();
+        console.log(getFormData());
         onSave(getFormData());
       }}
       isLoading={isLoadingAction}

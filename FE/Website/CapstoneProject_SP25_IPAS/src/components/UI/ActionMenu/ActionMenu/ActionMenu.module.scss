@@ -74,3 +74,21 @@
     margin: 4px 0;
   }
 }
+
+.menuChangeRoleContainer {
+  flex-direction: column;
+  .item {
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    &:hover {
+      background-color: vars.$color_second;
+      color: vars.$color_primary;
+    }
+    &.disabled {
+      color: #999;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+  }
+}

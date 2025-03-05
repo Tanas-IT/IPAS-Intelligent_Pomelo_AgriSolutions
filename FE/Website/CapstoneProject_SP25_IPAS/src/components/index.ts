@@ -22,6 +22,7 @@ export { default as ActionMenu } from "@/components/UI/ActionMenu/ActionMenu/Act
 export { default as ActionMenuPlant } from "@/components/UI/ActionMenu/ActionMenuPlant";
 export { default as ActionMenuRow } from "@/components/UI/ActionMenu/ActionMenuRow";
 export { default as ActionMenuMasterType } from "@/components/UI/ActionMenu/ActionMenuMasterType";
+export { default as ActionMenuEmployee } from "@/components/UI/ActionMenu/ActionMenuEmployee";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";
