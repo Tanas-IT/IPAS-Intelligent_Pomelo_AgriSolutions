@@ -10,6 +10,7 @@ public partial class SubProcess
     public string? SubProcessCode { get; set; }
 
     public string? SubProcessName { get; set; }
+    public string? Description { get; set; }
 
     public int? ParentSubProcessId { get; set; }
 

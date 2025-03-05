@@ -438,7 +438,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
-            entity.Property(e => e.ProcessId).HasColumnName("ProcessID");
             entity.HasOne(d => d.HarvestHistory).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");
@@ -452,9 +451,7 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_HarvestTypeHistory_Plant");
 
-            entity.HasOne(d => d.Process).WithMany(p => p.HarvestTypeHistories)
-               .HasForeignKey(d => d.ProcessId)
-               .HasConstraintName("FK_Harvest_Type_History_Process");
+           
         });
 
         modelBuilder.Entity<LandPlot>(entity =>
@@ -1446,7 +1443,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");
             entity.Property(e => e.CriteriaID).HasColumnName("CriteriaID");
             entity.Property(e => e.PlantLotID).HasColumnName("PlantLotID");
-            entity.Property(e => e.isChecked).HasColumnName("isChecked");
+            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
             entity.Property(e => e.Priority).HasColumnName("Priority");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.CriteriaTargets)

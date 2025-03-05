@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<User>> GetAllUsersByRole(string roleName)
         {
             var result = await _context.Users.Include(x => x.Role)
+                                              .Include(x => x.UserFarms.Where(x => x.IsActive == true))
                                                 .Where(x => x.Role.RoleName.ToLower().Equals(roleName))
                                                 .ToListAsync();
             return result;

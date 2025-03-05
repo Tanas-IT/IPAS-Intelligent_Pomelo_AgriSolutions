@@ -114,5 +114,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.WorkLog.getDetailTask, Name = "GetDetailTask")]
+        public async Task<IActionResult> GetDetailTask([FromRoute] int workLogId)
+        {
+            try
+            {
+                var result = await _workLogService.GetDetailWorkLog(workLogId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
