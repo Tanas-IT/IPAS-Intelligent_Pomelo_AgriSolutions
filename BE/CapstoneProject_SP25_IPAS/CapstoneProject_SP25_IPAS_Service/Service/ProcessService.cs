@@ -127,6 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         Notes = plan.PlanNote,
                                         FarmID = farmId,
                                         MasterTypeId = plan.MasterTypeId,
+                                        IsDelete = false,
                                     };
 
                                     var growthStagePlan = new GrowthStagePlan()
@@ -154,6 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Notes = plan.PlanNote,
                                 FarmID = farmId,
                                 MasterTypeId = plan.MasterTypeId,
+                                IsDelete = false
                             };
 
                             var newGrowthStagePlan = new GrowthStagePlan()
@@ -596,7 +598,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             SubProcessName = subProcess.SubProcessName,
                                             IsDefault = subProcess.IsDefault,
                                             IsActive = subProcess.IsActive,
-                                            IsDeleted = subProcess.IsDeleted,
+                                            IsDeleted = false,
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
                                             ProcessId = checkExistProcess.ProcessId
@@ -624,7 +626,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
-                                                            SubProcessId = newSubProcess.SubProcessID
+                                                            SubProcessId = newSubProcess.SubProcessID,
+                                                            IsDelete = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         var addNewGrowthStages = new GrowthStagePlan()
@@ -737,6 +740,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 FarmID = checkExistProcess.FarmId,
                                                                 MasterTypeId = plan.MasterTypeId,
                                                                 SubProcessId = subProcess.SubProcessId,
+                                                                IsDelete = false
                                                             };
                                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                                             if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
@@ -827,7 +831,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
-                                                            SubProcessId = subProcessUpdate.SubProcessID
+                                                            SubProcessId = subProcessUpdate.SubProcessID,
+                                                            IsDelete = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         if (plan.GrowthStageId != null)
@@ -905,7 +910,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 Notes = updatePlan.PlanNote,
                                                 FarmID = checkExistProcess.FarmId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
-                                                ProcessId = checkExistProcess.ProcessId
+                                                ProcessId = checkExistProcess.ProcessId,
+                                                IsDelete = false
                                             };
                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                             if (updatePlan.GrowthStageId != null)

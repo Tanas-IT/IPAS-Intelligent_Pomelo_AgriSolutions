@@ -47,6 +47,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public double? Longitude { get; set; }
 
         public double? Latitude { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public DateTime? FarmExpiredDate { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public UserModel? Owner { get; set; }

@@ -41,6 +41,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Farm, FarmModel>()
             //.ForMember(dest => dest.FarmCoordinations, opt => opt.MapFrom(src => src.FarmCoordinations))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.UserFarms.FirstOrDefault(x => x.RoleId == (int)RoleEnum.OWNER)!.User))
+            .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Orders.Where(x => x.FarmId == src.FarmId).Max(x => x.ExpiredDate)))
             //.ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders))
             //.ForMember(dest => dest.Processes, opt => opt.MapFrom(src => src.Processes))
             //.ForMember(dest => dest.UserFarms, opt => opt.MapFrom(src => src.UserFarms))
@@ -61,6 +62,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Farm.Orders.Where(x => x.FarmId == src.FarmId).Max(x => x.ExpiredDate)))
                 .ReverseMap();
 
 
@@ -87,7 +89,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ReverseMap();
 
             CreateMap<SubProcess, SubProcessInProcessModel>()
-                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans))
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false)))
                 .ReverseMap();
 
             CreateMap<GrowthStage, ProcessGrowthStageModel>()

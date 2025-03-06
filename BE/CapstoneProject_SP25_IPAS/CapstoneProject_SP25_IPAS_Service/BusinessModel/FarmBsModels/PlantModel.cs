@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public int? PlantIndex { get; set; }
 
-        public string? GrowthStage { get; set; }
+        //public string? GrowthStage { get; set; }
 
         public string? HealthStatus { get; set; }
 
@@ -45,6 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public string? Characteristic { get; set; }
         public int? GrowthStageID { get; set; }
         public string? GrowthStageName { get; set; }
+        public bool? IsDead { get; set; }
 
 
         //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
