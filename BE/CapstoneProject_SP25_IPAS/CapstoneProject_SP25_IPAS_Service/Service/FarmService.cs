@@ -133,9 +133,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetAllFarmOfUser(int userId)
         {
-            Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDeleted != true;
-            string includeProperties = "Farm,Role,User";
-            var userFarm = await _unitOfWork.UserFarmRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
+            //Expression<Func<UserFarm, bool>> filter = x => x.UserId == userId && x.User.IsDelete != true && x.Farm.IsDeleted != true;
+            //string includeProperties = "Farm,Role,User";
+            var userFarm = await _unitOfWork.UserFarmRepository.GetFarmOfUser(userId);
             if (!userFarm.Any())
                 return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
             var result = _mapper.Map<List<UserFarmModel>>(userFarm);
@@ -171,7 +171,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //                ? (paginationParameter.Direction.ToLower().Equals("desc")
                     //               ? x => x.OrderByDescending(x => x.FarmId)
                     //               : x => x.OrderBy(x => x.FarmId)) : x => x.OrderBy(x => x.FarmId);
-                        //break;
+                    //break;
                     case "farmcode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -243,6 +243,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.Status)
                                    : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
+                        break;
+                    case "expireddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
+                            ? x => x.OrderByDescending(x => x.Orders.Any() ? x.Orders.Max(o => o.ExpiredDate) : DateTime.MinValue).ThenByDescending(x => x.FarmId)
+                            : x => x.OrderBy(x => x.Orders.Any() ? x.Orders.Max(o => o.ExpiredDate) : DateTime.MinValue).ThenBy(x => x.FarmId);
                         break;
                     default:
                         orderBy = x => x.OrderByDescending(x => x.FarmId);
@@ -526,7 +531,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                 if (!roleIds.Any())
                     return new BusinessResult(Const.WARNING_GET_ROLE_NOTE_EXIST_CODE, Const.WARNING_GET_ROLE_NOTE_EXIST_MSG);
-                var userFarm = await _unitOfWork.FarmRepository.GetUsersOfFarmByRole(farmId: farmId, roleIds: roleIds);
+                var userFarm = await _unitOfWork.FarmRepository.GetEmployeeOfFarmByRole(farmId: farmId, roleIds: roleIds);
                 if (!userFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ALL_USER_BY_ROLE_CODE, Const.WARNING_GET_ALL_USER_OF_FARM_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<UserFarmModel>>(userFarm);
@@ -617,7 +622,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> updateRoleOfUserInFarm(UserFarmRequest updateRequest)
+        public async Task<BusinessResult> updateUserInFarm(UserFarmRequest updateRequest)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -630,15 +635,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
                     }
-                    if (string.IsNullOrEmpty(updateRequest.RoleName))
-                        return new BusinessResult(Const.WARNING_GET_ROLE_NOTE_EXIST_CODE, Const.WARNING_GET_ROLE_NOTE_EXIST_MSG);
-                    var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(updateRequest.RoleName!.ToLower()) && x.IsSystem == true);
-                    if (checkRoleExist == null)
+                    if (!string.IsNullOrEmpty(updateRequest.RoleName))
                     {
-                        return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
-                    }
 
-                    userInfarm.RoleId = checkRoleExist.RoleId;
+                        //return new BusinessResult(Const.WARNING_GET_ROLE_NOTE_EXIST_CODE, Const.WARNING_GET_ROLE_NOTE_EXIST_MSG);
+                        var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(updateRequest.RoleName!.ToLower()) && x.IsSystem == true);
+                        if (checkRoleExist == null)
+                        {
+                            return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG);
+                        }
+
+                        userInfarm.RoleId = checkRoleExist.RoleId;
+                    }
+                    if (updateRequest.IsActive.HasValue)
+                    {
+                        userInfarm.IsActive = updateRequest.IsActive;
+                    }
 
                     _unitOfWork.UserFarmRepository.Update(userInfarm);
 
@@ -655,7 +667,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_UPDATE_USER_IN_FARM_CODE, Const.FAIL_UPDATE_USER_IN_FARM_MSG);
-                    } 
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -719,6 +731,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmId = createRequest.FarmId!.Value,
                         RoleId = checkRoleExist.RoleId,
                         Status = UserFarmStatusEnum.Active.ToString(),
+                        IsActive = true,
                     };
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);
                     int result = await _unitOfWork.SaveAsync();

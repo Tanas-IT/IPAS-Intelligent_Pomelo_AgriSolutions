@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<int> getRoleOfUserInFarm(int userId, int farmId);
         public Task<int> updateRoleOfUserInFarm(int userId, int newRoleId, int farmId);
+        public Task<List<UserFarm>> GetFarmOfUser(int userId);
+
     }
 }

@@ -16,11 +16,14 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int UserId { get; set; }
 
         public int RoleId { get; set; }
+        public bool? IsActive { get; set; }
         public string? Status { get; set; }
 
         public string? RoleName { get; set; }
         public string? FarmName { get; set; }
         public string? FullName { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public DateTime? FarmExpiredDate { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public FarmModel Farm { get; set; } = null!;

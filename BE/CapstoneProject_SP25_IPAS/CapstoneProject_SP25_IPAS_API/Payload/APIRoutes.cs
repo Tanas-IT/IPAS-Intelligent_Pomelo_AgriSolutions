@@ -233,7 +233,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softDeletePlant = prefix + "/soft-delete";
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
             public const string getPlantByGrowthFunc = prefix + "/get-for-selected/growth-stage-function";
-
+            public const string PlantDeadMark = prefix + "/dead-mark";
         }
 
         public static class PlantGrowthHistory
