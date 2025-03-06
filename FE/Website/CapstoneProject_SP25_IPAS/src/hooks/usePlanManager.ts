@@ -109,14 +109,16 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
     };
 
     const handleDeletePlan = (id: number) => {
-        // Đánh dấu plan là "delete" trong danh sách plans
-        setPlans((prevList) =>
-          prevList.map((plan) =>
-            plan.planId === id ? { ...plan, planStatus: "delete" } : plan
-          )
+        setPlans((prevList) => 
+            prevList.filter(plan => !(plan.planId === id && plan.planStatus === "add"))
+                .map(plan => 
+                    plan.planId === id 
+                        ? { ...plan, planStatus: "delete" }
+                        : plan
+                )
         );
-      };
-
+    };
+    
     const handleCloseModal = () => {
         setEditPlan(null);
         setIsPlanModalOpen(false);
