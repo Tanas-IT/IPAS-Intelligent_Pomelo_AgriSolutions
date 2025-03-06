@@ -147,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
              .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)
-            .FirstOrDefaultAsync(p => p.PlantId == plantId && p.IsDeleted == false);
+            .FirstOrDefaultAsync(p => p.PlantId == plantId && p.IsDeleted == false );
         }
 
         public async Task<List<Plant>> getPlantInclude()
