@@ -556,9 +556,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                             checkExistProcess.ResourceUrl = getLink;
                         }
-                        checkExistProcess.UpdateDate = DateTime.Now;
+                        
                          _unitOfWork.ProcessRepository.Update(checkExistProcess);
-                        result += await _unitOfWork.SaveAsync();
+                       
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
@@ -658,11 +658,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 getPlanInDB.MasterTypeId = plan.MasterTypeId;
                                                             }
                                                             getPlanInDB.UpdateDate = DateTime.Now;
+                                                            _unitOfWork.PlanRepository.Update(getPlanInDB);
                                                         }
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
                                                         getPlanInDB.IsDelete = true;
+                                                        _unitOfWork.PlanRepository.Update(getPlanInDB);
                                                     }
                                                 }
 
@@ -702,9 +704,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             {
                                                 subProcessUpdate.Order = subProcess.MasterTypeId;
                                             }
-                                            subProcessUpdate.UpdateDate = DateTime.Now;
+                                           
                                             _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
-                                            result += await _unitOfWork.SaveAsync();
+                                            subProcessUpdate.UpdateDate = DateTime.Now;
+
                                             if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                             {
                                                 foreach (var plan in subProcess.ListPlan)
@@ -729,7 +732,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             {
                                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
                                                             }
-                                                           
+                                                            
+
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
                                                         {
@@ -767,11 +771,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                     getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                                 }
                                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB); 
                                                             }
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                         {
-                                                            getUpdatePlanInDB.IsDelete = true;
+                                                            if(getUpdatePlanInDB != null)
+                                                            {
+                                                                getUpdatePlanInDB.IsDelete = true;
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -806,7 +815,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                         {
                                                             newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = plan.GrowthStageId });
                                                         }
-                                                        
+
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
                                                     {
@@ -844,11 +853,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                             }
                                                             getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                            _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                         }
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
                                                         getUpdatePlanInDB.IsDelete = true;
+                                                        _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                     }
                                                 }
                                             }
@@ -883,7 +894,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
 
                                             }
-                                            
+                                           
+
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
                                         {
@@ -921,17 +933,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     getUpdatePlanInDB.MasterTypeId = updatePlan.MasterTypeId;
                                                 }
                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                             }
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
                                         {
                                             getUpdatePlanInDB.IsDelete = true;
+                                             _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                         }
                                     }
                                 }
                             }
                         }
                         var finalResult = await _unitOfWork.SaveAsync();
+                        checkExistProcess.UpdateDate = DateTime.Now;
                         if (result > 0 || finalResult > 0)
                         {
                             await transaction.CommitAsync();
