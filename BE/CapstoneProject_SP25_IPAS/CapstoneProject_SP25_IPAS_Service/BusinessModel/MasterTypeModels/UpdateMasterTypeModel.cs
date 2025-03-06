@@ -26,6 +26,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? TextColor { get; set; }
 
         public string? Characteristic { get; set; }
+        public bool? IsConflict { get; set; }
+
 
         //public bool? IsDelete { get; set; }
 

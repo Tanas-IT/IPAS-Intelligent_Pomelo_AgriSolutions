@@ -27,6 +27,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? Characteristic { get; set; }
 
         public int? FarmId { get; set; }
+        public bool? IsConflict { get; set; }
+        public string? Target { get; set; }
+
 
         //public List<CreateMasterTypeDetailModel> createMasterTypeDetail { get; set; } = new List<CreateMasterTypeDetailModel>();
     }
