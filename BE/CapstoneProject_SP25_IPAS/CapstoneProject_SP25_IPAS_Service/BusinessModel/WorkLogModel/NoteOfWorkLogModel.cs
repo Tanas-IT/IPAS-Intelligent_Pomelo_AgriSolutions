@@ -12,6 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? Notes { get; set; }
         public string? FullName { get; set; }
         public string? AvatarURL { get; set; }
+        public string? Issue { get; set; }
         public List<ResourceOfWorkLogModel> ListResources { get; set; }
     }
 }
