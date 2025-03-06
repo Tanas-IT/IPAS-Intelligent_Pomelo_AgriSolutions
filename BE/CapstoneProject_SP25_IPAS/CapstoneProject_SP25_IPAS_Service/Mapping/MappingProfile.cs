@@ -87,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ReverseMap();
 
             CreateMap<SubProcess, SubProcessInProcessModel>()
-                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans))
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false)))
                 .ReverseMap();
 
             CreateMap<GrowthStage, ProcessGrowthStageModel>()
