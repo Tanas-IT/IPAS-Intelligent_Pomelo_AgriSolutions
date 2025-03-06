@@ -97,9 +97,6 @@ function ProcessDetails() {
     treeData: [] as CustomTreeDataNode[],
     plans: [] as PlanType[],
   });
-  // const [isDirty, setIsDirty] = useState(false);
-  // usePrompt({ isDirty });
-  // const confirm = useConfirm();
 
   if (!id) {
     console.error("Missing id");
@@ -159,14 +156,6 @@ function ProcessDetails() {
     });
   };
 
-  const handleAddTask = (newTask: CustomTreeDataNode, parentKey?: number) => {
-    setNewTasks((prev) => [...prev, newTask]); // Lưu task mới vào danh sách tạm
-
-    setTreeData((prevTree) => {
-      return addTaskToTree(prevTree, newTask, parentKey);
-    });
-  };
-
   const handleAdd = (parentKey: string) => {
     const newKey = `${parentKey}-${Date.now()}`;
     const newNode: CustomTreeDataNode = {
@@ -197,20 +186,6 @@ function ProcessDetails() {
         return updateTree(prevTree);
       }
     });
-  };
-
-  const handleEdit = (key: string) => {
-    setEditingKey(key);
-    const node = findNodeByKey(treeData, key);
-
-    if (node && typeof node.title === "string") {
-      setNewTitle(node.title);
-
-      if (node.status !== "update") {
-        node.status = "update";
-        setTreeData([...treeData]);
-      }
-    }
   };
 
   const handleSave = () => {
@@ -307,12 +282,8 @@ function ProcessDetails() {
 
     setTreeData((prevTree) => {
       let updatedTree = [...prevTree];
-
-      // Kiểm tra nếu task chưa có trong treeData
       const taskIndex = newTasks.findIndex((task) => Number(task.key) === Number(subProcessKey));
-
       if (taskIndex !== -1) {
-        // Nếu task mới có trong newTasks, thêm plan vào đó
         const updatedTasks = [...newTasks];
         updatedTasks[taskIndex] = {
           ...updatedTasks[taskIndex],
@@ -459,9 +430,50 @@ function ProcessDetails() {
     setTreeData((prevTree) => updatePlanInSubProcess(prevTree, subProcessKey, plan));
   }, []);
 
-  const handleDeletePlanInSub = useCallback((planId: number) => {
-    console.log("delete ID:", planId);
+  const handleDeletePlann = useCallback((planId: number, subProcessKey: string) => {
+    setTreeData((prevTree) => {
+      return prevTree.map((node) => {
+        if (node.key === subProcessKey) {
+          return {
+            ...node,
+            status: "update", // Cập nhật node cha
+            listPlan: node.listPlan?.map((plan) =>
+              plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+            ),
+          };
+        }
+        if (node.children) {
+          return {
+            ...node,
+            children: handleDeletePlanInChildren(node.children, planId, subProcessKey),
+          };
+        }
+        return node;
+      });
+    });
   }, []);
+  
+  const handleDeletePlanInChildren = (nodes: CustomTreeDataNode[], planId: number, subProcessKey: string): CustomTreeDataNode[]  => {
+    return nodes.map((node) => {
+      if (node.key === subProcessKey) {
+        return {
+          ...node,
+          status: "update",
+          listPlan: node.listPlan?.map((plan) =>
+            plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+          ),
+        };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          children: handleDeletePlanInChildren(node.children, planId, subProcessKey),
+        };
+      }
+      return node;
+    });
+  };
+  
 
   const handleEditSubProcess = (node: CustomTreeDataNode) => {
     setEditingNode(node);
@@ -493,14 +505,12 @@ function ProcessDetails() {
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
   return nodes
-    .filter((node) => node.status !== "delete") // Lọc bỏ các sub-process bị xóa
+    .filter((node) => node.status !== "delete")
     .map((node) => {
-      // Lọc bỏ các plan bị xóa trong listPlan
       const filteredPlans = node.listPlan?.filter(
         (plan: PlanType) => plan.planStatus !== "delete"
       );
 
-      // Tạo các node plan
       const planNodes = filteredPlans?.length
         ? [
             {
@@ -519,7 +529,7 @@ function ProcessDetails() {
                         <Icons.delete
                           color="red"
                           size={18}
-                          onClick={() => handleDeletePlan(plan.planId)}
+                          onClick={() => handleDeletePlann(plan.planId, node.key.toString())}
                         />
                       </Flex>
                     </div>
@@ -677,8 +687,8 @@ function ProcessDetails() {
       plans: [...plans],
     });
   };
-  console.log("tree data", treeData);
-  // console.log("tplansssss", plans);
+  // console.log("tree data", treeData);
+  console.log("tplansssss", plans);
 
   return (
     <div className={style.container}>
