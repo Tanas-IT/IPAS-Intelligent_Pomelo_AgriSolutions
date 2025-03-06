@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Button, Tooltip, Radio } from "antd";
+import { Avatar, Button, Tooltip, Radio, Flex } from "antd";
 import { Icons } from "@/assets";
 import style from "./AssignMembers.module.scss";
 
@@ -24,7 +24,13 @@ const AssignEmployee: React.FC<AssignMembersProps> = ({
 }) => {
   return (
     <div className={style.assignMembers}>
+      <Flex vertical gap={20}>
+        <Flex vertical={false} gap={30}>
       <span className={style.label}>Assigned to project</span>
+      <Button className={style.btnAssign} icon={<Icons.addUser />} onClick={onAssign}>
+        Assign Member
+      </Button>
+      </Flex>
       <div className={style.avatars}>
         {members.map((member) => (
           <Tooltip title={member.fullName} key={member.userId}>
@@ -40,9 +46,8 @@ const AssignEmployee: React.FC<AssignMembersProps> = ({
           </Tooltip>
         ))}
       </div>
-      <Button className={style.btnAssign} icon={<Icons.addUser />} onClick={onAssign}>
-        Assign Member
-      </Button>
+      </Flex>
+      
     </div>
   );
 };

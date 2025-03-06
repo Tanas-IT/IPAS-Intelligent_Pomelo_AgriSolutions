@@ -40,6 +40,7 @@ const AddPlanModal = ({
 
   const handleFinish = (values: PlanType) => {
     console.log("values", values);
+    console.log("editPlan", editPlan);
     const updatedPlan = editPlan ? { ...editPlan, ...values } : values;
     console.log("updatedPlan", updatedPlan);
     // onSave(values);

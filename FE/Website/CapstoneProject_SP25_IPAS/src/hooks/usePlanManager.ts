@@ -50,10 +50,14 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
 
 
     const handleAddPlan = (values: PlanType, subProcessKey: string | null) => {
+        console.log("subProcessKey", subProcessKey);
+        
 
         let subProcessKeyToUse = subProcessKey;
 
         if (editPlan) {
+            console.log("dô đây");
+            
             subProcessKeyToUse = findSubProcessKeyByPlanId(nodes, editPlan.planId);
         }
 
@@ -72,7 +76,20 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         if (subProcessKeyToUse !== null && subProcessKeyToUse !== undefined && subProcessKeyToUse !== "") {
             setNodes(updatePlanInSubProcess(nodes, subProcessKeyToUse, updatedPlan));
         } else {
-            setPlans(prevList => [...prevList, updatedPlan]);
+            console.log("dô đây 2");
+            
+            // setPlans(prevList => [...prevList, updatedPlan]);
+            setPlans((prevList) => {
+                const existingPlanIndex = prevList.findIndex((plan) => plan.planId === updatedPlan.planId);
+          
+                if (existingPlanIndex !== -1) {
+                  const newList = [...prevList];
+                  newList[existingPlanIndex] = updatedPlan;
+                  return newList;
+                } else {
+                  return [...prevList, updatedPlan];
+                }
+              });
         }
         
 
@@ -80,16 +97,25 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         planForm.resetFields();
         setIsPlanModalOpen(false);
     };
+    // console.log("plan trong hook", plans);
+    
 
     const handleEditPlan = (plan: PlanType) => {
+        console.log(plan);
+        
         setEditPlan(plan);
         planForm.setFieldsValue(plan);
         setIsPlanModalOpen(true);
     };
 
     const handleDeletePlan = (id: number) => {
-        setPlans(plans.filter(plan => plan.planId !== id));
-    };
+        // Đánh dấu plan là "delete" trong danh sách plans
+        setPlans((prevList) =>
+          prevList.map((plan) =>
+            plan.planId === id ? { ...plan, planStatus: "delete" } : plan
+          )
+        );
+      };
 
     const handleCloseModal = () => {
         setEditPlan(null);

@@ -25,3 +25,20 @@ export interface GetWorklog {
   totalPage: number;
   totalRecord: number;
 }
+
+export interface GetWorklogDetail {
+  workLogId: number;
+  workLogCode: string;
+  status: string;
+  workLogName: string;
+  notes: string;
+  date: string;
+  actualStartTime: string;
+  actualEndTime: string;
+  listEmployee: [];
+  reporter: [];
+  planTargetModels: [];
+  listGrowthStageName: [];
+  listTaskFeedback: [];
+  listNoteOfWorkLog: []
+}
