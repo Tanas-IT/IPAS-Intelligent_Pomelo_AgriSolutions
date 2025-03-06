@@ -49,7 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             if (isConflicted)
             {
-                throw new Exception("User has conflict schedule"); 
+                throw new Exception("User has conflict schedule");
             }
 
             // Nếu không trùng, tiến hành gán công việc cho user
@@ -253,7 +253,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.WorkLogs.Include(x => x.Schedule)
                         .Include(x => x.TaskFeedbacks)
-                        .Include (w => w.UserWorkLogs)
+                        .Include(w => w.UserWorkLogs)
                         .ThenInclude(x => x.Resources)
                         .Include(x => x.UserWorkLogs)
                         .ThenInclude(x => x.User)
@@ -269,9 +269,97 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
-        public Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds)
+        public async Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds)
         {
-            throw new NotImplementedException();
+            var workLogs = await _context.WorkLogs
+                         .Where(wl => workLogIds.Contains(wl.WorkLogId))
+                         .Include(wl => wl.Schedule)
+                         .ThenInclude(s => s.CarePlan)
+                         .ThenInclude(p => p.MasterType)
+                         .Include(wl => wl.UserWorkLogs)
+                         .ToListAsync();
+
+            // Kiểm tra conflict giữa các WorkLog
+            foreach (var workLog in workLogs)
+            {
+                var masterType = workLog.Schedule?.CarePlan?.MasterType;
+                if (masterType?.IsConflict == true)
+                {
+                    var conflictingWorkLogs = workLogs.Where(w =>
+                        w.WorkLogId != workLog.WorkLogId &&
+                        w.Schedule?.StartTime < workLog.Schedule?.EndTime &&
+                        w.Schedule?.EndTime > workLog.Schedule?.StartTime).ToList();
+
+                    if (conflictingWorkLogs.Any())
+                    {
+                        throw new Exception($"WorkLog {workLog.WorkLogId} conflicts with other work logs.");
+                    }
+                }
+            }
+
+            // Kiểm tra nhân viên chỉ làm một WorkLog trong một khung giờ
+            var userWorkLogs = await _context.UserWorkLogs
+                .Where(uwl => workLogIds.Contains(uwl.WorkLogId))
+                .Include(uwl => uwl.WorkLog)
+                .ThenInclude(wl => wl.Schedule)
+                .ToListAsync();
+
+            var userWorkLogGroups = userWorkLogs.GroupBy(uwl => uwl.UserId);
+            foreach (var group in userWorkLogGroups)
+            {
+                var userId = group.Key;
+                var workLogsForUser = group.Select(uwl => uwl.WorkLog).ToList();
+
+                for (int i = 0; i < workLogsForUser.Count; i++)
+                {
+                    for (int j = i + 1; j < workLogsForUser.Count; j++)
+                    {
+                        var wl1 = workLogsForUser[i];
+                        var wl2 = workLogsForUser[j];
+                        if (wl1.Schedule?.StartTime < wl2.Schedule?.EndTime && wl1.Schedule?.EndTime > wl2.Schedule?.StartTime)
+                        {
+                            throw new Exception($"User {userId} has overlapping WorkLogs {wl1.WorkLogId} and {wl2.WorkLogId}.");
+                        }
+                    }
+                }
+
+            }
+            return true;
+        }
+
+        public async Task CheckWorkLogAvailabilityWhenAddPlan(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, int? masterTypeId, List<int> listEmployeeIds)
+        {
+            var existingWorkLogs = await _context.WorkLogs
+         .Include(wl => wl.Schedule)
+         .ThenInclude(s => s.CarePlan)
+         .ThenInclude(p => p.MasterType)
+         .Where(wl => wl.Date == dayCheck &&
+                      wl.Schedule.StartTime < newEndTime &&
+                      wl.Schedule.EndTime > newStartTime)
+         .ToListAsync();
+
+            // Kiểm tra công việc có thể làm chung không
+            var newMasterType = await _context.MasterTypes.FindAsync(masterTypeId);
+            if (newMasterType == null)
+                throw new Exception("Invalid MasterTypeId");
+
+            if (newMasterType.IsConflict == true && existingWorkLogs.Any())
+            {
+                throw new Exception("This work cannot be scheduled because it conflicts with existing work logs.");
+            }
+
+            // Kiểm tra nhân viên có bị trùng lịch không
+            var userConflicts = await _context.UserWorkLogs
+                .Where(uwl => listEmployeeIds.Contains(uwl.UserId) &&
+                              uwl.WorkLog.Date == dayCheck &&
+                              uwl.WorkLog.Schedule.StartTime < newEndTime &&
+                              uwl.WorkLog.Schedule.EndTime > newStartTime)
+                .ToListAsync();
+
+            if (userConflicts.Any())
+            {
+                throw new Exception("Some employees are already assigned to another WorkLog in this time slot.");
+            }
         }
     }
 }
