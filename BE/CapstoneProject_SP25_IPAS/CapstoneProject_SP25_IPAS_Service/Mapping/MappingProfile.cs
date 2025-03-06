@@ -380,8 +380,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<UserWorkLog, NoteOfWorkLogModel>()
               .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
               .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.User.AvatarURL))
-              .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.WorkLog.Notes))
-              .ForMember(dest => dest.ListResources, opt => opt.MapFrom(src => src.WorkLog.Resources))
+              .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
+              .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
+              .ForMember(dest => dest.ListResources, opt => opt.MapFrom(src => src.Resources))
               .ReverseMap();
 
             CreateMap<WorkLog, WorkLogDetailModel>()

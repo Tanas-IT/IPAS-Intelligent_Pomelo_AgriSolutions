@@ -12,7 +12,6 @@ public partial class WorkLog
     public string? Status { get; set; }
     public string? WorkLogName { get; set; }
 
-    public string? Notes { get; set; }
     public string? ReasonDelay { get; set; }
 
     public DateTime? Date { get; set; }
@@ -34,5 +33,4 @@ public partial class WorkLog
 
     public virtual Warning? Warning { get; set; }
 
-    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }
