@@ -22,8 +22,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly MasterTypeConfig _masterTypeConfig;
-        public MasterTypeService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig)
+        private readonly ProgramDefaultConfig _masterTypeConfig;
+        public MasterTypeService(IUnitOfWork unitOfWork, IMapper mapper, ProgramDefaultConfig masterTypeConfig)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -55,6 +55,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         BackgroundColor = createMasterTypeModel.BackgroundColor,
                         TextColor = createMasterTypeModel.TextColor,
                         Characteristic = createMasterTypeModel.Characteristic,
+                        IsConflict = createMasterTypeModel.IsConflict,
+                        Target = createMasterTypeModel.Target,
                     };
                     //if (createMasterTypeModel.createMasterTypeDetail?.Any() == true)
                     //{
@@ -423,7 +425,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.Target))
                         {
-                            if (!_masterTypeConfig.Targets.Any(target => target.Equals(updateMasterTypeModel.Target, StringComparison.OrdinalIgnoreCase)) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
+                            if (!_masterTypeConfig.CriteriaTargets.Any(target => target.Equals(updateMasterTypeModel.Target, StringComparison.OrdinalIgnoreCase)) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
                                 return new BusinessResult(400, "Type name not suitable with system");
                             checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
                         }
@@ -480,6 +482,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.Characteristic))
                         {
                             checkExistMasterType.Characteristic = updateMasterTypeModel.Characteristic;
+                        }
+                        if (updateMasterTypeModel.IsConflict.HasValue)
+                        {
+                            checkExistMasterType.IsConflict = updateMasterTypeModel.IsConflict.Value;
                         }
                         //var existingResources = update.Resources.ToList();
                         // Xóa tài nguyên cũ không có trong request

@@ -52,6 +52,8 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
 
 export const getProcessDetail = async (processId: string) => {
   const res = await axiosAuth.axiosJsonRequest.get(`processes/get-process-by-id/${processId}`);
+  console.log("res in getProcessDetail", res);
+  
   const apiResponse = res.data as ApiResponse<GetProcessDetail>;
 
   return {
@@ -83,6 +85,8 @@ export const createProcess = async (
 
 export const updateFProcess = async (payload: UpdateProcessRequest): Promise<ApiResponse<Object>> => {
   const formData = new FormData();
+  console.log("payload in updateFProcess", payload);
+  
 
   formData.append("ProcessId", String(payload.ProcessId));
   formData.append("ProcessName", payload.ProcessName);
@@ -110,6 +114,8 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
   }
 
   if (payload.ListPlan && payload.ListPlan.length > 0) {
+    console.log("payload.ListPlan", payload.ListPlan);
+    
     payload.ListPlan.forEach((plan, index) => {
       formData.append(`ListPlan[${index}]`, JSON.stringify({
         PlanId: plan.PlanId,
@@ -122,8 +128,12 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
       }));
     });
   }
+  console.log("form data", formData.getAll("ListPlan"));
+  
 
   const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", formData);
+  console.log("res in updateFProcess", res);
+  
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

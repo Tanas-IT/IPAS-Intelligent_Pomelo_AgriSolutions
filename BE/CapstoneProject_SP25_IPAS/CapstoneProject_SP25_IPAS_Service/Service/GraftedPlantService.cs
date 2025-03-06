@@ -33,9 +33,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         //private readonly IPlantService _plantService;
-        private readonly MasterTypeConfig _masterTypeConfig;
+        private readonly ProgramDefaultConfig _masterTypeConfig;
         private readonly ICriteriaTargetService _criteriaTargetService;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, MasterTypeConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService)
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, ProgramDefaultConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
