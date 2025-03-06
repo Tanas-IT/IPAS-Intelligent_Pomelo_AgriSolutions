@@ -103,28 +103,61 @@ function ProcessDetails() {
     return;
   }
 
+  // const fetchProcessDetails = async () => {
+  //   try {
+  //     const data = await processService.getProcessDetail(id);
+  //     console.log(data);
+
+  //     setProcessDetail(data);
+
+  //     form.setFieldsValue({
+  //       ...data,
+  //       masterTypeId: String(data.processMasterTypeModel.masterTypeId),
+  //       growthStageId: data.processGrowthStageModel.growthStageId,
+  //     });
+
+  //     setTreeData(mapSubProcessesToTree(data.subProcesses));
+  //     if (data.listPlan) {
+  //       setPlans(data.listPlan);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch process details", error);
+  //   }
+  // };
+
   const fetchProcessDetails = async () => {
     try {
       const data = await processService.getProcessDetail(id);
-      console.log(data);
-
+      console.log("Fetched data:", data);
+  
+      // Cập nhật state processDetail
       setProcessDetail(data);
-
+  
+      // Cập nhật giá trị form
       form.setFieldsValue({
         ...data,
-        masterTypeId: String(data.processMasterTypeModel.masterTypeId),
-        growthStageId: data.processGrowthStageModel.growthStageId,
+        masterTypeId: data.processMasterTypeModel ? String(data.processMasterTypeModel.masterTypeId) : "",
+        growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
       });
-
-      setTreeData(mapSubProcessesToTree(data.subProcesses));
-      if (data.listPlan) {
+  
+      // Cập nhật treeData
+      if (data.subProcesses && Array.isArray(data.subProcesses)) {
+        setTreeData(mapSubProcessesToTree(data.subProcesses));
+      } else {
+        setTreeData([]);
+      }
+  
+      // Cập nhật plans
+      if (data.listPlan && Array.isArray(data.listPlan)) {
         setPlans(data.listPlan);
+      } else {
+        setPlans([]);
       }
     } catch (error) {
       console.error("Failed to fetch process details", error);
+      toast.error("Failed to fetch process details. Please try again later.");
     }
   };
-
   useEffect(() => {
     const fetchData = async () => {
       setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
@@ -337,7 +370,49 @@ function ProcessDetails() {
     });
   };
 
+  // const handleSaveProcess = async () => {
+  //   const ListPlan: ListPlan[] = plans.map((plan) => ({
+  //     PlanId: plan.planId || 0,
+  //     PlanName: plan.planName,
+  //     PlanDetail: plan.planDetail,
+  //     PlanNote: plan.planNote,
+  //     GrowthStageId: plan.growthStageId,
+  //     MasterTypeId: Number(plan.masterTypeId),
+  //     PlanStatus: plan.planStatus || "no_change",
+  //   }));
+  //   let ListUpdateSubProcess = [
+  //     ...convertTreeToList(treeData),
+  //     ...convertDeletedNodesToList(deletedNodes),
+  //   ]
+  //     .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
+  //     .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
+  //   const payload: UpdateProcessRequest = {
+  //     ProcessId: Number(id) || 0,
+  //     ProcessName: processDetail?.processName || "New Process",
+  //     IsActive: processDetail?.isActive ?? true,
+  //     IsDefault: processDetail?.isDefault ?? false,
+  //     IsDeleted: processDetail?.isDeleted ?? false,
+  //     MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
+  //     GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
+  //     ListUpdateSubProcess: ListUpdateSubProcess,
+  //     ListPlan: ListPlan,
+  //   };
+
+  //   console.log("Saving Payload without stringyfy:", payload);
+  //   const res = await processService.updateFProcess(payload);
+  //   if (res.statusCode === 200) {
+  //     toast.success(res.message);
+  //     setIsEditing(false);
+  //     await fetchProcessDetails();
+  //   } else {
+  //     toast.error(res.message);
+  //   }
+  //   console.log("res update", res);
+  // };
+
   const handleSaveProcess = async () => {
+    console.log("Plans before mapping:", plans);
+  
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
       PlanName: plan.planName,
@@ -347,12 +422,14 @@ function ProcessDetails() {
       MasterTypeId: Number(plan.masterTypeId),
       PlanStatus: plan.planStatus || "no_change",
     }));
+  
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
       ...convertDeletedNodesToList(deletedNodes),
     ]
       .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
       .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
+  
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
       ProcessName: processDetail?.processName || "New Process",
@@ -364,19 +441,24 @@ function ProcessDetails() {
       ListUpdateSubProcess: ListUpdateSubProcess,
       ListPlan: ListPlan,
     };
-
-    console.log("Saving Payload without stringyfy:", payload);
-    const res = await processService.updateFProcess(payload);
-    if (res.statusCode === 200) {
-      toast.success(res.message);
-      setIsEditing(false);
-      await fetchProcessDetails();
-    } else {
-      toast.error(res.message);
+  
+    console.log("Saving Payload without stringify:", payload);
+  
+    try {
+      const res = await processService.updateFProcess(payload);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        setIsEditing(false);
+        await fetchProcessDetails();
+      } else {
+        toast.error(res.message);
+      }
+      console.log("res update", res);
+    } catch (error) {
+      console.error("Error saving process:", error);
+      toast.error("Failed to save process.");
     }
-    console.log("res update", res);
   };
-
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
     return nodes.map((node) => ({
       SubProcessId: Number(node.key),
