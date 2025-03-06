@@ -572,10 +572,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     if (subProcess.Status.ToLower().Equals("add"))
                                     {
                                         var newSubProcess = new SubProcess();
+                                        int? realParentId = null;
+                                        if (subProcess.ParentSubProcessId.HasValue)
+                                        {
+                                            var parentExists = await _unitOfWork.SubProcessRepository
+                                                .GetByCondition(sp => sp.SubProcessID == subProcess.ParentSubProcessId.Value);
 
-                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
-                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
-                                                 : (int?)null;
+                                            if (parentExists != null)
+                                            {
+                                                realParentId = subProcess.ParentSubProcessId.Value; // Gán trực tiếp nếu tồn tại
+                                            }
+                                            else if (idMapping.ContainsKey(subProcess.ParentSubProcessId.Value))
+                                            {
+                                                realParentId = idMapping[subProcess.ParentSubProcessId.Value]; // Lấy từ ánh xạ nếu có
+                                            }
+                                        }
 
                                         // Chuyển đổi sang entity SubProcess
                                         newSubProcess = new SubProcess()
@@ -791,6 +802,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
 
                                         subProcessUpdate.IsDeleted = true;
+                                        if(subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
+                                        {
+                                            foreach(var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
+                                            {
+                                                deleteSubProcess.IsDeleted = true;
+                                            }
+                                        }
+                                         _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                         if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
