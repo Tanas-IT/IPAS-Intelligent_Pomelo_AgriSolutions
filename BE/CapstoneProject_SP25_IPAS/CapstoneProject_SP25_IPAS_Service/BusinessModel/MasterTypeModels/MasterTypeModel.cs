@@ -41,6 +41,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
 
         public int? FarmId { get; set; }
 
+        public bool? IsConflict { get; set; }
+        public string? Target { get; set; }
+
         public ICollection<CriteriaModel> CriteriaModels { get; set; } = new List<CriteriaModel>();
         //public ICollection<MasterTypeDetailModel> MasterTypeDetailModels { get; set; } = new List<MasterTypeDetailModel>();
 
