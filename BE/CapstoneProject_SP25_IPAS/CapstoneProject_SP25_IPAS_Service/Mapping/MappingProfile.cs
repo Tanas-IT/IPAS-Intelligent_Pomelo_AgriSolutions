@@ -105,8 +105,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
-                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans))
-                 .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId)))
+                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false)))
+                 .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
                 .ReverseMap();
 
             CreateMap<SubProcess, SubProcessModel>()
@@ -274,6 +274,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<TaskFeedback, TaskFeedbackModel>()
               .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.FullName))
+              .ForMember(dest => dest.TaskFeedbackId, opt => opt.MapFrom(src => src.TaskFeedbackId))
+              .ForMember(dest => dest.TaskFeedbackCode, opt => opt.MapFrom(src => src.TaskFeedbackCode))
+              .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.WorkLogId, opt => opt.MapFrom(src => src.WorkLogId))
+              .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => src.ManagerId))
               .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLog.WorkLogName))
                .ReverseMap();
 
