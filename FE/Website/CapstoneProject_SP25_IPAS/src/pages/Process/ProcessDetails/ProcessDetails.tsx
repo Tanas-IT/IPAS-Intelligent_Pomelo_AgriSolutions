@@ -478,8 +478,13 @@ function ProcessDetails() {
       node.title = values.processName;
       node.growthStageId = values.growthStageId;
       node.masterTypeId = Number(values.masterTypeId);
+      console.log("node when update sub", node);
+      
       if (node.status !== "add") {
         node.status = "update";
+      } else {
+        console.log("ảo z");
+        
       }
     }
     setTreeData(updatedData);
@@ -673,6 +678,7 @@ function ProcessDetails() {
     });
   };
   console.log("tree data", treeData);
+  // console.log("tplansssss", plans);
 
   return (
     <div className={style.container}>

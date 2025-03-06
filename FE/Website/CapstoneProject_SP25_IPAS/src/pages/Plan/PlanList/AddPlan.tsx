@@ -256,6 +256,8 @@ const AddPlan = () => {
         plantLotID: target.plantLotID ?? [],
       })),
     };
+    console.log("planData", planData);
+    
 
     const result = await planService.addPlan(planData);
 

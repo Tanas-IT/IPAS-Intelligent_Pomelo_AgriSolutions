@@ -97,7 +97,7 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         planForm.resetFields();
         setIsPlanModalOpen(false);
     };
-    console.log("plan trong hook", plans);
+    // console.log("plan trong hook", plans);
     
 
     const handleEditPlan = (plan: PlanType) => {
