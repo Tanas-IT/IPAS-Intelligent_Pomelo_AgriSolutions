@@ -233,7 +233,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softDeletePlant = prefix + "/soft-delete";
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
             public const string getPlantByGrowthFunc = prefix + "/get-for-selected/growth-stage-function";
-
+            public const string PlantDeadMark = prefix + "/dead-mark";
         }
 
         public static class PlantGrowthHistory
@@ -329,6 +329,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string assignTask = prefix + "/assign-task";
             public const string addNewTask = prefix + "/add-new-task";
             public const string getDetailTask = prefix + "/detail/{workLogId}";
+            public const string NoteForWorkLog = prefix + "/take-note";
         }
 
         public static class Report

@@ -6,11 +6,14 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,11 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper)
+        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId)
@@ -318,7 +323,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             WorkLogCode = wl.WorkLogCode,
                             Date = wl.Date,
                             Status = wl.Status,
-                            Notes = wl.Notes,
                             ScheduleId = wl.ScheduleId,
                             StartTime = wl.Schedule.StartTime,
                             EndTime = wl.Schedule.EndTime,
@@ -331,6 +335,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 UserId = uwl.UserId,
                                 FullName = uwl.User.FullName,
                                 IsReporter = uwl.IsReporter,
+                                Notes = uwl.Notes,
+                                Issue = uwl.Issue,
                             }).ToList() // Danh sách user thực hiện công việc
                         }).ToList();
                 if(result != null && result.Count > 0)
@@ -375,8 +381,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = filter.And(x => x.WorkLogCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.WorkLogName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.ReasonDelay.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower()));
+                                      || x.ReasonDelay.ToLower().Contains(paginationParameter.Search.ToLower()));
                     }
                 }
 
@@ -504,7 +509,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                            WorkLogCode = wl.WorkLogCode,
                            Date = wl.Date,
                            Status = wl.Status,
-                           Notes = wl.Notes,
                            ScheduleId = wl.ScheduleId,
                            StartTime = wl.Schedule.StartTime,
                            EndTime = wl.Schedule.EndTime,
@@ -517,6 +521,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                UserId = uwl.UserId,
                                FullName = uwl.User.FullName,
                                IsReporter = uwl.IsReporter,
+                               Issue = uwl.Issue,
+                               Notes = uwl.Notes
                            }).ToList() // Danh sách user thực hiện công việc
                        }).ToList();
                 var pagin = new PageEntity<ScheduleModel>();
@@ -531,6 +537,72 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(Const.WARNING_NO_SCHEDULE_CODE, Const.WARNING_NO_SCHEDULE_MSG, new PageEntity<ScheduleModel>());
                 }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> NoteForWorkLog(CreateNoteModel createNoteModel)
+        {
+            try
+            {
+                var findWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == createNoteModel.WorkLogId && x.UserId == createNoteModel.UserId);
+                if(findWorkLog != null)
+                {
+                    findWorkLog.Notes = createNoteModel.Note;
+                    findWorkLog.Issue = createNoteModel.Issue;
+                    foreach(var fileNote in createNoteModel.Resources)
+                    {
+                        var getLink = "";
+                        if (IsImageFile(fileNote))
+                        {
+                            getLink = await _cloudinaryService.UploadImageAsync(fileNote, "worklog/note");
+                            var newResource = new Resource()
+                            {
+                                CreateDate = DateTime.Now,
+                                FileFormat = "image",
+                                ResourceURL = getLink,
+                                Description = "note for worklog",
+                                UpdateDate = DateTime.Now,
+                                UserWorkLogID = findWorkLog.UserWorkLogID
+                            };
+                            await _unitOfWork.ResourceRepository.Insert(newResource);
+                            
+                        }
+                        else
+                        {
+                            getLink = await _cloudinaryService.UploadVideoAsync(fileNote, "worklog/note");
+                            var newResourceVideo = new Resource()
+                            {
+                                CreateDate = DateTime.Now,
+                                FileFormat = "image",
+                                ResourceURL = getLink,
+                                Description = "note for worklog",
+                                UpdateDate = DateTime.Now,
+                                UserWorkLogID = findWorkLog.UserWorkLogID
+                            };
+                            await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
+                        }
+                    }
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        return new BusinessResult(200, "Take note success", findWorkLog);
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Take note failed");
+                    }
+
+                }
+                else
+                {
+                    return new BusinessResult(404, "Can not find any workLog for take note");
+                }
+
             }
             catch (Exception ex)
             {
@@ -586,5 +658,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string sequence = nextPlanId.ToString($"D{digitCount}");
             return sequence;
         }
+        public bool IsImageFile(IFormFile file)
+        {
+            string[] validImageTypes = { "image/jpeg", "image/png", "image/gif" };
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+            string contentType = file.ContentType.ToLower();
+            string extension = Path.GetExtension(file.FileName)?.ToLower();
+
+            return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
+        }
+        public bool IsImageLink(string url)
+        {
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            return url.Contains("/image/") && validImageExtensions.Contains(Path.GetExtension(url).ToLower());
+        }
+
     }
 }

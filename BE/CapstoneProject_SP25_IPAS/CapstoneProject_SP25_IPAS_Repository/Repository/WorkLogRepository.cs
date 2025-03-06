@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -251,7 +252,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<WorkLog> GetWorkLogIncludeById(int workLogId)
         {
             var result = await _context.WorkLogs.Include(x => x.Schedule)
-                        .Include(x => x.Resources)
+                        .Include(x => x.TaskFeedbacks)
+                        .Include (w => w.UserWorkLogs)
+                        .ThenInclude(x => x.Resources)
                         .Include(x => x.UserWorkLogs)
                         .ThenInclude(x => x.User)
                         .Include(x => x.Schedule.CarePlan.PlanTargets)
@@ -264,6 +267,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .Where(x => x.WorkLogId == workLogId)
                         .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return result;
+        }
+
+        public Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds)
+        {
+            throw new NotImplementedException();
         }
     }
 }

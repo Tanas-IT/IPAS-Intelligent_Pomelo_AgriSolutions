@@ -11,5 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public int UserId { get; set; }
         public string FullName { get; set; }
         public bool? IsReporter { get; set; }
+        public string? Notes { get; set; }
+        public string? Issue { get; set; }
     }
 }

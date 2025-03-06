@@ -97,13 +97,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantCreateEntity.PlantReferenceId = jsonData!.PlantId;
                         //plantCreateEntity.PlantCode += $"-{Util.SplitByDash(jsonData.PlantCode!).First()}";
                     }
-                    if (plantCreateRequest.LandRowId.HasValue)
+                    if (plantCreateRequest.LandRowId.HasValue && plantCreateRequest.PlantIndex.HasValue)
                     {
                         var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants,LandPlot");
                         if (landrowExist == null)
                             return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                         if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
                             return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
+                        if (landrowExist.Plants.Any(x => x.PlantIndex == plantCreateRequest.PlantIndex && x.IsDead == false && x.IsDeleted == false))
+                            return new BusinessResult(400, $"Index {plantCreateRequest.PlantIndex} in row has exist plant");
                         //plantCreateEntity.PlantCode += $"{Util.SplitByDash(landrowExist.LandRowCode!).First()}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-";
                         plantCreateEntity.PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
                     }
@@ -286,7 +288,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(400, checkParam.ErorrMessage);
                 Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
-
+                if (request.IsDead.HasValue)
+                {
+                    filter = filter.And(x => x.IsDead == request.IsDead);
+                }
                 if (!string.IsNullOrEmpty(request.LandPlotIds))
                 {
                     List<string> filterList = Util.SplitByComma(request.LandPlotIds!);
@@ -503,11 +508,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
                     {
-                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != true );
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != true);
                         if (checkMasterTypeExist == null)
                             return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
-                    }    
+                    }
 
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantEntityUpdate);
@@ -670,7 +675,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == landPlotId;
+                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == landPlotId && x.IsDead == false && x.IsDeleted == false;
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
@@ -688,7 +693,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Plant, bool>> filter = x => x.LandRowId == rowId;
+                Expression<Func<Plant, bool>> filter = x => x.LandRowId == rowId && x.IsDead == false && x.IsDeleted == false;
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
@@ -810,13 +815,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        //public async Task<BusinessResult> CheckIfPlantCanBeActionAsync(int plantId, string target)
-        //{
+        public async Task<BusinessResult> DeadPlantMark(int plantId)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var plantUpdate = await _unitOfWork.PlantRepository.GetByCondition(x => x.IsDead!.Value == false && x.IsDeleted == false && x.PlantId == plantId);
+                    if (plantUpdate == null)
+                        return new BusinessResult(400, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
+                    plantUpdate.UpdateDate = DateTime.Now;
+                    plantUpdate.IsDead = true;
+                    // Update the plant entity in the repository
+                    _unitOfWork.PlantRepository.Update(plantUpdate);
 
-        //    bool canBeAction = await _unitOfWork.PlantRepository.CheckIfPlantCanBeGraftedAsync(plantId, target);
-        //    if (canBeAction)
-        //        return new BusinessResult(400, $"This plant can not be {target}");
-        //    return new BusinessResult(200);
-        //}
+                    // Save the changes
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mapResult = _mapper.Map<PlantModel>(plantUpdate);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE, Const.SUCCESS_UPDATE_PLANT_MSG, mapResult);
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_UPDATE_PLANT_CODE, Const.FAIL_UPDATE_PLANT_MSG);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
+        }
     }
 }

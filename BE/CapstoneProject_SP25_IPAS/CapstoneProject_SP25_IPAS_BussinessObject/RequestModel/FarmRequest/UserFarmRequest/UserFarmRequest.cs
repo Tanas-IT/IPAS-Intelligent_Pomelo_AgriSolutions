@@ -14,5 +14,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Use
         public int UserId { get; set; }
         //[Required]
         public string? RoleName { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

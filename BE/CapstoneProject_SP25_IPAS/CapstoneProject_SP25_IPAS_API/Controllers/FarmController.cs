@@ -247,7 +247,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
             }
         }
-
+        /// <summary>
+        /// Lấy NV của 1 trang trại theo RoleID --> selected
+        /// </summary>
         [HttpGet(APIRoutes.Farm.getUserOfFarmByRole, Name = "GetAllUserOfFarmByRoleAsync")]
         public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, [FromQuery]List<int> listRole)
         {
@@ -275,6 +277,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy tất cả employee của 1 trang trại có pagin --> quản lí employee
+        /// </summary>
         [HttpGet(APIRoutes.Farm.getUsersOfFarm, Name = "getUserOfFarmAsync")]
         public async Task<IActionResult> getUserOfFarmAsync([FromQuery]GetUserFarmRequest userFarmRequest, [FromQuery]PaginationParameter paginationParameter)
         {
@@ -304,7 +309,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        
+        /// <summary>
+        /// Lấy 1 NV trong 1 trang trại 
+        /// </summary>
         //[HybridAuthorize("Admin,User", "Manager")]
         [HttpGet(APIRoutes.Farm.getUsersOfFarmById , Name = "GetUsersOfFarmByIdAsync")]
         public async Task<IActionResult> GetUsersOfFarmByIdAsync([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")] int userId)
@@ -329,6 +337,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Xoá VV 1 NV
+        /// </summary>
         [HttpDelete(APIRoutes.Farm.deleteUserFarm , Name = "deleteUserFarmAsync")]
         public async Task<IActionResult> DeleteUserFarm([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")]int userId)
         {
@@ -353,7 +364,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Thêm 1 employee vào trang trại
+        /// </summary>
         [HttpPost(APIRoutes.Farm.addUserToFarm, Name = "AddUserToFarmAsync")]
         public async Task<IActionResult> AddUserToFarmAsync([FromBody] UserFarmRequest userFarmCreate)
         {
@@ -379,6 +392,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Cập nhật TT nhân viên (Role, IsActive)
+        /// </summary>
         [HttpPut(APIRoutes.Farm.updateUserOfFarm, Name = "UpdateRoleOfEmployeeAsync")]
         public async Task<IActionResult> UpdateRoleOfEmployeeAsync([FromBody] UserFarmRequest userFarmUpdateRequest)
         {
@@ -392,7 +408,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _farmService.updateRoleOfUserInFarm(userFarmUpdateRequest);
+                var result = await _farmService.updateUserInFarm(userFarmUpdateRequest);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -877,7 +877,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
-                    CustomDates = createPlanModel.CustomDates.Select(x => x.Date.ToString("dd/MM/yyyy")).ToString(),
+                    CustomDates = createPlanModel.CustomDates.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList().ToString(),
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
@@ -958,27 +958,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //    throw new Exception("The schedule is conflicted");
             //}
             var landPlotIdCheck = createPlanModel.PlanTargetModel.Select(x => x.LandPlotID).ToList();
-            foreach (var planTarget in createPlanModel.PlanTargetModel)
-            {
-                var conflictWorkLogs = await _unitOfWork.WorkLogRepository.GetConflictWorkLogsOnSameLocation(
-                                                                        TimeSpan.Parse(createPlanModel.StartTime),
-                                                                        TimeSpan.Parse(createPlanModel.EndTime),
-                                                                        currentDate,
-                                                                        planTarget.PlantID,
-                                                                        planTarget.LandRowID,
-                                                                        landPlotIdCheck
-                                                                    );
-                if (conflictWorkLogs.Any())
-                {
-                    var conflictDetails = string.Join("\n", conflictWorkLogs.Select(w =>
-                    {
-                        var planTarget = w.Schedule?.CarePlan?.PlanTargets?.FirstOrDefault();
-                        return $"- Tree: {planTarget?.Plant.PlantName ?? "Unknown"}, Row: {planTarget?.LandRow.RowIndex ?? 0}, Plot: {planTarget?.LandPlot.LandPlotName ?? "Unknown"}, Time: {w.Schedule?.StartTime} - {w.Schedule?.EndTime}";
-                    }));
+            //foreach (var planTarget in createPlanModel.PlanTargetModel)
+            //{
+            //    var conflictWorkLogs = await _unitOfWork.WorkLogRepository.GetConflictWorkLogsOnSameLocation(
+            //                                                            TimeSpan.Parse(createPlanModel.StartTime),
+            //                                                            TimeSpan.Parse(createPlanModel.EndTime),
+            //                                                            currentDate,
+            //                                                            planTarget.PlantID,
+            //                                                            planTarget.LandRowID,
+            //                                                            landPlotIdCheck
+            //                                                        );
+            //    if (conflictWorkLogs.Any())
+            //    {
+            //        var conflictDetails = string.Join("\n", conflictWorkLogs.Select(w =>
+            //        {
+            //            var planTarget = w.Schedule?.CarePlan?.PlanTargets?.FirstOrDefault();
+            //            return $"- Tree: {planTarget?.Plant?.PlantName ?? "Unknown"}, Row: {planTarget?.LandRow?.RowIndex ?? 0}, Plot: {planTarget?.LandPlot?.LandPlotName ?? "Unknown"}, Time: {w.Schedule?.StartTime} - {w.Schedule?.EndTime}";
+            //        }));
 
-                    throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
-                }
-            }
+            //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
+            //    }
+            //}
             if(schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);

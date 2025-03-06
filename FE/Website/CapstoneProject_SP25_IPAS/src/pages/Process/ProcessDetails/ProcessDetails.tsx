@@ -21,7 +21,7 @@ import {
   RulesManager,
 } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
-import { useMasterTypeOptions, usePlanManager } from "@/hooks";
+import { useHasChanges, useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "../ProcessList/PlanList";
 import { ListPlan, UpdateProcessRequest } from "@/payloads/process/requests";
 import SubProcessModal from "./SubProcessModal";
@@ -259,8 +259,9 @@ function ProcessDetails() {
   const handleCancel = () => {};
 
   const handleCancelClick = () => {
-    setIsEditing(false);
     setPlans([...originalData.plans]);
+    setTreeData([...originalData.treeData]);
+    setIsEditing(false);
   };
   const handleSaveNode = () => {};
 
@@ -477,8 +478,13 @@ function ProcessDetails() {
       node.title = values.processName;
       node.growthStageId = values.growthStageId;
       node.masterTypeId = Number(values.masterTypeId);
+      console.log("node when update sub", node);
+      
       if (node.status !== "add") {
         node.status = "update";
+      } else {
+        console.log("ảo z");
+        
       }
     }
     setTreeData(updatedData);
@@ -486,23 +492,34 @@ function ProcessDetails() {
   };
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
-    return nodes.map((node) => {
-      // có plans, tạo một node chứa plan list
-      const planNodes = node.listPlan?.length
+  return nodes
+    .filter((node) => node.status !== "delete") // Lọc bỏ các sub-process bị xóa
+    .map((node) => {
+      // Lọc bỏ các plan bị xóa trong listPlan
+      const filteredPlans = node.listPlan?.filter(
+        (plan: PlanType) => plan.planStatus !== "delete"
+      );
+
+      // Tạo các node plan
+      const planNodes = filteredPlans?.length
         ? [
             {
               title: (
                 <div className={style.planList}>
                   <strong className={style.planListTitle}>Plan List:</strong>
-                  {node.listPlan.map((plan: PlanType) => (
+                  {filteredPlans.map((plan: PlanType) => (
                     <div key={plan.planId} className={style.planItem}>
                       <span className={style.planName}>{plan.planName}</span>
                       <Flex gap={10}>
-                        <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
+                        <Icons.edit
+                          color="blue"
+                          size={18}
+                          onClick={() => handleEditPlan(plan)}
+                        />
                         <Icons.delete
                           color="red"
                           size={18}
-                          onClick={() => handleDeletePlanInSub(plan.planId)}
+                          onClick={() => handleDeletePlan(plan.planId)}
                         />
                       </Flex>
                     </div>
@@ -516,6 +533,7 @@ function ProcessDetails() {
         : [];
 
       return {
+        ...node,
         title: (
           <div
             onMouseEnter={() => setHoveredKey(node.key.toString())}
@@ -546,10 +564,13 @@ function ProcessDetails() {
           </div>
         ),
         key: node.key,
-        children: [...(node.children ? loopNodes(node.children) : []), ...planNodes], // Kết hợp cả sub-process và plan list
+        children: [
+          ...(node.children ? loopNodes(node.children) : []), // Đệ quy để xử lý children
+          ...planNodes, // Thêm các node plan
+        ],
       };
     });
-  };
+};
 
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
@@ -657,6 +678,7 @@ function ProcessDetails() {
     });
   };
   console.log("tree data", treeData);
+  // console.log("tplansssss", plans);
 
   return (
     <div className={style.container}>

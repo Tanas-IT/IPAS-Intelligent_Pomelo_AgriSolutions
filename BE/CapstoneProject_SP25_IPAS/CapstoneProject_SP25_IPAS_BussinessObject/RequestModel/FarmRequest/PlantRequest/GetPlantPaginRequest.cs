@@ -25,5 +25,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
         public string? HealthStatus { get; set; }
         public string? CultivarIds { get; set; }
         public string? GrowthStageIds { get; set; }
+        public bool? IsDead { get; set; } 
     }
 }

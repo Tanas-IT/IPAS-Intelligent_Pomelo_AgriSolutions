@@ -76,6 +76,8 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
 };
 
   const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
+  console.log('0000000000000000000000000', res);
+  
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 }

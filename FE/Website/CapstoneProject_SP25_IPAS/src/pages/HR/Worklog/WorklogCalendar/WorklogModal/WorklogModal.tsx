@@ -4,7 +4,7 @@ import { AssignEmployee } from "@/pages";
 import { GetUser } from "@/payloads";
 import { CreateWorklogRequest } from "@/payloads/worklog";
 import { cropService, userService } from "@/services";
-import { getFarmId, RulesManager } from "@/utils";
+import { fetchUserInfoByRole, getFarmId, RulesManager } from "@/utils";
 import { Flex, Form, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,7 @@ type WorklogModalProps = {
   onClose: () => void;
   onSave: (values: CreateWorklogRequest) => void;
 };
+type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   const [form] = Form.useForm();
@@ -22,6 +23,8 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   const [cropOptions, setCropOptions] = useState<{ value: string; label: string }[]>([]);
   const [landPlotOptions, setLandPlotOptions] = useState<{ value: string; label: string }[]>([]);
   const [typeOptions, setTypeOptions] = useState<{ value: string; label: string }[]>([]);
+  const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
+  const [employee, setEmployee] = useState<EmployeeType[]>([]);
   const farmId = getFarmId();
 
   const handleCancel = () => {
@@ -37,10 +40,10 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     onClose();
   };
 
-  const handleCropChange = () => {};
+  const handleCropChange = () => { };
 
   const handleAssignMember = () => setIsModalOpen(true);
-  const handleConfirmAssign = () => {};
+  const handleConfirmAssign = () => { };
 
   useEffect(() => {
     if (isOpen) {
@@ -50,8 +53,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   }, [isOpen]);
 
   const fetchEmployees = async () => {
-    const employees = await userService.getUsersByRole("Employee");
-    setAllEmployees(employees);
+    setEmployee(await fetchUserInfoByRole("User"));
   };
 
   const fetchCropOptions = async () => {
@@ -61,6 +63,10 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
       label: crop.cropName,
     }));
     setCropOptions(formattedCropOptions);
+  };
+
+  const handleReporterChange = (userId: number) => {
+    setSelectedReporter(userId);
   };
 
   return (
@@ -79,43 +85,48 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           name={worklogFormFields.worklogName}
         />
         <Flex vertical={false} gap={10}>
-          <InfoField
+          <FormFieldModal
             label="Crop"
             rules={RulesManager.getCropRules()}
-            name={worklogFormFields.cropId}
+            type="select"
             options={cropOptions}
-            isEditing={true}
+            name={worklogFormFields.worklogName}
           />
-          <InfoField
+          <FormFieldModal
             label="Land Plot"
             rules={RulesManager.getLandPlotRules()}
-            name={worklogFormFields.landPlotId}
+            type="select"
             options={cropOptions}
-            isEditing={true}
+            name={worklogFormFields.landPlotId}
           />
         </Flex>
         <Flex vertical={false} gap={10}>
-          <InfoField
+          <FormFieldModal
             label="Type"
             rules={RulesManager.getWorklogTypeRules()}
-            name={worklogFormFields.type}
+            type="select"
             options={cropOptions}
-            isEditing={true}
+            name={worklogFormFields.type}
           />
-          <InfoField
+          <FormFieldModal
             label="Process"
             rules={RulesManager.getProcessRules()}
-            name={worklogFormFields.processId}
+            type="select"
             options={cropOptions}
-            isEditing={true}
+            name={worklogFormFields.processId}
           />
         </Flex>
-        <TimePickerInfo
+        <FormFieldModal
           label="Time"
-          name={worklogFormFields.time}
           rules={RulesManager.getTimeRules()}
+          type="time"
+          name={worklogFormFields.time}
         />
-        <AssignEmployee members={selectedEmployees} onAssign={handleAssignMember} />
+        <AssignEmployee
+          members={selectedEmployees}
+          onAssign={() => handleAssignMember()}
+          onReporterChange={handleReporterChange}
+          selectedReporter={selectedReporter} />
 
         <Modal
           title="Assign Members"
@@ -131,7 +142,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
               value={selectedEmployees}
               onChange={setSelectedEmployees}
             >
-              {allEmployees.map((employee) => (
+              {employee.map((employee) => (
                 <Select.Option key={employee.userId} value={employee.userId}>
                   {employee.fullName}
                 </Select.Option>

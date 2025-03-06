@@ -135,5 +135,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.WorkLog.NoteForWorkLog, Name = "NoteForWorkLog")]
+        public async Task<IActionResult> NoteForWorkLog([FromForm] CreateNoteModel createNoteModel)
+        {
+            try
+            {
+                var result = await _workLogService.NoteForWorkLog(createNoteModel);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
