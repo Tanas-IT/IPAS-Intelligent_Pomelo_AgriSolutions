@@ -1292,18 +1292,18 @@ VALUES
     (10, 10, 3, 2500.5, 30, 1);
 GO
 INSERT INTO [ipas].dbo.Process 
-(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, ResourceURL, [Input], FarmID)  
+(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, ResourceURL, [Input], IsSample, FarmID)  
 VALUES
-(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, N'https://example.com/resource6', N'{"tools": "plow", "depth": "30cm"}', 1),
-(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, N'https://example.com/resource7', N'{"chemical": "organic", "dosage": "500ml"}', 2),
-(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, N'https://example.com/resource8', N'{"method": "manual", "frequency": "weekly"}', 1),
-(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, N'https://example.com/resource9', N'{"sensor": "moisture probe"}', 3),
-(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, N'https://example.com/resource10', N'{"storage": "cold room"}', 2),
-(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, N'https://example.com/resource11', N'{"seed_type": "corn", "spacing": "10cm"}', 3),
-(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, N'https://example.com/resource12', N'{"system": "drip irrigation"}', 1),
-(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 2),
-(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 3),
-(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1);
+(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, N'https://example.com/resource6', N'{"tools": "plow", "depth": "30cm"}', 1, 1),
+(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, N'https://example.com/resource7', N'{"chemical": "organic", "dosage": "500ml"}', 1, 2),
+(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, N'https://example.com/resource8', N'{"method": "manual", "frequency": "weekly"}', 1, 1),
+(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, N'https://example.com/resource9', N'{"sensor": "moisture probe"}', 1, 3),
+(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, N'https://example.com/resource10', N'{"storage": "cold room"}', 1, 2),
+(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, N'https://example.com/resource11', N'{"seed_type": "corn", "spacing": "10cm"}',1, 3),
+(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, N'https://example.com/resource12', N'{"system": "drip irrigation"}', 1, 1),
+(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 1, 2),
+(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 1, 3),
+(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1, 1);
 GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES

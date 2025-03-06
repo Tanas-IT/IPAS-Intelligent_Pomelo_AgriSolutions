@@ -252,6 +252,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<WorkLog> GetWorkLogIncludeById(int workLogId)
         {
             var result = await _context.WorkLogs.Include(x => x.Schedule)
+                        .Include(x => x.TaskFeedbacks)
                         .Include (w => w.UserWorkLogs)
                         .ThenInclude(x => x.Resources)
                         .Include(x => x.UserWorkLogs)
