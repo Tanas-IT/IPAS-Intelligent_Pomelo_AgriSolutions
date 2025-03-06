@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> getUserOfFarm(GetUserFarmRequest getRequest, PaginationParameter paginationParameter);
 
-        public Task<BusinessResult> updateRoleOfUserInFarm(UserFarmRequest updateRequest);
+        public Task<BusinessResult> updateUserInFarm(UserFarmRequest updateRequest);
 
         public Task<BusinessResult> deleteUserInFarm(int farmId, int userId);
 

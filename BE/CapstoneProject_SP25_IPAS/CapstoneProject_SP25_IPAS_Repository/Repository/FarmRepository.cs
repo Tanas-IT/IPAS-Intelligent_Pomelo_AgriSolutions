@@ -55,7 +55,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
                 query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
             }
-            query.Include(x => x.UserFarms)
+            query = query.Include(x => x.Orders)
+                .Include(x => x.UserFarms)
                 .ThenInclude(x => x.User);
             // Thực hiện truy vấn và trả về danh sách
             return await query.AsNoTracking().ToListAsync();
@@ -68,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.UserFarms.Where(x => x.RoleId == (int)RoleEnum.OWNER))
                 .ThenInclude(x => x.User)
                 .ThenInclude(x => x.Role)
+                .Include(x => x.Orders)
                 .Include(x => x.LandPlots)
                 .ThenInclude(x => x.LandPlotCoordinations)
                 //.Include( x => x.LandPlots)
@@ -77,10 +79,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return farm;
         }
 
-        public async Task<List<UserFarm>> GetUsersOfFarmByRole(int farmId, List<int> roleIds)
+        public async Task<List<UserFarm>> GetEmployeeOfFarmByRole(int farmId, List<int> roleIds)
         {
             var userFarms = await _context.UserFarms
-                .Where(x => x.FarmId == farmId && x.Farm.IsDeleted == false && roleIds.Contains(x.RoleId!.Value))
+                .Where(x => x.FarmId == farmId 
+                && x.Farm.IsDeleted == false 
+                && roleIds.Contains(x.RoleId!.Value)
+                && x.IsActive == true)
                 .Include(x => x.User)
                 .Include(x => x.Role)
                 .Include(x => x.Farm)
