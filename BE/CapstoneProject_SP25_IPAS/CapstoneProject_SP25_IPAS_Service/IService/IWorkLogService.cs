@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest.GraftedNoteRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserWorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
@@ -18,6 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId);
         public Task<BusinessResult> GetDetailWorkLog(int workLogId);
         public Task<BusinessResult> UpdateWorkLog(UpdateWorkLogModel updateWorkLogModel, int? farmId);
+        public Task<BusinessResult> NoteForWorkLog(CreateNoteModel createNoteModel);
 
     }
 }

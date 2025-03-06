@@ -1005,13 +1005,13 @@ public partial class IpasContext : DbContext
                 .HasColumnName("FileFormat");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-            entity.Property(e => e.WorkLogID);
+            entity.Property(e => e.UserWorkLogID);
             entity.Property(e => e.LegalDocumentID);
             entity.Property(e => e.GraftedPlantNoteID);
             entity.Property(e => e.PlantGrowthHistoryID);
 
-            entity.HasOne(d => d.WorkLog).WithMany(p => p.Resources)
-                .HasForeignKey(d => d.WorkLogID)
+            entity.HasOne(d => d.UserWorkLog).WithMany(p => p.Resources)
+                .HasForeignKey(d => d.UserWorkLogID)
                 .HasConstraintName("FK_Resource_WorkLog");
 
             entity.HasOne(d => d.LegalDocument).WithMany(p => p.Resources)
@@ -1247,7 +1247,7 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<UserWorkLog>(entity =>
         {
-            entity.HasKey(e => new { e.WorkLogId, e.UserId }).HasName("PK__UserWork__2F2CA1082A09A834");
+            entity.HasKey(e => e.UserWorkLogID).HasName("PK__UserWork__2F2CA1082A09A834");
 
             entity.ToTable("UserWorkLog");
 
@@ -1297,7 +1297,6 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.WorkLogId).HasColumnName("WorkLogID");
             entity.Property(e => e.Date).HasColumnType("datetime");
-            entity.Property(e => e.Notes).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)

@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
            int? pageSize = null);
 
         public Task<List<PlanTarget>> GetListPlanByFarmId(int? farmId);
+        
     }
 }
