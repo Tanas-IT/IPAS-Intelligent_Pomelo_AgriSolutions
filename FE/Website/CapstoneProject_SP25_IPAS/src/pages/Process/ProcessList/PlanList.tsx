@@ -10,9 +10,10 @@ type PlanListProps = {
 };
 
 const PlanList: React.FC<PlanListProps> = ({ plans, onEdit, onDelete, isEditing }) => {
+  const filteredPlans = plans.filter((plan) => plan.planStatus !== "delete");
   return (
     <div>
-      {plans.map((plan) => (
+      {filteredPlans.map((plan) => (
         <div key={plan.planId} className={style.planItem}>
           <span>{plan.planName}</span>
           {isEditing && (

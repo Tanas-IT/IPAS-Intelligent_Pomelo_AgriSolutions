@@ -487,23 +487,34 @@ function ProcessDetails() {
   };
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
-    return nodes.map((node) => {
-      // có plans, tạo một node chứa plan list
-      const planNodes = node.listPlan?.length
+  return nodes
+    .filter((node) => node.status !== "delete") // Lọc bỏ các sub-process bị xóa
+    .map((node) => {
+      // Lọc bỏ các plan bị xóa trong listPlan
+      const filteredPlans = node.listPlan?.filter(
+        (plan: PlanType) => plan.planStatus !== "delete"
+      );
+
+      // Tạo các node plan
+      const planNodes = filteredPlans?.length
         ? [
             {
               title: (
                 <div className={style.planList}>
                   <strong className={style.planListTitle}>Plan List:</strong>
-                  {node.listPlan.map((plan: PlanType) => (
+                  {filteredPlans.map((plan: PlanType) => (
                     <div key={plan.planId} className={style.planItem}>
                       <span className={style.planName}>{plan.planName}</span>
                       <Flex gap={10}>
-                        <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
+                        <Icons.edit
+                          color="blue"
+                          size={18}
+                          onClick={() => handleEditPlan(plan)}
+                        />
                         <Icons.delete
                           color="red"
                           size={18}
-                          onClick={() => handleDeletePlanInSub(plan.planId)}
+                          onClick={() => handleDeletePlan(plan.planId)}
                         />
                       </Flex>
                     </div>
@@ -517,6 +528,7 @@ function ProcessDetails() {
         : [];
 
       return {
+        ...node,
         title: (
           <div
             onMouseEnter={() => setHoveredKey(node.key.toString())}
@@ -547,10 +559,13 @@ function ProcessDetails() {
           </div>
         ),
         key: node.key,
-        children: [...(node.children ? loopNodes(node.children) : []), ...planNodes], // Kết hợp cả sub-process và plan list
+        children: [
+          ...(node.children ? loopNodes(node.children) : []), // Đệ quy để xử lý children
+          ...planNodes, // Thêm các node plan
+        ],
       };
     });
-  };
+};
 
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
