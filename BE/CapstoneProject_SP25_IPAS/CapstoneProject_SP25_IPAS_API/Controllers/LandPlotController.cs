@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPaginAsync")]
         public async Task<IActionResult> getAllLandPlotNoPaginAsync([FromQuery] int? farmId, string? searchKey)
         {
-            if(!farmId.HasValue)
+            if (!farmId.HasValue)
             {
                 farmId = _jwtTokenService.GetFarmIdFromToken();
             }
@@ -89,13 +89,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.LandPlot.updateLandPlotCoordination, Name = "updateLandPlotCooridinationAsync")]
-        public async Task<IActionResult> UpdateLandPlotCoorAsync([FromBody] LandPlotUpdateCoordinationRequest updateLandPlotCoordinationRequest)
+        public async Task<IActionResult> UpdateLandPlotCoorAsync([FromBody] LandPlotUpdateCoordinationRequest updateCoorRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = await _landPlotService.UpdateLandPlotCoordination(updateLandPlotCoordinationRequest);
+            var result = await _landPlotService.UpdateLandPlotCoordination(updateCoorRequest);
             return Ok(result);
         }
 
