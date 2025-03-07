@@ -52,13 +52,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpGet(APIRoutes.WorkLog.getAllSchedule, Name = "GetAllSchedule")]
-        public async Task<IActionResult> GetAllSchedule(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
+        public async Task<IActionResult> GetAllSchedule(ScheduleFilter scheduleFilter, int? farmId)
         {
             try
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _workLogService.GetScheduleWithFilters(paginationParameter,scheduleFilter, farmId);
+                var result = await _workLogService.GetScheduleWithFilters(scheduleFilter, farmId);
                 return Ok(result);
             }
             catch (Exception ex)

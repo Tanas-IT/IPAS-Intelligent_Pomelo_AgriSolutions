@@ -352,38 +352,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetScheduleWithFilters(PaginationParameter paginationParameter, ScheduleFilter scheduleFilter, int? farmId)
+        public async Task<BusinessResult> GetScheduleWithFilters(ScheduleFilter scheduleFilter, int? farmId)
         {
             try
             {
                 Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
-                if (!string.IsNullOrEmpty(paginationParameter.Search))
-                {
-                    int validInt = 0;
-                    var checkInt = int.TryParse(paginationParameter.Search, out validInt);
-                    DateTime validDate = DateTime.Now;
-                    bool validBool = false;
-                    if (checkInt)
-                    {
-                        filter = filter.And(x => x.WorkLogId == validInt);
-                    }
-                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
-                    {
-                        filter = filter.And(x => x.Date == validDate);
-                    }
-                    else if (bool.TryParse(paginationParameter.Search, out validBool))
-                    {
-                        filter = filter.And(x => x.IsConfirm == validBool);
-                    }
-                    else
-                    {
-                        filter = filter.And(x => x.WorkLogCode.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.WorkLogName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.ReasonDelay.ToLower().Contains(paginationParameter.Search.ToLower()));
-                    }
-                }
+                
 
                 if (scheduleFilter.FromDate.HasValue || scheduleFilter.ToDate.HasValue)
                 {
@@ -457,50 +432,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
-                {
-                    case "startdate":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.CarePlan.StartDate)
-                                   : x => x.OrderBy(x => x.Schedule.CarePlan.StartDate)) : x => x.OrderBy(x => x.Schedule.CarePlan.StartDate);
-                        break;
-                    case "enddate":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.CarePlan.EndDate)
-                                   : x => x.OrderBy(x => x.Schedule.CarePlan.EndDate)) : x => x.OrderBy(x => x.Schedule.CarePlan.EndDate);
-                        break;
-                    case "starttime":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.StartTime)
-                                   : x => x.OrderBy(x => x.Schedule.StartTime)) : x => x.OrderBy(x => x.Schedule.StartTime);
-                        break;
-                    case "endtime":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.EndTime)
-                                   : x => x.OrderBy(x => x.Schedule.EndTime)) : x => x.OrderBy(x => x.Schedule.EndTime);
-                        break;
-                    case "masterstylename":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Schedule.CarePlan.MasterType.MasterTypeName)
-                                   : x => x.OrderBy(x => x.Schedule.CarePlan.MasterType.MasterTypeName)) : x => x.OrderBy(x => x.Schedule.CarePlan.MasterType.MasterTypeName);
-                        break;
-                    case "status":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Status)
-                                   : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
-                        break;
-
-                    default:
-                        orderBy = x => x.OrderBy(x => x.WorkLogId);
-                        break;
-                }
-                var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
+               
+                var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
                 var result = entities
                        .Select(wl => new ScheduleModel()
                        {
@@ -525,13 +458,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                Notes = uwl.Notes
                            }).ToList() // Danh sách user thực hiện công việc
                        }).ToList();
-                var pagin = new PageEntity<ScheduleModel>();
-                pagin.List = result;
-                pagin.TotalRecord = result.Count();
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
-                if (pagin.List.Any())
+               
+                if (result.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_SCHEDULE_CODE, Const.SUCCESS_GET_ALL_SCHEDULE_MSG, pagin);
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_SCHEDULE_CODE, Const.SUCCESS_GET_ALL_SCHEDULE_MSG, result);
                 }
                 else
                 {
