@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              createPlanModel.StartDate > checkExistProcess.EndDate ||
                              createPlanModel.EndDate < checkExistProcess.StartDate ||
                              createPlanModel.EndDate > checkExistProcess.EndDate)
-                                            {
+                        {
                             throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
                                 $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
                         }
@@ -87,6 +87,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
                     };
+                    if (createPlanModel.StartDate == createPlanModel.EndDate)
+                    {
+                        newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
+                        newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
+                    }
+                    if(createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count < 2)
+                    {
+                        newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
+                        newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
+                    }
 
                     await _unitOfWork.PlanRepository.Insert(newPlan);
 
@@ -173,7 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             // **Insert mỗi PlantLotID một dòng riêng**
-                            if(plantTarget.PlantLotID != null)
+                            if (plantTarget.PlantLotID != null)
                             {
                                 foreach (var plantLotId in plantTarget.PlantLotID)
                                 {
@@ -192,7 +202,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             // **Insert mỗi GraftedPlantID một dòng riêng**
-                            if(plantTarget.GraftedPlantID != null)
+                            if (plantTarget.GraftedPlantID != null)
                             {
                                 foreach (var graftedPlantId in plantTarget.GraftedPlantID)
                                 {
@@ -255,7 +265,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
 
-                   
+
                     await _unitOfWork.SaveAsync();
 
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
@@ -579,9 +589,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanModel>();
-                
+
                 var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
-               
+
                 foreach (var planTemp in listTemp)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
@@ -790,6 +800,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
                         }
+                        if(updatePlanModel.StartDate != null && updatePlanModel.EndDate != null)
+                        {
+                            if (updatePlanModel.StartDate == updatePlanModel.EndDate)
+                            {
+                                checkExistPlan.StartDate = updatePlanModel.StartDate.Value.Add(TimeSpan.Parse(updatePlanModel.StartTime));
+                                checkExistPlan.EndDate = updatePlanModel.EndDate.Value.Add(TimeSpan.Parse(updatePlanModel.EndTime));
+                            }
+                        }
+                        if((updatePlanModel.Frequency != null && updatePlanModel.Frequency.ToLower().Equals("none") && updatePlanModel.CustomDates != null && updatePlanModel.CustomDates.Count < 2))
+                        {
+                            checkExistPlan.StartDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.StartTime));
+                            checkExistPlan.EndDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.EndTime));
+                        }
                         if (updatePlanModel.UpdatePlanTargetModels != null)
                         {
                             foreach (var updatePlanTarget in updatePlanModel.UpdatePlanTargetModels)
@@ -825,6 +848,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var checkDeleteDependenciesOfPlan = await _unitOfWork.CarePlanScheduleRepository.DeleteDependenciesOfPlan(checkExistPlan.PlanId);
                         if (checkDeleteDependenciesOfPlan)
                         {
+                            
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
@@ -877,7 +901,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
-                    CustomDates = createPlanModel.CustomDates.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList().ToString(),
+                    CustomDates = JsonConvert.SerializeObject(createPlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
@@ -908,7 +932,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
                             : createPlanModel;
-                        
+
                         await GenerateWorkLogs(schedule, customeDate, createPlanModel);
                     }
 
@@ -957,7 +981,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //{
             //    throw new Exception("The schedule is conflicted");
             //}
-            var landPlotIdCheck = createPlanModel.PlanTargetModel.Select(x => x.LandPlotID).ToList();
+            //var landPlotIdCheck = createPlanModel.PlanTargetModel.Select(x => x.LandPlotID).ToList();
             //foreach (var planTarget in createPlanModel.PlanTargetModel)
             //{
             //    var conflictWorkLogs = await _unitOfWork.WorkLogRepository.GetConflictWorkLogsOnSameLocation(
@@ -979,7 +1003,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            if(schedule.ScheduleId <= 0)
+            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                        TimeSpan.Parse(createPlanModel.StartTime),
+                                                                        TimeSpan.Parse(createPlanModel.EndTime),
+                                                                        currentDate,
+                                                                        createPlanModel.MasterTypeId,
+                                                                        createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
+                                                                    );
+
+
+            if (schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             }
@@ -1015,7 +1048,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var tempModel = conflictDatesInWeekly.Contains(nextDay)
                                 ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
                                 : createPlanModel;
-                            
+
                             await GenerateWorkLogs(schedule, nextDay, tempModel);
                         }
                     }
@@ -1193,28 +1226,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception("The schedule is conflicted");
             //    }
             //}
-            var checkPlantLotIds = updatePlanModel.PlanTargetModel.Select(x => x.LandPlotID).ToList();
-            foreach (var planTarget in updatePlanModel.PlanTargetModel)
-            {
-                var conflictWorkLogs = await _unitOfWork.WorkLogRepository.GetConflictWorkLogsOnSameLocation(
-                                                                        TimeSpan.Parse(updatePlanModel.StartTime),
+            //var checkPlantLotIds = updatePlanModel.PlanTargetModel.Select(x => x.LandPlotID).ToList();
+            //foreach (var planTarget in updatePlanModel.PlanTargetModel)
+            //{
+            //    var conflictWorkLogs = await _unitOfWork.WorkLogRepository.GetConflictWorkLogsOnSameLocation(
+            //                                                            TimeSpan.Parse(updatePlanModel.StartTime),
+            //                                                            TimeSpan.Parse(updatePlanModel.EndTime),
+            //                                                            currentDate,
+            //                                                            planTarget.PlantID,
+            //                                                            planTarget.LandRowID,
+            //                                                            checkPlantLotIds
+            //                                                        );
+            //    if (conflictWorkLogs.Any())
+            //    {
+            //        var conflictDetails = string.Join("\n", conflictWorkLogs.Select(w =>
+            //        {
+            //            var planTarget = w.Schedule?.CarePlan?.PlanTargets?.FirstOrDefault();
+            //            return $"- Tree: {planTarget?.Plant.PlantName ?? "Unknown"}, Row: {planTarget?.LandRow.RowIndex ?? 0}, Plot: {planTarget?.LandPlot.LandPlotName ?? "Unknown"}, Time: {w.Schedule?.StartTime} - {w.Schedule?.EndTime}";
+            //        }));
+
+            //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
+            //    }
+            //}
+            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
                                                                         TimeSpan.Parse(updatePlanModel.EndTime),
                                                                         currentDate,
-                                                                        planTarget.PlantID,
-                                                                        planTarget.LandRowID,
-                                                                        checkPlantLotIds
-                                                                    );
-                if (conflictWorkLogs.Any())
-                {
-                    var conflictDetails = string.Join("\n", conflictWorkLogs.Select(w =>
-                    {
-                        var planTarget = w.Schedule?.CarePlan?.PlanTargets?.FirstOrDefault();
-                        return $"- Tree: {planTarget?.Plant.PlantName ?? "Unknown"}, Row: {planTarget?.LandRow.RowIndex ?? 0}, Plot: {planTarget?.LandPlot.LandPlotName ?? "Unknown"}, Time: {w.Schedule?.StartTime} - {w.Schedule?.EndTime}";
-                    }));
-
-                    throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
-                }
-            }
+                                                                       updatePlanModel.MasterTypeId,
+                                                                        updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
             await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             var result = await _unitOfWork.SaveAsync();
             while (currentDate <= plan.EndDate)
@@ -1542,10 +1580,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (workLog.Date > DateTime.Now)
                         {
-                            await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
+                           await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
                         }
                     }
                 }
+                _unitOfWork.PlanRepository.Update(getPlanById);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
@@ -1689,12 +1728,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     LandPlotId = landPlot.LandPlotId,
                                     LandPlotName = landPlot.LandPlotName,
-                                    Unit= unit,
+                                    Unit = unit,
                                 });
-                               
+
                             }
                             break;
-                          
+
                         case "row":
                             if (validRows.Any())
                             {
@@ -1789,7 +1828,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var result = await GetPlantByListGrowthStage(growthStageId, farmId, unit);
-                if(result != null)
+                if (result != null)
                 {
                     return new BusinessResult(Const.SUCCESS_FILTER_BY_GROWTHSTAGE_CODE, Const.SUCCESS_FILTER_BY_GROWTHSTAGE_MSG, result);
                 }

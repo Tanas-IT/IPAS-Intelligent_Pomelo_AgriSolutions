@@ -47,17 +47,13 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         return null;
     };
 
-
-
     const handleAddPlan = (values: PlanType, subProcessKey: string | null) => {
-        console.log("subProcessKey", subProcessKey);
-        
-
         let subProcessKeyToUse = subProcessKey;
+        const existingPlanIds = plans.map(plan => plan.planId);
+
+        const newPlanId = generatePlanId(existingPlanIds);
 
         if (editPlan) {
-            console.log("dô đây");
-            
             subProcessKeyToUse = findSubProcessKeyByPlanId(nodes, editPlan.planId);
         }
 
@@ -69,53 +65,53 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
             }
             : {
                 ...values,
-                planId: generatePlanId(),
+                planId: newPlanId,
                 planStatus: "add"
             };
 
-        if (subProcessKeyToUse !== null && subProcessKeyToUse !== undefined && subProcessKeyToUse !== "") {
+        if (subProcessKeyToUse) {
             setNodes(updatePlanInSubProcess(nodes, subProcessKeyToUse, updatedPlan));
         } else {
-            console.log("dô đây 2");
-            
-            // setPlans(prevList => [...prevList, updatedPlan]);
             setPlans((prevList) => {
-                const existingPlanIndex = prevList.findIndex((plan) => plan.planId === updatedPlan.planId);
-          
-                if (existingPlanIndex !== -1) {
-                  const newList = [...prevList];
-                  newList[existingPlanIndex] = updatedPlan;
-                  return newList;
+                if (editPlan) {
+                    return prevList.map(plan =>
+                        plan.planId === editPlan.planId ? updatedPlan : plan
+                    );
                 } else {
-                  return [...prevList, updatedPlan];
+                    const existingPlanIndex = prevList.findIndex(plan => plan.planId === updatedPlan.planId);
+                    if (existingPlanIndex !== -1) {
+                        const newList = [...prevList];
+                        newList[existingPlanIndex] = updatedPlan;
+                        return newList;
+                    } else {
+                        return [...prevList, updatedPlan];
+                    }
                 }
-              });
+            });
         }
-        
 
         setEditPlan(null);
         planForm.resetFields();
         setIsPlanModalOpen(false);
     };
-    // console.log("plan trong hook", plans);
-    
-
     const handleEditPlan = (plan: PlanType) => {
         console.log(plan);
-        
+
         setEditPlan(plan);
         planForm.setFieldsValue(plan);
         setIsPlanModalOpen(true);
     };
 
     const handleDeletePlan = (id: number) => {
-        // Đánh dấu plan là "delete" trong danh sách plans
         setPlans((prevList) =>
-          prevList.map((plan) =>
-            plan.planId === id ? { ...plan, planStatus: "delete" } : plan
-          )
+            prevList.filter(plan => !(plan.planId === id && plan.planStatus === "add"))
+                .map(plan =>
+                    plan.planId === id
+                        ? { ...plan, planStatus: "delete" }
+                        : plan
+                )
         );
-      };
+    };
 
     const handleCloseModal = () => {
         setEditPlan(null);

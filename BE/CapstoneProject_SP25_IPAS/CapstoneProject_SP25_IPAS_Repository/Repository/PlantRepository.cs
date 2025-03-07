@@ -248,7 +248,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<int>> getPlantByRowId(int rowId)
         {
-            var getListPlan = await _context.Plants.Where(x => x.LandRowId == rowId).Select(x => x.PlantId).ToListAsync();
+            var getListPlan = await _context.Plants.Where(x => x.LandRowId == rowId && x.IsDeleted == false).Select(x => x.PlantId).ToListAsync();
             return getListPlan;
         }
 

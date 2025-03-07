@@ -309,7 +309,18 @@ export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) =
   }));
 };
 
-export const generatePlanId = () => Math.floor(Date.now() / 1000000);
+// export const generatePlanId = () => Math.floor(Date.now() / 1000000);
+export const generatePlanId = (existingIds: number[] = []) => {
+  const min = 1; // Giá trị tối thiểu
+  const max = 2147483647; // Giá trị tối đa của kiểu int trong C#
+
+  let newId;
+  do {
+    newId = Math.floor(Math.random() * (max - min + 1)) + min; // Tạo số ngẫu nhiên trong khoảng [min, max]
+  } while (existingIds.includes(newId)); // Kiểm tra xem ID đã tồn tại chưa
+
+  return newId;
+};
 
 export const isPlantOverflowing = (
   plantSpacing: number,
