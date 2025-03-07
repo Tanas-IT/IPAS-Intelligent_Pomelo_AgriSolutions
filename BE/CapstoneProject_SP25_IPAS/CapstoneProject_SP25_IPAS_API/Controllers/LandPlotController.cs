@@ -47,6 +47,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 farmId = _jwtTokenService.GetFarmIdFromToken();
             }
+            if (!farmId.HasValue)
+            {
+                var response = new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "FarmId is Require"
+                };
+                return BadRequest(response);
+            }
             var result = await _landPlotService.GetLandPlotForSelected(farmId: farmId!.Value);
             return Ok(result);
         }
