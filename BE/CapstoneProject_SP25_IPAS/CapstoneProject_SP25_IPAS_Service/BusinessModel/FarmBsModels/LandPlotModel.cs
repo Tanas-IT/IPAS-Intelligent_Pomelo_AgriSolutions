@@ -42,6 +42,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public bool? IsRowHorizontal { get; set; }
         public double? LineSpacing { get; set; }
         public int? NumberOfRows { get; set; }
+        public double? MinLength { get; set; }
+        public double? MaxLength { get; set; }
+        public double? MinWidth { get; set; }
+        public double? MaxWidth { get; set; }
         //public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
