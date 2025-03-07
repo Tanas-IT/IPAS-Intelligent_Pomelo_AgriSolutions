@@ -46,7 +46,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     if(createTaskFeedbackModel.Status != null && createTaskFeedbackModel.Status.ToLower().Equals("redo"))
                     {
-                        newTaskFeedback.Reason = createTaskFeedbackModel.Reason;
+                        var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId.Value);
+                        getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
+                        _unitOfWork.WorkLogRepository.Update(getWorkLog);
                     }
                     await _unitOfWork.TaskFeedbackRepository.Insert(newTaskFeedback);
 

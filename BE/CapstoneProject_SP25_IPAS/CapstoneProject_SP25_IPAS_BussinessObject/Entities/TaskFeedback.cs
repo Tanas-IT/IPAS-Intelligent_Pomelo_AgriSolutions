@@ -8,7 +8,6 @@ public partial class TaskFeedback
     public int TaskFeedbackId { get; set; }
 
     public string? TaskFeedbackCode { get; set; }
-    public string? Reason { get; set; }
 
     public string? Content { get; set; }
 
