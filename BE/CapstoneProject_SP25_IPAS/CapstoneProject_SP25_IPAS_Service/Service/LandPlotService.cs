@@ -228,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower()) && x.isDeleted != true;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
             if (!string.IsNullOrEmpty(searchKey))
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
@@ -251,7 +251,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower()) && x.isDeleted != true;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
 
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
