@@ -47,11 +47,11 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
         return null;
     };
 
-
-
     const handleAddPlan = (values: PlanType, subProcessKey: string | null) => {
-
         let subProcessKeyToUse = subProcessKey;
+        const existingPlanIds = plans.map(plan => plan.planId);
+
+        const newPlanId = generatePlanId(existingPlanIds);
 
         if (editPlan) {
             subProcessKeyToUse = findSubProcessKeyByPlanId(nodes, editPlan.planId);
@@ -65,30 +65,52 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
             }
             : {
                 ...values,
-                planId: generatePlanId(),
+                planId: newPlanId,
                 planStatus: "add"
             };
 
-        if (subProcessKeyToUse !== null && subProcessKeyToUse !== undefined && subProcessKeyToUse !== "") {
+        if (subProcessKeyToUse) {
             setNodes(updatePlanInSubProcess(nodes, subProcessKeyToUse, updatedPlan));
         } else {
-            setPlans(prevList => [...prevList, updatedPlan]);
+            setPlans((prevList) => {
+                if (editPlan) {
+                    return prevList.map(plan =>
+                        plan.planId === editPlan.planId ? updatedPlan : plan
+                    );
+                } else {
+                    const existingPlanIndex = prevList.findIndex(plan => plan.planId === updatedPlan.planId);
+                    if (existingPlanIndex !== -1) {
+                        const newList = [...prevList];
+                        newList[existingPlanIndex] = updatedPlan;
+                        return newList;
+                    } else {
+                        return [...prevList, updatedPlan];
+                    }
+                }
+            });
         }
-        
 
         setEditPlan(null);
         planForm.resetFields();
         setIsPlanModalOpen(false);
     };
-
     const handleEditPlan = (plan: PlanType) => {
+        console.log(plan);
+
         setEditPlan(plan);
         planForm.setFieldsValue(plan);
         setIsPlanModalOpen(true);
     };
 
     const handleDeletePlan = (id: number) => {
-        setPlans(plans.filter(plan => plan.planId !== id));
+        setPlans((prevList) =>
+            prevList.filter(plan => !(plan.planId === id && plan.planStatus === "add"))
+                .map(plan =>
+                    plan.planId === id
+                        ? { ...plan, planStatus: "delete" }
+                        : plan
+                )
+        );
     };
 
     const handleCloseModal = () => {

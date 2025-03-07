@@ -905,7 +905,6 @@ CREATE TABLE ipas.dbo.WorkLog (
 	WorkLogCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
     WorkLogName nvarchar(300) NULL,
 	Status nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	[Date] datetime NULL,
 	IsConfirm bit NULL,
         ActualStartTime time(7) NULL,
@@ -925,26 +924,7 @@ CREATE TABLE ipas.dbo.WorkLog (
 
 -- DROP TABLE ipas.dbo.Resource;
 
-CREATE TABLE ipas.dbo.Resource (
-	ResourceID int IDENTITY(1,1) NOT NULL,
-	ResourceCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ResourceURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	WorkLogID int NULL,
-        UserID int NULL,
-	PlantGrowthHistoryID int NULL,
-	LegalDocumentID int NULL,
-	GraftedPlantNoteID int NULL,
-	CONSTRAINT Resource_PK PRIMARY KEY (ResourceID),
-	CONSTRAINT Resource_GraftedPlantNote_FK FOREIGN KEY (GraftedPlantNoteID) REFERENCES ipas.dbo.GraftedPlantNote(GraftedPlantNoteID),
-	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
-	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
-	CONSTRAINT Resource_WorkLog_FK FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID)
-);
+
 
 
 -- ipas.dbo.TaskFeedback definition
@@ -973,12 +953,36 @@ CREATE TABLE ipas.dbo.TaskFeedback (
 -- DROP TABLE ipas.dbo.UserWorkLog;
 
 CREATE TABLE ipas.dbo.UserWorkLog (
+   UserWorkLogID int IDENTITY(1,1) NOT NULL,
 	WorkLogID int NOT NULL,
 	UserID int NOT NULL,
 	IsReporter bit NULL,
-	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (WorkLogID,UserID),
+        Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        Issue nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (UserWorkLogID),
 	CONSTRAINT FK__UserWorkL__UserI__43A1090D FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__UserWorkL__WorkL__25518C17 FOREIGN KEY (WorkLogID) REFERENCES ipas.dbo.WorkLog(WorkLogID) ON DELETE CASCADE
+);
+
+CREATE TABLE ipas.dbo.Resource (
+	ResourceID int IDENTITY(1,1) NOT NULL,
+	ResourceCode nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ResourceURL nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	ResourceType nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FileFormat nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	UserWorkLogID int NULL,
+        UserID int NULL,
+	PlantGrowthHistoryID int NULL,
+	LegalDocumentID int NULL,
+	GraftedPlantNoteID int NULL,
+	CONSTRAINT Resource_PK PRIMARY KEY (ResourceID),
+	CONSTRAINT Resource_GraftedPlantNote_FK FOREIGN KEY (GraftedPlantNoteID) REFERENCES ipas.dbo.GraftedPlantNote(GraftedPlantNoteID),
+	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
+	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
+	CONSTRAINT Resource_UserWorkLog_FK FOREIGN KEY (UserWorkLogID) REFERENCES ipas.dbo.UserWorkLog(UserWorkLogID)
 );
 
 CREATE TABLE ipas.dbo.PlanTarget (
@@ -1228,7 +1232,7 @@ VALUES
 ('LD-005', 'Agreement', 'Supplier Contract', 'https://example.com/doc5.pdf', '2023-02-01', '2026-02-01', 'Active', GETDATE(), GETDATE(), 2);
 GO
 -- Chèn dữ liệu vào bảng Resource với liên kết đến LegalDocument
-INSERT INTO [ipas].dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, WorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantNoteID)
+INSERT INTO [ipas].dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, UserWorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantNoteID)
 VALUES
 ('RES-001', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010443/farm/legal-document/lhhd96qnxjcbxcgh6yvy.jpg', 'Organic Farming Guidelines', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
 ('RES-002', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010451/farm/legal-document/wt9wa7j9gvigriusqxzk.jpg', 'Water Usage Regulations', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
@@ -1288,18 +1292,18 @@ VALUES
     (10, 10, 3, 2500.5, 30, 1);
 GO
 INSERT INTO [ipas].dbo.Process 
-(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, ResourceURL, [Input], FarmID)  
+(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, ResourceURL, [Input], IsSample, FarmID)  
 VALUES
-(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, N'https://example.com/resource6', N'{"tools": "plow", "depth": "30cm"}', 1),
-(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, N'https://example.com/resource7', N'{"chemical": "organic", "dosage": "500ml"}', 2),
-(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, N'https://example.com/resource8', N'{"method": "manual", "frequency": "weekly"}', 1),
-(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, N'https://example.com/resource9', N'{"sensor": "moisture probe"}', 3),
-(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, N'https://example.com/resource10', N'{"storage": "cold room"}', 2),
-(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, N'https://example.com/resource11', N'{"seed_type": "corn", "spacing": "10cm"}', 3),
-(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, N'https://example.com/resource12', N'{"system": "drip irrigation"}', 1),
-(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 2),
-(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 3),
-(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1);
+(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, N'https://example.com/resource6', N'{"tools": "plow", "depth": "30cm"}', 1, 1),
+(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, N'https://example.com/resource7', N'{"chemical": "organic", "dosage": "500ml"}', 1, 2),
+(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, N'https://example.com/resource8', N'{"method": "manual", "frequency": "weekly"}', 1, 1),
+(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, N'https://example.com/resource9', N'{"sensor": "moisture probe"}', 1, 3),
+(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, N'https://example.com/resource10', N'{"storage": "cold room"}', 1, 2),
+(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, N'https://example.com/resource11', N'{"seed_type": "corn", "spacing": "10cm"}',1, 3),
+(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, N'https://example.com/resource12', N'{"system": "drip irrigation"}', 1, 1),
+(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 1, 2),
+(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 1, 3),
+(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1, 1);
 GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES

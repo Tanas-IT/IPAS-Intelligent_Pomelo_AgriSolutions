@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<WorkLog> GetWorkLogIncludeById(int workLogId);
         public Task<bool> CheckConflictTimeOfWorkLog(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck);
         public Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, List<int>? treeIds, List<int>? rowIds, List<int?> plotIds);
-
+        public Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds);
+        public Task CheckWorkLogAvailabilityWhenAddPlan(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, int? masterTypeId, List<int> listEmployeeIds);
     }
 }

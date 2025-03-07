@@ -21,7 +21,7 @@ import {
   RulesManager,
 } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
-import { useMasterTypeOptions, usePlanManager } from "@/hooks";
+import { useHasChanges, useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "../ProcessList/PlanList";
 import { ListPlan, UpdateProcessRequest } from "@/payloads/process/requests";
 import SubProcessModal from "./SubProcessModal";
@@ -97,37 +97,67 @@ function ProcessDetails() {
     treeData: [] as CustomTreeDataNode[],
     plans: [] as PlanType[],
   });
-  // const [isDirty, setIsDirty] = useState(false);
-  // usePrompt({ isDirty });
-  // const confirm = useConfirm();
 
   if (!id) {
     console.error("Missing id");
     return;
   }
 
+  // const fetchProcessDetails = async () => {
+  //   try {
+  //     const data = await processService.getProcessDetail(id);
+  //     console.log(data);
+
+  //     setProcessDetail(data);
+
+  //     form.setFieldsValue({
+  //       ...data,
+  //       masterTypeId: String(data.processMasterTypeModel.masterTypeId),
+  //       growthStageId: data.processGrowthStageModel.growthStageId,
+  //     });
+
+  //     setTreeData(mapSubProcessesToTree(data.subProcesses));
+  //     if (data.listPlan) {
+  //       setPlans(data.listPlan);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch process details", error);
+  //   }
+  // };
+
   const fetchProcessDetails = async () => {
     try {
       const data = await processService.getProcessDetail(id);
-      console.log(data);
-
+      console.log("Fetched data:", data);
+  
+      // Cập nhật state processDetail
       setProcessDetail(data);
-
+  
+      // Cập nhật giá trị form
       form.setFieldsValue({
         ...data,
-        masterTypeId: String(data.processMasterTypeModel.masterTypeId),
-        growthStageId: data.processGrowthStageModel.growthStageId,
+        masterTypeId: data.processMasterTypeModel ? String(data.processMasterTypeModel.masterTypeId) : "",
+        growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
       });
-
-      setTreeData(mapSubProcessesToTree(data.subProcesses));
-      if (data.listPlan) {
+  
+      // Cập nhật treeData
+      if (data.subProcesses && Array.isArray(data.subProcesses)) {
+        setTreeData(mapSubProcessesToTree(data.subProcesses));
+      } else {
+        setTreeData([]);
+      }
+  
+      // Cập nhật plans
+      if (data.listPlan && Array.isArray(data.listPlan)) {
         setPlans(data.listPlan);
+      } else {
+        setPlans([]);
       }
     } catch (error) {
       console.error("Failed to fetch process details", error);
+      toast.error("Failed to fetch process details. Please try again later.");
     }
   };
-
   useEffect(() => {
     const fetchData = async () => {
       setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
@@ -156,14 +186,6 @@ function ProcessDetails() {
       }
 
       return node;
-    });
-  };
-
-  const handleAddTask = (newTask: CustomTreeDataNode, parentKey?: number) => {
-    setNewTasks((prev) => [...prev, newTask]); // Lưu task mới vào danh sách tạm
-
-    setTreeData((prevTree) => {
-      return addTaskToTree(prevTree, newTask, parentKey);
     });
   };
 
@@ -197,20 +219,6 @@ function ProcessDetails() {
         return updateTree(prevTree);
       }
     });
-  };
-
-  const handleEdit = (key: string) => {
-    setEditingKey(key);
-    const node = findNodeByKey(treeData, key);
-
-    if (node && typeof node.title === "string") {
-      setNewTitle(node.title);
-
-      if (node.status !== "update") {
-        node.status = "update";
-        setTreeData([...treeData]);
-      }
-    }
   };
 
   const handleSave = () => {
@@ -259,8 +267,9 @@ function ProcessDetails() {
   const handleCancel = () => {};
 
   const handleCancelClick = () => {
-    setIsEditing(false);
     setPlans([...originalData.plans]);
+    setTreeData([...originalData.treeData]);
+    setIsEditing(false);
   };
   const handleSaveNode = () => {};
 
@@ -306,12 +315,8 @@ function ProcessDetails() {
 
     setTreeData((prevTree) => {
       let updatedTree = [...prevTree];
-
-      // Kiểm tra nếu task chưa có trong treeData
       const taskIndex = newTasks.findIndex((task) => Number(task.key) === Number(subProcessKey));
-
       if (taskIndex !== -1) {
-        // Nếu task mới có trong newTasks, thêm plan vào đó
         const updatedTasks = [...newTasks];
         updatedTasks[taskIndex] = {
           ...updatedTasks[taskIndex],
@@ -365,7 +370,49 @@ function ProcessDetails() {
     });
   };
 
+  // const handleSaveProcess = async () => {
+  //   const ListPlan: ListPlan[] = plans.map((plan) => ({
+  //     PlanId: plan.planId || 0,
+  //     PlanName: plan.planName,
+  //     PlanDetail: plan.planDetail,
+  //     PlanNote: plan.planNote,
+  //     GrowthStageId: plan.growthStageId,
+  //     MasterTypeId: Number(plan.masterTypeId),
+  //     PlanStatus: plan.planStatus || "no_change",
+  //   }));
+  //   let ListUpdateSubProcess = [
+  //     ...convertTreeToList(treeData),
+  //     ...convertDeletedNodesToList(deletedNodes),
+  //   ]
+  //     .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
+  //     .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
+  //   const payload: UpdateProcessRequest = {
+  //     ProcessId: Number(id) || 0,
+  //     ProcessName: processDetail?.processName || "New Process",
+  //     IsActive: processDetail?.isActive ?? true,
+  //     IsDefault: processDetail?.isDefault ?? false,
+  //     IsDeleted: processDetail?.isDeleted ?? false,
+  //     MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
+  //     GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
+  //     ListUpdateSubProcess: ListUpdateSubProcess,
+  //     ListPlan: ListPlan,
+  //   };
+
+  //   console.log("Saving Payload without stringyfy:", payload);
+  //   const res = await processService.updateFProcess(payload);
+  //   if (res.statusCode === 200) {
+  //     toast.success(res.message);
+  //     setIsEditing(false);
+  //     await fetchProcessDetails();
+  //   } else {
+  //     toast.error(res.message);
+  //   }
+  //   console.log("res update", res);
+  // };
+
   const handleSaveProcess = async () => {
+    console.log("Plans before mapping:", plans);
+  
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
       PlanName: plan.planName,
@@ -375,12 +422,14 @@ function ProcessDetails() {
       MasterTypeId: Number(plan.masterTypeId),
       PlanStatus: plan.planStatus || "no_change",
     }));
+  
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
       ...convertDeletedNodesToList(deletedNodes),
     ]
       .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
       .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
+  
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
       ProcessName: processDetail?.processName || "New Process",
@@ -392,19 +441,24 @@ function ProcessDetails() {
       ListUpdateSubProcess: ListUpdateSubProcess,
       ListPlan: ListPlan,
     };
-
-    console.log("Saving Payload without stringyfy:", payload);
-    const res = await processService.updateFProcess(payload);
-    if (res.statusCode === 200) {
-      toast.success(res.message);
-      setIsEditing(false);
-      await fetchProcessDetails();
-    } else {
-      toast.error(res.message);
+  
+    console.log("Saving Payload without stringify:", payload);
+  
+    try {
+      const res = await processService.updateFProcess(payload);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        setIsEditing(false);
+        await fetchProcessDetails();
+      } else {
+        toast.error(res.message);
+      }
+      console.log("res update", res);
+    } catch (error) {
+      console.error("Error saving process:", error);
+      toast.error("Failed to save process.");
     }
-    console.log("res update", res);
   };
-
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
     return nodes.map((node) => ({
       SubProcessId: Number(node.key),
@@ -458,9 +512,50 @@ function ProcessDetails() {
     setTreeData((prevTree) => updatePlanInSubProcess(prevTree, subProcessKey, plan));
   }, []);
 
-  const handleDeletePlanInSub = useCallback((planId: number) => {
-    console.log("delete ID:", planId);
+  const handleDeletePlann = useCallback((planId: number, subProcessKey: string) => {
+    setTreeData((prevTree) => {
+      return prevTree.map((node) => {
+        if (node.key === subProcessKey) {
+          return {
+            ...node,
+            status: "update", // Cập nhật node cha
+            listPlan: node.listPlan?.map((plan) =>
+              plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+            ),
+          };
+        }
+        if (node.children) {
+          return {
+            ...node,
+            children: handleDeletePlanInChildren(node.children, planId, subProcessKey),
+          };
+        }
+        return node;
+      });
+    });
   }, []);
+  
+  const handleDeletePlanInChildren = (nodes: CustomTreeDataNode[], planId: number, subProcessKey: string): CustomTreeDataNode[]  => {
+    return nodes.map((node) => {
+      if (node.key === subProcessKey) {
+        return {
+          ...node,
+          status: "update",
+          listPlan: node.listPlan?.map((plan) =>
+            plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+          ),
+        };
+      }
+      if (node.children) {
+        return {
+          ...node,
+          children: handleDeletePlanInChildren(node.children, planId, subProcessKey),
+        };
+      }
+      return node;
+    });
+  };
+  
 
   const handleEditSubProcess = (node: CustomTreeDataNode) => {
     setEditingNode(node);
@@ -477,8 +572,13 @@ function ProcessDetails() {
       node.title = values.processName;
       node.growthStageId = values.growthStageId;
       node.masterTypeId = Number(values.masterTypeId);
+      console.log("node when update sub", node);
+      
       if (node.status !== "add") {
         node.status = "update";
+      } else {
+        console.log("ảo z");
+        
       }
     }
     setTreeData(updatedData);
@@ -486,23 +586,32 @@ function ProcessDetails() {
   };
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
-    return nodes.map((node) => {
-      // có plans, tạo một node chứa plan list
-      const planNodes = node.listPlan?.length
+  return nodes
+    .filter((node) => node.status !== "delete")
+    .map((node) => {
+      const filteredPlans = node.listPlan?.filter(
+        (plan: PlanType) => plan.planStatus !== "delete"
+      );
+
+      const planNodes = filteredPlans?.length
         ? [
             {
               title: (
                 <div className={style.planList}>
                   <strong className={style.planListTitle}>Plan List:</strong>
-                  {node.listPlan.map((plan: PlanType) => (
+                  {filteredPlans.map((plan: PlanType) => (
                     <div key={plan.planId} className={style.planItem}>
                       <span className={style.planName}>{plan.planName}</span>
                       <Flex gap={10}>
-                        <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
+                        <Icons.edit
+                          color="blue"
+                          size={18}
+                          onClick={() => handleEditPlan(plan)}
+                        />
                         <Icons.delete
                           color="red"
                           size={18}
-                          onClick={() => handleDeletePlanInSub(plan.planId)}
+                          onClick={() => handleDeletePlann(plan.planId, node.key.toString())}
                         />
                       </Flex>
                     </div>
@@ -516,6 +625,7 @@ function ProcessDetails() {
         : [];
 
       return {
+        ...node,
         title: (
           <div
             onMouseEnter={() => setHoveredKey(node.key.toString())}
@@ -546,10 +656,13 @@ function ProcessDetails() {
           </div>
         ),
         key: node.key,
-        children: [...(node.children ? loopNodes(node.children) : []), ...planNodes], // Kết hợp cả sub-process và plan list
+        children: [
+          ...(node.children ? loopNodes(node.children) : []), // Đệ quy để xử lý children
+          ...planNodes, // Thêm các node plan
+        ],
       };
     });
-  };
+};
 
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
@@ -656,7 +769,8 @@ function ProcessDetails() {
       plans: [...plans],
     });
   };
-  console.log("tree data", treeData);
+  // console.log("tree data", treeData);
+  console.log("tplansssss", plans);
 
   return (
     <div className={style.container}>

@@ -127,6 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         Notes = plan.PlanNote,
                                         FarmID = farmId,
                                         MasterTypeId = plan.MasterTypeId,
+                                        IsDelete = false,
                                     };
 
                                     var growthStagePlan = new GrowthStagePlan()
@@ -154,6 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Notes = plan.PlanNote,
                                 FarmID = farmId,
                                 MasterTypeId = plan.MasterTypeId,
+                                IsDelete = false
                             };
 
                             var newGrowthStagePlan = new GrowthStagePlan()
@@ -556,9 +558,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                             checkExistProcess.ResourceUrl = getLink;
                         }
-                        checkExistProcess.UpdateDate = DateTime.Now;
+                        
                          _unitOfWork.ProcessRepository.Update(checkExistProcess);
-                        result += await _unitOfWork.SaveAsync();
+                       
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
@@ -572,10 +574,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     if (subProcess.Status.ToLower().Equals("add"))
                                     {
                                         var newSubProcess = new SubProcess();
+                                        int? realParentId = null;
+                                        if (subProcess.ParentSubProcessId.HasValue)
+                                        {
+                                            var parentExists = await _unitOfWork.SubProcessRepository
+                                                .GetByCondition(sp => sp.SubProcessID == subProcess.ParentSubProcessId.Value);
 
-                                        int? realParentId = subProcess.ParentSubProcessId.HasValue && idMapping.ContainsKey(subProcess.ParentSubProcessId.Value)
-                                                 ? idMapping[subProcess.ParentSubProcessId.Value]
-                                                 : (int?)null;
+                                            if (parentExists != null)
+                                            {
+                                                realParentId = subProcess.ParentSubProcessId.Value; // Gán trực tiếp nếu tồn tại
+                                            }
+                                            else if (idMapping.ContainsKey(subProcess.ParentSubProcessId.Value))
+                                            {
+                                                realParentId = idMapping[subProcess.ParentSubProcessId.Value]; // Lấy từ ánh xạ nếu có
+                                            }
+                                        }
 
                                         // Chuyển đổi sang entity SubProcess
                                         newSubProcess = new SubProcess()
@@ -585,7 +598,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             SubProcessName = subProcess.SubProcessName,
                                             IsDefault = subProcess.IsDefault,
                                             IsActive = subProcess.IsActive,
-                                            IsDeleted = subProcess.IsDeleted,
+                                            IsDeleted = false,
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
                                             ProcessId = checkExistProcess.ProcessId
@@ -613,7 +626,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
-                                                            SubProcessId = newSubProcess.SubProcessID
+                                                            SubProcessId = newSubProcess.SubProcessID,
+                                                            IsDelete = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         var addNewGrowthStages = new GrowthStagePlan()
@@ -658,11 +672,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 getPlanInDB.MasterTypeId = plan.MasterTypeId;
                                                             }
                                                             getPlanInDB.UpdateDate = DateTime.Now;
+                                                            _unitOfWork.PlanRepository.Update(getPlanInDB);
                                                         }
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
                                                         getPlanInDB.IsDelete = true;
+                                                        _unitOfWork.PlanRepository.Update(getPlanInDB);
                                                     }
                                                 }
 
@@ -702,9 +718,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             {
                                                 subProcessUpdate.Order = subProcess.MasterTypeId;
                                             }
-                                            subProcessUpdate.UpdateDate = DateTime.Now;
+                                           
                                             _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
-                                            result += await _unitOfWork.SaveAsync();
+                                            subProcessUpdate.UpdateDate = DateTime.Now;
+
                                             if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                             {
                                                 foreach (var plan in subProcess.ListPlan)
@@ -723,13 +740,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 FarmID = checkExistProcess.FarmId,
                                                                 MasterTypeId = plan.MasterTypeId,
                                                                 SubProcessId = subProcess.SubProcessId,
+                                                                IsDelete = false
                                                             };
                                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                                             if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
                                                             {
                                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
                                                             }
-                                                           
+                                                            
+
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
                                                         {
@@ -767,11 +786,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                     getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                                 }
                                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB); 
                                                             }
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                         {
-                                                            getUpdatePlanInDB.IsDelete = true;
+                                                            if(getUpdatePlanInDB != null)
+                                                            {
+                                                                getUpdatePlanInDB.IsDelete = true;
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -782,6 +806,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
 
                                         subProcessUpdate.IsDeleted = true;
+                                        if(subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
+                                        {
+                                            foreach(var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
+                                            {
+                                                deleteSubProcess.IsDeleted = true;
+                                            }
+                                        }
+                                         _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                         if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
@@ -799,14 +831,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
-                                                            SubProcessId = subProcessUpdate.SubProcessID
+                                                            SubProcessId = subProcessUpdate.SubProcessID,
+                                                            IsDelete = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         if (plan.GrowthStageId != null)
                                                         {
                                                             newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = plan.GrowthStageId });
                                                         }
-                                                        
+
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("update"))
                                                     {
@@ -844,11 +877,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                             }
                                                             getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                            _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                         }
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
                                                         getUpdatePlanInDB.IsDelete = true;
+                                                        _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                     }
                                                 }
                                             }
@@ -875,7 +910,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 Notes = updatePlan.PlanNote,
                                                 FarmID = checkExistProcess.FarmId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
-                                                ProcessId = checkExistProcess.ProcessId
+                                                ProcessId = checkExistProcess.ProcessId,
+                                                IsDelete = false
                                             };
                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                             if (updatePlan.GrowthStageId != null)
@@ -883,7 +919,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
 
                                             }
-                                            
+                                           
+
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
                                         {
@@ -921,17 +958,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     getUpdatePlanInDB.MasterTypeId = updatePlan.MasterTypeId;
                                                 }
                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
+                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                             }
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
                                         {
                                             getUpdatePlanInDB.IsDelete = true;
+                                             _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                         }
                                     }
                                 }
                             }
                         }
                         var finalResult = await _unitOfWork.SaveAsync();
+                        checkExistProcess.UpdateDate = DateTime.Now;
                         if (result > 0 || finalResult > 0)
                         {
                             await transaction.CommitAsync();
