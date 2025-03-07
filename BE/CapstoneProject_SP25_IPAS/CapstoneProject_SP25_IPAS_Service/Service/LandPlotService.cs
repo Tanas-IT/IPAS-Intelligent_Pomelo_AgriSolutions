@@ -69,6 +69,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         NumberOfRows = createRequest.NumberOfRows,
                         IsRowHorizontal = createRequest.IsRowHorizontal,
                         isDeleted = false,
+                        MinLength = createRequest.MinLength,
+                        MaxLength = createRequest.MaxLength,
+                        MinWidth = createRequest.MinWidth,
+                        MaxWidth = createRequest.MaxLength,
                         LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",
                     };
 
@@ -296,10 +300,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    var checkLandPlotExist = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == updateRequest.LandPlotId && x.isDeleted != true);
+                    if (checkLandPlotExist == null)
+                        return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+
                     // Lấy các tọa độ hiện tại
-                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.Farm!.IsDeleted != true;
-                    string includeProperties = "LandPlotCoordinations,Farm";
-                    var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition, includeProperties: includeProperties);
+                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.isDeleted != true && x.LandPlot!.Farm!.IsDeleted != true;
+                    var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition);
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
                     var existingCoordinates = existingCoordinationList
@@ -343,7 +350,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var resultSave = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId);
-                        var mappedResult = _mapper.Map<LandPlotModel>(resultSave);
+                        var mappedResult = _mapper.Map<IEnumerable<LandPlotCoordinationModel>>(resultSave);
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, mappedResult);
                     }
                     else
@@ -381,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var newValue = prop.GetValue(landPlotUpdateRequest);
                         if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.Equals("string") && !newValue.Equals("0"))
                         {
-                            var farmProp = typeof(Farm).GetProperty(prop.Name);
+                            var farmProp = typeof(LandPlot).GetProperty(prop.Name);
                             if (farmProp != null && farmProp.CanWrite)
                             {
                                 farmProp.SetValue(landplotEntityUpdate, newValue);
