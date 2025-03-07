@@ -51,6 +51,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    if(farmId == null || farmId <= 0)
+                    {
+                        throw new Exception("Farm does not exist");
+                    }
+                    if(createPlanModel.MasterTypeId == null || createPlanModel.MasterTypeId <= 0)
+                    {
+                        throw new Exception("MasterType does not exist");
+                    }
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == createPlanModel.ProcessId);
                     if (checkExistProcess != null)
                     {
@@ -75,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = createPlanModel?.StartDate,
                         Frequency = createPlanModel?.Frequency,
                         IsActive = createPlanModel?.IsActive,
-                        IsDelete = createPlanModel?.IsDelete,
+                        IsDelete = false,
                         MasterTypeId = createPlanModel?.MasterTypeId,
                         MaxVolume = createPlanModel?.MaxVolume,
                         MinVolume = createPlanModel?.MinVolume,
@@ -616,7 +624,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPlanByID(int planId)
+        public async Task<BusinessResult> GetPlanByID(int planId, string? unit)
         {
             try
             {
@@ -626,6 +634,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
                     var result = _mapper.Map<PlanModel>(getPlan);
+                    // Ánh xạ danh sách PlanTarget thành PlanTargetModels
+                    var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList(), unit);
+                    result.PlanTargetModels = mappedPlanTargets;
+
+                    
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
                     return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
                 }
@@ -694,6 +707,78 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public PlanTargetDisplayModel MapPlanTargets(List<PlanTarget> planTargets, string? unit)
+        {
+            var displayModel = new PlanTargetDisplayModel
+            {
+                Unit = unit,
+                LandPlotName = planTargets.FirstOrDefault()?.LandPlot?.LandPlotName,
+                LandPlotId = planTargets.FirstOrDefault()?.LandPlotID,
+                Rows = new List<LandRowDisplayModel>(),
+                Plants = new List<PlantDisplayModel>(),
+                PlantLots = new List<PlantLotDisplayModel>(),
+                GraftedPlants = new List<GraftedPlantDisplayModel>()
+            };
+
+            foreach (var planTarget in planTargets)
+            {
+                // Nếu unit không được truyền vào, lấy tất cả dữ liệu có thể có
+                bool isFullMode = string.IsNullOrEmpty(unit);
+
+                if (isFullMode || unit == "LandPlot")
+                {
+                    // LandPlot đã được lấy từ FirstOrDefault()
+                }
+                if (isFullMode || unit == "Rows")
+                {
+                    if (planTarget.LandRow != null)
+                    {
+                        var row = _mapper.Map<LandRowDisplayModel>(planTarget.LandRow);
+                        if (!displayModel.Rows.Any(r => r.LandRowId == row.LandRowId))
+                        {
+                            displayModel.Rows.Add(row);
+                        }
+                    }
+                }
+                if (isFullMode || unit == "Plant")
+                {
+                    if (planTarget.Plant != null)
+                    {
+                        var plant = _mapper.Map<PlantDisplayModel>(planTarget.Plant);
+                        if (!displayModel.Plants.Any(p => p.PlantId == plant.PlantId))
+                        {
+                            displayModel.Plants.Add(plant);
+                        }
+                    }
+                }
+                if (isFullMode || unit == "PlantLot")
+                {
+                    if (planTarget.PlantLot != null)
+                    {
+                        var plantLot = _mapper.Map<PlantLotDisplayModel>(planTarget.PlantLot);
+                        if (!displayModel.PlantLots.Any(p => p.PlantLotId == plantLot.PlantLotId))
+                        {
+                            displayModel.PlantLots.Add(plantLot);
+                        }
+                    }
+                }
+                if (isFullMode || unit == "GraftedPlant")
+                {
+                    if (planTarget.GraftedPlant != null)
+                    {
+                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(planTarget.GraftedPlant);
+                        if (!displayModel.GraftedPlants.Any(p => p.GraftedPlantId == graftedPlant.GraftedPlantId))
+                        {
+                            displayModel.GraftedPlants.Add(graftedPlant);
+                        }
+                    }
+                }
+            }
+
+            return displayModel;
+        }
+
+
         public async Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
@@ -732,7 +817,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.MasterTypeId = updatePlanModel.MasterTypeId;
                         }
-                        if (updatePlanModel.GrowthStageId != null && updatePlanModel.GrowthStageId.Any())
+                        if (updatePlanModel.GrowthStageId != null && updatePlanModel.GrowthStageId.Any() && checkExistPlan.ProcessId == null)
                         {
                             // Lấy danh sách ID từ GrowthStagePlans hiện tại
                             var existingGrowthStageIds = checkExistPlan.GrowthStagePlans.Select(x => x.GrowthStageID).ToList();

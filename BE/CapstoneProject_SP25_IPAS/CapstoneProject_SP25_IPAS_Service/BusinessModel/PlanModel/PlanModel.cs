@@ -72,6 +72,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public TimeSpan? EndTime { get; set; }
         public List<WorkLogInPlanModel>? ListWorkLog { get; set; }
-        public List<PlanTargetDisplayModel>? PlanTargetModels { get; set; }
+        public PlanTargetDisplayModel? PlanTargetModels { get; set; }
     }
 }
