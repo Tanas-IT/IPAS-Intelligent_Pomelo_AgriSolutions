@@ -158,50 +158,78 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
 
-                            // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
-                            foreach (var row in rowToPlants)
+                            if(plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
                             {
-                                foreach (var plantId in row.Value)
+                                // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
+                                foreach (var row in rowToPlants)
                                 {
-                                    if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                    foreach (var plantId in row.Value)
                                     {
-                                        var newPlantTarget = new PlanTarget()
+                                        if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
                                         {
-                                            LandPlotID = plantTarget.LandPlotID,
-                                            LandRowID = row.Key,
-                                            PlantID = plantId,
-                                            PlantLotID = null,
-                                            Unit = plantTarget.Unit,
-                                            GraftedPlantID = null,
-                                        };
+                                            var newPlantTarget = new PlanTarget()
+                                            {
+                                                LandPlotID = plantTarget.LandPlotID,
+                                                LandRowID = row.Key,
+                                                PlantID = plantId,
+                                                PlantLotID = null,
+                                                Unit = "LandPlot",
+                                                GraftedPlantID = null,
+                                            };
 
-                                        newPlan.PlanTargets.Add(newPlantTarget);
-                                        addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                            newPlan.PlanTargets.Add(newPlantTarget);
+                                            addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                        }
                                     }
                                 }
                             }
-
-                            // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
-                            var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
-                            foreach (var plantId in plantsToInsert)
+                            else
                             {
-                                if (!addedPlanTargets.Contains((plantId, null, null)))
+                                // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
+                                foreach (var row in rowToPlants)
                                 {
-                                    var newPlantTarget = new PlanTarget()
+                                    foreach (var plantId in row.Value)
                                     {
-                                        PlantID = plantId, // Chỉ insert PlantID nếu nó chưa có trong các LandRow
-                                        LandPlotID = null,
-                                        LandRowID = null,
-                                        PlantLotID = null,
-                                        Unit = plantTarget.Unit,
-                                        GraftedPlantID = null
-                                    };
+                                        if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                        {
+                                            var newPlantTarget = new PlanTarget()
+                                            {
+                                                LandPlotID = plantTarget.LandPlotID,
+                                                LandRowID = row.Key,
+                                                PlantID = plantId,
+                                                PlantLotID = null,
+                                                Unit = "LandRow",
+                                                GraftedPlantID = null,
+                                            };
 
-                                    newPlan.PlanTargets.Add(newPlantTarget);
-                                    addedPlanTargets.Add((plantId, null, null)); // Đánh dấu đã thêm
+                                            newPlan.PlanTargets.Add(newPlantTarget);
+                                            addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                        }
+                                    }
                                 }
-                            }
 
+                                // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
+                                var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
+                                foreach (var plantId in plantsToInsert)
+                                {
+                                    if (!addedPlanTargets.Contains((plantId, null, null)))
+                                    {
+                                        var newPlantTarget = new PlanTarget()
+                                        {
+                                            PlantID = plantId, // Chỉ insert PlantID nếu nó chưa có trong các LandRow
+                                            LandPlotID = null,
+                                            LandRowID = null,
+                                            PlantLotID = null,
+                                            Unit = "Plant",
+                                            GraftedPlantID = null
+                                        };
+
+                                        newPlan.PlanTargets.Add(newPlantTarget);
+                                        addedPlanTargets.Add((plantId, null, null)); // Đánh dấu đã thêm
+                                    }
+                                }
+
+                            }
                             // **Insert mỗi PlantLotID một dòng riêng**
                             if (plantTarget.PlantLotID != null)
                             {

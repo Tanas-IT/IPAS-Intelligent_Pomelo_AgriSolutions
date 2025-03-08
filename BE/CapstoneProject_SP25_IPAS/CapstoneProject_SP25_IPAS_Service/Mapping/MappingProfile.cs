@@ -193,8 +193,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
                .ReverseMap();
 
-            CreateMap<LandRow, LandRowDisplayModel>();
             CreateMap<Plant, PlantDisplayModel>();
+            CreateMap<LandRow, LandRowDisplayModel>()
+                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants));
             CreateMap<PlantLot, PlantLotDisplayModel>();
             CreateMap<GraftedPlant, GraftedPlantDisplayModel>();
             CreateMap<LandPlot, PlanTargetDisplayModel>()

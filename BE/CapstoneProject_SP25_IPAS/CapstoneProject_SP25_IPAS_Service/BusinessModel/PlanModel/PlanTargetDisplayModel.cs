@@ -23,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
     {
         public int? LandRowId { get; set; }
         public int? RowIndex { get; set; }
+        public List<PlantDisplayModel>? Plants { get; set; }
     }
 
     public class PlantDisplayModel
