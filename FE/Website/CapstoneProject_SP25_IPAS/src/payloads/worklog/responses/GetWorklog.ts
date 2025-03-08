@@ -4,7 +4,7 @@ export interface User {
   isReporter: boolean;
 }
 
-export interface WorkLog {
+export interface GetWorklog {
   workLogId: number;
   workLogName: string;
   workLogCode: string;
@@ -20,11 +20,11 @@ export interface WorkLog {
   users: User[];
 }
 
-export interface GetWorklog {
-  list: WorkLog[];
-  totalPage: number;
-  totalRecord: number;
-}
+// export interface GetWorklog {
+//   list: WorkLog[];
+//   totalPage: number;
+//   totalRecord: number;
+// }
 
 export interface User {
   fullName: string;

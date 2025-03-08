@@ -4,8 +4,10 @@ import { GetWorklog, GetWorklogDetail } from "@/payloads/worklog";
 
 export const getWorklog = async () => {
     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
-    const apiResponse = res.data as ApiResponse<GetWorklog>;
-    return apiResponse;
+    console.log(res);
+    
+    const apiResponse = res.data as ApiResponse<GetWorklog[]>;
+    return apiResponse.data;
 }
 
 export const getWorklogDetail = async (worklogId: number) => {
