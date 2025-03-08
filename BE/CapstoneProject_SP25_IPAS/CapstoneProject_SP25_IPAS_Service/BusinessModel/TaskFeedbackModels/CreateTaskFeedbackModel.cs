@@ -13,5 +13,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels
         public int? WorkLogId { get; set; }
 
         public int? ManagerId { get; set; }
+        public string? Reason { get; set; }
+        public string? Status { get; set; }
+
     }
 }

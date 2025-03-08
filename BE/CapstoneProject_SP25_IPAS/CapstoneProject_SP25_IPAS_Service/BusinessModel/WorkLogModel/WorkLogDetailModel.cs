@@ -33,7 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public List<ReporterModel>? Reporter { get; set; }
         public string? CropName { get; set; }
         public string? ProcessName { get; set; }
-        public List<PlanTargetDisplayModel>? PlanTargetModels { get; set; }
+        public PlanTargetDisplayModel? PlanTargetModels { get; set; }
         public string? TypeWork { get; set; }
         public List<string>? ListGrowthStageName { get; set; }
         public List<TaskFeedbackModel>? ListTaskFeedback { get; set; }

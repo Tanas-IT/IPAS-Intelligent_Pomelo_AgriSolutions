@@ -33,15 +33,15 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddSingleton(mapper.CreateMapper());
 
             // read TypeName and Target of MasterType
-            var masterTypeConfig = new MasterTypeConfig();
-            configuration.GetSection("MasterTypeConfig").Bind(masterTypeConfig);
+            var ProgramDefaultConfig = new ProgramDefaultConfig();
+            configuration.GetSection("ProgramDefaultConfig").Bind(ProgramDefaultConfig);
             // Trim khoảng trắng trong danh sách
-            masterTypeConfig.TypeNames = masterTypeConfig.TypeNames.Select(x => x.Trim()).ToList();
-            masterTypeConfig.Targets = masterTypeConfig.Targets.Select(x => x.Trim()).ToList();
-            masterTypeConfig.GraftedConditionApply = masterTypeConfig.GraftedConditionApply!.Trim();
-            masterTypeConfig.GraftedEvaluationApply = masterTypeConfig.GraftedEvaluationApply!.Trim();
+            ProgramDefaultConfig.TypeNames = ProgramDefaultConfig.TypeNames.Select(x => x.Trim()).ToList();
+            ProgramDefaultConfig.CriteriaTargets = ProgramDefaultConfig.CriteriaTargets.Select(x => x.Trim()).ToList();
+            ProgramDefaultConfig.GraftedConditionApply = ProgramDefaultConfig.GraftedConditionApply!.Trim();
+            ProgramDefaultConfig.GraftedEvaluationApply = ProgramDefaultConfig.GraftedEvaluationApply!.Trim();
 
-            services.AddSingleton(masterTypeConfig);
+            services.AddSingleton(ProgramDefaultConfig);
 
 
             // Register repositories
@@ -125,6 +125,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IAIService, AIService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
 
             services.AddHttpClient();

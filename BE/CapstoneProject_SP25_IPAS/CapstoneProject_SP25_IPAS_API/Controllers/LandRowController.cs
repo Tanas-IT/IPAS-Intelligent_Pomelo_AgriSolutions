@@ -197,6 +197,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        /// <summary>
+        /// lấy ra những index chưa có cây trồng theo hàng
+        /// </summary>
         //[HybridAuthorize("Admin,User", "Owner,Manager")]
         [HttpGet(APIRoutes.LandRow.getSelectedIndexEmptyInRow + "/{row-id}", Name = "getSelectedIndexEmptyInRowAsync")]
         public async Task<IActionResult> getSelectedIndexEmptyInRowAsync([FromRoute(Name = "row-id")] int rowId)

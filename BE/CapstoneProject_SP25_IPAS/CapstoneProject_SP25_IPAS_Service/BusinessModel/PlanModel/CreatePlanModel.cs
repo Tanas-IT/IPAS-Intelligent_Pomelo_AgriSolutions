@@ -40,7 +40,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public List<int>? GrowthStageId { get; set; }
 
-        public bool? IsDelete { get; set; }
 
         public int? MasterTypeId { get; set; }
         public List<int>? DayOfWeek { get; set; }
@@ -81,7 +80,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             ProcessId = model.ProcessId;
             CropId = model.CropId;
             GrowthStageId = model.GrowthStageId;
-            IsDelete = model.IsDelete;
             MasterTypeId = model.MasterTypeId;
             DayOfWeek = model.DayOfWeek != null ? new List<int>(model.DayOfWeek) : null;
             DayOfMonth = model.DayOfMonth != null ? new List<int>(model.DayOfMonth) : null;

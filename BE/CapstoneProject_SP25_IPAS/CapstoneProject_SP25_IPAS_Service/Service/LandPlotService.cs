@@ -43,7 +43,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    int lastId = await _unitOfWork.LandPlotRepository.GetLastID();
                     var checkExistFarm = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId && x.IsDeleted == false);
                     if (checkExistFarm == null)
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
@@ -70,6 +69,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         NumberOfRows = createRequest.NumberOfRows,
                         IsRowHorizontal = createRequest.IsRowHorizontal,
                         isDeleted = false,
+                        MinLength = createRequest.MinLength,
+                        MaxLength = createRequest.MaxLength,
+                        MinWidth = createRequest.MinWidth,
+                        MaxWidth = createRequest.MaxLength,
                         LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",
                     };
 
@@ -92,13 +95,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     else
                     {
                         await transaction.RollbackAsync();
-                        return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG);
+                        return new BusinessResult(400, "Create landplot fail");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
+                return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, "Create landplot have error", ex.Message);
             }
         }
 
@@ -225,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
             if (!string.IsNullOrEmpty(searchKey))
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
@@ -248,7 +251,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.Status!.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
 
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
@@ -266,7 +269,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
             string includeProperties = "LandPlotCoordinations,Farm";
-            Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId;
+            Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId && x.isDeleted != true;
 
             var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
             // kiem tra null
@@ -274,7 +277,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
-            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
+            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot in farm success", mappedResult);
 
         }
 
@@ -287,7 +290,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
-            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, mappedResult);
+            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot for mapped success", mappedResult);
         }
 
         public async Task<BusinessResult> UpdateLandPlotCoordination(LandPlotUpdateCoordinationRequest updateRequest)
@@ -297,10 +300,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
+                    var checkLandPlotExist = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == updateRequest.LandPlotId && x.isDeleted != true);
+                    if (checkLandPlotExist == null)
+                        return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+
                     // Lấy các tọa độ hiện tại
-                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.Farm!.IsDeleted != true;
-                    string includeProperties = "LandPlotCoordinations,Farm";
-                    var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition, includeProperties: includeProperties);
+                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.isDeleted != true && x.LandPlot!.Farm!.IsDeleted != true;
+                    var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition);
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
                     var existingCoordinates = existingCoordinationList
@@ -344,7 +350,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var resultSave = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId);
-                        var mappedResult = _mapper.Map<LandPlotModel>(resultSave);
+                        var mappedResult = _mapper.Map<IEnumerable<LandPlotCoordinationModel>>(resultSave);
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, mappedResult);
                     }
                     else
@@ -382,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var newValue = prop.GetValue(landPlotUpdateRequest);
                         if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.Equals("string") && !newValue.Equals("0"))
                         {
-                            var farmProp = typeof(Farm).GetProperty(prop.Name);
+                            var farmProp = typeof(LandPlot).GetProperty(prop.Name);
                             if (farmProp != null && farmProp.CanWrite)
                             {
                                 farmProp.SetValue(landplotEntityUpdate, newValue);
@@ -428,7 +434,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, new {success = true});
+                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, "Delete softed successfully", new {success = true});
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
                 }
