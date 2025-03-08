@@ -37,6 +37,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? TypeWork { get; set; }
         public List<string>? ListGrowthStageName { get; set; }
         public List<TaskFeedbackModel>? ListTaskFeedback { get; set; }
-        public List<NoteOfWorkLogModel> ListNoteOfWorkLog { get; set; }
+        public List<NoteOfWorkLogModel>? ListNoteOfWorkLog { get; set; }
     }
 }

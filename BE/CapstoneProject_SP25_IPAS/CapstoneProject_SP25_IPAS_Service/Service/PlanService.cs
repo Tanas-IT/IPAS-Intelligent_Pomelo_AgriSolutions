@@ -263,15 +263,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //    await _criteriaTargetService.ApplyCriteriasForTarget(newCriteriaTargerRequest);
                     //}
 
-                    var addPlanNotification = new PlanNotification()
+                   foreach(var employee in createPlanModel.ListEmployee)
                     {
-                        NotificationID = addNotification.NotificationId,
-                        PlanID = newPlan.PlanId,
-                        CreatedDate = DateTime.Now,
-                        isRead = false,
-                    };
+                        var addPlanNotification = new PlanNotification()
+                        {
+                            NotificationID = addNotification.NotificationId,
+                            PlanID = newPlan.PlanId,
+                            CreatedDate = DateTime.Now,
+                            UserID = employee.UserId,
+                            isRead = false,
+                        };
 
-                    await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                    }
 
 
                     await _unitOfWork.SaveAsync();
