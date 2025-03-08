@@ -10,5 +10,12 @@ export const MESSAGES = {
   OUT_PLANT:
     "The total number of plants exceeds the row's capacity. Please reduce the number of plants or adjust the spacing.",
   DRAW_PLOT: "Please draw a plot before proceeding to the next step!",
+  DRAW_PLOT_UPDATE: "Please draw a plot before updating!",
   OVERLAPPING_PLOT: "The new plot overlaps with an existing plot!",
+
+  PLOT_UPDATE_SUCCESS: "Plot information updated successfully!",
+  COORD_UPDATE_SUCCESS: "Plot coordinates updated successfully!",
+  PLOT_AND_COORD_UPDATE_SUCCESS: "Plot information and coordinates updated successfully!",
+  PLOT_UPDATE_FAILED: "Failed to update plot information. Please try again!",
+  COORD_UPDATE_FAILED: "Failed to update plot coordinates. Please try again!",
 } as const;

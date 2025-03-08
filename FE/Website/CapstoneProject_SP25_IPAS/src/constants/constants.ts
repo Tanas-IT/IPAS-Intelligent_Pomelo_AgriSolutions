@@ -6,7 +6,7 @@ export const MASTER_TYPE = {
   PROCESS: "Process",
   WORK: "Work",
   CRITERIA: "Criteria",
-  HARVEST: "Harvest",
+  PRODUCT: "Product",
   NOTIFICATION: "Notification",
 };
 
@@ -39,3 +39,26 @@ export const ROLE = {
   EMPLOYEE: "Employee",
   MANAGER: "Manager",
 } as const;
+
+export const POLYGON_DIMENSION_LIMITS = {
+  minWidth: 10,
+  maxWidth: 500,
+  minLength: 10,
+  maxLength: 500,
+};
+
+export const WORK_TARGETS = {
+  Watering: "Watering",
+  Fertilizer: "Fertilizer",
+  "Spraying Pesticides": "Spraying Pesticides",
+  "Pruning-Shaping": "Pruning-Shaping",
+  Weeding: "Weeding",
+  "Pest Control": "Pest Control",
+  Others: "Others",
+};
+
+export const CRITERIA_TARGETS = {
+  Harvest: "Harvest",
+  "Grafted Condition": "Grafted Condition",
+  "Grafted Evaluation": "Grafted Evaluation",
+};

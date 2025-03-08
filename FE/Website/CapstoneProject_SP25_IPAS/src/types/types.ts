@@ -1,6 +1,13 @@
 import { GetLandPlot } from "@/payloads";
 import { GetProp, UploadProps } from "antd";
 
+export interface ActionMenuItem {
+  icon: React.ReactNode;
+  label: string | React.ReactNode;
+  onClick?: () => void;
+  isCloseOnClick?: boolean;
+}
+
 export interface Farm {
   farmId: number;
   farmName: string;

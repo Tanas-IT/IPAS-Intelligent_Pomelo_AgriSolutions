@@ -11,6 +11,7 @@ import {
   Button,
   Upload,
   TimePicker,
+  Radio,
 } from "antd";
 import style from "./FormFieldModal.module.scss";
 import { DATE_FORMAT } from "@/utils";
@@ -24,7 +25,16 @@ interface FormFieldModalProps {
   description?: string;
   name?: string;
   rules?: any[];
-  type?: "text" | "textarea" | "date" | "select" | "switch" | "colorPicker" | "image" | "time";
+  type?:
+    | "text"
+    | "textarea"
+    | "date"
+    | "select"
+    | "switch"
+    | "colorPicker"
+    | "image"
+    | "time"
+    | "radio";
   options?: { value: string | number; label: string }[];
   value?: string | string[] | number | undefined;
   image?: File | string;
@@ -131,6 +141,13 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             )}
           </div>
         );
+      case "radio":
+        return (
+          <Radio.Group onChange={(e) => onChange?.(e.target.value)} value={value}>
+            <Radio value={true}>Yes</Radio>
+            <Radio value={false}>No</Radio>
+          </Radio.Group>
+        );
       case "textarea":
         return (
           <Input.TextArea
@@ -184,10 +201,10 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
         return (
           <TimePicker.RangePicker
             onChange={(time) => onChange?.(time)}
-            defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')}
+            defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")}
             className={style.timePicker}
           />
-        )
+        );
       default:
         return (
           <Input

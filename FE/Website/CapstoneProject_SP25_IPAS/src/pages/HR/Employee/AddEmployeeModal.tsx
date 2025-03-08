@@ -1,15 +1,10 @@
-import { AutoComplete, Avatar, Input, Spin, Empty } from "antd";
+import { AutoComplete, Avatar, Input, Spin, Empty, Flex } from "antd";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
-import { ModalForm } from "@/components";
+import { ModalForm, UserAvatar } from "@/components";
 import { employeeService } from "@/services";
 import style from "./EmployeeList.module.scss";
-
-type UserOption = {
-  userId: number;
-  email: string;
-  label: JSX.Element;
-};
+import { GetUserRoleEmployee } from "@/payloads";
 
 type AddEmployeeModelProps = {
   isOpen: boolean;
@@ -22,8 +17,8 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
   const [loading, setLoading] = useState(false);
-  const [options, setOptions] = useState<UserOption[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserOption | null>(null);
+  const [options, setOptions] = useState<GetUserRoleEmployee[]>([]);
+  const [selectedUser, setSelectedUser] = useState<GetUserRoleEmployee | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -42,24 +37,12 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
       setLoading(true);
       try {
         const res = await employeeService.getUserByEmail(debouncedSearch);
-        if (res.statusCode === 200 && res.data) {
-          const user = res.data;
-          setOptions([
-            {
-              userId: user.userId,
-              email: user.email,
-              label: (
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Avatar src={user.avatarURL} />
-                  <span>
-                    {user.fullName} ({user.email})
-                  </span>
-                </div>
-              ),
-            },
-          ]);
-        } else {
-          setOptions([]);
+        if (res.statusCode === 200) {
+          if (res.data) {
+            setOptions(res.data);
+          } else {
+            setOptions([]);
+          }
         }
       } finally {
         setLoading(false);
@@ -68,7 +51,6 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
 
     fetchUser();
   }, [debouncedSearch]);
-
   return (
     <ModalForm
       isOpen={isOpen}
@@ -80,7 +62,24 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
     >
       <AutoComplete
         className={style.addEmployeeModal}
-        options={options.map(({ userId, label }) => ({ value: userId.toString(), label }))}
+        options={options.map((user) => ({
+          value: user.userId.toString(),
+          label: (
+            <Flex align="center" gap={8}>
+              <UserAvatar
+                avatarURL={user?.avatarURL}
+                fallbackText={
+                  user.fullName
+                    ? user.fullName.charAt(0).toUpperCase()
+                    : user.email.charAt(0).toUpperCase()
+                }
+              />
+              <span>
+                {user.fullName} ({user.email})
+              </span>
+            </Flex>
+          ),
+        }))}
         value={selectedUser ? selectedUser.email : search} // Hiển thị email nếu đã chọn
         onSearch={(value) => {
           setSearch(value);
@@ -96,7 +95,7 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
         placeholder="Enter employee email"
         notFoundContent={loading ? <Spin size="small" /> : <Empty description="No data found" />}
       >
-        <Input.Search loading={loading} />
+        <Input.Search loading={loading} allowClear />
       </AutoComplete>
     </ModalForm>
   );

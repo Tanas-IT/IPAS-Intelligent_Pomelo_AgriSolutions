@@ -51,3 +51,4 @@ export { default as TimePickerInfo } from "@/components/UI/FormField/TimePicker/
 export { default as RowItemEdit } from "@/components/UI/Row/RowItem/RowItemEdit";
 export { default as RowItemView } from "@/components/UI/Row/RowItem/RowItemView";
 export { default as RowList } from "@/components/UI/Row/RowList/RowList";
+export { default as UserAvatar } from "@/components/UI/UserAvatar";

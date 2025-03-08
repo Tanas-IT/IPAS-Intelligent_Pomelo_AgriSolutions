@@ -38,7 +38,8 @@ export {
   LuUpload as upload,
   LuZoomIn as zoomIn,
   LuZoomOut as zoomOut,
-  LuLandPlot as plot
+  LuLandPlot as plot,
+  LuBan as ban,
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -54,7 +55,12 @@ export {
   FaDrawPolygon as drawPolygon,
   FaRegEye as eye,
 } from "react-icons/fa";
-export { PiFarm as farms, PiPlantLight as plant, PiTargetLight as target, PiPlantFill as plantFill } from "react-icons/pi";
+export {
+  PiFarm as farms,
+  PiPlantLight as plant,
+  PiTargetLight as target,
+  PiPlantFill as plantFill,
+} from "react-icons/pi";
 export { HiOutlineUserGroup as people, HiDotsVertical as dot } from "react-icons/hi";
 export { BiShareAlt as share, BiDetail as detail } from "react-icons/bi";
 

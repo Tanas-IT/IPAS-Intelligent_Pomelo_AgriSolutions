@@ -2,14 +2,8 @@ import { Button, Divider, Flex, Popover, Space, Typography } from "antd";
 import style from "./ActionMenu.module.scss";
 import { Icons } from "@/assets";
 import { useState } from "react";
+import { ActionMenuItem } from "@/types";
 const { Text } = Typography;
-
-interface ActionMenuItem {
-  icon: React.ReactNode;
-  label: string | React.ReactNode;
-  onClick?: () => void;
-  isCloseOnClick?: boolean;
-}
 
 interface ActionMenuProps {
   title: string;

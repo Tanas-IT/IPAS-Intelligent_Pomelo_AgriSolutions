@@ -1,4 +1,5 @@
 import { axiosAuth } from "@/api";
+import { ROLE } from "@/constants";
 import { ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
 import { buildParams } from "@/utils";
 
@@ -23,20 +24,42 @@ export const getEmployeeList = async (
   return apiResponse.data as GetData<GetEmployee>;
 };
 
-export const updateRole = async (
+export const updateEmployee = async (
   userId: number,
-  roleName: string,
+  roleName?: string,
+  isActive?: boolean,
 ): Promise<ApiResponse<Object>> => {
-  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", {
+  const payload: Record<string, any> = { userId };
+
+  if (roleName !== undefined) payload.roleName = roleName;
+  if (isActive !== undefined) payload.isActive = isActive;
+
+  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", payload);
+  return res.data as ApiResponse<Object>;
+};
+
+export const getUserByEmail = async (
+  email: string,
+): Promise<ApiResponse<GetUserRoleEmployee[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`users/search-by-email?emailSearch=${email}`);
+  const apiResponse = res.data as ApiResponse<GetUserRoleEmployee[]>;
+  return apiResponse;
+};
+
+export const addNewUserInFarm = async (userId: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`farms/user-farm`, {
     userId,
-    roleName,
+    roleName: ROLE.EMPLOYEE,
+    isActive: true,
   });
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
 
-export const getUserByEmail = async (email: string): Promise<ApiResponse<GetUserRoleEmployee>> => {
-  const res = await axiosAuth.axiosJsonRequest.get(`users/get-user-by-email/${email}`);
-  const apiResponse = res.data as ApiResponse<GetUserRoleEmployee>;
+export const deleteUserInFarm = async (
+  userId: number[] | string[],
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`farms/user-farm?userId=${userId}`);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

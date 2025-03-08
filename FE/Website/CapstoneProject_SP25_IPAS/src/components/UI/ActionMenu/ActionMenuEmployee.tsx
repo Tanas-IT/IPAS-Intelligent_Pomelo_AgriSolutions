@@ -9,14 +9,16 @@ import { GetEmployee } from "@/payloads";
 
 interface ActionMenuProps {
   employee: GetEmployee;
-  onConfirmUpdate: (userId: number, newRole: string) => void;
+  onConfirmUpdate: (userId: number, newRole?: string, isActive?: boolean) => void;
+  onDelete: () => void;
 }
 
-const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate }) => {
+const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate, onDelete }) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [confirmType, setConfirmType] = useState<"role" | "status" | null>(null);
 
   const ROLE_OPTIONS = [
     { label: ROLE.EMPLOYEE, value: ROLE.EMPLOYEE },
@@ -25,15 +27,17 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate }) 
 
   const handleRoleSelect = (roleValue: string) => {
     setSelectedRole(roleValue);
+    setConfirmType("role");
     setTimeout(() => setPopoverVisible(false), 50);
     setTimeout(() => setActionMenuVisible(false), 100);
-
     setConfirmVisible(true);
   };
 
   const handleConfirmUpdate = () => {
-    if (selectedRole) {
+    if (confirmType === "role" && selectedRole) {
       onConfirmUpdate(employee.userId, selectedRole);
+    } else if (confirmType === "status") {
+      onConfirmUpdate(employee.userId, undefined, !employee.isActive);
     }
     setConfirmVisible(false);
   };
@@ -67,11 +71,7 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate }) 
     {
       icon: <Icons.users />,
       label: (
-        <Popover
-          content={roleMenu}
-          placement="left"
-          open={popoverVisible}
-        >
+        <Popover content={roleMenu} placement="left" open={popoverVisible}>
           <span>Change role</span>
         </Popover>
       ),
@@ -79,14 +79,17 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate }) 
       onClick: () => setPopoverVisible(true),
     },
     {
-      icon: <Icons.delete />,
-      label: "De-activate user",
-      onClick: () => {},
+      icon: employee.isActive ? <Icons.ban /> : <Icons.checkSuccuss />,
+      label: employee.isActive ? "De-activate user" : "Activate user",
+      onClick: () => {
+        setConfirmType("status");
+        setConfirmVisible(true);
+      },
     },
     {
       icon: <Icons.delete />,
       label: "Delete user",
-      onClick: () => {},
+      onClick: () => onDelete(),
     },
   ];
 
@@ -103,7 +106,7 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate }) 
         visible={confirmVisible}
         onConfirm={handleConfirmUpdate}
         onCancel={() => setConfirmVisible(false)}
-        itemName="Role"
+        itemName={confirmType === "role" ? "Role" : "User Status"}
         actionType="update"
       />
     </>

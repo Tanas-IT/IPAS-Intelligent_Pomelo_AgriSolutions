@@ -3,7 +3,7 @@ import style from "./FarmPicker.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { CustomButton } from "@/components";
+import { CustomButton, Loading } from "@/components";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
@@ -18,19 +18,16 @@ function FarmPicker() {
   const navigate = useNavigate();
   const [farmsData, setFarmsData] = useState<GetFarmPicker[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { getAuthData } = useLocalStorage();
-  const userId = getUserId();
-  console.log(userId);
-  
-  
 
   useEffect(() => {
     const fetchFarms = async () => {
       try {
         setLoading(true);
         const result = await farmService.getFarmsOfUser();
+        console.log(result);
+
         if (result.statusCode === 200) {
-          setFarmsData(result.data);
+          setFarmsData(result.data ?? []);
         } else {
           console.error("Failed to fetch farms:", result.message);
         }
@@ -67,6 +64,8 @@ function FarmPicker() {
     }
   };
 
+  if (loading) return <Loading />;
+
   if (farmsData && farmsData.length === 0) {
     return (
       <Flex className={style.emptyContainer}>
@@ -96,60 +95,65 @@ function FarmPicker() {
       </Flex>
       <Flex className={style.contentWrapper}>
         <Row gutter={[18, 30]} className={style.cardWrapper}>
-          {farmsData?.map((farm) => (
-            <Col span={12} key={farm.farm.farmId}>
-              <Card
-                className={style.card}
-                hoverable
-                onClick={() => handleCardClick(farm.farm.farmId)}
-              >
-                <Row gutter={16} className={style.cardContent}>
-                  {/* Cột chứa hình ảnh */}
-                  <Col span={5} className={style.cardImgWrapper}>
-                    <img
-                      crossOrigin="anonymous"
-                      alt="farm"
-                      src={farm.farm.logoUrl}
-                      className={style.cardImg}
-                    />
-                  </Col>
+          {farmsData?.map((farm) => {
+            const isInactive = farm.farm.status.toLowerCase() === "inactive" || !farm.isActive;
+            return (
+              <Col span={12} key={farm.farm.farmId}>
+                <Card
+                  className={`${style.card} ${isInactive ? style.inactiveCard : ""}`}
+                  hoverable
+                  onClick={() => !isInactive && handleCardClick(farm.farm.farmId)}
+                >
+                  <Row gutter={16} className={style.cardContent}>
+                    {/* Cột chứa hình ảnh */}
+                    <Col span={5} className={style.cardImgWrapper}>
+                      <img
+                        crossOrigin="anonymous"
+                        alt="farm"
+                        src={farm.farm.logoUrl}
+                        className={style.cardImg}
+                      />
+                    </Col>
 
-                  {/* Cột chứa thông tin */}
-                  <Col span={15} className={style.cardInfoWrapper}>
-                    <Flex className={style.cardInfo}>
-                      <Flex className={style.farmDetails}>
-                        <Text className={style.farmName}>{farm.farm.farmName}</Text>
-                        <Text
-                          className={style.address}
-                        >{`${farm.farm.address}, ${farm.farm.ward}, ${farm.farm.district}, ${farm.farm.province}`}</Text>
+                    {/* Cột chứa thông tin */}
+                    <Col span={15} className={style.cardInfoWrapper}>
+                      <Flex className={style.cardInfo}>
+                        <Flex className={style.farmDetails}>
+                          <Text className={style.farmName}>{farm.farm.farmName}</Text>
+                          <Text
+                            className={style.address}
+                          >{`${farm.farm.address}, ${farm.farm.ward}, ${farm.farm.district}, ${farm.farm.province}`}</Text>
+                        </Flex>
+                        <Flex className={style.creationInfo}>
+                          <Text className={style.label}>Created at:</Text>
+                          <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
+                          <Tag
+                            className={`${style.statusTag} ${
+                              isInactive ? style.inactive : style.active
+                            }`}
+                          >
+                            {isInactive ? "Inactive" : "Active"}
+                          </Tag>
+                        </Flex>
                       </Flex>
-                      <Flex className={style.creationInfo}>
-                        <Text className={style.label}>Created at:</Text>
-                        <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
+                    </Col>
+
+                    <Col span={4}>
+                      <Flex className={style.roleTagWrapper}>
                         <Tag
-                          className={`${style.statusTag} ${style[farm.farm.status.toLowerCase()]}`}
+                          className={`${style.statusTag} ${
+                            farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
+                          }`}
                         >
-                          {farm.farm.status}
+                          {farm.roleName}
                         </Tag>
                       </Flex>
-                    </Flex>
-                  </Col>
-
-                  <Col span={4}>
-                    <Flex className={style.roleTagWrapper}>
-                      <Tag
-                        className={`${style.statusTag} ${
-                          farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
-                        }`}
-                      >
-                        {farm.roleName}
-                      </Tag>
-                    </Flex>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          ))}
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       </Flex>
     </Flex>
