@@ -171,6 +171,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             LandRowID = row.Key,
                                             PlantID = plantId,
                                             PlantLotID = null,
+                                            Unit = plantTarget.Unit,
                                             GraftedPlantID = null,
                                         };
 
@@ -192,6 +193,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         LandPlotID = null,
                                         LandRowID = null,
                                         PlantLotID = null,
+                                        Unit = plantTarget.Unit,
                                         GraftedPlantID = null
                                     };
 
@@ -212,6 +214,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             LandPlotID = null,
                                             LandRowID = null,
                                             PlantID = null,
+                                            Unit = plantTarget.Unit,
                                             PlantLotID = plantLotId,
                                             GraftedPlantID = null
                                         };
@@ -234,6 +237,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             LandPlotID = null,
                                             LandRowID = null,
                                             PlantID = null,
+                                            Unit = plantTarget.Unit,
                                             PlantLotID = null,
                                             GraftedPlantID = graftedPlantId
                                         };
@@ -265,6 +269,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Content = "Plan " + createPlanModel.PlanName + " has just been created",
                         Title = "Plan",
                         MasterTypeId = getMasterType.MasterTypeId,
+                        IsRead = false,
                         CreateDate = DateTime.Now,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
@@ -646,7 +651,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPlanByID(int planId, string? unit)
+        public async Task<BusinessResult> GetPlanByID(int planId)
         {
             try
             {
@@ -657,7 +662,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
                     var result = _mapper.Map<PlanModel>(getPlan);
                     // Ánh xạ danh sách PlanTarget thành PlanTargetModels
-                    var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList(), unit);
+                    var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList());
                     result.PlanTargetModels = mappedPlanTargets;
 
                     
@@ -729,11 +734,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public PlanTargetDisplayModel MapPlanTargets(List<PlanTarget> planTargets, string? unit)
+        public PlanTargetDisplayModel MapPlanTargets(List<PlanTarget> planTargets)
         {
             var displayModel = new PlanTargetDisplayModel
             {
-                Unit = unit,
                 LandPlotName = planTargets.FirstOrDefault()?.LandPlot?.LandPlotName,
                 LandPlotId = planTargets.FirstOrDefault()?.LandPlotID,
                 Rows = new List<LandRowDisplayModel>(),
@@ -745,13 +749,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             foreach (var planTarget in planTargets)
             {
                 // Nếu unit không được truyền vào, lấy tất cả dữ liệu có thể có
-                bool isFullMode = string.IsNullOrEmpty(unit);
+                bool isFullMode = string.IsNullOrEmpty(planTarget.Unit);
 
-                if (isFullMode || unit == "LandPlot")
+                if (isFullMode || planTarget.Unit == "LandPlot")
                 {
                     // LandPlot đã được lấy từ FirstOrDefault()
                 }
-                if (isFullMode || unit == "Rows")
+                if (isFullMode || planTarget.Unit == "Rows")
                 {
                     if (planTarget.LandRow != null)
                     {
@@ -762,7 +766,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || unit == "Plant")
+                if (isFullMode || planTarget.Unit == "Plant")
                 {
                     if (planTarget.Plant != null)
                     {
@@ -773,7 +777,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || unit == "PlantLot")
+                if (isFullMode || planTarget.Unit == "PlantLot")
                 {
                     if (planTarget.PlantLot != null)
                     {
@@ -784,7 +788,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || unit == "GraftedPlant")
+                if (isFullMode || planTarget.Unit == "GraftedPlant")
                 {
                     if (planTarget.GraftedPlant != null)
                     {

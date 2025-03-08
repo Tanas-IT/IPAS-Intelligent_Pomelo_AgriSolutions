@@ -15,6 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
         public int? GraftedPlantID { get; set; }
         public int? PlantLotID { get; set; }
         public int? PlantID { get; set; }
+        public string? Unit { get; set; }
 
         public virtual Plan? Plan { get; set; }    
         public virtual LandRow? LandRow { get; set; }    

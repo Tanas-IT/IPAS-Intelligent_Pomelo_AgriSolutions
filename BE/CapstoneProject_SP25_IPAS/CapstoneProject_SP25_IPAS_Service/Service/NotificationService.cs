@@ -65,9 +65,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public Task<BusinessResult> GetNotificationByUserId(int? userId)
+        public async Task<BusinessResult> GetNotificationByUserId(int UserId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var getListPlanNotificationOfUser = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByUserId(UserId);
+                var listNotificationResponse = new List<NotificationModel>();
+                foreach (var notificationPlan in getListPlanNotificationOfUser)
+                {
+                    var notifcationPlanModel = new NotificationModel()
+                    {
+                        NotificationId = notificationPlan.NotificationID != null ? notificationPlan.NotificationID.Value : 0,
+                        Title = notificationPlan.Notification.Title,
+                        Content = notificationPlan.Notification.Content,
+                        CreateDate = notificationPlan.Notification.CreateDate,
+                        IsRead = notificationPlan.Notification.IsRead,
+                        Link = notificationPlan.Notification.Link,
+                        MasterType = new MasterTypeNotification()
+                        {
+                            MasterTypeId = notificationPlan.Notification.MasterTypeId,
+                            MasterTypeName = notificationPlan.Notification.MasterType.MasterTypeName
+                        },
+                        Sender = new SenderNotification()
+                        {
+                            SenderId = notificationPlan.Notification.SenderID,
+                            SenderName = notificationPlan.Notification.Sender.FullName,
+                            SenderAvatar = notificationPlan.Notification.Sender.AvatarURL
+                        }
+                    };
+                    listNotificationResponse.Add(notifcationPlanModel);
+                }
+                if(listNotificationResponse.Count > 0)
+                {
+                    return new BusinessResult(200, "Get list notification success", listNotificationResponse);
+                }
+                return new BusinessResult(404, "Do not have any notification");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
         public Task<BusinessResult> GetNotificationByID(int NotificationId)
@@ -75,9 +113,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public List<BusinessResult> MarkisRead(List<int> notificationIds)
+        public async Task<BusinessResult> MarkisRead(List<int> notificationIds)
         {
-            throw new NotImplementedException();
+           foreach (int notificationId in notificationIds)
+           {
+                var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(notificationId);
+                var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(notificationId);
+                if (getNotificationById != null)
+                {
+                    getNotificationById.IsRead = true;
+                    if(getPlanNotificationById != null)
+                    {
+                        foreach(var getPlanNoti in  getPlanNotificationById)
+                        {
+                            getPlanNoti.isRead = true;
+                            _unitOfWork.PlanNotificationRepository.Update(getPlanNoti);
+                        }
+                    }
+                    _unitOfWork.NotificationRepository.Update(getNotificationById);
+                }
+           }
+            var result = await _unitOfWork.SaveAsync();
+            if(result > 0)
+            {
+                return new BusinessResult(200, "Mark notification is read success", result);
+            }
+            else if(result == 0)
+            {
+                return new BusinessResult(404, "Do not have any notification");
+            }
+            return new BusinessResult(400, "Mark notication is read failed");
         }
 
         public Task<BusinessResult> PermanentlyDeleteManyNotification(List<int> NotificationsId)
