@@ -11,6 +11,12 @@ export const planColumns: TableColumn<GetPlan>[] = [
       width: 150,
     },
     {
+      header: "Plan Name",
+      field: "planName",
+      accessor: (plan) => <div className={style.tableText}>{plan.planName}</div>,
+      width: 150,
+    },
+    {
       header: "Plan Detail",
       field: "planDetail",
       accessor: (plan) => <div className={style.tableText}>{plan.planDetail}</div>,

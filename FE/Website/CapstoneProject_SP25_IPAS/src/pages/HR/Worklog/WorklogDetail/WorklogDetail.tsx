@@ -1,16 +1,17 @@
 import { Button, Divider, Flex, Image, Tag, Tooltip } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { ToastContainer } from "react-toastify";
 import TimelineNotes from "./TimelineNotes/TimelineNotes";
 import { useModal } from "@/hooks";
 import { CreateFeedbackRequest } from "@/payloads/feedback";
-import { useState } from "react";
-import { ModalForm } from "@/components";
+import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
+import { worklogService } from "@/services";
+import { GetWorklogDetail } from "@/payloads/worklog";
 
 const InfoField = ({
     icon: Icon,
@@ -38,6 +39,8 @@ function WorklogDetail() {
     const navigate = useNavigate();
     const [feedback, setFeedback] = useState<string>("");
     const [feedbackList, setFeedbackList] = useState<any[]>([]);
+    const { id } = useParams();
+    const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
     const infoFieldsLeft = [
         { label: "Crop", value: "Spring 2025", icon: Icons.growth },
         { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
@@ -56,21 +59,38 @@ function WorklogDetail() {
     };
 
     const handleAdd = () => {
-
+        // Handle add feedback
     }
 
-    // useEffect(() => {
-    //     fetchFeedbacks();
-    // }, []);
+    useEffect(() => {
+        if (!id) {
+            navigate("/404");
+            return;
+        }
+        const fetchPlanDetail = async () => {
+            try {
+                const res = await worklogService.getWorklogDetail(Number(id));
+                console.log("res", res);
 
-    // const fetchFeedbacks = async () => {
-    //     try {
-    //         const feedbacks = await feedbackService.getFeedbacksForWorklog("worklogId");
-    //         setFeedbackList(feedbacks);
-    //     } catch (error) {
-    //         console.error("Error fetching feedbacks:", error);
-    //     }
-    // };
+                setWorklogDetail(res);
+                setFeedbackList(res.listTaskFeedback || []);
+
+                infoFieldsLeft[0].value = res.listGrowthStageName.join(", ") || "Spring 2025";
+                infoFieldsLeft[1].value = res.planTargetModels[0]?.plantLotName.join(", ") || "Green Pomelo Lot 1";
+                infoFieldsLeft[2].value = res.listGrowthStageName.join(", ") || "Cây non";
+
+                infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
+                infoFieldsRight[1].value = res.status || "Watering";
+                infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
+            } catch (error) {
+                console.error("error", error);
+                navigate("/error");
+            }
+        };
+
+        fetchPlanDetail();
+    }, [id]);
+
     return (
         <div className={style.container}>
             <Flex className={style.extraContent}>
@@ -80,29 +100,31 @@ function WorklogDetail() {
             </Flex>
             <Divider className={style.divider} />
             <Flex className={style.contentSectionTitleLeft}>
-                <p className={style.title}>Caring Process</p>
+                <p className={style.title}>{worklogDetail?.workLogName || "Caring Process"}</p>
                 <Tooltip title="Hello">
                     <Icons.tag className={style.iconTag} />
                 </Tooltip>
-                <Tag className={`${style.statusTag} ${style.normal}`}>Pending</Tag>
+                <Tag className={`${style.statusTag} ${style.normal}`}>{worklogDetail?.status || "Pending"}</Tag>
             </Flex>
-            <label className={style.subTitle}>Code: laggg</label>
+            <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
 
             {/* Assigned Info */}
             <Flex vertical gap={10} className={style.contentSectionUser}>
                 <Flex vertical={false} gap={15}>
-                    <Image src={Images.avatar} width={25} className={style.avt} />
-                    <label className={style.createdBy}>laggg</label>
+                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
                     <label className={style.textCreated}>created this plan</label>
-                    <label className={style.createdDate}>Sunday, 1st December 2024, 8:30 A.M</label>
+                    <label className={style.createdDate}>{worklogDetail?.date || "Sunday, 1st December 2024, 8:30 A.M"}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Assigned To:</label>
-                    <Image src={Images.avatar} width={25} className={style.avt} />
+                    <Image src={worklogDetail?.listEmployee[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <label className={style.createdBy}>{worklogDetail?.listEmployee[0]?.fullName || "Jane Smith"}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Reporter:</label>
-                    <Image src={Images.avatar} width={25} className={style.avt} />
+                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}</label>
                 </Flex>
             </Flex>
 
@@ -130,7 +152,7 @@ function WorklogDetail() {
 
             <Divider className={style.divider} />
 
-            <TimelineNotes />
+            <TimelineNotes notes={worklogDetail?.listNoteOfWorkLog || []} />
 
             <Divider className={style.divider} />
 
@@ -149,11 +171,35 @@ function WorklogDetail() {
                 {feedbackList.length > 0 ? (
                     <div className={style.feedbackContent}>
                         {feedbackList.map((item, index) => (
-                            <div key={index} className={style.feedbackItem}>
-                                <Image src={item.avatar} width={25} className={style.avt} />
-                                <div>
-                                    <div>{item.name}</div>
-                                    <div>{item.content}</div>
+                            <div
+                                key={index}
+                                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : ""}`}
+                            >
+                                <Image
+                                    src={item.avatar || "https://via.placeholder.com/40"}
+                                    width={40}
+                                    height={40}
+                                    className={style.avt}
+                                    preview={false}
+                                />
+                                <div className={style.feedbackText}>
+                                    <Flex vertical>
+                                        <div className={style.feedbackName}>{item.fullName}</div>
+                                        <div className={style.feedbackMessage}>{item.content}</div>
+                                    </Flex>
+                                    {worklogDetail?.status === "Redo"}
+                                    <Flex vertical={false}>
+                                        <Button className={style.updateButton}>Update</Button>
+                                        <Button className={style.deleteButton}>Delete</Button>
+                                        {worklogDetail?.status === "Redo" && (
+                                            <Button
+                                                className={style.reassignButton}
+                                                onClick={() => navigate("/hr-management/worklogs")}
+                                            >
+                                                Re-assign
+                                            </Button>
+                                        )}
+                                    </Flex>
                                 </div>
                             </div>
                         ))}
@@ -165,13 +211,11 @@ function WorklogDetail() {
                     Feedback
                 </Button>
             </Flex>
-
             <FeedbackModal
                 isOpen={addModal.modalState.visible}
                 onClose={addModal.hideModal}
                 onSave={handleAdd}
             />
-
             <ToastContainer />
         </div>
     )

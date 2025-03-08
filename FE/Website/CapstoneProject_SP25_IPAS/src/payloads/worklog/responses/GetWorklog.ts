@@ -26,19 +26,58 @@ export interface GetWorklog {
   totalRecord: number;
 }
 
+export interface User {
+  fullName: string;
+  avatar: string;
+}
+
+export interface PlanTargetModel {
+  rowIndex: number[];
+  landPlotName: string;
+  graftedPlantName: string[];
+  plantLotName: string[];
+  plantName: string[];
+  plantTargetId: number;
+}
+
+export interface TaskFeedback {
+  taskFeedbackId: number;
+  taskFeedbackCode: string;
+  content: string;
+  createDate: string;
+  workLogId: number;
+  managerId: number;
+  workLogName: string;
+}
+
+export interface Resource {
+  resourceID: number;
+  resourceCode: string;
+  resourceURL: string;
+}
+
+export interface NoteOfWorkLog {
+  notes: string;
+  fullName: string;
+  avatarURL: string;
+  listResources: Resource[];
+}
+
 export interface GetWorklogDetail {
   workLogId: number;
   workLogCode: string;
   status: string;
   workLogName: string;
-  notes: string;
   date: string;
   actualStartTime: string;
   actualEndTime: string;
-  listEmployee: [];
-  reporter: [];
-  planTargetModels: [];
-  listGrowthStageName: [];
-  listTaskFeedback: [];
-  listNoteOfWorkLog: []
+  isConfirm: boolean;
+  listEmployee: User[];
+  reporter: User[];
+  planTargetModels: PlanTargetModel[];
+  listGrowthStageName: string[];
+  listTaskFeedback: TaskFeedback[];
+  listNoteOfWorkLog: NoteOfWorkLog[];
 }
+
+

@@ -30,6 +30,7 @@ import {
   fetchUserInfoByRole,
   getFarmId,
   getUserId,
+  isDayInRange,
   RulesManager,
 } from "@/utils";
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
@@ -97,8 +98,6 @@ const AddPlan = () => {
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
-  console.log("các id", selectedGrowthStage);
-
 
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: growthStageOptions } = useGrowthStageOptions(false);
@@ -109,7 +108,6 @@ const AddPlan = () => {
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
-
 
   const [planTargets, setPlanTargets] = useState<
     {
@@ -123,17 +121,85 @@ const AddPlan = () => {
     if (!dates || dates.some(date => date === null)) {
       setDateRange(null);
       setDateError("Please select a valid date range!");
+      form.setFieldsValue({ dateRange: null });
       return;
     }
-  
-    setDateRange(dates as [Dayjs, Dayjs]);
+
+
+    const [startDate, endDate] = dates as [Dayjs, Dayjs];
+    setDateRange([startDate, endDate]);
     setDateError(null);
+    form.setFieldsValue({ dateRange: [startDate, endDate] });
+
+    if (frequency === "None" && customDates.length === 1) {
+      Modal.confirm({
+        title: "Adjust Date Range",
+        content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+        onOk: () => {
+          const newDateRange = [customDates[0], customDates[0]] as [Dayjs, Dayjs];
+          setDateRange(newDateRange);
+          form.setFieldsValue({ dateRange: newDateRange });
+        },
+        onCancel: () => {
+          setCustomDates([]);
+        },
+      });
+    }
   };
-  
+  console.log(form.getFieldsValue());
 
+  const handleDateChange = (dates: Dayjs[]) => {
+    if (!dateRange) {
+      setDateError("Please select the date range first!");
+      return;
+    }
 
+    const [startDate, endDate] = dateRange;
+    const isValid = dates.every((date) => date.isBetween(startDate, endDate, "day", "[]"));
 
-  // Thêm hàm để thêm mục tiêu vào danh sách
+    if (!isValid) {
+      setDateError("Selected dates must be within the date range.");
+    } else {
+      setDateError(null);
+      setCustomDates(dates);
+
+      if (frequency === "None" && dates.length === 1) {
+        Modal.confirm({
+          title: "Adjust Date Rangetttttt",
+          content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+          onOk: () => {
+            setDateRange([dates[0], dates[0]]);
+            form.setFieldsValue({ dateRange: [dates[0], dates[0]] });
+          },
+          onCancel: () => {
+            setCustomDates([]);
+          },
+        });
+      }
+      console.log("dates", dates);
+
+    }
+  };
+
+  const handleFrequencyChange = (value: string) => {
+    setFrequency(value);
+
+    if (dateRange && dateRange[0].isSame(dateRange[1], "day")) {
+      Modal.confirm({
+        title: "Adjust Date Range",
+        content: "The selected date range is too short. Do you want to adjust it?",
+        onOk: () => {
+          const newEndDate = value === "Weekly"
+            ? dateRange[0].add(6, "day")
+            : dateRange[0].add(1, "month");
+          setDateRange([dateRange[0], newEndDate]);
+        },
+        onCancel: () => {
+          // Không làm gì
+        },
+      });
+    }
+  };
   const handleAddPlanTarget = (target: {
     landPlotID?: number;
     landRowID?: number;
@@ -159,7 +225,6 @@ const AddPlan = () => {
 
 
   const handleLandRowChange = (landRowId: number) => {
-    // Xử lý logic khi Land Row thay đổi
     setSelectedLandRow(landRowId);
   };
 
@@ -175,32 +240,72 @@ const AddPlan = () => {
     setIsModalOpen(false);
   };
 
-  const handleDateChange = (dates: Dayjs[]) => {
-    if (!dateRange) {
-      setDateError("Please select the date range first!");
-      return;
-    }
-
-    const [startDate, endDate] = dateRange;
-    const isValid = dates.every((date) => date.isBetween(startDate, endDate, "day", "[]"));
-
-    if (!isValid) {
-      setDateError("Selected dates must be within the date range.");
-    } else {
-      setDateError(null);
-      setCustomDates(dates);
-    }
-  };
-
-
   const handleWeeklyDaySelection = (days: number[]) => {
     setDayOfWeek(days);
   };
-
+  
   const handleMonthlyDaySelection = (days: number[]) => {
     setDayOfMonth(days);
   };
 
+  const handleSaveDays = (days: number[], type: "weekly" | "monthly") => {
+    if (!dateRange) {
+      setDateError("Please select the date range first!");
+      return;
+    }
+  
+    const [startDate, endDate] = dateRange;
+  
+    // filter ra các ngày hợp lệ
+    const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
+  
+    // không có ngày nào hợp lệ
+    if (validDays.length === 0) {
+      setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+      return;
+    }
+  
+    // có ngày không hợp lệ
+    if (validDays.length < days.length) {
+      setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+      if (type === "weekly") {
+        setDayOfWeek(validDays);
+      } else if (type === "monthly") {
+        setDayOfMonth(validDays);
+      }
+    } else {
+      setDateError(null);
+    }
+  
+    if (validDays.length === 1) {
+      Modal.confirm({
+        title: "Adjust Date Range",
+        content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+        onOk: () => {
+          const selectedDay = validDays[0];
+          let targetDate = startDate.clone();
+  
+          if (type === "weekly") {
+            while (targetDate.day() !== selectedDay) {
+              targetDate = targetDate.add(1, "day");
+            }
+          } else if (type === "monthly") {
+            targetDate = startDate.date(selectedDay);
+          }
+  
+          const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+          setDateRange(newDateRange);
+          form.setFieldsValue({ dateRange: newDateRange });
+        },
+        onCancel: () => {
+          // Không làm gì
+        },
+      });
+    }
+  };
+  
+  
+  
   const handleSubmit = async (values: any) => {
     console.log("bấm add");
 
@@ -257,7 +362,7 @@ const AddPlan = () => {
       })),
     };
     console.log("planData", planData);
-    
+
 
     const result = await planService.addPlan(planData);
 
@@ -409,34 +514,41 @@ const AddPlan = () => {
             isEditing
             type="select"
             hasFeedback={false}
-            onChange={(value) => setFrequency(value)}
+            // onChange={(value) => setFrequency(value)}
+            onChange={handleFrequencyChange}
           />
 
-          {frequency === "Weekly" && (
-            <Form.Item
-              label="Select Days of Week"
-              rules={[{ required: true, message: "Please select the days of week!" }]}
-            >
-              <DaySelector
-                onSelectDays={handleWeeklyDaySelection}
-                selectedDays={dayOfWeek}
-                type="weekly"
-              />
-            </Form.Item>
-          )}
+{frequency === "Weekly" && (
+  <Form.Item
+    label="Select Days of Week"
+    rules={[{ required: true, message: "Please select the days of week!" }]}
+    validateStatus={dateError ? "error" : ""}
+    help={dateError}
+  >
+    <DaySelector
+      onSelectDays={handleWeeklyDaySelection}
+      onSave={(days) => handleSaveDays(days, "weekly")} // Truyền hàm onSave với type "weekly"
+      selectedDays={dayOfWeek}
+      type="weekly"
+    />
+  </Form.Item>
+)}
 
-          {frequency === "Monthly" && (
-            <Form.Item
-              label="Select Dates"
-              rules={[{ required: true, message: "Please select the dates!" }]}
-            >
-              <DaySelector
-                onSelectDays={handleMonthlyDaySelection}
-                selectedDays={dayOfMonth}
-                type="monthly"
-              />
-            </Form.Item>
-          )}
+{frequency === "Monthly" && (
+  <Form.Item
+    label="Select Dates"
+    rules={[{ required: true, message: "Please select the dates!" }]}
+    validateStatus={dateError ? "error" : ""}
+    help={dateError}
+  >
+    <DaySelector
+      onSelectDays={handleMonthlyDaySelection}
+      onSave={(days) => handleSaveDays(days, "monthly")} // Truyền hàm onSave với type "monthly"
+      selectedDays={dayOfMonth}
+      type="monthly"
+    />
+  </Form.Item>
+)}
 
           {frequency === "None" && (
             <Form.Item

@@ -3,12 +3,14 @@ import style from "./NoteDetail.module.scss";
 import { Images } from "@/assets";
 
 interface Note {
-    id: number;
-    user: { name: string; avatar: string };
-    date: string;
-    issue: string;
-    note: string;
-    media: { images: string[]; videos: string[] };
+    notes: string;
+    fullName: string;
+    avatarURL: string;
+    listResources: {
+        resourceID: number;
+        resourceCode: string;
+        resourceURL: string;
+    }[];
 }
 
 interface NoteDetailProps {
@@ -18,57 +20,58 @@ interface NoteDetailProps {
 
 const NoteDetail: React.FC<NoteDetailProps> = ({ note, onClose }) => {
     if (!note) return null;
+    // Phân loại resources thành images và videos
+    const images = note.listResources.filter(resource =>
+        resource.resourceURL.match(/\.(jpeg|jpg|gif|png)$/i)
+    ).map(resource => resource.resourceURL);
+
+    const videos = note.listResources.filter(resource =>
+        resource.resourceURL.match(/\.(mp4|mov|avi)$/i)
+    ).map(resource => resource.resourceURL);
 
     return (
         <Modal title="Note Details" open={!!note} onCancel={onClose} footer={null}>
             <div>
                 <Flex vertical={false} gap={12} className={style.modalHeader}>
-                    <Avatar src={note.user.avatar} size={40} shape="circle" />
+                    <Avatar src={note.avatarURL} size={40} shape="circle" crossOrigin="anonymous" />
                     <div>
-                        <h4 className={style.name}>{note.user.name}</h4>
-                        <p className={style.createdDate}>{note.date}</p>
+                        <h4 className={style.name}>{note.fullName}</h4>
+                        {/* <p className={style.createdDate}>{note.date}</p> */}
                     </div>
                 </Flex>
 
                 <Flex className={style.modalInfoRow}>
-                    <span className={style.label}>Issue:</span>
-                    <span>{note.issue}</span>
-                </Flex>
-
-                <Flex className={style.modalInfoRow}>
                     <span className={style.label}>Notes:</span>
-                    <p>{note.note}</p>
+                    <p>{note.notes}</p>
                 </Flex>
 
                 <Flex className={style.modalInfoRow} vertical>
                     <span className={style.label}>Media:</span>
-                    {note.media.images.length === 0 && note.media.videos.length === 0 ? (
+                    {images.length === 0 && videos.length === 0 ? (
                         <p className={style.noMedia}>Employee chưa up hình lên</p>
                     ) : (
                         <div className={style.mediaContainer}>
-                            {note.media.images.length > 0 && (
+                            {images.length > 0 && (
                                 <>
                                     <Flex gap={15}>
-                                        <Image src={Images.imgImg} width={25} />
+                                        <Image src={Images.imgImg} width={25} crossOrigin="anonymous" />
                                         <span className={style.mediaLabel}>Images:</span>
-
                                     </Flex>
                                     <div className={style.imageGrid}>
-                                        {note.media.images.map((img, index) => (
-                                            <Image key={index} src={img} width={100} height={100} style={{ borderRadius: "5px" }} />
+                                        {images.map((img, index) => (
+                                            <Image key={index} src={img} width={100} height={100} style={{ borderRadius: "5px" }} crossOrigin="anonymous" />
                                         ))}
                                     </div>
                                 </>
                             )}
-                            {note.media.videos.length > 0 && (
+                            {videos.length > 0 && (
                                 <>
                                     <Flex gap={15}>
-                                        <Image src={Images.videoImg} width={25} />
+                                        <Image src={Images.videoImg} width={25} crossOrigin="anonymous" />
                                         <span className={style.mediaLabel}>Videos:</span>
-
                                     </Flex>
                                     <div className={style.videoGrid}>
-                                        {note.media.videos.map((vid, index) => (
+                                        {videos.map((vid, index) => (
                                             <video key={index} width="200" controls style={{ borderRadius: "5px", marginTop: "10px" }}>
                                                 <source src={vid} type="video/mp4" />
                                                 Your browser does not support the video tag.

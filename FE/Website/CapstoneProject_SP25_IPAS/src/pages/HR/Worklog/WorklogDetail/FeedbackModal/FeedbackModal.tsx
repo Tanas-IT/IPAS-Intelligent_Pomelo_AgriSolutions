@@ -27,8 +27,8 @@ const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
   };
 
   const statusOptions = [
-    { value: "done", label: "Done" },
-    { value: "redo", label: "Redo" },
+    { value: "Done", label: "Done" },
+    { value: "Redo", label: "Redo" },
   ];
 
   return (
@@ -48,13 +48,23 @@ const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
             placeholder="Enter the content"
             name={feedbackFormFields.content}
           />
-          <InfoField
+          <FormFieldModal
             label="Worklog Status"
             rules={RulesManager.getStatusWorklogFeedbackRules()}
             name={feedbackFormFields.worklogStatus}
             options={statusOptions}
-            isEditing={true}
+            type="select"
+            onChange={(value) => setStatus(value)}
           />
+          {status === "Redo" && (
+            <FormFieldModal
+              label="Reason for Redo"
+              type="textarea"
+              rules={[{ required: true, message: "Please provide a reason" }]}
+              placeholder="Enter the reason"
+              name={feedbackFormFields.reason}
+            />
+          )}
         </Flex>
       </Form>
     </ModalForm>

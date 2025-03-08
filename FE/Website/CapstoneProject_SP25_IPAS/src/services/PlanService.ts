@@ -32,24 +32,18 @@ export const getPlans = async (
 };
 
 export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> => {
-  console.log("plan", plan);
-  
-  const formData = new FormData();
-  const startDate = new Date(plan.startDate);
-  const endDate = new Date(plan.endDate);
-
 
   const payload = {
     startDate: new Date(plan.startDate).toISOString(),
     endDate: new Date(plan.endDate).toISOString(),
     isActive: plan.isActive,
     planName: plan.planName,
-    notes: plan.notes|| "", // Nếu có
+    notes: plan.notes|| "",
     planDetail: plan.planDetail,
-    responsibleBy: plan.responsibleBy || "", // Nếu có
+    responsibleBy: plan.responsibleBy || "",
     frequency: plan.frequency,
     assignorId: plan.assignorId,
-    pesticideName: plan.pesticideName || "", // Nếu có
+    pesticideName: plan.pesticideName || "",
     maxVolume: plan.maxVolume || 0,
     minVolume: plan.minVolume || 0,
     processId: plan.processId,
@@ -76,8 +70,6 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
 };
 
   const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
-  console.log('0000000000000000000000000', res);
-  
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 }
@@ -90,12 +82,8 @@ export const getPlanDetail = async (planId: string) => {
 }
 
 export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
-  console.log("Request body:", JSON.stringify({ listGrowthStage }));
-  
   const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
       { listGrowthStage });
-  console.log('ressssss', res);
-  
   const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
   return apiResponse.data;
 };
