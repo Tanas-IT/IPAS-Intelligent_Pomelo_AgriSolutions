@@ -27,6 +27,27 @@ export interface LandPlotRequest {
   rowPerLine: number; // cần có
   rowSpacing: number; // cần có
   numberOfRows: number; // cần có
+  minLength: number,
+  maxLength: number,
+  minWidth: number,
+  maxWidth: number,
   landPlotCoordinations: landPlotCoordinations[];
   landRows: landRows[];
+}
+
+export interface LandPlotUpdateRequest {
+  landPlotId: string;
+  landPlotName: string;
+  area: number;
+  length: number;
+  width: number;
+  soilType: string;
+  description: string;
+  targetMarket: string;
+  status: string;
+}
+
+export interface LandPlotUpdateCoordinationRequest {
+  landPlotId: string;
+  coordinationsUpdateModel: landPlotCoordinations[];
 }

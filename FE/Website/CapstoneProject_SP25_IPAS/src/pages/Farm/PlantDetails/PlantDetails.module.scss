@@ -1,0 +1,31 @@
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  background-color: vars.$color_bg_detail;
+  overflow: hidden;
+  padding: 10px 24px;
+  margin-top: 8px;
+
+  .containerWrapper {
+    width: 100%;
+
+    .iconTab {
+      margin-inline-end: -4px;
+    }
+    .titleTab {
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .extraContent {
+      align-items: center;
+      justify-content: center;
+      margin-right: 5vw;
+      cursor: pointer;
+
+      .backIcon {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}

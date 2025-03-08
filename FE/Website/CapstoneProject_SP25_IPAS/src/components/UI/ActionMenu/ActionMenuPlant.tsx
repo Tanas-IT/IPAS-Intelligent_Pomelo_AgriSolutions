@@ -2,21 +2,25 @@ import { FC } from "react";
 import { Icons } from "@/assets";
 import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
+import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
-  id: number;
+  id?: number;
+  noView?: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-const ActionMenuPlant: FC<ActionMenuProps> = ({ id, onEdit, onDelete }) => {
+const ActionMenuPlant: FC<ActionMenuProps> = ({ id, noView = false, onEdit, onDelete }) => {
   const navigate = useNavigate();
   const actionItems = [
-    {
-      icon: <Icons.eye />,
-      label: "View Plant Details",
-      onClick: () => navigate(`/farm/plants/${id}/details`),
-    },
+    !noView
+      ? {
+          icon: <Icons.eye />,
+          label: "View Plant Details",
+          onClick: () => navigate(`/farm/plants/${id}/details`),
+        }
+      : null,
     {
       icon: <Icons.edit />,
       label: "Update Plant",
@@ -27,7 +31,7 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({ id, onEdit, onDelete }) => {
       label: "Delete Plant",
       onClick: () => onDelete(),
     },
-  ];
+  ].filter(Boolean) as ActionMenuItem[];
 
   return (
     <>

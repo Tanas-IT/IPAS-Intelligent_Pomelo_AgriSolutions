@@ -1,6 +1,175 @@
+import { useFetchData, useFilters, useModal, useTableDelete } from "@/hooks";
 import style from "./EmployeeList.module.scss";
+import { GetEmployee } from "@/payloads";
+import { employeeService } from "@/services";
+import { useEffect, useState } from "react";
+import { FilterEmployeeState } from "@/types";
+import { DEFAULT_EMPLOYEE_FILTERS, getOptions } from "@/utils";
+import { Flex } from "antd";
+import {
+  ActionMenuEmployee,
+  ConfirmModal,
+  NavigationDot,
+  SectionTitle,
+  Table,
+  TableTitle,
+} from "@/components";
+import { EmployeeColumns } from "./EmployeeColumns";
+import EmployeeFilter from "./EmployeeFilter";
+import { toast } from "react-toastify";
+import AddEmployeeModel from "./AddEmployeeModal";
 function EmployeeList() {
-  return <h1>Employee</h1>;
+  const [isAddLoading, setIsAddLoading] = useState(false);
+  const addEmployeeModal = useModal<{ userId: number }>();
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterEmployeeState>(
+    DEFAULT_EMPLOYEE_FILTERS,
+    () => fetchData(),
+  );
+
+  const {
+    data,
+    fetchData,
+    totalRecords,
+    totalPages,
+    sortField,
+    sortDirection,
+    rotation,
+    handleSortChange,
+    currentPage,
+    rowsPerPage,
+    searchValue,
+    handlePageChange,
+    handleRowsPerPageChange,
+    handleSearch,
+    isLoading,
+  } = useFetchData<GetEmployee>({
+    fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
+      employeeService.getEmployeeList(page, limit, sortField, sortDirection, searchValue, filters),
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
+
+  const handleUpdateRole = async (userId: number, newRole?: string, isActive?: boolean) => {
+    var res = await employeeService.updateEmployee(userId, newRole, isActive);
+
+    if (res.statusCode === 200) {
+      if (newRole) {
+        toast.success(`User role updated to ${newRole}`);
+      } else if (isActive !== undefined) {
+        toast.success(`User has been ${isActive ? "activated" : "deactivated"}`);
+      }
+      await fetchData();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const handleAdd = async (userId: number) => {
+    try {
+      setIsAddLoading(true);
+      const res = await employeeService.addNewUserInFarm(userId);
+      if (res.statusCode === 200 || res.statusCode === 201) {
+        toast.success(res.message);
+        addEmployeeModal.hideModal();
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsAddLoading(false);
+    }
+  };
+
+  const { handleDelete } = useTableDelete(
+    {
+      deleteFunction: employeeService.deleteUserInFarm,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
+      },
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
+
+  const filterContent = (
+    <EmployeeFilter
+      filters={filters}
+      updateFilters={updateFilters}
+      onClear={clearFilters}
+      onApply={applyFilters}
+    />
+  );
+
+  return (
+    <Flex className={style.container}>
+      <SectionTitle title="Employee Management" totalRecords={totalRecords} />
+      <Flex className={style.table}>
+        <Table
+          columns={EmployeeColumns}
+          rows={data}
+          rowKey="userId"
+          idName="userId"
+          title={
+            <TableTitle
+              onSearch={handleSearch}
+              filterContent={filterContent}
+              addLabel="Add New Employee"
+              onAdd={addEmployeeModal.showModal}
+            />
+          }
+          handleSortClick={handleSortChange}
+          selectedColumn={sortField}
+          sortDirection={sortDirection}
+          rotation={rotation}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          isLoading={isLoading}
+          caption="Employee Management Board"
+          notifyNoData="No employees to display"
+          isViewCheckbox={false}
+          renderAction={(em: GetEmployee) => (
+            <ActionMenuEmployee
+              employee={em}
+              onConfirmUpdate={handleUpdateRole}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [em.userId] })}
+            />
+          )}
+        />
+
+        <NavigationDot
+          totalPages={totalPages}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          rowsPerPageOptions={getOptions(totalRecords)}
+          onRowsPerPageChange={handleRowsPerPageChange}
+        />
+        <AddEmployeeModel
+          isOpen={addEmployeeModal.modalState.visible}
+          onClose={addEmployeeModal.hideModal}
+          onSave={handleAdd}
+          isLoadingAction={isAddLoading}
+        />
+        {/* Confirm Delete Modal */}
+        <ConfirmModal
+          visible={deleteConfirmModal.modalState.visible}
+          onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+          onCancel={deleteConfirmModal.hideModal}
+          itemName="Employee"
+          actionType="delete"
+        />
+      </Flex>
+    </Flex>
+  );
 }
 
 export default EmployeeList;

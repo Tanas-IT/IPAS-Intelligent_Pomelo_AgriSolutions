@@ -1,7 +1,7 @@
 import { Flex, Form, FormInstance } from "antd";
 import style from "./LandPlotCreate.module.scss";
 import { FormFieldModal, MapControls, MapNewLandPlot } from "@/components";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RulesManager } from "@/utils";
 import { GetLandPlot } from "@/payloads";
 import { PolygonInit } from "@/types";
@@ -10,23 +10,75 @@ import { Icons } from "@/assets";
 import { createPlotFormFields } from "@/constants";
 
 interface LandPlotCreateProps {
+  isOpen: boolean;
   form: FormInstance;
+  selectedPlot?: GetLandPlot | null;
   landPlots: GetLandPlot[];
-  setIsDirty: (dirty: boolean) => void;
 }
 
 const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
-  ({ form, landPlots, setIsDirty }) => {
+  ({ isOpen, form, selectedPlot, landPlots }) => {
     const {
+      setIsDirty,
       startDrawingPolygon,
       clearPolygons,
       area,
       width,
       length,
-      newPolygon,
-      setNewPolygon,
+      currentPolygon,
+      setCurrentPolygon,
       setPolygonDimensions,
+      isPolygonReady,
+      setPolygonReady,
     } = useMapStore();
+
+    useEffect(() => {
+      if (!isOpen) return;
+
+      if (isOpen && selectedPlot) {
+        form.setFieldsValue({
+          [createPlotFormFields.landPlotName]: selectedPlot.landPlotName,
+          [createPlotFormFields.description]: selectedPlot.description,
+          [createPlotFormFields.soilType]: selectedPlot.soilType,
+          [createPlotFormFields.targetMarket]: selectedPlot.targetMarket,
+          [createPlotFormFields.area]: selectedPlot.area,
+          [createPlotFormFields.length]: selectedPlot.length,
+          [createPlotFormFields.width]: selectedPlot.width,
+          [createPlotFormFields.status]: selectedPlot.status,
+        });
+
+        setPolygonDimensions(selectedPlot.area, selectedPlot.width, selectedPlot.length);
+        const landPlotCoordinationsData =
+          typeof selectedPlot.landPlotCoordinations === "string"
+            ? JSON.parse(selectedPlot.landPlotCoordinations)
+            : selectedPlot.landPlotCoordinations;
+
+        // Kiểm tra nếu landPlotCoordinations tồn tại và là một mảng hợp lệ
+        if (Array.isArray(landPlotCoordinationsData) && landPlotCoordinationsData.length > 0) {
+          const coordinates = landPlotCoordinationsData.map(({ longitude, latitude }) => [
+            longitude,
+            latitude,
+          ]);
+
+          // Đóng polygon lại nếu chưa khép kín
+          if (
+            coordinates.length > 2 &&
+            (coordinates[0][0] !== coordinates[coordinates.length - 1][0] ||
+              coordinates[0][1] !== coordinates[coordinates.length - 1][1])
+          ) {
+            coordinates.push(coordinates[0]); // Thêm điểm đầu vào cuối để polygon khép kín
+          }
+          setCurrentPolygon({
+            id: selectedPlot.landPlotId,
+            coordinates: [coordinates], // Đảm bảo có cấu trúc [[[]]]
+          });
+
+          setTimeout(() => setPolygonReady(true), 0);
+        }
+      } else {
+        setPolygonReady(true);
+      }
+    }, [isOpen, selectedPlot]);
 
     useEffect(() => {
       if (area !== 0 && width !== 0 && length !== 0) {
@@ -46,10 +98,10 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
       }
     };
 
-    const addNewPolygon = (newPolygon: PolygonInit) => setNewPolygon(newPolygon);
+    const addNewPolygon = (newPolygon: PolygonInit) => setCurrentPolygon(newPolygon);
 
     const deletePlot = () => {
-      setNewPolygon(null);
+      setCurrentPolygon(null);
       setPolygonDimensions(0, 0, 0);
       form.resetFields([
         createPlotFormFields.area,
@@ -85,14 +137,24 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
                   name={createPlotFormFields.soilType}
                   rules={RulesManager.getSoilTypeRules()}
                   placeholder="Enter soil type"
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
                 <FormFieldModal
                   label="Target Market"
                   name={createPlotFormFields.targetMarket}
                   rules={RulesManager.getTargetMarketRules()}
                   placeholder="Enter target market"
+                  onChange={(e) => handleInputChange(e.target.value)}
                 />
               </Flex>
+              {selectedPlot && (
+                <FormFieldModal
+                  label="Status"
+                  name={createPlotFormFields.status}
+                  placeholder="Enter status"
+                  onChange={(e) => handleInputChange(e.target.value)}
+                />
+              )}
               <FormFieldModal
                 label="Area (m²)"
                 description="The calculated area is approximate and may vary slightly from the actual size."
@@ -122,7 +184,7 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
             <Flex className={style.mapControls}>
               <MapControls
                 icon={<Icons.drawPolygon />}
-                isDisabled={!!newPolygon}
+                isDisabled={!!currentPolygon}
                 label="Draw Plot"
                 onClick={startDrawingPolygon}
               />
@@ -132,14 +194,17 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
               {/* <MapControls label="Combine Plots" />
               <MapControls label="Uncombine Plots" /> */}
             </Flex>
-            <Flex>
-              <MapNewLandPlot
-                longitude={landPlots[0]?.farmLongtitude ?? 0}
-                latitude={landPlots[0]?.farmLatitude ?? 0}
-                landPlots={landPlots}
-                addNewPolygon={addNewPolygon}
-              />
-            </Flex>
+            {isPolygonReady && (
+              <Flex>
+                <MapNewLandPlot
+                  longitude={landPlots[0]?.farmLongtitude ?? 0}
+                  latitude={landPlots[0]?.farmLatitude ?? 0}
+                  landPlots={landPlots}
+                  selectedPlot={selectedPlot}
+                  addNewPolygon={addNewPolygon}
+                />
+              </Flex>
+            )}
           </Flex>
         </Flex>
       </Flex>

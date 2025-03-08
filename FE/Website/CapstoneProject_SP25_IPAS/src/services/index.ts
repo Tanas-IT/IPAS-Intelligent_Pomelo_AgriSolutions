@@ -15,4 +15,6 @@ export * as graftedPlantService from "./GraftedPlantService";
 export * as plantLotService from "./PlantLotService";
 export * as dashboardService from "./DashboardService";
 export * as worklogService from "./WorklogService";
+export * as employeeService from "./EmployeeService";
+
 

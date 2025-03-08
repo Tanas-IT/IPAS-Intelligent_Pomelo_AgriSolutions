@@ -54,7 +54,7 @@ const TableComponent = <T, E = T>({
   notifyNoData,
   renderAction,
   renderExpandedAction,
-  isViewCheckbox = false,
+  isViewCheckbox = true,
 }: TableProps<T, E>) => {
   const { styles } = useStyle();
 
@@ -154,7 +154,7 @@ const TableComponent = <T, E = T>({
   };
 
   const antColumns = [
-    !isViewCheckbox && {
+    isViewCheckbox && {
       title: (
         <Checkbox
           className={styles.customCheckbox}

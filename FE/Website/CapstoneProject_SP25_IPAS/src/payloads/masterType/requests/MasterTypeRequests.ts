@@ -13,5 +13,7 @@ export interface MasterTypeRequest {
   typeName: string;
   isActive: boolean;
   createBy?: string;
+  isConflict: boolean;
+  target: string;
   // masterTypeDetailModels: MasterTypeDetailRequest[];
 }

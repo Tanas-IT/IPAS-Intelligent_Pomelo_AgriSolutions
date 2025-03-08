@@ -45,7 +45,9 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
       const hasDetails =
         (item.backgroundColor && item.backgroundColor.trim() !== "") ||
         (item.textColor && item.textColor.trim() !== "") ||
-        (item.characteristic && item.characteristic.trim() !== "");
+        (item.characteristic && item.characteristic.trim() !== "") ||
+        (item.isConflict !== null && item.isConflict !== undefined) ||
+        (item.target && item.target.trim() !== "");
 
       return hasDetails ? (
         <Collapse defaultActiveKey={[]} ghost expandIconPosition="right">
@@ -58,13 +60,17 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
             {item.characteristic && (
               <MasterTypeDetailView name="Characteristic" value={item.characteristic} />
             )}
+            {item.isConflict !== null && item.isConflict !== undefined && (
+              <MasterTypeDetailView name="Is Conflict" value={item.isConflict ? "Yes" : "No"} />
+            )}
+            {item.target && <MasterTypeDetailView name="Target" value={item.target} />}
           </Panel>
         </Collapse>
       ) : (
         <p>No details available</p>
       );
     },
-    width: 300,
+    width: 280,
   },
 
   {

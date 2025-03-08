@@ -5,6 +5,7 @@ import {
   GetData,
   GetPlant,
   GetPlantDetail,
+  GetPlantOfRowSelect,
   GetPlantSelect,
   PlantRequest,
 } from "@/payloads";
