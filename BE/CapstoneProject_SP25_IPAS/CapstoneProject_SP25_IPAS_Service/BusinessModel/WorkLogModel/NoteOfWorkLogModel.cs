@@ -10,9 +10,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
     public class NoteOfWorkLogModel
     {
         public string? Notes { get; set; }
+        public DateTime? CreateDate { get; set; }
         public string? FullName { get; set; }
         public string? AvatarURL { get; set; }
         public string? Issue { get; set; }
-        public List<ResourceOfWorkLogModel> ListResources { get; set; }
+        public List<ResourceOfWorkLogModel>? ListResources { get; set; }
     }
 }

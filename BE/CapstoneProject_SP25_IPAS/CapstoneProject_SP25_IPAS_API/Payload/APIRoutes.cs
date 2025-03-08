@@ -411,5 +411,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPaymentInformation = Base + "/payment/get-payment-information";
             public const string getPaymentStatistic = Base + "/payment-payOS/payment-statistic";
         }
+
+        public static class Notification
+        {
+            public const string createNotification = Base + "/create-notification";
+            public const string getNotificationByUserId = Base + "/notification";
+            public const string markNotificationIsRead = Base + "/mark-notification-is-read";
+        }
     }
 }

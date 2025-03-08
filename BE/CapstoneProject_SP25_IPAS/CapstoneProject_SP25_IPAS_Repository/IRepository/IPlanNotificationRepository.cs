@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IPlanNotificationRepository
     {
+        public Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId);
+        public Task<List<PlanNotification>> GetListPlanNotificationByNotificationId(int notificationId);
     }
 }

@@ -10,6 +10,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels
     public class TaskFeedbackModel
     {
         public int TaskFeedbackId { get; set; }
+        public string? FullName { get; set; }
+        public string? AvatarURL { get; set; }
 
         public string? TaskFeedbackCode { get; set; }
 

@@ -44,6 +44,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ManagerId = createTaskFeedbackModel.ManagerId,
                         WorkLogId = createTaskFeedbackModel.WorkLogId
                     };
+                    if(createTaskFeedbackModel.Status != null && createTaskFeedbackModel.Status.ToLower().Equals("redo"))
+                    {
+                        var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId.Value);
+                        getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
+                        _unitOfWork.WorkLogRepository.Update(getWorkLog);
+                    }
                     await _unitOfWork.TaskFeedbackRepository.Insert(newTaskFeedback);
 
                     var checkInsertTaskFeedback = await _unitOfWork.SaveAsync();

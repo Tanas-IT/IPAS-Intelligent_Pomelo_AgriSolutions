@@ -13,5 +13,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public List<int>? GraftedPlantID { get; set; }
         public List<int>? PlantLotID { get; set; }
         public List<int>? PlantID { get; set; }
+        public string? Unit {  get; set; }
     }
 }
