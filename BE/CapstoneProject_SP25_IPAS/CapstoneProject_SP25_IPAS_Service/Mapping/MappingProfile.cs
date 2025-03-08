@@ -393,8 +393,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.User.AvatarURL))
               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
               .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
-              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Resources.Select(x => x.CreateDate).First()))
-              .ForMember(dest => dest.ListResources, opt => opt.MapFrom(src => src.Resources))
+              .ForMember(dest => dest.CreateDate,
+                opt => opt.MapFrom(src => (src.Resources != null && src.Resources.Any())
+                    ? src.Resources.Select(x => x.CreateDate).First()
+                    : (DateTime?)null))
+            .ForMember(dest => dest.ListResources,
+                opt => opt.MapFrom(src => src.Resources ?? new List<Resource>()))
               .ReverseMap();
 
             CreateMap<WorkLog, WorkLogDetailModel>()

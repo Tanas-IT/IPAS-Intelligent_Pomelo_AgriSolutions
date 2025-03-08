@@ -9,7 +9,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
 {
     public class ResourceOfWorkLogModel
     {
-        public int ResourceID { get; set; }
+        public int? ResourceID { get; set; }
 
         public string? ResourceCode { get; set; }
 
