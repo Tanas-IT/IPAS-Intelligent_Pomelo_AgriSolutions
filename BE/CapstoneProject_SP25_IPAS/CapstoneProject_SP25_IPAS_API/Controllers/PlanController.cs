@@ -50,11 +50,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Plan.getPlanById, Name = "getPlanById")]
-        public async Task<IActionResult> GetPlanById([FromRoute] int id, [FromQuery] string? unit)
+        public async Task<IActionResult> GetPlanById([FromRoute] int id)
         {
             try
             {
-                var result = await _planService.GetPlanByID(id, unit);
+                var result = await _planService.GetPlanByID(id);
                 return Ok(result);
             }
             catch (Exception ex)

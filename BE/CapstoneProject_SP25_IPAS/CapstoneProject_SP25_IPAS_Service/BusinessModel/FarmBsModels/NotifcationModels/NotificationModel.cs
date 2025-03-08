@@ -10,18 +10,28 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.Notifcati
     {
         public int NotificationId { get; set; }
 
-        public string? NotificationCode { get; set; }
-
         public string? Title { get; set; }
 
         public string? Content { get; set; }
-
         public string? Link { get; set; }
         public bool? IsRead { get; set; }
 
         public DateTime? CreateDate { get; set; }
 
-        public int? MasterTypeName { get; set; }
-        public int? SenderName { get; set; }
+        public MasterTypeNotification? MasterType { get; set; }
+        public SenderNotification? Sender { get; set; }
+    }
+
+    public class MasterTypeNotification
+    {
+        public int? MasterTypeId { get; set; }
+        public string? MasterTypeName { get; set; }
+    }
+
+    public class SenderNotification
+    {
+        public int? SenderId { get; set; }
+        public string? SenderName { get; set; }
+        public string? SenderAvatar { get; set; }
     }
 }
