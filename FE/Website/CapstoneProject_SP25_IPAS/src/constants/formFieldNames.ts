@@ -43,6 +43,7 @@ export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
   landRowId: "landRowId",
   rowIndex: "rowIndex",
   landPlotName: "landPlotName",
+  isDead: "isDead",
 };
 
 export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {

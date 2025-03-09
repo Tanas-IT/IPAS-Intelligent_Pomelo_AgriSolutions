@@ -15,6 +15,7 @@ import DescriptionSection from "./DescriptionSection";
 import { HEALTH_STATUS } from "@/constants";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
+import PlantMarkAsDeadModal from "../../Plant/PlantMarkAsDeadModal";
 
 function PlantDetail() {
   const navigate = useNavigate();
@@ -24,11 +25,13 @@ function PlantDetail() {
   const [plant, setPlant] = useState<GetPlantDetail>(DEFAULT_PLANT);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const formModal = useModal<GetPlantDetail>();
+  const markAsDeadModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedPlant: PlantRequest }>();
+  const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
 
-  const fetchLandPlots = async () => {
+  const fetchPlant = async () => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000)); // ⏳ Delay 1 giây
     try {
@@ -42,7 +45,7 @@ function PlantDetail() {
   };
 
   useEffect(() => {
-    fetchLandPlots();
+    fetchPlant();
   }, []);
 
   const handleDelete = async (id: number | undefined) => {
@@ -102,7 +105,7 @@ function PlantDetail() {
 
   const { handleUpdate, isUpdating } = useTableUpdate<PlantRequest>({
     updateService: plantService.updatePlant,
-    fetchData: fetchLandPlots,
+    fetchData: fetchPlant,
     onSuccess: () => {
       formModal.hideModal();
       updateConfirmModal.hideModal();
@@ -111,6 +114,24 @@ function PlantDetail() {
       updateConfirmModal.hideModal();
     },
   });
+
+  const handleMarkAsDead = async (plantId?: number) => {
+    if (!plantId) return;
+    try {
+      markAsDeadConfirmModal.hideModal();
+      setIsLoading(true);
+      var res = await plantService.updatePlantDead(plantId);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        markAsDeadModal.hideModal();
+        await fetchPlant();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const infoFieldsLeft = [
     { label: "Growth Status", value: plant.growthStageName, icon: Icons.growth },
@@ -146,6 +167,7 @@ function PlantDetail() {
         plant={plant}
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
+        markAsDeadModal={markAsDeadModal}
       />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
@@ -168,6 +190,12 @@ function PlantDetail() {
         isLoadingAction={isUpdating}
         plantData={formModal.modalState.data}
       />
+      <PlantMarkAsDeadModal
+        isOpen={markAsDeadModal.modalState.visible}
+        onClose={markAsDeadModal.hideModal}
+        onSave={markAsDeadConfirmModal.showModal}
+        isLoadingAction={isLoading}
+      />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
@@ -183,6 +211,14 @@ function PlantDetail() {
         onCancel={updateConfirmModal.hideModal}
         itemName="Plant"
         actionType="update"
+      />
+      {/* Confirm Mark as Dead Modal */}
+      <ConfirmModal
+        visible={markAsDeadConfirmModal.modalState.visible}
+        onConfirm={() => handleMarkAsDead(markAsDeadModal.modalState.data?.id)}
+        onCancel={markAsDeadConfirmModal.hideModal}
+        confirmText="Mark as Dead"
+        title="Mark Plant as Dead?"
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal

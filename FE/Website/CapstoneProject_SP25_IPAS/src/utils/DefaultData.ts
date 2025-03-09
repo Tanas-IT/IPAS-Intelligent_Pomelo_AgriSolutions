@@ -10,6 +10,7 @@ import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
   FilterEmployeeState,
+  FilterLandRowState,
   FilterMasterTypeState,
   FilterPlantState,
   LogoState,
@@ -104,6 +105,13 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   isLocated: null,
 };
 
+export const DEFAULT_LAND_ROW_FILTERS: FilterLandRowState = {
+  rowIndexFrom: undefined,
+  rowIndexTo: undefined,
+  treeAmountFrom: undefined,
+  treeAmountTo: undefined,
+};
+
 export const DEFAULT_EMPLOYEE_FILTERS: FilterEmployeeState = {
   roleName: [] as string[],
 };
@@ -132,6 +140,10 @@ export const DEFAULT_LAND_PLOT = (): LandPlotRequest => ({
   isRowHorizontal: true,
   rowPerLine: 0,
   rowSpacing: 0,
+  minLength: 0,
+  maxLength: 0,
+  minWidth: 0,
+  maxWidth: 0,
   landPlotCoordinations: [],
   landRows: [],
 });
@@ -154,6 +166,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   landPlotId: 0,
   landRowId: 0,
   masterTypeId: 0,
+  isDead: false,
   plantReferenceCode: "",
   plantReferenceId: 0,
 };

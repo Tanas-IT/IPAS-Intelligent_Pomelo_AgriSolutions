@@ -23,9 +23,13 @@ function App() {
             Input: {
               activeShadow: "none",
             },
+            InputNumber: {
+              activeShadow: "none",
+            },
             Select: {
               optionSelectedColor: themeColors.primary,
               optionSelectedBg: themeColors.secondary,
+              activeOutlineColor: "none",
             },
             DatePicker: {
               cellActiveWithRangeBg: themeColors.secondary,

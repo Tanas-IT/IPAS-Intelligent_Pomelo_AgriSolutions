@@ -54,6 +54,13 @@ export type FilterPlantState = {
   isLocated: boolean | null;
 };
 
+export type FilterLandRowState = {
+  rowIndexFrom: number | undefined;
+  rowIndexTo: number | undefined;
+  treeAmountFrom: number | undefined;
+  treeAmountTo: number | undefined;
+};
+
 export type FilterEmployeeState = {
   roleName: string[];
 };

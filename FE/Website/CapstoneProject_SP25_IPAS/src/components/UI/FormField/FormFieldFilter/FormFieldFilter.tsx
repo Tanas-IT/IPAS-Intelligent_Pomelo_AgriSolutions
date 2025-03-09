@@ -1,4 +1,4 @@
-import { DatePicker, Flex, Radio, Select, TreeSelect } from "antd";
+import { DatePicker, Flex, InputNumber, Radio, Select, TreeSelect } from "antd";
 import { TagRender } from "@/components";
 import { DATE_FORMAT } from "@/utils";
 import style from "./FormFieldFilter.module.scss";
@@ -17,7 +17,7 @@ type TreeNode = {
 
 type FormFieldFilterProps = {
   label: string;
-  fieldType: "date" | "select" | "radio" | "treeSelect";
+  fieldType: "date" | "select" | "radio" | "treeSelect" | "numberRange";
   value: any;
   options?: { value: string | number | boolean; label: string }[];
   treeData?: TreeNode[];
@@ -87,7 +87,33 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
             placeholder="Select Plot or Row"
           />
         );
-
+      case "numberRange":
+        return (
+          <Flex gap={24} align="center">
+            <Flex vertical align="start">
+              <span className={style.label}>From</span>
+              <InputNumber
+                className={styles.customInput}
+                style={{ width: "100%" }}
+                placeholder="From"
+                value={value?.from ?? null}
+                onChange={(val) => onChange({ ...value, from: val })}
+                min={1}
+              />
+            </Flex>
+            <Flex vertical align="start">
+              <span className={style.label}>To</span>
+              <InputNumber
+                className={styles.customInput}
+                style={{ width: "100%" }}
+                placeholder="To"
+                value={value?.to ?? null}
+                onChange={(val) => onChange({ ...value, to: val })}
+                min={value?.from || 1}
+              />
+            </Flex>
+          </Flex>
+        );
       default:
         return null;
     }

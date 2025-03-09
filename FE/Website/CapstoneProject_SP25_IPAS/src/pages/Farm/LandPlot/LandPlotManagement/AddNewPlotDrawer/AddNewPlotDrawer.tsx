@@ -5,6 +5,7 @@ import {
   landRowSimulate,
   LandPlotUpdateRequest,
   LandPlotUpdateCoordinationRequest,
+  GetLandPlotSimulate,
 } from "@/payloads";
 import { ConfirmModal, EditActions } from "@/components";
 import { DraggableRow, LandPlotCreate, RowConfiguration } from "@/pages";
@@ -13,24 +14,25 @@ import { useModal, useStyle } from "@/hooks";
 import { useLoadingStore, useMapStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
-import { createPlotFormFields, MESSAGES, POLYGON_DIMENSION_LIMITS } from "@/constants";
+import { createPlotFormFields, MESSAGES } from "@/constants";
 import { LandPlotRequest } from "@/payloads/landplot/requests";
-import { DEFAULT_LAND_PLOT, isPlantOverflowing } from "@/utils";
+import { DEFAULT_LAND_PLOT, isPlantOverflowing, validatePolygonBeforeSave } from "@/utils";
 import { landPlotService } from "@/services";
-import { PolygonInit } from "@/types";
 
 const { Step } = Steps;
 
 interface AddNewPlotDrawerProps {
   selectedPlot?: GetLandPlot | null;
-  landPlots: GetLandPlot[];
-  fetchLandPlots: () => Promise<void>;
+  plotSimulate?: GetLandPlotSimulate;
+  landPlots?: GetLandPlot[];
+  fetchLandPlots?: () => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
 }
 
 const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   selectedPlot,
+  plotSimulate,
   landPlots,
   fetchLandPlots,
   isOpen,
@@ -39,7 +41,6 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const { styles } = useStyle();
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
-  // const [isDirty, setIsDirty] = useState(false);
   const updateConfirmModal = useModal();
   const [plotData, setPlotData] = useState<LandPlotRequest>(DEFAULT_LAND_PLOT); // Lưu dữ liệu từ bước 1
   const [rowsData, setRowsData] = useState<landRowSimulate[]>(fakeRowsData);
@@ -61,31 +62,11 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     form.getFieldValue(createPlotFormFields.rowOrientation) === "Horizontal" ? true : false;
   const { isLoading, setIsLoading } = useLoadingStore();
   const isUpdate = !!selectedPlot;
+  const isSimulateUpdate = !!plotSimulate;
 
-  const validatePolygonBeforeSave = () => {
-    if (!currentPolygon) {
-      toast.error(isUpdate ? MESSAGES.DRAW_PLOT_UPDATE : MESSAGES.DRAW_PLOT);
-      return false;
-    }
-    if (isOverlapping) {
-      toast.error(MESSAGES.OVERLAPPING_PLOT);
-      return false;
-    }
-    const { minWidth, maxWidth, minLength, maxLength } = POLYGON_DIMENSION_LIMITS;
-
-    if (width < minWidth || width > maxWidth) {
-      toast.error(`Width must be between ${minWidth}m and ${maxWidth}m!`);
-      return false;
-    }
-
-    // Kiểm tra length
-    if (length < minLength || length > maxLength) {
-      toast.error(`Length must be between ${minLength}m and ${maxLength}m!`);
-      return false;
-    }
-
-    return true;
-  };
+  useEffect(() => {
+    if (isSimulateUpdate) setCurrentStep(2);
+  }, [isSimulateUpdate]);
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -113,7 +94,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
       if (result.statusCode === 200 || result.statusCode === 201) {
         resetForm();
         onClose();
-        await fetchLandPlots();
+        await fetchLandPlots?.();
         toast.success(result.message);
       } else {
         toast.error(result.message);
@@ -126,7 +107,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const handleNext = async () => {
     if (currentStep === 0) {
       await form.validateFields();
-      if (!validatePolygonBeforeSave()) return;
+      const isValid = validatePolygonBeforeSave(
+        currentPolygon,
+        isOverlapping,
+        width,
+        length,
+        isUpdate,
+      );
+      if (!isValid) return;
       setPlotData((prev) => ({
         ...prev,
         landPlotName: form.getFieldValue(createPlotFormFields.landPlotName),
@@ -193,7 +181,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
 
   const handleSaveUpdate = async () => {
     await form.validateFields();
-    if (!validatePolygonBeforeSave() || !selectedPlot || !currentPolygon) return;
+    const isValid = validatePolygonBeforeSave(
+      currentPolygon,
+      isOverlapping,
+      width,
+      length,
+      isUpdate,
+    );
+    if (!isValid || !selectedPlot || !currentPolygon) return;
 
     // Nếu không có thay đổi gì, reset và đóng modal luôn
     if (!isDirty && !isPolygonDirty) {
@@ -261,7 +256,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         );
         resetForm();
         onClose();
-        await fetchLandPlots();
+        await fetchLandPlots?.();
       }
 
       if (plotError) toast.error(MESSAGES.PLOT_UPDATE_FAILED);
@@ -340,7 +335,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
           <LandPlotCreate
             isOpen={isOpen}
             selectedPlot={selectedPlot}
-            landPlots={landPlots}
+            landPlots={landPlots ?? []}
             form={form}
           />
         )}

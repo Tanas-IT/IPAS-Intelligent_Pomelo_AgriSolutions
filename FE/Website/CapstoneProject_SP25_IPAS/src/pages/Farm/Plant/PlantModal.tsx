@@ -21,6 +21,7 @@ type PlantModelProps = {
 const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: PlantModelProps) => {
   const [form] = Form.useForm();
   const isUpdate = !!plantData;
+  const isPlantDead = plantData && plantData.isDead;
   const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
 
   const [loading, setLoading] = useState({
@@ -156,27 +157,34 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     }
   };
 
-  const getFormData = (): PlantRequest => ({
-    plantId: form.getFieldValue(plantFormFields.plantId),
-    plantCode: form.getFieldValue(plantFormFields.plantCode),
-    healthStatus: isUpdate
-      ? form.getFieldValue(plantFormFields.healthStatus)
-      : HEALTH_STATUS.HEALTHY,
-    plantReferenceId: form.getFieldValue(plantFormFields.plantReferenceId),
-    description: form.getFieldValue(plantFormFields.description),
-    masterTypeId: Number(
-      form.getFieldValue(plantFormFields.masterTypeId)?.value ||
-        form.getFieldValue(plantFormFields.masterTypeId),
-    ),
-    // imageUrl: image || form.getFieldValue(plantFormFields.imageUrl),
-    imageUrl: image !== undefined ? image : plantData?.imageUrl,
-    plantingDate: form.getFieldValue(plantFormFields.plantingDate)?.format("YYYY-MM-DD") || "",
-    ...(!isUpdate && {
-      landPlotId: form.getFieldValue(plantFormFields.landPlotId),
-      landRowId: form.getFieldValue(plantFormFields.landRowId),
-      plantIndex: form.getFieldValue(plantFormFields.plantIndex),
-    }),
-  });
+  const getFormData = (): PlantRequest => {
+    const description = form.getFieldValue(plantFormFields.description);
+    const plantId = form.getFieldValue(plantFormFields.plantId);
+
+    if (isPlantDead) return { plantId, description };
+
+    return {
+      plantId,
+      plantCode: form.getFieldValue(plantFormFields.plantCode),
+      description,
+      healthStatus: isUpdate
+        ? form.getFieldValue(plantFormFields.healthStatus)
+        : HEALTH_STATUS.HEALTHY,
+      plantReferenceId: form.getFieldValue(plantFormFields.plantReferenceId),
+      masterTypeId: Number(
+        form.getFieldValue(plantFormFields.masterTypeId)?.value ||
+          form.getFieldValue(plantFormFields.masterTypeId),
+      ),
+      // imageUrl: image || form.getFieldValue(plantFormFields.imageUrl),
+      imageUrl: image !== undefined ? image : plantData?.imageUrl,
+      plantingDate: form.getFieldValue(plantFormFields.plantingDate)?.format("YYYY-MM-DD") || "",
+      ...(!isUpdate && {
+        landPlotId: form.getFieldValue(plantFormFields.landPlotId),
+        landRowId: form.getFieldValue(plantFormFields.landRowId),
+        plantIndex: form.getFieldValue(plantFormFields.plantIndex),
+      }),
+    };
+  };
 
   return (
     <ModalForm
@@ -193,86 +201,95 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       size="large"
     >
       <Form form={form} layout="vertical">
-        <Flex justify="space-between" gap={20}>
+        {isPlantDead ? (
           <FormFieldModal
-            type="select"
-            label="Cultivar"
-            name={plantFormFields.masterTypeId}
-            rules={RulesManager.getCultivarRules()}
-            options={cultivarTypeOptions}
+            label="Description"
+            type="textarea"
+            name={plantFormFields.description}
+            placeholder="Enter the description"
           />
-          <FormFieldModal
-            type="select"
-            label="Mother Plant"
-            name={plantFormFields.plantReferenceId}
-            options={motherPlants}
-          />
-        </Flex>
-
-        <Flex justify="space-between" gap={20}>
-          <FormFieldModal
-            type="date"
-            label="Planting Date"
-            name={plantFormFields.plantingDate}
-            rules={RulesManager.getPlantingDateRules()}
-            placeholder="Enter the type name"
-          />
-          {isUpdate && (
-            <FormFieldModal
-              type="select"
-              label="Health Status"
-              name={plantFormFields.healthStatus}
-              options={Object.keys(HEALTH_STATUS).map((key) => ({
-                value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
-                label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
-              }))}
-            />
-          )}
-        </Flex>
-
-        {!isUpdate && (
-          <fieldset className={style.plantLocationContainer}>
-            <legend>Plant Location</legend>
-            <Flex justify="space-between" vertical>
+        ) : (
+          <>
+            <Flex justify="space-between" gap={20}>
               <FormFieldModal
                 type="select"
-                label="Plot"
-                name={plantFormFields.landPlotId}
-                options={plots}
-                isLoading={loading.plots}
-                onChange={handlePlotChange}
-                rules={RulesManager.getSelectPlotRules()}
+                label="Cultivar"
+                name={plantFormFields.masterTypeId}
+                rules={RulesManager.getCultivarRules()}
+                options={cultivarTypeOptions}
               />
-              <Flex gap={20}>
-                <FormFieldModal
-                  type="select"
-                  label="Row"
-                  name={plantFormFields.landRowId}
-                  options={rows}
-                  isLoading={loading.rows}
-                  onChange={handleRowChange}
-                  rules={RulesManager.getSelectRowRules()}
-                />
-                <FormFieldModal
-                  type="select"
-                  label="Plant Index"
-                  name={plantFormFields.plantIndex}
-                  options={plantIndexes}
-                  isLoading={loading.indexes}
-                  rules={RulesManager.getSelectPlantIndexRules()}
-                />
-              </Flex>
+              <FormFieldModal
+                type="select"
+                label="Mother Plant"
+                name={plantFormFields.plantReferenceId}
+                options={motherPlants}
+              />
             </Flex>
-          </fieldset>
-        )}
 
-        <FormFieldModal
-          label="Description"
-          type="textarea"
-          name={plantFormFields.description}
-          placeholder="Enter the description"
-        />
-        {/* {!isUpdate && (
+            <Flex justify="space-between" gap={20}>
+              <FormFieldModal
+                type="date"
+                label="Planting Date"
+                name={plantFormFields.plantingDate}
+                rules={RulesManager.getPlantingDateRules()}
+                placeholder="Enter the type name"
+              />
+              {isUpdate && (
+                <FormFieldModal
+                  type="select"
+                  label="Health Status"
+                  name={plantFormFields.healthStatus}
+                  options={Object.keys(HEALTH_STATUS).map((key) => ({
+                    value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+                    label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+                  }))}
+                />
+              )}
+            </Flex>
+
+            {!isUpdate && (
+              <fieldset className={style.plantLocationContainer}>
+                <legend>Plant Location</legend>
+                <Flex justify="space-between" vertical>
+                  <FormFieldModal
+                    type="select"
+                    label="Plot"
+                    name={plantFormFields.landPlotId}
+                    options={plots}
+                    isLoading={loading.plots}
+                    onChange={handlePlotChange}
+                    rules={RulesManager.getSelectPlotRules()}
+                  />
+                  <Flex gap={20}>
+                    <FormFieldModal
+                      type="select"
+                      label="Row"
+                      name={plantFormFields.landRowId}
+                      options={rows}
+                      isLoading={loading.rows}
+                      onChange={handleRowChange}
+                      rules={RulesManager.getSelectRowRules()}
+                    />
+                    <FormFieldModal
+                      type="select"
+                      label="Plant Index"
+                      name={plantFormFields.plantIndex}
+                      options={plantIndexes}
+                      isLoading={loading.indexes}
+                      rules={RulesManager.getSelectPlantIndexRules()}
+                    />
+                  </Flex>
+                </Flex>
+              </fieldset>
+            )}
+
+            <FormFieldModal
+              label="Description"
+              type="textarea"
+              name={plantFormFields.description}
+              placeholder="Enter the description"
+            />
+            {/* {!isUpdate && (
           <FormFieldModal
             label="Upload Image"
             type="image"
@@ -284,6 +301,8 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
             }}
           />
         )} */}
+          </>
+        )}
       </Form>
     </ModalForm>
   );

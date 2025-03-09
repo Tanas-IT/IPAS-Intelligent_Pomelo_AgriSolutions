@@ -14,7 +14,7 @@ export const HEALTH_STATUS = {
   HEALTHY: "Healthy",
   MINOR_ISSUE: "Minor Issues",
   SERIOUS_ISSUE: "Serious Issues",
-  DEAD: "Dead",
+  // DEAD: "Dead",
 } as const;
 
 export const healthStatusColors: Record<string, string> = {
