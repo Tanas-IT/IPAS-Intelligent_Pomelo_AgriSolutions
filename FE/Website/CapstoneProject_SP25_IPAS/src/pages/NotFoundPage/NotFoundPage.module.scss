@@ -1,0 +1,51 @@
+.notFoundContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(to right, #bcd379, #b7d169);
+    color: white;
+    text-align: center;
+    padding: 20px;
+
+    .content {
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+        h1 {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .homeButton {
+            background: #fff;
+            color: #20461e;
+            border: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.8);
+                color: #112510;
+            }
+        }
+    }
+}

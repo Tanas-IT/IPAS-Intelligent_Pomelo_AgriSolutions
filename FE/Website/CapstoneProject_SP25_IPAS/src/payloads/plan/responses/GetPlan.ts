@@ -21,19 +21,24 @@ export interface GetPlan {
   plantLotNames: string[];
   rowIndexs: number[];
   dayOfWeek: number[];
+  dayOfMonth: string;
+  customDates: string[];
   startTime: string;
   endTime: string;
-  listReporter: Reporter[];
-  listEmployee: Employee[];
+  listReporter: User[];
+  listEmployee: User[];
   listWorkLog: WorkLog[];
+  createDate: string;
+  frequency: string;
+  planTargetModels: PlanTargetModel[];
+  graftedPlantName: string[];
+  maxVolume: number;
+  minVolume: number;
+  pesticideName: string;
 }
 
-export interface Reporter {
-  fullName: string;
-  avatar: string;
-}
-
-export interface Employee {
+export interface User {
+  userId: number;
   fullName: string;
   avatar: string;
 }
@@ -44,5 +49,16 @@ export interface WorkLog {
   dateWork: string;
   status: string;
   reporter: string;
+  actualStartTime: string;
+  actualEndTime: string;
   avatarOfReporter: string;
+}
+
+interface PlanTargetModel {
+  rowIndex: string[];
+  landPlotName: string;
+  graftedPlantName: string[];
+  plantLotName: string[];
+  plantName: string[];
+  plantTargetId: number;
 }

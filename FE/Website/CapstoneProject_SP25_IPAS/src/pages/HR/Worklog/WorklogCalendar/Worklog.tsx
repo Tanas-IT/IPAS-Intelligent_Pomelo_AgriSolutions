@@ -18,7 +18,7 @@ import style from "./Worklog.module.scss"
 import "./customScheduleX.scss"
 import WorklogFilter from './WorklogFilter/WorklogFilter'
 import { useModal } from '@/hooks'
-import { CreateWorklogRequest } from '@/payloads/worklog'
+import { CreateWorklogRequest, GetWorklog } from '@/payloads/worklog'
 import WorklogModal from './WorklogModal/WorklogModal'
 import { useNavigate } from 'react-router-dom'
 import { worklogService } from '@/services'
@@ -69,8 +69,10 @@ function Worklog() {
   const fetchData = async () => {
     try {
       const response = await worklogService.getWorklog();
+      console.log(response);
+      
       if (response) {
-        const worklogs = response.data.list.map((log) => ({
+        const worklogs = response.map((log: GetWorklog) => ({
           id: log.workLogId.toString(),
           title: log.workLogName,
           start: dayjs(`${log.date.split('T')[0]} ${log.startTime}`).format('YYYY-MM-DD HH:mm'),
