@@ -69,7 +69,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<Package, bool>> filter = x => x.IsActive == true;
                 Func<IQueryable<Package>, IOrderedQueryable<Package>> orderBy = x => x.OrderByDescending(x => x.PackageId);
                 string includeProperties = "PackageDetails";
-                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                var packages = await _unitOfWork.PackageRepository.Get(filter: filter, includeProperties:
+includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
+//                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties:
+//includeProperties, orderBy: orderBy);
                 if (packages == null)
                     return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<PackageModel>>(packages);
