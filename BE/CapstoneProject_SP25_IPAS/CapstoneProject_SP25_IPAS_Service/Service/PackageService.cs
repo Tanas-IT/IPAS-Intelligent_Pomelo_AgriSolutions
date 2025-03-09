@@ -3,7 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using MailKit.Search;
 using System;

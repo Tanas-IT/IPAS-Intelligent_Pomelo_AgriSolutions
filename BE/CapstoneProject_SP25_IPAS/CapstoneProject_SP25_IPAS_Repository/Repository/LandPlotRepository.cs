@@ -45,6 +45,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 //    .FirstOrDefaultAsync();
                 var landPlot = await _context.LandPlots
             .Where(lp => lp.LandPlotId == landplotId && lp.isDeleted == false)
+            .Include (lp => lp.LandRows)
+            .ThenInclude(x => x.Plants)
             .Select(lp => new LandPlot
             {
                 LandPlotId = lp.LandPlotId,
@@ -84,12 +86,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     isDeleted = lr.isDeleted,
                     LandPlotId = lr.LandPlotId,
                     FarmId = lr.FarmId,
-                    Plants = lr.Plants.Select(p => new Plant
+                    Plants = lr.Plants.Where(x => x.IsDeleted == false ).Select(p => new Plant
                     {
                         PlantId = p.PlantId,
                         PlantCode = p.PlantCode,
                         PlantIndex = p.PlantIndex,
-                        HealthStatus = p.HealthStatus
+                        HealthStatus = p.HealthStatus,
+                        IsDead = p.IsDead,
                     }).ToList()
                 }).ToList()
             })

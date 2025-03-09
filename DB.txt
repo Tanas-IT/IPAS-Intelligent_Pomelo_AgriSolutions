@@ -936,7 +936,7 @@ CREATE TABLE ipas.dbo.WorkLog (
 
 CREATE TABLE ipas.dbo.TaskFeedback (
 	TaskFeedbackID int IDENTITY(1,1) NOT NULL,
-	TaskFeedbackCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	TaskFeedbackCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
    	WorkLogID int NULL,
@@ -958,6 +958,7 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	WorkLogID int NOT NULL,
 	UserID int NOT NULL,
 	IsReporter bit NULL,
+        CreateDate datetime NULL,
         Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
         Issue nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (UserWorkLogID),
