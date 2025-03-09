@@ -22,7 +22,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
   const [loadingPlots, setLoadingPlots] = useState(false);
   const [loadingRows, setLoadingRows] = useState<{ [key: number]: boolean }>({});
   const [selectedTreeValues, setSelectedTreeValues] = useState<string[]>(
-    filters.landRowIds || filters.LandPlotIds || [],
+    filters.landRowIds || filters.landPlotIds || [],
   );
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     const plotIds = values.filter((v) => v.startsWith("plot_")).map((v) => v.split("_")[1]);
 
     updateFilters("landRowIds", rowIds);
-    updateFilters("LandPlotIds", plotIds);
+    updateFilters("landPlotIds", plotIds);
   };
 
   const handleClear = () => {

@@ -5,6 +5,8 @@ import {
   GetLandPlotSelected,
   GetLandPlotSimulate,
   LandPlotRequest,
+  LandPlotUpdateCoordinationRequest,
+  LandPlotUpdateRequest,
 } from "@/payloads";
 import { getFarmId } from "@/utils";
 
@@ -43,6 +45,30 @@ export const getLandPlotSimulate = async (
 
 export const createLandPlot = async (plot: LandPlotRequest): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.post("landplots", plot);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteLandPlot = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`landplots/softed-delete`, id);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const updateLandPlotInfo = async (
+  plot: LandPlotUpdateRequest,
+): Promise<ApiResponse<Object>> => {
+  
+  const res = await axiosAuth.axiosJsonRequest.put(`landplots/update-info`, plot);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const updateLandPlotCoordination = async (
+  coord: LandPlotUpdateCoordinationRequest,
+): Promise<ApiResponse<Object>> => {
+  
+  const res = await axiosAuth.axiosJsonRequest.put(`landplots/update-coordination`, coord);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

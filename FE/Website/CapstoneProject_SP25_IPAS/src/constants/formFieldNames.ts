@@ -54,6 +54,8 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   textColor: "textColor",
   characteristic: "characteristic",
   typeName: "typeName",
+  target: "target",
+  isConflict: "isConflict",
   createDate: "createDate",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
@@ -88,7 +90,8 @@ export const feedbackFormFields = {
   content: "content",
   managerId: "managerId",
   worklogId: "worklogId",
-  worklogStatus: "worklogStatus",
+  status: "status",
+  reason: "reason"
 };
 
 export const createPlotFormFields = {
@@ -99,6 +102,7 @@ export const createPlotFormFields = {
   area: "area",
   width: "width",
   length: "length",
+  status: "status",
   rowLength: "rowLength",
   rowWidth: "rowWidth",
   numberOfRows: "numberOfRows",

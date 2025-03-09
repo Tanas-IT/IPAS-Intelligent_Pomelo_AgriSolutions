@@ -107,6 +107,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
+                 .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
                  .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
                 .ReverseMap();
@@ -177,6 +178,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<User, ReporterModel>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.AvatarURL))
                 .ReverseMap();
 
@@ -191,23 +193,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.AvatarOfReporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true).Select(x => x.User.AvatarURL).FirstOrDefault()))
                .ReverseMap();
 
+            CreateMap<Plant, PlantDisplayModel>();
+            CreateMap<LandRow, LandRowDisplayModel>()
+                .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants));
+            CreateMap<PlantLot, PlantLotDisplayModel>();
+            CreateMap<GraftedPlant, GraftedPlantDisplayModel>();
+            CreateMap<LandPlot, PlanTargetDisplayModel>()
+                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlotName))
+                .ForMember(dest => dest.LandPlotId, opt => opt.MapFrom(src => src.LandPlotId));
+
             CreateMap<PlanTarget, PlanTargetDisplayModel>()
-     .ForMember(dest => dest.PlantTargetId, opt => opt.MapFrom(src => src.PlanTargetID))
-
-     // Chuyển đổi từ ID sang tên (nếu có dữ liệu liên quan)
-     .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot != null ? src.LandPlot.LandPlotName : null))
-
-     // Vì RowIndex là danh sách, nếu LandRow có thể có nhiều hàng thì cần lấy danh sách
-     .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow != null ? new List<string> { src.LandRow.RowIndex.ToString() } : new List<string>()))
-
-     // GraftedPlantName có thể là danh sách, nếu có nhiều cây ghép
-     .ForMember(dest => dest.GraftedPlantName, opt => opt.MapFrom(src => src.GraftedPlant != null ? new List<string> { src.GraftedPlant.GraftedPlantName } : new List<string>()))
-
-     // PlantLotName cũng có thể có nhiều
-     .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot != null ? new List<string> { src.PlantLot.PlantLotName } : new List<string>()))
-
-     // PlantName nếu có nhiều loại cây thì đưa vào danh sách
-     .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant != null ? new List<string> { src.Plant.PlantName } : new List<string>()));
+                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot != null ? src.LandPlot.LandPlotName : null))
+                .ForMember(dest => dest.LandPlotId, opt => opt.MapFrom(src => src.LandPlotID))
+                .ForMember(dest => dest.Rows, opt => opt.Ignore())
+                .ForMember(dest => dest.Plants, opt => opt.Ignore())
+                .ForMember(dest => dest.PlantLots, opt => opt.Ignore())
+                .ForMember(dest => dest.GraftedPlants, opt => opt.Ignore());
 
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
@@ -254,7 +255,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.CustomDates, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.CustomDates : null))
                .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs: null))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-               .ForMember(dest => dest.PlanTargetModels, opt => opt.MapFrom(src => src.PlanTargets))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+               .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
                .ReverseMap();
 
             CreateMap<LegalDocument, LegalDocumentModel>()
@@ -282,6 +284,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.WorkLogId, opt => opt.MapFrom(src => src.WorkLogId))
               .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => src.ManagerId))
+              .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Manager.FullName))
+              .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.Manager.AvatarURL))
               .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLog.WorkLogName))
                .ReverseMap();
 
@@ -390,14 +394,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.User.AvatarURL))
               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
               .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
-              .ForMember(dest => dest.ListResources, opt => opt.MapFrom(src => src.Resources))
+              .ForMember(dest => dest.CreateDate,
+                opt => opt.MapFrom(src => (src.Resources != null && src.Resources.Any())
+                    ? src.Resources.Select(x => x.CreateDate).First()
+                    : (DateTime?)null))
+            .ForMember(dest => dest.ListResources,
+                opt => opt.MapFrom(src => src.Resources ?? new List<Resource>()))
               .ReverseMap();
 
             CreateMap<WorkLog, WorkLogDetailModel>()
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
-            .ForMember(dest => dest.PlanTargetModels, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanTargets))
+            .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
             .ForMember(dest => dest.TypeWork, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false)

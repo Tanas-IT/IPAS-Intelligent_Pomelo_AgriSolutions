@@ -1,3 +1,108 @@
+// import { useState } from "react";
+// import { Timeline, Avatar, Button, Flex, Modal, Image } from "antd";
+// import style from "./TimelineNotes.module.scss";
+// import { CustomButton } from "@/components";
+// import { useStyle } from "@/hooks";
+// import NoteDetail from "../NoteDetail/NoteDetail";
+
+// interface Note {
+//     id: number;
+//     user: { name: string; avatar: string };
+//     date: string;
+//     issue: string;
+//     note: string;
+//     media: { images: string[]; videos: string[] };
+// }
+
+// const notes: Note[] = [
+//     {
+//         id: 1,
+//         user: { name: "Laggg", avatar: "" },
+//         date: "Sunday, 1st Dec 2024, 8:30 AM",
+//         issue: "Pest Infestation",
+//         note: "Cây bị sâu bệnh nặng, cần xử lý ngay lập tức bằng thuốc trừ sâu sinh học.",
+//         media: {
+//             images: [
+//                 "https://source.unsplash.com/200x200/?fruit",
+//                 "https://source.unsplash.com/200x200/?tree"
+//             ],
+//             videos: [
+//                 "https://www.w3schools.com/html/mov_bbb.mp4"
+//             ]
+//         },
+//     },
+//     {
+//         id: 2,
+//         user: { name: "Nathan David", avatar: "" },
+//         date: "Sunday, 1st Dec 2024, 8:30 AM",
+//         issue: "Water Deficiency",
+//         note: "Cây có dấu hiệu thiếu nước, cần tưới bổ sung 2 lần/ngày trong tuần tới.",
+//         media: {
+//             images: ["https://source.unsplash.com/200x200/?water"],
+//             videos: []
+//         },
+//     },
+// ];
+
+// const TimelineNotes: React.FC = () => {
+//     const { styles } = useStyle();
+//     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+
+//     const handleViewDetails = (note: Note) => {
+//         setSelectedNote(note);
+//     };
+
+//     const handleCloseModal = () => {
+//         setSelectedNote(null);
+//     };
+
+//     return (
+//         <>
+//             <Timeline>
+//                 {notes.map((note) => (
+//                     <Timeline.Item key={note.id} className={`${styles.customTimeline}`} color="#326E2F">
+//                         <Flex vertical={false} gap={12} className={style.timelineContainer}>
+//                             <Avatar src={note.user.avatar} size={30} shape="circle" />
+//                             <div className={style.timelineDetail}>
+//                                 <Flex gap={20}>
+//                                     <span className={style.userName}>{note.user.name}</span>
+//                                     <span>created this note</span>
+//                                     <span className={style.createdDate}>{note.date}</span>
+//                                 </Flex>
+//                                 <Flex className={style.infoRow}>
+//                                     <span className={style.label}>Issue:</span>
+//                                     <span>{note.issue}</span>
+//                                 </Flex>
+
+//                                 <Flex className={style.infoRow}>
+//                                     <span className={style.label}>Notes:</span>
+//                                     <span className={style.noteContent}>{note.note}</span>
+//                                 </Flex>
+
+//                                 <Flex justify="space-between">
+//                                     <Flex className={style.infoRow}>
+//                                         <span className={style.label}>Media:</span>
+//                                         <span>
+//                                             {note.media.images.length} Image | {note.media.videos.length} Video
+//                                         </span>
+//                                     </Flex>
+//                                     <Flex gap={10}>
+//                                         <CustomButton label="View Details" isCancel={false} isModal={true} handleOnClick={() => handleViewDetails(note)} />
+//                                         <CustomButton label="Edit" isCancel={true} />
+//                                     </Flex>
+//                                 </Flex>
+//                             </div>
+//                         </Flex>
+//                     </Timeline.Item>
+//                 ))}
+//             </Timeline>
+
+//             <NoteDetail note={selectedNote} onClose={() => setSelectedNote(null)} />
+//         </>
+//     );
+// };
+
+// export default TimelineNotes;
 import { useState } from "react";
 import { Timeline, Avatar, Button, Flex, Modal, Image } from "antd";
 import style from "./TimelineNotes.module.scss";
@@ -6,45 +111,22 @@ import { useStyle } from "@/hooks";
 import NoteDetail from "../NoteDetail/NoteDetail";
 
 interface Note {
-    id: number;
-    user: { name: string; avatar: string };
-    date: string;
     issue: string;
-    note: string;
-    media: { images: string[]; videos: string[] };
+    notes: string;
+    fullName: string;
+    avatarURL: string;
+    listResources: {
+        resourceID: number;
+        resourceCode: string;
+        resourceURL: string;
+    }[];
 }
 
-const notes: Note[] = [
-    {
-        id: 1,
-        user: { name: "Laggg", avatar: "" },
-        date: "Sunday, 1st Dec 2024, 8:30 AM",
-        issue: "Pest Infestation",
-        note: "Cây bị sâu bệnh nặng, cần xử lý ngay lập tức bằng thuốc trừ sâu sinh học.",
-        media: {
-            images: [
-                "https://source.unsplash.com/200x200/?fruit",
-                "https://source.unsplash.com/200x200/?tree"
-            ],
-            videos: [
-                "https://www.w3schools.com/html/mov_bbb.mp4"
-            ]
-        },
-    },
-    {
-        id: 2,
-        user: { name: "Nathan David", avatar: "" },
-        date: "Sunday, 1st Dec 2024, 8:30 AM",
-        issue: "Water Deficiency",
-        note: "Cây có dấu hiệu thiếu nước, cần tưới bổ sung 2 lần/ngày trong tuần tới.",
-        media: {
-            images: ["https://source.unsplash.com/200x200/?water"],
-            videos: []
-        },
-    },
-];
+interface TimelineNotesProps {
+    notes: Note[];
+}
 
-const TimelineNotes: React.FC = () => {
+const TimelineNotes: React.FC<TimelineNotesProps> = ({ notes }) => {
     const { styles } = useStyle();
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
@@ -59,45 +141,61 @@ const TimelineNotes: React.FC = () => {
     return (
         <>
             <Timeline>
-                {notes.map((note) => (
-                    <Timeline.Item key={note.id} className={`${styles.customTimeline}`} color="#326E2F">
-                        <Flex vertical={false} gap={12} className={style.timelineContainer}>
-                            <Avatar src={note.user.avatar} size={30} shape="circle" />
-                            <div className={style.timelineDetail}>
-                                <Flex gap={20}>
-                                    <span className={style.userName}>{note.user.name}</span>
-                                    <span>created this note</span>
-                                    <span className={style.createdDate}>{note.date}</span>
-                                </Flex>
-                                <Flex className={style.infoRow}>
-                                    <span className={style.label}>Issue:</span>
-                                    <span>{note.issue}</span>
-                                </Flex>
+                {notes.map((note, index) => {
+                    // Phân loại resources thành images và videos
+                    const images = note.listResources.filter(resource =>
+                        resource.resourceURL.match(/\.(jpeg|jpg|gif|png)$/i)
+                    ).map(resource => resource.resourceURL);
 
-                                <Flex className={style.infoRow}>
-                                    <span className={style.label}>Notes:</span>
-                                    <span className={style.noteContent}>{note.note}</span>
-                                </Flex>
+                    const videos = note.listResources.filter(resource =>
+                        resource.resourceURL.match(/\.(mp4|mov|avi)$/i)
+                    ).map(resource => resource.resourceURL);
 
-                                <Flex justify="space-between">
+                    return (
+                        <Timeline.Item key={index} className={`${styles.customTimeline}`} color="#326E2F">
+                            <Flex vertical={false} gap={12} className={style.timelineContainer}>
+                                <Avatar src={note.avatarURL} size={30} shape="circle" crossOrigin="anonymous" />
+                                <div className={style.timelineDetail}>
+                                    <Flex gap={20}>
+                                        <span className={style.userName}>{note.fullName}</span>
+                                        <span>created this note</span>
+                                        {/* <span className={style.createdDate}>{note.date}</span> */}
+                                    </Flex>
                                     <Flex className={style.infoRow}>
-                                        <span className={style.label}>Media:</span>
-                                        <span>
-                                            {note.media.images.length} Image | {note.media.videos.length} Video
-                                        </span>
+                                        <span className={style.label}>Issues:</span>
+                                        <span className={style.noteContent}>{note.issue}</span>
                                     </Flex>
-                                    <Flex gap={10}>
-                                        <CustomButton label="View Details" isCancel={false} isModal={true} handleOnClick={() => handleViewDetails(note)} />
-                                        <CustomButton label="Edit" isCancel={true} />
+                                    <Flex className={style.infoRow}>
+                                        <span className={style.label}>Notes:</span>
+                                        <span className={style.noteContent}>{note.notes}</span>
                                     </Flex>
-                                </Flex>
-                            </div>
-                        </Flex>
-                    </Timeline.Item>
-                ))}
+
+                                    <Flex justify="space-between">
+                                        <Flex className={style.infoRow}>
+                                            <span className={style.label}>Media:</span>
+                                            <span>
+                                                {images.length} Image | {videos.length} Video
+                                            </span>
+                                        </Flex>
+                                        <Flex gap={10}>
+                                            <CustomButton
+                                                label="View Details"
+                                                isCancel={false}
+                                                isModal={true}
+                                                handleOnClick={() => handleViewDetails(note)}
+                                            />
+                                            {/* Nếu có chức năng Edit, bạn có thể thêm vào đây */}
+                                            {/* <CustomButton label="Edit" isCancel={true} /> */}
+                                        </Flex>
+                                    </Flex>
+                                </div>
+                            </Flex>
+                        </Timeline.Item>
+                    );
+                })}
             </Timeline>
 
-            <NoteDetail note={selectedNote} onClose={() => setSelectedNote(null)} />
+            <NoteDetail note={selectedNote} onClose={handleCloseModal} />
         </>
     );
 };

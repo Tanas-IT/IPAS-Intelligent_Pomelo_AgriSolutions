@@ -2,25 +2,24 @@ import { Button, Divider, Flex, Popover, Space, Typography } from "antd";
 import style from "./ActionMenu.module.scss";
 import { Icons } from "@/assets";
 import { useState } from "react";
+import { ActionMenuItem } from "@/types";
 const { Text } = Typography;
-
-interface ActionMenuItem {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}
 
 interface ActionMenuProps {
   title: string;
   items: ActionMenuItem[];
+  visible?: boolean;
+  setVisible?: (visible: boolean) => void;
 }
 
-const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
-  const [popoverVisible, setPopoverVisible] = useState(false);
+const ActionMenu: React.FC<ActionMenuProps> = ({ title, items, visible, setVisible }) => {
+  const [internalVisible, setInternalVisible] = useState(false);
 
-  const handlePopoverVisibleChange = (visible: boolean) => {
-    setPopoverVisible(visible);
-  };
+  // Nếu `visible` không được truyền từ ngoài, dùng state nội bộ
+  const isControlled = visible !== undefined;
+  const menuVisible = isControlled ? visible : internalVisible;
+  const setMenuVisible = isControlled ? setVisible! : setInternalVisible;
+
   const popoverContent = (
     <div className={style.popoverContent}>
       <div className={style.popoverHeader}>
@@ -29,21 +28,24 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
       </div>
       <div className={style.popoverBody}>
         {items.map((item, index) => (
-          <>
+          <div key={index}>
             <Space
-              key={index}
               onClick={() => {
-                item.onClick();
-                setPopoverVisible(false); // Đóng Popover khi click
+                item.onClick?.();
+                if (item.isCloseOnClick !== false) {
+                  setMenuVisible(false);
+                }
               }}
               className={style.popupButton}
               direction="horizontal"
             >
               <Flex className={style.popupIcon}>{item.icon}</Flex>
-              <Flex className={style.popupButtonText}>{item.label}</Flex>
+              <Flex className={style.popupButtonText}>
+                {typeof item.label === "string" ? <span>{item.label}</span> : item.label}
+              </Flex>
             </Space>
             {index < items.length - 1 && <Divider className={style.divider} />}
-          </>
+          </div>
         ))}
       </div>
     </div>
@@ -55,8 +57,8 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items }) => {
         content={popoverContent}
         trigger="click"
         placement="bottomRight"
-        visible={popoverVisible}
-        onVisibleChange={handlePopoverVisibleChange}
+        open={menuVisible}
+        onOpenChange={setMenuVisible}
       >
         <Button className={style.settingsIconBtn}>
           <Flex>

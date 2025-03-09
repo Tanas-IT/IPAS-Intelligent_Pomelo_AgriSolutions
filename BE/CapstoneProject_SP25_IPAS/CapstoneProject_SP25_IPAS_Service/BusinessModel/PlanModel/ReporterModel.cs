@@ -8,6 +8,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 {
     public class ReporterModel
     {
+        public int UserId { get; set; }
         public string FullName { get; set; }
         public string Avatar { get; set; }
     }

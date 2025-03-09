@@ -1,6 +1,13 @@
 import { GetLandPlot } from "@/payloads";
 import { GetProp, UploadProps } from "antd";
 
+export interface ActionMenuItem {
+  icon: React.ReactNode;
+  label: string | React.ReactNode;
+  onClick?: () => void;
+  isCloseOnClick?: boolean;
+}
+
 export interface Farm {
   farmId: number;
   farmName: string;
@@ -39,12 +46,16 @@ export type FilterMasterTypeState = {
 export type FilterPlantState = {
   plantingDateFrom: string;
   plantingDateTo: string;
-  LandPlotIds: string[];
+  landPlotIds: string[];
   landRowIds: string[];
   cultivarIds: string[];
   growthStageIds: string[];
   healthStatus: string[];
   isLocated: boolean | null;
+};
+
+export type FilterEmployeeState = {
+  roleName: string[];
 };
 
 export interface LandPlotsStateType {

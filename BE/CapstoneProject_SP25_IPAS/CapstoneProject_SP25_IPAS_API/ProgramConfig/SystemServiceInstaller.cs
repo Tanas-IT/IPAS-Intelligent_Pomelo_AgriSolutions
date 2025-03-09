@@ -128,6 +128,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IAIService, AIService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
 
             services.AddHttpClient();

@@ -7,8 +7,6 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
       if (keyField) {
         // Xử lý cho update
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
-        console.log(oldData);
-        console.log(newData);
 
         if (!oldData) return false;
 

@@ -9,6 +9,7 @@ import {
 import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
+  FilterEmployeeState,
   FilterMasterTypeState,
   FilterPlantState,
   LogoState,
@@ -95,12 +96,16 @@ export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
 export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   plantingDateFrom: "",
   plantingDateTo: "",
-  LandPlotIds: [] as string[],
+  landPlotIds: [] as string[],
   landRowIds: [] as string[],
   cultivarIds: [] as string[],
   growthStageIds: [] as string[],
   healthStatus: [] as string[],
   isLocated: null,
+};
+
+export const DEFAULT_EMPLOYEE_FILTERS: FilterEmployeeState = {
+  roleName: [] as string[],
 };
 
 // export const DEFAULT_ROW = (): rowStateType => ({
@@ -146,4 +151,9 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   rowIndex: 0,
   landPlotName: "",
   characteristic: "",
+  landPlotId: 0,
+  landRowId: 0,
+  masterTypeId: 0,
+  plantReferenceCode: "",
+  plantReferenceId: 0,
 };

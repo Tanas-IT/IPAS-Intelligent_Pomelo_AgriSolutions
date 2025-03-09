@@ -256,7 +256,7 @@ function PlanDetail() {
                             <h3 className={style.smallTitle}>Frequency</h3>
                             <p><strong>Date:</strong> {processDetail?.startDate ? formatDate(processDetail?.startDate) : ""} - {processDetail?.endDate ? formatDate(processDetail?.endDate) : ""}</p>
                             <p><strong>Time:</strong> {processDetail?.startTime} - {processDetail?.endTime}</p>
-                            <p><strong>Type:</strong> <span className={style.valueType}>{frequencyType}</span></p>
+                            <p><strong>Type:</strong> <span className={style.valueType}>{processDetail?.frequency}</span></p>
 
                             {frequencyType === "none" && (
                                 <ul className={style.dateList}>
@@ -312,7 +312,7 @@ function PlanDetail() {
                                 <StatusTag status={log.status} />
                             </Flex>
                             <Flex align="center" justify="space-between" className={style.underSection}>
-                                <p className={style.workLogDate}>{log.dateWork}</p>
+                                <p className={style.workLogDate}>{formatDateW(log.dateWork)}</p>
                                 <Link to={PATHS.HR.WORKLOG_DETAIL} className={style.link}>View Details</Link>
                             </Flex>
                         </Card>
