@@ -10,6 +10,7 @@ public partial class UserWorkLog
     public int UserId { get; set; }
     public string? Notes { get; set; }
     public string? Issue {  get; set; }
+    public DateTime? CreateDate { get; set; }
 
     public bool? IsReporter { get; set; }
 

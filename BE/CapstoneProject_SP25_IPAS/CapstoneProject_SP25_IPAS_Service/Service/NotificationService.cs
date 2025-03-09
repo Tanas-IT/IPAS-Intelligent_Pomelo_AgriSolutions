@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.SignalR;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +22,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper)
+        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
         public async Task<BusinessResult> CreateNotification(CreateNotificationModel createNotificationModel, int farmId)
@@ -34,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newNotification = new Notification()
                     {
-                        NotificationCode = "NTF-" + DateTime.Now.Date,
+                        NotificationCode = "NTF-" + DateTime.Now,
                         CreateDate = DateTime.Now,
                         Content = createNotificationModel.Content,
                         IsRead = false,
@@ -43,11 +48,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         SenderID = createNotificationModel.SenderID,
                         Title = createNotificationModel.Title,
                     };
+                    if(createNotificationModel.ListReceiverId != null && createNotificationModel.ListReceiverId.Count > 0)
+                    {
+                        foreach(var  item in createNotificationModel.ListReceiverId)
+                        {
+                            var newPlanNotification = new PlanNotification()
+                            {
+                                CreatedDate = DateTime.Now,
+                                isRead = false,
+                                UserID = item,
+                            };
+                            newNotification.PlanNotifications.Add(newPlanNotification);
+                        }
+                    }
                     await _unitOfWork.NotificationRepository.Insert(newNotification);
                     var result = await _unitOfWork.SaveAsync();
                     if(result > 0)
                     {
                         await transaction.CommitAsync();
+                        // **Gửi thông báo qua WebSocket**
+                        foreach (var userId in createNotificationModel.ListReceiverId)
+                        {
+                            await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", newNotification);
+                        }
+
                         return new BusinessResult(200, "Create notification success", newNotification);
                     }
                     return new BusinessResult(400, "Create notification failed");
@@ -76,21 +100,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var notifcationPlanModel = new NotificationModel()
                     {
                         NotificationId = notificationPlan.NotificationID != null ? notificationPlan.NotificationID.Value : 0,
-                        Title = notificationPlan.Notification.Title,
-                        Content = notificationPlan.Notification.Content,
-                        CreateDate = notificationPlan.Notification.CreateDate,
-                        IsRead = notificationPlan.Notification.IsRead,
-                        Link = notificationPlan.Notification.Link,
+                        Title = notificationPlan.Notification != null ? notificationPlan.Notification.Title : null,
+                        Content = notificationPlan.Notification?.Content,
+                        CreateDate = notificationPlan.Notification?.CreateDate,
+                        IsRead = notificationPlan.Notification?.IsRead,
+                        Link = notificationPlan.Notification?.Link,
                         MasterType = new MasterTypeNotification()
                         {
-                            MasterTypeId = notificationPlan.Notification.MasterTypeId,
-                            MasterTypeName = notificationPlan.Notification.MasterType.MasterTypeName
+                            MasterTypeId = notificationPlan.Notification?.MasterTypeId,
+                            MasterTypeName = notificationPlan.Notification?.MasterType != null ? notificationPlan.Notification.MasterType.MasterTypeName : null
                         },
                         Sender = new SenderNotification()
                         {
-                            SenderId = notificationPlan.Notification.SenderID,
-                            SenderName = notificationPlan.Notification.Sender.FullName,
-                            SenderAvatar = notificationPlan.Notification.Sender.AvatarURL
+                            SenderId = notificationPlan.Notification?.SenderID,
+                            SenderName = notificationPlan.Notification?.Sender != null ? notificationPlan.Notification.Sender.FullName : null,
+                            SenderAvatar = notificationPlan.Notification?.Sender != null ? notificationPlan.Notification.Sender.AvatarURL : null
                         }
                     };
                     listNotificationResponse.Add(notifcationPlanModel);
