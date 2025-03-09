@@ -367,10 +367,10 @@ const AddPlan = () => {
     const result = await planService.addPlan(planData);
 
     if (result.statusCode === 200) {
-      toast.success(result.message);
+      await toast.success(result.message);
       form.resetFields();
     } else {
-      toast.error(result.message);
+      await toast.error(result.message);
     }
 
     setIsFormDirty(false);
