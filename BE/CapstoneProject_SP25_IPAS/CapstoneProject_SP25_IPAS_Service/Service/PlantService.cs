@@ -305,8 +305,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (string.IsNullOrEmpty(request.LandPlotIds) && string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
-                if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
-                    filter = filter.And(x => x.LandRowId.HasValue);
+                //if (!string.IsNullOrEmpty(request.LandPlotIds) || !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
+                    if ( request.IsLocated.HasValue && request.IsLocated == true)
+                        filter = filter.And(x => x.LandRowId.HasValue);
 
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
