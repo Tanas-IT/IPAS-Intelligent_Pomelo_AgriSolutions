@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { MASTER_TYPE, masterTypeFormFields } from "@/constants";
+import { CRITERIA_TARGETS, MASTER_TYPE, masterTypeFormFields, WORK_TARGETS } from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
@@ -27,6 +27,14 @@ const MasterTypeModel = ({
   const typeOptions = Object.keys(MASTER_TYPE).map((key) => ({
     value: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
     label: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
+  }));
+  const workTargetOptions = Object.keys(WORK_TARGETS).map((key) => ({
+    value: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
+    label: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
+  }));
+  const criteriaTargetOptions = Object.keys(CRITERIA_TARGETS).map((key) => ({
+    value: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
+    label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
   }));
 
   const handleSwitchChange = (newChecked: boolean) => {
@@ -60,6 +68,8 @@ const MasterTypeModel = ({
     masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
     typeName: form.getFieldValue(masterTypeFormFields.typeName),
     isActive: checked,
+    isConflict: form.getFieldValue(masterTypeFormFields.isConflict),
+    target: form.getFieldValue(masterTypeFormFields.target),
     ...(form.getFieldValue(masterTypeFormFields.backgroundColor) && {
       backgroundColor:
         typeof form.getFieldValue(masterTypeFormFields.backgroundColor).toHexString === "function"
@@ -79,6 +89,7 @@ const MasterTypeModel = ({
 
   const handleOk = async () => {
     await form.validateFields();
+    // console.log(getFormData());
     onSave(getFormData());
   };
 
@@ -121,6 +132,22 @@ const MasterTypeModel = ({
           <>
             <Flex justify="space-between" gap={40}>
               <FormFieldModal
+                type="select"
+                label="Target"
+                name={masterTypeFormFields.target}
+                rules={RulesManager.getTargetRules()}
+                options={workTargetOptions}
+              />
+              <FormFieldModal
+                type="radio"
+                label="Can Overlap"
+                name={masterTypeFormFields.isConflict}
+                rules={RulesManager.getIsConflictRules()}
+              />
+            </Flex>
+
+            <Flex justify="space-between" gap={40}>
+              <FormFieldModal
                 type="colorPicker"
                 label="Background Color"
                 name={masterTypeFormFields.backgroundColor}
@@ -135,6 +162,18 @@ const MasterTypeModel = ({
                 direction="row"
               />
             </Flex>
+          </>
+        )}
+
+        {selectedType === MASTER_TYPE.CRITERIA && (
+          <>
+            <FormFieldModal
+              type="select"
+              label="Target"
+              name={masterTypeFormFields.target}
+              rules={RulesManager.getTargetRules()}
+              options={criteriaTargetOptions}
+            />
           </>
         )}
 

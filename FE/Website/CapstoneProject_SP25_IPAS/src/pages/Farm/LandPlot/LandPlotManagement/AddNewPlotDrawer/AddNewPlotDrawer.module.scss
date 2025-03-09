@@ -2,6 +2,11 @@
   justify-content: flex-end;
   align-items: center;
   gap: 10rem;
+  .updateTitle {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 32px;
+  }
   .steps {
     margin-left: 10rem;
   }

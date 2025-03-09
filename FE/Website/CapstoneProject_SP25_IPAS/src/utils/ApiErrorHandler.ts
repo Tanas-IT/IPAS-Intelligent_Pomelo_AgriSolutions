@@ -26,7 +26,7 @@ export const handleApiError = async (error: any) => {
         if (message.includes("Token is expired!")) {
           const originalRequest = error.config;
           const result = await authService.refreshToken();
-
+          console.log(result);
           if (result.statusCode === 200) {
             const newAccessToken = result.data.authenModel.accessToken;
             const newRefreshToken = result.data.authenModel.refreshToken;

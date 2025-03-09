@@ -6,13 +6,14 @@ interface user {
   phoneNumber: string;
   gender: "Male | Female";
   dob: Date;
+  avatarURL: string;
   createDate: Date;
   status: string;
 }
 export interface GetEmployee {
+  userId: number;
   roleId: number;
   roleName: string;
-  user: user
+  user: user;
+  isActive: boolean;
 }
-
-

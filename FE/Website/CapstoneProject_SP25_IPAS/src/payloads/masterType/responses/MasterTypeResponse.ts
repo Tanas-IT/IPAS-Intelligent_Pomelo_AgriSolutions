@@ -14,6 +14,8 @@ export interface GetMasterType {
   backgroundColor: string;
   textColor: string;
   characteristic: string;
+  isConflict: boolean;
+  target: string;
   typeName: string;
   createDate: Date;
   isActive: boolean;

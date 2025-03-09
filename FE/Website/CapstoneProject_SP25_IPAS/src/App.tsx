@@ -17,8 +17,13 @@ function App() {
         theme={{
           token: {
             colorPrimary: themeColors.highlight,
+            boxShadow: "none",
+            boxShadowSecondary: "none",
           },
           components: {
+            Input: {
+              activeShadow: "none",
+            },
             Select: {
               optionSelectedColor: themeColors.primary,
               optionSelectedBg: themeColors.secondary,

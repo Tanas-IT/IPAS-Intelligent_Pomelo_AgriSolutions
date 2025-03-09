@@ -17,7 +17,7 @@ function OTP() {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [form] = Form.useForm();
-  const TIME_COUNTER = 30;
+  const TIME_COUNTER = 60 * 5;
   const [timeLeft, setTimeLeft] = useState(TIME_COUNTER);
   const otpRef = useRef<string>(location.state?.otp);
   const formRegisterRef = useRef<any | null>(location.state?.values);

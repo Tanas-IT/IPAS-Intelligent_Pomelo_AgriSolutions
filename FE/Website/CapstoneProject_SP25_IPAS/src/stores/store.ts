@@ -47,14 +47,20 @@ export const useLoadingStore = create<LoadingState>((set) => ({
 }));
 
 interface MapState {
+  isDirty: boolean;
+  setIsDirty: (value: boolean) => void;
+  isPolygonDirty: boolean; // Kiểm tra polygon thay đổi
+  setIsPolygonDirty: (value: boolean) => void;
   mapRef: mapboxgl.Map | null;
   drawRef: MapboxDraw | null;
   setMapRef: (map: mapboxgl.Map | null) => void;
   setDrawRef: (draw: MapboxDraw | null) => void;
   isOverlapping: boolean;
   setIsOverlapping: (value: boolean) => void;
-  newPolygon: PolygonInit | null;
-  setNewPolygon: (polygon: PolygonInit | null) => void;
+  currentPolygon: PolygonInit | null;
+  setCurrentPolygon: (polygon: PolygonInit | null) => void;
+  isPolygonReady: boolean;
+  setPolygonReady: (ready: boolean) => void;
   area: number;
   width: number;
   length: number;
@@ -64,14 +70,20 @@ interface MapState {
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
+  isDirty: false,
+  setIsDirty: (value) => set({ isDirty: value }),
+  isPolygonDirty: false,
+  setIsPolygonDirty: (value) => set({ isPolygonDirty: value }),
   mapRef: null,
   drawRef: null,
   setMapRef: (map) => set({ mapRef: map }),
   setDrawRef: (draw) => set({ drawRef: draw }),
   isOverlapping: false,
   setIsOverlapping: (value) => set({ isOverlapping: value }),
-  newPolygon: null,
-  setNewPolygon: (polygon) => set({ newPolygon: polygon }),
+  currentPolygon: null,
+  setCurrentPolygon: (polygon) => set({ currentPolygon: polygon }),
+  isPolygonReady: false,
+  setPolygonReady: (ready) => set({ isPolygonReady: ready }),
   area: 0,
   width: 0,
   length: 0,

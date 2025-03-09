@@ -1,5 +1,11 @@
 import { landRowSimulate } from "@/payloads/landRow";
 
+export interface GetLandPlotSelected {
+  id: number;
+  code: string;
+  name: string;
+}
+
 export interface landPlotCoordinations {
   landPlotCoordinationId: string;
   landPlotCoordinationCode: string;
@@ -7,18 +13,14 @@ export interface landPlotCoordinations {
   latitude: number;
 }
 
-export interface GetLandPlotSelected {
-  id: number;
-  code: string;
-  name: string;
-}
-
 export interface GetLandPlot {
   landPlotId: string;
   landPlotCode: string;
   landPlotName: string;
   description: string;
-  area: string;
+  area: number;
+  length: number;
+  width: number;
   soilType: string;
   createDate: Date;
   status: string;

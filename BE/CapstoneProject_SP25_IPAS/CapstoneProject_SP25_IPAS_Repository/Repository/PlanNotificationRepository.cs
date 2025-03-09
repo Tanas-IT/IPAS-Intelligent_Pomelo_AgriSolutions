@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public PlanNotificationRepository(IpasContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<List<PlanNotification>> GetListPlanNotificationByNotificationId(int notificationId)
+        {
+            var result = await _context.PlanNotifications.Where(x => x.NotificationID == notificationId).ToListAsync();
+            return result;
+        }
+
+        public async Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId)
+        {
+            var result = await _context.PlanNotifications
+                .Include(x => x.User)
+                .Include(x => x.Notification)
+                .ThenInclude(x => x.MasterType)
+                .Where(x => x.UserID == userId).ToListAsync();
+            return result;
         }
     }
 }

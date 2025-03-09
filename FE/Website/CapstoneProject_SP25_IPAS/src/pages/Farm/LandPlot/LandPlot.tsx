@@ -1,6 +1,6 @@
 import { Flex, Input, Popover } from "antd";
 import style from "./LandPlot.module.scss";
-import { LandPlotActions, Loading, MapLandPlot } from "@/components";
+import { ConfirmModal, LandPlotActions, Loading, MapLandPlot } from "@/components";
 import { useEffect, useState } from "react";
 import { Icons } from "@/assets";
 import PlotListPopup from "./PlotListPopup";
@@ -11,6 +11,8 @@ import { useDebounce } from "use-debounce";
 import ColorGuide from "./ColorGuide";
 import { AddNewPlotDrawer } from "@/pages";
 import { PATHS } from "@/routes";
+import { toast } from "react-toastify";
+import { useModal } from "@/hooks";
 
 function LandPlot() {
   const navigate = useNavigate();
@@ -21,9 +23,11 @@ function LandPlot() {
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [isGuidePopupVisible, setGuidePopupVisible] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [selectedPlot, setSelectedPlot] = useState<GetLandPlot | null>(null);
   const debouncedSearchTerm = useDebounce(searchTerm, 500)[0];
+  const deleteConfirmModal = useModal<{ id: number }>();
 
-  const showDrawer = () => setIsDrawerVisible(true);
+  // const showDrawer = () => setIsDrawerVisible(true);
   const closeDrawer = () => setIsDrawerVisible(false);
 
   const fetchLandPlotData = async () => {
@@ -73,20 +77,31 @@ function LandPlot() {
     setFilteredLandPlotIds(filtered);
   };
 
+  const showDrawer = (plot?: GetLandPlot) => {
+    setSelectedPlot(plot ?? null);
+    setIsDrawerVisible(true);
+  };
+
   const handleClick = (plotId: number) => {
     navigate(PATHS.FARM.FARM_ROW_LIST, {
       state: { plotId, viewMode: "simulate" },
     });
   };
 
-  const handleDelete = (plotId: number) => {
-    console.log("Xóa lô đất!");
-    // TODO: Gọi API hoặc thực hiện logic xóa ở đây
+  const handleDelete = async (plotId: number | undefined) => {
+    if (!plotId) return;
+    const res = await landPlotService.deleteLandPlot(plotId);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      await fetchLandPlotData();
+    } else {
+      toast.error(res.message);
+    }
+    deleteConfirmModal.hideModal();
   };
 
-  const handleUpdate = () => {
-    console.log("Cập nhật lô đất!");
-    // TODO: Gọi API hoặc mở modal chỉnh sửa
+  const handleUpdate = (plot: GetLandPlot) => {
+    showDrawer(plot);
   };
 
   if (isLoading) return <Loading />;
@@ -100,7 +115,8 @@ function LandPlot() {
           latitude={landPlots[0]?.farmLatitude ?? 0}
           landPlots={landPlots}
           highlightedPlots={filteredLandPlotIds}
-          onDeletePlot={handleDelete}
+          onDeletePlot={(id) => deleteConfirmModal.showModal({ id: id })}
+          onUpdatePlot={handleUpdate}
           onViewRows={handleClick}
         />
         <Flex className={style.mapControls}>
@@ -122,7 +138,11 @@ function LandPlot() {
                 <LandPlotActions icon={<Icons.seedling />} label="Color Guide" />
               </>
             </Popover>
-            <LandPlotActions icon={<Icons.plus />} label="Add New Plot" onClick={showDrawer} />
+            <LandPlotActions
+              icon={<Icons.plus />}
+              label="Add New Plot"
+              onClick={() => showDrawer()}
+            />
             <Popover
               content={
                 <PlotListPopup landPlots={landPlots} onClose={() => setPopupVisible(false)} />
@@ -144,6 +164,15 @@ function LandPlot() {
         fetchLandPlots={fetchLandPlotData}
         isOpen={isDrawerVisible}
         onClose={closeDrawer}
+        selectedPlot={selectedPlot}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Plot"
+        actionType="delete"
       />
     </Flex>
   );

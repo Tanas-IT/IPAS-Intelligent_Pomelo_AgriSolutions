@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 {
     public interface IPlanService
     {
-        public Task<BusinessResult> GetPlanByID(int planId, string? unit);
+        public Task<BusinessResult> GetPlanByID(int planId);
 
         public Task<BusinessResult> GetAllPlanPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int farmId);
 
