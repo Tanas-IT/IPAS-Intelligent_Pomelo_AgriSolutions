@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { ScrollToTop } from "./components";
 import { ConfigProvider } from "antd";
 import { themeColors } from "./styles";
+import { NotFoundPage } from "./pages";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
                   />
                 );
               })}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
         </Router>

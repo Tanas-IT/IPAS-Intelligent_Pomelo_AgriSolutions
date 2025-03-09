@@ -1,7 +1,7 @@
 export interface CreateFeedbackRequest {
     content: string;
-    managerId: string;
-    worklogId: string;
-    worklogStatus: string;
+    managerId: number;
+    worklogId: number;
+    status: string;
+    reason: string;
   }
-  

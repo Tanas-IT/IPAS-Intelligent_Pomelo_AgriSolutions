@@ -91,7 +91,8 @@ export const feedbackFormFields = {
   content: "content",
   managerId: "managerId",
   worklogId: "worklogId",
-  worklogStatus: "worklogStatus",
+  status: "status",
+  reason: "reason"
 };
 
 export const createPlotFormFields = {
