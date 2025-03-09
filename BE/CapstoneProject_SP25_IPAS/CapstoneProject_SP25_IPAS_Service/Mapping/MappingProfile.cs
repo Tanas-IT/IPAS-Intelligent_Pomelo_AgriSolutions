@@ -414,6 +414,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.ListTaskFeedback, opt => opt.MapFrom(src => src.TaskFeedbacks))
             .ForMember(dest => dest.ListNoteOfWorkLog, opt => opt.MapFrom(src => src.UserWorkLogs))
             .ReverseMap();
+
+            CreateMap<Type_Type, TypeTypeModel>()
+            .ForMember(dest => dest.CriteriaSet, opt => opt.MapFrom(src => src.CriteriaSet))
+               .ReverseMap();
         }
     }
 }

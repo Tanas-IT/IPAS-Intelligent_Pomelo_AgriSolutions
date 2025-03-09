@@ -251,20 +251,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var getListPlan = await _context.Plants.Where(x => x.LandRowId == rowId && x.IsDeleted == false).Select(x => x.PlantId).ToListAsync();
             return getListPlan;
         }
-
-        public async Task<bool> CheckIfPlantCanBeGraftedAsync(int plantId, string targetType)
+        /// <summary>
+        /// hàm kiểm tra xem cây đã có ở trong giai đoạn phát triển nào chưa - Grafted/Harvest
+        /// </summary>
+        /// <param name="targetType">Grafted/Harvest</param>
+        public async Task<bool> CheckIfPlantCanBeInTargetAsync(int plantId, string targetType)
         {
             // Lấy cây từ database
             var plant = await _context.Plants
-                .Where( p => p.PlantId == plantId && p.IsDeleted == false)
+                .Where( p => p.PlantId == plantId && p.IsDeleted == false && p.IsDead == false)
                 .Include(p => p.GrowthStage)
                 .FirstOrDefaultAsync();
-                   
+
             // Kiểm tra cây có tồn tại không
-            if (plant == null)
-            {
-                throw new ArgumentException("Cây không tồn tại hoặc đã bị xóa.");
-            }
+            //if (plant == null)
+            //{
+            //    throw new ArgumentException("Plant not exist or is dead.");
+            //}
 
             // Kiểm tra cây có giai đoạn sinh trưởng không
             if (plant.GrowthStage == null)
