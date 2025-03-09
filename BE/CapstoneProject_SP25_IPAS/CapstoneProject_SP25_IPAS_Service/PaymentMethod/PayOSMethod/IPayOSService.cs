@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
+namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
 {
     public interface IPayOSService
     {

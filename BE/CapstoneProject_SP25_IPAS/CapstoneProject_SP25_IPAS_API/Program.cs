@@ -12,6 +12,7 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.Features;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig;
+using CapstoneProject_SP25_IPAS_Common.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,10 +111,10 @@ builder.Services.AddControllers()
 // add mail settings
 builder.Services.Configure<MailSetting>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
-
+app.MapHub<NotificationHub>("/notificationHub");
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();

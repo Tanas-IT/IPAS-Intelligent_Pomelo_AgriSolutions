@@ -18,5 +18,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.Notifcati
 
         public int? MasterTypeId { get; set; }
         public int? SenderID { get; set; }
+        public List<int>? ListReceiverId { get; set; }
     }
 }

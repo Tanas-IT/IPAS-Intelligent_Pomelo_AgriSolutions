@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newTaskFeedback = new TaskFeedback()
                     {
-                        TaskFeedbackCode = "TFB" + " - " + createTaskFeedbackModel.WorkLogId + " - " + GetNextSequenceNumber(),
+                        TaskFeedbackCode = "TFB" + " - " + createTaskFeedbackModel.WorkLogId + " - " + DateTime.Now.Day.ToString(),
                         CreateDate = DateTime.Now,
                         Content = createTaskFeedbackModel.Content,
                         ManagerId = createTaskFeedbackModel.ManagerId,

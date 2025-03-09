@@ -3,14 +3,14 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Net.payOS.Types;
 
 
-namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
+namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
 {
     public class PayOSService : IPayOSService
     {
@@ -34,7 +34,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
             var _payOSKey = GetPayOSKey();
             // lay package de tinh duoc ngay expired
             var packageExistJson = await _packageService.GetPackageById(createRequest.packageId);
-            if (packageExistJson.Data == null || packageExistJson.StatusCode != 200) 
+            if (packageExistJson.Data == null || packageExistJson.StatusCode != 200)
                 return packageExistJson;
             var farmExist = await _farmService.CheckFarmExist(createRequest.farmId);
             if (farmExist == null)
@@ -45,9 +45,9 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
             var orderCode = long.Parse(DateTimeOffset.Now.ToString("ffffff"));
 
             var cancleURL = _payOSKey.CanclePath + $"farmId={farmExist.FarmId}&orderCode={orderCode}&packageId={createRequest.packageId}&price={package!.PackagePrice}";
-            var returnURL = _payOSKey.ReturnPath + $"farmId={createRequest.farmId}&orderCode={orderCode}&packageId={createRequest.packageId}&price={package.PackagePrice}"; 
+            var returnURL = _payOSKey.ReturnPath + $"farmId={createRequest.farmId}&orderCode={orderCode}&packageId={createRequest.packageId}&price={package.PackagePrice}";
             Net.payOS.PayOS payOS = new Net.payOS.PayOS(apiKey: _payOSKey.ApiKey, checksumKey: _payOSKey.ChecksumKey, clientId: _payOSKey.ClientId);
-            ItemData item = new ItemData($"{farmExist.FarmName}-{farmExist.FarmCode} x {package!.PackageCode}-{(int)package.Duration!} Days", 1 , (int)package.PackagePrice);
+            ItemData item = new ItemData($"{farmExist.FarmName}-{farmExist.FarmCode} x {package!.PackageCode}-{(int)package.Duration!} Days", 1, (int)package.PackagePrice);
             List<ItemData> items = new List<ItemData>();
             items.Add(item);
 
@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
                 description: createRequest.description,
                 items: items,
                 buyerName: farmExist.FarmName,
-                buyerPhone:farmExist.FarmCode,
+                buyerPhone: farmExist.FarmCode,
                 //expiredAt: expiredTimestamp,
                 cancelUrl: $"{domain}/{cancleURL}",
                 returnUrl: $"{domain}/{returnURL}"
@@ -73,7 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS
             var _payOSKey = GetPayOSKey();
             Net.payOS.PayOS payOS = new Net.payOS.PayOS(apiKey: _payOSKey.ApiKey, checksumKey: _payOSKey.ChecksumKey, clientId: _payOSKey.ClientId);
 
-            PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation((long)orderId);
+            PaymentLinkInformation paymentLinkInformation = await payOS.getPaymentLinkInformation(orderId);
             return paymentLinkInformation;
         }
 
