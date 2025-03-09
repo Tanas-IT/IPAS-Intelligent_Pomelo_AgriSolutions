@@ -1339,33 +1339,34 @@ VALUES
 (N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 1, 2),
 (N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 1, 3),
 (N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1, 1);
-GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG001', 'Basic Package', 99.99, 30, 1, GETDATE(), NULL, 'Active'),
-('PKG002', 'Standard Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
-('PKG003', 'Premium Package', 299.99, 90, 1, GETDATE(), NULL, 'Active'),
-('PKG004', 'Enterprise Package', 499.99, 180, 1, GETDATE(), NULL, 'Active'),
-('PKG005', 'Trial Package', 0, 7, 1, GETDATE(), NULL, 'Active'),
-('PKG006', 'VIP Package', 999.99, 365, 1, GETDATE(), NULL, 'Inactive'),
-('PKG007', 'Gold Package', 599.99, 120, 1, GETDATE(), NULL, 'Active'),
-('PKG008', 'Silver Package', 399.99, 90, 1, GETDATE(), NULL, 'Inactive'),
-('PKG009', 'Bronze Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
-('PKG010', 'Custom Package', 0, NULL, 0, GETDATE(), NULL, 'Pending');
+('PKG101', 'Basic', 29.00, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG102', 'Pro', 89.00, 365, 1, GETDATE(), NULL, 'Active'),
+('PKG103', 'Enterprise', 100.00, 1095, 1, GETDATE(), NULL, 'Active');
 GO
+
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
 VALUES
-('PKD001', 'Feature A', 'Description of Feature A', 1),
-('PKD002', 'Feature B', 'Description of Feature B', 1),
-('PKD003', 'Feature C', 'Description of Feature C', 2),
-('PKD004', 'Feature D', 'Description of Feature D', 2),
-('PKD005', 'Feature E', 'Description of Feature E', 3),
-('PKD006', 'Feature F', 'Description of Feature F', 3),
-('PKD007', 'Feature G', 'Description of Feature G', 4),
-('PKD008', 'Feature H', 'Description of Feature H', 4),
-('PKD009', 'Feature I', 'Description of Feature I', 5),
-('PKD010', 'Feature J', 'Description of Feature J', 5);
+('PKD101', 'Farm Plot Management', 'Manage different farm plots with ease.', 1),
+('PKD102', 'Crop Monitoring', 'Monitor the health and status of crops.', 1),
+('PKD103', 'Task Management', 'Organize and assign farm tasks.', 1),
+('PKD104', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 1),
+('PKD105', 'Multi-platform Access', 'Access your farm data from any device.', 1),
+
+('PKD106', 'Farm Plot Management', 'Manage different farm plots with ease.', 2),
+('PKD107', 'Crop Monitoring', 'Monitor the health and status of crops.', 2),
+('PKD108', 'Task Management', 'Organize and assign farm tasks.', 2),
+('PKD109', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 2),
+('PKD110', 'Multi-platform Access', 'Access your farm data from any device.', 2),
+
+('PKD111', 'Farm Plot Management', 'Manage different farm plots with ease.', 3),
+('PKD112', 'Crop Monitoring', 'Monitor the health and status of crops.', 3),
+('PKD113', 'Task Management', 'Organize and assign farm tasks.', 3),
+('PKD114', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 3),
+('PKD115', 'Multi-platform Access', 'Access your farm data from any device.', 3);
 GO
+
 INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID)
 VALUES
 ('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1),
