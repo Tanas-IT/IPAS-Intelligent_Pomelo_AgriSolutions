@@ -484,6 +484,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
+                    findWorkLog.CreateDate = DateTime.Now;
                     foreach(var fileNote in createNoteModel.Resources)
                     {
                         var getLink = "";

@@ -7,7 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.Repository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
-using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS;
+using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;

@@ -14,12 +14,12 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -395,9 +395,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
               .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
               .ForMember(dest => dest.CreateDate,
-                opt => opt.MapFrom(src => (src.Resources != null && src.Resources.Any())
-                    ? src.Resources.Select(x => x.CreateDate).First()
-                    : (DateTime?)null))
+                opt => opt.MapFrom(src => src.CreateDate))
             .ForMember(dest => dest.ListResources,
                 opt => opt.MapFrom(src => src.Resources ?? new List<Resource>()))
               .ReverseMap();
@@ -406,6 +404,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
+            .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
             .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
             .ForMember(dest => dest.TypeWork, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
@@ -419,7 +418,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => group.First())
                                                                     .ToList()))
-            .ForMember(dest => dest.ListGrowthStageName, opt => opt.MapFrom(src => src.Schedule.CarePlan.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => pt.GrowthStage.GrowthStageName).Distinct().ToList()))
+            .ForMember(dest => dest.ListGrowthStageName, opt =>
+                                opt.MapFrom(src =>
+                                    (src.Schedule != null && src.Schedule.CarePlan != null && src.Schedule.CarePlan.GrowthStagePlans != null)
+                                    ? src.Schedule.CarePlan.GrowthStagePlans
+                                        .Where(pt => pt.GrowthStage != null)
+                                        .Select(pt => pt.GrowthStage.GrowthStageName)
+                                        .Distinct()
+                                        .ToList()
+                                    : new List<string>() // Trả về danh sách rỗng nếu bất kỳ phần nào null
+                                )
+                            )
+
             .ForMember(dest => dest.ListTaskFeedback, opt => opt.MapFrom(src => src.TaskFeedbacks))
             .ForMember(dest => dest.ListNoteOfWorkLog, opt => opt.MapFrom(src => src.UserWorkLogs))
             .ReverseMap();

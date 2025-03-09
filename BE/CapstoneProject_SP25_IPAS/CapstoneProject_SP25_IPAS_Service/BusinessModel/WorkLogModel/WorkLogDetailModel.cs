@@ -18,6 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
 
         public string? Status { get; set; }
         public string? WorkLogName { get; set; }
+        public string? PlanName { get; set; }
 
        
         public string? ReasonDelay { get; set; }
