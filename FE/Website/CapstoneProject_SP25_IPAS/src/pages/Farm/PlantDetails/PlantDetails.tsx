@@ -1,11 +1,11 @@
 import { Flex, Tabs, TabsProps } from "antd";
-import style from "./PlantDetail.module.scss";
+import style from "./PlantDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import PlantDetail from "./PlantDetail";
+import PlantDetail from "./PlantDetail/PlantDetail";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {

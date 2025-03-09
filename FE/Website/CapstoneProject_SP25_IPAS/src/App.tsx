@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { ScrollToTop } from "./components";
 import { ConfigProvider } from "antd";
 import { themeColors } from "./styles";
+import { NotFoundPage } from "./pages";
 
 function App() {
   return (
@@ -16,8 +17,13 @@ function App() {
         theme={{
           token: {
             colorPrimary: themeColors.highlight,
+            boxShadow: "none",
+            boxShadowSecondary: "none",
           },
           components: {
+            Input: {
+              activeShadow: "none",
+            },
             Select: {
               optionSelectedColor: themeColors.primary,
               optionSelectedBg: themeColors.secondary,
@@ -51,6 +57,7 @@ function App() {
                   />
                 );
               })}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
         </Router>

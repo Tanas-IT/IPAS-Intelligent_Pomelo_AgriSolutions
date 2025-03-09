@@ -12,6 +12,7 @@ import {
   userService,
 } from "@/services";
 import { landRowSimulate } from "@/payloads";
+import { Dayjs } from "dayjs";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -280,15 +281,6 @@ export const statusOptions = [
   { label: "Completed", value: "completed" },
 ];
 
-// export const fetchTypeOptionsByName = async (typeName: string, useIdAsValue: boolean) => {
-//   const types = await masterTypeService.getTypeByName(typeName);
-
-//   return types.map((type) => ({
-//     value: useIdAsValue ? type.masterTypeId : type.masterTypeName,
-//     label: type.masterTypeName,
-//   }));
-// };
-
 export const fetchTypeOptionsByName = async (typeName: string) => {
   const types = await masterTypeService.getTypeByName(typeName);
 
@@ -309,15 +301,14 @@ export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) =
   }));
 };
 
-// export const generatePlanId = () => Math.floor(Date.now() / 1000000);
 export const generatePlanId = (existingIds: number[] = []) => {
-  const min = 1; // Giá trị tối thiểu
-  const max = 2147483647; // Giá trị tối đa của kiểu int trong C#
+  const min = 1;
+  const max = 2147483647;
 
   let newId;
   do {
-    newId = Math.floor(Math.random() * (max - min + 1)) + min; // Tạo số ngẫu nhiên trong khoảng [min, max]
-  } while (existingIds.includes(newId)); // Kiểm tra xem ID đã tồn tại chưa
+    newId = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (existingIds.includes(newId));
 
   return newId;
 };
@@ -378,4 +369,21 @@ const getDaySuffix = (day: number): string => {
       case 3: return "rd";
       default: return "th";
   }
+};
+
+export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type: "weekly" | "monthly") => {
+  if (type === "weekly") {
+    let currentDate = startDate.clone();
+    while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
+      if (currentDate.day() === day) {
+        return true;
+      }
+      currentDate = currentDate.add(1, "day");
+    }
+    return false;
+  } else if (type === "monthly") {
+    const targetDate = startDate.date(day);
+    return targetDate.isBetween(startDate, endDate, "day", "[]");
+  }
+  return false;
 };

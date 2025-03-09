@@ -30,3 +30,4 @@ export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/Workl
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
 export { default as PackageList } from "@/pages/Package/PackageList/PackageList";
 export { default as EmployeeList } from "@/pages/HR/Employee/EmployeeList";
+export { default as NotFoundPage } from "@/pages/NotFoundPage/NotFoundPage";

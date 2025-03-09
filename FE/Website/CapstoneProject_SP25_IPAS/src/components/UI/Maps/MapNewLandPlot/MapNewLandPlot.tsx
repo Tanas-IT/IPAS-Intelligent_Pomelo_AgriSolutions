@@ -1,4 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import style from "./MapNewLandPlot.module.scss";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw, {
@@ -22,6 +29,7 @@ interface MapLandPlotProps {
   latitude: number;
   longitude: number;
   landPlots: GetLandPlot[];
+  selectedPlot?: GetLandPlot | null;
   addNewPolygon: (polygon: PolygonInit) => void;
 }
 
@@ -31,17 +39,26 @@ interface MapLandPlotRef {
 }
 
 const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
-  ({ latitude, longitude, landPlots, addNewPolygon }, ref) => {
+  ({ latitude, longitude, landPlots, selectedPlot, addNewPolygon }, ref) => {
+    // const MIN_LENGTH = 10;
+    // const MAX_LENGTH = 100;
+    // const MIN_WIDTH = 10;
+    // const MAX_WIDTH = 50;
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
     const {
+      setIsPolygonDirty,
       setMapRef,
       setDrawRef,
       clearPolygons,
       startDrawingPolygon,
-      newPolygon,
+      currentPolygon,
       setPolygonDimensions,
     } = useMapStore();
+    const filteredLandPlots = useMemo(
+      () => landPlots.filter((landPlot) => landPlot.landPlotId !== selectedPlot?.landPlotId),
+      [landPlots, selectedPlot],
+    );
 
     const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
     const center: [number, number] =
@@ -72,12 +89,11 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
 
     const checkPolygonOverlap = (
       newPolygonFeature: Feature<Polygon, GeoJsonProperties>,
-      landPlots: GetLandPlot[],
       excludedId?: string,
     ) => {
       const { setIsOverlapping } = useMapStore.getState();
 
-      const isOverlapping = landPlots.some((existingPlot) => {
+      const isOverlapping = filteredLandPlots.some((existingPlot) => {
         if (existingPlot.landPlotId.toString() === excludedId) return false;
 
         const coords = existingPlot.landPlotCoordinations.map((coord) => [
@@ -107,6 +123,20 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
       setIsOverlapping(isOverlapping);
     };
 
+    // const validatePolygonDimensions = (width: number, length: number): boolean => {
+    //   if (width < MIN_WIDTH || width > MAX_WIDTH) {
+    //     toast.error(`Width must be between ${MIN_WIDTH} and ${MAX_WIDTH} meters!`);
+    //     return false;
+    //   }
+
+    //   if (length < MIN_LENGTH || length > MAX_LENGTH) {
+    //     toast.error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH} meters!`);
+    //     return false;
+    //   }
+
+    //   return true;
+    // };
+
     const handlePolygonEvents = (
       draw: MapboxDraw,
       e: DrawCreateEvent | DrawDeleteEvent | DrawUpdateEvent,
@@ -117,6 +147,12 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
           if (feature.geometry.type === "Polygon") {
             const dimensions = calculateDimensions(feature as Feature<Polygon>);
             const { area, width, length } = dimensions;
+
+            // if (!validatePolygonDimensions(width, length)) {
+            //   draw.delete(feature.id as string); // Xóa polygon nếu không hợp lệ
+            //   return;
+            // }
+
             setPolygonDimensions(area, width, length);
           }
         });
@@ -133,7 +169,7 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
 
             // Kiểm tra xem có bị vẽ đè lên thửa cũ không
             const newPolygonFeature = turf.polygon((feature.geometry as Polygon).coordinates);
-            checkPolygonOverlap(newPolygonFeature, landPlots);
+            checkPolygonOverlap(newPolygonFeature);
 
             draw.add(feature); // Thêm polygon mới vào bản đồ
             const newPolygonData = {
@@ -148,6 +184,7 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
             // });
 
             addNewPolygon(newPolygonData);
+            setIsPolygonDirty(true);
             break;
           case "draw.update":
             const updatedFeature = e.features[0];
@@ -157,7 +194,7 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
               const updatedPolygonFeature = turf.polygon(
                 (updatedFeature.geometry as Polygon).coordinates,
               );
-              checkPolygonOverlap(updatedPolygonFeature, landPlots, updatedId);
+              checkPolygonOverlap(updatedPolygonFeature, updatedId);
 
               const updatedPolygonData = {
                 id: updatedId,
@@ -170,6 +207,7 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
               setPolygonDimensions(area, width, length);
               // setRoundedArea(Math.round(updatedDimensions.area * 100) / 100);
             }
+            setIsPolygonDirty(true);
             break;
           default:
             break;
@@ -193,7 +231,7 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
       if (landPlots.length > 0) {
         map.on("load", () => {
           const features =
-            landPlots.map((landPlot) => ({
+            filteredLandPlots.map((landPlot) => ({
               type: "Feature",
               geometry: {
                 type: "Polygon",
@@ -279,13 +317,13 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
       setMapRef(map);
       setDrawRef(draw);
 
-      if (newPolygon) {
+      if (currentPolygon) {
         draw.add({
-          id: newPolygon.id,
+          id: currentPolygon.id,
           type: "Feature",
           geometry: {
             type: "Polygon",
-            coordinates: newPolygon.coordinates,
+            coordinates: currentPolygon.coordinates,
           },
           properties: {},
         });

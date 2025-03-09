@@ -97,6 +97,8 @@ export class RulesManager {
   static getMonthAgeEndRules = () => this.getNumberRules("Month Age End");
 
   static getTypeNameRules = () => this.getRequiredRules("Type Name");
+  static getTargetRules = () => this.getRequiredRules("Target");
+  static getIsConflictRules = () => this.getRequiredRules("Can Overlap");
   static getTypeRules = () => this.getRequiredRules("Type");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
   static getCharacteristicRules = () => this.getRequiredRules("Characteristic");

@@ -31,7 +31,6 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             });
 
             services.AddSingleton(mapper.CreateMapper());
-
             // read TypeName and Target of MasterType
             var ProgramDefaultConfig = new ProgramDefaultConfig();
             configuration.GetSection("ProgramDefaultConfig").Bind(ProgramDefaultConfig);
@@ -43,6 +42,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 
             services.AddSingleton(ProgramDefaultConfig);
 
+            // Background service config
+            //services.AddHostedService<WeatherMonitoringService>();
 
             // Register repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -114,6 +115,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
             services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
+            services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
+
 
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPackageService, PackageService>();

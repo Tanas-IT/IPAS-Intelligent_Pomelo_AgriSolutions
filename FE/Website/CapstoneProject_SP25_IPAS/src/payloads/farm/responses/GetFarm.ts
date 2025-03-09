@@ -36,5 +36,6 @@ export interface GetFarmInfo extends Farm {
 export interface GetFarmPicker {
   roleId: string;
   roleName: string;
+  isActive: boolean;
   farm: Farm;
 }

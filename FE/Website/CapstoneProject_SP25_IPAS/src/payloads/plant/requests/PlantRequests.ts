@@ -7,7 +7,7 @@ export interface PlantRequest {
   masterTypeId: number;
   imageUrl: File | string | undefined;
   plantingDate: string;
-  landPlotId: number;
-  landRowId: number;
-  plantIndex: number;
+  landPlotId?: number;
+  landRowId?: number;
+  plantIndex?: number;
 }

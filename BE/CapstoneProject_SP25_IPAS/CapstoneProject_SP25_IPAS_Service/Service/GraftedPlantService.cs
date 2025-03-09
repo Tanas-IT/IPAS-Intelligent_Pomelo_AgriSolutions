@@ -549,12 +549,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             var errors = new List<string>();
             var plant = await _unitOfWork.PlantRepository.getById(plantId);
-            if (plant == null)
-                errors.Add("Plant not found");
-            else
-            {
+            //if (plant == null)
+            //    errors.Add("Plant not found");
+            //else
+            //{
                 // kiểm tra xem cây đã ở giai đoạn được chiết cành chưa
-                var canGrafted = await _unitOfWork.PlantRepository.CheckIfPlantCanBeGraftedAsync(plantId, "Grafted");
+                var canGrafted = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId, "Grafted");
                 if (!canGrafted)
                     errors.Add("Plant not in stage can be grafted.");
                 // kiem tra tinh trang suc khoe cua cay
@@ -568,7 +568,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (countGraftedInYear >= maxGraftedBranches)
                     errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
-            }
+            //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;
         }

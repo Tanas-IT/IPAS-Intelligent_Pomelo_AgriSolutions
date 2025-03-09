@@ -4,13 +4,15 @@ import React, { useEffect } from "react";
 import { CustomButton, InfoField } from "@/components";
 import { RulesManager } from "@/utils";
 import { createPlotFormFields } from "@/constants";
+import { useMapStore } from "@/stores";
 
 interface RowConfigurationProps {
   form: FormInstance;
-  setIsDirty: (dirty: boolean) => void;
 }
 
-const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form, setIsDirty }) => {
+const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) => {
+  const { setIsDirty } = useMapStore();
+
   const handleAutoFill = () => {
     form.setFieldsValue({
       [createPlotFormFields.rowLength]: 210,

@@ -32,6 +32,10 @@
       .card {
         width: 100%;
         min-height: 100%;
+        &.inactiveCard {
+          user-select: none;
+          cursor: not-allowed;
+        }
 
         .cardContent {
           justify-content: flex-start;
