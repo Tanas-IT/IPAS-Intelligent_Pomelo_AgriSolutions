@@ -101,7 +101,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
 
                 if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    var response = new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm Id is Requried"
+                    };
+                }
                 var result = await _planService.CreatePlan(createPlanModel, farmId);
                 return Ok(result);
             }

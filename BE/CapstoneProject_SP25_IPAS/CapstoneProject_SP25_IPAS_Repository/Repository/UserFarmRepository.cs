@@ -52,5 +52,19 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return await query.ToListAsync();
         }
+
+        public async Task<List<UserFarm>> GetUserOfFarm(int farmId)
+        {
+            IQueryable<UserFarm> query = _context.UserFarms.AsQueryable();
+
+            query = query.Where(x => x.FarmId == farmId && x.Farm.IsDeleted != true && x.User.IsDelete != true);
+
+            query = query.Include(x => x.User)
+                .Include(x => x.Role)
+                .Include(x => x.Farm)
+                .ThenInclude(x => x.Orders);
+
+            return await query.ToListAsync();
+        }
     }
 }

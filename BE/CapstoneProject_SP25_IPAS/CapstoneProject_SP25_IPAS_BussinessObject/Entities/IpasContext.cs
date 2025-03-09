@@ -1354,19 +1354,19 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<Type_Type>(entity =>
         {
-            entity.HasKey(e => new { e.MasterTypeID_1, e.MasterTypeID_2 }).HasName("PK_Type_Type__2F2CAR35609A834");
+            entity.HasKey(e => new { e.ProductId, e.CriteriaSetId }).HasName("PK_Type_Type__2F2CAR35609A834");
 
             entity.ToTable("Type_Type");
 
-            entity.Property(e => e.MasterTypeID_1).HasColumnName("MasterTypeID_1");
-            entity.Property(e => e.MasterTypeID_2).HasColumnName("MasterTypeID_2");
+            entity.Property(e => e.ProductId).HasColumnName("MasterTypeID_1");
+            entity.Property(e => e.CriteriaSetId).HasColumnName("MasterTypeID_2");
 
-            entity.HasOne(d => d.MasterType_1).WithMany(p => p.Type_Types_1)
-                .HasForeignKey(d => d.MasterTypeID_1)
+            entity.HasOne(d => d.Product).WithMany(p => p.Type_Types_1)
+                .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK__Type_Type_1_MasterType__43A51090D");
 
-            entity.HasOne(d => d.MasterType_2).WithMany(p => p.Type_Types_2)
-                .HasForeignKey(d => d.MasterTypeID_2)
+            entity.HasOne(d => d.CriteriaSet).WithMany(p => p.Type_Types_2)
+                .HasForeignKey(d => d.CriteriaSetId)
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });
 

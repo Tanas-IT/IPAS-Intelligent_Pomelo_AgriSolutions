@@ -826,6 +826,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
                     plantUpdate.UpdateDate = DateTime.Now;
                     plantUpdate.IsDead = true;
+                    plantUpdate.HealthStatus = HealthStatusConst.DEAD;
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
 
