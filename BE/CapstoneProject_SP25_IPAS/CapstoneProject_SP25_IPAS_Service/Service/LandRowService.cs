@@ -178,6 +178,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var row = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (row == null)
                     return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                if (row.Plants.Any())
+                {
+                    row.Plants = row.Plants.Where(x => x.IsDeleted == false).ToList();
+                }
                 var mappedReturn = _mapper.Map<LandRowModel>(row);
                 return new BusinessResult(Const.SUCCESS_GET_ROW_BY_ID_CODE, Const.SUCCESS_GET_ROW_BY_ID_MSG, mappedReturn);
             }
@@ -327,8 +331,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.LandRowId);
                         break;
                 }
-                string includeProperties = "LandPlot,Plants";
-                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                //string includeProperties = "LandPlot,Plants";
+                var entities = await _unitOfWork.LandRowRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+
                 var pagin = new PageEntity<LandRowModel>();
                 pagin.List = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
                 foreach (var item in pagin.List)
@@ -400,14 +405,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var landRow = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (landRow == null)
                     return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
-                if ( !landRow.TreeAmount.HasValue || landRow.TreeAmount.Value == landRow.Plants.Count())
+                if (!landRow.TreeAmount.HasValue || landRow.TreeAmount.Value == landRow.Plants.Count())
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, "This row has no index to plant");
 
                 // Danh sách index có thể trồng từ 1 đến TreeAmount
                 var allIndexes = Enumerable.Range(1, landRow.TreeAmount.Value).ToList();
 
-                // Lấy danh sách các index đã có cây trồng - trừ những cây chết
-                var usedIndexes = landRow.Plants.Where(p => p.PlantIndex.HasValue && p.IsDead == true).Select(p => p.PlantIndex!.Value).ToList();
+                // Lấy danh sách các index đã có cây trồng - trừ những cây chết - cây bị xoá
+                var usedIndexes = landRow.Plants.Where(p => p.PlantIndex.HasValue && (p.IsDead != true || p.IsDeleted != true)).Select(p => p.PlantIndex!.Value).ToList();
 
                 // Lọc ra các index còn trống
                 var emptyIndexes = allIndexes.Except(usedIndexes).ToList();
