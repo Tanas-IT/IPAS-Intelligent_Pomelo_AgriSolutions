@@ -57,7 +57,7 @@ const Notification = () => {
       />
 
       {Object.entries(groupedNotifications).length === 0 ? (
-        <Spin size="small" />
+        <p>You don't have any unread notifications.</p>
       ) : (
         <List
           itemLayout="horizontal"

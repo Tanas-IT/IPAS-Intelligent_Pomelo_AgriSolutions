@@ -85,7 +85,7 @@ const AddPlan = () => {
   const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
-  const [cropOptions, setCropOptions] = useState<OptionType<string>[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
   // const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
   // const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
@@ -236,6 +236,11 @@ const AddPlan = () => {
 
   const handleConfirmAssign = () => {
     setAssignorId(userId);
+    // if (selectedIds.length === 0) {
+    //   setErrorMessage("Please select at least one employee.");
+    //   return;
+    // }
+    
     setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
     setIsModalOpen(false);
   };
@@ -243,7 +248,7 @@ const AddPlan = () => {
   const handleWeeklyDaySelection = (days: number[]) => {
     setDayOfWeek(days);
   };
-  
+
   const handleMonthlyDaySelection = (days: number[]) => {
     setDayOfMonth(days);
   };
@@ -253,18 +258,18 @@ const AddPlan = () => {
       setDateError("Please select the date range first!");
       return;
     }
-  
+
     const [startDate, endDate] = dateRange;
-  
+
     // filter ra các ngày hợp lệ
     const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
-  
+
     // không có ngày nào hợp lệ
     if (validDays.length === 0) {
       setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
       return;
     }
-  
+
     // có ngày không hợp lệ
     if (validDays.length < days.length) {
       setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
@@ -276,7 +281,7 @@ const AddPlan = () => {
     } else {
       setDateError(null);
     }
-  
+
     if (validDays.length === 1) {
       Modal.confirm({
         title: "Adjust Date Range",
@@ -284,7 +289,7 @@ const AddPlan = () => {
         onOk: () => {
           const selectedDay = validDays[0];
           let targetDate = startDate.clone();
-  
+
           if (type === "weekly") {
             while (targetDate.day() !== selectedDay) {
               targetDate = targetDate.add(1, "day");
@@ -292,7 +297,7 @@ const AddPlan = () => {
           } else if (type === "monthly") {
             targetDate = startDate.date(selectedDay);
           }
-  
+
           const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
           setDateRange(newDateRange);
           form.setFieldsValue({ dateRange: newDateRange });
@@ -303,9 +308,9 @@ const AddPlan = () => {
       });
     }
   };
-  
-  
-  
+
+
+
   const handleSubmit = async (values: any) => {
     console.log("bấm add");
 
@@ -322,7 +327,12 @@ const AddPlan = () => {
     const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
 
     if (assignorId === undefined) {
-      toast.error("Assignor ID is required.");
+      toast.error("Please select at least one employee.");
+      return;
+    }
+
+    if (planTargetModel.length === 0) {
+      toast.error("Please select at least one plan target.");
       return;
     }
 
@@ -359,6 +369,7 @@ const AddPlan = () => {
         plantID: target.plantID ?? [],
         graftedPlantID: target.graftedPlantID ?? [],
         plantLotID: target.plantLotID ?? [],
+        unit: target.unit
       })),
     };
     console.log("planData", planData);
@@ -370,7 +381,7 @@ const AddPlan = () => {
       await toast.success(result.message);
       form.resetFields();
     } else {
-      await toast.error(result.message);
+      toast.error(result.message);
     }
 
     setIsFormDirty(false);
@@ -381,10 +392,6 @@ const AddPlan = () => {
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       console.log("d");
       setEmployee(await fetchUserInfoByRole("User"));
-      console.log("employee", employee);
-      console.log("hhhhhhhh");
-
-
     };
 
     fetchData();
@@ -400,8 +407,8 @@ const AddPlan = () => {
             onClick={() => {
               if (isFormDirty) {
                 Modal.confirm({
-                  title: "Bạn có chắc chắn muốn rời đi?",
-                  content: "Tất cả thay đổi chưa lưu sẽ bị mất.",
+                  title: "Are you sure you want to leave?",
+                  content: "All unsaved changes will be lost.",
                   onOk: () => navigate(PATHS.PLAN.PLAN_LIST),
                 });
               } else {
@@ -514,41 +521,40 @@ const AddPlan = () => {
             isEditing
             type="select"
             hasFeedback={false}
-            // onChange={(value) => setFrequency(value)}
             onChange={handleFrequencyChange}
           />
 
-{frequency === "Weekly" && (
-  <Form.Item
-    label="Select Days of Week"
-    rules={[{ required: true, message: "Please select the days of week!" }]}
-    validateStatus={dateError ? "error" : ""}
-    help={dateError}
-  >
-    <DaySelector
-      onSelectDays={handleWeeklyDaySelection}
-      onSave={(days) => handleSaveDays(days, "weekly")} // Truyền hàm onSave với type "weekly"
-      selectedDays={dayOfWeek}
-      type="weekly"
-    />
-  </Form.Item>
-)}
+          {frequency === "Weekly" && (
+            <Form.Item
+              label="Select Days of Week"
+              rules={[{ required: true, message: "Please select the days of week!" }]}
+              validateStatus={dateError ? "error" : ""}
+              help={dateError}
+            >
+              <DaySelector
+                onSelectDays={handleWeeklyDaySelection}
+                onSave={(days) => handleSaveDays(days, "weekly")}
+                selectedDays={dayOfWeek}
+                type="weekly"
+              />
+            </Form.Item>
+          )}
 
-{frequency === "Monthly" && (
-  <Form.Item
-    label="Select Dates"
-    rules={[{ required: true, message: "Please select the dates!" }]}
-    validateStatus={dateError ? "error" : ""}
-    help={dateError}
-  >
-    <DaySelector
-      onSelectDays={handleMonthlyDaySelection}
-      onSave={(days) => handleSaveDays(days, "monthly")} // Truyền hàm onSave với type "monthly"
-      selectedDays={dayOfMonth}
-      type="monthly"
-    />
-  </Form.Item>
-)}
+          {frequency === "Monthly" && (
+            <Form.Item
+              label="Select Dates"
+              rules={[{ required: true, message: "Please select the dates!" }]}
+              validateStatus={dateError ? "error" : ""}
+              help={dateError}
+            >
+              <DaySelector
+                onSelectDays={handleMonthlyDaySelection}
+                onSave={(days) => handleSaveDays(days, "monthly")}
+                selectedDays={dayOfMonth}
+                type="monthly"
+              />
+            </Form.Item>
+          )}
 
           {frequency === "None" && (
             <Form.Item
@@ -599,6 +605,7 @@ const AddPlan = () => {
             onReporterChange={handleReporterChange}
             selectedReporter={selectedReporter}
           />
+          {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
           <Modal
             title="Assign Members"
             open={isModalOpen}

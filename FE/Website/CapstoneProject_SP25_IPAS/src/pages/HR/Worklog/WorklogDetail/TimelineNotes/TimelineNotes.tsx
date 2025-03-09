@@ -111,6 +111,7 @@ import { useStyle } from "@/hooks";
 import NoteDetail from "../NoteDetail/NoteDetail";
 
 interface Note {
+    issue: string;
     notes: string;
     fullName: string;
     avatarURL: string;
@@ -158,8 +159,11 @@ const TimelineNotes: React.FC<TimelineNotesProps> = ({ notes }) => {
                                     <Flex gap={20}>
                                         <span className={style.userName}>{note.fullName}</span>
                                         <span>created this note</span>
-                                        {/* Nếu có ngày tạo note từ API, bạn có thể thêm vào đây */}
                                         {/* <span className={style.createdDate}>{note.date}</span> */}
+                                    </Flex>
+                                    <Flex className={style.infoRow}>
+                                        <span className={style.label}>Issues:</span>
+                                        <span className={style.noteContent}>{note.issue}</span>
                                     </Flex>
                                     <Flex className={style.infoRow}>
                                         <span className={style.label}>Notes:</span>
@@ -191,7 +195,6 @@ const TimelineNotes: React.FC<TimelineNotesProps> = ({ notes }) => {
                 })}
             </Timeline>
 
-            {/* Modal hiển thị chi tiết note */}
             <NoteDetail note={selectedNote} onClose={handleCloseModal} />
         </>
     );

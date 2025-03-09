@@ -36,7 +36,6 @@ const NoteDetail: React.FC<NoteDetailProps> = ({ note, onClose }) => {
                     <Avatar src={note.avatarURL} size={40} shape="circle" crossOrigin="anonymous" />
                     <div>
                         <h4 className={style.name}>{note.fullName}</h4>
-                        {/* <p className={style.createdDate}>{note.date}</p> */}
                     </div>
                 </Flex>
 
@@ -48,7 +47,7 @@ const NoteDetail: React.FC<NoteDetailProps> = ({ note, onClose }) => {
                 <Flex className={style.modalInfoRow} vertical>
                     <span className={style.label}>Media:</span>
                     {images.length === 0 && videos.length === 0 ? (
-                        <p className={style.noMedia}>Employee chưa up hình lên</p>
+                        <p className={style.noMedia}>Employee haven't uploaded any images or videos.</p>
                     ) : (
                         <div className={style.mediaContainer}>
                             {images.length > 0 && (

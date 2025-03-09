@@ -57,6 +57,7 @@ export interface Resource {
 }
 
 export interface NoteOfWorkLog {
+  issue: string;
   notes: string;
   fullName: string;
   avatarURL: string;

@@ -12,6 +12,7 @@ import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { worklogService } from "@/services";
 import { GetWorklogDetail } from "@/payloads/worklog";
+import { getUserId } from "@/utils";
 
 const InfoField = ({
     icon: Icon,
@@ -43,7 +44,7 @@ function WorklogDetail() {
     const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
     const infoFieldsLeft = [
         { label: "Crop", value: "Spring 2025", icon: Icons.growth },
-        { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
+        { label: "Plan Name", value: "Plan name", icon: Icons.box },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
     ];
 
@@ -76,12 +77,12 @@ function WorklogDetail() {
                 setFeedbackList(res.listTaskFeedback || []);
 
                 infoFieldsLeft[0].value = res.listGrowthStageName.join(", ") || "Spring 2025";
-                infoFieldsLeft[1].value = res.planTargetModels[0]?.plantLotName.join(", ") || "Green Pomelo Lot 1";
-                infoFieldsLeft[2].value = res.listGrowthStageName.join(", ") || "Cây non";
+                // infoFieldsLeft[1].value = res.planTargetModels[0]?.plantLotName.join(", ") || "Green Pomelo Lot 1";
+                // infoFieldsLeft[2].value = res.listGrowthStageName.join(", ") || "Cây non";
 
                 infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
                 infoFieldsRight[1].value = res.status || "Watering";
-                infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
+                // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
             } catch (error) {
                 console.error("error", error);
                 navigate("/error");
@@ -207,14 +208,26 @@ function WorklogDetail() {
                 ) : (
                     <div className={style.noFeedback}>Chưa có feedback</div>
                 )}
-                <Button onClick={handleFeedback} className={style.btnFeedback}>
+                {worklogDetail?.status === "Reviewing" ? (
+                    <Button onClick={handleFeedback} className={style.btnFeedback}>
                     Feedback
                 </Button>
+                ) : (
+                    <>
+                    <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
+                    Feedback
+                </Button>
+                <p className={style.informFb}>The employee has not completed the task yet. Please check back later.</p>
+                </>
+                )}
+                
             </Flex>
             <FeedbackModal
                 isOpen={addModal.modalState.visible}
                 onClose={addModal.hideModal}
                 onSave={handleAdd}
+                worklogId={Number(id)}
+                managerId={Number(getUserId())}
             />
             <ToastContainer />
         </div>

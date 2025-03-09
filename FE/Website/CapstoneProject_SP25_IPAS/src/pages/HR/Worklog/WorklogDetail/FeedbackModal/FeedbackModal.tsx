@@ -4,14 +4,19 @@ import { feedbackFormFields, worklogFormFields } from "@/constants";
 import { Flex } from "antd";
 import { useState } from "react";
 import { RulesManager } from "@/utils";
+import { CreateFeedbackRequest } from "@/payloads";
+import { feedbackService } from "@/services";
+import { toast } from "react-toastify";
 
 type FeedbackModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (values: { feedback: string; status: string }) => void;
+  worklogId: number;
+  managerId: number;
 };
 
-const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
+const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: FeedbackModalProps) => {
   const [form] = Form.useForm();
   const [status, setStatus] = useState<string>("done");
 
@@ -22,7 +27,23 @@ const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
   const handleSave = async () => {
     const values = await form.validateFields();
     console.log("Feedback Form Values:", values);
-    onSave(values);
+    const payload: CreateFeedbackRequest = {
+      content: values.content,
+      managerId,
+      worklogId,
+      status: values.status,
+      reason: values.reason,
+    }
+    console.log(payload);
+    
+    const result = await feedbackService.createFeedback(payload);
+    if (result.statusCode === 200) {
+      toast.success(result.message);
+      form.resetFields();
+    } else {
+      toast.error(result.message);
+    }
+    // onSave(values);
     onClose();
   };
 
@@ -51,7 +72,7 @@ const FeedbackModal = ({ isOpen, onClose, onSave }: FeedbackModalProps) => {
           <FormFieldModal
             label="Worklog Status"
             rules={RulesManager.getStatusWorklogFeedbackRules()}
-            name={feedbackFormFields.worklogStatus}
+            name={feedbackFormFields.status}
             options={statusOptions}
             type="select"
             onChange={(value) => setStatus(value)}
