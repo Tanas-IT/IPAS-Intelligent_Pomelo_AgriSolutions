@@ -85,6 +85,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LandRowId = plantCreateRequest.LandRowId,
                         FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
+                        IsDead = false,
+                        CreateDate = DateTime.Now,
                     };
 
                     if (plantCreateRequest.MotherPlantId.HasValue)
@@ -832,7 +834,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var plantUpdate = await _unitOfWork.PlantRepository.GetByCondition(x => x.IsDead!.Value == false && x.IsDeleted == false && x.PlantId == plantId);
                     if (plantUpdate == null)
-                        return new BusinessResult(400, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
+                        return new BusinessResult(400, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
                     plantUpdate.UpdateDate = DateTime.Now;
                     plantUpdate.IsDead = true;
                     plantUpdate.HealthStatus = HealthStatusConst.DEAD;
