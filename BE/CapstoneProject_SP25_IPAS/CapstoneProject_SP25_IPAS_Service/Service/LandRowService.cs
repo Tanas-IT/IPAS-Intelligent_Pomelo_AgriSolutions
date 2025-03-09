@@ -412,7 +412,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var allIndexes = Enumerable.Range(1, landRow.TreeAmount.Value).ToList();
 
                 // Lấy danh sách các index đã có cây trồng - trừ những cây chết - cây bị xoá
-                var usedIndexes = landRow.Plants.Where(p => p.PlantIndex.HasValue && (p.IsDead != true || p.IsDeleted != true)).Select(p => p.PlantIndex!.Value).ToList();
+                var usedIndexes = landRow.Plants.Where(p => p.PlantIndex.HasValue && (p.IsDead != true && p.IsDeleted != true)).Select(p => p.PlantIndex!.Value).ToList();
 
                 // Lọc ra các index còn trống
                 var emptyIndexes = allIndexes.Except(usedIndexes).ToList();
