@@ -133,7 +133,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                 {
                     OrderId = order.OrderId,
                     PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(order.OrderCode!).First()}",
-                    TransactionId = paymentCode.ToString(),
+                    //TransactionId = paymentCode.ToString(),
                     Status = OrderStatusEnum.Pending.ToString(),
                     CreateDate = DateTime.UtcNow,
                     PaymentMethod = PaymentMethodEnum.PayOS.ToString(),
@@ -164,12 +164,14 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                 {
                     // Cập nhật trạng thái thanh toán
                     payment.Status = "Paid";
+                    payment.TransactionId = callback.TransactionId;
                     _unitOfWork.PaymentRepository.Update(payment);
 
                     // Cập nhật Order
                     var order = await _unitOfWork.OrdersRepository.GetByCondition(x => x.OrderId == payment.OrderId);
                     if (order != null)
                     {
+                       
                         order.Status = OrderStatusEnum.Paid.ToString();
                         _unitOfWork.OrdersRepository.Update(order);
                     }
