@@ -9,9 +9,13 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
 {
-    public interface IPayOSService
+    public interface IPaymentService
     {
-        public Task<BusinessResult> createPaymentLink(CreatePaymentLinkRequest createPaymentLinkRequest);
+        //public Task<BusinessResult> createPaymentLink(CreatePaymentLinkRequest createPaymentLinkRequest);
         public Task<PaymentLinkInformation> getPaymentLinkInformation(int orderId);
+        public Task<BusinessResult> CreatePayOsPaymentForOrder(CreatePaymentLinkRequest createPaymentLinkRequest);
+        public Task<BusinessResult> HandlePaymentCallback(PaymentCallbackRequest callback);
+        public  Task<BusinessResult> GetPaymentInfo(int paymentId);
+
     }
 }

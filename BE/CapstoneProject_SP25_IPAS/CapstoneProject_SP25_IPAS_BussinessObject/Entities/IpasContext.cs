@@ -744,15 +744,11 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
-            entity.HasOne(d => d.Role).WithMany(p => p.Partners)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Partner__RoleID__27F8EE98");
+ 
             entity.HasOne(d => d.Farm).WithMany(p => p.Partners)
-                .HasForeignKey(d => d.PartnerId)
+                .HasForeignKey(d => d.FarmId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Partner__Farm");
         });

@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel
         public string? Province { get; set; }
         public string? District { get; set; }
         public string? Ward { get; set; }
-        public string? Avatar { get; set; }
+        //public string? Avatar { get; set; }
         public string? Description { get; set; }
         public string? Major { get; set; }
         public string? Status { get; set; }
@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel
 
         public string? National { get; set; }
 
-        public int? RoleId { get; set; }
+        //public int? RoleId { get; set; }
+        public int? FarmId { get; set; }
     }
 }
