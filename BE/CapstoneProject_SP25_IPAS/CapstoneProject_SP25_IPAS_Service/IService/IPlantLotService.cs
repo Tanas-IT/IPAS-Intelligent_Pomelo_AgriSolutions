@@ -19,7 +19,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> UpdatePlantLot(UpdatePlantLotModel updatePlantLotRequestModel);
         public Task<BusinessResult> DeletePlantLot(int plantLotId);
         public Task<BusinessResult> CreatePlantLot(CreatePlantLotModel createPlantLotModel);
-        public Task<BusinessResult> GetAllPlantLots(PaginationParameter paginationParameter);
+        public Task<BusinessResult> CreateAdditionalPlantLot(CreateAdditionalPlantLotModel createModel);
+        public Task<BusinessResult> GetAllPlantLots(GetPlantLotRequest filterRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> CreateManyPlant(List<CriteriaForPlantLotRequestModel> criterias, int quantity);
         public Task<BusinessResult> FillPlantToPlot(FillPlanToPlotRequest fillRequest);
         public Task<BusinessResult> GetForSelectedByFarmId(int farmId);

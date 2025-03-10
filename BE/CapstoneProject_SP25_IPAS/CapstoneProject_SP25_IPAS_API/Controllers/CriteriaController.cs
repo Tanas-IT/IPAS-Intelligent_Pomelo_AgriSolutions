@@ -43,16 +43,20 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.Criteria.updateCriteriaInfo, Name = "updateCriteria")]
-        public async Task<IActionResult> UpdateCriteria(CriteriaUpdateRequest updateRequest)
+        /// <summary>
+        /// Lay nhieu criteria theo mastertype id
+        /// </summary>
+        [HttpGet(APIRoutes.Criteria.getCriteriaBySet + "/{mastertype-id}", Name = "getCriteriaBySet")]
+        public async Task<IActionResult> getCriteriaBySet([FromRoute(Name = "mastertype-id")] int id)
         {
             try
             {
-                var result = await _criteriaService.UpdateOneCriteriaInType(updateRequest);
+                var result = await _criteriaService.GetCriteriasByMasterTypeId(id);
                 return Ok(result);
             }
             catch (Exception ex)
             {
+
                 var response = new BaseResponse()
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
@@ -62,27 +66,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.Criteria.updateListCriteriaType, Name = "updateListCriteria")]
-        public async Task<IActionResult> UpdateListCriteria([FromBody] ListCriteriaUpdateRequest request)
-        {
-            try
-            {
-                var result = await _criteriaService.UpdateListCriteriaInType(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
-
-        [HttpGet(APIRoutes.Criteria.getCriteriaOfObject , Name = "getCriteriaOfPlantById")]
-        public async Task<IActionResult> GetCriteriaOfPlantById([FromQuery]GetCriteriaOfTargetRequest request)
+        [HttpGet(APIRoutes.Criteria.getCriteriaOfObject, Name = "getCriteriaOfPlantById")]
+        public async Task<IActionResult> GetCriteriaOfPlantById([FromQuery] GetCriteriaOfTargetRequest request)
         {
             try
             {
@@ -145,6 +130,45 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPut(APIRoutes.Criteria.updateCriteriaInfo, Name = "updateCriteria")]
+        public async Task<IActionResult> UpdateCriteria(CriteriaUpdateRequest updateRequest)
+        {
+            try
+            {
+                var result = await _criteriaService.UpdateOneCriteriaInType(updateRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.Criteria.updateListCriteriaType, Name = "updateListCriteria")]
+        public async Task<IActionResult> UpdateListCriteria([FromBody] ListCriteriaUpdateRequest request)
+        {
+            try
+            {
+                var result = await _criteriaService.UpdateListCriteriaInType(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        
         [HttpPut(APIRoutes.Criteria.updateCriteriaMultipleTarget, Name = "updateCriteriaMultipleTarget")]
         public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] CriteriaTargerRequest request )
         {
@@ -228,5 +252,6 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+        
     }
 }

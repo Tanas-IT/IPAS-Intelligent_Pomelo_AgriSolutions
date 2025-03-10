@@ -65,6 +65,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class PlantLot
         {
             public const string createPlantLot = Base + "/plant-lots";
+            public const string createPlantLotAdditional = Base + "/plant-lots/additional";
             public const string getPlantLotById = Base + "/get-plantLot-by-id/{id}";
             public const string getPlantLotWithPagination = Base + "/plantLots";
             public const string permanenlyDelete = Base + "/delete-permanenly/{id}";
@@ -108,6 +109,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCriteriaOfObject = prefix + "/get-criteria-of-object";
             public const string updateCriteriaInfo = prefix + "";
             public const string createMasTypeCriteria = prefix + "/create-master-type-criteria";
+            public const string getCriteriaBySet = prefix + "/set-criteria";
 
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";

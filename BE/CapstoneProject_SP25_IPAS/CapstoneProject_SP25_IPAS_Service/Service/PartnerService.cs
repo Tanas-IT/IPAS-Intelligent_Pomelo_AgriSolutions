@@ -60,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = DateTime.Now,
                         Email = createPartnerModel.Email,
                         National = createPartnerModel.National,
-                        PhoneNumber = createPartnerModel.National,
+                        PhoneNumber = createPartnerModel.PhoneNumber,
                         FarmId = createPartnerModel.FarmId,
                         IsDeleted = false,
                     };

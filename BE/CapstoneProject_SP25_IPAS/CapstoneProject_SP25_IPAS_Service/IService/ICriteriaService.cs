@@ -11,6 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 {
     public interface ICriteriaService
     {
+        public Task<BusinessResult> GetCriteriasByMasterTypeId (int masterTypeId);
         public Task<BusinessResult> GetCriteriaById(int criteriaId);
         public Task<BusinessResult> UpdateListCriteriaInType(ListCriteriaUpdateRequest listCriteriaUpdateRequest);
         public Task<BusinessResult> UpdateOneCriteriaInType(CriteriaUpdateRequest criteriaUpdateRequests);
