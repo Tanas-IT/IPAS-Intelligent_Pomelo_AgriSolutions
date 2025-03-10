@@ -744,15 +744,11 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
-            entity.HasOne(d => d.Role).WithMany(p => p.Partners)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Partner__RoleID__27F8EE98");
+ 
             entity.HasOne(d => d.Farm).WithMany(p => p.Partners)
-                .HasForeignKey(d => d.PartnerId)
+                .HasForeignKey(d => d.FarmId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Partner__Farm");
         });
@@ -981,6 +977,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.GrowthStage).WithMany(p => p.PlantLots)
                 .HasForeignKey(d => d.GrowthStageID)
                 .HasConstraintName("PlantLot_GrowthStage_FK");
+
+            entity.HasOne(d => d.MasterType).WithMany(p => p.PlantLots)
+                .HasForeignKey(d => d.MasterTypeId)
+                .HasConstraintName("PlantLot_MasterType_FK");
 
         });
 
@@ -1354,19 +1354,19 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<Type_Type>(entity =>
         {
-            entity.HasKey(e => new { e.MasterTypeID_1, e.MasterTypeID_2 }).HasName("PK_Type_Type__2F2CAR35609A834");
+            entity.HasKey(e => new { e.ProductId, e.CriteriaSetId }).HasName("PK_Type_Type__2F2CAR35609A834");
 
             entity.ToTable("Type_Type");
 
-            entity.Property(e => e.MasterTypeID_1).HasColumnName("MasterTypeID_1");
-            entity.Property(e => e.MasterTypeID_2).HasColumnName("MasterTypeID_2");
+            entity.Property(e => e.ProductId).HasColumnName("MasterTypeID_1");
+            entity.Property(e => e.CriteriaSetId).HasColumnName("MasterTypeID_2");
 
-            entity.HasOne(d => d.MasterType_1).WithMany(p => p.Type_Types_1)
-                .HasForeignKey(d => d.MasterTypeID_1)
+            entity.HasOne(d => d.Product).WithMany(p => p.Type_Types_1)
+                .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK__Type_Type_1_MasterType__43A51090D");
 
-            entity.HasOne(d => d.MasterType_2).WithMany(p => p.Type_Types_2)
-                .HasForeignKey(d => d.MasterTypeID_2)
+            entity.HasOne(d => d.CriteriaSet).WithMany(p => p.Type_Types_2)
+                .HasForeignKey(d => d.CriteriaSetId)
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });
 

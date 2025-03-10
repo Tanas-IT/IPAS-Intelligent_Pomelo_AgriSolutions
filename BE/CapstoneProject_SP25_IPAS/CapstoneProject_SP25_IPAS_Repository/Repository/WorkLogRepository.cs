@@ -253,6 +253,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.WorkLogs.Include(x => x.Schedule)
                         .Include(x => x.TaskFeedbacks)
+                        .Include(x => x.Schedule.CarePlan.GrowthStagePlans)
+                        .ThenInclude(x => x.GrowthStage)
                         .Include(w => w.UserWorkLogs)
                         .ThenInclude(x => x.Resources)
                         .Include(x => x.UserWorkLogs)

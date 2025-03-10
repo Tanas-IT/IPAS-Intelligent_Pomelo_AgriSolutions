@@ -7,7 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.Repository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
-using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS;
+using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +31,6 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             });
 
             services.AddSingleton(mapper.CreateMapper());
-
             // read TypeName and Target of MasterType
             var ProgramDefaultConfig = new ProgramDefaultConfig();
             configuration.GetSection("ProgramDefaultConfig").Bind(ProgramDefaultConfig);
@@ -43,6 +42,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 
             services.AddSingleton(ProgramDefaultConfig);
 
+            // Background service config
+            //services.AddHostedService<WeatherMonitoringService>();
 
             // Register repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -114,6 +115,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
             services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
+            services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
+
 
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPackageService, PackageService>();
@@ -123,8 +126,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGraftedPlantService, GraftedPlantService>();
             services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
             services.AddScoped<IAIService, AIService>();
-            services.AddScoped<IPaymentService, PaymentService>();
-            services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<CapstoneProject_SP25_IPAS_Service.IService.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentService>();
+            services.AddScoped<CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
 
 

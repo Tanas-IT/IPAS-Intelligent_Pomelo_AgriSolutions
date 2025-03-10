@@ -85,6 +85,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LandRowId = plantCreateRequest.LandRowId,
                         FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
+                        IsDead = false,
+                        CreateDate = DateTime.Now,
                     };
 
                     if (plantCreateRequest.MotherPlantId.HasValue)
@@ -292,20 +294,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.IsDead == request.IsDead);
                 }
-                if (!string.IsNullOrEmpty(request.LandPlotIds))
+                // neu filter theo cay chua trong thi bo qua cai hang thua do luon
+                if (request.IsLocated.HasValue && request.IsLocated == false)
                 {
-                    List<string> filterList = Util.SplitByComma(request.LandPlotIds!);
-                    filter = filter.And(x => filterList.Contains(x.LandRow!.LandPlotId.ToString()!));
-                }
-                if (!string.IsNullOrEmpty(request.LandRowIds))
-                {
-                    List<string> filterList = Util.SplitByComma(request.LandRowIds);
-                    filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
-                    //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
-                }
-                if (string.IsNullOrEmpty(request.LandPlotIds) && string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
                     filter = filter.And(x => !x.LandRowId.HasValue);
-                if (!string.IsNullOrEmpty(request.LandPlotIds) && !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(request.LandPlotIds))
+                    {
+                        List<string> filterList = Util.SplitByComma(request.LandPlotIds!);
+                        filter = filter.And(x => filterList.Contains(x.LandRow!.LandPlotId.ToString()!));
+                    }
+                    if (!string.IsNullOrEmpty(request.LandRowIds))
+                    {
+                        List<string> filterList = Util.SplitByComma(request.LandRowIds);
+                        filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
+                        //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
+                    }
+                }
+                //if (string.IsNullOrEmpty(request.LandPlotIds) && string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
+                //filter = filter.And(x => !x.LandRowId.HasValue);
+                //if (!string.IsNullOrEmpty(request.LandPlotIds) || !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
+                if (request.IsLocated.HasValue && request.IsLocated == true)
                     filter = filter.And(x => x.LandRowId.HasValue);
 
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
@@ -823,9 +834,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var plantUpdate = await _unitOfWork.PlantRepository.GetByCondition(x => x.IsDead!.Value == false && x.IsDeleted == false && x.PlantId == plantId);
                     if (plantUpdate == null)
-                        return new BusinessResult(400, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
+                        return new BusinessResult(400, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
                     plantUpdate.UpdateDate = DateTime.Now;
                     plantUpdate.IsDead = true;
+                    plantUpdate.HealthStatus = HealthStatusConst.DEAD;
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
 

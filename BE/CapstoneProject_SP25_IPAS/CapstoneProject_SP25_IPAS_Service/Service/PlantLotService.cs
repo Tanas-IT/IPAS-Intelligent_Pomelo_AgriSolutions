@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -68,7 +70,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             HealthStatus = "Good",
                             GrowthStageID = 2,
                             UpdateDate = DateTime.Now,
-                            IsDeleted = false
+                            IsDeleted = false,
+                            IsPassed = false,
                         };
                         await _unitOfWork.PlantRepository.Insert(newPlant);
                     }
@@ -98,17 +101,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkPartnerExít = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
+                    if (checkPartnerExít == null)
+                        return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
                     var plantLot = new PlantLot()
                     {
-                        PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PARTNER}{createPlantLotModel.PartnerId}-{CodeHelper.GenerateCode()}",
+                        PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PARTNER}{createPlantLotModel.PartnerId}",
                         ImportedDate = DateTime.Now,
                         PreviousQuantity = createPlantLotModel.ImportedQuantity,
-                        LastQuantity = createPlantLotModel.ImportedQuantity,
+                        LastQuantity = 0,
+                        UsedQuantity = 0,
                         PartnerId = createPlantLotModel.PartnerId,
                         PlantLotName = createPlantLotModel.Name,
                         Unit = createPlantLotModel.Unit,
                         Note = createPlantLotModel.Note,
-                        Status = "Active"
+                        Status = createPlantLotModel.Status ?? "Active",
+                        FarmID = createPlantLotModel.FarmId,
+                        MasterTypeId = createPlantLotModel.MasterTypeId,
+                        PlantLotReferenceId = null!,
+                        isDeleted = false,
+                        IsPassed = false
                     };
 
                     await _unitOfWork.PlantLotRepository.Insert(plantLot);
@@ -116,7 +128,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await transaction.CommitAsync();
                     if (checkInsertPlantLot > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, Const.SUCCESS_CREATE_PLANT_LOT_MESSAGE, true);
+                        string includeProperties = "Partner,MasterType";
+                        var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLot.PlantLotId, includeProperties);
+                        var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);
+                        return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, Const.SUCCESS_CREATE_PLANT_LOT_MESSAGE, mappedResult);
                     }
                     return new BusinessResult(Const.FAIL_CREATE_PLANT_LOT_CODE, Const.FAIL_CREATE_PLANT_LOT_MESSAGE, false);
                 }
@@ -126,6 +141,77 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
 
+            }
+        }
+
+        public async Task<BusinessResult> CreateAdditionalPlantLot(CreateAdditionalPlantLotModel createModel)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    // ✅ Kiểm tra lô hàng chính có tồn tại không
+                    var mainPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x =>
+                        x.PlantLotId == createModel.MainPlantLotId && x.isDeleted == false);
+
+                    if (mainPlantLot == null)
+                    {
+                        return new BusinessResult(400, "Main Plant Lot does not exist or is invalid.");
+                    }
+                    if (!mainPlantLot.LastQuantity.HasValue)
+                        return new BusinessResult(400, "Main PlantLot has not have last quantity");
+                    // ✅ Tính số lượng còn thiếu
+                    int missingQuantity = (mainPlantLot.PreviousQuantity ?? 0) - (mainPlantLot.LastQuantity ?? 0);
+                    if (missingQuantity <= 0)
+                    {
+                        return new BusinessResult(400, "Main Plant Lot does not require additional stock.");
+                    }
+
+                    // ✅ Kiểm tra số lượng nhập bù không được lớn hơn số còn thiếu
+                    if (createModel.ImportedQuantity > missingQuantity)
+                    {
+                        return new BusinessResult(400, $"Imported quantity exceeds missing amount. You can only add up to {missingQuantity}.");
+                    }
+
+                    // ✅ Tạo lô nhập bù
+                    var additionalPlantLot = new PlantLot()
+                    {
+                        PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyyyy}-{Util.SplitByDash(mainPlantLot.PlantLotCode).First()}",
+                        ImportedDate = DateTime.UtcNow,
+                        PreviousQuantity = createModel.ImportedQuantity, // Số lượng nhập bù
+                        LastQuantity = 0,
+                        UsedQuantity = 0,
+                        PartnerId = mainPlantLot.PartnerId,
+                        PlantLotName = $"{mainPlantLot.PlantLotName} - Additional",
+                        Unit = mainPlantLot.Unit,
+                        Note = createModel.Note,
+                        Status = "Active",
+                        FarmID = mainPlantLot.FarmID,
+                        MasterTypeId = mainPlantLot.MasterTypeId,
+                        PlantLotReferenceId = mainPlantLot.PlantLotId, // Gán ID của lô chính
+                        isDeleted = false,
+                        IsPassed = false
+                    };
+
+                    await _unitOfWork.PlantLotRepository.Insert(additionalPlantLot);
+                    var result = await _unitOfWork.SaveAsync();
+                    await transaction.CommitAsync();
+
+                    if (result > 0)
+                    {
+                        string includeProperties = "Partner,MasterType";
+                        var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == additionalPlantLot.PlantLotId, includeProperties);
+                        var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);
+
+                        return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, "Additional Plant Lot created successfully", mappedResult);
+                    }
+                    return new BusinessResult(Const.FAIL_CREATE_PLANT_LOT_CODE, "Failed to create additional Plant Lot", false);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
             }
         }
 
@@ -150,34 +236,56 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllPlantLots(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllPlantLots(GetPlantLotRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = null!;
+                var checkParam = checkParamGetRequest(filterRequest);
+                if (checkParam.Success == false)
+                    return new BusinessResult(400, checkParam.ErorrMessage);
+                // chi lay nhung plot chinh, ko lay plot nhap phu
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == filterRequest.FarmId && x.PlantLotReferenceId == null && x.isDeleted == false;
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
-                    int validInt = 0;
-                    var checkInt = int.TryParse(paginationParameter.Search, out validInt);
-                    DateTime validDate = DateTime.Now;
-                    if (checkInt)
-                    {
-                        filter = x => x.PlantLotId == validInt || x.PreviousQuantity == validInt || x.LastQuantity == validInt;
-                    }
-                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
-                    {
-                        filter = x => x.ImportedDate == validDate;
-                    }
-                    else
-                    {
-                        filter = x => x.PlantLotCode.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.PlantLotName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Unit.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Partner.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower());
-                    }
+                    //int validInt = 0;
+                    //var checkInt = int.TryParse(paginationParameter.Search, out validInt);
+                    //DateTime validDate = DateTime.Now;
+                    //if (checkInt)
+                    //{
+                    //    filter = x => x.PlantLotId == validInt || x.PreviousQuantity == validInt || x.LastQuantity == validInt;
+                    //}
+                    //else if (DateTime.TryParse(paginationParameter.Search, out validDate))
+                    //{
+                    //    filter = x => x.ImportedDate == validDate;
+                    //}
+                    //else
+                    //{
+                    filter = filter.And(x => x.PlantLotCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.PlantLotName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.Unit.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
+                                   || x.Partner.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower()));
+                    //}
+                }
+                if (!string.IsNullOrEmpty(filterRequest.PartnerId))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.PartnerId);
+                    filter = filter.And(x => filterList.Contains(x.PartnerId!.ToString()!));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+                if (filterRequest.ImportedDateFrom.HasValue && filterRequest.ImportedDateTo.HasValue)
+                {
+                    filter = filter.And(x => x.ImportedDate >= filterRequest.ImportedDateFrom && x.ImportedDate <= filterRequest.ImportedDateTo);
+                }
+                if (filterRequest.PreviousQuantityFrom.HasValue && filterRequest.PreviousQuantityTo.HasValue)
+                {
+                    filter = filter.And(x => x.PreviousQuantity >= filterRequest.PreviousQuantityFrom && x.PreviousQuantity <= filterRequest.PreviousQuantityTo);
                 }
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
@@ -242,14 +350,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.ImportedDate)) : x => x.OrderBy(x => x.ImportedDate);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.PlantLotId);
+                        orderBy = x => x.OrderByDescending(x => x.PlantLotId);
                         break;
                 }
-                string includeProperties = "Partner";
+                string includeProperties = "Partner,MasterType";
                 var entities = await _unitOfWork.PlantLotRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<PlantLotModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantLotModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.PlantLotRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.PlantLotRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -271,7 +379,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var plantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, "Partner");
+                //var plantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, "Partner,InversePlantLotReference,MasterType");
+                var plantLot = await _unitOfWork.PlantLotRepository.GetPlantLotWithAllReferences(plantLotId);
                 if (plantLot != null)
                 {
                     var result = _mapper.Map<PlantLotModel>(plantLot);
@@ -297,36 +406,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(updatePlantLotRequestModel.PlantLotID);
+
                     if (checkExistPlantLot != null)
                     {
-                        if (updatePlantLotRequestModel.PartnerID > 0)
+                        if (updatePlantLotRequestModel.PartnerID.HasValue)
                         {
                             checkExistPlantLot.PartnerId = updatePlantLotRequestModel.PartnerID;
                         }
-                        if (updatePlantLotRequestModel.Name != null)
+                        if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Name))
                         {
                             checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
                         }
-                        if (updatePlantLotRequestModel.GoodPlant > 0)
+                        if (updatePlantLotRequestModel.LastQuantity.HasValue)
                         {
-                            checkExistPlantLot.LastQuantity = checkExistPlantLot.LastQuantity - updatePlantLotRequestModel.GoodPlant;
+                            if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.PreviousQuantity)
+                                return new BusinessResult(400, "Last Quantity larger than previous quantity");
+                            checkExistPlantLot.LastQuantity = updatePlantLotRequestModel.LastQuantity;
                         }
-                        if (updatePlantLotRequestModel.Unit != null)
+                        if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Unit))
                         {
                             checkExistPlantLot.Unit = updatePlantLotRequestModel.Unit;
                         }
-                        if (updatePlantLotRequestModel.Note != null)
+                        if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Note))
                         {
                             checkExistPlantLot.Note = updatePlantLotRequestModel.Note;
                         }
-                        if (updatePlantLotRequestModel.Status != null)
+                        if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Status))
                         {
                             checkExistPlantLot.Status = updatePlantLotRequestModel.Status;
                         }
+                        _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
-                            return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, Const.SUCCESS_UPDATE_PLANT_LOT_MESSAGE, checkExistPlantLot);
+                            string includeProperties = "Partner,MasterType";
+                            var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updatePlantLotRequestModel.PlantLotID, includeProperties);
+                            var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);
+
+                            return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, Const.SUCCESS_UPDATE_PLANT_LOT_MESSAGE, mappedResult);
                         }
                         else
                         {
@@ -417,15 +534,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = plantLot.PlantLotName,
-                                PlantCode = $"{CodeAliasEntityConst.PLANT_LOT}-{DateTime.Now:ddMMyyyy}-{CodeAliasEntityConst.LANDPLOT}{row.LandPlotId}{CodeAliasEntityConst.LANDROW}{row.RowIndex}-{CodeHelper.GenerateCode()}",
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{CodeAliasEntityConst.LANDPLOT}{row.LandPlotId}{CodeAliasEntityConst.LANDROW}{row.RowIndex}",
                                 PlantingDate = DateTime.UtcNow,
                                 HealthStatus = "Healthy",
                                 LandRowId = row.LandRowId,
                                 FarmId = landPlot.FarmId,
                                 IsDeleted = false,
                                 GrowthStageID = fillRequest.growthStageId,
-                                MasterTypeId = fillRequest.MasterTypeId,
-                                PlantIndex = availableIndexes[i] // Gán vị trí trống hợp lệ
+                                MasterTypeId = plantLot.MasterTypeId,  // gán giống của lô đó vào cho cây này
+                                PlantIndex = availableIndexes[i], // Gán vị trí trống hợp lệ
+                                IsDead = false,
                             };
                             await _unitOfWork.PlantRepository.Insert(newPlant);
                         }
@@ -438,8 +556,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     _unitOfWork.PlantLotRepository.Update(plantLot);
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
-                    if(result > 0)
-                    return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
+                    if (result > 0)
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
                     // nếu sai
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE);
@@ -457,8 +575,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
-                string includeProperties = "Partner";
-                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId, includeProperties: includeProperties, orderBy: orderBy);
+                //string includeProperties = "Partner";
+                //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
+                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.LastQuantity == x.UsedQuantity && x.isDeleted == false, orderBy: orderBy);
                 if (plantLot != null)
                 {
                     var result = _mapper.Map<IEnumerable<ForSelectedModels>>(plantLot);
@@ -511,6 +630,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
+        }
+        private (bool Success, string ErorrMessage) checkParamGetRequest(GetPlantLotRequest request)
+        {
+            //if (!request.farmId.HasValue && !request.LandPlotId.HasValue && !request.LandRowId.HasValue)
+            //    return (false, "No destination to get plant");
+            if (request.ImportedDateFrom.HasValue && request.ImportedDateTo.HasValue && request.ImportedDateFrom.Value > request.ImportedDateTo)
+                return (false, "Row index 'From' must smaller or equal than Row index 'To' ");
+            if (request.PreviousQuantityFrom.HasValue && request.PreviousQuantityTo.HasValue && request.PreviousQuantityFrom.Value > request.PreviousQuantityTo.Value)
+                return (false, "Plant index 'From' in row must smaller or equal than plant index 'To' ");
+            return (true, null!);
         }
     }
 }

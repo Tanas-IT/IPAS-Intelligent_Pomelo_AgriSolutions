@@ -6,6 +6,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PartnerRequest;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -22,11 +24,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Partner.getPartnerWithPagination, Name = "getPartnerWithPagination")]
-        public async Task<IActionResult> GetAllPartner(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPartner([FromQuery] GetPartnerFilterRequest filterRequest, [FromQuery]PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _partnerService.GetAllPartnerPagination(paginationParameter);
+                if (!filterRequest.FarmId.HasValue)
+                    filterRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!filterRequest.FarmId.HasValue)
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId cannot be null"
+                    });
+                var result = await _partnerService.GetAllPartnerPagination(filterRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -64,6 +74,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!createPartnerModel.FarmId.HasValue)
+                    createPartnerModel.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!createPartnerModel.FarmId.HasValue)
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId cannot be null"
+                    });
                 var result = await _partnerService.CreatePartner(createPartnerModel);
                 return Ok(result);
             }
@@ -136,7 +154,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Partner.getForSelected, Name = "getPartnerForSelected")]
-        public async Task<IActionResult> getPartnerForSelected([FromQuery] int? farmId)
+        public async Task<IActionResult> getPartnerForSelected([FromQuery] int? farmId, string? Major)
         {
             try
             {
@@ -148,7 +166,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         StatusCode = StatusCodes.Status400BadRequest,
                         Message = "FarmId cannot be null"
                     });
-                var result = await _partnerService.GetPartnerForSelected(farmId: farmId!.Value);
+                var result = await _partnerService.GetPartnerForSelected(farmId: farmId!.Value, Major);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPatch(APIRoutes.Partner.softedDeletePartner, Name = "softedDeletePartnerAsync")]
+        public async Task<IActionResult> softedDeletePartnerAsync([FromBody] List<int> partners)
+        {
+            try
+            {
+                var result = await _partnerService.SoftedMultipleDelete(partners);
                 return Ok(result);
             }
             catch (Exception ex)

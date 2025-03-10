@@ -1,7 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
-using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOS;
+using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +11,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly IPayOSService _payOSService;
+        private readonly IPaymentService _paymentService;
 
-        public PaymentController(IPayOSService payOSService)
+        public PaymentController(IPaymentService payOSService)
         {
-            _payOSService = payOSService;
+            _paymentService = payOSService;
         }
 
         [HttpPost(APIRoutes.Payment.createPaymentLinkPayOS, Name = "createPaymentLinkPayOS")]
@@ -31,8 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "Some thing are need"
                     });
                 }
-                //var orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-                var paymentReponse = await _payOSService.createPaymentLink(reqObj);
+                var paymentReponse = await _paymentService.CreatePayOsPaymentForOrder(reqObj);
                 return Ok(paymentReponse);
             } catch (Exception ex)
             {
@@ -42,6 +41,33 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     Message = ex.Message
                 });
             } 
+        }
+        [HttpGet(APIRoutes.Payment.getPaymentInfo, Name = "getPaymentInfo")]
+        public async Task<IActionResult> GetPaymentInfo([FromQuery] int paymentId)
+        {
+            try
+            {
+                var result = await _paymentService.GetPaymentInfo(paymentId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse { StatusCode = 400, Message = ex.Message });
+            }
+        }
+
+        [HttpPut(APIRoutes.Payment.handdlePayment)]
+        public async Task<IActionResult> handdlePayment (PaymentCallbackRequest request)
+        {
+            try
+            {
+                var result = await _paymentService.HandlePaymentCallback(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse { StatusCode = 400, Message = ex.Message });
+            }
         }
     }
 }

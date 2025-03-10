@@ -314,7 +314,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Plant.getPlantNotLocate )]
-        public async Task<IActionResult> GetForSelectedForRow([FromQuery(Name = "farmId")] int? farmId)
+        public async Task<IActionResult> getPlantNotLocate([FromQuery(Name = "farmId")] int? farmId)
         {
             try
             {
@@ -341,7 +341,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
-
+        /// <summary>
+        /// Lấy ra tất cả các cây ở trong giai đoạn có thể làm gì 
+        /// </summary>
+        /// <param name="activeFunction">Harvest,Grafted</param>
         [HttpGet(APIRoutes.Plant.getPlantByGrowthFunc)]
         public async Task<IActionResult> getPlantByGrowthFunc([FromQuery(Name = "farmId")] int? farmId, string activeFunction)
         {

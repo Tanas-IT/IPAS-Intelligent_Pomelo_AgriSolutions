@@ -3,11 +3,12 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PackageModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using MimeKit.Tnef;
@@ -53,6 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //var farmData = JsonConvert.DeserializeObject<FarmModel>(checkFarmExist.Data);
                     var farmData = checkFarmExist.Data as FarmModel;
 
+                    var getLastExpired = await GetLastExpiredOfFarm(farmId: farmData!.FarmId, newPackageDuration: (int)checkPackageExist.Duration!.Value);
                     var farmCode = Util.SplitByDash(farmData!.FarmCode!);
                     var packagecode = Util.SplitByDash(checkPackageExist.PackageCode!);
                     var orderWithPayment = new Order
@@ -62,9 +64,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TotalPrice = createRequest.TotalPrice,
                         Notes = createRequest.Notes,
                         EnrolledDate = DateTime.Now,
-                        ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),
+                        //ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),
+                        ExpiredDate = getLastExpired,
                         FarmId = farmData.FarmId,
                         PackageId = checkPackageExist.PackageId,
+                        Status = OrderStatusEnum.Pending.ToString(),
                     };
                     string ordercode = Util.SplitByDash(orderWithPayment.OrderCode).First();
                     var payment = new Payment
@@ -76,7 +80,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = createRequest.PaymentStatus,
                     };
                     orderWithPayment.Payment = payment;
-                    await _unitOfWork.OrdesRepository.Insert(orderWithPayment);
+                    await _unitOfWork.OrdersRepository.Insert(orderWithPayment);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -101,7 +105,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string includeProperties = "Package,Farm";
                 //Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(x => x.OrderId);
 
-                var order = await _unitOfWork.OrdesRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                var order = await _unitOfWork.OrdersRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (order == null)
                     return new BusinessResult(Const.WARNING_FARM_EXPIRED_CODE, Const.WARNING_FARM_EXPIRED_MSG);
                 var mappedResult = _mapper.Map<OrderModel>(order);
@@ -169,15 +173,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.FarmId);
                         break;
                 }
-                var entities = await _unitOfWork.OrdesRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.OrdersRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<OrderModel>();
                 pagin.List = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
                 Expression<Func<Order, bool>> filterCount = null!;
-                pagin.TotalRecord = await _unitOfWork.OrdesRepository.Count(filter: filterCount);
+                pagin.TotalRecord = await _unitOfWork.OrdersRepository.Count(filter: filterCount);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
 
 
-                var order = await _unitOfWork.OrdesRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                var order = await _unitOfWork.OrdersRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (order == null)
                     return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<OrderModel>>(order);
@@ -193,5 +197,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             throw new NotImplementedException();
         }
+
+        private async Task<DateTime> GetLastExpiredOfFarm(int farmId, int newPackageDuration)
+        {
+            try
+            {
+                var ordersBought = await _unitOfWork.OrdersRepository.GetAllNoPaging(x => x.FarmId == farmId && x.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+                if (ordersBought == null || !ordersBought.Any())
+                    return DateTime.Now;
+                var lastExpiredDate = ordersBought.Max(x => x.ExpiredDate ?? DateTime.UtcNow);
+                if (lastExpiredDate <= DateTime.Now)
+                    lastExpiredDate = DateTime.Now;
+                else
+                {
+                    lastExpiredDate.AddDays(newPackageDuration);
+                }
+                return lastExpiredDate;
+            }
+            catch (Exception)
+            {
+                return DateTime.Now;
+            }
+        }
     }
+
 }

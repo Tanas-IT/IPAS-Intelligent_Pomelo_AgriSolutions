@@ -173,7 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 LandRowID = row.Key,
                                                 PlantID = plantId,
                                                 PlantLotID = null,
-                                                Unit = "LandPlot",
+                                                Unit = "Land Plot",
                                                 GraftedPlantID = null,
                                             };
 
@@ -198,7 +198,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 LandRowID = row.Key,
                                                 PlantID = plantId,
                                                 PlantLotID = null,
-                                                Unit = "LandRow",
+                                                Unit = "Row",
                                                 GraftedPlantID = null,
                                             };
 
@@ -281,22 +281,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
 
-                    foreach (var growthStagePlanItem in createPlanModel.GrowthStageId)
+                   if(createPlanModel.GrowthStageId != null)
                     {
-                        var growthStagePlan = new GrowthStagePlan()
+                        foreach (var growthStagePlanItem in createPlanModel.GrowthStageId)
                         {
-                            GrowthStageID = growthStagePlanItem,
-                        };
-                        newPlan.GrowthStagePlans.Add(growthStagePlan);
+                            var growthStagePlan = new GrowthStagePlan()
+                            {
+                                GrowthStageID = growthStagePlanItem,
+                            };
+                            newPlan.GrowthStagePlans.Add(growthStagePlan);
+                        }
                     }
 
                     var getListMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("notification");
-                    var getMasterType = getListMasterType.FirstOrDefault(x => x.MasterTypeName.ToLower().Contains("Task Assignment".ToLower()));
+
+                    var getMasterType = getListMasterType
+                                    .FirstOrDefault(x => x.MasterTypeName?.ToLower().Contains("task assignment".ToLower()) == true);
+
                     var addNotification = new Notification()
                     {
                         Content = "Plan " + createPlanModel.PlanName + " has just been created",
                         Title = "Plan",
-                        MasterTypeId = getMasterType.MasterTypeId,
+                        MasterTypeId = getMasterType?.MasterTypeId,
                         IsRead = false,
                         CreateDate = DateTime.Now,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
@@ -683,8 +689,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
-                var getPlan = entities.FirstOrDefault(x => x.PlanId == planId && x.IsDelete == false);
+                var entities = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
+                var getPlan = entities.FirstOrDefault();
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
@@ -783,7 +789,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     // LandPlot đã được lấy từ FirstOrDefault()
                 }
-                if (isFullMode || planTarget.Unit == "Rows")
+                if (isFullMode || planTarget.Unit == "Row")
                 {
                     if (planTarget.LandRow != null)
                     {
@@ -1256,6 +1262,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await GenerateWorkLogs(schedule, currentDate, createPlanModel);
                     currentDate = currentDate.AddDays(1);
                 }
+                else
+                {
+                    throw new Exception("Frequency must be weekly, monthly, daily or none");
+                }
             }
             if (result > 0)
             {
@@ -1499,6 +1509,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await GenerateWorkLogsForUpdate(schedule, currentDate, tempModel);
 
                     currentDate = currentDate.AddDays(1);
+                }
+                else
+                {
+                    throw new Exception("Frequency must be weekly, monthly, daily or none");
+                    
                 }
             }
             if (result > 0)

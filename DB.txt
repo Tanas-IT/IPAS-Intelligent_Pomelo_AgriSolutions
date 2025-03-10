@@ -363,6 +363,7 @@ CREATE TABLE ipas.dbo.[Order] (
 	OrderName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	TotalPrice float NULL,
 	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(200) NULL,
 	OrderDate datetime NULL,
 	EnrolledDate datetime NULL,
 	ExpiredDate datetime NULL,
@@ -407,7 +408,8 @@ CREATE TABLE ipas.dbo.Partner (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	[National] nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	RoleID int NULL,
+	--RoleID int NULL,
+	IsDeleted bit NULL DEFAULT 0,
 	District nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Ward nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -418,7 +420,7 @@ CREATE TABLE ipas.dbo.Partner (
 	BusinessField nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
 	CONSTRAINT PK__Partner__39FD6332F826F432 PRIMARY KEY (PartnerID),
-	CONSTRAINT FK__Partner__RoleID__27F8EE98 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE,
+	
 	CONSTRAINT FK__Partner__Farm FOREIGN KEY (FarmID) REFERENCES ipas.dbo.[Farm](FarmID) ON DELETE CASCADE
 );
 
@@ -510,16 +512,22 @@ CREATE TABLE ipas.dbo.PlantLot (
 	Unit nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LastQuantity int NULL,
+	UsedQuantity int NULL,
 	ImportedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PartnerID int NULL,
 	PlantLotReferenceID int NULL,
 	FarmID int NULL,
 	isDeleted bit NULL,
+	IsPassed bit DEFAULT 0,
+	PassedDate datetime null,
+	MasterTypeId int NULL,
 	GrowthStageID int NULL,
+	IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT PlantLot_MasterType_FK FOREIGN KEY (MasterTypeId) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
@@ -936,7 +944,7 @@ CREATE TABLE ipas.dbo.WorkLog (
 
 CREATE TABLE ipas.dbo.TaskFeedback (
 	TaskFeedbackID int IDENTITY(1,1) NOT NULL,
-	TaskFeedbackCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	TaskFeedbackCode nvarchar(300) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
    	WorkLogID int NULL,
@@ -958,6 +966,7 @@ CREATE TABLE ipas.dbo.UserWorkLog (
 	WorkLogID int NOT NULL,
 	UserID int NOT NULL,
 	IsReporter bit NULL,
+        CreateDate datetime NULL,
         Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
         Issue nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (UserWorkLogID),
@@ -1164,11 +1173,11 @@ VALUES
     ('MT027', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     ('MT028', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT030', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT033', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL);
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT030', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT033', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 
 GO
@@ -1176,18 +1185,18 @@ GO
 
 GO
 INSERT INTO [dbo].[Criteria]
-    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
+    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked],[MasterTypeID])
 VALUES
-    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0),
-    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1),
-    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0),
-    ('CR004', 'Return Policy', 'Defines product return conditions', 4, 1, 1),
-    ('CR005', 'Payment Security', 'Ensures safe payment processing', 5, 1, 0),
-    ('CR006', 'Product Warranty', 'Guarantees product durability', 2, 1, 1),
-    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 3, 1, 0),
-    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 4, 1, 1),
-    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 1, 1, 0),
-    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 2, 1, 1);
+    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 20),
+    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1, 20),
+    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0, 20),
+    ('CR004', 'Return Policy', 'Defines product return conditions', 1, 1, 1, 21),
+    ('CR005', 'Payment Security', 'Ensures safe payment processing', 2, 1, 0, 21),
+    ('CR006', 'Product Warranty', 'Guarantees product durability', 3, 1, 1, 21),
+    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 1, 1, 0, 22),
+    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 2, 1, 1, 22),
+    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 3, 1, 0, 22),
+    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 4, 1, 1, 22);
 GO
 
 INSERT INTO ipas.dbo.LandPlot (
@@ -1338,72 +1347,73 @@ VALUES
 (N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 1, 2),
 (N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 1, 3),
 (N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1, 1);
-GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG001', 'Basic Package', 99.99, 30, 1, GETDATE(), NULL, 'Active'),
-('PKG002', 'Standard Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
-('PKG003', 'Premium Package', 299.99, 90, 1, GETDATE(), NULL, 'Active'),
-('PKG004', 'Enterprise Package', 499.99, 180, 1, GETDATE(), NULL, 'Active'),
-('PKG005', 'Trial Package', 0, 7, 1, GETDATE(), NULL, 'Active'),
-('PKG006', 'VIP Package', 999.99, 365, 1, GETDATE(), NULL, 'Inactive'),
-('PKG007', 'Gold Package', 599.99, 120, 1, GETDATE(), NULL, 'Active'),
-('PKG008', 'Silver Package', 399.99, 90, 1, GETDATE(), NULL, 'Inactive'),
-('PKG009', 'Bronze Package', 199.99, 60, 1, GETDATE(), NULL, 'Active'),
-('PKG010', 'Custom Package', 0, NULL, 0, GETDATE(), NULL, 'Pending');
+('PKG101', 'Basic', 29.00, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG102', 'Pro', 89.00, 365, 1, GETDATE(), NULL, 'Active'),
+('PKG103', 'Enterprise', 100.00, 1095, 1, GETDATE(), NULL, 'Active');
 GO
+
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
 VALUES
-('PKD001', 'Feature A', 'Description of Feature A', 1),
-('PKD002', 'Feature B', 'Description of Feature B', 1),
-('PKD003', 'Feature C', 'Description of Feature C', 2),
-('PKD004', 'Feature D', 'Description of Feature D', 2),
-('PKD005', 'Feature E', 'Description of Feature E', 3),
-('PKD006', 'Feature F', 'Description of Feature F', 3),
-('PKD007', 'Feature G', 'Description of Feature G', 4),
-('PKD008', 'Feature H', 'Description of Feature H', 4),
-('PKD009', 'Feature I', 'Description of Feature I', 5),
-('PKD010', 'Feature J', 'Description of Feature J', 5);
+('PKD101', 'Farm Plot Management', 'Manage different farm plots with ease.', 1),
+('PKD102', 'Crop Monitoring', 'Monitor the health and status of crops.', 1),
+('PKD103', 'Task Management', 'Organize and assign farm tasks.', 1),
+('PKD104', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 1),
+('PKD105', 'Multi-platform Access', 'Access your farm data from any device.', 1),
+
+('PKD106', 'Farm Plot Management', 'Manage different farm plots with ease.', 2),
+('PKD107', 'Crop Monitoring', 'Monitor the health and status of crops.', 2),
+('PKD108', 'Task Management', 'Organize and assign farm tasks.', 2),
+('PKD109', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 2),
+('PKD110', 'Multi-platform Access', 'Access your farm data from any device.', 2),
+
+('PKD111', 'Farm Plot Management', 'Manage different farm plots with ease.', 3),
+('PKD112', 'Crop Monitoring', 'Monitor the health and status of crops.', 3),
+('PKD113', 'Task Management', 'Organize and assign farm tasks.', 3),
+('PKD114', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 3),
+('PKD115', 'Multi-platform Access', 'Access your farm data from any device.', 3);
 GO
+
 INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID)
 VALUES
 ('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1),
 ('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1),
 ('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1),
-('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 4, 2),
-('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 5, 2),
-('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 6, 2),
-('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 7, 2),
-('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 8, 3),
-('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 9, 3),
-('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 10, 3);
+('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 1, 2),
+('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 2, 2),
+('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 3, 2),
+('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 1, 2),
+('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 2, 3),
+('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 3, 3),
+('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 1, 3);
 GO
-INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National], RoleID, District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
+INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
-('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
-('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
-('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
-('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5),
-('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
-('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
-('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
-('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5);
+('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
+('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Customer', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam',  'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Customer', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Customer', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 GO
 INSERT INTO ipas.dbo.PlantLot 
-(PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted) 
+(PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted, MasterTypeId) 
 VALUES
-('PL001', 'Plant Lot A', 100, 'kg', 'Active', 90, '2024-06-01', 'Good condition', 1, NULL, 1, 0),
-('PL002', 'Plant Lot B', 200, 'kg', 'Inactive', 180, '2024-06-05', 'Stored in warehouse', 2, NULL, 2, 0),
-('PL003', 'Plant Lot C', 150, 'kg', 'Active', 120, '2024-06-10', 'Requires monitoring', 3, NULL, 3, 0),
-('PL004', 'Plant Lot D', 80, 'kg', 'Active', 75, '2024-06-15', 'Good growth', 4, NULL, 1, 0),
-('PL005', 'Plant Lot E', 50, 'kg', 'Inactive', 50, '2024-06-20', 'Pending inspection', 5, NULL, 2, 0),
-('PL006', 'Plant Lot F', 120, 'kg', 'Active', 100, '2024-07-01', 'Well-maintained', 6, NULL, 3, 0),
-('PL007', 'Plant Lot G', 90, 'kg', 'Inactive', 85, '2024-07-05', 'Need more fertilizer', 7, NULL, 1, 0),
-('PL008', 'Plant Lot H', 70, 'kg', 'Active', 60, '2024-07-10', 'Growth is slow', 8, NULL, 2, 0),
-('PL009', 'Plant Lot I', 110, 'kg', 'Active', 95, '2024-07-15', 'Ready for harvest', 9, NULL, 3, 0),
-('PL010', 'Plant Lot J', 130, 'kg', 'Inactive', 125, '2024-07-20', 'Requires re-evaluation', 10, NULL, 1, 0);
+('PL001', 'Plant Lot A', 100, 'kg', 'Active', 90, '2024-06-01', 'Good condition', 1, NULL, 1, 0 , 10),
+('PL002', 'Plant Lot B', 200, 'kg', 'Inactive', 180, '2024-06-05', 'Stored in warehouse', 2, NULL, 2, 0, 10),
+('PL003', 'Plant Lot C', 150, 'kg', 'Active', 120, '2024-06-10', 'Requires monitoring', 3, NULL, 3, 0, 10),
+('PL004', 'Plant Lot D', 80, 'kg', 'Active', 75, '2024-06-15', 'Good growth', 4, NULL, 1, 0, 10),
+('PL005', 'Plant Lot E', 50, 'kg', 'Inactive', 50, '2024-06-20', 'Pending inspection', 5, NULL, 2, 0, 10),
+('PL006', 'Plant Lot F', 120, 'kg', 'Active', 100, '2024-07-01', 'Well-maintained', 6, NULL, 3, 0, 9),
+('PL007', 'Plant Lot G', 90, 'kg', 'Inactive', 85, '2024-07-05', 'Need more fertilizer', 7, NULL, 1, 0, 9),
+('PL008', 'Plant Lot H', 70, 'kg', 'Active', 60, '2024-07-10', 'Growth is slow', 8, NULL, 2, 0, 8),
+('PL009', 'Plant Lot I', 110, 'kg', 'Active', 95, '2024-07-15', 'Ready for harvest', 9, NULL, 3, 0, 8),
+('PL010', 'Plant Lot J', 130, 'kg', 'Inactive', 125, '2024-07-20', 'Requires re-evaluation', 10, NULL, 1, 0, 8);
 GO
 INSERT INTO ipas.dbo.GraftedPlant 
 (GraftedPlantCode, GraftedPlantName, GrowthStage, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 

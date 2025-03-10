@@ -30,6 +30,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.User)
                 .Include(x => x.Notification)
                 .ThenInclude(x => x.MasterType)
+                .Include(x => x.Notification)
+                .ThenInclude(X => X.Sender)
                 .Where(x => x.UserID == userId).ToListAsync();
             return result;
         }
