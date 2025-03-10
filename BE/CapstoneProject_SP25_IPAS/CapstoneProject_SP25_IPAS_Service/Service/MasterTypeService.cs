@@ -299,7 +299,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             break;
                     }
                 }
-                string includeProperties = "";
+                string includeProperties = "Criterias";
                 var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<MasterTypeModel>();
                 pagin.List = _mapper.Map<IEnumerable<MasterTypeModel>>(entities).ToList();

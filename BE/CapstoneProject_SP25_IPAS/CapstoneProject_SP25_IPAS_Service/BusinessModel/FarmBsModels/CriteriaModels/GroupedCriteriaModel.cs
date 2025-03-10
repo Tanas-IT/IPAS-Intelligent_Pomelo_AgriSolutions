@@ -9,7 +9,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaM
     public class GroupedCriteriaModel
     {
         public int MasterTypeId { get; set; }
-        public string MasterTypeName { get; set; }
+        public string? MasterTypeName { get; set; }
         public List<CriteriaInfoModel> CriteriaList { get; set; } = new();
     }
 
@@ -22,5 +22,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaM
         public string CriteriaName { get; set; }
         public bool? IsChecked { get; set; }
         public int? Priority { get; set; }
+
     }
 }

@@ -978,6 +978,10 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.GrowthStageID)
                 .HasConstraintName("PlantLot_GrowthStage_FK");
 
+            entity.HasOne(d => d.MasterType).WithMany(p => p.PlantLots)
+                .HasForeignKey(d => d.MasterTypeId)
+                .HasConstraintName("PlantLot_MasterType_FK");
+
         });
 
         modelBuilder.Entity<Resource>(entity =>

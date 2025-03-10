@@ -12,6 +12,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -57,8 +58,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             existingCriteria.CriteriaName = request.CriteriaName;
                             existingCriteria.CriteriaDescription = request.CriteriaDescription;
                             existingCriteria.Priority = request.Priority;
+                            existingCriteria.FrequencyDate = request.FrequencyDate;
                             criteriaToUpdate.Add(existingCriteria);
                             receivedCriteriaIds.Add(request.CriteriaId.Value);
+                            
                         }
                         else
                         {
@@ -69,6 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CriteriaDescription = request.CriteriaDescription,
                                 Priority = request.Priority,
                                 IsActive = true,
+                                FrequencyDate = request.FrequencyDate,
                             };
                             criteriaToAdd.Add(newCriteria);
                         }
@@ -149,7 +153,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
         public async Task<BusinessResult> GetCriteriaOfTarget(GetCriteriaOfTargetRequest request)
-         {
+        {
             try
             {
                 if (!(request.PlantID.HasValue || request.GraftedPlantID.HasValue || request.PlantLotID.HasValue))
@@ -178,7 +182,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Priority = pc.Priority,
                             CriteriaId = pc.Criteria!.CriteriaId,
                             CriteriaName = pc.Criteria!.CriteriaName!,
-                            IsChecked = pc.IsChecked
+                            IsChecked = pc.IsChecked,
                         }).ToList()
                     })
                     .ToList();
@@ -240,6 +244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDefault = false,
                                 CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.MASTER_TYPE}{lastedId}-{CodeHelper.GenerateCode}",
                                 MasterType = newMasterType,
+                                FrequencyDate = item.FrequencyDate,
                             };
                             newMasterType.Criterias.Add(criteria);
                         }
@@ -299,5 +304,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return (true, "Valid priority values.");
         }
 
+        public async Task<BusinessResult> GetCriteriasByMasterTypeId(int masterTypeId)
+        {
+            try
+            {
+
+                Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == masterTypeId
+                                                                && x.IsDelete != true
+                                                                && x.TypeName.ToLower().Contains(TypeNameInMasterEnum.Criteria.ToString().ToLower());
+                string includeProperties = "Criterias";
+                var CriteriaSet = await _unitOfWork.MasterTypeRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
+                if (CriteriaSet == null)
+                    return new BusinessResult(400, "Criteria set not exist");
+                var mappedResult = _mapper.Map<MasterTypeModel>(CriteriaSet);
+                return new BusinessResult(200, "Get criteria set success fully", mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
