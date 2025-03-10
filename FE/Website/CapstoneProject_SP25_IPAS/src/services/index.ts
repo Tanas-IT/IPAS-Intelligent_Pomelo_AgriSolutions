@@ -18,5 +18,6 @@ export * as worklogService from "./WorklogService";
 export * as employeeService from "./EmployeeService";
 export * as feedbackService from "./FeedbackService";
 export * as paymentService from "./PaymentService";
+export * as notificationService from "./NotificationService";
 
 
