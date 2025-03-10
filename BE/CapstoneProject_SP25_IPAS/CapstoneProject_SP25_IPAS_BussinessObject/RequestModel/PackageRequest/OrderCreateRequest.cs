@@ -26,7 +26,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
         [Required]
         public int FarmId { get; set; }
         //payment request
-        [Required]
         //public string TransactionId { get; set; }
         public string? PaymentMethod { get; set; }
         public string? PaymentStatus { get; set; }
