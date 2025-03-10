@@ -11,7 +11,6 @@ export interface CreateOrder {
     notes: string;
     packageId: number;
     farmId: number;
-    transactionId?: string;
-    paymentMethod: "payOS";
+    paymentMethod: "PAYOS";
     paymentStatus: "PENDING"
 }

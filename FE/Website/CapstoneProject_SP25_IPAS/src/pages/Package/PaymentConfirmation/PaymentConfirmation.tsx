@@ -6,7 +6,7 @@ import style from './PaymentConfirmation.module.scss';
 import { packageService, paymentService } from '@/services';
 import { GetPackage } from '@/payloads/package';
 import { PATHS } from '@/routes';
-import { ApiResponse, PayOSPaymentRequest, PayOSPaymentResponse } from '@/payloads';
+import { ApiResponse, CreateOrderResponse, PayOSPaymentRequest, PayOSPaymentResponse } from '@/payloads';
 import { getFarmId } from '@/utils';
 import { toast } from 'react-toastify';
 
@@ -34,21 +34,48 @@ function PaymentConfirmation()  {
         fetchPackageDetails();
     }, [packageId]);
 
+    // const handleConfirmPayment = async () => {
+    //     if (!packageDetails) return;
+    
+    //     try {
+    //         const result: ApiResponse<PayOSPaymentResponse> = await paymentService.createPaymentLink({
+    //             packageId: packageDetails.packageId,
+    //             amount: packageDetails.packagePrice,
+    //             description: `Payment for ${packageDetails.packageName}`,
+    //             farmId: Number(getFarmId())
+    //         });
+    //         console.log("result", result);
+            
+    
+    //         if (result.statusCode === 200 && result.data.checkoutUrl) {
+    //             window.location.href = result.data.checkoutUrl;
+    //         } else {
+    //             toast.error(result.message);
+    //             console.error("Failed to create payment link:", result.message);
+    //         }
+    //     } catch (error) {
+    //         console.error("Payment error:", error);
+    //     }
+    // };
+
     const handleConfirmPayment = async () => {
         if (!packageDetails) return;
     
         try {
-            const result: ApiResponse<PayOSPaymentResponse> = await paymentService.createPaymentLink({
+            const result: ApiResponse<CreateOrderResponse> = await paymentService.createOrder({
                 packageId: packageDetails.packageId,
-                amount: packageDetails.packagePrice,
-                description: `Payment for ${packageDetails.packageName}`,
-                farmId: Number(getFarmId())
+                totalPrice: packageDetails.packagePrice,
+                notes: `Payment for ${packageDetails.packageName}`,
+                farmId: Number(getFarmId()),
+                orderName: `Order for ${packageDetails.packageName}`,
+                paymentMethod: "PAYOS",
+                paymentStatus: "PENDING"
             });
             console.log("result", result);
             
     
-            if (result.statusCode === 200 && result.data.checkoutUrl) {
-                window.location.href = result.data.checkoutUrl;
+            if (result.statusCode === 200 && result.data.orderId) {
+                // const link: ApiResponse<>
             } else {
                 toast.error(result.message);
                 console.error("Failed to create payment link:", result.message);
@@ -57,7 +84,6 @@ function PaymentConfirmation()  {
             console.error("Payment error:", error);
         }
     };
-
     const handleCancel = () => {
         navigate(PATHS.PACKAGE.PACKAGE_PURCHASE);
     };

@@ -10,3 +10,18 @@ export interface PayOSPaymentResponse {
     checkoutUrl: string;
     qrCode: string;
 }
+
+export interface CreateOrderResponse {
+    orderId: number;
+    orderCode: string;
+    totalPrice: number;
+    notes: string;
+    orderDate: string;
+    enrolledDate: string;
+    expiredDate: string;
+    packageId: number;
+    farmId: number;
+    payments: {
+        paymentId: number
+    }
+}
