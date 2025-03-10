@@ -71,15 +71,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = OrderStatusEnum.Pending.ToString(),
                     };
                     string ordercode = Util.SplitByDash(orderWithPayment.OrderCode).First();
-                    var payment = new Payment
-                    {
-                        PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
-                        TransactionId = createRequest.TransactionId,
-                        CreateDate = DateTime.Now,
-                        PaymentMethod = createRequest.PaymentMethod,
-                        Status = createRequest.PaymentStatus,
-                    };
-                    orderWithPayment.Payment = payment;
+                    //var payment = new Payment
+                    //{
+                    //    PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
+                    //    TransactionId = createRequest.TransactionId,
+                    //    CreateDate = DateTime.Now,
+                    //    PaymentMethod = createRequest.PaymentMethod,
+                    //    Status = createRequest.PaymentStatus,
+                    //};
+                    //orderWithPayment.Payment = payment;
                     await _unitOfWork.OrdersRepository.Insert(orderWithPayment);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
