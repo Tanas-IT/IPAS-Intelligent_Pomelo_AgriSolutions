@@ -4,3 +4,14 @@ export interface PayOSPaymentRequest {
     farmId: number;
     packageId: number;
 }
+
+export interface CreateOrder {
+    orderName: string;
+    totalPrice: number;
+    notes: string;
+    packageId: number;
+    farmId: number;
+    transactionId?: string;
+    paymentMethod: "payOS";
+    paymentStatus: "PENDING"
+}
