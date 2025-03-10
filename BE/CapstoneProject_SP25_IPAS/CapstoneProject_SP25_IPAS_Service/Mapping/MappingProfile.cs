@@ -35,6 +35,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<PlantLot, PlantLotModel>()
                 .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(x => x.Partner!.PartnerName))
+                .ForMember(dest => dest.SeedingName, opt => opt.MapFrom(x => x.MasterType!.MasterTypeName))
+                .ForMember(dest => dest.AdditionalPlantLots, opt => opt.MapFrom(x => x.InversePlantLotReference))
                .ReverseMap();
 
 
@@ -128,7 +130,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             //CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
-                .ForMember(dest => dest.CriteriaModels, opt => opt.MapFrom(src => src.Criterias))
+                .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias))
                 .ReverseMap();
            
 

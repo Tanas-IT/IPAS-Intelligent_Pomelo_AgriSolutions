@@ -512,16 +512,22 @@ CREATE TABLE ipas.dbo.PlantLot (
 	Unit nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LastQuantity int NULL,
+	UsedQuantity int NULL,
 	ImportedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PartnerID int NULL,
 	PlantLotReferenceID int NULL,
 	FarmID int NULL,
 	isDeleted bit NULL,
+	IsPassed bit DEFAULT 0,
+	PassedDate datetime null,
+	MasterTypeId int NULL,
 	GrowthStageID int NULL,
+	IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT PlantLot_MasterType_FK FOREIGN KEY (MasterTypeId) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
@@ -1167,11 +1173,11 @@ VALUES
     ('MT027', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     ('MT028', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, NULL),
-    ('MT030', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, NULL),
-    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, NULL),
-    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, NULL),
-    ('MT033', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, NULL);
+    ('MT029', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT030', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT031', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT032', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT033', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 
 GO
@@ -1179,18 +1185,18 @@ GO
 
 GO
 INSERT INTO [dbo].[Criteria]
-    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked])
+    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked],[MasterTypeID])
 VALUES
-    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0),
-    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1),
-    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0),
-    ('CR004', 'Return Policy', 'Defines product return conditions', 4, 1, 1),
-    ('CR005', 'Payment Security', 'Ensures safe payment processing', 5, 1, 0),
-    ('CR006', 'Product Warranty', 'Guarantees product durability', 2, 1, 1),
-    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 3, 1, 0),
-    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 4, 1, 1),
-    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 1, 1, 0),
-    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 2, 1, 1);
+    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 20),
+    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1, 20),
+    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0, 20),
+    ('CR004', 'Return Policy', 'Defines product return conditions', 1, 1, 1, 21),
+    ('CR005', 'Payment Security', 'Ensures safe payment processing', 2, 1, 0, 21),
+    ('CR006', 'Product Warranty', 'Guarantees product durability', 3, 1, 1, 21),
+    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 1, 1, 0, 22),
+    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 2, 1, 1, 22),
+    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 3, 1, 0, 22),
+    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 4, 1, 1, 22);
 GO
 
 INSERT INTO ipas.dbo.LandPlot (
@@ -1396,18 +1402,18 @@ VALUES
 ('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 GO
 INSERT INTO ipas.dbo.PlantLot 
-(PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted) 
+(PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted, MasterTypeId) 
 VALUES
-('PL001', 'Plant Lot A', 100, 'kg', 'Active', 90, '2024-06-01', 'Good condition', 1, NULL, 1, 0),
-('PL002', 'Plant Lot B', 200, 'kg', 'Inactive', 180, '2024-06-05', 'Stored in warehouse', 2, NULL, 2, 0),
-('PL003', 'Plant Lot C', 150, 'kg', 'Active', 120, '2024-06-10', 'Requires monitoring', 3, NULL, 3, 0),
-('PL004', 'Plant Lot D', 80, 'kg', 'Active', 75, '2024-06-15', 'Good growth', 4, NULL, 1, 0),
-('PL005', 'Plant Lot E', 50, 'kg', 'Inactive', 50, '2024-06-20', 'Pending inspection', 5, NULL, 2, 0),
-('PL006', 'Plant Lot F', 120, 'kg', 'Active', 100, '2024-07-01', 'Well-maintained', 6, NULL, 3, 0),
-('PL007', 'Plant Lot G', 90, 'kg', 'Inactive', 85, '2024-07-05', 'Need more fertilizer', 7, NULL, 1, 0),
-('PL008', 'Plant Lot H', 70, 'kg', 'Active', 60, '2024-07-10', 'Growth is slow', 8, NULL, 2, 0),
-('PL009', 'Plant Lot I', 110, 'kg', 'Active', 95, '2024-07-15', 'Ready for harvest', 9, NULL, 3, 0),
-('PL010', 'Plant Lot J', 130, 'kg', 'Inactive', 125, '2024-07-20', 'Requires re-evaluation', 10, NULL, 1, 0);
+('PL001', 'Plant Lot A', 100, 'kg', 'Active', 90, '2024-06-01', 'Good condition', 1, NULL, 1, 0 , 10),
+('PL002', 'Plant Lot B', 200, 'kg', 'Inactive', 180, '2024-06-05', 'Stored in warehouse', 2, NULL, 2, 0, 10),
+('PL003', 'Plant Lot C', 150, 'kg', 'Active', 120, '2024-06-10', 'Requires monitoring', 3, NULL, 3, 0, 10),
+('PL004', 'Plant Lot D', 80, 'kg', 'Active', 75, '2024-06-15', 'Good growth', 4, NULL, 1, 0, 10),
+('PL005', 'Plant Lot E', 50, 'kg', 'Inactive', 50, '2024-06-20', 'Pending inspection', 5, NULL, 2, 0, 10),
+('PL006', 'Plant Lot F', 120, 'kg', 'Active', 100, '2024-07-01', 'Well-maintained', 6, NULL, 3, 0, 9),
+('PL007', 'Plant Lot G', 90, 'kg', 'Inactive', 85, '2024-07-05', 'Need more fertilizer', 7, NULL, 1, 0, 9),
+('PL008', 'Plant Lot H', 70, 'kg', 'Active', 60, '2024-07-10', 'Growth is slow', 8, NULL, 2, 0, 8),
+('PL009', 'Plant Lot I', 110, 'kg', 'Active', 95, '2024-07-15', 'Ready for harvest', 9, NULL, 3, 0, 8),
+('PL010', 'Plant Lot J', 130, 'kg', 'Inactive', 125, '2024-07-20', 'Requires re-evaluation', 10, NULL, 1, 0, 8);
 GO
 INSERT INTO ipas.dbo.GraftedPlant 
 (GraftedPlantCode, GraftedPlantName, GrowthStage, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 

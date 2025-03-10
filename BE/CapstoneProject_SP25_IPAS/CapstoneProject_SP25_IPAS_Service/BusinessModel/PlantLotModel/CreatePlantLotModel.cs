@@ -12,7 +12,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
         public string Name { get; set; }
         public int ImportedQuantity { get; set; }
         public string Unit { get; set; }
-
+        public string? Status { get; set; }
         public string? Note { get; set; } = "";
+        public int? FarmId { get; set; }
+        public int MasterTypeId { get; set; }
     }
 }

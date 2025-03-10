@@ -23,11 +23,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.PlantLot.getPlantLotWithPagination, Name = "getPlantLotWithPagination")]
-        public async Task<IActionResult> GetAllPlantLot(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPlantLot([FromQuery] GetPlantLotRequest filterRequest,[FromQuery] PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _plantLotService.GetAllPlantLots(paginationParameter);
+                if (!filterRequest.FarmId.HasValue)
+                    filterRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!filterRequest.FarmId.HasValue)
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId cannot be null"
+                    });
+                var result = await _plantLotService.GetAllPlantLots(filterRequest,paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -65,7 +73,35 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!createPlantLotModel.FarmId.HasValue)
+                    createPlantLotModel.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!createPlantLotModel.FarmId.HasValue)
+                    return BadRequest(new BaseResponse()
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "FarmId cannot be null"
+                    });
                 var result = await _plantLotService.CreatePlantLot(createPlantLotModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.PlantLot.createPlantLotAdditional, Name = "createPlantLotAdditional")]
+        public async Task<IActionResult> createPlantLotAdditional([FromBody] CreateAdditionalPlantLotModel createPlantLotModel)
+        {
+            try
+            {
+                var result = await _plantLotService.CreateAdditionalPlantLot(createPlantLotModel);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -119,25 +155,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.PlantLot.createManyPlantFromPlantLot, Name = "createmanyPlantFromPlantLot")]
-        public async Task<IActionResult> CreateManyPlant([FromBody] List<CriteriaForPlantLotRequestModel> criteriaForPlantLotRequestModels, [FromQuery] int quantity)
-        {
-            try
-            {
-                var result = await _plantLotService.CreateManyPlant(criteriaForPlantLotRequestModels, quantity);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
+        //[HttpPost(APIRoutes.PlantLot.createManyPlantFromPlantLot, Name = "createmanyPlantFromPlantLot")]
+        //public async Task<IActionResult> CreateManyPlant([FromBody] List<CriteriaForPlantLotRequestModel> criteriaForPlantLotRequestModels, [FromQuery] int quantity)
+        //{
+        //    try
+        //    {
+        //        var result = await _plantLotService.CreateManyPlant(criteriaForPlantLotRequestModels, quantity);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
+        //        var response = new BaseResponse()
+        //        {
+        //            StatusCode = StatusCodes.Status400BadRequest,
+        //            Message = ex.Message
+        //        };
+        //        return BadRequest(response);
+        //    }
+        //}
 
         [HttpPost(APIRoutes.PlantLot.FillPlantToPlot, Name = "FillPlantToPlotAsync")]
         public async Task<IActionResult> FillPlantToPlotAsync([FromBody] FillPlanToPlotRequest fillRequest)
