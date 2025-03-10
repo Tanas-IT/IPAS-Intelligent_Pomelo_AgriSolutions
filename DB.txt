@@ -363,6 +363,7 @@ CREATE TABLE ipas.dbo.[Order] (
 	OrderName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	TotalPrice float NULL,
 	Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Status nvarchar(200) NULL,
 	OrderDate datetime NULL,
 	EnrolledDate datetime NULL,
 	ExpiredDate datetime NULL,
@@ -407,7 +408,8 @@ CREATE TABLE ipas.dbo.Partner (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	[National] nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	RoleID int NULL,
+	--RoleID int NULL,
+	IsDeleted bit NULL DEFAULT 0,
 	District nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Ward nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
@@ -418,7 +420,7 @@ CREATE TABLE ipas.dbo.Partner (
 	BusinessField nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
 	CONSTRAINT PK__Partner__39FD6332F826F432 PRIMARY KEY (PartnerID),
-	CONSTRAINT FK__Partner__RoleID__27F8EE98 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE,
+	
 	CONSTRAINT FK__Partner__Farm FOREIGN KEY (FarmID) REFERENCES ipas.dbo.[Farm](FarmID) ON DELETE CASCADE
 );
 
@@ -1372,26 +1374,26 @@ VALUES
 ('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1),
 ('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1),
 ('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1),
-('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 4, 2),
-('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 5, 2),
-('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 6, 2),
-('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 7, 2),
-('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 8, 3),
-('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 9, 3),
-('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 10, 3);
+('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 1, 2),
+('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 2, 2),
+('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 3, 2),
+('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 1, 2),
+('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 2, 3),
+('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 3, 3),
+('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 1, 3);
 GO
-INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National], RoleID, District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
+INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
-('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
-('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
-('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
-('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5),
-('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Agriculture', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam', 2, 'District 1', 'Ben Nghe', 'Supplier of organic products', 'Organic Farming', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 2),
-('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 3, 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Fruit Export', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 3),
-('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam', 1, 'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'High-Tech Farming', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 4),
-('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam', 2, 'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Equipment Supply', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 5);
+('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
+('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Customer', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam',  'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Customer', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Customer', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 GO
 INSERT INTO ipas.dbo.PlantLot 
 (PlantLotCode, PlantLotName, PreviousQuantity, Unit, Status, LastQuantity, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted) 

@@ -32,10 +32,9 @@ public partial class Partner
 
     public string? National { get; set; }
 
-    public int? RoleId { get; set; }
     public int? FarmId { get; set; }
 
+    public bool? IsDeleted { get; set; }
     public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
     public virtual Farm Farm { get; set; }
-    public virtual Role? Role { get; set; }
 }

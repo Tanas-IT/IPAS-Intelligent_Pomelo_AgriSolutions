@@ -11,7 +11,6 @@ public partial class Role
 
     public bool? IsSystem { get; set; }
 
-    public virtual ICollection<Partner> Partners { get; set; } = new List<Partner>();
 
     public virtual ICollection<UserFarm> UserFarms { get; set; } = new List<UserFarm>();
 

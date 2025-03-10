@@ -126,8 +126,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGraftedPlantService, GraftedPlantService>();
             services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
             services.AddScoped<IAIService, AIService>();
-            services.AddScoped<IPaymentService, PaymentService>();
-            services.AddScoped<IPayOSService, PayOSService>();
+            services.AddScoped<CapstoneProject_SP25_IPAS_Service.IService.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentService>();
+            services.AddScoped<CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
 
 

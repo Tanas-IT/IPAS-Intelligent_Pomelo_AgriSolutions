@@ -25,9 +25,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<Partner>> GetPartnerByRoleName(string roleName)
         {
-            var result = await _context.Partners.Include(x => x.Role)
-                                                .Where(x => x.Role.RoleName.Equals(roleName))
-                                                .ToListAsync();
+            var result = await _context.Partners
+                .Where(x => x.IsDeleted == false 
+                            && x.Major!.ToLower().Equals(roleName.ToLower()))
+                            .ToListAsync();
             return result;
 
         }
