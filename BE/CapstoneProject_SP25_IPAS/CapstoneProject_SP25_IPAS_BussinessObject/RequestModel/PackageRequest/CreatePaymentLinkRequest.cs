@@ -21,6 +21,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
     public class CreatePaymentLinkRequest
     {
         public int OrderId { get; set; }
-        public string description { get; set; }
+        //public string description { get; set; }
     }
 }

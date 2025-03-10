@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,13 +22,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<MasterType>> GetMasterTypeByName(string name, int farmId, string target = null)
         {
             var getMasterTypeByName = _context.MasterTypes
-                .Where(x => x.TypeName!.ToLower().Equals(name.ToLower()) 
+                .Where(x => x.TypeName!.ToLower().Equals(name.ToLower())
                 && (x.FarmID == farmId || x.IsDefault == true)
                 && x.IsActive == true)
                 .OrderBy(x => x.MasterTypeId)
                 .AsQueryable();
             if (!string.IsNullOrEmpty(target))
-                getMasterTypeByName.Where(x => x.Target!.Contains(target));
+            {
+                var filterList = Util.SplitByComma(target);
+                getMasterTypeByName = getMasterTypeByName.Where(x => filterList!.Contains(x.Target!.ToLower()));
+            }
             var listMasterType = await getMasterTypeByName.OrderByDescending(x => x.MasterTypeId).ToListAsync();
             if (listMasterType.Any())
             {
@@ -40,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var getMasterTypeByName = await _context.MasterTypes
                 .Where(x => x.TypeName!.ToLower().Contains(name.ToLower())
-                &&(x.IsDefault == true))
+                && (x.IsDefault == true))
                 .ToListAsync();
             if (getMasterTypeByName.Any())
             {
@@ -52,7 +56,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<MasterType> CheckTypeIdInTypeName(int masterId, string typeName)
         {
             var getMasterTypeByName = await _context.MasterTypes
-                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower()) )
+                .Where(x => x.MasterTypeId == masterId && x.TypeName!.ToLower().Contains(typeName.ToLower()))
                 .FirstOrDefaultAsync();
             return getMasterTypeByName!;
         }
