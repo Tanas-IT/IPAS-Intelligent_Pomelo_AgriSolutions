@@ -47,7 +47,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Notification.getNotificationByUserId, Name = "getNotificationByUserId")]
-        public async Task<IActionResult> GetNotificationByUserId(int? userId)
+        public async Task<IActionResult> GetNotificationByUserId(int? userId, bool isRead)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     userId = _jwtTokenService.GetUserIdFromToken();
                 }
-                var result = await _notificationService.GetNotificationByUserId(userId.Value);
+                var result = await _notificationService.GetNotificationByUserId(userId.Value, isRead);
                 return Ok(result);
             }
             catch (Exception ex)
