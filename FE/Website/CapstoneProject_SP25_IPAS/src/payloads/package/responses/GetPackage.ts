@@ -1,11 +1,19 @@
+export interface PackageDetail {
+  packageDetailId: number;
+  packageDetailCode: string;
+  featureName: string;
+  featureDescription: string;
+  packageId: number;
+}
+
 export interface GetPackage {
   packageId: number;
   packageCode: string;
   packageName: string;
   packagePrice: number;
-  createDate: Date;
-  startDate: Date;
   duration: number;
+  createDate: string;
+  status: string;
   isActive: boolean;
-  totalPurchases: number
+  packageDetails: PackageDetail[];
 }

@@ -18,13 +18,15 @@ export const useSidebarStore = create<SidebarState>((set) => ({
 interface FarmState {
   farmName: string;
   farmLogo: string;
-  setFarmInfo: (name: string, logo: string) => void;
+  farmExpiredDate: string;
+  setFarmInfo: (name: string, logo: string, expiredDate: string) => void;
 }
 
 export const useFarmStore = create<FarmState>((set) => ({
   farmName: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_NAME) || "",
   farmLogo: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_LOGO) || "",
-  setFarmInfo: (name?: string, logo?: string) => {
+  farmExpiredDate: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE) || "",
+  setFarmInfo: (name?: string, logo?: string, expiredDate?: string) => {
     if (name) {
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, name);
       set({ farmName: name });
@@ -32,6 +34,10 @@ export const useFarmStore = create<FarmState>((set) => ({
     if (logo) {
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, logo);
       set({ farmLogo: logo });
+    }
+    if (expiredDate) {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE, expiredDate);
+      set({ farmExpiredDate: expiredDate });
     }
   },
 }));

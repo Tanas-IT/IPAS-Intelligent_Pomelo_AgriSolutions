@@ -7,7 +7,7 @@ import { CustomButton, Loading } from "@/components";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
-import { formatDate, getUserId } from "@/utils";
+import { formatDate, getRoleId, getUserId } from "@/utils";
 import { toast } from "react-toastify";
 import { GetFarmPicker } from "@/payloads";
 import { useFarmStore } from "@/stores";
@@ -48,8 +48,30 @@ function FarmPicker() {
       localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.refreshToken);
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, result.data.farmName);
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, result.data.farmLogo);
-      useFarmStore.getState().setFarmInfo(result.data.farmName, result.data.farmLogo);
-      navigate(PATHS.DASHBOARD);
+
+
+      const farmResult = await farmService.getFarm(farmId.toString());
+      if (farmResult.statusCode === 200) {
+        const farmExpiredDate = farmResult.data.farmExpiredDate;
+        const isExpired = farmExpiredDate && new Date(farmExpiredDate) < new Date();
+
+        useFarmStore.getState().setFarmInfo(
+          result.data.farmName,
+          result.data.farmLogo,
+          farmExpiredDate,
+        );
+
+        const roleId = getRoleId();
+        
+        if (isExpired && roleId !== UserRole.Owner.toString()) {
+          toast.warning("This farm's package has expired. Please contact the owner to renew.");
+          navigate(PATHS.FARM_PICKER);
+        } else {
+          navigate(PATHS.DASHBOARD);
+        }
+      } else {
+        toast.error("Failed to fetch farm details.");
+      }
     } else {
       toast.error(MESSAGES.ERROR_OCCURRED);
     }
@@ -78,7 +100,7 @@ function FarmPicker() {
             </Typography.Text>
           }
         >
-          <CustomButton label="Create New Farm" icon={<Icons.plus />} handleOnClick={() => {}} />
+          <CustomButton label="Create New Farm" icon={<Icons.plus />} handleOnClick={() => { }} />
         </Empty>
       </Flex>
     );
@@ -128,9 +150,8 @@ function FarmPicker() {
                           <Text className={style.label}>Created at:</Text>
                           <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
                           <Tag
-                            className={`${style.statusTag} ${
-                              isInactive ? style.inactive : style.active
-                            }`}
+                            className={`${style.statusTag} ${isInactive ? style.inactive : style.active
+                              }`}
                           >
                             {isInactive ? "Inactive" : "Active"}
                           </Tag>
@@ -141,9 +162,8 @@ function FarmPicker() {
                     <Col span={4}>
                       <Flex className={style.roleTagWrapper}>
                         <Tag
-                          className={`${style.statusTag} ${
-                            farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
-                          }`}
+                          className={`${style.statusTag} ${farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
+                            }`}
                         >
                           {farm.roleName}
                         </Tag>
