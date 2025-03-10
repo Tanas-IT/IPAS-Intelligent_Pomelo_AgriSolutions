@@ -67,4 +67,5 @@ export const CRITERIA_TARGETS = {
   Harvest: "Harvest",
   "Grafted Condition": "Grafted Condition",
   "Grafted Evaluation": "Grafted Evaluation",
+  "Plant Lot Evaluation": "Plant Lot Evaluation",
 };

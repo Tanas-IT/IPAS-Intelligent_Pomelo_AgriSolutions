@@ -1,6 +1,13 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetMasterType, GetType, MasterTypeRequest } from "@/payloads";
+import {
+  ApiResponse,
+  GetData,
+  GetMasterType,
+  GetMasterTypeSelected,
+  GetType,
+  MasterTypeRequest,
+} from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getMasterTypes = async (
@@ -75,5 +82,15 @@ export const getMasterTypeSelect = async (
   type.createBy = localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) ?? "";
   const res = await axiosAuth.axiosJsonRequest.post(`masterTypes`, type);
   const apiResponse = res.data as ApiResponse<GetMasterType>;
+  return apiResponse;
+};
+
+export const getCriteriaTypeSelect = async (
+  target: string,
+): Promise<ApiResponse<GetMasterTypeSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `masterTypes/get-for-selected?typeName=Criteria&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
   return apiResponse;
 };

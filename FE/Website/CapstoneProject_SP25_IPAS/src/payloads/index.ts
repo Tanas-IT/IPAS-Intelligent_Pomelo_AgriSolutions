@@ -12,10 +12,4 @@ export * from "./graftedPlant";
 export * from "./plantLot";
 export * from "./employee";
 export * from "./feedback";
-
-
-
-
-
-
-
+export * from "./criteria";

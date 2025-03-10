@@ -22,3 +22,4 @@ export { default as useNotifications } from "./useNotifications";
 export { default as useFormManager } from "./useFormManager";
 export { default as usePlanManager } from "./usePlanManager";
 export { default as usePanZoom } from "./usePanZoom";
+export { default as useCriteriaOptions } from "./useCriteriaOptions";

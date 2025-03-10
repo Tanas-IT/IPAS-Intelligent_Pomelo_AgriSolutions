@@ -9,11 +9,15 @@ export interface GetPlantLot2 {
   plantLotCode: string;
   plantLotName: string;
   previousQuantity: number;
+  lastQuantity: number;
+  usedQuantity: number;
   unit: string;
   status: string;
-  lastQuantity: number;
   importedDate: Date;
   note: string;
   partnerId: number;
   partnerName: string;
+  masterTypeId: number;
+  seedingName: string;
+  isPassed: boolean;
 }

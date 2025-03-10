@@ -2,11 +2,11 @@ import { Flex, Form, Table } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, lotFormFields, MASTER_TYPE, PARTNER, WORK_TARGETS } from "@/constants";
-import { GetPlantLot2, PlantLotRequest } from "@/payloads";
-import { partnerService } from "@/services";
+import { CRITERIA_TARGETS, lotFormFields, PARTNER, WORK_TARGETS } from "@/constants";
+import { GetCriteria, GetPlantLot2, PlantLotRequest } from "@/payloads";
+import { criteriaService, partnerService } from "@/services";
 import { SelectOption } from "@/types";
-import { useMasterTypeOptions } from "@/hooks";
+import { useCriteriaOptions, useMasterTypeOptions } from "@/hooks";
 import style from "./PlantLot.module.scss";
 import { Icons } from "@/assets";
 
@@ -25,19 +25,26 @@ const ApplyCriteriaModal = ({
   isLoadingAction,
 }: ApplyCriteriaModalProps) => {
   const [form] = Form.useForm();
-  const { options: criteriaTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CRITERIA);
+  const [dataSource, setDataSource] = useState<(GetCriteria & { key: number; index: number })[]>(
+    [],
+  );
+  const { options: criteriaTypeOptions } = useCriteriaOptions(
+    CRITERIA_TARGETS["Plant Lot Evaluation"],
+  );
+
   //   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
 
-  const resetForm = () => form.resetFields();
+  const resetForm = () => {
+    form.resetFields(); // Reset toàn bộ form
+    setDataSource([]); // Xóa danh sách tiêu chí khi reset
+    form.setFieldsValue({ [lotFormFields.partnerId]: undefined }); // Reset giá trị select
+  };
 
-  //   useEffect(() => {
-  //     resetForm();
-  //     if (isOpen) {
-  //       if (isUpdate && lotData) {
-  //         form.setFieldsValue({ ...lotData });
-  //       }
-  //     }
-  //   }, [isOpen, lotData]);
+  useEffect(() => {
+    resetForm();
+    if (isOpen) {
+    }
+  }, [isOpen]);
 
   //   const handleOk = async () => {
   //     await form.validateFields();
@@ -46,18 +53,27 @@ const ApplyCriteriaModal = ({
 
   //   const handleCancel = () => onClose(getFormData(), isUpdate);
 
-  const [dataSource, setDataSource] = useState(
-    Array.from({ length: 5 }, (_, index) => ({
-      key: index + 1,
-      index: index + 1,
-      name: "Chiều cao > 2m",
-      description: "Chiều cao tính từ gốc đến điểm cao nhất",
-      priority: 1,
-    })),
-  );
+  // Array.from({ length: 5 }, (_, index) => ({
+  //   key: index + 1,
+  //   index: index + 1,
+  //   name: "Chiều cao > 2m",
+  //   description: "Chiều cao tính từ gốc đến điểm cao nhất",
+  //   priority: 1,
+  // })),
 
-  const handleCriteriaTypeChange = (value: string) => {
-    console.log("Selected criteria type:", value);
+  const handleCriteriaTypeChange = async (value: string) => {
+    const res = await criteriaService.getCriteriaByMasterType(Number(value));
+
+    if (res.statusCode === 200) {
+      const criteriaList: GetCriteria[] = res.data?.criterias || [];
+      const formattedCriteria = criteriaList.map((criteria, index) => ({
+        ...criteria,
+        key: index + 1, // Key phải là unique
+        index: index + 1, // Dùng để hiển thị số thứ tự
+      }));
+
+      setDataSource(formattedCriteria);
+    }
   };
 
   const handleDelete = (key: number) => {
@@ -74,14 +90,14 @@ const ApplyCriteriaModal = ({
     },
     {
       title: "Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "criteriaName",
+      key: "criteriaName",
       align: "center" as const,
     },
     {
       title: "Description",
-      dataIndex: "description",
-      key: "description",
+      dataIndex: "criteriaDescription",
+      key: "criteriaDescription",
       align: "center" as const,
     },
     {
@@ -101,6 +117,7 @@ const ApplyCriteriaModal = ({
       ),
     },
   ];
+
   return (
     <ModalForm
       isOpen={isOpen}
@@ -108,6 +125,7 @@ const ApplyCriteriaModal = ({
       onSave={onSave}
       isLoading={isLoadingAction}
       title={"Apply Criteria"}
+      saveLabel="Apply"
       size="largeXL"
     >
       <Form form={form} layout="vertical">
@@ -131,7 +149,6 @@ const ApplyCriteriaModal = ({
             pagination={false}
             bordered
             className={style.criteriaTable}
-            // scroll={{ x: "max-content", y: 74 * 5 }}
           />
         </div>
       </Flex>

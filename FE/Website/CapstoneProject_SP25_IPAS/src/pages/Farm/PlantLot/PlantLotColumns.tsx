@@ -2,6 +2,7 @@ import { TableColumn } from "@/types";
 import { GetPlantLot2 } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
+import { Tag } from "antd";
 
 export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
@@ -14,7 +15,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     header: "Name",
     field: "plantLotName",
     accessor: (item) => <TableCell value={item.plantLotName} />,
-    width: 200,
+    width: 150,
   },
   {
     header: "Provider",
@@ -29,22 +30,42 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 120,
   },
   {
-    header: "Previous Quantity",
+    header: "Initial Quantity",
     field: "previousQuantity",
     accessor: (item) => <TableCell value={item.previousQuantity} />,
-    width: 150,
+    width: 160,
   },
   {
-    header: "Last Quantity",
+    header: "Qualified Quantity",
     field: "lastQuantity",
     accessor: (item) => <TableCell value={item.lastQuantity} />,
-    width: 150,
+    width: 160,
+  },
+  {
+    header: "Assigned Quantity",
+    field: "usedQuantity",
+    accessor: (item) => <TableCell value={item.usedQuantity} />,
+    width: 160,
+  },
+  {
+    header: "Seeding Name",
+    field: "seedingName",
+    accessor: (item) => <TableCell value={item.seedingName} />,
+    width: 180,
   },
   {
     header: "Note",
     field: "note",
     accessor: (item) => <TableCell value={item.note} />,
     width: 200,
+  },
+  {
+    header: "Status",
+    field: "isPassed",
+    accessor: (item) => (
+      <Tag color={item.isPassed ? "green" : "red"}>{item.isPassed ? "Passed" : "Failed"}</Tag>
+    ),
+    width: 120,
   },
   {
     header: "Imported Date",

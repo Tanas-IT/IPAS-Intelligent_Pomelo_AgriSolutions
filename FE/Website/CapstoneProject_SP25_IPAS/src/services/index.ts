@@ -18,6 +18,8 @@ export * as worklogService from "./WorklogService";
 export * as employeeService from "./EmployeeService";
 export * as feedbackService from "./FeedbackService";
 export * as partnerService from "./PartnerService";
+export * as criteriaService from "./CriteriaService";
+
 
 
 
