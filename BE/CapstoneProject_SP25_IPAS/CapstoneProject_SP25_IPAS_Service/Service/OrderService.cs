@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         OrderCode = $"{CodeAliasEntityConst.ORDER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode.First()}-{packagecode.First().ToUpper()}",
                         OrderDate = DateTime.Now,
-                        TotalPrice = createRequest.TotalPrice,
+                        TotalPrice = checkPackageExist.PackagePrice,
                         Notes = createRequest.Notes,
                         EnrolledDate = DateTime.Now,
                         //ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),
@@ -71,19 +71,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = OrderStatusEnum.Pending.ToString(),
                     };
                     string ordercode = Util.SplitByDash(orderWithPayment.OrderCode).First();
-                    var payment = new Payment
-                    {
-                        PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
-                        TransactionId = createRequest.TransactionId,
-                        CreateDate = DateTime.Now,
-                        PaymentMethod = createRequest.PaymentMethod,
-                        Status = createRequest.PaymentStatus,
-                    };
-                    orderWithPayment.Payment = payment;
+                    //var payment = new Payment
+                    //{
+                    //    PaymentCode = $"{CodeAliasEntityConst.PAYMENT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{ordercode.ToUpper()}",
+                    //    TransactionId = createRequest.TransactionId,
+                    //    CreateDate = DateTime.Now,
+                    //    PaymentMethod = createRequest.PaymentMethod,
+                    //    Status = createRequest.PaymentStatus,
+                    //};
+                    //orderWithPayment.Payment = payment;
                     await _unitOfWork.OrdersRepository.Insert(orderWithPayment);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
+                        await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<OrderModel>(orderWithPayment);
                         return new BusinessResult(Const.SUCCESS_CREATE_ORDER_CODE, Const.SUCCESS_CREATE_ORDER_MSG, mappedResult);
                     }
@@ -92,6 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 catch (Exception ex)
                 {
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }

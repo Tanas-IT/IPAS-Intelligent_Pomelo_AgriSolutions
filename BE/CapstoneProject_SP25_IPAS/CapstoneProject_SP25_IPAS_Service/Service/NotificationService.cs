@@ -89,11 +89,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public async Task<BusinessResult> GetNotificationByUserId(int UserId)
+        public async Task<BusinessResult> GetNotificationByUserId(int UserId, bool isRead)
         {
             try
             {
-                var getListPlanNotificationOfUser = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByUserId(UserId);
+                var getListPlanNotificationOfUser = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByUserId(UserId, isRead);
                 var listNotificationResponse = new List<NotificationModel>();
                 foreach (var notificationPlan in getListPlanNotificationOfUser)
                 {
@@ -143,6 +143,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
            {
                 var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(notificationId);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(notificationId);
+                if (getPlanNotificationById == null || !getPlanNotificationById.Any())
+                {
+                    return new BusinessResult(404, "No PlanNotification found");
+                }
                 if (getNotificationById != null)
                 {
                     getNotificationById.IsRead = true;
@@ -150,6 +154,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach(var getPlanNoti in  getPlanNotificationById)
                         {
+                            if (getPlanNoti.PlanNotificationID <= 0) // Kiểm tra ID hợp lệ
+                            {
+                                return new BusinessResult(400, "Invalid PlanNotificationID");
+                            }
+
                             getPlanNoti.isRead = true;
                             _unitOfWork.PlanNotificationRepository.Update(getPlanNoti);
                         }

@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> UpdateNotificationInfo(UpdateNotificationModel updateriteriaTypeModel);
 
         public Task<BusinessResult> PermanentlyDeleteNotification(int NotificationId);
-        public Task<BusinessResult> GetNotificationByUserId(int UserId);
+        public Task<BusinessResult> GetNotificationByUserId(int UserId, bool isRead);
         public Task<BusinessResult> SoftedMultipleDelete(List<int> NotificationsId, int farmId);
         public Task<BusinessResult> PermanentlyDeleteManyNotification(List<int> NotificationsId);
 
