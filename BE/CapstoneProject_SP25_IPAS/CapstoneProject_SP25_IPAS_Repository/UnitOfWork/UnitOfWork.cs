@@ -570,7 +570,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public OrdesRepository OrdesRepository
+        public OrdesRepository OrdersRepository
         {
             get
             {

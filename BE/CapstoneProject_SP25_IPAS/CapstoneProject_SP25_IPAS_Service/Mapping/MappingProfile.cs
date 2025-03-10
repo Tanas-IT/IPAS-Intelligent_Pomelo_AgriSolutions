@@ -67,7 +67,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
 
             CreateMap<Partner, PartnerModel>()
-               .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName)).ReverseMap();
+               //.ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
+               .ReverseMap();
 
             CreateMap<GrowthStage, GrowthStageModel>()
                 .ForMember(dest => dest.FarmName, opt => opt.MapFrom(x => x.Farm != null ? x.Farm.FarmName : ""))
@@ -437,6 +438,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Type_Type, TypeTypeModel>()
           .ForMember(dest => dest.CriteriaSet, opt => opt.MapFrom(src => src.CriteriaSet))
              .ReverseMap();
+
+            CreateMap<Payment, PaymentModel>()
+                .ReverseMap();
         }
     }
 }

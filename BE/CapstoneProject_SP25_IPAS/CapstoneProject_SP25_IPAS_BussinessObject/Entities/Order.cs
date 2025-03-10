@@ -23,6 +23,8 @@ public partial class Order
 
     public int? PackageId { get; set; }
 
+    public string? Status { get; set; }
+
     public int? FarmId { get; set; }
 
     public virtual Farm? Farm { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PartnerRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -9,6 +10,7 @@ using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using System;
@@ -37,27 +39,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createPartnerModel.FarmId && x.IsDeleted == false);
+                    if (checkFarmExist == null)
+                        return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     string haflCode = GenerateFarmCode(createPartnerModel);
                     var partner = new Partner()
                     {
-                       PartnerCode = $"{CodeAliasEntityConst.PARTNER}-{DateTime.Now.ToString("ddmmyyyy")}-{haflCode}-{CodeHelper.GenerateCode()}",
-                       Province = createPartnerModel.Province,
-                       District = createPartnerModel.District,
-                       Ward = createPartnerModel.Ward,
-                       //Avatar = createPartnerModel.Avatar,
-                       Note = createPartnerModel.Note,
-                       Description = createPartnerModel.Description,
-                       Major = createPartnerModel.Major,
-                       ContactName = createPartnerModel.ContactName,
-                       BusinessField = createPartnerModel.BusinessField,
-                       PartnerName = createPartnerModel.PartnerName,
-                       Status = createPartnerModel.Status,
-                       CreateDate = DateTime.Now,
-                       UpdateDate = DateTime.Now,
-                       Email = createPartnerModel.Email,
-                       National = createPartnerModel.National,
-                       PhoneNumber = createPartnerModel.National,
-                       RoleId = createPartnerModel.RoleId
+                        PartnerCode = $"{CodeAliasEntityConst.PARTNER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{haflCode}",
+                        Province = createPartnerModel.Province,
+                        District = createPartnerModel.District,
+                        Ward = createPartnerModel.Ward,
+                        //Avatar = createPartnerModel.Avatar,
+                        Note = createPartnerModel.Note,
+                        Description = createPartnerModel.Description,
+                        Major = createPartnerModel.Major,
+                        ContactName = createPartnerModel.ContactName,
+                        BusinessField = createPartnerModel.BusinessField,
+                        PartnerName = createPartnerModel.PartnerName,
+                        Status = createPartnerModel.Status,
+                        CreateDate = DateTime.Now,
+                        Email = createPartnerModel.Email,
+                        National = createPartnerModel.National,
+                        PhoneNumber = createPartnerModel.National,
+                        FarmId = createPartnerModel.FarmId,
+                        IsDeleted = false,
                     };
 
                     await _unitOfWork.PartnerRepository.Insert(partner);
@@ -78,44 +83,59 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetAllPartnerPagination(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllPartnerPagination(GetPartnerFilterRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                Expression<Func<Partner, bool>> filter = null!;
-                Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = null!;
+                var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == filterRequest.FarmId && x.IsDeleted == false);
+                if (checkFarmExist == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == filterRequest.FarmId && x.IsDeleted == false;
+                Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
+                if (!string.IsNullOrEmpty(filterRequest.Major))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Major);
+                    filter = filter.And(x => filterList.Contains(x.Major!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
-                    int validInt = 0;
-                    var checkInt = int.TryParse(paginationParameter.Search, out validInt);
-                    DateTime validDate = DateTime.Now;
-                    if (checkInt)
-                    {
-                        filter = x => x.PartnerId == validInt;
-                    }
-                    else if (DateTime.TryParse(paginationParameter.Search, out validDate))
-                    {
-                        filter = x => x.CreateDate == validDate || x.UpdateDate == validDate;
-                    }
-                    else
-                    {
-                        filter = x => x.PartnerCode.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Ward.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.District.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Description.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.BusinessField.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.ContactName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Major.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      //|| x.Avatar.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Role.RoleName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Province.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.National.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Email.ToLower().Contains(paginationParameter.Search.ToLower());
-                    }
+                    //int validInt = 0;
+                    //var checkInt = int.TryParse(paginationParameter.Search, out validInt);
+                    //DateTime validDate = DateTime.Now;
+                    //if (checkInt)
+                    //{
+                    //    filter = x => x.PartnerId == validInt;
+                    //}
+                    //else if (DateTime.TryParse(paginationParameter.Search, out validDate))
+                    //{
+                    //    filter = x => x.CreateDate == validDate || x.UpdateDate == validDate;
+                    //}
+                    //else
+                    //{
+
+                    
+                    filter = x => x.PartnerCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Ward.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.District.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  //|| x.Description.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  //|| x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.BusinessField.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.ContactName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Major.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  //|| x.Avatar.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  //|| x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Province.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  //|| x.National.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Email.ToLower().Contains(paginationParameter.Search.ToLower());
+                    //}
                 }
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
@@ -143,12 +163,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.PhoneNumber)
                                    : x => x.OrderBy(x => x.PhoneNumber)) : x => x.OrderBy(x => x.PhoneNumber);
                         break;
-                    case "rolename":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Role.RoleName)
-                                   : x => x.OrderBy(x => x.Role.RoleName)) : x => x.OrderBy(x => x.Role.RoleName);
-                        break;
+                    //case "rolename":
+                    //    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                    //                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                    //               ? x => x.OrderByDescending(x => x.Role.RoleName)
+                    //               : x => x.OrderBy(x => x.Role.RoleName)) : x => x.OrderBy(x => x.Role.RoleName);
+                    //break;
                     case "province":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -160,49 +180,49 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.District)
                                    : x => x.OrderBy(x => x.District)) : x => x.OrderBy(x => x.District);
-                        break; 
+                        break;
                     case "ward":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Ward)
                                    : x => x.OrderBy(x => x.Ward)) : x => x.OrderBy(x => x.Ward);
-                        break; 
-                    case "note":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Note)
-                                   : x => x.OrderBy(x => x.Note)) : x => x.OrderBy(x => x.Note);
-                        break;  
+                        break;
+                    //case "note":
+                    //    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                    //                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                    //               ? x => x.OrderByDescending(x => x.Note)
+                    //               : x => x.OrderBy(x => x.Note)) : x => x.OrderBy(x => x.Note);
+                    //    break;
                     case "businessfield":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.BusinessField)
                                    : x => x.OrderBy(x => x.BusinessField)) : x => x.OrderBy(x => x.BusinessField);
-                        break;  
+                        break;
                     case "status":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Status)
                                    : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
-                        break;  
+                        break;
                     case "major":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Major)
                                    : x => x.OrderBy(x => x.Major)) : x => x.OrderBy(x => x.Major);
-                        break;  
+                        break;
                     case "contactname":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.ContactName)
                                    : x => x.OrderBy(x => x.ContactName)) : x => x.OrderBy(x => x.ContactName);
                         break;
-                    case "description":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.Description)
-                                   : x => x.OrderBy(x => x.Description)) : x => x.OrderBy(x => x.Description);
-                        break;
+                    //case "description":
+                    //    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                    //                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                    //               ? x => x.OrderByDescending(x => x.Description)
+                    //               : x => x.OrderBy(x => x.Description)) : x => x.OrderBy(x => x.Description);
+                    //    break;
                     case "national":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -216,14 +236,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.Email)) : x => x.OrderBy(x => x.Email);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.PartnerId);
+                        orderBy = x => x.OrderByDescending(x => x.PartnerId);
                         break;
                 }
-                string includeProperties = "Role";
-                var entities = await _unitOfWork.PartnerRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var entities = await _unitOfWork.PartnerRepository.Get(filter:filter, orderBy:orderBy, pageIndex :paginationParameter.PageIndex, pageSize:paginationParameter.PageSize);
                 var pagin = new PageEntity<PartnerModel>();
                 pagin.List = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
-                pagin.TotalRecord = await _unitOfWork.PartnerRepository.Count();
+                pagin.TotalRecord = await _unitOfWork.PartnerRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
@@ -245,8 +264,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPartner = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == partnerId, "Role");
-                if(getPartner != null)
+                var getPartner = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == partnerId && x.IsDeleted == false);
+                if (getPartner != null)
                 {
                     var result = _mapper.Map<PartnerModel>(getPartner);
                     return new BusinessResult(Const.SUCCESS_GET_PARTNER_BY_ID_CODE, Const.SUCCESS_GET_PARTNER_BY_ID_MESSAGE, result);
@@ -259,12 +278,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetPartnerByRoleName(string roleName)
+        public async Task<BusinessResult> GetPartnerByRoleName(string Major)
         {
             try
             {
-                var getPartnerByRoleNames = await _unitOfWork.PartnerRepository.GetPartnerByRoleName(roleName);
-                if(getPartnerByRoleNames.Count() > 0)
+                var getPartnerByRoleNames = await _unitOfWork.PartnerRepository.GetPartnerByRoleName(Major);
+                if (getPartnerByRoleNames.Count() > 0)
                 {
                     var result = _mapper.Map<List<PartnerModel>>(getPartnerByRoleNames);
                     return new BusinessResult(Const.SUCCESS_GET_PARTNER_BY_ROLE_NAME_CODE, Const.SUCCESS_GET_PARTNER_BY_ROLE_NAME_MESSAGE, result);
@@ -278,28 +297,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async  Task<BusinessResult> PermanentlyDeletePartner(int partnerId)
+        public async Task<BusinessResult> PermanentlyDeletePartner(int partnerId)
         {
             try
             {
-                    var checkExistPartnerRepo = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == partnerId, "PlantLots");
-                    if (checkExistPartnerRepo != null)
+                var checkExistPartnerRepo = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == partnerId, "PlantLots");
+                if (checkExistPartnerRepo != null)
+                {
+                    foreach (var criteria in checkExistPartnerRepo.PlantLots.ToList())
                     {
-                        foreach (var criteria in checkExistPartnerRepo.PlantLots.ToList())
-                        {
-                            criteria.PartnerId = null;
-                        }
-                        await _unitOfWork.SaveAsync();
-
-                        _unitOfWork.PartnerRepository.Delete(checkExistPartnerRepo);
-                        var result = await _unitOfWork.SaveAsync();
-                        if (result > 0)
-                        {
-                            return new BusinessResult(Const.SUCCESS_DELETE_PARTNER_CODE, Const.SUCCESS_DELETE_PARTNER_MESSAGE, result > 0);
-                        }
-                        return new BusinessResult(Const.FAIL_DELETE_PARTNER_CODE, Const.FAIL_DELETE_PARTNER_MESSAGE, false);
+                        criteria.PartnerId = null;
                     }
-                    return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.FAIL_DELETE_PARTNER_MESSAGE);
+                    await _unitOfWork.SaveAsync();
+
+                    _unitOfWork.PartnerRepository.Delete(checkExistPartnerRepo);
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_DELETE_PARTNER_CODE, Const.SUCCESS_DELETE_PARTNER_MESSAGE, result > 0);
+                    }
+                    return new BusinessResult(Const.FAIL_DELETE_PARTNER_CODE, Const.FAIL_DELETE_PARTNER_MESSAGE, false);
+                }
+                return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.FAIL_DELETE_PARTNER_MESSAGE);
 
             }
             catch (Exception ex)
@@ -312,26 +331,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkExistPartner = await _unitOfWork.PartnerRepository.GetByID(updatePartnerModel.PartnerId);
+                var checkExistPartner = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == updatePartnerModel.PartnerId && x.IsDeleted == false);
                 if (checkExistPartner != null)
                 {
-                    if (updatePartnerModel.PartnerName != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.PartnerName))
                     {
                         checkExistPartner.PartnerName = updatePartnerModel.PartnerName;
                     }
-                    if (updatePartnerModel.National != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.National))
                     {
                         checkExistPartner.National = updatePartnerModel.National;
                     }
-                    if (updatePartnerModel.Province != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Province))
                     {
                         checkExistPartner.Province = updatePartnerModel.Province;
                     }
-                    if (updatePartnerModel.District != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.District))
                     {
                         checkExistPartner.District = updatePartnerModel.District;
                     }
-                    if (updatePartnerModel.Ward != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Ward))
                     {
                         checkExistPartner.Ward = updatePartnerModel.Ward;
                     }
@@ -339,27 +358,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistPartner.ContactName = updatePartnerModel.ContactName;
                     }
-                    if (updatePartnerModel.Note != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Note))
                     {
                         checkExistPartner.Note = updatePartnerModel.Note;
                     }
-                    if (updatePartnerModel.Avatar != null)
-                    {
-                        //checkExistPartner.Avatar = updatePartnerModel.Avatar;
-                    }
-                    if (updatePartnerModel.BusinessField != null)
+                    //if (updatePartnerModel.Avatar != null)
+                    //{
+                    //    //checkExistPartner.Avatar = updatePartnerModel.Avatar;
+                    //}
+                    if (!string.IsNullOrEmpty(updatePartnerModel.BusinessField))
                     {
                         checkExistPartner.BusinessField = updatePartnerModel.BusinessField;
                     }
-                    if (updatePartnerModel.Description != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Description))
                     {
                         checkExistPartner.Description = updatePartnerModel.Description;
                     }
-                    if (updatePartnerModel.Major != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Major))
                     {
                         checkExistPartner.Major = updatePartnerModel.Major;
                     }
-                    if (updatePartnerModel.Status != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Status))
                     {
                         checkExistPartner.Status = updatePartnerModel.Status;
                     }
@@ -367,26 +386,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         checkExistPartner.PhoneNumber = updatePartnerModel.PhoneNumber;
                     }
-                    if (updatePartnerModel.Email != null)
+                    if (!string.IsNullOrEmpty(updatePartnerModel.Email))
                     {
                         checkExistPartner.Email = updatePartnerModel.Email;
                     }
-                    if (updatePartnerModel.RoleId != null)
-                    {
-                        checkExistPartner.RoleId = updatePartnerModel.RoleId;
-                    }
+                    //if (updatePartnerModel.RoleId != null)
+                    //{
+                    //    checkExistPartner.RoleName = updatePartnerModel.RoleId;
+                    //}
                     checkExistPartner.UpdateDate = DateTime.Now;
-
+                    _unitOfWork.PartnerRepository.Update(checkExistPartner);
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PARTNER_CODE , Const.SUCCESS_UPDATE_PARTNER_MESSAGE, checkExistPartner);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PARTNER_CODE, Const.SUCCESS_UPDATE_PARTNER_MESSAGE, checkExistPartner);
                     }
                     else
                     {
                         return new BusinessResult(Const.FAIL_UPDATE_PARTNER_CODE, Const.FAIL_UPDATE_PARTNER_MESSAGE, false);
                     }
-
                 }
                 else
                 {
@@ -408,12 +426,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return $"{countryCode}-{provinceCode}-{districtCode}";
         }
 
-        public async Task<BusinessResult> GetPartnerForSelected(int farmId)
+        public async Task<BusinessResult> GetPartnerForSelected(int farmId, string? Major)
         {
             try
             {
-                Expression<Func<Partner, bool>> filter = x => x.FarmId == farmId;
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
+                if (!string.IsNullOrEmpty(Major))
+                {
+                    var filterList = Util.SplitByComma(Major);
+                    filter = filter.And(x => filterList.Contains(x.Major!.ToLower()));
+                }
                 var rowsOfFarm = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!rowsOfFarm.Any())
                     return new BusinessResult(Const.SUCCESS_GET_ALL_PARTNER_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
@@ -423,6 +446,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> SoftedMultipleDelete(List<int> partnerList)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    //if (string.IsNullOrEmpty(rowIds))
+                    //    return new BusinessResult(500, "No row Id to delete");
+                    //List<string> rowList = Util.SplitByComma(rowIds);
+                    //foreach (var MasterTypeId in plantIdList)
+                    //{
+                    Expression<Func<Partner, bool>> filter = x => partnerList.Contains(x.PartnerId) && x.IsDeleted == false;
+                    var rowsExistGet = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter);
+                    foreach (var item in rowsExistGet)
+                    {
+
+                        item.IsDeleted = true;
+                        _unitOfWork.PartnerRepository.Update(item);
+                    }
+                    //}
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_ONE_ROW_CODE, $"Delete {result.ToString()} partner success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(400, "Delete partner fail", new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
             }
         }
     }

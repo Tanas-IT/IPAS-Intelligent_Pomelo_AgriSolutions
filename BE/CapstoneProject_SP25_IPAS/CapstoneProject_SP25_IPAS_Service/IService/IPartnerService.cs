@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PartnerRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using System;
@@ -13,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetPartnerByID(int partnerId);
 
-        public Task<BusinessResult> GetAllPartnerPagination(PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetAllPartnerPagination(GetPartnerFilterRequest filterRequest, PaginationParameter paginationParameter);
 
         public Task<BusinessResult> CreatePartner(CreatePartnerModel createPartnerModel);
 
@@ -23,6 +24,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetPartnerByRoleName(string roleName);
 
-        public Task<BusinessResult> GetPartnerForSelected(int farmId);
+        public Task<BusinessResult> GetPartnerForSelected(int farmId, string? Major);
+
+        public Task<BusinessResult> SoftedMultipleDelete(List<int> partnerList);
+
     }
 }
