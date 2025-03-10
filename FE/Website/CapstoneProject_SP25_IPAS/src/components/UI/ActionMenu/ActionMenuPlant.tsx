@@ -6,12 +6,21 @@ import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
   id?: number;
+  isPlantDead: boolean;
   noView?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onMarkAsDead: () => void;
 }
 
-const ActionMenuPlant: FC<ActionMenuProps> = ({ id, noView = false, onEdit, onDelete }) => {
+const ActionMenuPlant: FC<ActionMenuProps> = ({
+  id,
+  isPlantDead,
+  noView = false,
+  onEdit,
+  onDelete,
+  onMarkAsDead,
+}) => {
   const navigate = useNavigate();
   const actionItems = [
     !noView
@@ -31,6 +40,13 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({ id, noView = false, onEdit, onDe
       label: "Delete Plant",
       onClick: () => onDelete(),
     },
+    !isPlantDead
+      ? {
+          icon: <Icons.warning />,
+          label: "Mark as Dead",
+          onClick: () => onMarkAsDead(),
+        }
+      : null,
   ].filter(Boolean) as ActionMenuItem[];
 
   return (

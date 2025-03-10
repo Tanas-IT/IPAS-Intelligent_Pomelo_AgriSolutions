@@ -28,14 +28,19 @@ import PlantModel from "./PlantModal";
 import { HEALTH_STATUS } from "@/constants";
 import PlantImportModal from "./PlantImportModal";
 import { toast } from "react-toastify";
+import PlantMarkAsDeadModal from "./PlantMarkAsDeadModal";
+import { useNavigate } from "react-router-dom";
 
 function PlantList() {
+  const navigate = useNavigate();
   const formModal = useModal<GetPlant>();
-  const [isImportLoading, setIsImportLoading] = useState(false);
+  const [isPlantActionLoading, setIsPlantActionLoading] = useState(false);
   const importErrorModal = useModal<{ errors: string[] }>();
   const importModal = useModal();
+  const markAsDeadModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ plant: PlantRequest }>();
+  const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantState>(
@@ -134,17 +139,36 @@ function PlantList() {
 
   const handleImport = async (file: File) => {
     try {
-      setIsImportLoading(true);
+      setIsPlantActionLoading(true);
       var res = await plantService.importPlants(file);
       if (res.statusCode === 200) {
         toast.success(res.message);
+        importModal.hideModal();
         await fetchData();
       } else {
         const errorList = res.message.split("\n").filter((error) => error.trim() !== "");
         importErrorModal.showModal({ errors: errorList });
       }
     } finally {
-      setIsImportLoading(false);
+      setIsPlantActionLoading(false);
+    }
+  };
+
+  const handleMarkAsDead = async (plantId?: number) => {
+    if (!plantId) return;
+    try {
+      markAsDeadConfirmModal.hideModal();
+      setIsPlantActionLoading(true);
+      var res = await plantService.updatePlantDead(plantId);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        markAsDeadModal.hideModal();
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsPlantActionLoading(false);
     }
   };
 
@@ -177,6 +201,8 @@ function PlantList() {
               noImport={false}
             />
           }
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(`/farm/plants/${record.plantId}/details`)}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           sortDirection={sortDirection}
@@ -190,8 +216,10 @@ function PlantList() {
           renderAction={(plant: GetPlant) => (
             <ActionMenuPlant
               id={plant.plantId}
+              isPlantDead={plant.isDead}
               onEdit={() => formModal.showModal(plant)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [plant.plantId] })}
+              onMarkAsDead={() => markAsDeadModal.showModal({ id: plant.plantId })}
             />
           )}
         />
@@ -215,7 +243,13 @@ function PlantList() {
           isOpen={importModal.modalState.visible}
           onClose={handleImportClose}
           onSave={handleImport}
-          isLoadingAction={isImportLoading}
+          isLoadingAction={isPlantActionLoading}
+        />
+        <PlantMarkAsDeadModal
+          isOpen={markAsDeadModal.modalState.visible}
+          onClose={markAsDeadModal.hideModal}
+          onSave={markAsDeadConfirmModal.showModal}
+          isLoadingAction={isPlantActionLoading}
         />
         {/* Confirm Delete Modal */}
         <ConfirmModal
@@ -232,6 +266,14 @@ function PlantList() {
           onCancel={updateConfirmModal.hideModal}
           itemName="Plant"
           actionType="update"
+        />
+        {/* Confirm Mark as Dead Modal */}
+        <ConfirmModal
+          visible={markAsDeadConfirmModal.modalState.visible}
+          onConfirm={() => handleMarkAsDead(markAsDeadModal.modalState.data?.id)}
+          onCancel={markAsDeadConfirmModal.hideModal}
+          confirmText="Mark as Dead"
+          title="Mark Plant as Dead?"
         />
         {/* Confirm Cancel Modal */}
         <ConfirmModal

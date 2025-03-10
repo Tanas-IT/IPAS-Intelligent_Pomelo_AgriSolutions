@@ -1,16 +1,21 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import style from "./LandRow.module.scss";
 import { GetLandPlotSimulate } from "@/payloads";
 import { Flex } from "antd";
-import { MapControls, RowList } from "@/components";
+import { Loading, MapControls, RowList } from "@/components";
+import { AddNewPlotDrawer } from "@/pages";
 import { Icons } from "@/assets";
 import { usePanZoom } from "@/hooks";
+import { landPlotService } from "@/services";
 
 interface SimulationViewProps {
-  plotData?: GetLandPlotSimulate;
+  plotId?: number;
 }
 
-const SimulationView: FC<SimulationViewProps> = ({ plotData }) => {
+const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
+  const [plotData, setPlotData] = useState<GetLandPlotSimulate>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const {
     scale,
     setScale,
@@ -23,7 +28,34 @@ const SimulationView: FC<SimulationViewProps> = ({ plotData }) => {
     handleMouseUp,
   } = usePanZoom();
 
-  if (!plotData) return <p>No simulation data available</p>;
+  const closeDrawer = () => setIsDrawerVisible(false);
+  const showDrawer = () => setIsDrawerVisible(true);
+
+  useEffect(() => {
+    const fetchPlotData = async () => {
+      if (plotId) {
+        try {
+          setIsLoading(true);
+          const res = await landPlotService.getLandPlotSimulate(plotId);
+          if (res.statusCode === 200) {
+            setPlotData(res.data);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchPlotData();
+  }, [plotId]);
+
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" style={{ width: "100%" }}>
+        <Loading />
+      </Flex>
+    );
+  if (!plotId || !plotData) return <p>No simulation data available</p>;
 
   return (
     <div ref={containerRef} style={{ width: "100%" }}>
@@ -37,6 +69,11 @@ const SimulationView: FC<SimulationViewProps> = ({ plotData }) => {
 
           {/* Nút Zoom In/Out */}
           <Flex className={style.zoomControls}>
+            <MapControls
+              icon={<Icons.edit />}
+              label="Modify Plot Layout"
+              onClick={() => showDrawer()}
+            />
             <MapControls
               icon={<Icons.zoomIn />}
               label="Zoom In"
@@ -79,6 +116,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotData }) => {
           />
         </div>
       </Flex>
+      <AddNewPlotDrawer plotSimulate={plotData} isOpen={isDrawerVisible} onClose={closeDrawer} />
     </div>
   );
 };

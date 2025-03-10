@@ -43,9 +43,16 @@ const generateMessages = (
     };
   }
 
+  const baseDescription = `Are you sure you want to ${actionType} this ${itemName}? This action cannot be undone.`;
+
+  const affectedDescription =
+    actionType === "delete"
+      ? "\n\nDeleting this item may impact other related items in the system."
+      : "";
+
   return {
     title: `${actionType === "delete" ? "Delete" : "Update"} ${itemName}?`,
-    description: `Are you sure you want to ${actionType} this ${itemName}? This action cannot be undone.`,
+    description: baseDescription + affectedDescription,
   };
 };
 

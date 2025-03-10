@@ -87,6 +87,7 @@ const ViewPlantsModal = ({ rowId, isOpen, onClose }: ViewPlantsModalProps) => {
                 render: (date) => formatDate(date),
               },
               { title: "Growth Stage", dataIndex: "plantCode" },
+              { title: "Index", dataIndex: "1" },
               { title: "Health Status", dataIndex: "healthStatus" },
             ]}
           />

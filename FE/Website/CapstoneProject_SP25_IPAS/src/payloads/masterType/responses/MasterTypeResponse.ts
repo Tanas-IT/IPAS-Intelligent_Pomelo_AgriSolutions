@@ -21,3 +21,9 @@ export interface GetMasterType {
   isActive: boolean;
   masterTypeDetailModels: MasterTypeDetail[];
 }
+
+export interface GetMasterTypeSelected {
+  id: number;
+  code: string;
+  name: string;
+}

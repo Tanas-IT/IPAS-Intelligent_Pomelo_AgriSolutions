@@ -97,7 +97,8 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     (filters.cultivarIds && filters.cultivarIds.length > 0) ||
     (filters.growthStageIds && filters.growthStageIds.length > 0) ||
     (filters.healthStatus && filters.healthStatus.length > 0) ||
-    filters.isLocated !== undefined
+    filters.isLocated !== undefined ||
+    filters.isDead !== undefined
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -112,7 +113,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     <Flex className={style.filterContent}>
       <Space direction="vertical" style={{ width: "100%" }}>
         <FormFieldFilter
-          label="Planting Date:"
+          label="Planting Date"
           fieldType="date"
           value={[filters.plantingDateFrom, filters.plantingDateTo]}
           onChange={(dates) => {
@@ -122,7 +123,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
         />
 
         <FormFieldFilter
-          label="Plant Location: "
+          label="Plant Location"
           fieldType="treeSelect"
           value={selectedTreeValues}
           treeData={treeData}
@@ -132,7 +133,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
 
         <Flex className={style.row}>
           <FormFieldFilter
-            label="Cultivar:"
+            label="Cultivar"
             fieldType="select"
             value={filters.cultivarIds}
             options={cultivarTypeOptions}
@@ -140,7 +141,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           />
 
           <FormFieldFilter
-            label="Growth Stage:"
+            label="Growth Stage"
             fieldType="select"
             value={filters.growthStageIds}
             options={growthStageOptions}
@@ -148,8 +149,9 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           />
         </Flex>
 
+        {/* <Flex className={style.row}> */}
         <FormFieldFilter
-          label="Is Assigned: "
+          label="Is Assigned"
           fieldType="radio"
           value={filters.isLocated}
           options={[
@@ -159,7 +161,18 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           onChange={(value) => updateFilters("isLocated", value)}
           direction="row"
         />
-
+        <FormFieldFilter
+          label="Life Status"
+          fieldType="radio"
+          value={filters.isDead}
+          options={[
+            { value: true, label: "Dead" },
+            { value: false, label: "Alive" },
+          ]}
+          onChange={(value) => updateFilters("isDead", value)}
+          direction="row"
+        />
+        {/* </Flex> */}
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

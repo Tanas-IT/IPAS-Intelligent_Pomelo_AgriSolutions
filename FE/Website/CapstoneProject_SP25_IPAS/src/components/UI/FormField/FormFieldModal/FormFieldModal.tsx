@@ -168,7 +168,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "select":
         return (
           <Select
-            placeholder={`Select ${label.toLowerCase()}`}
+            placeholder={placeholder ?? `Select ${label.toLowerCase()}`}
             className={`${style.select} ${styles.customSelect}`}
             options={options}
             showSearch={isSearch}
@@ -222,7 +222,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
     <Flex className={`${style.formSection} ${style[direction]}`}>
       <Flex className={style.formSectionTitle}>
         <label className={style.formTitle}>
-          {label}: {isRequired && <span style={{ color: "red" }}>*</span>}
+          {label.endsWith(":") ? label.slice(0, -1) : label}:{" "}
+          {isRequired && <span style={{ color: "red" }}>*</span>}
         </label>
         {description && <span className={style.formDescription}>{description}</span>}
       </Flex>
@@ -232,6 +233,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
         hasFeedback={hasFeedback}
         className={`${type === "text" || type === "textarea" ? styles.customInput2 : ""}`}
         dependencies={dependencies}
+        style={{ width: "100%" }}
       >
         {renderInput()}
       </Form.Item>

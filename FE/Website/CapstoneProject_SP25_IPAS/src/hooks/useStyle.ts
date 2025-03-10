@@ -241,13 +241,19 @@ const useStyle = createStyles(({ css }) => {
     `,
     customeTable: css`
       .ant-table-cell {
-        background-color: #326E2F !important;
+        background-color: #326e2f !important;
         color: white !important;
-      },
-      .ant-table-tbody > tr:hover {
-        background-color:rgb(153, 25, 25) !important;
       }
-      `
+      ,
+      .ant-table-tbody > tr:hover {
+        background-color: rgb(153, 25, 25) !important;
+      }
+    `,
+    customDrawer: css`
+      .ant-drawer-body {
+        overflow: hidden;
+      }
+    `,
   };
 });
 
