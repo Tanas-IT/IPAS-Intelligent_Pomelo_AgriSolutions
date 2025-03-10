@@ -143,6 +143,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
            {
                 var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(notificationId);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(notificationId);
+                if (getPlanNotificationById == null || !getPlanNotificationById.Any())
+                {
+                    return new BusinessResult(404, "No PlanNotification found");
+                }
                 if (getNotificationById != null)
                 {
                     getNotificationById.IsRead = true;
@@ -150,6 +154,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach(var getPlanNoti in  getPlanNotificationById)
                         {
+                            if (getPlanNoti.PlanNotificationID <= 0) // Kiểm tra ID hợp lệ
+                            {
+                                return new BusinessResult(400, "Invalid PlanNotificationID");
+                            }
+
                             getPlanNoti.isRead = true;
                             _unitOfWork.PlanNotificationRepository.Update(getPlanNoti);
                         }
