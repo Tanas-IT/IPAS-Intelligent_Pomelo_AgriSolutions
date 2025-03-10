@@ -89,11 +89,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public async Task<BusinessResult> GetNotificationByUserId(int UserId)
+        public async Task<BusinessResult> GetNotificationByUserId(int UserId, bool isRead)
         {
             try
             {
-                var getListPlanNotificationOfUser = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByUserId(UserId);
+                var getListPlanNotificationOfUser = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByUserId(UserId, isRead);
                 var listNotificationResponse = new List<NotificationModel>();
                 foreach (var notificationPlan in getListPlanNotificationOfUser)
                 {

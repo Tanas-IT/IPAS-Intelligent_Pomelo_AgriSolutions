@@ -542,11 +542,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> UpdateWorkLog(UpdateWorkLogModel updateWorkLogModel, int? farmId)
+        public async Task<BusinessResult> UpdateWorkLog(UpdateWorkLogModel updateWorkLogModel, int? farmId)
         {
             try
             {
-                return null;
+                var findWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == updateWorkLogModel.TaskId, "UserWorkLogs");
+                if(findWorkLog != null)
+                {
+                    return new BusinessResult();
+                }
+                return new BusinessResult();
             }
             catch (Exception ex)
             {
