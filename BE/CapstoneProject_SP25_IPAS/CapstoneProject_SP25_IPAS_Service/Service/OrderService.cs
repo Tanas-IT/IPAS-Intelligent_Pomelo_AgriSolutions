@@ -84,6 +84,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
+                        await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<OrderModel>(orderWithPayment);
                         return new BusinessResult(Const.SUCCESS_CREATE_ORDER_CODE, Const.SUCCESS_CREATE_ORDER_MSG, mappedResult);
                     }
@@ -92,6 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 catch (Exception ex)
                 {
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
