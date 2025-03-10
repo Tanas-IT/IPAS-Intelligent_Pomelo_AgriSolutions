@@ -3,7 +3,12 @@ import { useCallback } from "react";
 
 function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
   return useCallback(
-    (newData: T, keyField?: keyof T, defaultValues?: Partial<T>): boolean => {
+    (
+      newData: T,
+      keyField?: keyof T,
+      defaultValues?: Partial<T>,
+      ignoredKeys?: (keyof T)[],
+    ): boolean => {
       if (keyField) {
         // Xử lý cho update
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
@@ -12,6 +17,8 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
 
         return Object.keys(newData).some((key) => {
           const typedKey = key as keyof T;
+          if (ignoredKeys?.includes(typedKey)) return false;
+
           if (!(typedKey in oldData) && !(typedKey in newData)) return false;
           if (
             !(typedKey in oldData) &&

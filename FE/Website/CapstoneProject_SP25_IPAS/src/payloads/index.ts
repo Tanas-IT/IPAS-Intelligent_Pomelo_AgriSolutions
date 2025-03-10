@@ -4,7 +4,7 @@ export * from "./plant";
 export * from "./farm";
 export * from "./user";
 export * from "./landplot";
-export * from "./thirdParty";
+export * from "./partner";
 export * from "./landRow";
 export * from "./masterType";
 export * from "./growthStage";

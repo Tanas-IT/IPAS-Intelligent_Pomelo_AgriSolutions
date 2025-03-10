@@ -64,10 +64,6 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const isUpdate = !!selectedPlot;
   const isSimulateUpdate = !!plotSimulate;
 
-  useEffect(() => {
-    if (isSimulateUpdate) setCurrentStep(2);
-  }, [isSimulateUpdate]);
-
   const handleSave = async () => {
     setIsLoading(true);
     const plotDataRequest: LandPlotRequest = {
@@ -268,6 +264,8 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     }
   };
 
+  const handleSaveSimulate = async () => {};
+
   const resetForm = () => {
     form.resetFields();
     setCurrentStep(0);
@@ -288,19 +286,30 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   };
 
   useEffect(() => {
+    if (isSimulateUpdate && plotSimulate) {
+      form.setFieldsValue({
+        landRowCode: plotSimulate.landPlotCode,
+        isHorizontal: plotSimulate.isRowHorizontal,
+        rowSpacing: plotSimulate.rowSpacing,
+        rowsPerLine: plotSimulate.rowPerLine,
+        lineSpacing: plotSimulate.lineSpacing,
+      });
+      setRowsData(plotSimulate.landRows);
+      setCurrentStep(2);
+    }
     if (isOpen) {
       setTimeout(() => {
         window.dispatchEvent(new Event("resize")); // Trigger resize event
       }, 300); // Delay để chờ Drawer render xong
     }
-  }, [isOpen]);
+  }, [isOpen, isSimulateUpdate, plotSimulate]);
 
   return (
     <>
       <Drawer
         title={
           <Flex className={style.stepHeader}>
-            {isUpdate ? (
+            {isUpdate || isSimulateUpdate ? (
               <Flex className={style.updateTitle}>
                 <h3 className={style.editTitle}>Update Land Plot</h3>
               </Flex>
@@ -317,14 +326,23 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
             )}
 
             <EditActions
-              handleBtn1={currentStep === 0 ? confirmClose : handlePrev}
-              handleBtn2={isUpdate ? handleSaveUpdate : handleNext}
-              labelBtn1={currentStep === 0 ? "Cancel" : "Previous"}
-              labelBtn2={isUpdate ? "Save Changes" : currentStep === 2 ? "Finish" : "Next"}
+              handleBtn1={currentStep === 0 || isSimulateUpdate ? confirmClose : handlePrev}
+              handleBtn2={
+                isSimulateUpdate ? handleSaveSimulate : isUpdate ? handleSaveUpdate : handleNext
+              }
+              labelBtn1={currentStep === 0 || isSimulateUpdate ? "Cancel" : "Previous"}
+              labelBtn2={
+                isUpdate || isSimulateUpdate
+                  ? "Save Changes"
+                  : currentStep === 2
+                  ? "Finish"
+                  : "Next"
+              }
               isLoading={isLoading}
             />
           </Flex>
         }
+        className={styles.customDrawer}
         placement="right"
         onClose={confirmClose}
         open={isOpen}
@@ -366,7 +384,6 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         }}
         onCancel={updateConfirmModal.hideModal}
       />
-      ;
     </>
   );
 };

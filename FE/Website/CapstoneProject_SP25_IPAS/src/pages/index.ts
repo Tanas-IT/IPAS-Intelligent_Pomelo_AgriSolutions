@@ -18,6 +18,7 @@ export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManag
 export { default as DraggableRow } from "@/pages/Farm/LandPlot/LandPlotManagement/DraggableRow/DraggableRow";
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
+export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";
 export { default as Weather } from "@/pages/Weather/Weather";
 export { default as ProcessList } from "@/pages/Process/ProcessList/ProcessList";
 export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/ProcessDetails";
@@ -30,4 +31,5 @@ export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/Workl
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
 export { default as PackageList } from "@/pages/Package/PackageList/PackageList";
 export { default as EmployeeList } from "@/pages/HR/Employee/EmployeeList";
+export { default as Partner } from "@/pages/Partner/Partner";
 export { default as NotFoundPage } from "@/pages/NotFoundPage/NotFoundPage";

@@ -7,6 +7,8 @@ interface CustomTooltipProps {
   children: React.ReactNode;
   placement?: "top" | "right" | "bottom" | "left";
   color?: string;
+  open?: any;
+  overlayStyle?: any;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -14,12 +16,16 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   children,
   placement = "top",
   color = "#bcd379",
+  open,
+  overlayStyle,
 }) => {
   return (
     <Tooltip
       title={<div className={style.tooltipTitle}>{title}</div>}
       placement={placement}
       color={color}
+      open={open}
+      overlayStyle={overlayStyle}
     >
       {children}
     </Tooltip>

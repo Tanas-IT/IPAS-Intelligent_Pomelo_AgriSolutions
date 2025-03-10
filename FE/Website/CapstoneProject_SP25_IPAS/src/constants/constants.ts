@@ -14,8 +14,9 @@ export const HEALTH_STATUS = {
   HEALTHY: "Healthy",
   MINOR_ISSUE: "Minor Issues",
   SERIOUS_ISSUE: "Serious Issues",
-  // DEAD: "Dead",
 } as const;
+
+export const DEAD_STATUS = "Dead" as const;
 
 export const healthStatusColors: Record<string, string> = {
   Healthy: "green",
@@ -38,6 +39,11 @@ export const VIEW_MODE = {
 export const ROLE = {
   EMPLOYEE: "Employee",
   MANAGER: "Manager",
+} as const;
+
+export const PARTNER = {
+  PROVIDER: "Provider",
+  CUSTOMER: "Customer",
 } as const;
 
 export const POLYGON_DIMENSION_LIMITS = {

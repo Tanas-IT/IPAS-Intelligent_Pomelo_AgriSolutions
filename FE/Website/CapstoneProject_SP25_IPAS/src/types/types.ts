@@ -52,6 +52,7 @@ export type FilterPlantState = {
   growthStageIds: string[];
   healthStatus: string[];
   isLocated: boolean | null;
+  isDead: boolean | null;
 };
 
 export type FilterLandRowState = {
@@ -63,6 +64,10 @@ export type FilterLandRowState = {
 
 export type FilterEmployeeState = {
   roleName: string[];
+};
+
+export type FilterPartnerState = {
+  major: string[];
 };
 
 export interface LandPlotsStateType {

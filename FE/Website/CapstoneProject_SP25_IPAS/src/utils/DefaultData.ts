@@ -12,6 +12,7 @@ import {
   FilterEmployeeState,
   FilterLandRowState,
   FilterMasterTypeState,
+  FilterPartnerState,
   FilterPlantState,
   LogoState,
 } from "@/types";
@@ -103,6 +104,7 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   growthStageIds: [] as string[],
   healthStatus: [] as string[],
   isLocated: null,
+  isDead: null,
 };
 
 export const DEFAULT_LAND_ROW_FILTERS: FilterLandRowState = {
@@ -114,6 +116,10 @@ export const DEFAULT_LAND_ROW_FILTERS: FilterLandRowState = {
 
 export const DEFAULT_EMPLOYEE_FILTERS: FilterEmployeeState = {
   roleName: [] as string[],
+};
+
+export const DEFAULT_PARTNER_FILTERS: FilterPartnerState = {
+  major: [] as string[],
 };
 
 // export const DEFAULT_ROW = (): rowStateType => ({

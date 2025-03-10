@@ -142,7 +142,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updatePartnerInfo = Base + "/partners/update-partner-info";
             public const string getPartnerByRoleName = Base + "/partners/get-partner-by-role-name/{roleName}";
             public const string getForSelected = Base + "/partners/get-for-selected";
-            public const string softedDeletePartner = Base + "partners/softed-delete";
+            public const string softedDeletePartner = Base + "/partners/softed-delete";
 
         }
 

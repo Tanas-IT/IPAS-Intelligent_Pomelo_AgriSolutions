@@ -30,6 +30,8 @@ interface TableProps<T, E = T> {
   notifyNoData: string;
   renderAction?: (item: T) => React.ReactNode;
   renderExpandedAction?: (item: E) => React.ReactNode;
+  onRowDoubleClick?: (record: T) => void;
+  isOnRowEvent?: boolean;
   isViewCheckbox?: boolean;
 }
 const TableComponent = <T, E = T>({
@@ -54,6 +56,8 @@ const TableComponent = <T, E = T>({
   notifyNoData,
   renderAction,
   renderExpandedAction,
+  onRowDoubleClick,
+  isOnRowEvent = false,
   isViewCheckbox = true,
 }: TableProps<T, E>) => {
   const { styles } = useStyle();
@@ -237,6 +241,9 @@ const TableComponent = <T, E = T>({
     id: (currentPage - 1) * rowsPerPage + index + 1,
   }));
 
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
   return (
     <>
       <Table
@@ -272,11 +279,46 @@ const TableComponent = <T, E = T>({
         locale={{
           emptyText: isLoading ? <Skeleton active /> : <Empty description={notifyNoData} />,
         }}
+        // rowClassName={(record) =>
+        //   selection.includes(record[rowKey] as string) ? style.selectedRow : ""
+        // }
         rowClassName={(record) =>
-          selection.includes(record[rowKey] as string) ? style.selectedRow : ""
+          `${selection.includes(record[rowKey] as string) ? style.selectedRow : ""} ${
+            isOnRowEvent ? style.clickableRow : ""
+          }`
+        }
+        onRow={(record) =>
+          isOnRowEvent
+            ? {
+                onDoubleClick: () => {
+                  if (onRowDoubleClick) {
+                    onRowDoubleClick(record);
+                  }
+                },
+                onMouseMove: (event) => {
+                  setTooltipVisible(true);
+                  setTooltipPosition({ x: event.clientX, y: event.clientY });
+                },
+                onMouseLeave: () => {
+                  setTooltipVisible(false);
+                },
+              }
+            : {}
         }
         scroll={{ x: "max-content", y: 74 * 5 }}
       />
+      {isOnRowEvent && tooltipVisible && (
+        <div
+          className={style.tooltipCustom}
+          style={{
+            left: tooltipPosition.x + 14,
+            top: tooltipPosition.y + 14,
+          }}
+        >
+          Double click to view details
+        </div>
+      )}
+
       <ActionBar selectedCount={selection.length} deleteSelectedItems={deleteSelectedItems} />
     </>
   );

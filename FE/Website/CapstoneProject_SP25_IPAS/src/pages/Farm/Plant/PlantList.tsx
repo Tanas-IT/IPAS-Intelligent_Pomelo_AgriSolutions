@@ -29,8 +29,10 @@ import { HEALTH_STATUS } from "@/constants";
 import PlantImportModal from "./PlantImportModal";
 import { toast } from "react-toastify";
 import PlantMarkAsDeadModal from "./PlantMarkAsDeadModal";
+import { useNavigate } from "react-router-dom";
 
 function PlantList() {
+  const navigate = useNavigate();
   const formModal = useModal<GetPlant>();
   const [isPlantActionLoading, setIsPlantActionLoading] = useState(false);
   const importErrorModal = useModal<{ errors: string[] }>();
@@ -199,6 +201,8 @@ function PlantList() {
               noImport={false}
             />
           }
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(`/farm/plants/${record.plantId}/details`)}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           sortDirection={sortDirection}

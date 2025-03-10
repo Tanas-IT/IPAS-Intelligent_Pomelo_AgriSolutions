@@ -46,8 +46,8 @@ export class RulesManager {
     return [
       { required: true, message: "Please input your phone number!" },
       {
-        pattern: /^[0-9]{10,15}$/,
-        message: "Phone number must be 10 to 15 digits!",
+        pattern: /^[0-9]{10,11}$/,
+        message: "Phone number must be 10 or 11 digits!",
       },
     ];
   }
@@ -102,6 +102,12 @@ export class RulesManager {
   static getTypeRules = () => this.getRequiredRules("Type");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
   static getCharacteristicRules = () => this.getRequiredRules("Characteristic");
+
+  static getLotNameRules = () => this.getRequiredRules("Lot Name");
+  static getPartnerRules = () => this.getRequiredRules("Partner");
+  static getQuantityRules = () => this.getNumberRules("Quantity");
+  static getUnitRules = () => this.getRequiredRules("Unit");
+  static getSelectRoleRules = () => this.getRequiredRules("Select Role");
 
   static getWorklogNameRules = () => this.getRequiredRules("Task Name");
   static getCropRules = () => this.getRequiredRules("Crop");

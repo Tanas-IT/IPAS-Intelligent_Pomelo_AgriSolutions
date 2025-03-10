@@ -121,7 +121,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
 
   return (
     <Flex className={`${style.section} ${style[direction]}`}>
-      <label className={style.title}>{label}</label>
+      <label className={style.title}>{label.endsWith(":") ? label.slice(0, -1) : label}:</label>
       {renderField()}
     </Flex>
   );

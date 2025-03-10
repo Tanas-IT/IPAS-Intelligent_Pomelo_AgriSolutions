@@ -102,6 +102,8 @@ export const getPlantOfRow = async (landRowId: number) => {
 };
 
 export const updatePlantDead = async (plantId: number): Promise<ApiResponse<GetPlant>> => {
+  console.log(plantId);
+  
   const res = await axiosAuth.axiosJsonRequest.patch(`plants/dead-mark/${plantId}`);
   const apiResponse = res.data as ApiResponse<GetPlant>;
   return apiResponse;

@@ -1,5 +1,5 @@
 import {
-  ActionMenuGrowthStage,
+  ActionMenuPartner,
   ConfirmModal,
   NavigationDot,
   SectionTitle,
@@ -8,28 +8,34 @@ import {
 } from "@/components";
 import {
   useFetchData,
+  useFilters,
   useHasChanges,
   useModal,
   useTableAdd,
   useTableDelete,
   useTableUpdate,
 } from "@/hooks";
-import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
-import { growthStageService } from "@/services";
+import { GetPartner, PartnerRequest } from "@/payloads";
+import { partnerService } from "@/services";
 import { Flex } from "antd";
 import { useEffect } from "react";
-import style from "./GrowthStage.module.scss";
-import { getOptions } from "@/utils";
-import { growthStageColumns } from "./GrowthStageColumns";
-import GrowthStageModal from "./GrowthStageModal";
-import { useGrowthStageStore } from "@/stores";
+import style from "./Partner.module.scss";
+import { DEFAULT_PARTNER_FILTERS, getOptions } from "@/utils";
+import { PartnerColumns } from "./PartnerColumns";
+import { FilterPartnerState } from "@/types";
+import PartnerFilter from "./PartnerFilter";
+import PartnerModal from "./PartnerModal";
 
-function GrowthStage() {
-  const formModal = useModal<GetGrowthStage>();
+function ThirdParty() {
+  const formModal = useModal<GetPartner>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
-  const updateConfirmModal = useModal<{ stage: GrowthStageRequest }>();
+  const updateConfirmModal = useModal<{ partner: PartnerRequest }>();
   const cancelConfirmModal = useModal();
-  const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
+
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPartnerState>(
+    DEFAULT_PARTNER_FILTERS,
+    () => fetchData(),
+  );
 
   const {
     data,
@@ -47,9 +53,9 @@ function GrowthStage() {
     handleRowsPerPageChange,
     handleSearch,
     isLoading,
-  } = useFetchData<GetGrowthStage>({
+  } = useFetchData<GetPartner>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      growthStageService.getGrowthStages(page, limit, sortField, sortDirection, searchValue),
+      partnerService.getPartners(page, limit, sortField, sortDirection, searchValue, filters),
   });
 
   useEffect(() => {
@@ -58,7 +64,7 @@ function GrowthStage() {
 
   const { handleDelete } = useTableDelete(
     {
-      deleteFunction: growthStageService.deleteGrowthStages,
+      deleteFunction: partnerService.deletePartners,
       fetchData,
       onSuccess: () => {
         deleteConfirmModal.hideModal();
@@ -72,22 +78,18 @@ function GrowthStage() {
     },
   );
 
-  const hasChanges = useHasChanges<GrowthStageRequest>(data);
+  const hasChanges = useHasChanges<PartnerRequest>(data);
 
-  const handleUpdateConfirm = (stage: GrowthStageRequest) => {
-    if (hasChanges(stage, "growthStageId")) {
-      updateConfirmModal.showModal({ stage });
+  const handleUpdateConfirm = (partner: PartnerRequest) => {
+    if (hasChanges(partner, "partnerId")) {
+      updateConfirmModal.showModal({ partner });
     } else {
       formModal.hideModal();
     }
   };
 
-  const handleCancelConfirm = (stage: GrowthStageRequest, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate
-      ? hasChanges(stage, "growthStageId")
-      : hasChanges(stage, undefined, {
-          monthAgeStart: maxAgeStart ?? undefined,
-        });
+  const handleCancelConfirm = (partner: PartnerRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate ? hasChanges(partner, "partnerId") : hasChanges(partner);
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
@@ -96,8 +98,8 @@ function GrowthStage() {
     }
   };
 
-  const { handleUpdate, isUpdating } = useTableUpdate<GrowthStageRequest>({
-    updateService: growthStageService.updateGrowthStage,
+  const { handleUpdate, isUpdating } = useTableUpdate<PartnerRequest>({
+    updateService: partnerService.updatePartner,
     fetchData: fetchData,
     onSuccess: () => {
       formModal.hideModal();
@@ -109,26 +111,35 @@ function GrowthStage() {
   });
 
   const { handleAdd, isAdding } = useTableAdd({
-    addService: growthStageService.createGrowthStage,
+    addService: partnerService.createPartner,
     fetchData: fetchData,
     onSuccess: () => formModal.hideModal(),
   });
 
+  const filterContent = (
+    <PartnerFilter
+      filters={filters}
+      updateFilters={updateFilters}
+      onClear={clearFilters}
+      onApply={applyFilters}
+    />
+  );
+
   return (
     <Flex className={style.container}>
-      <SectionTitle title="Growth Stage Management" totalRecords={totalRecords} />
+      <SectionTitle title="Partner Management" totalRecords={totalRecords} />
       <Flex className={style.table}>
         <Table
-          columns={growthStageColumns}
+          columns={PartnerColumns}
           rows={data}
-          rowKey="growthStageCode"
-          idName="growthStageId"
+          rowKey="partnerCode"
+          idName="partnerId"
           title={
             <TableTitle
               onSearch={handleSearch}
-              addLabel="Add New Stage"
+              filterContent={filterContent}
+              addLabel="Add New Partner"
               onAdd={() => formModal.showModal()}
-              noFilter={true}
             />
           }
           handleSortClick={handleSortChange}
@@ -138,12 +149,12 @@ function GrowthStage() {
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
-          caption="Growth Stage Management Table"
-          notifyNoData="No data to display"
-          renderAction={(stage: GetGrowthStage) => (
-            <ActionMenuGrowthStage
-              onEdit={() => formModal.showModal(stage)}
-              onDelete={() => deleteConfirmModal.showModal({ ids: [stage.growthStageId] })}
+          caption="Partner Management Table"
+          notifyNoData="No partners to display"
+          renderAction={(partner: GetPartner) => (
+            <ActionMenuPartner
+              onEdit={() => formModal.showModal(partner)}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [partner.partnerId] })}
             />
           )}
         />
@@ -157,30 +168,28 @@ function GrowthStage() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
-      <GrowthStageModal
+      <PartnerModal
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
-        growthStageData={formModal.modalState.data}
+        partnerData={formModal.modalState.data}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
         onCancel={deleteConfirmModal.hideModal}
-        itemName="Stage"
+        itemName="Partner"
         actionType="delete"
       />
       {/* Confirm Update Modal */}
       <ConfirmModal
         visible={updateConfirmModal.modalState.visible}
-        onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.stage)}
+        onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.partner)}
         onCancel={updateConfirmModal.hideModal}
-        itemName="Stage"
+        itemName="Partner"
         actionType="update"
-        description={`Updating the growth stage will adjust the surrounding stages accordingly.
-          Are you sure you want to update this stage? This action cannot be undone.`}
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal
@@ -195,4 +204,4 @@ function GrowthStage() {
     </Flex>
   );
 }
-export default GrowthStage;
+export default ThirdParty;

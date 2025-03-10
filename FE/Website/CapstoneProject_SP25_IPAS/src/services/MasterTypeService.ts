@@ -27,7 +27,6 @@ export const getMasterTypes = async (
 export const getTypeByName = async (name: string) => {
   const res = await axiosAuth.axiosJsonRequest.get(`masterTypes?typeName=${name}`);
   const apiResponse = res.data as ApiResponse<{ list: GetType[] }>;
-  console.log("apiResponse", apiResponse);
 
   return apiResponse.data.list.map(({ masterTypeId, masterTypeName }) => ({
     masterTypeId,
