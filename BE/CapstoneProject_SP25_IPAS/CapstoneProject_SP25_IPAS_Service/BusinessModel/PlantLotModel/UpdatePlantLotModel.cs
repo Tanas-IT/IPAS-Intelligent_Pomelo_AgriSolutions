@@ -18,6 +18,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
         public string? Note { get; set; } = "";
         public string? Status { get; set; } = "";
         public int? MasterTypeId { get; set; }
-        public bool? IsPass {  get; set; }
+        public bool? IsPass {  get; set; } = false;
     }
 }
