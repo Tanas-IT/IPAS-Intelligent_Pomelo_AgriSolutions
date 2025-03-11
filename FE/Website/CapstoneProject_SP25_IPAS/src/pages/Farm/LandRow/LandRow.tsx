@@ -1,26 +1,35 @@
-import { ActionMenuRow, NavigationDot, SectionTitle, Table, TableTitle } from "@/components";
-import { useFetchData, useLandPlotOptions, useModal } from "@/hooks";
-import { GetLandPlotSimulate, GetLandRow } from "@/payloads";
-import { landPlotService, landRowService } from "@/services";
-import { getOptions } from "@/utils";
+import {
+  ActionMenuRow,
+  ConfirmModal,
+  NavigationDot,
+  SectionTitle,
+  Table,
+  TableTitle,
+} from "@/components";
+import { useFetchData, useFilters, useLandPlotOptions, useModal, useTableDelete } from "@/hooks";
+import { GetLandRow } from "@/payloads";
+import { landRowService } from "@/services";
+import { DEFAULT_LAND_ROW_FILTERS, getOptions } from "@/utils";
 import { Flex, Segmented, Select } from "antd";
 import { useEffect, useState } from "react";
-import { LandRowColumns } from "./LandRowColumns";
 import style from "./LandRow.module.scss";
 import { Icons } from "@/assets";
 import { VIEW_MODE } from "@/constants";
-import SimulationView from "./SimulationView";
+import { FilterLandRowState } from "@/types";
 import { useLocation } from "react-router-dom";
+import { LandRowColumns } from "./LandRowColumns";
 import AddPlantsModal from "./AddPlantsModal";
 import ViewPlantsModal from "./ViewPlantsModal";
+import LandRowFilter from "./LandRowFilter";
+import SimulationView from "./SimulationView";
 
 function LandRow() {
   const location = useLocation();
   const { options: plotOptions } = useLandPlotOptions();
   const addPlantsModal = useModal<{ row: GetLandRow }>();
   const viewPlantsModal = useModal<{ id: number }>();
-  const [plotId, setPlotId] = useState<number>();
-  const [plotData, setPlotData] = useState<GetLandPlotSimulate>();
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const [plotId, setPlotId] = useState<number>(0);
   const [viewMode, setViewMode] = useState<string>(VIEW_MODE.TABLE);
   const viewOptions = [
     { mode: VIEW_MODE.TABLE, icon: <Icons.table /> },
@@ -36,21 +45,13 @@ function LandRow() {
 
   useEffect(() => {
     // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
-    if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(10);
+    if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
   }, [plotOptions, location.state]);
 
-  useEffect(() => {
-    const fetchPlotData = async () => {
-      if (plotId) {
-        const res = await landPlotService.getLandPlotSimulate(plotId);
-        if (res.statusCode === 200) {
-          setPlotData(res.data);
-        }
-      }
-    };
-
-    fetchPlotData();
-  }, [plotId]);
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterLandRowState>(
+    DEFAULT_LAND_ROW_FILTERS,
+    () => fetchData(),
+  );
 
   const {
     data,
@@ -70,7 +71,15 @@ function LandRow() {
     isLoading,
   } = useFetchData<GetLandRow>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      landRowService.getLandRows(page, limit, sortField, sortDirection, searchValue, plotId),
+      landRowService.getLandRows(
+        page,
+        limit,
+        sortField,
+        sortDirection,
+        searchValue,
+        plotId,
+        filters,
+      ),
   });
 
   useEffect(() => {
@@ -80,6 +89,31 @@ function LandRow() {
   const handlePlotChange = (selectedPlotId: number) => {
     setPlotId(selectedPlotId);
   };
+
+  const { handleDelete } = useTableDelete(
+    {
+      deleteFunction: landRowService.deleteLandRows,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
+      },
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
+
+  const filterContent = (
+    <LandRowFilter
+      filters={filters}
+      updateFilters={updateFilters}
+      onClear={clearFilters}
+      onApply={applyFilters}
+    />
+  );
 
   return (
     <Flex className={style.container}>
@@ -113,13 +147,16 @@ function LandRow() {
             rows={data}
             rowKey="landRowCode"
             idName="landRowId"
-            title={<TableTitle onSearch={handleSearch} addLabel="Add New Row" onAdd={() => {}} />}
+            title={
+              <TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd={true} />
+            }
             handleSortClick={handleSortChange}
             selectedColumn={sortField}
             sortDirection={sortDirection}
             rotation={rotation}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            handleDelete={(ids) => handleDelete(ids)}
             isLoading={isLoading}
             caption="Land Row Management Board"
             notifyNoData="No rows to display"
@@ -134,7 +171,7 @@ function LandRow() {
             )}
           />
         ) : (
-          <SimulationView plotData={plotData} />
+          <SimulationView plotId={plotId} />
         )}
       </Flex>
 
@@ -148,6 +185,7 @@ function LandRow() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       )}
+
       <AddPlantsModal
         isOpen={addPlantsModal.modalState.visible}
         onClose={() => addPlantsModal.hideModal()}
@@ -159,6 +197,14 @@ function LandRow() {
         isOpen={viewPlantsModal.modalState.visible}
         onClose={() => viewPlantsModal.hideModal()}
         rowId={viewPlantsModal.modalState.data?.id}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Plant"
+        actionType="delete"
       />
     </Flex>
   );

@@ -26,6 +26,11 @@
   }
 }
 
+.filterContent {
+  @include shared.filterContent;
+  // min-width: 14vw;
+}
+
 .draggableRowContainer {
   position: relative;
   flex-direction: column;
@@ -60,7 +65,7 @@
 
   .zoomControls {
     justify-content: flex-end;
-    margin-left: 50rem;
+    margin-left: 40rem;
     gap: 20px;
   }
 }

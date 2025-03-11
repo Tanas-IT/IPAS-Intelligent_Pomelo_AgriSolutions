@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         OrderCode = $"{CodeAliasEntityConst.ORDER}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{farmCode.First()}-{packagecode.First().ToUpper()}",
                         OrderDate = DateTime.Now,
-                        TotalPrice = createRequest.TotalPrice,
+                        TotalPrice = checkPackageExist.PackagePrice,
                         Notes = createRequest.Notes,
                         EnrolledDate = DateTime.Now,
                         //ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),

@@ -1,10 +1,10 @@
 import { Flex } from "antd";
 import { Images } from "@/assets";
-import { landRowSimulate } from "@/payloads";
+import { landRowSimulate, plantSimulate } from "@/payloads";
 import { Tooltip } from "@/components";
 import style from "./RowItem.module.scss";
 import { useNavigate } from "react-router-dom";
-import { HEALTH_STATUS, healthStatusColors } from "@/constants";
+import { DEAD_STATUS, HEALTH_STATUS, healthStatusColors } from "@/constants";
 
 interface RowItemViewProps {
   plotId: number;
@@ -22,13 +22,14 @@ const RowItemView: React.FC<RowItemViewProps> = ({
   onClick,
 }) => {
   const navigate = useNavigate();
+
   const getPlantStyle = (i: number, isRealPlant: boolean): React.CSSProperties => {
     const spacingStyle = isHorizontal
       ? { marginRight: i !== row.treeAmount - 1 ? `${row.distance}px` : "0" }
       : { marginBottom: i !== row.treeAmount - 1 ? `${row.distance}px` : "0" };
 
     return {
-      backgroundColor: isRealPlant ? "transparent" : "gray", // Cây thật trong suốt, cây xám có màu
+      backgroundColor: isRealPlant ? "transparent" : "gray",
       WebkitMaskImage: `url(${Images.plant2})`,
       maskImage: `url(${Images.plant2})`,
       WebkitMaskSize: "contain",
@@ -53,27 +54,38 @@ const RowItemView: React.FC<RowItemViewProps> = ({
           onMouseDown={(e) => e.stopPropagation()}
         >
           {Array.from({ length: row.treeAmount }).map((_, i) => {
-            const plant = row.plants.find((plant) => plant.plantIndex === i + 1); // Kiểm tra vị trí cây
+            // Lọc cây tại vị trí i + 1
+            const plantsAtPosition = row.plants.filter((p) => p.plantIndex === i + 1);
+            // Ưu tiên cây sống, nếu không có thì lấy cây chết
+            const displayedPlant: plantSimulate | undefined =
+              plantsAtPosition.find((p) => p.healthStatus !== DEAD_STATUS) || plantsAtPosition[0];
 
             return (
-              <Tooltip key={i} title={plant ? `Plant #${plant.plantCode}` : `No plant`}>
+              <Tooltip
+                key={i}
+                title={displayedPlant ? `Plant #${displayedPlant.plantCode}` : `No plant`}
+              >
                 <div
-                  className={`${style.plantImage} ${plant ? style.view : ""}`}
+                  className={`${style.plantImage} ${displayedPlant ? style.view : ""}`}
                   style={{
-                    ...getPlantStyle(i, !!plant),
-                    backgroundColor: plant ? healthStatusColors[plant.healthStatus] : "gray",
+                    ...getPlantStyle(i, !!displayedPlant),
+                    backgroundColor: displayedPlant
+                      ? healthStatusColors[displayedPlant.healthStatus]
+                      : "gray",
                   }}
                   onClick={
-                    plant
-                      ? () => navigate(`/farm/land-rows/${plotId}/plants/${plant.plantId}/details`)
+                    displayedPlant
+                      ? () =>
+                          navigate(
+                            `/farm/land-rows/${plotId}/plants/${displayedPlant.plantId}/details`,
+                          )
                       : undefined
                   }
                 >
-                  {/* {plant && <img src={Images.plant2} alt={`Plant #${i + 1}`} />} */}
-                  {plant && plant.healthStatus === HEALTH_STATUS.HEALTHY && (
+                  {/* Chỉ render ảnh khi có cây và nó không bị chết */}
+                  {displayedPlant && displayedPlant.healthStatus === HEALTH_STATUS.HEALTHY && (
                     <img src={Images.plant2} alt={`Plant #${i + 1}`} />
                   )}
-                  {/* Chỉ render ảnh khi có cây */}
                 </div>
               </Tooltip>
             );

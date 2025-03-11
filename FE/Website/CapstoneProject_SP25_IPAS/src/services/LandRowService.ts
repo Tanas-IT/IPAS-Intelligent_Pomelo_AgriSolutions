@@ -29,6 +29,12 @@ export const getLandRows = async (
   return apiResponse.data as GetData<GetLandRow>;
 };
 
+export const deleteLandRows = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`landRows/softed-delete`, ids);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
 export const getLandRowsSelected = async (
   landPlotId: number,
 ): Promise<ApiResponse<GetLandRowSelected[]>> => {

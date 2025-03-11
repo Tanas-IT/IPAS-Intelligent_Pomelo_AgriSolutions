@@ -1,0 +1,22 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+}
+
+.criteriaTableWrapper {
+  max-height: 25rem;
+  overflow: auto;
+  .criteriaTable {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center;
+    }
+    td {
+      padding: 4px 0;
+    }
+  }
+}

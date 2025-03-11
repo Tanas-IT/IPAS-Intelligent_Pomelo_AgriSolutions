@@ -14,8 +14,9 @@ export const HEALTH_STATUS = {
   HEALTHY: "Healthy",
   MINOR_ISSUE: "Minor Issues",
   SERIOUS_ISSUE: "Serious Issues",
-  DEAD: "Dead",
 } as const;
+
+export const DEAD_STATUS = "Dead" as const;
 
 export const healthStatusColors: Record<string, string> = {
   Healthy: "green",
@@ -40,6 +41,11 @@ export const ROLE = {
   MANAGER: "Manager",
 } as const;
 
+export const PARTNER = {
+  PROVIDER: "Provider",
+  CUSTOMER: "Customer",
+} as const;
+
 export const POLYGON_DIMENSION_LIMITS = {
   minWidth: 10,
   maxWidth: 500,
@@ -61,4 +67,5 @@ export const CRITERIA_TARGETS = {
   Harvest: "Harvest",
   "Grafted Condition": "Grafted Condition",
   "Grafted Evaluation": "Grafted Evaluation",
+  "Plant Lot Evaluation": "Plant Lot Evaluation",
 };

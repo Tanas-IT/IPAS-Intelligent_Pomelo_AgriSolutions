@@ -59,6 +59,10 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items, visible, setVisib
         placement="bottomRight"
         open={menuVisible}
         onOpenChange={setMenuVisible}
+        overlayInnerStyle={{
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)", 
+          borderRadius: "8px", 
+        }}
       >
         <Button className={style.settingsIconBtn}>
           <Flex>

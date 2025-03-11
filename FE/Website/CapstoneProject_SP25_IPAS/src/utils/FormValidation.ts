@@ -1,4 +1,7 @@
+import { MESSAGES, POLYGON_DIMENSION_LIMITS } from "@/constants";
 import { UserForm } from "@/models/UserForm.model";
+import { PolygonInit } from "@/types";
+import { toast } from "react-toastify";
 
 export const validateFullName = (value: string) => {
   if (!value.trim()) return "Họ và tên là bắt buộc";
@@ -51,4 +54,35 @@ export const validateUserForm = (formData: UserForm) => {
     DOB: validateDOB(formData.DOB.value),
   };
   return errors;
+};
+
+export const validatePolygonBeforeSave = (
+  currentPolygon: PolygonInit | null,
+  isOverlapping: boolean,
+  width: number,
+  length: number,
+  isUpdate: boolean,
+) => {
+  if (!currentPolygon) {
+    toast.error(isUpdate ? MESSAGES.DRAW_PLOT_UPDATE : MESSAGES.DRAW_PLOT);
+    return false;
+  }
+  if (isOverlapping) {
+    toast.error(MESSAGES.OVERLAPPING_PLOT);
+    return false;
+  }
+  const { minWidth, maxWidth, minLength, maxLength } = POLYGON_DIMENSION_LIMITS;
+
+  if (width < minWidth || width > maxWidth) {
+    toast.error(`Width must be between ${minWidth}m and ${maxWidth}m!`);
+    return false;
+  }
+
+  // Kiểm tra length
+  if (length < minLength || length > maxLength) {
+    toast.error(`Length must be between ${minLength}m and ${maxLength}m!`);
+    return false;
+  }
+
+  return true;
 };

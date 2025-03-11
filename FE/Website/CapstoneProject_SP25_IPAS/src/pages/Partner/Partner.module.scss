@@ -1,0 +1,11 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+}
+
+.filterContent {
+  @include shared.filterContent;
+  min-width: 20vw;
+}

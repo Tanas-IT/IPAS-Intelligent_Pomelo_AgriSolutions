@@ -82,8 +82,8 @@ const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItem
         onConfirm={handleDeleteSelectedItems}
         onCancel={handleCancel}
         title="Delete Selected Items?"
-        description={`Are you sure you want to delete the ${selectedCount} selected items? This action cannot be
-          undone.`}
+        description={`Are you sure you want to delete the ${selectedCount} selected items? This action cannot be undone.
+        Deleting these items may impact other related items.`}
         confirmText="Delete"
         cancelText="Cancel"
         isDanger={true}

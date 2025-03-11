@@ -17,6 +17,7 @@ export interface GetPlant {
   landRowId: number;
   rowIndex: number;
   landPlotName: string;
+  isDead: boolean;
 }
 
 export interface GetPlantDetail extends GetPlant {

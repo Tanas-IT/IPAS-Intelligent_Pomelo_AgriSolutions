@@ -1,4 +1,11 @@
-import { GetGrowthStage, GetMasterType, GetPlant, MasterTypeDetail } from "@/payloads";
+import {
+  GetGrowthStage,
+  GetMasterType,
+  GetPartner,
+  GetPlant,
+  GetPlantLot2,
+  MasterTypeDetail,
+} from "@/payloads";
 
 export const farmFormFields = {
   farmName: "farmName",
@@ -43,6 +50,7 @@ export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
   landRowId: "landRowId",
   rowIndex: "rowIndex",
   landPlotName: "landPlotName",
+  isDead: "isDead",
 };
 
 export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {
@@ -61,6 +69,20 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   masterTypeDetailModels: "masterTypeDetailModels",
 };
 
+export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {
+  plantLotId: "plantLotId",
+  plantLotCode: "plantLotCode",
+  plantLotName: "plantLotName",
+  previousQuantity: "previousQuantity",
+  unit: "unit",
+  status: "status",
+  lastQuantity: "lastQuantity",
+  importedDate: "importedDate",
+  note: "note",
+  partnerId: "partnerId",
+  partnerName: "partnerName",
+};
+
 export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
   growthStageId: "growthStageId",
   growthStageCode: "growthStageCode",
@@ -70,6 +92,16 @@ export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowth
   monthAgeEnd: "monthAgeEnd",
   createDate: "createDate",
   activeFunction: "activeFunction",
+};
+
+export const partnerFormFields: Record<keyof GetPartner, keyof GetPartner> = {
+  partnerId: "partnerId",
+  partnerCode: "partnerCode",
+  partnerName: "partnerName",
+  description: "description",
+  phoneNumber: "phoneNumber",
+  createDate: "createDate",
+  major: "major",
 };
 
 export const worklogFormFields = {
@@ -91,7 +123,7 @@ export const feedbackFormFields = {
   managerId: "managerId",
   worklogId: "worklogId",
   status: "status",
-  reason: "reason"
+  reason: "reason",
 };
 
 export const createPlotFormFields = {
