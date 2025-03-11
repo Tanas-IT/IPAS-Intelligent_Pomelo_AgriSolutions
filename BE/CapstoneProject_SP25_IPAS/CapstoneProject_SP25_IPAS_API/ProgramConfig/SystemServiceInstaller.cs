@@ -37,8 +37,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             // Trim khoảng trắng trong danh sách
             ProgramDefaultConfig.TypeNames = ProgramDefaultConfig.TypeNames.Select(x => x.Trim()).ToList();
             ProgramDefaultConfig.CriteriaTargets = ProgramDefaultConfig.CriteriaTargets.Select(x => x.Trim()).ToList();
-            ProgramDefaultConfig.GraftedConditionApply = ProgramDefaultConfig.GraftedConditionApply!.Trim();
-            ProgramDefaultConfig.GraftedEvaluationApply = ProgramDefaultConfig.GraftedEvaluationApply!.Trim();
+            //ProgramDefaultConfig.GraftedConditionApply = ProgramDefaultConfig.GraftedConditionApply!.Trim();
+            //ProgramDefaultConfig.GraftedEvaluationApply = ProgramDefaultConfig.GraftedEvaluationApply!.Trim();
 
             services.AddSingleton(ProgramDefaultConfig);
 
