@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.WebSockets;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -15,11 +16,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IWebSocketService _webSocketService;
 
-        public NotificationController(INotificationService notificationService, IJwtTokenService jwtTokenService)
+        public NotificationController(INotificationService notificationService, IJwtTokenService jwtTokenService, IWebSocketService webSocketService)
         {
             _notificationService = notificationService;
             _jwtTokenService = jwtTokenService;
+            _webSocketService = webSocketService;
         }
 
         [HttpPost(APIRoutes.Notification.createNotification, Name = "createNotification")]
@@ -32,6 +35,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
                 var result = await _notificationService.CreateNotification(createNotificationModel, farmId.Value);
+                // Gửi thông báo đến những user đã kết nối WebSocket
+                if (createNotificationModel.ListReceiverId != null)
+                {
+                    foreach(var receiverId in createNotificationModel.ListReceiverId)
+                    {
+                        await _webSocketService.SendToUser(receiverId, result.Data!);
+                    }
+                }
                 return Ok(result);
             }
             catch (Exception ex)

@@ -8,6 +8,9 @@ using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
+using System.Net.WebSockets;
+using System.Text;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -17,12 +20,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
         private readonly IPlanService _planService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IWebSocketService _webSocketService;
 
-        public PlanController(IPlanService planService, IJwtTokenService jwtTokenService)
+        public PlanController(IPlanService planService, IJwtTokenService jwtTokenService, IWebSocketService webSocketService)
         {
             _planService = planService;
             _jwtTokenService = jwtTokenService;
-
+            _webSocketService = webSocketService;
         }
 
         [HttpGet(APIRoutes.Plan.getPlanWithPagination, Name = "getAllPlanAsync")]
@@ -111,6 +115,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     };
                 }
                 var result = await _planService.CreatePlan(createPlanModel, farmId);
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -239,7 +244,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
-                var result = await _planService.GetListPlantByFilterGrowthStage(listGrowthStageModel.ListGrowthStage, farmId.Value,unit);
+                var result = await _planService.GetListPlantByFilterGrowthStage(listGrowthStageModel.ListGrowthStage, farmId.Value, unit);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -253,5 +258,6 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
     }
 }

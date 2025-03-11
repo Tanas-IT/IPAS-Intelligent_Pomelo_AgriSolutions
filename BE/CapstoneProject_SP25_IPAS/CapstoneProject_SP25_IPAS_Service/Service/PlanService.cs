@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
