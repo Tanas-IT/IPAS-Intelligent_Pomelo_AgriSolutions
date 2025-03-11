@@ -166,8 +166,9 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                 if (callback.Status.ToLower() == "success")
                 {
                     // Cập nhật trạng thái thanh toán
-                    payment.Status = "Paid";
+                    payment.Status = "PAID";
                     payment.TransactionId = callback.TransactionId;
+                    payment.UpdateDate = DateTime.Now;
                     _unitOfWork.PaymentRepository.Update(payment);
 
                     // Cập nhật Order
@@ -175,13 +176,18 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                     var lastExpiredOfFarm = await GetLastExpiredOfFarm(order.FarmId!.Value);
                     if (order != null)
                     {
-                       order.ExpiredDate = lastExpiredOfFarm.AddDays((int)order.Package!.Duration!);
-                        order.Status = OrderStatusEnum.Paid.ToString();
+                        order.ExpiredDate = lastExpiredOfFarm.AddDays((int)order.Package!.Duration!);
+                        order.Status = OrderStatusEnum.Paid.ToString().ToUpper();
                         _unitOfWork.OrdersRepository.Update(order);
                     }
 
-                    await _unitOfWork.SaveAsync();
-                    return new BusinessResult(200, "Payment completed successfully");
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        var mappedResult = _mapper.Map<OrderModel>(order);
+                        return new BusinessResult(200, "Payment completed successfully", mappedResult);
+                    }
+                    else return new BusinessResult(400, "Save fail");
                 }
                 else
                 {

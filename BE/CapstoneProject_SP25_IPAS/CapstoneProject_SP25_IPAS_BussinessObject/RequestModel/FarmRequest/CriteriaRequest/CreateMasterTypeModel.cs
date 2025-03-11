@@ -26,6 +26,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cri
 
         public string? Characteristic { get; set; }
 
+        public string? Target {  get; set; }
+
         public int? FarmId { get; set; }
 
         //public List<CreateMasterTypeDetailModel> createMasterTypeDetail { get; set; } = new List<CreateMasterTypeDetailModel>();

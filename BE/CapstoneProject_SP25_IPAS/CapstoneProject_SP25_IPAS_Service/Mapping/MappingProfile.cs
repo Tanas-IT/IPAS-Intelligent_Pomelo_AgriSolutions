@@ -43,7 +43,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Farm, FarmModel>()
             //.ForMember(dest => dest.FarmCoordinations, opt => opt.MapFrom(src => src.FarmCoordinations))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.UserFarms.FirstOrDefault(x => x.RoleId == (int)RoleEnum.OWNER)!.User))
-            .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Orders.Where(x => x.FarmId == src.FarmId).Max(x => x.ExpiredDate)))
+            .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(
+                            src => src.Orders.Any(x => x.FarmId == src.FarmId && x.Status.ToUpper().Equals("PAID"))
+                                   ? src.Orders.Where(x => x.FarmId == src.FarmId && x.Status.ToUpper().Equals("PAID"))
+                                               .Max(x => x.ExpiredDate)
+                                   : (DateTime?)null // Trả về null nếu không có đơn hàng nào
+                            ))
+            //.ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Orders.Where(x => x.FarmId == src.FarmId && x.Status.ToUpper().Equals("PAID")).Max(x => x.ExpiredDate )))
             //.ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders))
             //.ForMember(dest => dest.Processes, opt => opt.MapFrom(src => src.Processes))
             //.ForMember(dest => dest.UserFarms, opt => opt.MapFrom(src => src.UserFarms))
@@ -82,7 +88,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(x => x.GrowthStageID))
                .ReverseMap();
 
-            
+
             CreateMap<Plan, UpdatePlanInProcessModel>()
                .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(x => x.MasterTypeId))
                .ForMember(dest => dest.PlanName, opt => opt.MapFrom(x => x.PlanName))
@@ -132,7 +138,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<MasterType, MasterTypeModel>()
                 .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias))
                 .ReverseMap();
-           
+
 
             CreateMap<LandRow, LandRowModel>()
                 .ForMember(dest => dest.Plants, opt => opt.MapFrom(src => src.Plants))
@@ -250,13 +256,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .Select(uwl => uwl.User)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => group.First())
-                                                                    .ToList(): new List<User>()))
+                                                                    .ToList() : new List<User>()))
                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StartTime : null))
-               .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.EndTime: null))
+               .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.EndTime : null))
                .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfWeek : null))
                .ForMember(dest => dest.DayOfMonth, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfMonth : null))
                .ForMember(dest => dest.CustomDates, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.CustomDates : null))
-               .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs: null))
+               .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs : null))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
@@ -267,7 +273,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                .ReverseMap();
 
-          
+
 
             CreateMap<Crop, CropModel>()
                .ForMember(dest => dest.HarvestHistories, opt => opt.MapFrom(src => src.HarvestHistories))
