@@ -324,5 +324,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        //public async Task<string> CheckCriteriaSetExist(int? farmId, List<string> Targetlist)
+        //{
+        //    try
+        //    {
+        //        var criteriaSet = await _unitOfWork
+        //            .MasterTypeRepository
+        //            .CheckTypeIdInTypeName(x => x.FarmID == farmId 
+        //            && x.IsDelete == false 
+        //            && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Criteria.ToString().ToLower())
+        //            && x.)
+        //    } catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
     }
 }
