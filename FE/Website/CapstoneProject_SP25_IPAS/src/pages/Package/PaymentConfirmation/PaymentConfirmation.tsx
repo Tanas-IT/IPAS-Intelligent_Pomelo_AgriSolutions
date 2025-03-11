@@ -75,7 +75,12 @@ function PaymentConfirmation()  {
             
     
             if (result.statusCode === 200 && result.data.orderId) {
-                // const link: ApiResponse<>
+                const link: ApiResponse<PayOSPaymentResponse> = await paymentService.createPaymentLink({
+                    orderId: result.data.orderId
+                })
+                if(link.statusCode === 200) {
+                    window.location.href = link.data.checkoutUrl;
+                }
             } else {
                 toast.error(result.message);
                 console.error("Failed to create payment link:", result.message);

@@ -1,21 +1,45 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import { Result, Button } from "antd";
 import styles from "./PaymentSuccess.module.scss";
+import { toast } from "react-toastify";
+import { paymentService } from "@/services";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { width, height } = useWindowSize();
+  const [searchParams] = useSearchParams();
 
-//   useEffect(() => {
-//     const timer = setTimeout(() => {
-//       navigate("/");
-//     }, 5000);
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
+  //       navigate("/");
+  //     }, 5000);
 
-//     return () => clearTimeout(timer);
-//   }, [navigate]);
+  //     return () => clearTimeout(timer);
+  //   }, [navigate]);
+
+  useEffect(() => {
+    const orderId = searchParams.get("orderId");
+    const status = searchParams.get("status");
+    const transactionId = searchParams.get("transactionId");
+
+    if (!orderId || !status) {
+      toast.error("Không tìm thấy thông tin thanh toán!");
+      navigate("/");
+      return;
+    }
+
+    if (status === "PAID") {
+      toast.success("Thanh toán thành công!");
+      // paymentService.updateOrderStatus(orderId, "PAID", transactionId);
+    }
+
+    setTimeout(() => {
+      navigate("/dashboard"); // Điều hướng về trang chính sau khi xử lý
+    }, 3000);
+  }, []);
 
   return (
     <div className={styles.container}>
