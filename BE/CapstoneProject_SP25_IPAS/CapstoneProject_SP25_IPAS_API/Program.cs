@@ -84,11 +84,18 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Add CORS
+//builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
+//{
+//    policy.WithOrigins("*")
+//          .AllowAnyHeader()
+//          .AllowAnyMethod();
+//}));
 builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
 {
-    policy.WithOrigins("*")
+    policy.WithOrigins("http://localhost:5173")
           .AllowAnyHeader()
-          .AllowAnyMethod();
+          .AllowAnyMethod()
+          .AllowCredentials();
 }));
 // add  json option to avoid cycle when return
 //builder.Services.AddControllers().AddJsonOptions(options =>
@@ -123,7 +130,7 @@ app.UseMiddleware<TokenValidationMiddleware>();
 app.UseMiddleware<AccountStatusMiddleware>();
 //app.UseMiddleware<AuthorizeMiddleware>();
 //app.UseMiddleware<FarmSoftDeleteMiddleware>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
