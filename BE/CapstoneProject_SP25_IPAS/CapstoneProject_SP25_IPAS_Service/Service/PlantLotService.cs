@@ -24,6 +24,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using Microsoft.AspNetCore.Components;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -103,8 +104,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkPartnerExít = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
-                    if (checkPartnerExít == null)
+                    // 🔹 1. Kiểm tra farm tồn tại
+                    var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createPlantLotModel.FarmId && x.IsDeleted == false);
+                    if (checkFarmExist == null)
+                        return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_MSG);
+
+                    // 🔹 2. Lấy danh sách tiêu chí cần áp dụng từ config
+                    List<string> criteriaTargetNeed = _masterTypeConfig.PlantLotCriteriaApply!.PlantLotEvaluation!
+                                                    .Concat(_masterTypeConfig.PlantLotCriteriaApply.PlantLotCondition!)
+                                                    .Where(x => !string.IsNullOrEmpty(x)) // 🔹 Loại bỏ giá trị null hoặc rỗng
+                                                    .ToList();
+
+                    // 🔹 3. Lấy danh sách tiêu chí đã có trong hệ thống (MasterType)
+                    var criteriaSetForPlantLot = await _unitOfWork.MasterTypeRepository
+                        .GetCriteriaSetOfFarm(
+                            TypeNameInMasterEnum.Criteria.ToString(),
+                            createPlantLotModel.FarmId!.Value,
+                            criteriaTargetNeed
+                        );
+
+                    if (!criteriaSetForPlantLot.Any())
+                        return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", criteriaTargetNeed)}");
+
+                    // 🔹 4. Kiểm tra xem tất cả tiêu chí trong config đã có trong DB chưa
+                    var existingCriteriaTargets = criteriaSetForPlantLot.Select(x => x.Target!.ToLower()).ToList();
+                    var missingCriteria = criteriaTargetNeed
+                        .Where(x => !existingCriteriaTargets.Contains(x.ToLower()))
+                        .ToList();
+                    if (missingCriteria.Any())
+                        return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", missingCriteria)}");
+                    var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
+                    if (checkPartnerExist == null)
                         return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
                     var plantLot = new PlantLot()
                     {
@@ -453,10 +483,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlantLotRequestModel.IsPass.HasValue && updatePlantLotRequestModel.IsPass == true)
                         {
                             var checkCondition = await CheckPlantLotConditionAppliedAsync(checkExistPlantLot.PlantLotId);
-                            if(checkCondition.StatusCode != 200)
-                                return new BusinessResult(checkCondition.StatusCode, checkCondition.Message! );
+                            if (checkCondition.StatusCode != 200)
+                                return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             checkCondition = await CheckPlantLotEvaluationCompletedAsync(checkExistPlantLot.PlantLotId);
-                            if(checkCondition.StatusCode != 200)
+                            if (checkCondition.StatusCode != 200)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
 
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
@@ -689,7 +719,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Kiểm tra xem PlantLot có được apply đủ tiêu chí không
             bool hasAppliedCondition = appliedCriterias.Any(x =>
-                x.Criteria!.MasterType!.TypeName!.Equals(TypeNameInMasterEnum.Criteria.ToString(), StringComparison.OrdinalIgnoreCase) 
+                x.Criteria!.MasterType!.TypeName!.Equals(TypeNameInMasterEnum.Criteria.ToString(), StringComparison.OrdinalIgnoreCase)
                 && requiredConditions.Any(t => t.Equals(x.Criteria.MasterType.Target, StringComparison.OrdinalIgnoreCase)));
 
             if (!hasAppliedCondition)
@@ -724,5 +754,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             return new BusinessResult(200, "The plant lot has successfully completed all required evaluations.");
         }
+
     }
 }

@@ -139,6 +139,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                     Status = OrderStatusEnum.Pending.ToString(),
                     CreateDate = DateTime.UtcNow,
                     PaymentMethod = PaymentMethodEnum.PayOS.ToString(),
+                    TransactionId = paymentCode.ToString(),
                 };
 
                 await _unitOfWork.PaymentRepository.Insert(payment);
@@ -162,7 +163,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                 if (payment == null)
                     return new BusinessResult(400, "Payment not found");
 
-                if (callback.Status == "Success")
+                if (callback.Status.ToLower() == "success")
                 {
                     // Cập nhật trạng thái thanh toán
                     payment.Status = "Paid";
