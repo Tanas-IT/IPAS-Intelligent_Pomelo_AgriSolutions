@@ -78,6 +78,8 @@ function PaymentConfirmation()  {
                 const link: ApiResponse<PayOSPaymentResponse> = await paymentService.createPaymentLink({
                     orderId: result.data.orderId
                 })
+                console.log("link", link);
+                
                 if(link.statusCode === 200) {
                     window.location.href = link.data.checkoutUrl;
                 }
