@@ -17,7 +17,7 @@ const Notification = () => {
 
   const filteredNotifications = filter === "All" ? notifications : notifications.filter((n) => !n.isRead);
 
-  const groupedNotifications = filteredNotifications.reduce((acc, notification) => {
+  const groupedNotifications = (filteredNotifications ?? []).reduce((acc, notification) => {
     const dateKey = dayjs(notification.createDate).format("DD/MM/YYYY");
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(notification);

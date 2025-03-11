@@ -22,7 +22,6 @@ export const getProcesses = async (
     additionalParams,
   );
   const res = await axiosAuth.axiosJsonRequest.get("processes", { params });
-  console.log("process ist", res);
 
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse.data as GetData<GetProcessList>;

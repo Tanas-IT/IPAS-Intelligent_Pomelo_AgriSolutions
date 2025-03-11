@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import * as signalR from "@microsoft/signalr";
 import { notificationService } from "@/services";
 import { getUserId } from "@/utils";
 import { GetNotification } from "@/payloads";
-import { io, Socket } from "socket.io-client";
 
 export interface INotification {
   notificationID: number;
@@ -26,7 +26,7 @@ export interface INotification {
 const useNotifications = () => {
   const [notifications, setNotifications] = useState<GetNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
 
   const userId = Number(getUserId());
 
@@ -44,30 +44,56 @@ const useNotifications = () => {
   }, []);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter((n) => !n.isRead).length);
+    setUnreadCount(notifications?.filter((n) => !n.isRead).length);
   }, [notifications]);
 
-  // Kết nối WebSocket khi component mount
+  // Kết nối SignalR WebSocket khi component mount
   useEffect(() => {
     if (!userId) return;
 
-    const newSocket = io(import.meta.env.NEXT_PUBLIC_WS_URL || "http://localhost:5000", {
-      query: { userId: userId.toString() },
+    const hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(import.meta.env.VITE_PUBLIC_WS_URL, {
+        accessTokenFactory: () => localStorage.getItem("token") || "",
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    hubConnection
+      .start()
+      .then(() => {
+        console.log("Connected to SignalR WebSocket!");
+        console.log("📡 Trạng thái kết nối SignalR11111111:", hubConnection.state);
+
+
+        hubConnection.on("ReceiveNotification", (newNotification: GetNotification) => {
+          console.log("🔔 Nhận thông báo:", newNotification);
+          setNotifications((prev) => [newNotification, ...prev]);
+        });
+        console.log("📡 Trạng thái kết nối SignalR2222222:", hubConnection.state);
+
+      })
+      .catch((err) => console.error("WebSocket connection error:", err));
+
+    setConnection(hubConnection);
+
+    hubConnection.onclose((error) => {
+      console.error("❌ WebSocket bị ngắt kết nối:", error);
     });
 
-    newSocket.on("connect", () => {
-      console.log("Connected to WebSocket server");
+    hubConnection.onreconnecting((error) => {
+      console.warn("🔄 Đang thử kết nối lại SignalR...", error);
     });
-
-    // Nhận thông báo mới từ server
-    newSocket.on("ReceiveNotification", (newNotification: GetNotification) => {
-      setNotifications((prev) => [newNotification, ...prev]);
+    
+    hubConnection.onreconnected((connectionId) => {
+      console.log("✅ Đã kết nối lại SignalR với ID:", connectionId);
     });
-
-    setSocket(newSocket);
+    
+    
+    
 
     return () => {
-      newSocket.disconnect();
+      hubConnection.stop();
     };
   }, [userId]);
 
@@ -78,8 +104,8 @@ const useNotifications = () => {
     );
 
     try {
-      if (socket) {
-        socket.emit("MarkNotificationAsRead", { userId, notificationId: notificationID });
+      if (connection) {
+        await connection.invoke("MarkNotificationAsRead", { userId, notificationId: notificationID });
       }
     } catch (error) {
       console.error("Error marking notification as read", error);
