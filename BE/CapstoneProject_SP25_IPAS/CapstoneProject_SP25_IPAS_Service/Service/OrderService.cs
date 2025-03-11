@@ -64,9 +64,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TotalPrice = checkPackageExist.PackagePrice,
                         OrderName = createRequest.OrderName,
                         Notes = createRequest.Notes,
-                        EnrolledDate = DateTime.Now,
+                        EnrolledDate = await GetLastExpiredOfFarm(farmData.FarmId),
                         //ExpiredDate = DateTime.Now.AddDays((int)checkPackageExist.Duration!),
-                        ExpiredDate = getLastExpired,
+                        ExpiredDate = null,
                         FarmId = farmData.FarmId,
                         PackageId = checkPackageExist.PackageId,
                         Status = OrderStatusEnum.Pending.ToString(),
@@ -199,6 +199,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public Task<BusinessResult> UpdateOrder(UpdateOrderRequest updateRequest)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task<DateTime> GetLastExpiredOfFarm(int farmId)
+        {
+            try
+            {
+                var ordersBought = await _unitOfWork.OrdersRepository.GetAllNoPaging(x => x.FarmId == farmId && x.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+                if (ordersBought == null || !ordersBought.Any())
+                    return DateTime.Now;
+                var lastExpiredDate = ordersBought.Max(x => x.ExpiredDate ?? DateTime.UtcNow);
+                if (lastExpiredDate <= DateTime.Now)
+                    lastExpiredDate = DateTime.Now;
+                return lastExpiredDate;
+            }
+            catch (Exception)
+            {
+                return DateTime.Now;
+            }
         }
 
         private async Task<DateTime> GetLastExpiredOfFarm(int farmId, int newPackageDuration)
