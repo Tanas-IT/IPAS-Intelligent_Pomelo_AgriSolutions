@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationMo
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                using(var transaction = await _unitOfWork.BeginTransactionAsync())
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     var newNotification = new Notification()
                     {
@@ -45,9 +46,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         SenderID = createNotificationModel.SenderID,
                         Title = createNotificationModel.Title,
                     };
-                    if(createNotificationModel.ListReceiverId != null && createNotificationModel.ListReceiverId.Count > 0)
+                    if (createNotificationModel.ListReceiverId != null && createNotificationModel.ListReceiverId.Count > 0)
                     {
-                        foreach(var  item in createNotificationModel.ListReceiverId)
+                        foreach (var item in createNotificationModel.ListReceiverId)
                         {
                             var newPlanNotification = new PlanNotification()
                             {
@@ -60,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     await _unitOfWork.NotificationRepository.Insert(newNotification);
                     var result = await _unitOfWork.SaveAsync();
-                    if(result > 0)
+                    if (result > 0)
                     {
                         await transaction.CommitAsync();
                         return new BusinessResult(200, "Create notification success", newNotification);
@@ -111,7 +112,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     listNotificationResponse.Add(notifcationPlanModel);
                 }
-                if(listNotificationResponse.Count > 0)
+                if (listNotificationResponse.Count > 0)
                 {
                     return new BusinessResult(200, "Get list notification success", listNotificationResponse);
                 }
@@ -131,8 +132,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> MarkisRead(List<int> notificationIds)
         {
-           foreach (int notificationId in notificationIds)
-           {
+            foreach (int notificationId in notificationIds)
+            {
                 var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(notificationId);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(notificationId);
                 if (getPlanNotificationById == null || !getPlanNotificationById.Any())
@@ -142,9 +143,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getNotificationById != null)
                 {
                     getNotificationById.IsRead = true;
-                    if(getPlanNotificationById != null)
+                    if (getPlanNotificationById != null)
                     {
-                        foreach(var getPlanNoti in  getPlanNotificationById)
+                        foreach (var getPlanNoti in getPlanNotificationById)
                         {
                             if (getPlanNoti.PlanNotificationID <= 0) // Kiểm tra ID hợp lệ
                             {
@@ -157,13 +158,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     _unitOfWork.NotificationRepository.Update(getNotificationById);
                 }
-           }
+            }
             var result = await _unitOfWork.SaveAsync();
-            if(result > 0)
+            if (result > 0)
             {
                 return new BusinessResult(200, "Mark notification is read success", result);
             }
-            else if(result == 0)
+            else if (result == 0)
             {
                 return new BusinessResult(404, "Do not have any notification");
             }

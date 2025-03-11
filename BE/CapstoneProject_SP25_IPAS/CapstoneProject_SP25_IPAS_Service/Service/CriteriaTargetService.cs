@@ -108,8 +108,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> ApplyCriteriasForTarget(CriteriaTargerRequest request)
         {
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
-            {
+            //using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            //{
                 try
                 {
                     var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
@@ -134,21 +134,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             numberObjectHasApply = request.PlantLotId!.Any() ?  request.PlantLotId!.Count() : numberObjectHasApply;
                             numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
 
-                            await transaction.CommitAsync();
+                            //await transaction.CommitAsync();
                             return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
                                 $"Apply {request.CriteriaData.Count()} criteria for selected {numberObjectHasApply} objects success", new { success = true });
                         }
                     }
 
-                    await transaction.RollbackAsync();
+                    //await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync();
+                    //await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
-            }
+            //}
         }
 
 
