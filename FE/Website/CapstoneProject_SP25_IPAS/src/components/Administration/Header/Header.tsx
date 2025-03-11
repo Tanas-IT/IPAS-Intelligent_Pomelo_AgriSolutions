@@ -69,14 +69,9 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
           <Flex className={style.searchWrapper}>
             <SearchHeader onSearch={(e) => e} />
           </Flex>
-          <Flex className={style.notificationWrapper}>
-            {/* {notifications.map((noti, index) => (
-              <Popover key={index} content={noti.content} trigger="click" placement="bottomRight">
-                <Button className={style.notificationButton}>{noti.icon}</Button>
-              </Popover>
-            ))} */}
+          {/* <Flex className={style.notificationWrapper}> */}
             <Notification />
-          </Flex>
+          {/* </Flex> */}
           <Popover content={profileContent} trigger="click" placement="bottom">
             <Flex className={style.profileContainer}>
               {authData.avatar &&

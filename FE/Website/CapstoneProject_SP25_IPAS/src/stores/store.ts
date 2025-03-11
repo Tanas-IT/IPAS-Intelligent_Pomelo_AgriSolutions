@@ -19,28 +19,44 @@ interface FarmState {
   farmName: string;
   farmLogo: string;
   farmExpiredDate: string;
-  setFarmInfo: (name: string, logo: string, expiredDate: string) => void;
+  isFarmExpired: boolean;
+  setFarmInfo: (name: string, logo: string, expiredDate?: string) => void;
+  checkFarmExpiration: () => void;
 }
 
-export const useFarmStore = create<FarmState>((set) => ({
-  farmName: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_NAME) || "",
-  farmLogo: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_LOGO) || "",
-  farmExpiredDate: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE) || "",
-  setFarmInfo: (name?: string, logo?: string, expiredDate?: string) => {
-    if (name) {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, name);
-      set({ farmName: name });
-    }
-    if (logo) {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, logo);
-      set({ farmLogo: logo });
-    }
-    if (expiredDate) {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE, expiredDate);
-      set({ farmExpiredDate: expiredDate });
-    }
-  },
-}));
+export const useFarmStore = create<FarmState>((set) => {
+  const storedExpiredDate = localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE) || "";
+  const isExpired = storedExpiredDate ? new Date(storedExpiredDate) < new Date() : false;
+
+  return {
+    farmName: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_NAME) || "",
+    farmLogo: localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_LOGO) || "",
+    farmExpiredDate: storedExpiredDate,
+    isFarmExpired: isExpired,
+
+    setFarmInfo: (name, logo, expiredDate) => {
+      if (name) {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, name);
+        set({ farmName: name });
+      }
+      if (logo) {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, logo);
+        set({ farmLogo: logo });
+      }
+      if (expiredDate) {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE, expiredDate);
+        set({ farmExpiredDate: expiredDate, isFarmExpired: new Date(expiredDate) < new Date() });
+      }
+    },
+
+    checkFarmExpiration: () => {
+      const expiredDate = localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE);
+      if (expiredDate) {
+        set({ isFarmExpired: new Date(expiredDate) < new Date() });
+      }
+    },
+  };
+});
 
 interface LoadingState {
   isLoading: boolean;

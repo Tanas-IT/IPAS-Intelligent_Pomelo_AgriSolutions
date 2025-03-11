@@ -13,8 +13,8 @@ export const createOrder = async (payload: CreateOrder): Promise<ApiResponse<Cre
     return apiResponse;
 }
 
-export const handlePayment = async (payload: handlePaymentRequest): Promise<ApiResponse<CreateOrderResponse>> => {
+export const handlePayment = async (payload: handlePaymentRequest): Promise<ApiResponse<null>> => {
     const res = await axiosAuth.axiosJsonRequest.post(`order`, payload);
-    const apiResponse = res.data as ApiResponse<CreateOrderResponse>
+    const apiResponse = res.data;
     return apiResponse;
 }
