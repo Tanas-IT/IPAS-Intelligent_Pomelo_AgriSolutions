@@ -120,7 +120,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createPlantLotModel.MasterTypeId,
                         PlantLotReferenceId = null!,
                         isDeleted = false,
-                        IsPassed = false
+                        IsPassed = false,
                     };
 
                     await _unitOfWork.PlantLotRepository.Insert(plantLot);
@@ -411,10 +411,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (updatePlantLotRequestModel.MasterTypeId.HasValue)
                         {
-                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == updatePlantLotRequestModel.MasterTypeId && x.IsDelete == false && x.IsActive == true);
+                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == updatePlantLotRequestModel.MasterTypeId && x.IsDelete == false);
                             if (checkExistPlantLot == null)
                                 return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG);
-                            checkExistPlantLot.MasterTypeId = checkMasterTypeExist.MasterTypeId;
+                            checkExistPlantLot.MasterTypeId = updatePlantLotRequestModel.MasterTypeId;
                         }
                         if (updatePlantLotRequestModel.PartnerID.HasValue)
                         {
@@ -452,6 +452,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
+                            await transaction.CommitAsync();
                             string includeProperties = "Partner,MasterType";
                             var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updatePlantLotRequestModel.PlantLotID, includeProperties);
                             var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);

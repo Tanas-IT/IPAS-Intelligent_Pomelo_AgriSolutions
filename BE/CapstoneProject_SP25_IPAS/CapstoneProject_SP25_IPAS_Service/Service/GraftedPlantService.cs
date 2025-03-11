@@ -392,7 +392,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> CheckGraftedConditionAppliedAsync(int? plantId, int? graftedId)
         {
             var appliedCriterias = new List<CriteriaTarget>();
-            string targetType = "";
+            List<string> targetType = new();
 
             // check plant exist
             if (plantId.HasValue)
@@ -401,7 +401,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (plantExist == null)
                     return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
                 appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
-                targetType = _masterTypeConfig.GraftedConditionApply!;
+                targetType = _masterTypeConfig.GraftedCriteriaApply!.GraftedConditionApply!;
             }
             // check grafted exixt
             if (graftedId.HasValue)
@@ -410,13 +410,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (checkGraftedId.StatusCode != 200 || checkGraftedId.Data == null)
                     return checkGraftedId;
                 appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
-                targetType = _masterTypeConfig.GraftedEvaluationApply!;
+                targetType = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply!;
             }
 
             // Lọc danh sách tiêu chí có TypeName = "Criteria" và Target = "GraftedCondition"
             bool hasAppliedGraftedCondition = appliedCriterias.Any(x =>
                     x.Criteria!.MasterType!.TypeName == "Criteria" &&
-                    x.Criteria.MasterType.Target == targetType);
+                     targetType.Any(t => t.Equals(x.Criteria.MasterType.Target, StringComparison.OrdinalIgnoreCase)));
 
             if (!hasAppliedGraftedCondition)
             {
@@ -483,7 +483,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> CheckGraftedConditionCompletedAsync(int? plantId, int? graftedId)
         {
             var appliedCriterias = new List<CriteriaTarget>();
-            string targetType = "";
+            List<string> targetType = new();
             // check plant exist
             if (plantId.HasValue)
             {
@@ -491,7 +491,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (plantExist == null)
                     return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
                 appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
-                targetType = _masterTypeConfig.GraftedConditionApply!;
+                targetType = _masterTypeConfig.GraftedCriteriaApply!.GraftedConditionApply!;
             }
             // check grafted exixt
             if (graftedId.HasValue)
@@ -500,12 +500,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (checkGraftedId.StatusCode != 200 || checkGraftedId.Data == null)
                     return checkGraftedId;
                 appliedCriterias = (List<CriteriaTarget>)await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(graftedPlantId: graftedId);
-                targetType = _masterTypeConfig.GraftedEvaluationApply!;
+                targetType = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply!;
             }
             // Lọc danh sách tiêu chí có TypeName = "Criteria" và Target = "GraftedCondition"
             var graftedConditions = appliedCriterias.Where(x =>
                 x.Criteria!.MasterType!.TypeName!.Equals(TypeNameInMasterEnum.Criteria.ToString(), StringComparison.OrdinalIgnoreCase) &&
-                x.Criteria.MasterType.Target == targetType).ToList();
+                 //x.Criteria.MasterType.Target == targetType).ToList();
+                 targetType.Any(t => t.Equals(x.Criteria.MasterType.Target, StringComparison.OrdinalIgnoreCase)));
 
             // Kiểm tra xem có tiêu chí nào chưa hoàn thành không
             var uncompletedCriterias = graftedConditions.Where(x => !x.IsChecked!.Value).ToList();
