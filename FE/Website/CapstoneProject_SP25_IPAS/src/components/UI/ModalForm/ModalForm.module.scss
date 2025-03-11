@@ -5,12 +5,15 @@
   &.normal {
     max-width: 34rem;
   }
+  &.normalXL {
+    max-width: 36rem;
+  }
   &.large {
     max-width: 40rem;
     top: 50px;
   }
   &.largeXL {
-    max-width: 70rem;
+    max-width: 60rem;
     top: 50px;
   }
   .titleModal {

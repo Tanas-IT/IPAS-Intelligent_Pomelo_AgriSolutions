@@ -1,4 +1,11 @@
-import { ConfirmModal, NavigationDot, SectionTitle, Table, TableTitle } from "@/components";
+import {
+  ActionMenuGrowthStage,
+  ConfirmModal,
+  NavigationDot,
+  SectionTitle,
+  Table,
+  TableTitle,
+} from "@/components";
 import {
   useFetchData,
   useHasChanges,
@@ -13,8 +20,7 @@ import { Flex } from "antd";
 import { useEffect } from "react";
 import style from "./GrowthStage.module.scss";
 import { getOptions } from "@/utils";
-import { growthStageColumns } from "./GrowthStageColumn";
-import ActionMenuGrowthStage from "@/components/UI/ActionMenu/ActionMenuGrowthStage";
+import { growthStageColumns } from "./GrowthStageColumns";
 import GrowthStageModal from "./GrowthStageModal";
 import { useGrowthStageStore } from "@/stores";
 
@@ -132,7 +138,7 @@ function GrowthStage() {
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
-          caption="Master Type Management Table"
+          caption="Growth Stage Management Table"
           notifyNoData="No data to display"
           renderAction={(stage: GetGrowthStage) => (
             <ActionMenuGrowthStage

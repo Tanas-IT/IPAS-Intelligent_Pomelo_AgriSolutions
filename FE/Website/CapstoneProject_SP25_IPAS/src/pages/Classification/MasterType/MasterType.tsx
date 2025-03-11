@@ -21,9 +21,9 @@ import {
 import { useEffect } from "react";
 import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
 import { masterTypeService } from "@/services";
+import { FilterMasterTypeState } from "@/types";
 import { masterTypeColumns } from "./MasterTypeColumn";
 import MasterTypeFilter from "./MasterTypeFilter";
-import { FilterMasterTypeState } from "@/types";
 import MasterTypeModel from "./MasterTypeModal";
 
 function MasterType() {

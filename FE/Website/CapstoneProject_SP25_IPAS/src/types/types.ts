@@ -52,10 +52,22 @@ export type FilterPlantState = {
   growthStageIds: string[];
   healthStatus: string[];
   isLocated: boolean | null;
+  isDead: boolean | null;
+};
+
+export type FilterLandRowState = {
+  rowIndexFrom: number | undefined;
+  rowIndexTo: number | undefined;
+  treeAmountFrom: number | undefined;
+  treeAmountTo: number | undefined;
 };
 
 export type FilterEmployeeState = {
   roleName: string[];
+};
+
+export type FilterPartnerState = {
+  major: string[];
 };
 
 export interface LandPlotsStateType {

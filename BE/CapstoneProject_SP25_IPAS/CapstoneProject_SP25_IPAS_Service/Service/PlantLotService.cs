@@ -120,7 +120,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createPlantLotModel.MasterTypeId,
                         PlantLotReferenceId = null!,
                         isDeleted = false,
-                        IsPassed = false
+                        IsPassed = false,
                     };
 
                     await _unitOfWork.PlantLotRepository.Insert(plantLot);
@@ -409,6 +409,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (checkExistPlantLot != null)
                     {
+                        if (updatePlantLotRequestModel.MasterTypeId.HasValue)
+                        {
+                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == updatePlantLotRequestModel.MasterTypeId && x.IsDelete == false);
+                            if (checkExistPlantLot == null)
+                                return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG);
+                            checkExistPlantLot.MasterTypeId = updatePlantLotRequestModel.MasterTypeId;
+                        }
                         if (updatePlantLotRequestModel.PartnerID.HasValue)
                         {
                             checkExistPlantLot.PartnerId = updatePlantLotRequestModel.PartnerID;
@@ -422,6 +429,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.PreviousQuantity)
                                 return new BusinessResult(400, "Last Quantity larger than previous quantity");
                             checkExistPlantLot.LastQuantity = updatePlantLotRequestModel.LastQuantity;
+                        }
+                        if (updatePlantLotRequestModel.UsedQuantity.HasValue)
+                        {
+                            if (updatePlantLotRequestModel.UsedQuantity > checkExistPlantLot.LastQuantity)
+                                return new BusinessResult(400, "Used Quantity larger than last quantity");
+                            checkExistPlantLot.UsedQuantity = updatePlantLotRequestModel.UsedQuantity;
                         }
                         if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Unit))
                         {
@@ -439,6 +452,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
+                            await transaction.CommitAsync();
                             string includeProperties = "Partner,MasterType";
                             var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updatePlantLotRequestModel.PlantLotID, includeProperties);
                             var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);
@@ -552,7 +566,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Cập nhật số lượng cây còn lại trong PlantLot
-                    plantLot.LastQuantity -= (quantityToPlant - remainingPlants);
+                    plantLot.UsedQuantity -= (quantityToPlant - remainingPlants);
                     _unitOfWork.PlantLotRepository.Update(plantLot);
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
@@ -577,7 +591,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
-                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.LastQuantity == x.UsedQuantity && x.isDeleted == false, orderBy: orderBy);
+                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.isDeleted == false, orderBy: orderBy);
                 if (plantLot != null)
                 {
                     var result = _mapper.Map<IEnumerable<ForSelectedModels>>(plantLot);

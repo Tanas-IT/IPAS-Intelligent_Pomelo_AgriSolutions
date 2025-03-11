@@ -37,9 +37,19 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             // Trim khoảng trắng trong danh sách
             ProgramDefaultConfig.TypeNames = ProgramDefaultConfig.TypeNames.Select(x => x.Trim()).ToList();
             ProgramDefaultConfig.CriteriaTargets = ProgramDefaultConfig.CriteriaTargets.Select(x => x.Trim()).ToList();
-            ProgramDefaultConfig.GraftedConditionApply = ProgramDefaultConfig.GraftedConditionApply!.Trim();
-            ProgramDefaultConfig.GraftedEvaluationApply = ProgramDefaultConfig.GraftedEvaluationApply!.Trim();
+            //ProgramDefaultConfig.GraftedConditionApply = ProgramDefaultConfig.GraftedConditionApply!.Trim();
+            //ProgramDefaultConfig.GraftedEvaluationApply = ProgramDefaultConfig.GraftedEvaluationApply!.Trim();
+            if (ProgramDefaultConfig.GraftedCriteriaApply != null)
+            {
+                ProgramDefaultConfig.GraftedCriteriaApply.GraftedConditionApply = ProgramDefaultConfig.GraftedCriteriaApply.GraftedConditionApply?.Select(x => x.Trim()).ToList();
+                ProgramDefaultConfig.GraftedCriteriaApply.GraftedEvaluationApply = ProgramDefaultConfig.GraftedCriteriaApply.GraftedEvaluationApply?.Select(x => x.Trim()).ToList(); 
+            }
 
+            if (ProgramDefaultConfig.PlantLotCriteriaApply != null)
+            {
+                ProgramDefaultConfig.PlantLotCriteriaApply.PlantLotCondition = ProgramDefaultConfig.PlantLotCriteriaApply.PlantLotCondition?.Select(x => x.Trim()).ToList();
+                ProgramDefaultConfig.PlantLotCriteriaApply.PlantLotEvaluation = ProgramDefaultConfig.PlantLotCriteriaApply.PlantLotEvaluation?.Select(x => x.Trim()).ToList();
+            }
             services.AddSingleton(ProgramDefaultConfig);
 
             // Background service config

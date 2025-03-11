@@ -16,6 +16,11 @@
   @extend .baseBtn;
 }
 
+.btnModify {
+  @extend .baseBtn;
+  background-color: vars.$color_yellow_main !important;
+}
+
 .btnModal {
   @extend .baseBtn;
   background-color: vars.$color_second !important;

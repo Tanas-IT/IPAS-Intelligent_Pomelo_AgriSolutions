@@ -10,10 +10,12 @@ const PlantSectionHeader = ({
   plant,
   formModal,
   deleteConfirmModal,
+  markAsDeadModal,
 }: {
   plant: GetPlantDetail;
   formModal: ReturnType<typeof useModal<GetPlantDetail>>;
   deleteConfirmModal: ReturnType<typeof useModal<{ id: number }>>;
+  markAsDeadModal: ReturnType<typeof useModal<{ id: number }>>;
 }) => {
   return (
     <Flex className={style.contentSectionHeader}>
@@ -32,9 +34,11 @@ const PlantSectionHeader = ({
         </Flex>
         <Flex>
           <ActionMenuPlant
+            isPlantDead={plant.isDead}
             noView={true}
             onEdit={() => formModal.showModal(plant)}
             onDelete={() => deleteConfirmModal.showModal({ id: plant.plantId })}
+            onMarkAsDead={() => markAsDeadModal.showModal({ id: plant.plantId })}
           />
         </Flex>
       </Flex>

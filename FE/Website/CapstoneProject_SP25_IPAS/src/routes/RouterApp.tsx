@@ -27,6 +27,8 @@ import {
   GrowthStage,
   LandRow,
   EmployeeList,
+  PlantLot,
+  Partner,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -70,6 +72,7 @@ export const publicRoutes: RouteItem[] = [
     component: PlantDetails,
     layout: ManagementLayout,
   },
+  { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
@@ -80,6 +83,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },
   { path: PATHS.HR.EMPLOYEES, component: EmployeeList, layout: ManagementLayout },
+  { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
 ];
 

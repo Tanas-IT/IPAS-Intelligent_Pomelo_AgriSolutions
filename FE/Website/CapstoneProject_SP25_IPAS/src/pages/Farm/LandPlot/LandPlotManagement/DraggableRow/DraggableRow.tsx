@@ -70,7 +70,9 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
   const hasChanges = useHasChanges<landRowSimulate>(rowsData);
 
   const handleCancelConfirm = (row: landRowSimulate, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate ? hasChanges(row, "landRowId") : hasChanges(row);
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(row, "landRowId", {}, ["landRowCode"])
+      : hasChanges(row);
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();

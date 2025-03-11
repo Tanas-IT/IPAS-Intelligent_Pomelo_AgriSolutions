@@ -67,3 +67,20 @@
     }
   }
 }
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.tooltipCustom {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  background: vars.$color_second;
+  color: vars.$color_primary;
+  font-weight: bold;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}

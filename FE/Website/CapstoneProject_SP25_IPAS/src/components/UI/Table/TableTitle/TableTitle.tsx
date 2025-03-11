@@ -9,11 +9,12 @@ type TableTitleProps = {
   filterLabel?: string;
   addLabel?: string;
   importLabel?: string;
-  onAdd: () => void;
+  onAdd?: () => void;
   onImport?: () => void;
   noAdd?: boolean;
   noFilter?: boolean;
   noImport?: boolean;
+  isEdit?: boolean;
   extraContent?: React.ReactNode;
 };
 
@@ -28,6 +29,7 @@ const TableTitle = ({
   noAdd = false,
   noFilter = false,
   noImport = true,
+  isEdit = false,
   extraContent,
 }: TableTitleProps) => {
   return (
@@ -35,7 +37,16 @@ const TableTitle = ({
       <Flex className={style.sectionLeft}>
         <Searchbar onSearch={onSearch} />
         {!noFilter && (
-          <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
+          <Popover
+            zIndex={1}
+            content={filterContent}
+            trigger="click"
+            placement="bottomRight"
+            overlayInnerStyle={{
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+              borderRadius: "8px",
+            }}
+          >
             <>
               <CustomButton label={filterLabel} icon={<Icons.filter />} />
             </>
@@ -47,7 +58,15 @@ const TableTitle = ({
         {!noImport && (
           <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
         )}
-        {!noAdd && <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />}
+        {!noAdd ? (
+          <CustomButton
+            label={addLabel}
+            icon={isEdit ? <Icons.edit /> : <Icons.plus />}
+            handleOnClick={onAdd}
+          />
+        ) : (
+          <div style={{ width: "1px", visibility: "hidden" }} />
+        )}
       </Flex>
     </Flex>
   );

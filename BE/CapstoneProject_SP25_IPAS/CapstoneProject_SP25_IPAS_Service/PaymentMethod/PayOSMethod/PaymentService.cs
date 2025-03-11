@@ -93,37 +93,39 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
         {
             try
             {
-                var order = await _unitOfWork.OrdersRepository.GetByCondition(x => x.OrderId == createRequest.OrderId);
+                var order = await _unitOfWork.OrdersRepository.GetByCondition(x => x.OrderId == createRequest.OrderId, "Farm,Package");
                 if (order == null)
                     return new BusinessResult(400, "Order not found");
 
-                if (order.Status == OrderStatusEnum.Paid.ToString())
+                if (order.Status.Equals(OrderStatusEnum.Paid.ToString(), StringComparison.OrdinalIgnoreCase))
                     return new BusinessResult(400, "Order is already paid");
 
                 // Kiểm tra xem Order đã có Payment chưa
-                var existingPayment = await _unitOfWork.PaymentRepository.GetByCondition(x => x.OrderId == createRequest.OrderId);
-                if (existingPayment != null)
-                    return new BusinessResult(400, "Payment already exists for this Order");
+                //var existingPayment = await _unitOfWork.PaymentRepository.GetByCondition(x => x.OrderId == createRequest.OrderId);
+                //if (existingPayment != null)
+                //    return new BusinessResult(400, "Payment already exists for this Order");
 
                 // Lấy thông tin PayOS
                 var _payOSKey = GetPayOSKey();
                 Net.payOS.PayOS payOS = new Net.payOS.PayOS(apiKey: _payOSKey.ApiKey, checksumKey: _payOSKey.ChecksumKey, clientId: _payOSKey.ClientId);
 
-                ItemData item = new ItemData($"Order {order.OrderCode}", 1, (int)order.TotalPrice!);
+                ItemData item = new ItemData($"Package: {order.Package!.PackageName} - {order.Package.Duration} Days", 1, (int)order.TotalPrice!);
                 List<ItemData> items = new List<ItemData> { item };
 
                 long expiredTimestamp = new DateTimeOffset(order.ExpiredDate ?? DateTime.UtcNow).ToUnixTimeSeconds();
                 // transactionId for payment
-                var paymentCode = long.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                //var paymentCode = long.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                long paymentCode = long.Parse(DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+
                 PaymentData paymentData = new PaymentData(
                     orderCode: paymentCode,
                     amount: (int)order.TotalPrice,
-                    description: createRequest.description,
+                    description: Util.SplitByDash(order.OrderCode!).First().ToUpper(),
                     buyerName: order.Farm!.FarmName,
                     items: items,
                     buyerPhone: order.Farm.FarmCode,
-                    cancelUrl: $"{_payOSKey.Domain}/{_payOSKey.CanclePath}?orderId={createRequest.OrderId}",
-                    returnUrl: $"{_payOSKey.Domain}/{_payOSKey.ReturnPath}?orderId={createRequest.OrderId}"
+                    cancelUrl: $"{_payOSKey.Domain}/{_payOSKey.CanclePath}?orderId={createRequest.OrderId}&transactionId={paymentCode}",
+                    returnUrl: $"{_payOSKey.Domain}/{_payOSKey.ReturnPath}?orderId={createRequest.OrderId}&transactionId={paymentCode}"
                 );
 
                 CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
@@ -168,10 +170,11 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                     _unitOfWork.PaymentRepository.Update(payment);
 
                     // Cập nhật Order
-                    var order = await _unitOfWork.OrdersRepository.GetByCondition(x => x.OrderId == payment.OrderId);
+                    var order = await _unitOfWork.OrdersRepository.GetByCondition(x => x.OrderId == payment.OrderId, "Package");
+                    var lastExpiredOfFarm = await GetLastExpiredOfFarm(order.FarmId!.Value);
                     if (order != null)
                     {
-                       
+                       order.ExpiredDate = lastExpiredOfFarm.AddDays((int)order.Package!.Duration!);
                         order.Status = OrderStatusEnum.Paid.ToString();
                         _unitOfWork.OrdersRepository.Update(order);
                     }
@@ -207,6 +210,24 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        private async Task<DateTime> GetLastExpiredOfFarm(int farmId)
+        {
+            try
+            {
+                var ordersBought = await _unitOfWork.OrdersRepository.GetAllNoPaging(x => x.FarmId == farmId && x.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+                if (ordersBought == null || !ordersBought.Any())
+                    return DateTime.Now;
+                var lastExpiredDate = ordersBought.Max(x => x.ExpiredDate ?? DateTime.UtcNow);
+                if (lastExpiredDate <= DateTime.Now)
+                    lastExpiredDate = DateTime.Now;
+                return lastExpiredDate;
+            }
+            catch (Exception)
+            {
+                return DateTime.Now;
             }
         }
     }
