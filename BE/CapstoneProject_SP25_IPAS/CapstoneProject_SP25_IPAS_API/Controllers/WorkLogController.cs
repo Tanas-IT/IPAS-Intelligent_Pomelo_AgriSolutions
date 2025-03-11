@@ -156,5 +156,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPut(APIRoutes.WorkLog.updateWorkLogInfo, Name = "UpdateWorkLogInfo")]
+        public async Task<IActionResult> UpdateWorkLog([FromBody] UpdateWorkLogModel updateWorkLogModel, int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.UpdateWorkLog(updateWorkLogModel, farmId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

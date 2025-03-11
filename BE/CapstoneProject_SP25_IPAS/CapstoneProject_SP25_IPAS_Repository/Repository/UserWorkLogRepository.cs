@@ -77,5 +77,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                       checkTimeSchedule.StartTime > uwl.WorkLog.Schedule.EndTime));
             return isConflicted;
         }
+
+        public async Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogId(int workLogId)
+        {
+            var result = await _context.UserWorkLogs.Include(x => x.WorkLog).Where(x => x.WorkLogId == workLogId).ToListAsync();
+            return result;
+        }
     }
 }
