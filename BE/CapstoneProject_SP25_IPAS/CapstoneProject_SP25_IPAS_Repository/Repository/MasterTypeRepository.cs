@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -83,5 +84,30 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 return 1;
             return lastId + 1;
         }
+
+        public async Task<List<MasterType>> GetCriteriaSetOfFarm(string name, int farmId, List<string> target)
+        {
+            // Chuyển target sang chữ thường trước khi query
+            var targetLower = target.Select(t => t.ToLower()).ToList();
+            var nameLower = name.ToLower();
+
+            var getMasterTypeByName = _context.MasterTypes
+                .Where(x => x.IsActive == true
+                    && x.TypeName!.ToLower() == TypeNameInMasterEnum.Criteria.ToString().ToLower()
+                    && x.TypeName.ToLower() == nameLower
+                    && (x.FarmID == farmId || x.IsDefault == true))
+                .Include(x => x.Criterias)
+                .OrderBy(x => x.MasterTypeId)
+                .AsQueryable();
+
+            if (targetLower.Any())
+            {
+                getMasterTypeByName = getMasterTypeByName.Where(x => targetLower.Contains(x.Target!.ToLower()));
+            }
+
+            var listMasterType = await getMasterTypeByName.ToListAsync();
+            return listMasterType.Any() ? listMasterType : new List<MasterType>();
+        }
+
     }
 }
