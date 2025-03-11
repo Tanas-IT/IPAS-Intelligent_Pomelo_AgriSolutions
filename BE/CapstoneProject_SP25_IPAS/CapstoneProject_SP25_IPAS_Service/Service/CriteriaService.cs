@@ -220,6 +220,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateBy = request.CreateMasTypeRequest.CreateBy,
                         CreateDate = DateTime.Now,
                         TypeName = TypeNameInMasterEnum.Criteria.ToString(),
+                        Target = request.CreateMasTypeRequest.Target,
                         FarmID = request.CreateMasTypeRequest.FarmId,
                         BackgroundColor = request.CreateMasTypeRequest.BackgroundColor,
                         TextColor = request.CreateMasTypeRequest.TextColor,
