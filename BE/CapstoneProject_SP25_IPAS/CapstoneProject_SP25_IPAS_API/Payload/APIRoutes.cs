@@ -412,7 +412,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string createPaymentLinkPayOS = Base + "/payment/payOS/create-payment-link";
             public const string getPaymentInfo = Base + "/payment/get-payment-information";
-            public const string handdlePayment = Base + "payment/handle-payment";
+            public const string handdlePayment = Base + "/payment/handle-payment";
         }
 
         public static class Notification
