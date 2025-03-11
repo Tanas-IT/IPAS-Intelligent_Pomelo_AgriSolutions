@@ -15,6 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.Notifcati
         public string? Content { get; set; }
         public string? Link { get; set; }
         public bool? IsRead { get; set; }
+        public string? Color { get; set; }
 
         public DateTime? CreateDate { get; set; }
 

@@ -11,10 +11,11 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
 {
     public class UpdateWorkLogModel
     {
-        public int TaskId { get; set; }
-        public string? TaskName { get; set; }
-        [JsonProperty("Labels")]
-        public int? TypeOfPlan { get; set; }
+        public int WorkLogId { get; set; }
+        public string? WorkLogName { get; set; }
+        public bool? IsConfirm { get; set; }
+        public string? Status { get; set; }
+        public int? MasterTypeId { get; set; }
         public int? ProcessId { get; set; }
         public int? CropId { get; set; }
         public int? LandPlotId { get; set; }
@@ -27,6 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? EndTime { get; set; }
         public DateTime? DateWork { get; set; }
         public List<EmployeeModel>? listEmployee { get; set; }
-        public List<PlanTargetModel> ListPlanTargetModel { get; set; }
+        public List<UpdatePlanTargetModel>? ListPlanTargetModel { get; set; }
+        public List<int>? GrowthStageIds { get; set; }
     }
 }
