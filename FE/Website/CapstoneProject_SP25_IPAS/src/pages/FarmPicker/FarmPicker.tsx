@@ -79,12 +79,25 @@ function FarmPicker() {
 
   const handleCreateNewFarm = async () => {
     try {
-      navigate(PATHS.FARM.CREATE_FARM);
+      const farmExpiredDate = useFarmStore.getState().farmExpiredDate;
+      const isExpired = farmExpiredDate ? new Date(farmExpiredDate) < new Date() : true;
+  
+      if (isExpired) {
+        toast.warning(
+          farmExpiredDate
+            ? "Your farm's package has expired. Please purchase a new package."
+            : "You have not purchased a package. Please buy one before creating a farm."
+        );
+        navigate(PATHS.PACKAGE.PACKAGE_PURCHASE);
+      } else {
+        navigate(PATHS.FARM.CREATE_FARM);
+      }
     } catch (error) {
       console.error("Error checking subscription:", error);
       toast.error(MESSAGES.ERROR_OCCURRED);
     }
   };
+  
 
   if (loading) return <Loading />;
 

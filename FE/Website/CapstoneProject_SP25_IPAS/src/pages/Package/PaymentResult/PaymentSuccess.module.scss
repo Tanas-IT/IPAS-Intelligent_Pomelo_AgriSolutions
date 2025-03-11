@@ -4,11 +4,16 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: #0a0a0a;
+    background-color: #ffffff;
     color: #fff;
     text-align: center;
     overflow: hidden;
     position: relative;
+    width: 100%;
+
+    .card {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
   
     .title {
       font-size: 3rem;

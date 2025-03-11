@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
-import { Result, Button } from "antd";
+import { Result, Button, Card } from "antd";
 import styles from "./PaymentSuccess.module.scss";
 import { toast } from "react-toastify";
 import { paymentService } from "@/services";
-import { handlePaymentRequest } from "@/payloads";
+import { ApiResponse, handlePaymentRequest } from "@/payloads";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const PaymentSuccess = () => {
     const transactionId = searchParams.get("transactionId");
 
     if (!orderId || !transactionId || !status) {
-      toast.error("Không tìm thấy thông tin thanh toán!");
+      toast.error("Not found payment information!");
       navigate("/");
       return;
     }
@@ -33,22 +33,19 @@ const PaymentSuccess = () => {
 
       toast.success("Payment succeeded!");
       
-      paymentService.handlePayment(payload).catch((error) => {
+      const result = paymentService.handlePayment(payload).catch((error) => {
         toast.error("Error when payment!");
         console.error("Payment processing error:", error);
       });
+      console.log("resulttttt", result);
+      
     }
-
-    const timer = setTimeout(() => {
-      navigate("/dashboard");
-    }, 3000);
-
-    return () => clearTimeout(timer);
   }, [navigate, searchParams]);
 
   return (
     <div className={styles.container}>
       <Confetti width={width} height={height} />
+      <Card className={styles.card}>
       <Result
         status="success"
         title="Payment succeeded!"
@@ -59,6 +56,7 @@ const PaymentSuccess = () => {
           </Button>,
         ]}
       />
+      </Card>
       <div className={styles.fireworks}>
         <div className={styles.firework}></div>
         <div className={styles.firework}></div>
