@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
-using CapstoneProject_SP25_IPAS_Common.SignalR;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -23,12 +22,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IHubContext<NotificationHub> _hubContext;
-        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<NotificationHub> hubContext)
+
+        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _hubContext = hubContext;
         }
 
         public async Task<BusinessResult> CreateNotification(CreateNotificationModel createNotificationModel, int farmId)
@@ -66,31 +64,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        // **Gửi thông báo qua WebSocket**
-                        //foreach (var userId in createNotificationModel.ListReceiverId)
-                        //{
-                        //    await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                        //}
-                        Console.WriteLine($"Notification {newNotification.NotificationCode} created successfully.");
-
-                        // ✅ **Gửi thông báo qua WebSocket**
-                        if (_hubContext != null && createNotificationModel.ListReceiverId.Any())
-                        {
-                            var sendTasks = createNotificationModel.ListReceiverId.Select(async userId =>
-                            {
-                                try
-                                {
-                                    await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", newNotification);
-                                    Console.WriteLine($"Sent notification {newNotification.NotificationCode} to user {userId}");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($" Failed to send notification {newNotification.NotificationCode} to user {userId}: {ex.Message}");
-                                }
-                            });
-
-                            await Task.WhenAll(sendTasks);
-                        }
                         return new BusinessResult(200, "Create notification success", newNotification);
                     }
                     return new BusinessResult(400, "Create notification failed");
@@ -124,6 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = notificationPlan.Notification?.CreateDate,
                         IsRead = notificationPlan.Notification?.IsRead,
                         Link = notificationPlan.Notification?.Link,
+                        Color = notificationPlan.Notification?.MasterType?.BackgroundColor,
                         MasterType = new MasterTypeNotification()
                         {
                             MasterTypeId = notificationPlan.Notification?.MasterTypeId,

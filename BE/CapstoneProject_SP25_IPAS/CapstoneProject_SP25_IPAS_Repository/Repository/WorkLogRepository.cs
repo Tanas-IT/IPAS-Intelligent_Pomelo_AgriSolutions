@@ -363,5 +363,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 throw new Exception("Some employees are already assigned to another WorkLog in this time slot.");
             }
         }
+
+        public async Task<List<WorkLog>> GetListWorkLogByPlanId(int planId)
+        {
+            var result = await _context.WorkLogs.Include(x => x.Schedule.CarePlan)
+                .Where(x => x.Schedule.CarePlan.PlanId == planId).ToListAsync();
+            return result;
+        }
     }
 }
