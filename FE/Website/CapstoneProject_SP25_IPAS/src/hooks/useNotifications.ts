@@ -58,24 +58,20 @@ const useNotifications = () => {
     };
 
     ws.onmessage = (event) => {
-      console.log("📩 Raw WebSocket Message:", event.data);
       try {
         const message = JSON.parse(event.data);
-        console.log("📩 Parsed Message:", message);
+        console.log("Parsed Message:", message);
 
-        if (message.type === "notification") {
-          console.log("🔔 Nhận thông báo:", message.data);
-          setNotifications((prev) => [message.data, ...prev]);
-          fetchNotifications();
-        }
+
+        fetchNotifications();
       } catch (error) {
-        console.error("❌ Lỗi parse JSON:", error);
+        console.error("Error parse JSON:", error);
       }
     };
 
 
     ws.onclose = (event) => {
-      console.error("❌ WebSocket bị ngắt kết nối:", event);
+      console.error("WebSocket disconnected:", event);
     };
 
     ws.onerror = (error) => {

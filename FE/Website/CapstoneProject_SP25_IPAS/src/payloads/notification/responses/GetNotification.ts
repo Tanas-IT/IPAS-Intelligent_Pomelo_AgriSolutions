@@ -4,6 +4,8 @@ export interface GetNotification {
     content: string;
     isRead: boolean;
     createDate: string;
+    color: string;
+    link: string;
     masterType: {
       masterTypeId: number;
       masterTypeName: string;

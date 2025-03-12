@@ -5,13 +5,14 @@ import style from "./Header.module.scss";
 import { Icons } from "@/assets";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
-import { INotification } from "@/hooks/useNotifications";
 import { GetNotification } from "@/payloads";
 
 const { Text } = Typography;
 
 const Notification = () => {
   const { notifications, unreadCount, markAsRead, fetchNotifications } = useNotifications();
+  console.log("noti in bell", notifications);
+  
   const popoverRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"All" | "Unread">("All");
 
@@ -79,7 +80,7 @@ const Notification = () => {
                         <div>
                           <Text strong>{item.title}</Text>
                           <Flex gap={4}>
-                            <Tag color={item.masterType?.backgroundColor}>{item.masterType.masterTypeName}</Tag>
+                            <Tag color={item.color} style={{color: "#333333"}}>{item.masterType.masterTypeName}</Tag>
                           </Flex>
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -87,7 +88,7 @@ const Notification = () => {
                         </Text>
                       </Flex>
                     }
-                    description={<Text type="secondary">{item.content}</Text>}
+                    description={<Text type="secondary" style={{color: "#555"}}>{item.content}</Text>}
                   />
                   {!item.isRead && (
                     <span className={style.unreadDot} onClick={(e) => {
@@ -109,7 +110,8 @@ const Notification = () => {
       content={notificationContent}
       trigger="click"
       placement="bottomLeft"
-      overlayStyle={{ maxWidth: "350px" }}
+      overlayStyle={{ maxWidth: "350px", right: 300, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)", borderRadius: "10px",
+      }}
       getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
       destroyTooltipOnHide
     >
