@@ -39,11 +39,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IWebSocketService _webSocketService;
 
-        public PlanService(IUnitOfWork unitOfWork, IMapper mapper)
+        public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _webSocketService = webSocketService;   
         }
 
         public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId)
@@ -337,6 +339,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     await _unitOfWork.SaveAsync();
+                    if(createPlanModel.ListEmployee != null)
+                    {
+                        foreach(var employeeModel in createPlanModel.ListEmployee)
+                        {
+                            await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                        }
+                    }
 
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);

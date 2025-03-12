@@ -440,7 +440,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                             )
 
             .ForMember(dest => dest.ListTaskFeedback, opt => opt.MapFrom(src => src.TaskFeedbacks))
-            .ForMember(dest => dest.ListNoteOfWorkLog, opt => opt.MapFrom(src => src.UserWorkLogs))
+            .ForMember(dest => dest.ListNoteOfWorkLog, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.Issue != null || x.Notes != null)))
             .ReverseMap();
 
             CreateMap<Type_Type, TypeTypeModel>()
