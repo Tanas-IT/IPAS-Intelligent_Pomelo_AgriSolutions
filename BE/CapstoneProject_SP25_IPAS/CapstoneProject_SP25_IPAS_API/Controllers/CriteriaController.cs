@@ -67,7 +67,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Criteria.getCriteriaOfObject, Name = "getCriteriaOfPlantById")]
-        public async Task<IActionResult> GetCriteriaOfPlantById([FromQuery] GetCriteriaOfTargetRequest request)
+        public async Task<IActionResult> GetCriteriaOfPObject([FromQuery] GetCriteriaOfTargetRequest request)
         {
             try
             {
