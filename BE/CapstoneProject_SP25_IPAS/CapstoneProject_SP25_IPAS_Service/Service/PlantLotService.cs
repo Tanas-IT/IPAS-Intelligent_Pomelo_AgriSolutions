@@ -114,40 +114,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (masterTypeExist == null)
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, "This type not suitable for Seeding");
 
-                    // 2. Lấy danh sách tiêu chí cần áp dụng từ config
-                    List<string> criteriaTargetNeed = _masterTypeConfig.PlantLotCriteriaApply!.PlantLotEvaluation!
-                                                    .Concat(_masterTypeConfig.PlantLotCriteriaApply.PlantLotCondition!)
-                                                    .Where(x => !string.IsNullOrEmpty(x)) // 🔹 Loại bỏ giá trị null hoặc rỗng
-                                                    .ToList();
+                    //// 2. Lấy danh sách tiêu chí cần áp dụng từ config
+                    //List<string> criteriaTargetNeed = _masterTypeConfig.PlantLotCriteriaApply!.PlantLotEvaluation!
+                    //                                .Concat(_masterTypeConfig.PlantLotCriteriaApply.PlantLotCondition!)
+                    //                                .Where(x => !string.IsNullOrEmpty(x)) // 🔹 Loại bỏ giá trị null hoặc rỗng
+                    //                                .ToList();
 
-                    //  3. Lấy danh sách tiêu chí đã có trong hệ thống (MasterType)
-                    var criteriaSetForPlantLot = await _unitOfWork.MasterTypeRepository
-                        .GetCriteriaSetOfFarm(
-                            TypeNameInMasterEnum.Criteria.ToString(),
-                            createPlantLotModel.FarmId!.Value,
-                            criteriaTargetNeed
-                        );
+                    ////  3. Lấy danh sách tiêu chí đã có trong hệ thống (MasterType)
+                    //var criteriaSetForPlantLot = await _unitOfWork.MasterTypeRepository
+                    //    .GetCriteriaSetOfFarm(
+                    //        TypeNameInMasterEnum.Criteria.ToString(),
+                    //        createPlantLotModel.FarmId!.Value,
+                    //        criteriaTargetNeed
+                    //    );
 
-                    if (!criteriaSetForPlantLot.Any())
-                        return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", criteriaTargetNeed)}");
+                    //if (!criteriaSetForPlantLot.Any())
+                    //    return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", criteriaTargetNeed)}");
 
-                    //  4. Kiểm tra xem tất cả tiêu chí trong config đã có trong DB chưa
-                    var existingCriteriaTargets = criteriaSetForPlantLot.Select(x => x.Target!.ToLower()).ToList();
-                    var missingCriteria = criteriaTargetNeed
-                        .Where(x => !existingCriteriaTargets.Contains(x.ToLower()))
-                        .ToList();
+                    ////  4. Kiểm tra xem tất cả tiêu chí trong config đã có trong DB chưa
+                    //var existingCriteriaTargets = criteriaSetForPlantLot.Select(x => x.Target!.ToLower()).ToList();
+                    //var missingCriteria = criteriaTargetNeed
+                    //    .Where(x => !existingCriteriaTargets.Contains(x.ToLower()))
+                    //    .ToList();
 
-                    if (missingCriteria.Any())
-                        return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", missingCriteria)}");
+                    //if (missingCriteria.Any())
+                    //    return new BusinessResult(400, $"You need to set up Criteria set for: {string.Join(", ", missingCriteria)}");
 
-                    //  5. Kiểm tra nếu tiêu chí nào không có danh sách Criteria con
-                    var emptyCriteriaSet = criteriaSetForPlantLot
-                        .Where(x => x.Criterias == null || !x.Criterias.Any()) // 🔹 MasterType nào không có Criteria
-                        .Select(x => x.MasterTypeName) // 🔹 Lấy tên MasterType
-                        .ToList();
+                    ////  5. Kiểm tra nếu tiêu chí nào không có danh sách Criteria con
+                    //var emptyCriteriaSet = criteriaSetForPlantLot
+                    //    .Where(x => x.Criterias == null || !x.Criterias.Any()) // 🔹 MasterType nào không có Criteria
+                    //    .Select(x => x.MasterTypeName) // 🔹 Lấy tên MasterType
+                    //    .ToList();
 
-                    if (emptyCriteriaSet.Any())
-                        return new BusinessResult(400, $"The following Criteria Sets are empty and must have at least one Criteria: {string.Join(", ", emptyCriteriaSet)}");
+                    //if (emptyCriteriaSet.Any())
+                    //    return new BusinessResult(400, $"The following Criteria Sets are empty and must have at least one Criteria: {string.Join(", ", emptyCriteriaSet)}");
 
                     //  6. Kiểm tra đối tác có tồn tại không
                     var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
@@ -172,6 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotReferenceId = null,
                         isDeleted = false,
                         IsPassed = false,
+                        InputQuantity = 0
                     };
 
                     await _unitOfWork.PlantLotRepository.Insert(plantLot);
@@ -182,24 +183,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         string includeProperties = "Partner,MasterType";
                         var createdPlantlot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLot.PlantLotId, includeProperties);
 
-                        // 9. Lấy danh sách tiêu chí để apply
-                        var criteriaDataList = criteriaSetForPlantLot
-                            .SelectMany(masterType => masterType.Criterias!)
-                            .Select(criteria => new CriteriaData
-                            {
-                                CriteriaId = criteria.CriteriaId,
-                                IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
-                                Priority = criteria.Priority ?? 1
-                            }).ToList();
+                        //// 9. Lấy danh sách tiêu chí để apply
+                        //var criteriaDataList = criteriaSetForPlantLot
+                        //    .SelectMany(masterType => masterType.Criterias!)
+                        //    .Select(criteria => new CriteriaData
+                        //    {
+                        //        CriteriaId = criteria.CriteriaId,
+                        //        IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
+                        //        Priority = criteria.Priority ?? 1
+                        //    }).ToList();
 
-                        // 10. Gọi hàm `ApplyCriteriasForTarget`
-                        var criteriaApplyRequest = new CriteriaTargerRequest
-                        {
-                            PlantLotId = new List<int> { plantLot.PlantLotId },
-                            CriteriaData = criteriaDataList,
-                            allowOveride = false
-                        };
-                        await _criteriaTargetService.ApplyCriteriasForTarget(criteriaApplyRequest);
+                        //// 10. Gọi hàm `ApplyCriteriasForTarget`
+                        //var criteriaApplyRequest = new CriteriaTargerRequest
+                        //{
+                        //    PlantLotId = new List<int> { plantLot.PlantLotId },
+                        //    CriteriaData = criteriaDataList,
+                        //    allowOveride = false
+                        //};
+                        //await _criteriaTargetService.ApplyCriteriasForTarget(criteriaApplyRequest);
                         await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<PlantLotModel>(createdPlantlot);
                         return new BusinessResult(Const.SUCCESS_CREATE_PLANT_LOT_CODE, Const.SUCCESS_CREATE_PLANT_LOT_MESSAGE, mappedResult);
@@ -243,10 +244,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, $"Imported quantity exceeds missing amount. You can only add up to {missingQuantity}.");
                     }
-                    var checkCriteriaSet = await getcriteriaSet(mainPlantLot.FarmID!.Value);
-                    if (checkCriteriaSet.StatusCode != 200)
-                        return checkCriteriaSet;
-                    var criteriaSetData = checkCriteriaSet.Data as List<MasterType>;
+                    //var checkCriteriaSet = await getcriteriaSet(mainPlantLot.FarmID!.Value);
+                    //if (checkCriteriaSet.StatusCode != 200)
+                    //    return checkCriteriaSet;
+                    //var criteriaSetData = checkCriteriaSet.Data as List<MasterType>;
+                    var criteriaSetData = await _unitOfWork.CriteriaTargetRepository.GetAllNoPaging(x => x.PlantLotID == mainPlantLot.PlantLotId);
                     //  Tạo lô nhập bù
                     var additionalPlantLot = new PlantLot()
                     {
@@ -273,24 +275,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (result > 0)
                     {
-                        // 9. Lấy danh sách tiêu chí để apply
-                        var criteriaDataList = criteriaSetData!
-                            .SelectMany(masterType => masterType.Criterias!)
-                            .Select(criteria => new CriteriaData
-                            {
-                                CriteriaId = criteria.CriteriaId,
-                                IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
-                                Priority = criteria.Priority ?? 1
-                            }).ToList();
-
-                        // 10. Gọi hàm `ApplyCriteriasForTarget`
-                        var criteriaApplyRequest = new CriteriaTargerRequest
+                        if (criteriaSetData.Any())
                         {
-                            PlantLotId = new List<int> { additionalPlantLot.PlantLotId },
-                            CriteriaData = criteriaDataList,
-                            allowOveride = false
-                        };
-                        await _criteriaTargetService.ApplyCriteriasForTarget(criteriaApplyRequest);
+
+                            // 9. Lấy danh sách tiêu chí từ lô chính để apply
+                            var criteriaDataList = criteriaSetData!
+                                //.SelectMany(masterType => masterType.Criterias!)
+                                .Select(criteria => new CriteriaData
+                                {
+                                    CriteriaId = criteria.CriteriaID!.Value,
+                                    IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
+                                    Priority = criteria.Priority ?? 1
+                                }).ToList();
+
+                            // 10. Gọi hàm `ApplyCriteriasForTarget`
+                            var criteriaApplyRequest = new CriteriaTargerRequest
+                            {
+                                PlantLotId = new List<int> { additionalPlantLot.PlantLotId },
+                                CriteriaData = criteriaDataList,
+                                allowOveride = false
+                            };
+                            await _criteriaTargetService.ApplyCriteriasForTarget(criteriaApplyRequest);
+                        }
                         string includeProperties = "Partner,MasterType";
                         var updatedPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == additionalPlantLot.PlantLotId, includeProperties);
                         var mappedResult = _mapper.Map<PlantLotModel>(updatedPlantLot);
@@ -519,15 +525,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
                         }
-                        if (updatePlantLotRequestModel.LastQuantity.HasValue && updatePlantLotRequestModel.UsedQuantity != 0)
+                        if (updatePlantLotRequestModel.InputQuantity.HasValue && updatePlantLotRequestModel.InputQuantity != 0)
                         {
                             // chi check dieu kien can de nhap
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
                             if (checkCondition.StatusCode != 200)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
-                            if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.PreviousQuantity)
+                            if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
                                 return new BusinessResult(400, "Last Quantity larger than previous quantity");
+                            checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
+                        }
+                        if (updatePlantLotRequestModel.LastQuantity.HasValue && updatePlantLotRequestModel.LastQuantity != 0)
+                        {
+                            // chi check dieu kien can de danh gia
+                            var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation ?? new List<string>();
+                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
+                            if (checkCondition.StatusCode != 200)
+                                return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
+                            if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.InputQuantity)
+                                return new BusinessResult(400, "Last Quantity larger than input quantity");
                             checkExistPlantLot.LastQuantity = updatePlantLotRequestModel.LastQuantity;
                         }
                         if (updatePlantLotRequestModel.UsedQuantity.HasValue && updatePlantLotRequestModel.UsedQuantity != 0)
@@ -563,7 +580,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
                             if (checkCondition.StatusCode != 200)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
-                           
+
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -618,7 +635,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (growthStageExist == null)
                         return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                     // Kiểm tra số lượng cây có thể trồng
-                    int quantityToPlant = plantLot.LastQuantity ?? 0;
+                    int quantityToPlant = plantLot.LastQuantity - plantLot.UsedQuantity ?? 0;
                     if (quantityToPlant <= 0)
                     {
                         return new BusinessResult(Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_CODE, Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_MSG);
@@ -654,7 +671,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         HashSet<int> occupiedIndexes = existingPlants
                             .Where(p => p.PlantIndex.HasValue)
-                            .Select(p => p.PlantIndex.Value)
+                            .Select(p => p.PlantIndex!.Value)
                             .ToHashSet();
 
                         // Tạo danh sách các vị trí trống trong hàng
@@ -876,7 +893,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(400, "The plant lot has not passed all required criteria.");
+                return new BusinessResult(400, $"The plant lot has not passed all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
 
             return new BusinessResult(200, "The plant lot has successfully passed all required criteria.");
