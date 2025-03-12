@@ -525,7 +525,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 PlantLotID = plantLotId,
                 CriteriaID = criteria.CriteriaId,
                 IsChecked = criteria.IsChecked,
-                Priority = criteria.Priority
+                Priority = criteria.Priority,
+                CreateDate = DateTime.Now
             };
         }
         private bool IsDuplicate(CriteriaTarget newTarget, List<CriteriaTarget> existingTargets)

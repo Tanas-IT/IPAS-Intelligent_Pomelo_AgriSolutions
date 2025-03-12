@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Lan
         public int plantLotId { get; set; }
         [Required]
         public int growthStageId { get; set; }
-        [Required]
-        public int MasterTypeId { get; set; }
+        //[Required]
+        //public int MasterTypeId { get; set; }
     }
 }
