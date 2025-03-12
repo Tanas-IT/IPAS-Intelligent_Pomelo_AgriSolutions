@@ -142,6 +142,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<CapstoneProject_SP25_IPAS_Service.IService.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentService>();
             services.AddScoped<CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddHostedService<WorkLogStatusUpdaterService>();
+
+
 
 
             services.AddHttpClient();

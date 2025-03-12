@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,6 +110,5 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var listMasterType = await getMasterTypeByName.ToListAsync();
             return listMasterType.Any() ? listMasterType : new List<MasterType>();
         }
-
     }
 }

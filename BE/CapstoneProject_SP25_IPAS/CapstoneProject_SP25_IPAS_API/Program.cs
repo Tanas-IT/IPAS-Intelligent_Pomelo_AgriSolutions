@@ -16,7 +16,6 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddDbContext<IpasContext>(options =>
 {
@@ -138,6 +137,7 @@ app.UseMiddleware<TokenValidationMiddleware>();
 app.UseMiddleware<AccountStatusMiddleware>();
 app.UseWebSockets(webSocketOptions);
 app.UseMiddleware<WebSocketMiddleware>();
+
 //app.UseMiddleware<AuthorizeMiddleware>();
 //app.UseMiddleware<FarmSoftDeleteMiddleware>();
 //app.UseHttpsRedirection();

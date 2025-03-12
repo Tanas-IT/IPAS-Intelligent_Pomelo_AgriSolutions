@@ -11,6 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
         public int PlantLotID { get; set; }
         public int? PartnerID { get; set; }
         public string? Name { get; set; }
+        public int? InputQuantity { get; set; }
         public int? LastQuantity {  get; set; }
         public int? UsedQuantity { get; set; }
         public string? Unit { get; set; }
