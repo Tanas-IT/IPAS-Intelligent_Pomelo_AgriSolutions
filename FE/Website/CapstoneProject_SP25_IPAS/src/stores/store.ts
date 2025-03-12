@@ -21,7 +21,7 @@ interface FarmState {
   farmExpiredDate: string;
   isFarmExpired: boolean;
   setFarmInfo: (name: string, logo: string, expiredDate?: string) => void;
-  checkFarmExpiration: () => void;
+  // checkFarmExpiration: () => void;
 }
 
 export const useFarmStore = create<FarmState>((set) => {
@@ -45,16 +45,13 @@ export const useFarmStore = create<FarmState>((set) => {
       }
       if (expiredDate) {
         localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE, expiredDate);
-        set({ farmExpiredDate: expiredDate, isFarmExpired: new Date(expiredDate) < new Date() });
+        set({
+          farmExpiredDate: expiredDate,
+          isFarmExpired: new Date(expiredDate) < new Date(),
+        });
       }
-    },
-
-    checkFarmExpiration: () => {
-      const expiredDate = localStorage.getItem(LOCAL_STORAGE_KEYS.FARM_EXPIRED_DATE);
-      if (expiredDate) {
-        set({ isFarmExpired: new Date(expiredDate) < new Date() });
-      }
-    },
+    }
+    
   };
 });
 

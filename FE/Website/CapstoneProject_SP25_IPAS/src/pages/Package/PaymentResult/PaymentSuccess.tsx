@@ -14,33 +14,40 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const orderId = searchParams.get("orderId");
-    const status = searchParams.get("status");
-    const transactionId = searchParams.get("transactionId");
-
-    if (!orderId || !transactionId || !status) {
-      toast.error("Not found payment information!");
-      navigate("/");
-      return;
-    }
-
-    if (status === "PAID") {
-      const payload: handlePaymentRequest = {
-        transactionId,
-        orderId: Number(orderId),
-        status
-      };
-
-      toast.success("Payment succeeded!");
-      
-      const result = paymentService.handlePayment(payload).catch((error) => {
-        toast.error("Error when payment!");
-        console.error("Payment processing error:", error);
-      });
-      console.log("resulttttt", result);
-      
-    }
+    const processPayment = async () => {
+      const orderId = searchParams.get("orderId");
+      const status = searchParams.get("status");
+      const transactionId = searchParams.get("transactionId");
+  
+      if (!orderId || !transactionId || !status) {
+        toast.error("Not found payment information!");
+        navigate("/");
+        return;
+      }
+  
+      if (status === "PAID") {
+        const payload: handlePaymentRequest = {
+          transactionId,
+          orderId: Number(orderId),
+          status
+        };
+  
+        toast.success("Payment succeeded!");
+        console.log("payload handle payment", payload);
+  
+        try {
+          const result = await paymentService.handlePayment(payload);
+          console.log("resulttttt", result);
+        } catch (error) {
+          toast.error("Error when payment!");
+          console.error("Payment processing error:", error);
+        }
+      }
+    };
+  
+    processPayment();
   }, [navigate, searchParams]);
+  
 
   return (
     <div className={styles.container}>

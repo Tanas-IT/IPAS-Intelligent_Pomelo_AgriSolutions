@@ -77,6 +77,8 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
+    console.log(farmExpiredDate);
+    
     if (farmExpiredDate && new Date(farmExpiredDate).getTime() < Date.now()) {
       setIsModalVisible(true);
     }
