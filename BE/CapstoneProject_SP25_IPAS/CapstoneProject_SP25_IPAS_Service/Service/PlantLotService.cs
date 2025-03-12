@@ -889,14 +889,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             // 🔹 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
-            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true);
+            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsChecked == true);
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(400, $"The plant lot has not passed all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+                return new BusinessResult(400, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
 
-            return new BusinessResult(200, "The plant lot has successfully passed all required criteria.");
+            return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
         }
 
 
