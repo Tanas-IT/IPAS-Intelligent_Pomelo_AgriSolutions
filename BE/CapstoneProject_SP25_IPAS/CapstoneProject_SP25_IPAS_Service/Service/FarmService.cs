@@ -128,6 +128,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var result = _mapper.Map<FarmModel>(farm);
+            //if (farm.Orders.Any())
+            //{
+            //    result.FarmExpiredDate = farm.Orders.Where(x => x.FarmId == farmId && x.Status!.ToUpper().Equals("PAID"))
+            //                                   .Max(x => x.ExpiredDate);
+            //}
             return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, Const.SUCCESS_FARM_GET_MSG, result);
         }
 

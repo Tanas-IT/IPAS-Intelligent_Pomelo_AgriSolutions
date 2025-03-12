@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels
         public DateTime? EnrolledDate { get; set; }
 
         public DateTime? ExpiredDate { get; set; }
+        public string? Status { get; set; }
 
         public int? PackageId { get; set; }
         //public string? PackageName { get; set; }

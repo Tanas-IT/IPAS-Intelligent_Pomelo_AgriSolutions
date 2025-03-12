@@ -95,7 +95,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(x => x.IsActive == true
                     && x.TypeName!.ToLower() == TypeNameInMasterEnum.Criteria.ToString().ToLower()
                     && x.TypeName.ToLower() == nameLower
-                    && (x.FarmID == farmId || x.IsDefault == true))
+                    && (x.FarmID == farmId || x.IsDefault == true)
+                    && x.IsActive == true)
                 .Include(x => x.Criterias)
                 .OrderBy(x => x.MasterTypeId)
                 .AsQueryable();
