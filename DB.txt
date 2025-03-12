@@ -511,6 +511,7 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PreviousQuantity int NULL,
 	Unit nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	InputQuantity int NULL,
 	LastQuantity int NULL,
 	UsedQuantity int NULL,
 	ImportedDate datetime NULL,
