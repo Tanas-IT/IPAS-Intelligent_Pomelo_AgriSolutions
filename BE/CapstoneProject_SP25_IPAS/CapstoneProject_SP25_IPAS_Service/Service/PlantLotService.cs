@@ -160,8 +160,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{createPlantLotModel.ImportedQuantity}",
                         ImportedDate = DateTime.Now,
                         PreviousQuantity = createPlantLotModel.ImportedQuantity,
-                        LastQuantity = 0,
-                        UsedQuantity = 0,
+                        //LastQuantity = 0,
+                        //UsedQuantity = 0,
                         PartnerId = createPlantLotModel.PartnerId,
                         PlantLotName = createPlantLotModel.Name,
                         Unit = createPlantLotModel.Unit,
@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotReferenceId = null,
                         isDeleted = false,
                         IsPassed = false,
-                        InputQuantity = 0
+                        //InputQuantity = 0
                     };
 
                     await _unitOfWork.PlantLotRepository.Insert(plantLot);
@@ -525,7 +525,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlantLot.PlantLotName = updatePlantLotRequestModel.Name;
                         }
-                        if (updatePlantLotRequestModel.InputQuantity.HasValue && updatePlantLotRequestModel.InputQuantity != 0)
+                        if (updatePlantLotRequestModel.InputQuantity.HasValue /*&& updatePlantLotRequestModel.InputQuantity != 0*/)
                         {
                             // chi check dieu kien can de nhap
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
@@ -536,7 +536,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(400, "Last Quantity larger than previous quantity");
                             checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
                         }
-                        if (updatePlantLotRequestModel.LastQuantity.HasValue && updatePlantLotRequestModel.LastQuantity != 0)
+                        if (updatePlantLotRequestModel.LastQuantity.HasValue /*&& updatePlantLotRequestModel.LastQuantity != 0*/)
                         {
                             // chi check dieu kien can de danh gia
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation ?? new List<string>();
@@ -547,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(400, "Last Quantity larger than input quantity");
                             checkExistPlantLot.LastQuantity = updatePlantLotRequestModel.LastQuantity;
                         }
-                        if (updatePlantLotRequestModel.UsedQuantity.HasValue && updatePlantLotRequestModel.UsedQuantity != 0)
+                        if (updatePlantLotRequestModel.UsedQuantity.HasValue /*&& updatePlantLotRequestModel.UsedQuantity != 0*/)
                         {
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
