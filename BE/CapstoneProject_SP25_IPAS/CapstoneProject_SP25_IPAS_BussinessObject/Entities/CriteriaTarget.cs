@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
         public bool? IsPassed { get; set; }
         public string? Note { get; set; }
         public DateTime? CreateDate { get; set; }
-
+        public DateTime? CheckedDate { get; set; }
         public int? Priority { get; set; }
 
         public int? PlantID { get; set; }

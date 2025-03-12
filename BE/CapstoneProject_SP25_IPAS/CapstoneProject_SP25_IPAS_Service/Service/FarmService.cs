@@ -69,8 +69,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Width = farmCreateRequest.Width,
                         Description = farmCreateRequest.Description,
                         Longitude = farmCreateRequest.Longitude,
-                        Latitude = farmCreateRequest.Latitude
-
+                        Latitude = farmCreateRequest.Latitude,
                     };
                     //var index = await _unitOfWork.FarmRepository.GetLastFarmID();
                     string haftCode = GenerateFarmCode(farmCreateRequest);
@@ -95,6 +94,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         UserId = userid,
                         RoleId = (int)RoleEnum.OWNER,
+                        IsActive = true,
                     });
 
                     await _unitOfWork.FarmRepository.Insert(farmCreateEntity);

@@ -896,6 +896,7 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	GraftedPlantID int NULL,
 	PlantLotID int NULL,
         CreateDate datetime NULL,
+	CheckededDate datetime NULL,
         IsPassed bit NULL,
 	Note nvarchar(MAX) NULL,
         CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
