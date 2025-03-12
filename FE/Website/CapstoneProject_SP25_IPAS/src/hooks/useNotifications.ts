@@ -50,22 +50,29 @@ const useNotifications = () => {
   useEffect(() => {
     if (!userId) return;
 
-    const ws = new WebSocket(import.meta.env.VITE_PUBLIC_WS_URL);
+    const ws = new WebSocket(`${import.meta.env.VITE_PUBLIC_WS_URL}?userId=${userId}`);
+
 
     ws.onopen = () => {
       console.log("Connected to WebSocket!");
-      // Gửi thông tin xác thực nếu cần
-      ws.send(JSON.stringify({ type: "authenticate", token: localStorage.getItem("token") }));
     };
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "notification") {
-        const newNotification: GetNotification = message.data;
-        console.log("🔔 Nhận thông báo:", newNotification);
-        setNotifications((prev) => [newNotification, ...prev]);
+      console.log("📩 Raw WebSocket Message:", event.data);
+      try {
+        const message = JSON.parse(event.data);
+        console.log("📩 Parsed Message:", message);
+
+        if (message.type === "notification") {
+          console.log("🔔 Nhận thông báo:", message.data);
+          setNotifications((prev) => [message.data, ...prev]);
+          fetchNotifications();
+        }
+      } catch (error) {
+        console.error("❌ Lỗi parse JSON:", error);
       }
     };
+
 
     ws.onclose = (event) => {
       console.error("❌ WebSocket bị ngắt kết nối:", event);
@@ -97,7 +104,7 @@ const useNotifications = () => {
     }
   };
 
-  return { notifications, unreadCount, markAsRead, fetchNotifications };
+  return { notifications, unreadCount, markAsRead, fetchNotifications, socket };
 };
 
 export default useNotifications;
