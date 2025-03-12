@@ -18,8 +18,8 @@ interface CriteriaApplyData {
 }
 
 export interface CriteriaApplyRequests {
-  plantLotId: number[];
-  plantId: number[];
-  graftedPlantId: number[];
+  plantLotId?: number[];
+  plantId?: number[];
+  graftedPlantId?: number[];
   criteriaData: CriteriaApplyData[];
 }

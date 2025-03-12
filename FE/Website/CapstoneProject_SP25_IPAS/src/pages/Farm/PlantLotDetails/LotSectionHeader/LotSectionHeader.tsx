@@ -34,15 +34,16 @@ const LotSectionHeader = ({
             {lot.healthStatus || "Unknown"}
           </Tag> */}
           <Flex className={style.actionButtons}>
-            {!lot.isPassed ? (
-              <Button type="primary" onClick={handleMarkAsPassed}>
-                Mark as Passed
-              </Button>
-            ) : (
-              <Tag color="green" className={style.passedTag}>
-                ✅ Lot Passed
-              </Tag>
-            )}
+            {isCriteria &&
+              (!lot.isPassed ? (
+                <Button type="primary" onClick={handleMarkAsPassed}>
+                  Mark as Passed
+                </Button>
+              ) : (
+                <Tag color="green" className={style.passedTag}>
+                  ✅ Lot Passed
+                </Tag>
+              ))}
           </Flex>
         </Flex>
 

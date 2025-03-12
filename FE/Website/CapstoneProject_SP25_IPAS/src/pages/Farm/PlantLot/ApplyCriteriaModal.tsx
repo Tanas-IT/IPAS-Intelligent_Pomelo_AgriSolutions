@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
 import { CRITERIA_TARGETS, lotFormFields, MESSAGES } from "@/constants";
-import { GetCriteria, GetMasterTypeSelected } from "@/payloads";
+import { CriteriaApplyRequests, GetCriteria, GetMasterTypeSelected } from "@/payloads";
 import { criteriaService, masterTypeService } from "@/services";
 import { useCriteriaOptions } from "@/hooks";
 import style from "./PlantLot.module.scss";
@@ -11,16 +11,18 @@ import { Icons } from "@/assets";
 import { toast } from "react-toastify";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
+import { useDirtyStore } from "@/stores";
 
 type ApplyCriteriaModalProps = {
+  lotId?: number;
   isOpen: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (criteria: CriteriaApplyRequests) => void;
   isLoadingAction?: boolean;
-  //   lotData?: GetPlantLot2;
 };
 
 const ApplyCriteriaModal = ({
+  lotId,
   isOpen,
   onClose,
   onSave,
@@ -36,6 +38,7 @@ const ApplyCriteriaModal = ({
     isCriteriaListValid,
   } = useCriteriaManagement();
   const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
+  const { setIsDirty } = useDirtyStore();
 
   //   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
 
@@ -43,6 +46,7 @@ const ApplyCriteriaModal = ({
     form.resetFields();
     setDataSource([]);
     setCriteriaOptions([]);
+    setIsDirty(false);
   };
 
   useEffect(() => {
@@ -53,10 +57,16 @@ const ApplyCriteriaModal = ({
 
   const handleOk = () => {
     if (!isCriteriaListValid()) return;
+    if (!lotId) return;
+    const requestData: CriteriaApplyRequests = {
+      plantLotId: [lotId],
+      criteriaData: dataSource.map((item) => ({
+        criteriaId: item.criteriaId,
+        priority: item.priority,
+      })),
+    };
 
-    const result = dataSource.map((item) => ({ id: item.key, priority: item.priority }));
-    console.log(result);
-    // onSave(result);
+    onSave(requestData);
   };
 
   const handleCriteriaTypeChange = async (value: string) => {
@@ -68,6 +78,7 @@ const ApplyCriteriaModal = ({
         label: item.name,
       }));
       setCriteriaOptions(formattedOptions);
+      setIsDirty(true);
     }
   };
 

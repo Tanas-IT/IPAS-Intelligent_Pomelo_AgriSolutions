@@ -8,7 +8,7 @@ import {
   Table,
   TableTitle,
 } from "@/components";
-import { GetPlantLot2, PlantLotRequest } from "@/payloads";
+import { CriteriaApplyRequests, GetPlantLot2, PlantLotRequest } from "@/payloads";
 import {
   useFetchData,
   useFilters,
@@ -20,7 +20,7 @@ import {
 } from "@/hooks";
 import { useEffect, useState } from "react";
 import { DEFAULT_LOT_FILTERS, getOptions } from "@/utils";
-import { plantLotService } from "@/services";
+import { criteriaService, plantLotService } from "@/services";
 import { PlantLotColumns } from "./PlantLotColumns";
 import LotModel from "./LotModal";
 import ApplyCriteriaModal from "./ApplyCriteriaModal";
@@ -28,14 +28,18 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { FilterPlantLotState } from "@/types";
 import PlantLotFilter from "./PlantLotFilter";
+import { useDirtyStore } from "@/stores";
+import { toast } from "react-toastify";
 
 function PlantLot() {
   const navigate = useNavigate();
   const formModal = useModal<GetPlantLot2>();
-  const criteriaModal = useModal();
+  const criteriaModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
+  const { isDirty } = useDirtyStore();
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantLotState>(
     DEFAULT_LOT_FILTERS,
@@ -123,6 +127,26 @@ function PlantLot() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const handleCloseCriteria = () => {
+    if (isDirty) cancelConfirmModal.showModal();
+    criteriaModal.hideModal;
+  };
+
+  const applyCriteria = async (criteria: CriteriaApplyRequests) => {
+    var res = await criteriaService.applyCriteria(criteria);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        criteriaModal.hideModal();
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <PlantLotFilter
       filters={filters}
@@ -166,7 +190,7 @@ function PlantLot() {
               id={lot.plantLotId}
               onEdit={() => formModal.showModal(lot)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [lot.plantLotId] })}
-              onApplyCriteria={() => criteriaModal.showModal()}
+              onApplyCriteria={() => criteriaModal.showModal({ id: lot.plantLotId })}
             />
           )}
         />
@@ -187,10 +211,11 @@ function PlantLot() {
           lotData={formModal.modalState.data}
         />
         <ApplyCriteriaModal
+          lotId={criteriaModal.modalState.data?.id}
           isOpen={criteriaModal.modalState.visible}
-          onClose={criteriaModal.hideModal}
-          onSave={criteriaModal.hideModal}
-          isLoadingAction={false}
+          onClose={handleCloseCriteria}
+          onSave={applyCriteria}
+          isLoadingAction={isActionLoading}
         />
         {/* Confirm Delete Modal */}
         <ConfirmModal
@@ -213,6 +238,7 @@ function PlantLot() {
           visible={cancelConfirmModal.modalState.visible}
           actionType="unsaved"
           onConfirm={() => {
+            criteriaModal.hideModal();
             cancelConfirmModal.hideModal();
             formModal.hideModal();
           }}

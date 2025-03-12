@@ -36,13 +36,20 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 160,
   },
   {
+    header: "Checked  Quantity",
+    field: "inputQuantity",
+    accessor: (item) => <TableCell value={item.inputQuantity} />,
+    width: 160,
+  },
+  {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    accessor: (item) => (
-      <TableCell
-        value={!item.isPassed && item.lastQuantity === 0 ? "Checking..." : item.lastQuantity}
-      />
-    ),
+    accessor: (item) => <TableCell value={item.lastQuantity} />,
+    // accessor: (item) => (
+    //   <TableCell
+    //     value={!item.isPassed && item.lastQuantity === 0 ? "Checking..." : item.lastQuantity}
+    //   />
+    // ),
     width: 160,
   },
   {

@@ -51,6 +51,7 @@ function PlantLotDetail() {
   const infoFieldsRight = [
     { label: "Unit", value: lot?.unit, icon: Icons.area },
     { label: "Initial Quantity", value: lot?.previousQuantity, icon: Icons.area },
+    { label: "Checked  Quantity", value: lot?.inputQuantity, icon: Icons.area },
     { label: "Qualified Quantity", value: lot?.lastQuantity, icon: Icons.area },
     { label: "Assigned Quantity", value: lot?.usedQuantity, icon: Icons.area },
   ];

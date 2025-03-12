@@ -47,6 +47,16 @@ export const useLoadingStore = create<LoadingState>((set) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
 }));
 
+interface DirtyState {
+  isDirty: boolean;
+  setIsDirty: (value: boolean) => void;
+}
+
+export const useDirtyStore = create<DirtyState>((set) => ({
+  isDirty: false,
+  setIsDirty: (isDirty) => set({ isDirty }),
+}));
+
 interface MapState {
   isDirty: boolean;
   setIsDirty: (value: boolean) => void;

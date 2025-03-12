@@ -63,7 +63,14 @@ const TableApplyCriteria = ({
 
   return (
     <div className={style.criteriaTableWrapper}>
-      <Table dataSource={dataSource} columns={columns} rowKey="id" pagination={false} />;
+      <Table
+        className={style.criteriaTable}
+        dataSource={dataSource}
+        columns={columns}
+        rowKey="id"
+        pagination={false}
+      />
+      ;
     </div>
   );
 };

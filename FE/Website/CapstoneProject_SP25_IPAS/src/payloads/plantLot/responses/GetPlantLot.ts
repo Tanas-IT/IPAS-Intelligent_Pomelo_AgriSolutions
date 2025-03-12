@@ -9,6 +9,7 @@ export interface GetPlantLot2 {
   plantLotCode: string;
   plantLotName: string;
   previousQuantity: number;
+  inputQuantity: number;
   lastQuantity: number;
   usedQuantity: number;
   unit: string;
