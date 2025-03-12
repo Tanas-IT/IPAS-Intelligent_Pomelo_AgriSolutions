@@ -22,7 +22,7 @@ export interface GetPlan {
   rowIndexs: number[];
   dayOfWeek: number[];
   dayOfMonth: string;
-  customDates: string[];
+  customDates: string;
   startTime: string;
   endTime: string;
   listReporter: User[];

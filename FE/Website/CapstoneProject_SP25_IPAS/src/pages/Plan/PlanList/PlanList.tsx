@@ -2,7 +2,7 @@ import { Flex } from "antd";
 import style from "./PlanList.module.scss";
 import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
-import { useFetchData } from "@/hooks";
+import { useFetchData, useModal, useTableDelete } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { planService } from "@/services";
@@ -24,6 +24,7 @@ function PlanList() {
     isActive: [] as string[],
     assignor: [] as string[],
   });
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
 
   const {
     data,
@@ -48,6 +49,22 @@ function PlanList() {
   useEffect(() => {
     fetchData();
   }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
+
+  const { handleDelete } = useTableDelete(
+      {
+        deleteFunction: planService.deletePlan,
+        fetchData,
+        onSuccess: () => {
+          deleteConfirmModal.hideModal();
+        },
+      },
+      {
+        currentPage,
+        rowsPerPage,
+        totalRecords,
+        handlePageChange,
+      },
+    );
 
   const updateFilters = (key: string, value: any) => {
     setFilters((prev) => {
@@ -99,10 +116,16 @@ function PlanList() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          handleDelete={(ids) => handleDelete(ids)}
           isLoading={false}
           caption="Plan Management Table"
           notifyNoData="No data to display"
-          renderAction={(plan: GetPlan) => <ActionMenuPlan id={plan.planId} />}
+          renderAction={(plan: GetPlan) => (
+            <ActionMenuPlan
+              id={plan.planId}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [plan.planId] })}
+            />
+          )}
         />
 
         <NavigationDot

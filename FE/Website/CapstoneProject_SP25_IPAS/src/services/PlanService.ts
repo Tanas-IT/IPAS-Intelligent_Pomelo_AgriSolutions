@@ -88,3 +88,8 @@ export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStag
   return apiResponse.data;
 };
 
+export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`lplan/soft-delete-plan`, ids);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};

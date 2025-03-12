@@ -260,11 +260,12 @@ function PlanDetail() {
 
                             {frequencyType === "none" && (
                                 <ul className={style.dateList}>
-                                    {selectedDaysOfNoneType.map((day, index) => (
+                                    {JSON.parse(processDetail?.customDates || "[]").map((day, index) => (
                                         <li key={index}>{day}</li>
                                     ))}
                                 </ul>
                             )}
+
 
                             {frequencyType === "weekly" && (
                                 <Flex className={style.weekDays}>
