@@ -22,6 +22,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public bool? IsActive { get; set; }
 
         public bool? IsChecked { get; set; }
+        public bool? IsPassed { get; set; }
 
         public int? MasterTypeId { get; set; }
 

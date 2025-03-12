@@ -1,0 +1,116 @@
+.paymentContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(to right, #bcd379, #b7d169);
+    padding: 20px;
+}
+
+.paymentCard {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding: 24px;
+
+    .header {
+        text-align: center;
+        margin-bottom: 24px;
+
+        .title {
+            color: #20461e;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666666;
+            font-size: 14px;
+        }
+    }
+
+    .steps {
+        margin-bottom: 24px;
+
+        .ant-steps-item-icon {
+            background-color: #1890ff;
+            border-color: #1890ff;
+
+            .anticon {
+                color: #ffffff;
+            }
+        }
+
+        .ant-steps-item-title {
+            font-weight: 500;
+            color: #333333;
+        }
+    }
+
+    .divider {
+        margin: 16px 0;
+        border-color: #f0f0f0;
+    }
+
+    .packageDetails {
+        .packageName {
+            color: #333333;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+
+            .label {
+                color: #666666;
+                font-weight: 500;
+            }
+
+            .value {
+                color: #3920aa;
+                font-weight: bold;
+            }
+
+            .valuePrice {
+                color: red;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .buttonGroup {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 24px;
+
+        .confirmButton {
+            background-color: #fee69c;
+            border-color: #20461e;
+            font-weight: 500;
+            color: #20461e;
+
+            &:hover {
+                background-color: #ffd761;
+                border-color: #20461e;
+                color: #20461e;
+            }
+        }
+
+        .cancelButton {
+            border-color: #20461e;
+            color: #20461e;
+            font-weight: 500;
+
+            &:hover {
+                border-color: #3d6d3a;
+                color: #3d6d3a;
+            }
+        }
+    }
+}

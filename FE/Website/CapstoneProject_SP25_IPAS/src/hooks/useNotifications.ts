@@ -1,18 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import dayjs from "dayjs";
-
-interface MasterType {
-  id: number;
-  name: string;
-  backgroundColor: string;
-}
-
-interface Sender {
-  id: number;
-  name: string;
-  avatar: string;
-}
+import { useEffect, useState } from "react";
+import { notificationService } from "@/services";
+import { getUserId } from "@/utils";
+import { GetNotification } from "@/payloads";
 
 export interface INotification {
   notificationID: number;
@@ -20,53 +9,30 @@ export interface INotification {
   content: string;
   link: string;
   isRead: boolean;
-  masterType: MasterType;
-  sender: Sender;
+  masterType: {
+    id: number;
+    name: string;
+    backgroundColor: string;
+  };
+  sender: {
+    id: number;
+    name: string;
+    avatar: string;
+  };
   date: string;
 }
 
-const mockNotifications: INotification[] = [
-  {
-    notificationID: 1,
-    title: "Nhiệm vụ mới được giao",
-    content: "Bạn được giao một nhiệm vụ mới trong kế hoạch chăm sóc cây.",
-    link: "/tasks/123",
-    isRead: false,
-    masterType: { id: 1, name: "Task Assignment", backgroundColor: "#E3F2FD" },
-    sender: { id: 101, name: "Quản lý A", avatar: "/avatars/manager-a.png" },
-    date: dayjs().format("YYYY-MM-DD"),
-  },
-  {
-    notificationID: 2,
-    title: "Thay đổi lịch trình",
-    content: "Lịch trình chăm sóc cây đã được cập nhật.",
-    link: "/plans/456",
-    isRead: true,
-    masterType: { id: 2, name: "Task Change", backgroundColor: "#FFF9C4" },
-    sender: { id: 102, name: "Quản lý B", avatar: "/avatars/manager-b.png" },
-    date: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
-  },
-  {
-    notificationID: 3,
-    title: "Cảnh báo thời tiết",
-    content: "Dự báo có mưa lớn trong ngày mai, cần chú ý tưới tiêu.",
-    link: "/weather-alerts",
-    isRead: false,
-    masterType: { id: 5, name: "Weather", backgroundColor: "#E1BEE7" },
-    sender: { id: 103, name: "Hệ thống", avatar: "/icons/weather-alert.png" },
-    date: dayjs().format("YYYY-MM-DD"),
-  },
-];
-
 const useNotifications = () => {
-  const [notifications, setNotifications] = useState<INotification[]>([]);
+  const [notifications, setNotifications] = useState<GetNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  const userId = Number(getUserId());
 
   const fetchNotifications = async () => {
     try {
-      // const { data } = await axios.get("/api/notifications");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setNotifications(mockNotifications);
+      const response = await notificationService.getNotificationByUser(userId);
+      setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications", error);
     }
@@ -77,26 +43,64 @@ const useNotifications = () => {
   }, []);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter((n) => !n.isRead).length);
+    setUnreadCount(notifications?.filter((n) => !n.isRead).length);
   }, [notifications]);
 
-  const addNotification = (newNoti: INotification) => {
-    setNotifications((prev) => [newNoti, ...prev]);
-  };
+  // Kết nối WebSocket khi component mount
+  useEffect(() => {
+    if (!userId) return;
 
+    const ws = new WebSocket(`${import.meta.env.VITE_PUBLIC_WS_URL}?userId=${userId}`);
+
+
+    ws.onopen = () => {
+      console.log("Connected to WebSocket!");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("Parsed Message:", message);
+
+
+        fetchNotifications();
+      } catch (error) {
+        console.error("Error parse JSON:", error);
+      }
+    };
+
+
+    ws.onclose = (event) => {
+      console.error("WebSocket disconnected:", event);
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, [userId]);
+
+  // đánh dấu thông báo là đã đọc
   const markAsRead = async (notificationID: number) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.notificationID === notificationID ? { ...n, isRead: true } : n))
+      prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: true } : n))
     );
 
     try {
-      await axios.put(`/api/notifications/${notificationID}/read`);
+      if (socket) {
+        socket.send(JSON.stringify({ type: "markAsRead", userId, notificationId: notificationID }));
+      }
     } catch (error) {
       console.error("Error marking notification as read", error);
     }
   };
 
-  return { notifications, unreadCount, addNotification, markAsRead, fetchNotifications };
+  return { notifications, unreadCount, markAsRead, fetchNotifications, socket };
 };
 
 export default useNotifications;

@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cri
     {
         public int? Priority { get; set; }
         public int CriteriaId { get; set; }
-        public bool IsChecked { get; set; } = false;
+        public bool? IsChecked { get; set; } = false;
+        public bool? IsPassed { get; set; } = false;
     }
 }

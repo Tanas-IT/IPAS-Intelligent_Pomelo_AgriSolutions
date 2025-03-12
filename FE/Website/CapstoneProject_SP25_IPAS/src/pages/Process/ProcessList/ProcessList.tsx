@@ -81,7 +81,6 @@ function ProcessList() {
       onApply={handleApply}
     />
   );
-  console.log(data);
   const { handleDelete } = useTableDelete(
       {
         deleteFunction: processService.deleteProcess,

@@ -5,7 +5,7 @@ import { Footer, HeaderAdmin, Loading, SidebarAdmin } from "@/components";
 import { Breadcrumb, Flex, Layout } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getRoleId, isValidBreadcrumb } from "@/utils";
-import { useRequireAuth, useToastFromLocalStorage, useToastMessage } from "@/hooks";
+import { useFarmExpiration, useRequireAuth, useToastFromLocalStorage, useToastMessage } from "@/hooks";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
 import { PATHS } from "@/routes";
 const { Header, Content } = Layout;
@@ -16,6 +16,7 @@ interface ManagementLayoutProps {
 
 const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
   useToastMessage();
+  useFarmExpiration();
   useToastFromLocalStorage();
   const navigate = useNavigate();
   const location = useLocation();

@@ -13,3 +13,5 @@ export * from "./plantLot";
 export * from "./employee";
 export * from "./feedback";
 export * from "./criteria";
+export * from "./notification";
+export * from "./payment";
