@@ -20,6 +20,5 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<int> GetLastID();
         public Task<List<MasterType>> GetCriteriaSetOfFarm(string name, int farmId, List<string> target);
 
-
     }
 }

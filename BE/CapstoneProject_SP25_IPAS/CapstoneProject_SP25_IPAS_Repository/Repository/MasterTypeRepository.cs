@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +96,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(x => x.IsActive == true
                     && x.TypeName!.ToLower() == TypeNameInMasterEnum.Criteria.ToString().ToLower()
                     && x.TypeName.ToLower() == nameLower
-                    && (x.FarmID == farmId || x.IsDefault == true))
+                    && (x.FarmID == farmId || x.IsDefault == true)
+                    && x.IsActive == true)
                 .Include(x => x.Criterias)
                 .OrderBy(x => x.MasterTypeId)
                 .AsQueryable();
@@ -108,6 +110,5 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var listMasterType = await getMasterTypeByName.ToListAsync();
             return listMasterType.Any() ? listMasterType : new List<MasterType>();
         }
-
     }
 }

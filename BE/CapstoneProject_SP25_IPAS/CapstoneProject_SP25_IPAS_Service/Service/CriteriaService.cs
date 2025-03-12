@@ -35,7 +35,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 try
                 {
-                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "CriteriaMasterTypes");
+                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criterias");
 
                     if (masterType == null)
                         return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
@@ -73,6 +73,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Priority = request.Priority,
                                 IsActive = true,
                                 FrequencyDate = request.FrequencyDate,
+                                MasterTypeID = masterType.MasterTypeId,
+                                CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}{CodeHelper.GenerateCode}-{DateTime.Now.ToString("ddMMyy")}",
                             };
                             criteriaToAdd.Add(newCriteria);
                         }
@@ -92,10 +94,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var criteriaOfterUpdate = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criteria");
+                        var criteriaOfterUpdate = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId, "Criterias");
                         var afterUpdate = _mapper.Map<MasterTypeModel>(criteriaOfterUpdate);
                         return new BusinessResult(Const.SUCCESS_UPDATE_CRITERIA_CODE, Const.SUCCESS_UPDATE_CRITERIA_MSG, afterUpdate);
                     }
+                    await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_UPDATE_CRITERIA_CODE, Const.FAIL_UPDATE_CRITERIA_MSG);
 
                 }
@@ -174,6 +177,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         MasterTypeId = group.Key,
                         MasterTypeName = group.First().Criteria!.MasterType!.MasterTypeName!,
+                        Target = group.First().Criteria!.MasterType!.Target,
                         CriteriaList = group.Select(pc => new CriteriaInfoModel
                         {
                             PlantId = pc.PlantID,
@@ -206,7 +210,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (farmExistCheck.StatusCode != 200)
                         return farmExistCheck;
 
-                    var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
+                    //var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
                     string typename = request.CreateMasTypeRequest.TypeName!.ToString().ToUpper();
                     string code = CodeHelper.GenerateCode();
                     var newMasterType = new MasterType()
@@ -243,7 +247,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CriteriaDescription = item.CriteriaDescription,
                                 Priority = item.Priority,
                                 IsDefault = false,
-                                CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.MASTER_TYPE}{lastedId}-{CodeHelper.GenerateCode}",
+                                CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}{CodeHelper.GenerateCode}-{DateTime.Now.ToString("ddMMyy")}",
                                 MasterType = newMasterType,
                                 FrequencyDate = item.FrequencyDate,
                             };

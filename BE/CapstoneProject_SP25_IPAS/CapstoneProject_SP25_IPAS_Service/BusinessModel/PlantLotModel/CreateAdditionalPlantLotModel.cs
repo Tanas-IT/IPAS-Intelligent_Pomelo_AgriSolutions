@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
     {
         public int MainPlantLotId { get; set; } // ID của lô chính
         public int ImportedQuantity { get; set; } // Số lượng nhập bù
-        public string? Name { get; set; }
+        //public string? Name { get; set; }
         public string? Note { get; set; } = "";
     }
 }

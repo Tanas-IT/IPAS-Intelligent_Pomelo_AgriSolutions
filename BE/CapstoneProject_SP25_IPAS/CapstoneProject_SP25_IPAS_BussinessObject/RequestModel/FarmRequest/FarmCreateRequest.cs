@@ -19,8 +19,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest
 
         public IFormFile? LogoUrl { get; set; }
 
-        [Required(ErrorMessage = "Area is required")]
-        public double Area { get; set; }
+        //[Required(ErrorMessage = "Area is required")]
+        public double? Area { get; set; }
 
         public string? SoilType { get; set; }
 
