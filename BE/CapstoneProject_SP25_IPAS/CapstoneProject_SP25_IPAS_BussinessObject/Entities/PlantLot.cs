@@ -13,6 +13,7 @@ public partial class PlantLot
 
     public int? PreviousQuantity { get; set; }
 
+    public int? InputQuantity { get; set; }
     public int? LastQuantity { get; set; }
 
     public int? UsedQuantity { get; set; }
