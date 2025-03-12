@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
-        public async Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId, bool isRead)
+        public async Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId, bool? isRead)
         {
             var result = await _context.PlanNotifications
                 .Include(x => x.User)
@@ -32,7 +32,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.MasterType)
                 .Include(x => x.Notification)
                 .ThenInclude(X => X.Sender)
-                .Where(x => x.UserID == userId && x.isRead == isRead).ToListAsync();
+                .Where(x => x.UserID == userId).ToListAsync();
+            if (isRead != null)
+            {
+                result.Where(x => x.isRead == isRead);
+            }
+            else
+            {
+                return result;
+            }
+            
             return result;
         }
     }

@@ -47,6 +47,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if(createTaskFeedbackModel.Status != null && createTaskFeedbackModel.Status.ToLower().Equals("redo"))
                     {
                         var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId.Value);
+                        if(getWorkLog.Status.ToLower().Equals(""))
                         getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
                         _unitOfWork.WorkLogRepository.Update(getWorkLog);
                     }
