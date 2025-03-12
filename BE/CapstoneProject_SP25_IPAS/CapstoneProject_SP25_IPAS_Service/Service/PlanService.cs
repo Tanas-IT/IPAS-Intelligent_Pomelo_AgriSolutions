@@ -111,6 +111,57 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     await _unitOfWork.PlanRepository.Insert(newPlan);
 
+                    if (createPlanModel.CropId.HasValue && createPlanModel.ListLandPlotOfCrop != null)
+                    {
+                        if (createPlanModel.ListLandPlotOfCrop.Any())
+                        {
+                            foreach (var landPlotOfCrop in createPlanModel.ListLandPlotOfCrop)
+                            {
+                                List<int> landRowOfLandPlotOfCropIDs = new List<int>();
+                                HashSet<int> inputPlantIDsOfLandPlot = new HashSet<int>();
+
+                                var rowsInLandPlotOfCrop = await _unitOfWork.LandRowRepository
+                                   .GetRowsByLandPlotIdAsync(landPlotOfCrop);
+                                landRowOfLandPlotOfCropIDs.AddRange(rowsInLandPlotOfCrop);
+
+
+                                Dictionary<int, HashSet<int>> rowToPlantsOfLandPlotOfCrop = new Dictionary<int, HashSet<int>>();
+                                foreach (var rowId in landRowOfLandPlotOfCropIDs)
+                                {
+                                    var plantsInRow = await _unitOfWork.PlantRepository.getPlantByRowId(rowId);
+
+                                    if (!rowToPlantsOfLandPlotOfCrop.ContainsKey(rowId))
+                                    {
+                                        rowToPlantsOfLandPlotOfCrop[rowId] = new HashSet<int>();
+                                    }
+
+                                    rowToPlantsOfLandPlotOfCrop[rowId].UnionWith(plantsInRow);
+
+                                }
+
+                                foreach (var row in rowToPlantsOfLandPlotOfCrop)
+                                {
+                                    foreach (var plantId in row.Value)
+                                    {
+                                        var newPlantTarget = new PlanTarget()
+                                        {
+                                            LandPlotID = landPlotOfCrop,
+                                            LandRowID = row.Key,
+                                            PlantID = plantId,
+                                            PlantLotID = null,
+                                            Unit = "Land Plot",
+                                            GraftedPlantID = null,
+                                        };
+
+                                        newPlan.PlanTargets.Add(newPlantTarget);
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
                     if (createPlanModel.PlanTargetModel != null && createPlanModel.PlanTargetModel.Count > 0)
                     {
                         // HashSet để lưu các cặp (PlantID, LandPlotID, LandRowID) đã thêm vào tránh trùng lặp
@@ -748,7 +799,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                foreach(var planId in planIds)
+                foreach (var planId in planIds)
                 {
                     string includeProperties = "CarePlanSchedule";
                     var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
