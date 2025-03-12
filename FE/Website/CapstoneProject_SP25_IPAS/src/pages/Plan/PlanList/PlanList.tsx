@@ -1,6 +1,6 @@
 import { Flex } from "antd";
 import style from "./PlanList.module.scss";
-import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
+import { ActionMenuPlant, ConfirmModal, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
 import { useFetchData, useModal, useTableDelete } from "@/hooks";
 import { useEffect, useState } from "react";
@@ -110,6 +110,7 @@ function PlanList() {
           columns={planColumns}
           rows={data}
           rowKey="planCode"
+          idName="planId"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
@@ -137,6 +138,13 @@ function PlanList() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Plan"
+        actionType="delete"
+      />
     </Flex>
   );
 }
