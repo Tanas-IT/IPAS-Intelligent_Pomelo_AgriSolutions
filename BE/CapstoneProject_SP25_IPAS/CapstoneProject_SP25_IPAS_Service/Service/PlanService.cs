@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _webSocketService = webSocketService;   
+            _webSocketService = webSocketService;
         }
 
         public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId)
@@ -54,11 +54,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    if(farmId == null || farmId <= 0)
+                    if (farmId == null || farmId <= 0)
                     {
                         throw new Exception("Farm does not exist");
                     }
-                    if(createPlanModel.MasterTypeId == null || createPlanModel.MasterTypeId <= 0)
+                    if (createPlanModel.MasterTypeId == null || createPlanModel.MasterTypeId <= 0)
                     {
                         throw new Exception("MasterType does not exist");
                     }
@@ -103,7 +103,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if(createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count < 2)
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count < 2)
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -161,7 +161,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
 
-                            if(plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
+                            if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                 foreach (var row in rowToPlants)
@@ -284,7 +284,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
 
-                   if(createPlanModel.GrowthStageId != null)
+                    if (createPlanModel.GrowthStageId != null)
                     {
                         foreach (var growthStagePlanItem in createPlanModel.GrowthStageId)
                         {
@@ -323,7 +323,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //    await _criteriaTargetService.ApplyCriteriasForTarget(newCriteriaTargerRequest);
                     //}
 
-                   foreach(var employee in createPlanModel.ListEmployee)
+                    foreach (var employee in createPlanModel.ListEmployee)
                     {
                         var addPlanNotification = new PlanNotification()
                         {
@@ -339,9 +339,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     await _unitOfWork.SaveAsync();
-                    if(createPlanModel.ListEmployee != null)
+                    if (createPlanModel.ListEmployee != null)
                     {
-                        foreach(var employeeModel in createPlanModel.ListEmployee)
+                        foreach (var employeeModel in createPlanModel.ListEmployee)
                         {
                             await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                         }
@@ -709,7 +709,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList());
                     result.PlanTargetModels = mappedPlanTargets;
 
-                    
+
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
                     return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
                 }
@@ -744,7 +744,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+        public async Task<BusinessResult> PermanentlyDeleteManyPlan(List<int> planIds)
+        {
+            try
+            {
+                foreach(var planId in planIds)
+                {
+                    string includeProperties = "CarePlanSchedules";
+                    var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
+                    var deleteCarePlanSchedule = deletePlan.CarePlanSchedule;
+                    if (deleteCarePlanSchedule != null)
+                    {
+                        var getListWorkLogDelete = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(deleteCarePlanSchedule.ScheduleId);
+                        foreach (var workLog in getListWorkLogDelete)
+                        {
+                            await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
 
+                        }
+                        _unitOfWork.CarePlanScheduleRepository.Delete(deleteCarePlanSchedule);
+                        await _unitOfWork.SaveAsync();
+                    }
+                    _unitOfWork.PlanRepository.Delete(deletePlan);
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(Const.SUCCESS_DELETE_PLANT_CODE, Const.SUCCESS_DELETE_PLAN_MSG, true);
+                }
+                return new BusinessResult(Const.FAIL_DELETE_PLAN_CODE, Const.FAIL_DELETE_PLAN_MESSAGE, false);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
         public async Task<BusinessResult> PermanentlyDeletePlan(int planId)
         {
             try
@@ -955,7 +989,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
                         }
-                        if(updatePlanModel.StartDate != null && updatePlanModel.EndDate != null)
+                        if (updatePlanModel.StartDate != null && updatePlanModel.EndDate != null)
                         {
                             if (updatePlanModel.StartDate == updatePlanModel.EndDate)
                             {
@@ -963,7 +997,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 checkExistPlan.EndDate = updatePlanModel.EndDate.Value.Add(TimeSpan.Parse(updatePlanModel.EndTime));
                             }
                         }
-                        if((updatePlanModel.Frequency != null && updatePlanModel.Frequency.ToLower().Equals("none") && updatePlanModel.CustomDates != null && updatePlanModel.CustomDates.Count < 2))
+                        if ((updatePlanModel.Frequency != null && updatePlanModel.Frequency.ToLower().Equals("none") && updatePlanModel.CustomDates != null && updatePlanModel.CustomDates.Count < 2))
                         {
                             checkExistPlan.StartDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.StartTime));
                             checkExistPlan.EndDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.EndTime));
@@ -1003,7 +1037,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var checkDeleteDependenciesOfPlan = await _unitOfWork.CarePlanScheduleRepository.DeleteDependenciesOfPlan(checkExistPlan.PlanId);
                         if (checkDeleteDependenciesOfPlan)
                         {
-                            
+
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
@@ -1523,7 +1557,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 else
                 {
                     throw new Exception("Frequency must be weekly, monthly, daily or none");
-                    
+
                 }
             }
             if (result > 0)
@@ -1724,31 +1758,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return fromDate.AddDays(daysToAdd == 0 ? 7 : daysToAdd);
         }
 
-        public async Task<BusinessResult> SoftDeletePlan(int planId)
+
+
+        public async Task<BusinessResult> SoftDeleteMultiplePlan(List<int> listPlanId)
         {
             try
             {
-                var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
-                if (getPlanById == null)
+                foreach (var planId in listPlanId)
                 {
-                    return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
-                }
-                getPlanById.IsDelete = true;
-                getPlanById.Status = "Stopped";
-                var schedule = getPlanById.CarePlanSchedule;
-                if (schedule != null)
-                {
-                    schedule.Status = "Stopped";
-                    var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
-                    foreach (var workLog in softDeleteWorkLog)
+
+                    var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
+                    if (getPlanById == null)
                     {
-                        if (workLog.Date > DateTime.Now)
+                        return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
+                    }
+                    getPlanById.IsDelete = true;
+                    getPlanById.Status = "Stopped";
+                    var schedule = getPlanById.CarePlanSchedule;
+                    if (schedule != null)
+                    {
+                        schedule.Status = "Stopped";
+                        var softDeleteWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(schedule.ScheduleId);
+                        foreach (var workLog in softDeleteWorkLog)
                         {
-                           await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
+                            if (workLog.Date > DateTime.Now)
+                            {
+                                await _unitOfWork.WorkLogRepository.DeleteWorkLogAndUserWorkLog(workLog);
+                            }
                         }
                     }
+                    _unitOfWork.PlanRepository.Update(getPlanById);
                 }
-                _unitOfWork.PlanRepository.Update(getPlanById);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
@@ -1758,6 +1798,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
+
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }

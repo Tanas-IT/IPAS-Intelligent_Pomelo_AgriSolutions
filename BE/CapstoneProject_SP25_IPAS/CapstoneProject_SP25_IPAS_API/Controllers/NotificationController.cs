@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Notification.getNotificationByUserId, Name = "getNotificationByUserId")]
-        public async Task<IActionResult> GetNotificationByUserId(int? userId, bool isRead)
+        public async Task<IActionResult> GetNotificationByUserId(int? userId, bool? isRead)
         {
             try
             {
@@ -83,11 +83,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
 
         [HttpPost(APIRoutes.Notification.markNotificationIsRead, Name = "markNotificationIsRead")]
-        public async Task<IActionResult> MarkNotificationIsRead([FromBody] MarkNotificationIsReadModel markNotificationIsReadModel)
+        public async Task<IActionResult> MarkNotificationIsRead([FromBody] MarkNotificationIsReadModel markNotificationIsReadModel, int? userId)
         {
             try
             {
-                var result = await _notificationService.MarkisRead(markNotificationIsReadModel.listNotification);
+                if(!userId.HasValue)
+                {
+                    userId = _jwtTokenService.GetUserIdFromToken();
+                }
+                var result = await _notificationService.MarkisRead(markNotificationIsReadModel, userId);
                 return Ok(result);
             }
             catch (Exception ex)
