@@ -12,7 +12,7 @@ import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { worklogService } from "@/services";
 import { GetWorklogDetail } from "@/payloads/worklog";
-import { getUserId } from "@/utils";
+import { formatDateW, getUserId } from "@/utils";
 
 const InfoField = ({
     icon: Icon,
@@ -42,11 +42,12 @@ function WorklogDetail() {
     const [feedbackList, setFeedbackList] = useState<any[]>([]);
     const { id } = useParams();
     const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
-    const infoFieldsLeft = [
+    const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: "Spring 2025", icon: Icons.growth },
         { label: "Plan Name", value: "Plan name", icon: Icons.box },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
-    ];
+    ]);
+    
 
     const infoFieldsRight = [
         { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
@@ -76,9 +77,11 @@ function WorklogDetail() {
                 setWorklogDetail(res);
                 setFeedbackList(res.listTaskFeedback || []);
 
-                infoFieldsLeft[0].value = res.listGrowthStageName.join(", ") || "Spring 2025";
-                // infoFieldsLeft[1].value = res.planTargetModels[0]?.plantLotName.join(", ") || "Green Pomelo Lot 1";
-                // infoFieldsLeft[2].value = res.listGrowthStageName.join(", ") || "Cây non";
+                setInfoFieldsLeft([
+                    { label: "Crop", value: res.listGrowthStageName.join(", ") || "Spring 2025", icon: Icons.growth },
+                    { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
+                    { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
+                ]);
 
                 infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
                 infoFieldsRight[1].value = res.status || "Watering";
@@ -115,7 +118,7 @@ function WorklogDetail() {
                     <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
                     <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
                     <label className={style.textCreated}>created this plan</label>
-                    <label className={style.createdDate}>{worklogDetail?.date || "Sunday, 1st December 2024, 8:30 A.M"}</label>
+                    <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Assigned To:</label>

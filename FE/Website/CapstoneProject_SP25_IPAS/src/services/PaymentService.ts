@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, CreateOrder, CreateOrderResponse, handlePaymentRequest, PayOSPaymentRequest, PayOSPaymentResponse } from "@/payloads";
+import { ApiResponse, CreateOrder, CreateOrderResponse, handlePaymentRequest, HandlePaymentResponse, PayOSPaymentRequest, PayOSPaymentResponse } from "@/payloads";
 
 export const createPaymentLink = async (payload: PayOSPaymentRequest): Promise<ApiResponse<PayOSPaymentResponse>> => {
     const res = await axiosAuth.axiosJsonRequest.post(`payment/payOS/create-payment-link`, payload);
@@ -13,8 +13,8 @@ export const createOrder = async (payload: CreateOrder): Promise<ApiResponse<Cre
     return apiResponse;
 }
 
-export const handlePayment = async (payload: handlePaymentRequest): Promise<ApiResponse<null>> => {
-    const res = await axiosAuth.axiosJsonRequest.post(`order`, payload);
+export const handlePayment = async (payload: handlePaymentRequest): Promise<ApiResponse<HandlePaymentResponse>> => {
+    const res = await axiosAuth.axiosJsonRequest.put(`payment/handle-payment`, payload);
     const apiResponse = res.data;
     return apiResponse;
 }

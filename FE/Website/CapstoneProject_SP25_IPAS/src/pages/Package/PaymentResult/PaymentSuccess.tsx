@@ -7,6 +7,7 @@ import styles from "./PaymentSuccess.module.scss";
 import { toast } from "react-toastify";
 import { paymentService } from "@/services";
 import { ApiResponse, handlePaymentRequest } from "@/payloads";
+import { useFarmStore } from "@/stores";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -38,6 +39,9 @@ const PaymentSuccess = () => {
         try {
           const result = await paymentService.handlePayment(payload);
           console.log("resulttttt", result);
+          if (result?.data.expiredDate) {
+            useFarmStore.setState({ farmExpiredDate: result.data.expiredDate });
+          }
         } catch (error) {
           toast.error("Error when payment!");
           console.error("Payment processing error:", error);
