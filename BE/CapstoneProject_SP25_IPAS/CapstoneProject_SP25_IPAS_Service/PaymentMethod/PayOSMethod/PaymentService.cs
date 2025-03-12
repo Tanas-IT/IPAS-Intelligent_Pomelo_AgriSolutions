@@ -163,7 +163,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
                 if (payment == null)
                     return new BusinessResult(400, "Payment not found");
 
-                if (callback.Status.ToLower() == "success")
+                if (callback.Status.ToLower() == "paid")
                 {
                     // Cập nhật trạng thái thanh toán
                     payment.Status = "PAID";
