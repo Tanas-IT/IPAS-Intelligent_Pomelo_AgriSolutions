@@ -46,10 +46,10 @@ function CreateFarm() {
 
   const handleSave = async () => {
     var values: FarmRequest = await form.validateFields();
-
+    const logoValue = form.getFieldValue(farmFormFields.logo);
     values = {
       ...values,
-      farmLogo: form.getFieldValue(farmFormFields.logo).file,
+      farmLogo: logoValue ? logoValue.file ?? null : null,
       latitude: markerPosition.latitude,
       longitude: markerPosition.longitude,
     };
@@ -72,7 +72,7 @@ function CreateFarm() {
     <Flex className={style.container}>
       <Flex className={style.sectionHeader}>
         <Text>Create a new farm</Text>
-        <EditActions handleCancel={handleCancel} handleSave={handleSave} label="Create Farm" />
+        <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} labelBtn2="Create Farm" />
       </Flex>
       <Flex className={style.contentWrapper}>
         <Flex className={style.row}>
@@ -177,7 +177,7 @@ function CreateFarm() {
           </Flex>
         </Flex>
         <Flex className={style.contentSectionFooter}>
-          <EditActions handleCancel={handleCancel} handleSave={handleSave} label="Create Farm" />
+          <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} labelBtn2="Create Farm" />
         </Flex>
       </Flex>
     </Flex>

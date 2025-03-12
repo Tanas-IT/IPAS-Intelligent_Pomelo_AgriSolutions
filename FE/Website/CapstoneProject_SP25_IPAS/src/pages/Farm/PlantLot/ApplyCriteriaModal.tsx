@@ -1,14 +1,16 @@
-import { Flex, Form, Table } from "antd";
+import { Flex, Form, InputNumber, Table } from "antd";
 import { useState, useEffect } from "react";
-import { FormFieldModal, ModalForm } from "@/components";
+import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, lotFormFields, PARTNER, WORK_TARGETS } from "@/constants";
-import { GetCriteria, GetPlantLot2, PlantLotRequest } from "@/payloads";
-import { criteriaService, partnerService } from "@/services";
-import { SelectOption } from "@/types";
-import { useCriteriaOptions, useMasterTypeOptions } from "@/hooks";
+import { CRITERIA_TARGETS, lotFormFields, MESSAGES } from "@/constants";
+import { GetCriteria, GetMasterTypeSelected } from "@/payloads";
+import { criteriaService, masterTypeService } from "@/services";
+import { useCriteriaOptions } from "@/hooks";
 import style from "./PlantLot.module.scss";
 import { Icons } from "@/assets";
+import { toast } from "react-toastify";
+import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
+import { SelectOption } from "@/types";
 
 type ApplyCriteriaModalProps = {
   isOpen: boolean;
@@ -25,19 +27,22 @@ const ApplyCriteriaModal = ({
   isLoadingAction,
 }: ApplyCriteriaModalProps) => {
   const [form] = Form.useForm();
-  const [dataSource, setDataSource] = useState<(GetCriteria & { key: number; index: number })[]>(
-    [],
-  );
-  const { options: criteriaTypeOptions } = useCriteriaOptions(
-    CRITERIA_TARGETS["Plant Lot Evaluation"],
-  );
+  const {
+    dataSource,
+    setDataSource,
+    handleCriteriaChange,
+    handleDelete,
+    handlePriorityChange,
+    isCriteriaListValid,
+  } = useCriteriaManagement();
+  const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
 
   //   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
 
   const resetForm = () => {
-    form.resetFields(); // Reset toàn bộ form
-    setDataSource([]); // Xóa danh sách tiêu chí khi reset
-    form.setFieldsValue({ [lotFormFields.partnerId]: undefined }); // Reset giá trị select
+    form.resetFields();
+    setDataSource([]);
+    setCriteriaOptions([]);
   };
 
   useEffect(() => {
@@ -46,111 +51,72 @@ const ApplyCriteriaModal = ({
     }
   }, [isOpen]);
 
-  //   const handleOk = async () => {
-  //     await form.validateFields();
-  //     // console.log(getFormData());
-  //   };
+  const handleOk = () => {
+    if (!isCriteriaListValid()) return;
 
-  //   const handleCancel = () => onClose(getFormData(), isUpdate);
-
-  // Array.from({ length: 5 }, (_, index) => ({
-  //   key: index + 1,
-  //   index: index + 1,
-  //   name: "Chiều cao > 2m",
-  //   description: "Chiều cao tính từ gốc đến điểm cao nhất",
-  //   priority: 1,
-  // })),
+    const result = dataSource.map((item) => ({ id: item.key, priority: item.priority }));
+    console.log(result);
+    // onSave(result);
+  };
 
   const handleCriteriaTypeChange = async (value: string) => {
-    const res = await criteriaService.getCriteriaByMasterType(Number(value));
-
-    if (res.statusCode === 200) {
-      const criteriaList: GetCriteria[] = res.data?.criterias || [];
-      const formattedCriteria = criteriaList.map((criteria, index) => ({
-        ...criteria,
-        key: index + 1, // Key phải là unique
-        index: index + 1, // Dùng để hiển thị số thứ tự
+    form.setFieldsValue({ criteriaId: undefined });
+    var res = await masterTypeService.getCriteriaTypeSelect(value);
+    if (res.statusCode === 200 && res.data) {
+      const formattedOptions = res.data.map((item) => ({
+        value: item.id,
+        label: item.name,
       }));
-
-      setDataSource(formattedCriteria);
+      setCriteriaOptions(formattedOptions);
     }
   };
-
-  const handleDelete = (key: number) => {
-    setDataSource(dataSource.filter((item) => item.key !== key));
-  };
-
-  const columns = [
-    {
-      title: "#",
-      dataIndex: "index",
-      key: "index",
-      align: "center" as const,
-      render: (text: number) => <a>{text}</a>,
-    },
-    {
-      title: "Name",
-      dataIndex: "criteriaName",
-      key: "criteriaName",
-      align: "center" as const,
-    },
-    {
-      title: "Description",
-      dataIndex: "criteriaDescription",
-      key: "criteriaDescription",
-      align: "center" as const,
-    },
-    {
-      title: "Priority",
-      dataIndex: "priority",
-      key: "priority",
-      align: "center" as const,
-    },
-    {
-      title: "Action",
-      key: "action",
-      align: "center" as const,
-      render: (_: any, record: { key: number }) => (
-        <span className={style.actionIcon} onClick={() => handleDelete(record.key)}>
-          <Icons.delete />
-        </span>
-      ),
-    },
-  ];
 
   return (
     <ModalForm
       isOpen={isOpen}
       onClose={onClose}
-      onSave={onSave}
+      onSave={handleOk}
       isLoading={isLoadingAction}
       title={"Apply Criteria"}
       saveLabel="Apply"
       size="largeXL"
     >
       <Form form={form} layout="vertical">
-        <FormFieldModal
-          type="select"
-          label="Choose criteria type"
-          placeholder="Select criteria type"
-          name={lotFormFields.partnerId}
-          rules={RulesManager.getTypeRules()}
-          options={criteriaTypeOptions}
-          direction="row"
-          onChange={handleCriteriaTypeChange}
-        />
+        <Flex gap={40}>
+          <FormFieldModal
+            type="select"
+            label="Choose criteria type"
+            placeholder="Select criteria type"
+            name={"criteriaType"}
+            rules={RulesManager.getTypeRules()}
+            options={Object.values(CRITERIA_TARGETS)
+              .filter(
+                (value) =>
+                  value === CRITERIA_TARGETS["Plantlot Condition"] ||
+                  value === CRITERIA_TARGETS["Plantlot Evaluation"],
+              )
+              .map((value) => ({ label: value, value }))}
+            onChange={handleCriteriaTypeChange}
+          />
+          <FormFieldModal
+            type="select"
+            label="Choose criteria"
+            placeholder="Select criteria"
+            name={"criteriaId"}
+            rules={RulesManager.getCriteriaRules()}
+            options={criteriaOptions}
+            // direction="row"
+            onChange={handleCriteriaChange}
+          />
+        </Flex>
       </Form>
       <Flex vertical gap={10}>
         <label className={style.formTitle}>Criteria List:</label>
-        <div className={style.criteriaTableWrapper}>
-          <Table
-            columns={columns}
-            dataSource={dataSource}
-            pagination={false}
-            bordered
-            className={style.criteriaTable}
-          />
-        </div>
+        <TableApplyCriteria
+          dataSource={dataSource}
+          handleDelete={handleDelete}
+          handlePriorityChange={handlePriorityChange}
+        />
       </Flex>
     </ModalForm>
   );

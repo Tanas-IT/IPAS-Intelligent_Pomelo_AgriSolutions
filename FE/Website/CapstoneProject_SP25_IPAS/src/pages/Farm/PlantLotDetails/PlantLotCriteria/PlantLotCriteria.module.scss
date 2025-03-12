@@ -1,0 +1,37 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+}
+
+.criteriaTableWrapper {
+  min-width: 60rem;
+  max-width: 60rem;
+  max-height: 25rem;
+  overflow: auto;
+
+  .criteriaTable {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center;
+    }
+    td {
+      padding: 4px 0;
+    }
+  }
+}
+
+.panelTitle {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.completedCount {
+  margin-left: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: vars.$color_primary !important;
+}

@@ -11,6 +11,7 @@ import {
 import { GetPlantLot2, PlantLotRequest } from "@/payloads";
 import {
   useFetchData,
+  useFilters,
   useHasChanges,
   useModal,
   useTableAdd,
@@ -18,18 +19,28 @@ import {
   useTableUpdate,
 } from "@/hooks";
 import { useEffect, useState } from "react";
-import { getOptions } from "@/utils";
+import { DEFAULT_LOT_FILTERS, getOptions } from "@/utils";
 import { plantLotService } from "@/services";
 import { PlantLotColumns } from "./PlantLotColumns";
 import LotModel from "./LotModal";
 import ApplyCriteriaModal from "./ApplyCriteriaModal";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/constants";
+import { FilterPlantLotState } from "@/types";
+import PlantLotFilter from "./PlantLotFilter";
 
 function PlantLot() {
+  const navigate = useNavigate();
   const formModal = useModal<GetPlantLot2>();
   const criteriaModal = useModal();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
+
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantLotState>(
+    DEFAULT_LOT_FILTERS,
+    () => fetchData(),
+  );
 
   const {
     data,
@@ -49,7 +60,7 @@ function PlantLot() {
     isLoading,
   } = useFetchData<GetPlantLot2>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      plantLotService.getPlantLots(page, limit, sortField, sortDirection, searchValue),
+      plantLotService.getPlantLots(page, limit, sortField, sortDirection, searchValue, filters),
   });
 
   useEffect(() => {
@@ -83,7 +94,9 @@ function PlantLot() {
   };
 
   const handleCancelConfirm = (lot: PlantLotRequest, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate ? hasChanges(lot, "plantLotId") : hasChanges(lot);
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(lot, "plantLotId")
+      : hasChanges(lot, undefined, { unit: "Plant" });
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
@@ -110,6 +123,15 @@ function PlantLot() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const filterContent = (
+    <PlantLotFilter
+      filters={filters}
+      updateFilters={updateFilters}
+      onClear={clearFilters}
+      onApply={applyFilters}
+    />
+  );
+
   return (
     <Flex className={style.container}>
       <SectionTitle title="Plant Lot Management" totalRecords={totalRecords} />
@@ -122,11 +144,13 @@ function PlantLot() {
           title={
             <TableTitle
               onSearch={handleSearch}
+              filterContent={filterContent}
               addLabel="Add New Lot"
               onAdd={() => formModal.showModal()}
-              noFilter={true}
             />
           }
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(ROUTES.FARM_PLANT_LOT_DETAIL(record.plantLotId))}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           sortDirection={sortDirection}
@@ -139,6 +163,7 @@ function PlantLot() {
           notifyNoData="No lots to display"
           renderAction={(lot: GetPlantLot2) => (
             <ActionMenuLot
+              id={lot.plantLotId}
               onEdit={() => formModal.showModal(lot)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [lot.plantLotId] })}
               onApplyCriteria={() => criteriaModal.showModal()}

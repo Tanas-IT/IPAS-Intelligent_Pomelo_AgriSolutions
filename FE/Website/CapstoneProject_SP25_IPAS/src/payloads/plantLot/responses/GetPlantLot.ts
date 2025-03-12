@@ -21,3 +21,7 @@ export interface GetPlantLot2 {
   seedingName: string;
   isPassed: boolean;
 }
+
+export interface GetPlantLotDetail extends GetPlantLot2 {
+  additionalPlantLots: GetPlantLot2[];
+}

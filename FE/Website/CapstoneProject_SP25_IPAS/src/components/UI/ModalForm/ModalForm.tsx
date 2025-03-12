@@ -5,9 +5,10 @@ import CustomButton from "../Button/CustomButton";
 type ModalFormProps = {
   isOpen: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onSave: () => void;
   isLoading?: boolean;
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   isUpdate?: boolean;
   cancelLabel?: string;
@@ -20,6 +21,7 @@ type ModalFormProps = {
 const ModalForm = ({
   isOpen,
   onClose,
+  onCancel,
   onSave,
   isLoading = false,
   title,
@@ -39,7 +41,14 @@ const ModalForm = ({
       footer={[
         ...(noDivider ? [] : [<Divider className={style.dividerModal} key="divider" />]),
         ...(!noCancel
-          ? [<CustomButton key="cancel" label={cancelLabel} isCancel handleOnClick={onClose} />]
+          ? [
+              <CustomButton
+                key="cancel"
+                label={cancelLabel}
+                isCancel
+                handleOnClick={onCancel ?? onClose}
+              />,
+            ]
           : []),
         <CustomButton
           label={saveLabel ?? (isUpdate ? "Save Changes" : "Add New")}
@@ -50,7 +59,7 @@ const ModalForm = ({
       ]}
     >
       <div>
-        <h2 className={style.titleModal}>{title}</h2>
+        {typeof title === "string" ? <h2 className={style.titleModal}>{title}</h2> : title}
         {!noDivider && <Divider className={style.dividerModal} />}
       </div>
       {children}

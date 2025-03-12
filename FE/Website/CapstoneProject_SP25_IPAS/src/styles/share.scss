@@ -194,3 +194,155 @@
     opacity: 0.8;
   }
 }
+
+@mixin detailContainer {
+  background-color: vars.$color_bg_detail;
+  overflow: hidden;
+  padding: 10px 24px;
+  margin-top: 8px;
+
+  .containerWrapper {
+    width: 100%;
+
+    .iconTab {
+      margin-inline-end: -4px;
+    }
+    .titleTab {
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .extraContent {
+      align-items: center;
+      justify-content: center;
+      margin-right: 5vw;
+      cursor: pointer;
+
+      .backIcon {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+@mixin contentDetailWrapper {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding-bottom: 20px;
+
+  .divider {
+    margin: 0;
+    border-block-start: 1px solid vars.$color_divider;
+  }
+
+  .contentSectionBody {
+    width: 90%;
+    justify-content: space-between;
+    .col {
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+  .descriptionSection {
+    width: 90%;
+    flex-direction: column;
+    margin-top: -8px;
+    text-align: justify;
+  }
+  .infoField {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3rem;
+
+    &.infoFieldColumn {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+
+    .fieldLabelWrapper {
+      min-width: 9rem;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      color: vars.$color_text_detail;
+
+      .fieldLabel {
+        margin-top: 2px;
+      }
+    }
+
+    .fieldValue {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .imageWrapper {
+      width: max-content;
+      justify-content: flex-start;
+      gap: 1rem;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid vars.$color_divider;
+    }
+  }
+}
+
+@mixin contentSectionHeader {
+  width: 100%;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  .contentSectionTitle {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+
+    .iconEdit {
+      font-size: 20px;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+    .contentSectionTitleLeft {
+      align-items: center;
+      gap: 3rem;
+      .title {
+        font-size: 24px;
+      }
+      .iconTag {
+        font-size: 24px;
+      }
+      .statusTag {
+        padding: 4px 24px;
+        margin: 0;
+        border-radius: 8px;
+        font-weight: bold;
+        border: transparent;
+      }
+      .normal {
+        width: fit-content;
+        text-align: center;
+        background-color: vars.$color_second;
+        color: vars.$color_primary;
+      }
+      .issue {
+        width: fit-content;
+        text-align: center;
+        background-color: vars.$color_selected_bg_delete;
+        color: vars.$color_selected_delete;
+      }
+    }
+  }
+  .subTitle {
+    font-size: 16px;
+  }
+}

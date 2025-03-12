@@ -11,3 +11,15 @@ export interface CriteriaRequests {
   isConflict: boolean;
   target: string;
 }
+
+interface CriteriaApplyData {
+  criteriaId: number;
+  priority: number;
+}
+
+export interface CriteriaApplyRequests {
+  plantLotId: number[];
+  plantId: number[];
+  graftedPlantId: number[];
+  criteriaData: CriteriaApplyData[];
+}

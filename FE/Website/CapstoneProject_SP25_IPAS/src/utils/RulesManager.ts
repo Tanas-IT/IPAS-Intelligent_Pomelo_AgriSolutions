@@ -100,6 +100,7 @@ export class RulesManager {
   static getTargetRules = () => this.getRequiredRules("Target");
   static getIsConflictRules = () => this.getRequiredRules("Can Overlap");
   static getTypeRules = () => this.getRequiredRules("Type");
+  static getCriteriaRules = () => this.getRequiredRules("Criteria");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
   static getCharacteristicRules = () => this.getRequiredRules("Characteristic");
 

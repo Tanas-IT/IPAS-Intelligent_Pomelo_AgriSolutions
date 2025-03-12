@@ -40,6 +40,7 @@ export const PATHS = {
     FARM_ROW_LIST: "/farm/land-rows",
     FARM_PLANT_DETAIL_FROM_ROW: "/farm/land-rows/:plotId/plants/:plantId/details",
     FARM_PLANT_LOT_LIST: "/farm/plant-lots",
+    FARM_PLANT_LOT_DETAIL: "/farm/plant-lots/:id/details",
   },
 
   // Process Management

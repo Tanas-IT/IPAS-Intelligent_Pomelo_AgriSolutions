@@ -1,0 +1,41 @@
+@use "@/styles/variables.scss" as vars;
+
+.infoFieldDetail {
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 3rem;
+
+  &.infoFieldColumn {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .fieldLabelWrapper {
+    min-width: 9rem;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: vars.$color_text_detail;
+
+    .fieldLabel {
+      margin-top: 2px;
+    }
+  }
+
+  .fieldValue {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .imageWrapper {
+    width: max-content;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid vars.$color_divider;
+  }
+}

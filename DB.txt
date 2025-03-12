@@ -1166,24 +1166,24 @@ VALUES
     ('MT021', 'Caring', 'Criteria', 'Defines the criteria for plant care during growth stages', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation'),
     ('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition'),
     ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest'),
-	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plant Lot Evaluation'),
-    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plant Lot Evaluation'),
+	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
+    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
+	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
+    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
 
-    ('MT026', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT027', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT028', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT029', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT030', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT028', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT029', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT030', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT031', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT032', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT031', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT032', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT033', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT034', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT035', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
-
+    ('MT033', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT034', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT035', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT036', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT037', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 GO
-
 
 GO
 INSERT INTO [dbo].[Criteria]
@@ -1203,7 +1203,12 @@ VALUES
     ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters (Measured from base to highest point)', 2, 1, 1, 24),
     ('CR013', 'Fruit Size', 'Measures average fruit size (Weight: 1.2kg - 2.5kg, Diameter: 15-22 cm)', 3, 1, 0, 24),
     ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage (Less than 5% affected fruits per lot)', 4, 1, 1, 24),
-    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24);
+    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24),
+	('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing or disease spots', 1, 1, 0, 26),
+    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 1, 26),
+    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26),
+    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 1, 26),
+    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26);
 GO
 
 INSERT INTO ipas.dbo.LandPlot (

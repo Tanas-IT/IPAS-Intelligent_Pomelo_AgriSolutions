@@ -230,7 +230,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       <Form.Item
         name={name}
         rules={rules}
-        hasFeedback={hasFeedback}
+        hasFeedback={!!rules?.length}
         className={`${type === "text" || type === "textarea" ? styles.customInput2 : ""}`}
         dependencies={dependencies}
         style={{ width: "100%" }}

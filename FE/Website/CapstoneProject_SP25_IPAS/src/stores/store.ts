@@ -1,4 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { GetPlantLotDetail } from "@/payloads";
 import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
@@ -108,4 +109,14 @@ interface GrowthStageStore {
 export const useGrowthStageStore = create<GrowthStageStore>((set) => ({
   maxAgeStart: null,
   setMaxAgeStart: (value) => set({ maxAgeStart: value }),
+}));
+
+interface PlantLotStore {
+  lot: GetPlantLotDetail | null;
+  setLot: (lot: GetPlantLotDetail | null) => void;
+}
+
+export const usePlantLotStore = create<PlantLotStore>((set) => ({
+  lot: null,
+  setLot: (lot) => set({ lot }),
 }));

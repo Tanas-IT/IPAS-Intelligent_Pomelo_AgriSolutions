@@ -4,3 +4,8 @@
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
 }
+
+.additionalTable {
+  max-height: 25rem;
+  overflow: auto;
+}

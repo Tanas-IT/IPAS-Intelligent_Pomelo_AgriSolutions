@@ -29,6 +29,7 @@ import {
   EmployeeList,
   PlantLot,
   Partner,
+  PlantLotDetails,
 } from "@/pages";
 import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout } from "@/layouts";
 import { PATHS } from "./Paths";
@@ -73,6 +74,7 @@ export const publicRoutes: RouteItem[] = [
     layout: ManagementLayout,
   },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
+  { path: PATHS.FARM.FARM_PLANT_LOT_DETAIL, component: PlantLotDetails, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },

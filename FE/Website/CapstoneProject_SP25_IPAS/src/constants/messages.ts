@@ -18,4 +18,7 @@ export const MESSAGES = {
   PLOT_AND_COORD_UPDATE_SUCCESS: "Plot information and coordinates updated successfully!",
   PLOT_UPDATE_FAILED: "Failed to update plot information. Please try again!",
   COORD_UPDATE_FAILED: "Failed to update plot coordinates. Please try again!",
+  REQUIRED_VALUE: "At least one criterion is required!",
+  PRIORITY_UNIQUE: "Priority must be unique!",
+  PRIORITY_SEQUENTIAL: "Priority must be sequential (e.g., 1, 2, 3, 4).",
 } as const;

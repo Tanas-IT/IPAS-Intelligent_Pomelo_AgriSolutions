@@ -27,7 +27,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     header: "Unit",
     field: "unit",
     accessor: (item) => <TableCell value={item.unit} />,
-    width: 120,
+    width: 100,
   },
   {
     header: "Initial Quantity",
@@ -38,7 +38,11 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    accessor: (item) => <TableCell value={item.lastQuantity} />,
+    accessor: (item) => (
+      <TableCell
+        value={!item.isPassed && item.lastQuantity === 0 ? "Checking..." : item.lastQuantity}
+      />
+    ),
     width: 160,
   },
   {
@@ -63,7 +67,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     header: "Status",
     field: "isPassed",
     accessor: (item) => (
-      <Tag color={item.isPassed ? "green" : "red"}>{item.isPassed ? "Passed" : "Failed"}</Tag>
+      <Tag color={item.isPassed ? "green" : "red"}>{item.isPassed ? "Passed" : "Not Passed"}</Tag>
     ),
     width: 120,
   },
