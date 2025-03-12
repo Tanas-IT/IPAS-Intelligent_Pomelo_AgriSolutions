@@ -69,6 +69,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var landplotId in cropCreateRequest.LandPlotId)
                     {
                         var existLandplot = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
+                        var checkLandPlotInCurCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x => 
+                                                                        x.LandPlotId == landplotId 
+                                                                        && x.Crop.StartDate <= DateTime.Now 
+                                                                        && x.Crop.EndDate >= DateTime.Now);
+
                         if (existLandplot != null)
                         {
                             var landPlotCrop = new LandPlotCrop

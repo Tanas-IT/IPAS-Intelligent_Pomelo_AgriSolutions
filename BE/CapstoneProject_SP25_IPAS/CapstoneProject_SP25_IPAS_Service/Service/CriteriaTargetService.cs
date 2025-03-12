@@ -250,11 +250,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     // Xác định danh sách mục tiêu (chỉ lấy một danh sách được truyền vào)
-                    var targetList = request.PlantID?.Cast<int?>().ToList() ??
-                                     request.GraftedPlantID?.Cast<int?>().ToList() ??
-                                     request.PlantLotID?.Cast<int?>().ToList();
+                    var targetList = request.PlantLotID?.Any() == true ? request.PlantLotID.Cast<int?>().ToList()
+                : request.GraftedPlantID?.Any() == true ? request.GraftedPlantID.Cast<int?>().ToList()
+                : request.PlantID?.Any() == true ? request.PlantID.Cast<int?>().ToList()
+                : new List<int?>();
 
-                    if (targetList.IsNullOrEmpty() || request.criteriaDatas.IsNullOrEmpty())
+                    if (!targetList.Any() || !request.criteriaDatas.Any())
                     {
                         return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
@@ -271,16 +272,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Duyệt qua danh sách request và cập nhật trạng thái isChecked
-                    var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId, c => c.IsChecked);
+                    //var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId, c => c.IsChecked);
+                    //foreach (var plantCriteria in plantCriteriaList)
+                    //{
+                    //    if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var isChecked))
+                    //    {
+                    //        plantCriteria.IsChecked = isChecked;
+                    //        if(plantCriteria.IsChecked == true && isChecked == true)
+                    //    }
+                    //}
+                    var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId);
+
                     foreach (var plantCriteria in plantCriteriaList)
                     {
-                        if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var isChecked))
+                        if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var criteriaData))
                         {
-                            plantCriteria.IsChecked = isChecked;
+                            // Cập nhật trạng thái `IsChecked`
+                            if (criteriaData.IsChecked.HasValue)
+                            {
+                                plantCriteria.IsChecked = criteriaData.IsChecked;
+                                plantCriteria.CheckedDate = DateTime.Now;
+                            }
+
+                            // Cập nhật trạng thái `IsPassed`
+                            if (criteriaData.IsPassed.HasValue && plantCriteria.IsChecked == true)
+                            {
+                                plantCriteria.IsPassed = criteriaData.IsPassed;
+                            }
                         }
                     }
-
-                    // Cập nhật danh sách CriteriaTarget trong 1 lần thay vì gọi nhiều lần
+                    // Cập nhật danh sách CriteriaTarget 
                     _unitOfWork.CriteriaTargetRepository.UpdateRange(plantCriteriaList);
 
                     int result = await _unitOfWork.SaveAsync();
