@@ -13,7 +13,7 @@ export interface GetPlan {
   assignorName: string;
   processName: string;
   cropName: string;
-  growthStageName: string;
+  growthStageName: string[];
   masterTypeName: string;
   avatarOfAssignor: string;
   plantNames: string[];
