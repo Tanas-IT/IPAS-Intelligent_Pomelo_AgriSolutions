@@ -24,40 +24,31 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
             {
                 if (context.WebSockets.IsWebSocketRequest)
                 {
+                    string? userId = context.Request.Query["userId"];
+
+                    if (string.IsNullOrEmpty(userId))
+                    {
+                        context.Response.StatusCode = 400;
+                        await context.Response.WriteAsync("Missing userId in query.");
+                        return;
+                    }
+
                     WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                    // Nhận tin nhắn đầu tiên từ client để lấy userId
-                    var buffer = new byte[1024];
-                    WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                    if (result.MessageType == WebSocketMessageType.Text)
+                    using (var scope = _serviceScopeFactory.CreateScope())
                     {
-                        string? userId = context.Request.Query["userId"];
+                        var _webSocketService = scope.ServiceProvider.GetRequiredService<IWebSocketService>();
 
-                        if (string.IsNullOrEmpty(userId))
-                        {
-                            context.Response.StatusCode = 400;
-                            await context.Response.WriteAsync("Missing userId in query.");
-                            return;
-                        }
-                        if (!string.IsNullOrEmpty(userId))
-                        {
-                            using (var scope = _serviceScopeFactory.CreateScope())
-                            {
-                                var _webSocketService = scope.ServiceProvider.GetRequiredService<IWebSocketService>();
-                                _webSocketService.AddClient(userId, webSocket); // Thêm client vào danh sách
-                                await _webSocketService.HandleWebSocket(webSocket, userId);
-                            }
-                        }
-                        else
-                        {
-                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "UserId required", CancellationToken.None);
-                        }
+                        _webSocketService.AddClient(userId, webSocket); // Thêm client vào danh sách WebSocket
+                        Console.WriteLine($"WebSocket connected! userId: {userId}");
+
+                        await _webSocketService.HandleWebSocket(webSocket, userId);
                     }
                 }
                 else
                 {
                     context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync("This endpoint only accepts WebSocket requests.");
                 }
             }
             else
@@ -65,5 +56,6 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                 await _next(context); // Chuyển tiếp request nếu không phải WebSocket
             }
         }
+
     }
 }
