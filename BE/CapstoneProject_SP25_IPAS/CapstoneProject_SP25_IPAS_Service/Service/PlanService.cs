@@ -750,7 +750,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 foreach(var planId in planIds)
                 {
-                    string includeProperties = "CarePlanSchedules";
+                    string includeProperties = "CarePlanSchedule";
                     var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
                     var deleteCarePlanSchedule = deletePlan.CarePlanSchedule;
                     if (deleteCarePlanSchedule != null)
@@ -783,7 +783,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string includeProperties = "CarePlanSchedules";
+                string includeProperties = "CarePlanSchedule";
                 var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
                 var deleteCarePlanSchedule = deletePlan.CarePlanSchedule;
                 if (deleteCarePlanSchedule != null)
@@ -1767,7 +1767,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var planId in listPlanId)
                 {
 
-                    var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
+                    var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedule");
                     if (getPlanById == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
@@ -1807,7 +1807,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedules");
+                var getPlanById = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, "CarePlanSchedule");
                 if (getPlanById == null)
                 {
                     return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
