@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@microsoft/signalr": "^8.0.7",
     "@react-oauth/google": "^0.12.1",
     "@schedule-x/drag-and-drop": "^2.18.0",
     "@schedule-x/event-modal": "^2.18.0",
@@ -32,6 +33,7 @@
     "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
+    "react-confetti": "^6.4.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
@@ -40,8 +42,10 @@
     "react-router-dom": "^7.1.1",
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.2",
+    "react-use": "^17.6.0",
     "recharts": "^2.15.0",
     "sass": "^1.83.0",
+    "socket.io-client": "^4.8.1",
     "use-debounce": "^10.0.4",
     "zustand": "^5.0.3"
   },

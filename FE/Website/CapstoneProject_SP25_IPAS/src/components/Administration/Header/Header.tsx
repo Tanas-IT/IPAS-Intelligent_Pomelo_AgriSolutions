@@ -70,11 +70,6 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
             <SearchHeader onSearch={(e) => e} />
           </Flex>
           <Flex className={style.notificationWrapper}>
-            {/* {notifications.map((noti, index) => (
-              <Popover key={index} content={noti.content} trigger="click" placement="bottomRight">
-                <Button className={style.notificationButton}>{noti.icon}</Button>
-              </Popover>
-            ))} */}
             <Notification />
           </Flex>
           <Popover content={profileContent} trigger="click" placement="bottom">

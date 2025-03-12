@@ -6,4 +6,5 @@ export const LOCAL_STORAGE_KEYS = {
   FARM_NAME: "farmName",
   FARM_LOGO: "farmLogo",
   ERROR_MESSAGE: "errorMessage",
+  FARM_EXPIRED_DATE: "farmExpiredDate"
 };
