@@ -1176,11 +1176,11 @@ VALUES
     ('MT029', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     ('MT030', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT031', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT032', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT033', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT034', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT035', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
+    ('MT031', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth','#E1BEE7', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT032', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT033', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT034', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT035', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 
 GO
@@ -1440,3 +1440,72 @@ VALUES
 ('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
 ('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
 ('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
+GO
+INSERT INTO [dbo].[Plan] 
+    ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
+     [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
+     [CropID], [IsDelete], [MasterTypeID], [SubProcessID], [FarmID])
+VALUES
+    ('Active', 'PLN001', GETDATE(), '2025-04-01', '2025-04-01', GETDATE(), 1, 'Plan for pesticide spraying', 'Detail 1', 
+     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, NULL, 1),
+    ('Pending', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
+     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, NULL, 1),
+    ('Completed', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
+     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, NULL, 1),
+    ('Active', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
+     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, NULL, 1),
+    ('Pending', 'PLN005', GETDATE(), '2025-08-01', '2025-08-25', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
+     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, NULL, 1),
+    ('Completed', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
+     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, NULL, 1),
+    ('Active', 'PLN007', GETDATE(), '2025-10-01', '2025-10-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
+     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, NULL, 1),
+    ('Pending', 'PLN008', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 8', 
+     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, NULL, 1),
+    ('Completed', 'PLN009', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 9', 
+     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, NULL, 1),
+    ('Active', 'PLN010', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 10', 
+     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, NULL, 1);
+GO
+INSERT INTO [dbo].[CarePlanSchedule]
+           ([DayOfWeek]
+           ,[Status]
+           ,[StartTime]
+           ,[EndTime]
+           ,[CarePlanID]
+           ,[DayOfMonth]
+           ,[CustomDates]
+           ,[FarmID]
+           ,[HarvestHistoryID])
+     VALUES
+           (NULL, 'Active', '08:00:00', '10:00:00', 1, NULL, '["2025/04/01"]', 1, NULL),
+           (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/05/01"]', 1, NULL),
+           (NULL, 'Completed', '07:00:00', '09:00:00', 3, NULL, '["2025/06/01"]', 1, NULL),
+           (NULL, 'Active', '10:00:00', '12:00:00', 4, NULL, '["2025/07/01"]', 1, NULL),
+           (NULL, 'Cancelled', '06:30:00', '08:30:00', 5, NULL, '["2025/08/01"]', 1, NULL),
+           (NULL, 'Pending', '11:00:00', '13:00:00', 6, NULL, '["2025/09/01"]', 1, NULL),
+           (NULL, 'Completed', '14:00:00', '16:00:00', 7, NULL, '["2025/10/01"]', 1, NULL),
+           (NULL, 'Active', '05:00:00', '07:00:00', 8, NULL, '["2025/11/01"]', 1, NULL),
+           (NULL, 'Pending', '13:00:00', '15:00:00', 9, NULL, '["2025/12/01"]', 1, NULL),
+           (NULL, 'Completed', '15:30:00', '17:30:00', 10, NULL, '["2025/06/12"]', 1, NULL);
+GO
+INSERT INTO [dbo].[PlanTarget]
+           ([PlanID]
+           ,[LandRowID]
+           ,[LandPlotID]
+           ,[GraftedPlantID]
+           ,[PlantLotID]
+           ,[PlantID]
+           ,[Unit])
+     VALUES
+           (1, 2, 1, 4, 1, 6, 'Plant'),
+           (2, 3, 2, 5, 1, 7, 'Land Plot'),
+           (3, 4, 1, 6, 2, 8, 'Row'),
+           (4, 5, 1, 7, 1, 9, 'Land Plot'),
+           (5, 6, 2, 8, 2, 10, 'Land Plot'),
+           (6, 7, 2, 9, 1, 1, 'Land Plot'),
+           (7, 8, 2, 10, 1, 2, 'Land Plot'),
+           (8, 9, 1, 1, 2, 3, 'Row'),
+           (9, 10, 1, 2, 1, 4, 'Plant'),
+           (10, 1, 2, 3, 2, 5, 'Row');
+GO

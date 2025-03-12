@@ -32,10 +32,14 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
 
                     if (result.MessageType == WebSocketMessageType.Text)
                     {
-                        string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                        var json = JsonConvert.DeserializeObject<dynamic>(message);
-                        string userId = json?.userId;
+                        string? userId = context.Request.Query["userId"];
 
+                        if (string.IsNullOrEmpty(userId))
+                        {
+                            context.Response.StatusCode = 400;
+                            await context.Response.WriteAsync("Missing userId in query.");
+                            return;
+                        }
                         if (!string.IsNullOrEmpty(userId))
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
