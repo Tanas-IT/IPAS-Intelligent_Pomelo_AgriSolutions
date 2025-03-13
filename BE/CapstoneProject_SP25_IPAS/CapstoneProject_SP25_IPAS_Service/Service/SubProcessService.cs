@@ -54,19 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDeleted = false,
                         SubProcessCode = $"{CodeAliasEntityConst.SUB_PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PROCESS}{createSubProcessModel.ProcessId}{CodeAliasEntityConst.MASTER_TYPE}{createSubProcessModel.MasterTypeId}-{CodeHelper.GenerateCode()}",
                     };
-                    if (createSubProcessModel.SubProcessData != null)
-                    {
-                        var getLink = "";
-                        if (IsImageFile(createSubProcessModel.SubProcessData))
-                        {
-                            getLink = await _cloudinaryService.UploadImageAsync(createSubProcessModel.SubProcessData, "subProcess/data");
-                        }
-                        else
-                        {
-                            getLink = await _cloudinaryService.UploadVideoAsync(createSubProcessModel.SubProcessData, "subProcess/data");
-                        }
-                        newSubProcess.ResourceUrl = getLink;
-                    }
+                    
                     await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
 
                     var checkInsertProcess = await _unitOfWork.SaveAsync();
@@ -284,20 +272,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string includeProperties = "Process,MasterType";
                 var deleteSubProcess = await _unitOfWork.SubProcessRepository.GetByCondition(x => x.SubProcessID == subProcessId, includeProperties);
-
-                var data = deleteSubProcess.ResourceUrl;
-                if (data != null)
-                {
-                    if (IsImageLink(data))
-                    {
-                        await _cloudinaryService.DeleteImageByUrlAsync(data);
-                    }
-                    else
-                    {
-                        await _cloudinaryService.DeleteVideoByUrlAsync(data);
-                    }
-                }
-                await _unitOfWork.SaveAsync();
                 _unitOfWork.SubProcessRepository.Delete(deleteSubProcess);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
@@ -347,32 +321,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateSubProcessModel.ParentSubProcessId != null)
                     {
                         checkExistSubProcess.ParentSubProcessId = updateSubProcessModel.ParentSubProcessId;
-                    }
-                    var data = checkExistSubProcess.ResourceUrl;
-                    var newData = updateSubProcessModel.UpdateSubProcessData;
-                    if (newData != null)
-                    {
-                        if (data != null)
-                        {
-                            if (IsImageLink(data))
-                            {
-                                await _cloudinaryService.DeleteImageByUrlAsync(data);
-                            }
-                            else
-                            {
-                                await _cloudinaryService.DeleteVideoByUrlAsync(data);
-                            }
-                        }
-                        var getLink = "";
-                        if (IsImageFile(newData))
-                        {
-                            getLink = await _cloudinaryService.UploadImageAsync(newData, "subProcess/data");
-                        }
-                        else
-                        {
-                            getLink = await _cloudinaryService.UploadVideoAsync(newData, "subProcess/data");
-                        }
-                        checkExistSubProcess.ResourceUrl = getLink;
                     }
                     checkExistSubProcess.UpdateDate = DateTime.Now;
                     var result = await _unitOfWork.SaveAsync();

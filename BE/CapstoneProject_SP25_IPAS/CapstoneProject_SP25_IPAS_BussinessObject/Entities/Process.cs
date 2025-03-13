@@ -30,9 +30,6 @@ public partial class Process
 
     public int? MasterTypeId { get; set; }
 
-    public string? ResourceUrl { get; set; }
-
-    public string? Input { get; set; }
     public int? Order { get; set; }
 
     public virtual MasterType? MasterType { get; set; }

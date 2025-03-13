@@ -23,7 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.WorkLog.getSchedule, Name = "GetSchedule")]
-        public async Task<IActionResult> GetSchedule(int userId, int planId, DateTime startDate, DateTime endDate, int? farmId)
+        public async Task<IActionResult> GetSchedule(int userId, int? planId, DateTime? startDate, DateTime? endDate, int? farmId)
         {
             try
             {
