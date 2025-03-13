@@ -22,7 +22,7 @@ function PlantDetail() {
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
   const [plant, setPlant] = useState<GetPlantDetail>(DEFAULT_PLANT);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetPlantDetail>();
   const markAsDeadModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ id: number }>();

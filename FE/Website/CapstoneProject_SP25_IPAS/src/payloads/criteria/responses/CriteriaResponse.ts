@@ -14,7 +14,7 @@ export interface GetCriteriaByMasterType {
 export interface GetCriteriaCheck {
   criteriaId: number;
   criteriaName: string;
-  criteriaDescription: string;
+  description: string;
   priority: number;
   isChecked: boolean;
 }

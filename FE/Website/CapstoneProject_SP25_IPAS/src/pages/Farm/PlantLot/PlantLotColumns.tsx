@@ -38,18 +38,17 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Checked  Quantity",
     field: "inputQuantity",
-    accessor: (item) => <TableCell value={item.inputQuantity} />,
+    // accessor: (item) => <TableCell value={item.inputQuantity} />,
+    accessor: (item) => (
+      <TableCell value={!item.inputQuantity ? "Checking..." : item.inputQuantity} />
+    ),
     width: 160,
   },
   {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    accessor: (item) => <TableCell value={item.lastQuantity} />,
-    // accessor: (item) => (
-    //   <TableCell
-    //     value={!item.isPassed && item.lastQuantity === 0 ? "Checking..." : item.lastQuantity}
-    //   />
-    // ),
+    // accessor: (item) => <TableCell value={item.lastQuantity} />,
+    accessor: (item) => <TableCell value={!item.lastQuantity ? "Checking..." : item.lastQuantity} />,
     width: 160,
   },
   {
@@ -71,10 +70,12 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 200,
   },
   {
-    header: "Status",
+    header: "Completed",
     field: "isPassed",
     accessor: (item) => (
-      <Tag color={item.isPassed ? "green" : "red"}>{item.isPassed ? "Passed" : "Not Passed"}</Tag>
+      <Tag color={item.isPassed ? "green" : "red"}>
+        {item.isPassed ? "Completed" : "Not Completed"}
+      </Tag>
     ),
     width: 120,
   },

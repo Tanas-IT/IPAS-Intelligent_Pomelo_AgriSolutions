@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
 import { CRITERIA_TARGETS, lotFormFields, MESSAGES } from "@/constants";
-import { CriteriaApplyRequests, GetCriteria, GetMasterTypeSelected } from "@/payloads";
+import { CriteriaApplyRequest, GetCriteria, GetMasterTypeSelected } from "@/payloads";
 import { criteriaService, masterTypeService } from "@/services";
 import { useCriteriaOptions } from "@/hooks";
 import style from "./PlantLot.module.scss";
@@ -17,7 +17,7 @@ type ApplyCriteriaModalProps = {
   lotId?: number;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (criteria: CriteriaApplyRequests) => void;
+  onSave: (criteria: CriteriaApplyRequest) => void;
   isLoadingAction?: boolean;
 };
 
@@ -58,7 +58,7 @@ const ApplyCriteriaModal = ({
   const handleOk = () => {
     if (!isCriteriaListValid()) return;
     if (!lotId) return;
-    const requestData: CriteriaApplyRequests = {
+    const requestData: CriteriaApplyRequest = {
       plantLotId: [lotId],
       criteriaData: dataSource.map((item) => ({
         criteriaId: item.criteriaId,

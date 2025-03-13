@@ -8,7 +8,7 @@ import {
   Table,
   TableTitle,
 } from "@/components";
-import { CriteriaApplyRequests, GetPlantLot2, PlantLotRequest } from "@/payloads";
+import { CriteriaApplyRequest, GetPlantLot2, PlantLotRequest } from "@/payloads";
 import {
   useFetchData,
   useFilters,
@@ -128,11 +128,14 @@ function PlantLot() {
   });
 
   const handleCloseCriteria = () => {
-    if (isDirty) cancelConfirmModal.showModal();
-    criteriaModal.hideModal;
+    if (isDirty) {
+      cancelConfirmModal.showModal();
+    } else {
+      criteriaModal.hideModal();
+    }
   };
 
-  const applyCriteria = async (criteria: CriteriaApplyRequests) => {
+  const applyCriteria = async (criteria: CriteriaApplyRequest) => {
     var res = await criteriaService.applyCriteria(criteria);
     try {
       setIsActionLoading(true);

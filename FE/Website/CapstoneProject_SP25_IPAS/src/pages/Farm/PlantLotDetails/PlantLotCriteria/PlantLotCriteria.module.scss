@@ -25,6 +25,7 @@
 }
 
 .panelTitle {
+  align-items: center;
   font-weight: 600;
   font-size: 16px;
 }
@@ -39,4 +40,18 @@
   font-size: 14px;
   font-weight: bold;
   color: vars.$color_primary !important;
+}
+
+.criteriaCollapse {
+  .headerWrapper {
+    width: 100%;
+    min-width: 40rem;
+    align-items: center;
+  }
+  .deleteIcon {
+    font-size: 16px;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 }

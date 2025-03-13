@@ -8,9 +8,11 @@ import { useState } from "react";
 const LotSectionHeader = ({
   lot,
   isCriteria = false,
+  onApplyCriteria,
 }: {
   lot: GetPlantLotDetail | null;
   isCriteria?: boolean;
+  onApplyCriteria?: () => void;
 }) => {
   if (!lot) return;
   const [isPassed, setIsPassed] = useState(false);
@@ -36,12 +38,12 @@ const LotSectionHeader = ({
           <Flex className={style.actionButtons}>
             {isCriteria &&
               (!lot.isPassed ? (
-                <Button type="primary" onClick={handleMarkAsPassed}>
-                  Mark as Passed
+                <Button type="primary" onClick={handleMarkAsPassed} ghost>
+                  Mark as Completed
                 </Button>
               ) : (
                 <Tag color="green" className={style.passedTag}>
-                  ✅ Lot Passed
+                  ✅ Lot Completed
                 </Tag>
               ))}
           </Flex>
@@ -49,7 +51,11 @@ const LotSectionHeader = ({
 
         {isCriteria && (
           <Flex>
-            <CustomButton label="Add New Criteria" icon={<Icons.plus />} />
+            <CustomButton
+              label="Add New Criteria"
+              icon={<Icons.plus />}
+              handleOnClick={onApplyCriteria}
+            />
           </Flex>
         )}
       </Flex>

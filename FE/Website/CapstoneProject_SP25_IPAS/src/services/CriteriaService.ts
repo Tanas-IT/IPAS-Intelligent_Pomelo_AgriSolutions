@@ -1,7 +1,8 @@
 import { axiosAuth } from "@/api";
 import {
   ApiResponse,
-  CriteriaApplyRequests,
+  CriteriaApplyRequest,
+  CriteriaCheckRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
 } from "@/payloads";
@@ -15,7 +16,7 @@ export const getCriteriaByMasterType = async (
 };
 
 export const applyCriteria = async (
-  criteria: CriteriaApplyRequests,
+  criteria: CriteriaApplyRequest,
 ): Promise<ApiResponse<GetCriteriaByMasterType>> => {
   const res = await axiosAuth.axiosJsonRequest.post(`criterias/target/apply-criteria`, criteria);
   const apiResponse = res.data as ApiResponse<GetCriteriaByMasterType>;
@@ -29,5 +30,14 @@ export const getCriteriaOfLandPlot = async (
     `criterias/get-criteria-of-object?PlantLotID=${lotId}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
+  return apiResponse;
+};
+
+export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiResponse<object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(
+    `criterias/target/check-criteria-for-target`,
+    check,
+  );
+  const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
 };

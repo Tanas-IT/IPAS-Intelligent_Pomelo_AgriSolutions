@@ -21,4 +21,6 @@ export const MESSAGES = {
   REQUIRED_VALUE: "At least one criterion is required!",
   PRIORITY_UNIQUE: "Priority must be unique!",
   PRIORITY_SEQUENTIAL: "Priority must be sequential (e.g., 1, 2, 3, 4).",
+  LOT_CRITERIA_CONDITION: "Checked Quantity must be less than or equal to Initial quantity.",
+  LOT_CRITERIA_EVALUATION: "Qualified Quantity must be less than or equal to Checked quantity.",
 } as const;

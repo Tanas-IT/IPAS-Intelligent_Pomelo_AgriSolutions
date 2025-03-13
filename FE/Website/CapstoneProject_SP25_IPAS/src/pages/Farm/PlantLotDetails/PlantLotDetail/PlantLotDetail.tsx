@@ -18,7 +18,7 @@ function PlantLotDetail() {
   const pathnames = location.pathname.split("/");
   const lotId = pathnames[pathnames.length - 2];
   const { lot, setLot } = usePlantLotStore();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchPlantLot = async () => {
     setIsLoading(true);

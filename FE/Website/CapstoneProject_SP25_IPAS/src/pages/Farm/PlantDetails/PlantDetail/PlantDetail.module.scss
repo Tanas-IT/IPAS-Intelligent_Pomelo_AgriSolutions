@@ -4,3 +4,7 @@
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
 }
+
+.contentSectionHeader {
+  @include shared.contentSectionHeader;
+}

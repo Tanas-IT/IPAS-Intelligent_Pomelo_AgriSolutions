@@ -1,4 +1,5 @@
 import { axiosAuth } from "@/api";
+import { CRITERIA_TARGETS } from "@/constants";
 import {
   ApiResponse,
   GetData,
@@ -53,6 +54,22 @@ export const updateLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPl
     note: lot.note,
   };
 
+  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
+  const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
+export const updateQuantityLot = async (
+  lotId: number,
+  target: string,
+  quantity: number,
+): Promise<ApiResponse<GetPlantLot2>> => {
+  const formatLotData = {
+    plantLotID: lotId,
+    ...(target === CRITERIA_TARGETS["Plantlot Evaluation"]
+      ? { lastQuantity: quantity }
+      : { inputQuantity: quantity }),
+  };
   const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
   return apiResponse;
