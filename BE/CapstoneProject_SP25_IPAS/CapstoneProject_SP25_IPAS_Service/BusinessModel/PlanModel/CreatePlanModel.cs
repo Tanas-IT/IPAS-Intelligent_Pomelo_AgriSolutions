@@ -40,8 +40,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public List<int>? GrowthStageId { get; set; }
 
+        public List<int>? ListLandPlotOfCrop {  get; set; }
 
         public int? MasterTypeId { get; set; }
+
         public List<int>? DayOfWeek { get; set; }
         public List<int>? DayOfMonth { get; set; }
         public List<DateTime>? CustomDates { get; set; }

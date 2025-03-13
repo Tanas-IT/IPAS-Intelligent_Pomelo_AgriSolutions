@@ -252,6 +252,35 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        
+
+        [HttpGet(APIRoutes.Criteria.getCriteriaSetPlantLotExcept, Name = "getCriteriaSetPlantLotExcept")]
+        public async Task<IActionResult> getCriteriaSetPlantLotExcept([FromQuery] int plantLotId, int? farmId, string? target)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm id has required"
+                    });
+                }    
+                var result = await _criteriaService.GetCriteriaSetPlantLotNotApply(plantlotId: plantLotId, farmId: farmId.Value, target: target);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

@@ -46,7 +46,7 @@ CREATE TABLE ipas.dbo.Crop (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	CropExpectedTime datetime NULL,
-	Year int NULL,
+	--Year int NULL,
 	CropActualTime datetime NULL,
 	HarvestSeason nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	EstimateYield float NULL,
@@ -1175,17 +1175,17 @@ VALUES
 	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
 	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
 
-    ('MT029', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT030', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT031', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT032', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT033', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT034', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT035', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT036', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT037', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT038', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 GO
 
@@ -1306,16 +1306,16 @@ VALUES
 ('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL);
 GO
 -- Insert fake data into Crop
-INSERT INTO [ipas].dbo.Crop (CropCode, CropName,StartDate, EndDate ,CreateDate, UpdateDate, CropExpectedTime, Year, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
+INSERT INTO [ipas].dbo.Crop (CropCode, CropName,StartDate, EndDate ,CreateDate, UpdateDate, CropExpectedTime, /*Year,*/ CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
 VALUES 
-(N'CRP001', N'Rice', '2024-10-10', '2025-06-15', '2023-01-10', '2023-06-15', '2023-05-01', 2023, '2023-06-10', N'Spring', 5000, 4800, 0, N'Active', N'High yield', 1200, 1),
-(N'CRP002', N'Corn', '2024-10-10', '2025-06-15','2023-02-05', '2023-07-20', '2023-06-10', 2023, '2023-07-25', N'Summer', 3000, 2900, 0, N'Active', N'Good season', 800, 1),
-(N'CRP003', N'Wheat', '2024-10-10', '2025-06-15','2023-03-12', '2023-08-10', '2023-07-15', 2023, '2023-08-20', N'Autumn', 4000, 3900, 0, N'Active', N'Quality harvest', 1000, 2),
-(N'CRP004', N'Barley', '2024-10-10', '2025-06-15','2023-04-18', '2023-09-30', '2023-09-01', 2023, '2023-10-10', N'Winter', 2500, 2400, 0, N'Inactive', N'Needs better soil', 900, 2),
-(N'CRP005', N'Soybean','2024-10-10', '2025-06-15', '2023-05-20', '2023-11-15', '2023-10-10', 2023, '2023-11-20', N'Spring', 3200, 3100, 0, N'Active', N'Great market demand', 1100, 3),
-(N'CRP006', N'Peanut', '2024-10-10', '2025-06-15','2023-06-25', '2023-12-10', '2023-11-01', 2023, '2023-12-15', N'Summer', 2700, 2600, 0, N'Active', N'Organic crop', 1050, 3),
-(N'CRP007', N'Potato', '2024-10-10', '2025-06-15','2023-07-30', '2024-01-05', '2023-12-20', 2024, '2024-01-10', N'Winter', 3500, 3400, 0, N'Inactive', N'Requires more nutrients', 1150, 4),
-(N'CRP008', N'Carrot', '2024-10-10', '2025-06-15','2023-08-15', '2024-02-10', '2024-01-10', 2024, '2024-02-15', N'Autumn', 2800, 2750, 0, N'Active', N'Excellent growth rate', 950, 4);
+(N'CRP001', N'Rice', '2024-10-10', '2025-06-15', '2023-01-10', '2023-06-15', '2023-05-01', /*2023,*/ '2023-06-10', N'Spring', 5000, 4800, 0, N'Active', N'High yield', 1200, 1),
+(N'CRP002', N'Corn', '2024-10-10', '2025-06-15','2023-02-05', '2023-07-20', '2023-06-10', /*2023,*/ '2023-07-25', N'Summer', 3000, 2900, 0, N'Active', N'Good season', 800, 1),
+(N'CRP003', N'Wheat', '2024-10-10', '2025-06-15','2023-03-12', '2023-08-10', '2023-07-15', /*2023,*/ '2023-08-20', N'Autumn', 4000, 3900, 0, N'Active', N'Quality harvest', 1000, 2),
+(N'CRP004', N'Barley', '2024-10-10', '2025-06-15','2023-04-18', '2023-09-30', '2023-09-01', /*2023,*/ '2023-10-10', N'Winter', 2500, 2400, 0, N'Inactive', N'Needs better soil', 900, 2),
+(N'CRP005', N'Soybean','2024-10-10', '2025-06-15', '2023-05-20', '2023-11-15', '2023-10-10', /*2023,*/ '2023-11-20', N'Spring', 3200, 3100, 0, N'Active', N'Great market demand', 1100, 3),
+(N'CRP006', N'Peanut', '2024-10-10', '2025-06-15','2023-06-25', '2023-12-10', '2023-11-01', /*2023,*/ '2023-12-15', N'Summer', 2700, 2600, 0, N'Active', N'Organic crop', 1050, 3),
+(N'CRP007', N'Potato', '2024-10-10', '2025-06-15','2023-07-30', '2024-01-05', '2023-12-20',/* 2024,*/ '2024-01-10', N'Winter', 3500, 3400, 0, N'Inactive', N'Requires more nutrients', 1150, 4),
+(N'CRP008', N'Carrot', '2024-10-10', '2025-06-15','2023-08-15', '2024-02-10', '2024-01-10', /*2024,*/ '2024-02-15', N'Autumn', 2800, 2750, 0, N'Active', N'Excellent growth rate', 950, 4);
 GO
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
 INSERT INTO [ipas].dbo.LandPlotCrop (LandPlotID, CropID)

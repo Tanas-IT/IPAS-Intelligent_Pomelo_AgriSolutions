@@ -7,6 +7,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using FluentValidation.Validators;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -81,7 +82,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public async Task<BusinessResult> GetNotificationByUserId(int UserId, bool isRead)
+        public async Task<BusinessResult> GetNotificationByUserId(int UserId, bool? isRead)
         {
             try
             {
@@ -130,16 +131,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             throw new NotImplementedException();
         }
 
-        public async Task<BusinessResult> MarkisRead(List<int> notificationIds)
+        public async Task<BusinessResult> MarkisRead(MarkNotificationIsReadModel markNotificationIsReadModel, int? userId)
         {
-            foreach (int notificationId in notificationIds)
+            if (markNotificationIsReadModel.Status.ToLower().Equals("once") && markNotificationIsReadModel.NotificationId != null)
             {
-                var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(notificationId);
-                var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(notificationId);
-                if (getPlanNotificationById == null || !getPlanNotificationById.Any())
-                {
-                    return new BusinessResult(404, "No PlanNotification found");
-                }
+                var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(markNotificationIsReadModel.NotificationId.Value);
+                var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(markNotificationIsReadModel.NotificationId.Value);
+               
                 if (getNotificationById != null)
                 {
                     getNotificationById.IsRead = true;
@@ -159,6 +157,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     _unitOfWork.NotificationRepository.Update(getNotificationById);
                 }
             }
+            else
+            {
+                if(userId != null)
+                {
+                    var getListNotificationByUserId = await _unitOfWork.NotificationRepository.GetListNotificationUnReadByUserId(userId.Value);
+                    foreach (var noti in getListNotificationByUserId)
+                    {
+                        noti.IsRead = true;
+                        _unitOfWork.NotificationRepository.Update(noti);
+                    }
+                }
+            }
+           
+
             var result = await _unitOfWork.SaveAsync();
             if (result > 0)
             {

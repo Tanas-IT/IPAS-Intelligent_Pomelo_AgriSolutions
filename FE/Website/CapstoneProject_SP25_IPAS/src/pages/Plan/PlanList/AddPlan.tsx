@@ -22,7 +22,7 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
+import { useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useNotifications, useUnsavedChangesWarning } from "@/hooks";
 import {
   fetchGrowthStageOptions,
   fetchProcessesOfFarm,
@@ -105,6 +105,8 @@ const AddPlan = () => {
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
+
+  const { socket } = useNotifications();
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
@@ -373,12 +375,15 @@ const AddPlan = () => {
       })),
     };
     console.log("planData", planData);
+    console.log("WebSocket trạng thái trước khi tạo plan:", socket?.readyState);
+
 
 
     const result = await planService.addPlan(planData);
 
     if (result.statusCode === 200) {
       await toast.success(result.message);
+      console.log("WebSocket trạng thái sau khi tạo plan:", socket?.readyState);
       form.resetFields();
     } else {
       toast.error(result.message);

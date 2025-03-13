@@ -303,10 +303,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             var getListLandPlot = await _unitOfWork.LandPlotRepository.GetLandPlotInclude();
             var result = getListLandPlot
-                                    .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.Year == year))
+                                    .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.StartDate.Value.Year == year))
                                     .SelectMany(lp => lp.LandPlotCrops, (lp, lpc) => new
                                     {
-                                        Year = lpc.Crop.Year ?? 0,
+                                        //Year = lpc.Crop.Year ?? 0,
+                                        Year = lpc.Crop.StartDate.Value.Year,
                                         HarvestSeason = lpc.Crop.HarvestSeason ?? "Không xác định",
                                         LandPlotId = lp.LandPlotId,
                                         LandPlotName = lp.LandPlotName,

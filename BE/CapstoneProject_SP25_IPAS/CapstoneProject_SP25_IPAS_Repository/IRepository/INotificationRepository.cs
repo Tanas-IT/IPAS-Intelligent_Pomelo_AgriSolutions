@@ -10,5 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface INotificationRepository
     {
         public Task<List<Notification>> GetListNotificationByUserId(int userId);
+        public Task<List<Notification>> GetListNotificationUnReadByUserId(int userId);
     }
 }

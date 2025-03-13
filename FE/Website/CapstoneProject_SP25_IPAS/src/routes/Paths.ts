@@ -77,5 +77,9 @@ export const PATHS = {
   //Package Management
   PACKAGE: {
     PACKAGE_LIST: "/packages",
+    PACKAGE_PURCHASE: "/package-purchase",
+    PAYMENT: "/package/payment",
+    SUCCESS: "/payment/payment-success",
+    CANCEL: "/payment/payment-cancle",
   },
 };

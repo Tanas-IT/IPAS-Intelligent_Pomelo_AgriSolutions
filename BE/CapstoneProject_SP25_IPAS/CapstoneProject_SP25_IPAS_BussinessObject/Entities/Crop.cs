@@ -11,7 +11,7 @@ public partial class Crop
 
     public string? CropName { get; set; }
 
-    public int? Year { get; set; }
+    //public int? Year { get; set; }
 
     public DateTime? StartDate { get; set; }
 

@@ -26,5 +26,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(x => x.SenderID == userId).ToListAsync();
             return result;
         }
+
+        public async Task<List<Notification>> GetListNotificationUnReadByUserId(int userId)
+        {
+            var result = await _context.Notifications
+                .Include(x => x.Sender)
+                .Include(x => x.MasterType)
+                .Where(x => x.SenderID == userId && x.IsRead == false).ToListAsync();
+            return result;
+        }
     }
 }
