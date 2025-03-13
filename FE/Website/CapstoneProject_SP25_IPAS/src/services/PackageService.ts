@@ -1,4 +1,4 @@
-import { axiosAuth } from "@/api";
+import { axiosAuth, axiosNoAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetType } from "@/payloads/masterType";
 import { GetPackage } from "@/payloads/package";
@@ -29,3 +29,16 @@ export const getPackage = async (
   
   return apiResponse.data as GetData<GetPackage>;
 };
+
+
+export const getPackagePurchase = async (): Promise<ApiResponse<GetPackage[]>> => {
+  const res = await axiosNoAuth.get(`packages`);
+  const apiResponse = res.data as ApiResponse<GetPackage[]>
+  return apiResponse;
+}
+
+export const getPackageById = async (packageId: number): Promise<ApiResponse<GetPackage>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`packages/${packageId}`);
+  const apiResponse = res.data as ApiResponse<GetPackage>
+  return apiResponse;
+}

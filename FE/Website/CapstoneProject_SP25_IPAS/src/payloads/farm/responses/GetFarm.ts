@@ -27,6 +27,7 @@ interface Farm {
   createDate: Date;
   longitude: number;
   latitude: number;
+  farmExpiredDate: string;
 }
 
 export interface GetFarmInfo extends Farm {

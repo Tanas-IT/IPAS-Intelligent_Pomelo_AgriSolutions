@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
             }
             else
             {
-                await _next(context); // Chuyển tiếp request nếu không phải WebSocket
+                await _next(context);
             }
         }
 

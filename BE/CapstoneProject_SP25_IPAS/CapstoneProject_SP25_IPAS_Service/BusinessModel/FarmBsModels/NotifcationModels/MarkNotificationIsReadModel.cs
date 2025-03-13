@@ -8,6 +8,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.Notifcati
 {
     public class MarkNotificationIsReadModel
     {
-        public List<int> listNotification {  get; set; }
+        public int? NotificationId {  get; set; }
+        public string Status  {  get; set; }
     }
 }

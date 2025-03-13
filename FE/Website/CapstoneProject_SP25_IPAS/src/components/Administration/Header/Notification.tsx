@@ -1,32 +1,34 @@
-import { Avatar, Button, List, Popover, Badge, Typography, Flex, Spin, Tag, Segmented } from "antd";
+import { Avatar, Button, List, Popover, Badge, Typography, Flex, Tag, Segmented } from "antd";
 import { UserOutlined, ReloadOutlined, MoreOutlined } from "@ant-design/icons";
 import { useNotifications } from "@/hooks";
 import style from "./Header.module.scss";
 import { Icons } from "@/assets";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
-import { INotification } from "@/hooks/useNotifications";
+import { GetNotification } from "@/payloads";
 
 const { Text } = Typography;
 
 const Notification = () => {
   const { notifications, unreadCount, markAsRead, fetchNotifications } = useNotifications();
+  console.log("noti in bell", notifications);
+  
   const popoverRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"All" | "Unread">("All");
 
   const filteredNotifications = filter === "All" ? notifications : notifications.filter((n) => !n.isRead);
 
-  const groupedNotifications = filteredNotifications.reduce((acc, notification) => {
-    const dateKey = dayjs(notification.date).format("DD/MM/YYYY");
+  const groupedNotifications = (filteredNotifications ?? []).reduce((acc, notification) => {
+    const dateKey = dayjs(notification.createDate).format("DD/MM/YYYY");
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(notification);
     return acc;
-  }, {} as Record<string, INotification[]>);
+  }, {} as Record<string, GetNotification[]>);
 
   const markAllAsRead = () => {
     notifications.forEach((item) => {
       if (!item.isRead) {
-        markAsRead(item.notificationID);
+        markAsRead(item.notificationId);
       }
     });
   };
@@ -57,35 +59,41 @@ const Notification = () => {
       />
 
       {Object.entries(groupedNotifications).length === 0 ? (
-        <p>You don't have any unread notifications.</p>
+        <p>You don't have any notifications.</p>
       ) : (
         <List
           itemLayout="horizontal"
           dataSource={Object.entries(groupedNotifications)}
           renderItem={([date, items]) => (
-            <div>
+            <div key={date}>
               <Text type="secondary" style={{ marginLeft: 16 }}>{date}</Text>
               {items.map((item) => (
-                <List.Item className={style.notificationItem} key={item.notificationID} onClick={() => markAsRead(item.notificationID)}>
+                <List.Item
+                  className={style.notificationItem}
+                  key={item.notificationId}
+                  onClick={() => markAsRead(item.notificationId)}
+                >
                   <List.Item.Meta
-                    avatar={<Avatar src={item.sender.avatar} icon={!item.sender.avatar ? <UserOutlined /> : undefined} />}
+                    avatar={<Avatar src={item.sender.avt} icon={!item.sender.avt ? <UserOutlined /> : undefined} />}
                     title={
-                      <Flex justify="space-between" gap={8} vertical={false}>
-                        <Flex vertical>
-                          <Text style={{ whiteSpace: "nowrap" }}>{item.title}</Text>
-                          <Flex>
-                            <Tag color={item.masterType.backgroundColor}>{item.masterType.name}</Tag>
+                      <Flex justify="space-between" align="center">
+                        <div>
+                          <Text strong>{item.title}</Text>
+                          <Flex gap={4}>
+                            <Tag color={item.color} style={{color: "#333333"}}>{item.masterType.masterTypeName}</Tag>
                           </Flex>
-                        </Flex>
-                        <p style={{ color: "#444", fontWeight: "lighter" }}>ngày</p>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {dayjs(item.createDate).format("HH:mm")}
+                        </Text>
                       </Flex>
                     }
-                    description={<Text type="secondary">{item.content}</Text>}
+                    description={<Text type="secondary" style={{color: "#555"}}>{item.content}</Text>}
                   />
                   {!item.isRead && (
                     <span className={style.unreadDot} onClick={(e) => {
                       e.stopPropagation();
-                      markAsRead(item.notificationID);
+                      markAsRead(item.notificationId);
                     }}>●</span>
                   )}
                 </List.Item>
@@ -102,7 +110,8 @@ const Notification = () => {
       content={notificationContent}
       trigger="click"
       placement="bottomLeft"
-      overlayStyle={{ maxWidth: "350px" }}
+      overlayStyle={{ maxWidth: "350px", right: 300, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)", borderRadius: "10px",
+      }}
       getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
       destroyTooltipOnHide
     >

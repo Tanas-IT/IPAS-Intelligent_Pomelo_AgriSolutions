@@ -11,6 +11,8 @@ import PlantDevelopmentChart from "./components/PlantDevelopmentChart/PlantDevel
 import PlantDevelopmentStages from "./components/PlantDevelopmentStages/PlantDevelopmentStages";
 import PlantHealthStatus from "./components/PlantHealthStatus/PlantHealthStatus";
 import SynchronizedAreaChart from "./components/SynchronizedAreaChart/SynchronizedAreaChart";
+import { useFarmStore } from "@/stores";
+import ExpiredPackageModal from "./ExpiredPackageModal";
 
 const statsData = [
   {
@@ -57,6 +59,8 @@ const weatherData = {
 
 function Dashboard() {
   const [data, setData] = useState<DashboardResponses>();
+  const { farmExpiredDate } = useFarmStore();
+  const [isModalVisible, setIsModalVisible] = useState(false);
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -71,7 +75,16 @@ function Dashboard() {
 
     fetchDashboard();
   }, []);
+
+  useEffect(() => {
+    console.log(farmExpiredDate);
+    
+    if (farmExpiredDate && new Date(farmExpiredDate).getTime() < Date.now()) {
+      setIsModalVisible(true);
+    }
+  }, [farmExpiredDate]);
   return (
+    <>
     <Flex className={style.container}>
       <Flex gap={20}>
         {statsData.map((stat, index) => (
@@ -109,6 +122,8 @@ function Dashboard() {
         </Col>
       </Flex>
     </Flex>
+    {isModalVisible && <ExpiredPackageModal />}
+    </>
   );
 }
 

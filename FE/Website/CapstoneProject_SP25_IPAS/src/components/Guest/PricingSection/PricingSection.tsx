@@ -2,51 +2,55 @@ import { useEffect, useState } from "react";
 import style from "./PricingSection.module.scss";
 import PricingCard from "@/components/UI/PricingCard/PricingCard";
 import AOS from "aos";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/routes";
+import { packageService } from "@/services";
+import { ApiResponse } from "@/payloads";
+import { GetPackage } from "@/payloads/package";
+
+interface PackageDetail {
+    packageDetailId: number;
+    packageDetailCode: string;
+    featureName: string;
+    featureDescription: string;
+    packageId: number;
+}
 
 interface Package {
-    id: number;
-    name: string;
-    price: string;
-    description: string;
-    duration: string;
-    features: string[];
+    packageId: number;
+    packageName: string;
+    packagePrice: number;
+    duration: number;
+    packageDetails: PackageDetail[];
 }
 
 const PricingSection: React.FC = () => {
-    const [packages, setPackages] = useState<Package[]>([
-        {
-            id: 1,
-            name: "Basic",
-            price: "$29",
-            duration: "/month",
-            description: "Ideal for small farms or beginners. Provides essential tools for crop management and basic AI care advice.",
-            features: ["Farm Plot Management", "Crop Monitoring", "Task Management", "Real-time AI Advice", "Multi-platform Access"],
-        },
-        {
-            id: 2,
-            name: "Pro",
-            price: "$89",
-            duration: "/year",
-            description: "Ideal for small farms or beginners. Provides essential tools for crop management and basic AI care advice.",
-            features: ["Farm Plot Management", "Crop Monitoring", "Task Management", "Real-time AI Advice", "Multi-platform Access"],
-        },
-        {
-            id: 3,
-            name: "Enterprise",
-            price: "$100",
-            duration: "/3 years",
-            description: "Ideal for small farms or beginners. Provides essential tools for crop management and basic AI care advice.",
-            features: ["Farm Plot Management", "Crop Monitoring", "Task Management", "Real-time AI Advice", "Multi-platform Access"],
-        },
-    ]);
+    const navigate = useNavigate();
+    const [packages, setPackages] = useState<Package[]>([]);
+
+    useEffect(() => {
+            const fetchPackage = async () => {
+                const result: ApiResponse<GetPackage[]> = await packageService.getPackagePurchase();
+                if (result.statusCode === 200) {
+    
+                    setPackages(result.data);
+                }
+            }
+            fetchPackage();
+    
+        }, []);
 
     useEffect(() => {
         AOS.init({
             duration: 800,
             easing: "ease-in-out",
-            once: false,
+            // once: false,
         });
     }, []);
+
+    const handleChoosePlan = (packageId: number) => {
+        // navigate(`${PATHS.PACKAGE.PAYMENT}/${packageId}`);
+    };
 
     return (
         <section className={style.pricingSection}>
@@ -59,16 +63,16 @@ const PricingSection: React.FC = () => {
             <div className={style.pricingCards}>
                 {packages.map((pkg, index) => (
                     <div
-                        key={pkg.id}
+                        key={pkg.packageId}
                         data-aos="zoom-in"
                         data-aos-delay={`${index * 100}`}
                     >
                         <PricingCard
-                            name={pkg.name}
-                            price={pkg.price}
+                            packageName={pkg.packageName}
+                            packagePrice={pkg.packagePrice}
                             duration={pkg.duration}
-                            features={pkg.features}
-                            description={pkg.description}
+                            packageDetails={pkg.packageDetails}
+                            onNavigate={() => handleChoosePlan(pkg.packageId)}
                         />
                     </div>
                 ))}

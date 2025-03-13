@@ -171,12 +171,32 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPatch(APIRoutes.Plan.softDeletePlan, Name = "softDeletePlanAsync")]
-        public async Task<IActionResult> SoftDeletePlan([FromRoute] int id)
+        [HttpDelete(APIRoutes.Plan.deleteManyPlan, Name = "deleteManyPlanAsync")]
+        public async Task<IActionResult> DeleteManyPlan([FromBody] List<int> planIds)
         {
             try
             {
-                var result = await _planService.SoftDeletePlan(id);
+                var result = await _planService.PermanentlyDeleteManyPlan(planIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPatch(APIRoutes.Plan.softDeletePlan, Name = "softDeletePlanAsync")]
+        public async Task<IActionResult> SoftDeletePlan([FromBody] List<int> PlanIds)
+        {
+            try
+            {
+                var result = await _planService.SoftDeleteMultiplePlan(PlanIds);
                 return Ok(result);
             }
             catch (Exception ex)
