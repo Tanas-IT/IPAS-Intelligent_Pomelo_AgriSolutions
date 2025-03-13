@@ -45,6 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels
         public string? Target { get; set; }
 
         public ICollection<CriteriaModel> Criterias { get; set; } = new List<CriteriaModel>();
+        public ICollection<TypeTypeModel> Type_Types_2 { get; set; } = new List<TypeTypeModel>();
         //public ICollection<MasterTypeDetailModel> MasterTypeDetailModels { get; set; } = new List<MasterTypeDetailModel>();
 
         //public virtual ICollection<MasterTypeDetailModel> MasterTypeDetails { get; set; } = new List<MasterTypeDetailModel>();

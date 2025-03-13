@@ -110,5 +110,49 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var listMasterType = await getMasterTypeByName.ToListAsync();
             return listMasterType.Any() ? listMasterType : new List<MasterType>();
         }
+
+        public async Task<List<MasterType>> GetMasterTypesByGrowthStages(List<int?> growthStageIds)
+        {
+            var result = await _context.GrowthStageMasterTypes
+                                .Where(gmt => gmt.GrowthStageID.HasValue // Đảm bảo không null
+                                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
+                                              && gmt.MasterType != null
+                                              && gmt.MasterType.TypeName != null
+                                              && gmt.MasterType.TypeName.ToLower() == "work")
+                                .Select(gmt => gmt.MasterType!)
+                                .Distinct()
+                                .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<MasterType> GetByIdIncludeMasterType(int masterTypeId)
+        {
+            //var masterType = await _context.MasterTypes.Where(x => x.MasterTypeId == masterTypeId
+            //                                            && x.IsDelete == false)
+            //      .Include(x => x.CriteriaSet
+            //        .Where(tt => tt.CriteriaSet!.TypeName == "Criteria")) // 🔹 Chỉ Include khi TypeName là "Criteria"
+            //            .ThenInclude(tt => tt.CriteriaSet)
+            //                .ThenInclude(cs => cs.Criterias)
+            //     .FirstOrDefaultAsync();
+            var masterType = await _context.MasterTypes
+                .Where(x => x.MasterTypeId == masterTypeId && x.IsDelete == false)
+                .Select(x => new MasterType
+                {
+                    MasterTypeId = x.MasterTypeId,
+                    MasterTypeName = x.MasterTypeName,
+                    CriteriaSet = x.CriteriaSet.Select(tt => new Type_Type
+                    {
+                        CriteriaSet = new MasterType
+                        {
+                            MasterTypeId = tt.CriteriaSet!.MasterTypeId,
+                            MasterTypeName = tt.CriteriaSet!.MasterTypeName,
+                            Criterias = tt.CriteriaSet.Criterias.ToList() // Lấy danh sách tiêu chí
+                        }
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+            return masterType;
+        }
     }
 }

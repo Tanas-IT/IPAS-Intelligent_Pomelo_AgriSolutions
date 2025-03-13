@@ -46,7 +46,6 @@ function CreateFarm() {
 
   const handleSave = async () => {
     var values: FarmRequest = await form.validateFields();
-
     const logoValue = form.getFieldValue(farmFormFields.logo);
     values = {
       ...values,
@@ -178,7 +177,7 @@ function CreateFarm() {
           </Flex>
         </Flex>
         <Flex className={style.contentSectionFooter}>
-        <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} labelBtn2="Create Farm" />
+          <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} labelBtn2="Create Farm" />
         </Flex>
       </Flex>
     </Flex>

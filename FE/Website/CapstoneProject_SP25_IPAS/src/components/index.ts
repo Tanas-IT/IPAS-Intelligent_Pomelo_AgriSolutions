@@ -9,6 +9,7 @@ export { default as SectionTitle } from "@/components/UI/SectionTitle/SectionTit
 export { default as Table } from "@/components/UI/Table/Table";
 export { default as TableCell } from "@/components/UI/Table/TableCell/TableCell";
 export { default as TableExpandCell } from "@/components/UI/Table/TableExpandCell/TableExpandCell";
+export { default as TableApplyCriteria } from "@/components/UI/Table/TableApplyCriteria/TableApplyCriteria";
 export { default as TableTitle } from "@/components/UI/Table/TableTitle/TableTitle";
 export { default as Tooltip } from "@/components/UI/Tooltip/Tooltip";
 export { default as TagRender } from "@/components/UI/Tag/CustomTag";
@@ -56,3 +57,4 @@ export { default as RowItemView } from "@/components/UI/Row/RowItem/RowItemView"
 export { default as RowList } from "@/components/UI/Row/RowList/RowList";
 export { default as UserAvatar } from "@/components/UI/UserAvatar";
 export { default as SidebarEmployee } from "@/components/Employee/SidebarEmployee/SidebarEmployee";
+export { default as InfoFieldDetail } from "@/components/UI/Details/InfoFieldDetail";

@@ -1,0 +1,96 @@
+import { DatePicker, Flex, Select, Space } from "antd";
+import { useEffect, useState } from "react";
+import style from "./PlantLot.module.scss";
+import dayjs from "dayjs";
+import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
+import { DATE_FORMAT } from "@/utils";
+import { MASTER_TYPE, PARTNER } from "@/constants";
+import { FilterPlantLotState, SelectOption } from "@/types";
+import { partnerService } from "@/services";
+
+const { RangePicker } = DatePicker;
+
+type FilterProps = {
+  filters: FilterPlantLotState;
+  updateFilters: (key: keyof FilterPlantLotState, value: any) => void;
+  onClear: () => void;
+  onApply: () => void;
+};
+const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
+  const [prevFilters, setPrevFilters] = useState(filters);
+
+  const [partnerOptions, setPartnerOptions] = useState<SelectOption[]>([]);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      const res = await partnerService.getSelectPartner(PARTNER.PROVIDER);
+      if (res.statusCode === 200) {
+        setPartnerOptions(
+          res.data.map((partner) => ({
+            label: partner.name,
+            value: partner.id,
+          })),
+        );
+      }
+    };
+
+    fetchPartners();
+  }, []);
+
+  const isFilterEmpty = !(
+    filters.importedDateFrom ||
+    filters.importedDateTo ||
+    (filters.partnerId && filters.partnerId.length > 0) ||
+    filters.previousQuantityFrom !== undefined ||
+    filters.previousQuantityTo !== undefined
+  );
+
+  const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
+  const handleApply = () => {
+    if (isFilterChanged) {
+      onApply();
+      setPrevFilters(filters);
+    }
+  };
+
+  return (
+    <Flex className={style.filterContent}>
+      <Space direction="vertical">
+        <FormFieldFilter
+          label="Imported Date:"
+          fieldType="date"
+          value={[filters.importedDateFrom, filters.importedDateTo]}
+          onChange={(dates) => {
+            updateFilters("importedDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+            updateFilters("importedDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+          }}
+        />
+        <FormFieldFilter
+          label="Partners:"
+          fieldType="select"
+          value={filters.partnerId}
+          options={partnerOptions}
+          onChange={(value) => updateFilters("partnerId", value)}
+        />
+
+        <FormFieldFilter
+          label="Initial Quantity From - To"
+          fieldType="numberRange"
+          value={{ from: filters.previousQuantityFrom, to: filters.previousQuantityTo }}
+          onChange={(val) => {
+            updateFilters("previousQuantityFrom", val.from);
+            updateFilters("previousQuantityTo", val.to);
+          }}
+        />
+
+        <FilterFooter
+          isFilterEmpty={isFilterEmpty}
+          isFilterChanged={isFilterChanged}
+          onClear={onClear}
+          handleApply={handleApply}
+        />
+      </Space>
+    </Flex>
+  );
+};
+export default PlantLotFilter;

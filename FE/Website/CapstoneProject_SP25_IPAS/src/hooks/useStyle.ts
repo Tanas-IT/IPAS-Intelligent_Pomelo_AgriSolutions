@@ -264,6 +264,16 @@ const useStyle = createStyles(({ css }) => {
         background-color:rgb(214, 220, 196) !important;
       }
     `,
+    customCollapse: css`
+      .ant-collapse-header {
+        display: flex !important;
+        align-items: center !important;
+        width: 30rem;
+      }
+      .ant-collapse-extra {
+        display: flex !important;
+      }
+    `,
   };
 });
 

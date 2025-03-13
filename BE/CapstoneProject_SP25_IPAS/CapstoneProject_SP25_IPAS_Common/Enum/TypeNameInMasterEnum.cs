@@ -10,7 +10,10 @@ namespace CapstoneProject_SP25_IPAS_Common.Enum
     {
         Process,
         Criteria,
-        Harvest,
-        Cultiva,
+        Product,
+        Cultivar,
+        Document,
+        Work,
+        Notification
     }
 }

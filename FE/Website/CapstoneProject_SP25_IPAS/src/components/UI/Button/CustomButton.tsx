@@ -5,11 +5,13 @@ import { Button } from "antd";
 interface CustomButtonProps {
   label: string;
   icon?: React.ReactNode;
-  handleOnClick?: () => void;
+  handleOnClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   isCancel?: boolean;
   htmlType?: "button" | "submit" | "reset";
   isLoading?: boolean;
   isModal?: boolean;
+  height?: string;
+  fontSize?: string;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -20,6 +22,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   htmlType = "button",
   isLoading,
   isModal = false,
+  height,
+  fontSize = "16px",
 }) => {
   const { isLoading: globalLoading } = useLoadingStore();
 
@@ -30,6 +34,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onClick={handleOnClick}
       htmlType={htmlType}
       loading={!isCancel && (isLoading ?? globalLoading ?? false)} // Ưu tiên prop, nếu không có thì lấy từ store
+      style={{ height, fontSize }}
     >
       {label}
     </Button>

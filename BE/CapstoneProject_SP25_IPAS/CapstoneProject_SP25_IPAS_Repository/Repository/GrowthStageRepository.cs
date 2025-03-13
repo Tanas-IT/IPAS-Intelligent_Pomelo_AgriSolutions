@@ -24,7 +24,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 Include(x => x.Processes)
                 .Include(x => x.GrowthStagePlans)
                 .Include(x => x.Plants)
-                .Include(x => x.MasterTypes)
+                .Include(x => x.GrowthStageMasterTypes)
+                .ThenInclude(x => x.MasterType)
                 .Include(x => x.Farm).
                 Where(x => x.FarmID == farmId && x.isDeleted == false).ToListAsync();
             return result;

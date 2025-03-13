@@ -1,4 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
+import { GetPlantLotDetail } from "@/payloads";
 import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
@@ -65,6 +66,16 @@ export const useLoadingStore = create<LoadingState>((set) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
 }));
 
+interface DirtyState {
+  isDirty: boolean;
+  setIsDirty: (value: boolean) => void;
+}
+
+export const useDirtyStore = create<DirtyState>((set) => ({
+  isDirty: false,
+  setIsDirty: (isDirty) => set({ isDirty }),
+}));
+
 interface MapState {
   isDirty: boolean;
   setIsDirty: (value: boolean) => void;
@@ -127,4 +138,14 @@ interface GrowthStageStore {
 export const useGrowthStageStore = create<GrowthStageStore>((set) => ({
   maxAgeStart: null,
   setMaxAgeStart: (value) => set({ maxAgeStart: value }),
+}));
+
+interface PlantLotStore {
+  lot: GetPlantLotDetail | null;
+  setLot: (lot: GetPlantLotDetail | null) => void;
+}
+
+export const usePlantLotStore = create<PlantLotStore>((set) => ({
+  lot: null,
+  setLot: (lot) => set({ lot }),
 }));
