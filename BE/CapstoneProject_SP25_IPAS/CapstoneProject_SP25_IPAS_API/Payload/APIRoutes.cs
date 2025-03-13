@@ -435,13 +435,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateGrowthStageMasterTypeInfo = prefix + "";
             public const string deleteGrowthStageMasterType = prefix + "/delete";
         }
-            public static class ProductCriteriaSet
-            {
-                public const string prefix = Base + "/product";
-                public const string getCriteriaSetOfProduct = prefix + "/criteria-set";
-                public const string DeleteCriteriaSetFromProduct = prefix + "/criteria-set";
-                public const string UpdateCriteriaSetStatus = prefix + "/criteria-set";
-                public const string ApplyCriteriaSetToProduct = prefix + "/criteria-set";
-            }
+        public static class ProductCriteriaSet
+        {
+            public const string prefix = Base + "/product";
+            public const string getCriteriaSetOfProduct = prefix + "/criteria-set";
+            public const string DeleteCriteriaSetFromProduct = prefix + "/criteria-set";
+            public const string UpdateCriteriaSetStatus = prefix + "/criteria-set";
+            public const string ApplyCriteriaSetToProduct = prefix + "/criteria-set";
+        }
     }
 }
