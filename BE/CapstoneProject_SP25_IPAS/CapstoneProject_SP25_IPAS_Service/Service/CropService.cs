@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -40,17 +41,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (!cropCreateRequest.FarmId.HasValue || cropCreateRequest.FarmId <= 0)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                    if (cropCreateRequest.Year < DateTime.Now.Year)
+                    if (cropCreateRequest.StartDate >= DateTime.Now)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
+                    if (cropCreateRequest.EndDate > cropCreateRequest.StartDate)
+                        return new BusinessResult(400, "End date of crop must later than start date");
                     if (!cropCreateRequest.LandPlotId.Any())
                         return new BusinessResult(Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE, Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG);
                     // Tạo đối tượng Crop mới
                     var lastId = await _unitOfWork.CropRepository.GetLastID();
                     var crop = new Crop
                     {
-                        CropCode = $"{CodeAliasEntityConst.CROP}-{cropCreateRequest.FarmId}-{DateTime.Now.ToString("ddmmyyyy")}-{cropCreateRequest.StartDate!.Value.ToString("ddmmyyyy")}-{cropCreateRequest.EndDate!.Value.ToString("ddmmyyyy")}-{lastId:D6}",
+                        CropCode = $"{CodeAliasEntityConst.CROP}{CodeHelper.GenerateCode()}-{cropCreateRequest.StartDate!.Value.ToString("ddmmyy")}-{cropCreateRequest.EndDate!.Value.ToString("ddmmyy")}",
                         CropName = cropCreateRequest.CropName,
-                        Year = cropCreateRequest.Year,
+                        //Year = cropCreateRequest.Year,
                         CropExpectedTime = cropCreateRequest.CropExpectedTime,
                         //CropActualTime = cropCreateRequest.CropActualTime,
                         HarvestSeason = cropCreateRequest.HarvestSeason,
@@ -58,21 +61,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //ActualYield = cropCreateRequest.ActualYield,
                         Notes = cropCreateRequest.Notes,
                         //MarketPrice = cropCreateRequest.MarketPrice,
-                        Status = nameof(FarmStatus.Active),
+                        //Status = nameof(FarmStatus.Active),
                         CreateDate = DateTime.UtcNow,
                         FarmId = cropCreateRequest.FarmId,
                         StartDate = cropCreateRequest.StartDate,
                         EndDate = cropCreateRequest.EndDate,
                         IsDeleted = false
                     };
-
+                    if(crop.StartDate > DateTime.Now)
+                        crop.Status = CropStatusEnum.Planned.ToString();
+                    else crop.Status = CropStatusEnum.Active.ToString();
                     foreach (var landplotId in cropCreateRequest.LandPlotId)
                     {
                         var existLandplot = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
-                        var checkLandPlotInCurCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x => 
-                                                                        x.LandPlotId == landplotId 
-                                                                        && x.Crop.StartDate <= DateTime.Now 
-                                                                        && x.Crop.EndDate >= DateTime.Now);
+                        var checkLandPlotInCurCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x =>
+                                                                        x.LandPlotId == landplotId
+                                                                        && x.Crop.StartDate <= DateTime.Now
+                                                                        && x.Crop.EndDate >= DateTime.Now, "Crop");
+                        // check thua do co vao mua do chua - khong cho nam trong 2 mua long voi nhau
+                        if (checkLandPlotInCurCrop != null)
+                            return new BusinessResult(400, $"Plot {existLandplot.LandPlotName} is in crop {checkLandPlotInCurCrop.Crop.CropName} at this time");
 
                         if (existLandplot != null)
                         {
@@ -116,7 +124,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                if(cropFilter.YearFrom.HasValue && cropFilter.YearFrom.HasValue && cropFilter.YearTo < cropFilter.YearFrom)
+                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue && cropFilter.DateTo < cropFilter.DateFrom)
                 {
                     return new BusinessResult(400, "Year to must larger than year from");
                 }
@@ -177,7 +185,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (landPlotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                if (cropFilter.YearFrom.HasValue && cropFilter.YearFrom.HasValue && cropFilter.YearTo < cropFilter.YearFrom)
+                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue && cropFilter.DateTo < cropFilter.DateFrom)
                 {
                     return new BusinessResult(400, "Year to must larger than year from");
                 }
@@ -333,17 +341,84 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Cập nhật các thuộc tính từ model nếu giá trị không null hoặc mặc định
-                    foreach (var prop in typeof(CropUpdateInfoRequest).GetProperties())
+                    //foreach (var prop in typeof(CropUpdateInfoRequest).GetProperties())
+                    //{
+                    //    var newValue = prop.GetValue(cropUpdateRequest);
+                    //    if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.ToString()!.Equals("string") && !newValue.ToString()!.Equals("0"))
+                    //    {
+                    //        var cropProp = typeof(Crop).GetProperty(prop.Name);
+                    //        if (cropProp != null && cropProp.CanWrite)
+                    //        {
+                    //            cropProp.SetValue(cropEntityUpdate, newValue);
+                    //        }
+                    //    }
+                    //}
+                    // 🔹 2. Kiểm tra từng thuộc tính và cập nhật nếu có giá trị hợp lệ
+                    if (!string.IsNullOrWhiteSpace(cropUpdateRequest.CropName))
                     {
-                        var newValue = prop.GetValue(cropUpdateRequest);
-                        if (newValue != null && !string.IsNullOrEmpty(newValue.ToString()) && !newValue.ToString()!.Equals("string") && !newValue.ToString()!.Equals("0"))
+                        cropEntityUpdate.CropName = cropUpdateRequest.CropName;
+                    }
+
+                    if (cropUpdateRequest.StartDate.HasValue)
+                    {
+                        if (cropEntityUpdate.EndDate.HasValue && cropUpdateRequest.StartDate > cropEntityUpdate.EndDate)
                         {
-                            var cropProp = typeof(Crop).GetProperty(prop.Name);
-                            if (cropProp != null && cropProp.CanWrite)
-                            {
-                                cropProp.SetValue(cropEntityUpdate, newValue);
-                            }
+                            return new BusinessResult(400, "Start date cannot be after End date.");
                         }
+                        cropEntityUpdate.StartDate = cropUpdateRequest.StartDate;
+                    }
+
+                    if (cropUpdateRequest.EndDate.HasValue)
+                    {
+                        if (cropEntityUpdate.StartDate.HasValue && cropUpdateRequest.EndDate < cropEntityUpdate.StartDate)
+                        {
+                            return new BusinessResult(400, "End date cannot be before Start date.");
+                        }
+                        cropEntityUpdate.EndDate = cropUpdateRequest.EndDate;
+                    }
+
+                    if (cropUpdateRequest.CropExpectedTime.HasValue)
+                    {
+                        cropEntityUpdate.CropExpectedTime = cropUpdateRequest.CropExpectedTime;
+                    }
+
+                    if (cropUpdateRequest.CropActualTime.HasValue)
+                    {
+                        cropEntityUpdate.CropActualTime = cropUpdateRequest.CropActualTime;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(cropUpdateRequest.HarvestSeason))
+                    {
+                        cropEntityUpdate.HarvestSeason = cropUpdateRequest.HarvestSeason;
+                    }
+
+                    if (cropUpdateRequest.EstimateYield.HasValue && cropUpdateRequest.EstimateYield >= 0)
+                    {
+                        cropEntityUpdate.EstimateYield = cropUpdateRequest.EstimateYield;
+                    }
+
+                    if (cropUpdateRequest.ActualYield.HasValue)
+                    {
+                        cropEntityUpdate.ActualYield = cropUpdateRequest.ActualYield;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(cropUpdateRequest.Notes))
+                    {
+                        cropEntityUpdate.Notes = cropUpdateRequest.Notes;
+                    }
+
+                    if (cropUpdateRequest.MarketPrice.HasValue && cropUpdateRequest.MarketPrice >= 0)
+                    {
+                        cropEntityUpdate.MarketPrice = cropUpdateRequest.MarketPrice;
+                    }
+                    if (!string.IsNullOrEmpty(cropUpdateRequest.Status))
+                    {
+                        cropEntityUpdate.Status = cropUpdateRequest.Status;
+                    }
+                    else
+                    {
+                        var cropStatus = DetermineCropStatus(cropUpdateRequest.StartDate, cropUpdateRequest.EndDate, cropUpdateRequest.CropActualTime);
+                        cropEntityUpdate.Status = cropStatus;
                     }
 
                     _unitOfWork.CropRepository.Update(cropEntityUpdate);
@@ -368,5 +443,49 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public string DetermineCropStatus(DateTime? startDate, DateTime? endDate, DateTime? cropActualTime)
+        {
+            DateTime now = DateTime.UtcNow; // Lấy thời gian hiện tại theo UTC
+
+            //  Nếu chưa có ngày bắt đầu => Mùa vụ chưa được lên kế hoạch
+            if (!startDate.HasValue)
+            {
+                return CropStatusEnum.Planned.ToString();
+            }
+
+            //  Nếu chưa tới ngày bắt đầu => Đang lên kế hoạch
+            if (now < startDate.Value)
+            {
+                return CropStatusEnum.Planned.ToString();
+            }
+
+            //  Nếu đã bắt đầu nhưng chưa kết thúc => Đang hoạt động
+            if (now >= startDate.Value && (!endDate.HasValue || now < endDate.Value))
+            {
+                return CropStatusEnum.Active.ToString();
+            }
+
+            //  Nếu có ngày thu hoạch dự kiến và đang trong thời gian thu hoạch
+            if (!cropActualTime.HasValue || now <= cropActualTime.Value)
+            {
+                return CropStatusEnum.Harvesting.ToString();
+            }
+
+            //  Nếu có ngày kết thúc hoặc đã thu hoạch xong => Hoàn thành
+            if (endDate.HasValue && now >= endDate.Value || (cropActualTime.HasValue && now >= cropActualTime.Value))
+            {
+                return CropStatusEnum.Completed.ToString();
+            }
+
+            ////  Nếu có ngày kết thúc nhưng bị hủy bỏ trước đó
+            //if (endDate.HasValue && now > endDate.Value)
+            //{
+            //    return CropStatusEnum.Cancelled.ToString();
+            //}
+
+            return CropStatusEnum.Planned.ToString(); // Trạng thái mặc định
+        }
+
     }
 }

@@ -223,7 +223,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.CropId).HasColumnName("CropID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.CropActualTime).HasColumnType("datetime");
-            entity.Property(e => e.Year).HasColumnType("int");
+            //entity.Property(e => e.Year).HasColumnType("int");
             entity.Property(e => e.CropCode)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -1359,11 +1359,11 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.ProductId).HasColumnName("MasterTypeID_1");
             entity.Property(e => e.CriteriaSetId).HasColumnName("MasterTypeID_2");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.Type_Types_1)
+            entity.HasOne(d => d.Product).WithMany(p => p.Products)
                 .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK__Type_Type_1_MasterType__43A51090D");
 
-            entity.HasOne(d => d.CriteriaSet).WithMany(p => p.Type_Types_2)
+            entity.HasOne(d => d.CriteriaSet).WithMany(p => p.CriteriaSet)
                 .HasForeignKey(d => d.CriteriaSetId)
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });

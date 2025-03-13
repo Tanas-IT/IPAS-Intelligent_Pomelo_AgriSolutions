@@ -11,6 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail
     public class TypeTypeModel
     {
         public int ProductId { get; set; }
+        public string? ProductName { get; set; }
         public int CriteriaSetId { get; set; }
         public bool? IsActive { get; set; }
         //public virtual MasterType? Product { get; set; }

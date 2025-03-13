@@ -55,7 +55,7 @@ function PlantDetails() {
   };
 
   return (
-    <Flex className={style.container}>
+    <Flex className={style.detailContainer}>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey="2"

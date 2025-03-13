@@ -1,0 +1,27 @@
+@use "@/styles/variables.scss" as vars;
+
+.criteriaTableWrapper {
+  max-height: 25rem;
+  overflow: auto;
+  .criteriaTable {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center;
+    }
+    td {
+      padding: 4px 0;
+    }
+  }
+}
+
+.priorityNumber {
+  input {
+    text-align: center !important;
+  }
+}
+
+.actionIcon {
+  cursor: pointer;
+}

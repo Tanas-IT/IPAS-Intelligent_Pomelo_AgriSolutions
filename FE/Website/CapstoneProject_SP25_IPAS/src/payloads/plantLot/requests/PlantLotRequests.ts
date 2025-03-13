@@ -1,8 +1,10 @@
 export interface PlantLotRequest {
   plantLotId: number;
-  partnerId: number;
   plantLotName: string;
+  partnerId: number;
+  masterTypeId: number;
   previousQuantity: number;
+  lastQuantity: number;
   unit: string;
   note: string;
 }

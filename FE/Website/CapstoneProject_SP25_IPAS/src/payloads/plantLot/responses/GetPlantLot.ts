@@ -9,6 +9,7 @@ export interface GetPlantLot2 {
   plantLotCode: string;
   plantLotName: string;
   previousQuantity: number;
+  inputQuantity: number;
   lastQuantity: number;
   usedQuantity: number;
   unit: string;
@@ -20,4 +21,8 @@ export interface GetPlantLot2 {
   masterTypeId: number;
   seedingName: string;
   isPassed: boolean;
+}
+
+export interface GetPlantLotDetail extends GetPlantLot2 {
+  additionalPlantLots: GetPlantLot2[];
 }

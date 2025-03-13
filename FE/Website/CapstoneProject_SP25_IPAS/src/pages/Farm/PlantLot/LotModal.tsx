@@ -2,10 +2,11 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, lotFormFields, MASTER_TYPE, PARTNER, WORK_TARGETS } from "@/constants";
+import { CRITERIA_TARGETS, lotFormFields, MASTER_TYPE, PARTNER } from "@/constants";
 import { GetPlantLot2, PlantLotRequest } from "@/payloads";
 import { partnerService } from "@/services";
 import { SelectOption } from "@/types";
+import { useMasterTypeOptions } from "@/hooks";
 
 type LotModelProps = {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
   const [form] = Form.useForm();
   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
   const [partnerOptions, setPartnerOptions] = useState<SelectOption[]>([]);
+  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -40,18 +42,19 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
 
   useEffect(() => {
     resetForm();
-    if (isOpen) {
-      if (isUpdate && lotData) {
-        form.setFieldsValue({ ...lotData });
-      }
+    if (isOpen && lotData) {
+      form.setFieldsValue({ ...lotData });
     }
+    form.setFieldsValue({ ...lotData, unit: "Plant" });
   }, [isOpen, lotData]);
 
   const getFormData = (): PlantLotRequest => ({
     plantLotId: form.getFieldValue(lotFormFields.plantLotId),
     plantLotName: form.getFieldValue(lotFormFields.plantLotName),
     partnerId: form.getFieldValue(lotFormFields.partnerId),
+    masterTypeId: form.getFieldValue(lotFormFields.masterTypeId),
     previousQuantity: form.getFieldValue(lotFormFields.previousQuantity),
+    lastQuantity: form.getFieldValue(lotFormFields.lastQuantity),
     unit: form.getFieldValue(lotFormFields.unit),
     note: form.getFieldValue(lotFormFields.note),
   });
@@ -71,7 +74,7 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
       onSave={handleOk}
       isUpdate={isUpdate}
       isLoading={isLoadingAction}
-      title={isUpdate ? "Update Type" : "Add New Type"}
+      title={isUpdate ? "Update Lot" : "Add New Lot"}
     >
       <Form form={form} layout="vertical">
         <FormFieldModal
@@ -80,20 +83,38 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
           rules={RulesManager.getLotNameRules()}
         />
 
-        <FormFieldModal
-          type="select"
-          label="Partner"
-          name={lotFormFields.partnerId}
-          rules={RulesManager.getPartnerRules()}
-          options={partnerOptions}
-        />
-
         <Flex gap={20}>
           <FormFieldModal
-            label="Quantity"
-            name={lotFormFields.previousQuantity}
-            rules={RulesManager.getQuantityRules()}
+            type="select"
+            label="Partner"
+            name={lotFormFields.partnerId}
+            rules={RulesManager.getPartnerRules()}
+            options={partnerOptions}
           />
+          <FormFieldModal
+            type="select"
+            label="Cultivar"
+            name={lotFormFields.masterTypeId}
+            rules={RulesManager.getCultivarRules()}
+            options={cultivarTypeOptions}
+          />
+        </Flex>
+
+        <Flex gap={20}>
+          {!isUpdate ? (
+            <FormFieldModal
+              label="Quantity"
+              name={lotFormFields.previousQuantity}
+              rules={RulesManager.getQuantityRules()}
+            />
+          ) : lotData.isPassed ? (
+            <FormFieldModal
+              label="Qualified Quantity"
+              name={lotFormFields.lastQuantity}
+              rules={RulesManager.getQuantityRules()}
+            />
+          ) : null}
+
           <FormFieldModal
             label="Unit"
             name={lotFormFields.unit}
@@ -101,12 +122,7 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
           />
         </Flex>
 
-        <FormFieldModal
-          type="textarea"
-          label="Note"
-          name={lotFormFields.note}
-          placeholder="Enter note"
-        />
+        <FormFieldModal type="textarea" label="Note" name={lotFormFields.note} />
       </Form>
     </ModalForm>
   );

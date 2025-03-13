@@ -5,18 +5,12 @@
   @include shared.container;
 }
 
-.criteriaTableWrapper {
-  max-height: 25rem;
-  overflow: auto;
-  .criteriaTable {
-    th {
-      background: vars.$color_second !important;
-      color: vars.$color_primary !important;
-      font-weight: bold;
-      text-align: center;
-    }
-    td {
-      padding: 4px 0;
-    }
-  }
+.filterContent {
+  @include shared.filterContent;
+}
+
+.lotSteps {
+  max-width: 70%;
+  margin: auto;
+  padding-bottom: 10px;
 }

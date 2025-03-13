@@ -25,7 +25,7 @@ import PlantFilter from "./PlantFilter";
 import { plantColumns } from "./PlantColumns";
 import { FilterPlantState } from "@/types";
 import PlantModel from "./PlantModal";
-import { HEALTH_STATUS } from "@/constants";
+import { HEALTH_STATUS, ROUTES } from "@/constants";
 import PlantImportModal from "./PlantImportModal";
 import { toast } from "react-toastify";
 import PlantMarkAsDeadModal from "./PlantMarkAsDeadModal";
@@ -202,7 +202,7 @@ function PlantList() {
             />
           }
           isOnRowEvent={true}
-          onRowDoubleClick={(record) => navigate(`/farm/plants/${record.plantId}/details`)}
+          onRowDoubleClick={(record) => navigate(ROUTES.FARM_PLANT_DETAIL(record.plantId))}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           sortDirection={sortDirection}

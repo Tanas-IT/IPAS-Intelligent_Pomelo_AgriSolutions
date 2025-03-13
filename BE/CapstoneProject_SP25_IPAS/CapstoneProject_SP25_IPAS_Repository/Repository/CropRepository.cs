@@ -71,9 +71,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             // Lọc theo PlantDate
-            if (cropFilter.YearFrom.HasValue && cropFilter.YearTo.HasValue)
+            if (cropFilter.DateFrom.HasValue && cropFilter.DateTo.HasValue)
             {
-                query = query.Where(c => c.Crop.Year >= cropFilter.YearFrom.Value && c.Crop.Year <= cropFilter.YearTo.Value);
+                query = query.Where(c => c.Crop.StartDate >= cropFilter.DateFrom && c.Crop.EndDate <= cropFilter.DateTo);
             }
 
             if (!string.IsNullOrEmpty(cropFilter.HarvestSeason))
@@ -105,10 +105,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         ? x => x.OrderByDescending(c => c.Crop.CropName)
                         : x => x.OrderBy(c => c.Crop.CropName);
                     break;
-                case nameof(Crop.Year):
+                case nameof(Crop.StartDate):
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.Crop.Year)
-                        : x => x.OrderBy(c => c.Crop.Year);
+                        ? x => x.OrderByDescending(c => c.Crop.StartDate)
+                        : x => x.OrderBy(c => c.Crop.StartDate);
                     break;
                 case nameof(Crop.CropActualTime):
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
@@ -170,9 +170,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             // Lọc theo PlantDate
-            if (cropFilter.YearFrom.HasValue && cropFilter.YearTo.HasValue)
+            if (cropFilter.DateFrom.HasValue && cropFilter.DateTo.HasValue)
             {
-                query = query.Where(c => c.Crop.Year >= cropFilter.YearFrom.Value && c.Crop.Year <= cropFilter.YearTo.Value);
+                query = query.Where(c => c.Crop.StartDate >= cropFilter.DateFrom.Value && c.Crop.EndDate <= cropFilter.DateTo.Value);
             }
 
             if (!string.IsNullOrEmpty(cropFilter.HarvestSeason))
@@ -203,32 +203,32 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             Func<IQueryable<LandPlotCrop>, IOrderedQueryable<LandPlotCrop>> orderBy;
             switch (paginationParameter.SortBy?.ToLower())
             {
-                case nameof(Crop.CropName):
+                case "cropname":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
                         ? x => x.OrderByDescending(c => c.Crop.CropName)
                         : x => x.OrderBy(c => c.Crop.CropName);
                     break;
-                case nameof(Crop.Year):
+                case "startdate":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.Crop.Year)
-                        : x => x.OrderBy(c => c.Crop.Year);
+                        ? x => x.OrderByDescending(c => c.Crop.StartDate)
+                        : x => x.OrderBy(c => c.Crop.StartDate);
                     break;
-                case nameof(Crop.CropActualTime):
+                case "cropactualtime":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
                         ? x => x.OrderByDescending(c => c.Crop.CropActualTime)
                         : x => x.OrderBy(c => c.Crop.CropActualTime);
                     break;
-                case nameof(Crop.Status):
+                case "status":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
                         ? x => x.OrderByDescending(c => c.Crop.Status)
                         : x => x.OrderBy(c => c.Crop.Status);
                     break;
-                case nameof(Crop.ActualYield):
+                case "actualyield":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
                         ? x => x.OrderByDescending(c => c.Crop.ActualYield)
                         : x => x.OrderBy(c => c.Crop.ActualYield);
                     break;
-                case nameof(Crop.MarketPrice):
+                case "marketprice":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
                         ? x => x.OrderByDescending(c => c.Crop.MarketPrice)
                         : x => x.OrderBy(c => c.Crop.MarketPrice);

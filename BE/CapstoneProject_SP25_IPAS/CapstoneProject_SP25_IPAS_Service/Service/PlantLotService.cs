@@ -110,7 +110,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createPlantLotModel.FarmId && x.IsDeleted == false);
                     if (checkFarmExist == null)
                         return new BusinessResult(Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_FARM_DOES_NOT_EXIST_MSG);
-                    var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(createPlantLotModel.MasterTypeId, TypeNameInMasterEnum.Cultiva.ToString());
+                    var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(createPlantLotModel.MasterTypeId, TypeNameInMasterEnum.Cultivar.ToString());
                     if (masterTypeExist == null)
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, "This type not suitable for Seeding");
 
@@ -509,7 +509,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (updatePlantLotRequestModel.MasterTypeId.HasValue)
                         {
-                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(updatePlantLotRequestModel.MasterTypeId.Value, TypeNameInMasterEnum.Cultiva.ToString());
+                            var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(updatePlantLotRequestModel.MasterTypeId.Value, TypeNameInMasterEnum.Cultivar.ToString());
                             if (checkMasterTypeExist == null)
                                 return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                             //var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == updatePlantLotRequestModel.MasterTypeId && x.IsDelete == false);

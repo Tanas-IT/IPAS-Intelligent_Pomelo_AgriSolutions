@@ -11,10 +11,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cro
     public class CropFilter
     {
         [FromQuery(Name = "yearFrom")]
-        public int? YearFrom { get; set; }
+        public DateTime? DateFrom { get; set; }
 
         [FromQuery(Name = "yearTo")]
-        public int? YearTo { get; set; }
+        public DateTime? DateTo { get; set; }
 
         [FromQuery(Name = "harvestSeason")]
         public string? HarvestSeason { get; set; }

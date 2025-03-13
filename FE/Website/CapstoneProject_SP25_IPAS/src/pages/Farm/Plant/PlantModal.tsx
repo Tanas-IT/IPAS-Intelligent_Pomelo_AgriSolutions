@@ -46,9 +46,6 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     if (isUpdate && plantData) {
       form.setFieldsValue({
         ...plantData,
-        masterTypeId: cultivarTypeOptions.find(
-          (opt) => opt.value === String(plantData.masterTypeId),
-        ),
         plantingDate: dayjs(plantData.plantingDate),
       });
       setImage(plantData.imageUrl);

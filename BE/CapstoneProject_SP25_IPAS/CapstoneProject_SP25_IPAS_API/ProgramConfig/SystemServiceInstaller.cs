@@ -98,6 +98,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGraftedPlantNoteRepository, GraftedPlantNoteRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
 
 
             // Register servicies
@@ -128,6 +129,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
             services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
             services.AddScoped<IWebSocketService, WebSocketService>();
+            services.AddScoped<ITypeTypeService, TypeTypeService>();
 
 
 
