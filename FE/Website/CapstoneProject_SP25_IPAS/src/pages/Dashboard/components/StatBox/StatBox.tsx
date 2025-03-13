@@ -9,12 +9,13 @@ interface StatBoxProps {
   subtitle: string;
   icon: React.ReactNode;
   // progress: number;
-  increase: string;
+  increase?: string;
+  variant?: "default" | "large";
 }
 
-const StatBox: FC<StatBoxProps> = ({ title, subtitle, icon, increase }) => {
+const StatBox: FC<StatBoxProps> = ({ title, subtitle, icon, increase, variant = "default" }) => {
   return (
-    <Card className={style.statBox}>
+    <Card className={`${style.statBox} ${variant === "large" ? style.large : ""}`}>
       <div className={style.statBoxHeader}>
         <div className={style.statBoxIconTitle}>
           <div className={style.statBoxIconWrapper}>{icon}</div>

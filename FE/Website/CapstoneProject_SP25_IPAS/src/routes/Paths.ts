@@ -81,4 +81,13 @@ export const PATHS = {
     SUCCESS: "/payment/payment-success",
     CANCEL: "/payment/payment-cancle",
   },
+
+  EMPLOYEE: {
+    DASHBOARD: "/employee/dashboard",
+    WORK_SCHEDULE: "/employee/work-schedule",
+    WORKLOG: "/employee/worklog",
+    WORKLOG_DETAIL: "/employee/worklog/:id",
+    PLANTS: "/employee/plants",
+    AI_CONSULTING: "/employee/ai-consulting",
+  },
 };
