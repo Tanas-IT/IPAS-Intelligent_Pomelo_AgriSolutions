@@ -110,5 +110,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var listMasterType = await getMasterTypeByName.ToListAsync();
             return listMasterType.Any() ? listMasterType : new List<MasterType>();
         }
+
+        public async Task<List<MasterType>> GetMasterTypesByGrowthStages(List<int?> growthStageIds)
+        {
+            var result = await _context.GrowthStageMasterTypes
+                                .Where(gmt => gmt.GrowthStageID.HasValue // Đảm bảo không null
+                                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
+                                              && gmt.MasterType != null
+                                              && gmt.MasterType.TypeName != null
+                                              && gmt.MasterType.TypeName.ToLower() == "work")
+                                .Select(gmt => gmt.MasterType!)
+                                .Distinct()
+                                .ToListAsync();
+
+            return result;
+
+        }
     }
 }

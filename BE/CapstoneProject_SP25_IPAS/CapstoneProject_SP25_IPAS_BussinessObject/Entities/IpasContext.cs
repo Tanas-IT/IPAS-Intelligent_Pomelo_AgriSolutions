@@ -100,6 +100,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
     public virtual DbSet<CriteriaTarget> CriteriaTargets { get; set; }
     public virtual DbSet<GrowthStagePlan> GrowthStagePlans { get; set; }
+    public virtual DbSet<GrowthStageMasterType> GrowthStageMasterTypes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -584,10 +585,7 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Master_Type_Farm__22751F6C");
 
-            entity.HasOne(d => d.GrowthStage).WithMany(p => p.MasterTypes)
-                .HasForeignKey(d => d.GrowthStageID)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Master_Type_GrowthStage__2274324F6C");
+           
         });
 
         //modelBuilder.Entity<MasterTypeDetail>(entity =>
@@ -1480,6 +1478,30 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Plan).WithMany(p => p.GrowthStagePlans)
                 .HasForeignKey(d => d.PlanID)
                 .HasConstraintName("FK_GrowthStagePlan_Plan__32314C52");
+        });
+
+
+        modelBuilder.Entity<GrowthStageMasterType>(entity =>
+        {
+            entity.HasKey(e => e.GrowthStageMasterTypeID).HasName("PK__GrowthStageMasterType__23823GHYRT5");
+            entity.ToTable("GrowthStageMasterType");
+
+            entity.Property(e => e.GrowthStageMasterTypeID).HasColumnName("GrowthStageMasterTypeID");
+            entity.Property(e => e.GrowthStageID).HasColumnName("GrowthStageID");
+            entity.Property(e => e.MasterTypeID).HasColumnName("MasterTypeID");
+            entity.Property(e => e.FarmID).HasColumnName("FarmID");
+
+            entity.HasOne(d => d.GrowthStage).WithMany(p => p.GrowthStageMasterTypes)
+                .HasForeignKey(d => d.GrowthStageID)
+                .HasConstraintName("FK_GrowthStageMasterType_GrowthStage__35232C52");
+
+            entity.HasOne(d => d.MasterType).WithMany(p => p.GrowthStageMasterTypes)
+                .HasForeignKey(d => d.MasterTypeID)
+                .HasConstraintName("FK_GrowthStageMasterType_MasterType__323154C52");
+
+            entity.HasOne(d => d.Farm).WithMany(p => p.GrowthStageMasterTypes)
+               .HasForeignKey(d => d.FarmID)
+               .HasConstraintName("FK_GrowthStageMasterType_Farm__3234554C52");
         });
         OnModelCreatingPartial(modelBuilder);
     }

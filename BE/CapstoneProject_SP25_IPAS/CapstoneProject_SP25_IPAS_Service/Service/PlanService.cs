@@ -113,6 +113,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (createPlanModel.CropId.HasValue && createPlanModel.ListLandPlotOfCrop != null)
                     {
+                        var getCropToCheck = await _unitOfWork.CropRepository.GetByID(createPlanModel.CropId.Value);
+                        if (getCropToCheck != null)
+                        {
+                            if (createPlanModel.StartDate < getCropToCheck.StartDate ||
+                             createPlanModel.StartDate > getCropToCheck.EndDate ||
+                             createPlanModel.EndDate < getCropToCheck.StartDate ||
+                             createPlanModel.EndDate > getCropToCheck.EndDate)
+                            {
+                                throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                                    $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                            }
+                        }
                         if (createPlanModel.ListLandPlotOfCrop.Any())
                         {
                             foreach (var landPlotOfCrop in createPlanModel.ListLandPlotOfCrop)
@@ -2089,6 +2101,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.SUCCESS_FILTER_BY_GROWTHSTAGE_CODE, Const.SUCCESS_FILTER_BY_GROWTHSTAGE_MSG, result);
                 }
                 return new BusinessResult(Const.FAIL_FILTER_BY_GROWTHSTAGE_CODE, Const.FAIL_FILTER_BY_GROWTHSTAGE_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds)
+        {
+            try
+            {
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+                if(getMasterType != null && getMasterType.Any())
+                {
+                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+                }
+                return new BusinessResult(404, "Do not have any type of work");
             }
             catch (Exception ex)
             {

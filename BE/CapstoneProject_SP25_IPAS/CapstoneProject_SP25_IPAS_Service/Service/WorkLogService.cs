@@ -485,37 +485,56 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
                     findWorkLog.CreateDate = DateTime.Now;
-                    foreach (var fileNote in createNoteModel.Resources)
+                    if(createNoteModel.Resources != null)
                     {
-                        var getLink = "";
-                        if (IsImageFile(fileNote))
+                        foreach (var fileNote in createNoteModel.Resources)
                         {
-                            getLink = await _cloudinaryService.UploadImageAsync(fileNote, "worklog/note");
-                            var newResource = new Resource()
+                            var getLink = "";
+                            if (fileNote.File != null)
                             {
-                                CreateDate = DateTime.Now,
-                                FileFormat = "image",
-                                ResourceURL = getLink,
-                                Description = "note for worklog",
-                                UpdateDate = DateTime.Now,
-                                UserWorkLogID = findWorkLog.UserWorkLogID
-                            };
-                            await _unitOfWork.ResourceRepository.Insert(newResource);
+                                if (IsImageFile(fileNote.File))
+                                {
+                                    getLink = await _cloudinaryService.UploadImageAsync(fileNote.File, "worklog/note");
+                                    var newResource = new Resource()
+                                    {
+                                        CreateDate = DateTime.Now,
+                                        FileFormat = "image",
+                                        ResourceURL = getLink,
+                                        Description = "note for worklog",
+                                        UpdateDate = DateTime.Now,
+                                        UserWorkLogID = findWorkLog.UserWorkLogID
+                                    };
+                                    await _unitOfWork.ResourceRepository.Insert(newResource);
 
-                        }
-                        else
-                        {
-                            getLink = await _cloudinaryService.UploadVideoAsync(fileNote, "worklog/note");
-                            var newResourceVideo = new Resource()
+                                }
+                                else
+                                {
+                                    getLink = await _cloudinaryService.UploadVideoAsync(fileNote.File, "worklog/note");
+                                    var newResourceVideo = new Resource()
+                                    {
+                                        CreateDate = DateTime.Now,
+                                        FileFormat = "image",
+                                        ResourceURL = getLink,
+                                        Description = "note for worklog",
+                                        UpdateDate = DateTime.Now,
+                                        UserWorkLogID = findWorkLog.UserWorkLogID
+                                    };
+                                    await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
+                                }
+                            }
+                            if(fileNote.ResourceURL != null)
                             {
-                                CreateDate = DateTime.Now,
-                                FileFormat = "image",
-                                ResourceURL = getLink,
-                                Description = "note for worklog",
-                                UpdateDate = DateTime.Now,
-                                UserWorkLogID = findWorkLog.UserWorkLogID
-                            };
-                            await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
+                                var newResourceURL = new Resource()
+                                {
+                                    CreateDate = DateTime.Now,
+                                    FileFormat = "link",
+                                    ResourceURL = fileNote.ResourceURL,
+                                    Description = "note for worklog",
+                                    UpdateDate = DateTime.Now,
+                                    UserWorkLogID = findWorkLog.UserWorkLogID
+                                };
+                                await _unitOfWork.ResourceRepository.Insert(newResourceURL);
+                            }
                         }
                     }
                     var result = await _unitOfWork.SaveAsync();

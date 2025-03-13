@@ -30,5 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetPlanByFarmId(int? farmId);
         public Task<BusinessResult> GetListPlantByFilterGrowthStage(List<int?> growthStageId, int farmId, string unit);
         public Task<BusinessResult> PermanentlyDeleteManyPlan(List<int> planIds);
+
+        public Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds);
     }
 }

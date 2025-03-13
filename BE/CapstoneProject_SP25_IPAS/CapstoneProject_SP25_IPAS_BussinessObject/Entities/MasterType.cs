@@ -29,7 +29,6 @@ public partial class MasterType
     public bool? IsDefault { get; set; }
 
     public int? FarmID { get; set; }
-    public int? GrowthStageID { get; set; }
 
     public string? BackgroundColor { get; set; }
 
@@ -39,7 +38,6 @@ public partial class MasterType
     public string? Characteristic {  get; set; }
 
     public virtual Farm? Farm { get; set; }
-    public virtual GrowthStage? GrowthStage { get; set; }
 
    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
@@ -60,4 +58,6 @@ public partial class MasterType
     public virtual ICollection<SubProcess> SubProcesses { get; set; } = new List<SubProcess>();
     public virtual ICollection<Type_Type> Type_Types_1 { get; set; } = new List<Type_Type>();
     public virtual ICollection<Type_Type> Type_Types_2 { get; set; } = new List<Type_Type>();
+    public virtual ICollection<GrowthStageMasterType> GrowthStageMasterTypes { get; set; } = new List<GrowthStageMasterType>();
+
 }

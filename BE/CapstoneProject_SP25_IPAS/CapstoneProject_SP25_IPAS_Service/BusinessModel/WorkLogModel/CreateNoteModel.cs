@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public int WorkLogId { get; set; }
         public string? Note { get; set; }
         public string? Issue { get; set; }
-        public List<IFormFile>? Resources { get; set; }
+        public List<ResourceCrUpRequest>? Resources { get; set; } 
     }
 }

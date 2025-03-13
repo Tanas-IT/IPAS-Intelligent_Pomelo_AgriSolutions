@@ -180,5 +180,43 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Crop.getCropInCurrentTime, Name = "getCropInCurrentTime")]
+        public async Task<IActionResult> GetCropInCurrentTimeAsync()
+        {
+            try
+            {
+                var result = await _cropService.GetCropInCurrentTime();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Crop.getLandPlotOfCrop, Name = "getLandPlotOfCrop")]
+        public async Task<IActionResult> GetLandPlotOfCropAsync([FromRoute] int cropId)
+        {
+            try
+            {
+                var result = await _cropService.GetLandPlotsOfCrop(cropId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
