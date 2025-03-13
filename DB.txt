@@ -105,13 +105,11 @@ CREATE TABLE ipas.dbo.MasterType (
 	FarmID int NULL,
         Target nvarchar(MAX) NULL,
         IsConflict bit NULL,
-	GrowthStageID int NULL,
 	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	Characteristic nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
-	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
-	CONSTRAINT MasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
+	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),	
 );
 
 
@@ -1015,14 +1013,26 @@ CREATE TABLE ipas.dbo.PlanTarget (
 	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 
-CREATE TABLE IPAS.dbo.GrowthStagePlan (
-	GrowthStagePlanID int IDENTITY(0,1) NOT NULL,
+CREATE TABLE ipas.dbo.GrowthStagePlan (
+	GrowthStagePlanID int IDENTITY(1,1) NOT NULL,
 	GrowthStageID int NULL,
 	PlanID int NULL,
 	CONSTRAINT GrowthStagePlan_PK PRIMARY KEY (GrowthStagePlanID),
 	CONSTRAINT GrowthStagePlan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT GrowthStagePlan_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID)
 );
+
+CREATE TABLE ipas.dbo.GrowthStageMasterType (
+	GrowthStageMasterTypeID int IDENTITY(1,1) NOT NULL,
+	GrowthStageID int NULL,
+	MasterTypeID int NULL,
+	FarmID int NULL,
+	CONSTRAINT GrowthStageMasterType_PK PRIMARY KEY (GrowthStageMasterTypeID),
+	CONSTRAINT GrowthStageMasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT GrowthStageMasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT GrowthStageMasterType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
+);
+
 GO
 
 INSERT INTO [ipas].[dbo].[Farm] 

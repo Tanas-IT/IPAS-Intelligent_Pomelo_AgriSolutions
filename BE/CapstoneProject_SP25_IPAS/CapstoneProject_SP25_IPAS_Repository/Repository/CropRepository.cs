@@ -263,5 +263,26 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 return 1;
             return lastId + 1;
         }
+
+        public async Task<List<Crop>> GetCropsInCurrentTime()
+        {
+            var currentDate = DateTime.Now;
+            var result = await _context.Crops
+                        .Where(x => x.StartDate.HasValue && x.EndDate.HasValue &&
+                                    x.StartDate.Value <= currentDate && x.EndDate.Value >= currentDate)
+                        .ToListAsync();
+            return result;
+        }
+
+        public async Task<List<LandPlot>> GetLandPlotOfCrops(int cropId)
+        {
+            var result = await _context.LandPlotCrops
+                             .Include(x => x.LandPlot)
+                             .Where(x => x.CropID == cropId)
+                             .Select(x => x.LandPlot)
+                             .ToListAsync();
+
+            return result;
+        }
     }
 }
