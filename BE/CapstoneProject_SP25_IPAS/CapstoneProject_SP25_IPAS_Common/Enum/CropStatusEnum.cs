@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Common.Enum
 {
-    public enum TypeNameInMasterEnum
+    public enum CropStatusEnum
     {
-        Process,
-        Criteria,
-        Product,
-        Cultivar,
-        Document,
-        Work,
-        Notification
+        Planned,
+        Active,
+        Harvesting,
+        Completed,
+        Cancelled
     }
 }

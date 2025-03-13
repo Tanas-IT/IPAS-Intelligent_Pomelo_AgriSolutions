@@ -98,7 +98,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
             public const string getForSelected = Base + "/masterTypes/get-for-selected";
-            
+
         }
 
         public static class Criteria
@@ -110,6 +110,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateCriteriaInfo = prefix + "";
             public const string createMasTypeCriteria = prefix + "/create-master-type-criteria";
             public const string getCriteriaBySet = prefix + "/set-criteria";
+            public const string getCriteriaSetPlantLotExcept = prefix + "/plantlot/get-for-selected/except";
 
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
@@ -421,6 +422,15 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createNotification = Base + "/create-notification";
             public const string getNotificationByUserId = Base + "/notification";
             public const string markNotificationIsRead = Base + "/mark-notification-is-read";
+        }
+
+        public static class ProductCriteriaSet
+        {
+            public const string prefix = Base + "/product";
+            public const string getCriteriaSetOfProduct = prefix + "/criteria-set";
+            public const string DeleteCriteriaSetFromProduct = prefix + "/criteria-set";
+            public const string UpdateCriteriaSetStatus = prefix + "/criteria-set";
+            public const string ApplyCriteriaSetToProduct = prefix + "/criteria-set";
         }
     }
 }

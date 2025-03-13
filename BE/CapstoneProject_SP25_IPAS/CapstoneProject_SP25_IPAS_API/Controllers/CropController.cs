@@ -49,6 +49,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
+                if (!farmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm id has required",
+                    });
+                }
                 var result = await _cropService.getAllCropOfFarm(farmId!.Value, paginationParameter, cropFilter);
                 return Ok(result);
             }
@@ -87,10 +95,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                if (!landplotId.HasValue)
-                {
-                    landplotId = _jwtTokenService.GetFarmIdFromToken();
-                }
+                //if (!landplotId.HasValue)
+                //{
+                //    landplotId = _jwtTokenService.GetFarmIdFromToken();
+                //}
                 var result = await _cropService.getAllCropOfFarmForSelected(landplotId!.Value, searchValue);
                 return Ok(result);
             }
@@ -110,6 +118,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!cropCreateRequest.FarmId.HasValue)
+                {
+                    cropCreateRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                if (!cropCreateRequest.FarmId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm id has required",
+                    });
+                }
                 var result = await _cropService.createCrop(cropCreateRequest);
                 return Ok(result);
             }

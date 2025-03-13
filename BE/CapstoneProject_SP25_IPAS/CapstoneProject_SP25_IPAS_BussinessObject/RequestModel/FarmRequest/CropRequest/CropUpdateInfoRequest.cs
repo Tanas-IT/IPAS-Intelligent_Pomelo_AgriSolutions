@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cro
 
         public DateTime? EndDate { get; set; }
 
-        public int Year { get; set; }
+        //public int Year { get; set; }
 
         public DateTime? CropExpectedTime { get; set; }
 
@@ -33,6 +33,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Cro
         public string? Notes { get; set; }
 
         public double? MarketPrice { get; set; }
+        public string? Status { get; set; }
 
     }
 }
