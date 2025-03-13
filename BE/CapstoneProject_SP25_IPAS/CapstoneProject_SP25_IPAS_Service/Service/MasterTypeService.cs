@@ -326,10 +326,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == MasterTypeId && x.IsDelete == false;
-                var MasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(filter);
-                if (MasterType != null)
+                var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(filter);
+                //var masterType = await _unitOfWork.MasterTypeRepository.GetByIdIncludeMasterType(MasterTypeId);
+                if (masterType != null)
                 {
-                    var result = _mapper.Map<MasterTypeModel>(MasterType);
+                    var result = _mapper.Map<MasterTypeModel>(masterType);
                     return new BusinessResult(Const.SUCCESS_GET_MASTER_TYPE_BY_ID_CODE, Const.SUCCESS_GET_MASTER_TYPE_BY_ID_MESSAGE, result);
                 }
                 return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DETAIL_DOES_NOT_EXIST_MSG);

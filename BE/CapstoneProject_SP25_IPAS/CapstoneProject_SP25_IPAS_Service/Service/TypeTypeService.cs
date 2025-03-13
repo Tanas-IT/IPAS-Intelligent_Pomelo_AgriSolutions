@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
@@ -29,10 +30,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
-                Expression<Func<Type_Type, bool>> filter = x => x.ProductId == productId && x.IsActive == true;
-                string includeProperties = "CriteriaSet";
-                var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties);
+                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetAllNoPaging(x => productId.Equals(x.MasterTypeId)
+                                                                    && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower())
+                                                                    && x.IsActive == true
+                                                                    && x.IsDelete == false);
+                if (!checkProductExist.Any())
+                    return new BusinessResult(400, "No Product was found");
+                    // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
+                    Expression<Func<Type_Type, bool>> filter = x => productId.Equals(x.ProductId) && x.IsActive == true;
+                //string includeProperties = "CriteriaSet,Product";
+                var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPagin(filter: filter, null!);
+
                 if (!criteriaSets.Any())
                     return new BusinessResult(200, "No criteria set found for this product.");
 
@@ -55,6 +63,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var listCriteriaSetAdd = new List<Type_Type>();
                     foreach (var criteriaSetId in criteriaSetIds)
                     {
+                        var checkCriteriaSet = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Criteria.ToString().ToLower())
+                                                                                                && x.IsDelete == false, "Criterias");
+                        if (checkCriteriaSet == null)
+                            return new BusinessResult(400, "Criteria set not exist");
+                        if (!checkCriteriaSet.Criterias.Any())
+                            return new BusinessResult(400, "Criteria Set not have any criteria");
                         var exists = await _unitOfWork.Type_TypeRepository.GetByCondition(x => x.ProductId == productId && x.CriteriaSetId == criteriaSetId);
                         if (exists == null)
                         {

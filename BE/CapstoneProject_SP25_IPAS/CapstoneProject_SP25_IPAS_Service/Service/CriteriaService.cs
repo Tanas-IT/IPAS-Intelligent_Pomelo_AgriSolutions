@@ -8,10 +8,13 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Asn1.X509;
 using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
@@ -61,7 +64,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             existingCriteria.FrequencyDate = request.FrequencyDate;
                             criteriaToUpdate.Add(existingCriteria);
                             receivedCriteriaIds.Add(request.CriteriaId.Value);
-                            
+
                         }
                         else
                         {
@@ -178,7 +181,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = group.Key,
                         MasterTypeName = group.First().Criteria!.MasterType!.MasterTypeName!,
                         Target = group.First().Criteria!.MasterType!.Target,
-                        CriteriaList = group.Select(pc => new CriteriaInfoModel
+                        CriteriaList = group.OrderBy(pc => pc.Priority).Select(pc => new CriteriaInfoModel
                         {
                             PlantId = pc.PlantID,
                             GraftedPlantId = pc.GraftedPlantID,
@@ -348,5 +351,87 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
         //    }
         //}
+
+        //public async Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantlotId, int farmId, string target = null!)
+        //{
+        //    try
+        //    {
+        //        if (farmId <= 0)
+        //            return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+        //        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantlotId
+        //                                                        && x.isDeleted == false);
+        //        if (checkPlantLotExist == null)
+        //            return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+        //        // get len list criteria cua farm do
+        //        var listMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypeByName(TypeNameInMasterEnum.Criteria.ToString(), farmId, target: target);
+        //        if (listMasterType == null)
+        //        {
+        //            return new BusinessResult(400, $"Farm has no criteria set in type: {target}");
+        //        }
+        //        var listCriteriaTargetApplied = _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantlotId);
+        //        // group lai theo bo tieu chi
+        //        var listCriteria
+        //        var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(listMasterType);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //    }
+        //}
+
+        public async Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantLotId, int farmId, string target)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                // 🔹 1. Kiểm tra PlantLot tồn tại
+                var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
+                if (plantLotExist == null)
+                    return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+
+                // 🔹 2. Lấy tất cả bộ tiêu chí của Farm theo target
+                var allCriteriaSets = await _unitOfWork.MasterTypeRepository
+                    .GetMasterTypeByName(TypeNameInMasterEnum.Criteria.ToString(), farmId, target);
+
+                if (allCriteriaSets == null || !allCriteriaSets.Any())
+                {
+                    return new BusinessResult(400, $"Farm has no criteria set in type: {target}");
+                }
+
+                // 🔹 3. Lấy danh sách tiêu chí đã áp dụng cho PlantLot
+                var appliedCriteriaTargets = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
+                if (!appliedCriteriaTargets.Any())
+                {
+                    return new BusinessResult(200, "All criteria sets are not applied yet.", _mapper.Map<List<ForSelectedModels>>(allCriteriaSets));
+                }
+                // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
+                var appliedMasterTypeIds = appliedCriteriaTargets
+            .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue)
+            .Select(x => x.Criteria.MasterTypeID.Value)
+            .Distinct() // 🔹 Tránh trùng lặp
+            .ToList();
+
+
+                // 🔹 5. Lọc ra danh sách bộ tiêu chí chưa được áp dụng
+                var notAppliedCriteriaSets = allCriteriaSets
+                    .Where(x => !appliedMasterTypeIds.Contains(x.MasterTypeId))
+                    .ToList();
+
+                if (!notAppliedCriteriaSets.Any())
+                    return new BusinessResult(200, "All criteria sets have been applied.", new List<object>());
+
+                // 🔹 6. Map dữ liệu & trả về danh sách bộ tiêu chí chưa được áp dụng
+                var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(notAppliedCriteriaSets);
+                return new BusinessResult(200, "Criteria sets not applied retrieved successfully.", listMasterTypeModel);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }
