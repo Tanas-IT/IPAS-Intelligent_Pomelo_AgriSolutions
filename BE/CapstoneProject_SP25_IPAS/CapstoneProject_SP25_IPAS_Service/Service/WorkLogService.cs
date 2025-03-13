@@ -48,13 +48,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         throw new Exception("Date Work must be greater than or equal now");
                     }
-                    if (TimeSpan.Parse(addNewTaskModel.StartTime) >= TimeSpan.Parse(addNewTaskModel.EndTime))
+                    if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
                     {
-                        throw new Exception("Start time must be less than End Time");
+                        if (TimeSpan.Parse(addNewTaskModel.StartTime) >= TimeSpan.Parse(addNewTaskModel.EndTime))
+                        {
+                            throw new Exception("Start time must be less than End Time");
+                        }
                     }
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == addNewTaskModel.ProcessId);
-                    var checkStartDateOfProcess = addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime));
-                    var checkEndDateOfProcess = addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime));
+                    var checkStartDateOfProcess = addNewTaskModel.StartTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null;
+                    var checkEndDateOfProcess = addNewTaskModel?.EndTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null;
                     if (checkExistProcess != null)
                     {
                         if (checkStartDateOfProcess < checkExistProcess.StartDate ||
@@ -68,14 +71,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + addNewTaskModel.MasterTypeId.Value,
+                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + addNewTaskModel!.MasterTypeId ?? "",
                         PlanName = addNewTaskModel.TaskName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         AssignorId = addNewTaskModel.AssignorId,
                         CropId = addNewTaskModel.CropId,
-                        EndDate = addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
-                        StartDate = addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
+                        EndDate = addNewTaskModel.DateWork != null ? (addNewTaskModel.EndTime != null ? addNewTaskModel.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null) : null,
+                        StartDate = addNewTaskModel.DateWork != null ? (addNewTaskModel.StartTime != null ? addNewTaskModel.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null) : null,
                         Frequency = null,
                         IsActive = true,
                         IsDelete = false,
@@ -84,6 +87,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = "Active",
                         FarmID = farmId,
                     };
+                    if (addNewTaskModel!.CropId.HasValue && addNewTaskModel.ListLandPlotOfCrop != null)
+                    {
+                        var getCropToCheck = await _unitOfWork.CropRepository.GetByID(addNewTaskModel.CropId.Value);
+                        if (getCropToCheck != null)
+                        {
+                            if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null && addNewTaskModel.DateWork != null)
+                            {
+                                if (addNewTaskModel?.DateWork!.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) < getCropToCheck.StartDate ||
+                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) > getCropToCheck.EndDate ||
+                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) < getCropToCheck.StartDate ||
+                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) > getCropToCheck.EndDate)
+                                {
+                                    throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                                        $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                                }
+                            }
+
+                        }
+                        if (addNewTaskModel!.ListLandPlotOfCrop.Any())
+                        {
+                            foreach (var landPlotOfCrop in addNewTaskModel.ListLandPlotOfCrop)
+                            {
+                                List<int> landRowOfLandPlotOfCropIDs = new List<int>();
+                                HashSet<int> inputPlantIDsOfLandPlot = new HashSet<int>();
+
+                                var rowsInLandPlotOfCrop = await _unitOfWork.LandRowRepository
+                                   .GetRowsByLandPlotIdAsync(landPlotOfCrop);
+                                landRowOfLandPlotOfCropIDs.AddRange(rowsInLandPlotOfCrop);
+
+
+                                Dictionary<int, HashSet<int>> rowToPlantsOfLandPlotOfCrop = new Dictionary<int, HashSet<int>>();
+                                foreach (var rowId in landRowOfLandPlotOfCropIDs)
+                                {
+                                    var plantsInRow = await _unitOfWork.PlantRepository.getPlantByRowId(rowId);
+
+                                    if (!rowToPlantsOfLandPlotOfCrop.ContainsKey(rowId))
+                                    {
+                                        rowToPlantsOfLandPlotOfCrop[rowId] = new HashSet<int>();
+                                    }
+
+                                    rowToPlantsOfLandPlotOfCrop[rowId].UnionWith(plantsInRow);
+
+                                }
+
+                                foreach (var row in rowToPlantsOfLandPlotOfCrop)
+                                {
+                                    foreach (var plantId in row.Value)
+                                    {
+                                        var newPlantTarget = new PlanTarget()
+                                        {
+                                            LandPlotID = landPlotOfCrop,
+                                            LandRowID = row.Key,
+                                            PlantID = plantId,
+                                            PlantLotID = null,
+                                            Unit = "Land Plot",
+                                            GraftedPlantID = null,
+                                        };
+
+                                        newPlan.PlanTargets.Add(newPlantTarget);
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
                     if (addNewTaskModel.PlanTargetModel != null && addNewTaskModel.PlanTargetModel.Count > 0)
                     {
                         foreach (var plantTarget in addNewTaskModel.PlanTargetModel)
@@ -485,7 +555,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
                     findWorkLog.CreateDate = DateTime.Now;
-                    if(createNoteModel.Resources != null)
+                    if (createNoteModel.Resources != null)
                     {
                         foreach (var fileNote in createNoteModel.Resources)
                         {
@@ -522,7 +592,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
                                 }
                             }
-                            if(fileNote.ResourceURL != null)
+                            if (fileNote.ResourceURL != null)
                             {
                                 var newResourceURL = new Resource()
                                 {
@@ -567,8 +637,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    if (updateWorkLogModel == null) 
-                    { 
+                    if (updateWorkLogModel == null)
+                    {
                         throw new Exception("Update failed because nothing was process");
                     }
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
