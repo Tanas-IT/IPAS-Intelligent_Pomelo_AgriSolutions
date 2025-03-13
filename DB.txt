@@ -508,9 +508,9 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PlantLotID int IDENTITY(1,1) NOT NULL,
 	PlantLotCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlantLotName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PreviousQuantity int NULL,
 	Unit nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PreviousQuantity int NULL,
 	InputQuantity int NULL,
 	LastQuantity int NULL,
 	UsedQuantity int NULL,
@@ -1168,24 +1168,26 @@ VALUES
     ('MT021', 'Caring', 'Criteria', 'Defines the criteria for plant care during growth stages', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation'),
     ('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition'),
     ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest'),
-	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition'),
-    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation'),
+	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
+    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
+	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
+    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
+	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
+	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
 
-    ('MT026', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT027', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT028', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT029', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT030', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     
-    ('MT031', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth','#E1BEE7', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT032', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT033', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT034', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT035', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
-
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 GO
-
 
 GO
 INSERT INTO [dbo].[Criteria]
@@ -1205,7 +1207,18 @@ VALUES
     ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters (Measured from base to highest point)', 2, 1, 1, 24),
     ('CR013', 'Fruit Size', 'Measures average fruit size (Weight: 1.2kg - 2.5kg, Diameter: 15-22 cm)', 3, 1, 0, 24),
     ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage (Less than 5% affected fruits per lot)', 4, 1, 1, 24),
-    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24);
+    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24),
+	('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing or disease spots', 1, 1, 0, 26),
+    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 1, 26),
+    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26),
+    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 1, 26),
+    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26),
+	('C029', 'Pest & Disease Inspection', 'Check for common pests and diseases affecting Green Skin Pomelo', 1, 1, 0, 28),
+    ('C030', 'Soil & Nutrient Condition', 'Assess soil fertility and nutrient levels for optimal growth', 2, 1, 0, 28),
+    ('C031', 'Canopy & Root Development', 'Evaluate the development of canopy structure and root health', 3, 1, 0, 28),
+	('C032', 'Fruit Count & Size', 'Estimate the number of fruits and average size per tree', 1, 1, 0, 29),
+    ('C033', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance to determine fruit sweetness', 2, 1, 0, 29),
+    ('C034', 'External Quality & Appearance', 'Check fruit skin texture, color, and any physical defects', 3, 1, 0, 29);
 GO
 
 INSERT INTO ipas.dbo.LandPlot (
@@ -1411,17 +1424,17 @@ VALUES
 ('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 GO
 INSERT INTO ipas.dbo.PlantLot 
-(PlantLotCode, PlantLotName, PreviousQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted, MasterTypeId, IsPassed) 
+(PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted, MasterTypeId, IsPassed) 
 VALUES
 -- Lô cha
-('PL001', 'Plant Lot A', 100, 70, 70, 'Plant', 'Active', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1),
-('PL002', 'Plant Lot B', 200, 150, 150, 'Plant', 'Active', '2024-06-05', 'Stored in warehouse', 1, NULL, 1, 0, 9, 1),
-('PL003', 'Plant Lot C', 150, 120, 120, 'Plant', 'Active', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 1),
+('PL001', 'Plant Lot A', 100, 80, 70, 70, 'Plant', 'Active', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1),
+('PL002', 'Plant Lot B', 200, 180, 150, 150, 'Plant', 'Active', '2024-06-05', 'Stored in warehouse', 1, NULL, 1, 0, 9, 1),
+('PL003', 'Plant Lot C', 150, 130, 120, 120, 'Plant', 'Active', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 1),
 
--- Lô con (bổ sung số lượng thiếu)
-('PL004', 'Plant Lot A - Extra', 30, 30, 30, 'Plant', 'Active', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1),
-('PL005', 'Plant Lot B - Extra', 50, 50, 50, 'Plant', 'Active', '2024-06-06', 'Additional for PL002', 1, 2, 1, 0, 9, 1),
-('PL006', 'Plant Lot C - Extra', 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
+-- Lô con (bổ sung số lượng thiếu, đã kiểm tra và sử dụng hết)
+('PL004', 'Plant Lot A - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1),
+('PL005', 'Plant Lot B - Extra', 50, 50, 50, 50, 'Plant', 'Active', '2024-06-06', 'Additional for PL002', 1, 2, 1, 0, 9, 1),
+('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
 GO
 INSERT INTO ipas.dbo.GraftedPlant 
 (GraftedPlantCode, GraftedPlantName, GrowthStage, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 

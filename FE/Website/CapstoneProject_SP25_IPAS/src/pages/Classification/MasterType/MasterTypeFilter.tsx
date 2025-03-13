@@ -1,13 +1,9 @@
-import { DatePicker, Flex, Select, Space } from "antd";
+import { Flex, Space } from "antd";
 import { useState } from "react";
 import style from "./MasterType.module.scss";
-import dayjs from "dayjs";
-import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
-import { DATE_FORMAT } from "@/utils";
+import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterMasterTypeState } from "@/types";
 import { MASTER_TYPE } from "@/constants";
-
-const { RangePicker } = DatePicker;
 
 type FilterProps = {
   filters: FilterMasterTypeState;

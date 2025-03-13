@@ -1,5 +1,13 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetPlantLot, GetPlantLot2, PlantLotRequest } from "@/payloads";
+import { CRITERIA_TARGETS } from "@/constants";
+import {
+  ApiResponse,
+  GetData,
+  GetPlantLot,
+  GetPlantLot2,
+  GetPlantLotDetail,
+  PlantLotRequest,
+} from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getPlantLots = async (
@@ -23,6 +31,12 @@ export const getPlantLots = async (
   return apiResponse.data as GetData<GetPlantLot2>;
 };
 
+export const getPlantLot = async (id: number): Promise<ApiResponse<GetPlantLotDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`get-plantLot-by-id/${id}`);
+  const apiResponse = res.data as ApiResponse<GetPlantLotDetail>;
+  return apiResponse;
+};
+
 export const deleteLots = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.patch(`plant-lots/softed-delete`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
@@ -30,24 +44,43 @@ export const deleteLots = async (ids: number[] | string[]): Promise<ApiResponse<
 };
 
 export const updateLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPlantLot2>> => {
-  // const formatLotData: any = {
-  //   plantLotID: lot.partnerId,
-  //   partnerID: lot.partnerId,
-  //   name: lot.plantLotName,
-  //   previousQuantity: lot.goodPlant,
-  //   unit: lot.unit,
-  //   note: lot.note,
-  // };
-  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", lot);
+  const formatLotData = {
+    plantLotID: lot.plantLotId,
+    partnerID: lot.partnerId,
+    name: lot.plantLotName,
+    lastQuantity: lot.lastQuantity,
+    masterTypeId: lot.masterTypeId,
+    unit: lot.unit,
+    note: lot.note,
+  };
+
+  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
+  const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
+export const updateQuantityLot = async (
+  lotId: number,
+  target: string,
+  quantity: number,
+): Promise<ApiResponse<GetPlantLot2>> => {
+  const formatLotData = {
+    plantLotID: lotId,
+    ...(target === CRITERIA_TARGETS["Plantlot Evaluation"]
+      ? { lastQuantity: quantity }
+      : { inputQuantity: quantity }),
+  };
+  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
   return apiResponse;
 };
 
 export const createLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPlantLot2>> => {
-  const formatLotData: any = {
+  const formatLotData = {
     partnerID: lot.partnerId,
     name: lot.plantLotName,
     importedQuantity: lot.previousQuantity,
+    masterTypeId: lot.masterTypeId,
     unit: lot.unit,
     note: lot.note,
   };

@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import style from "./PlantDetail.module.scss";
 import { Divider, Flex } from "antd";
 import { Icons } from "@/assets";
-import { ConfirmModal, LoadingSkeleton } from "@/components";
+import { ConfirmModal, InfoFieldDetail, LoadingSkeleton } from "@/components";
 import { useEffect, useState } from "react";
 import { DEFAULT_PLANT, formatDayMonth, formatDayMonthAndTime } from "@/utils";
 import { plantService } from "@/services";
@@ -10,7 +10,6 @@ import { GetPlantDetail, PlantRequest } from "@/payloads";
 import { useHasChanges, useModal, useTableDelete, useTableUpdate } from "@/hooks";
 import PlantModel from "../../Plant/PlantModal";
 import PlantSectionHeader from "./PlantSectionHeader";
-import InfoField from "./InfoField";
 import DescriptionSection from "./DescriptionSection";
 import { HEALTH_STATUS } from "@/constants";
 import { PATHS } from "@/routes";
@@ -23,7 +22,7 @@ function PlantDetail() {
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
   const [plant, setPlant] = useState<GetPlantDetail>(DEFAULT_PLANT);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetPlantDetail>();
   const markAsDeadModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ id: number }>();
@@ -162,7 +161,7 @@ function PlantDetail() {
   if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
-    <Flex className={style.contentWrapper}>
+    <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader
         plant={plant}
         formModal={formModal}
@@ -173,12 +172,22 @@ function PlantDetail() {
       <Flex className={style.contentSectionBody}>
         <Flex className={style.col}>
           {infoFieldsLeft.map((field, index) => (
-            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
+            <InfoFieldDetail
+              key={index}
+              icon={field.icon}
+              label={field.label}
+              value={field.value}
+            />
           ))}
         </Flex>
         <Flex className={style.col}>
           {infoFieldsRight.map((field, index) => (
-            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
+            <InfoFieldDetail
+              key={index}
+              icon={field.icon}
+              label={field.label}
+              value={field.value}
+            />
           ))}
         </Flex>
       </Flex>

@@ -13,7 +13,7 @@ const useMasterTypeOptions = (type: string, isDocument: boolean = false) => {
       );
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
-          value: isDocument ? item.masterTypeName : String(item.masterTypeId),
+          value: isDocument ? item.masterTypeName : item.masterTypeId,
           label: item.masterTypeName,
         }));
         setOptions(mappedOptions);

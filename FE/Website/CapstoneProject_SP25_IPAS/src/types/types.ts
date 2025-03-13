@@ -43,6 +43,14 @@ export type FilterMasterTypeState = {
   typeName: string[];
 };
 
+export type FilterPlantLotState = {
+  importedDateFrom: string;
+  importedDateTo: string;
+  partnerId: string[];
+  previousQuantityFrom: number | undefined;
+  previousQuantityTo: number | undefined;
+};
+
 export type FilterPlantState = {
   plantingDateFrom: string;
   plantingDateTo: string;

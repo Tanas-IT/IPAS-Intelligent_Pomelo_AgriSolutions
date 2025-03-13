@@ -5,6 +5,7 @@
   @include shared.contentDetailWrapper;
 }
 
-.contentSectionHeader {
-  @include shared.contentSectionHeader;
+.additionalTable {
+  max-height: 25rem;
+  overflow: auto;
 }

@@ -3,6 +3,7 @@ import { Icons } from "@/assets";
 import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 import { ActionMenuItem } from "@/types";
+import { ROUTES } from "@/constants";
 
 interface ActionMenuProps {
   id?: number;
@@ -27,7 +28,7 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
       ? {
           icon: <Icons.eye />,
           label: "View Plant Details",
-          onClick: () => navigate(`/farm/plants/${id}/details`),
+          onClick: () => navigate(ROUTES.FARM_PLANT_DETAIL(id ?? 0)),
         }
       : null,
     {
