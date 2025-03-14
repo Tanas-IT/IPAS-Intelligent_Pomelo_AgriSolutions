@@ -1,0 +1,222 @@
+@use "@/styles/variables.scss" as vars;
+@use "@/styles/share.scss" as shared;
+
+.sidebarWrapper {
+  transition: 0.5s;
+  position: sticky;
+  max-height: 100vh;
+  top: 0;
+  z-index: 12;
+  .sidebar {
+    height: 100vh;
+    flex-direction: column;
+
+    .profileWrapper {
+      justify-content: center;
+      align-items: center;
+    }
+    .profileWrapper.cursor {
+      cursor: pointer;
+    }
+    .logo {
+      width: 100%;
+      min-height: 70px;
+      align-items: center;
+      transition: transform 1s ease-out;
+      padding: 0 12px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid vars.$color_second;
+
+      .avatar {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        img {
+          object-fit: cover;
+        }
+      }
+
+      .logoText {
+        margin-left: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        overflow: hidden;
+        min-width: 200px;
+        max-height: 100px;
+        color: vars.$color-text;
+        opacity: 1;
+      }
+    }
+
+    .arrowSidebar {
+      position: absolute;
+      right: -9px;
+      top: 34px;
+      background-color: vars.$color_second;
+      color: vars.$color_primary !important;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+    }
+
+    .wrapperDivider {
+      flex-direction: row;
+      justify-content: center;
+      height: 0px;
+      margin: 10px 0;
+      .divider {
+        width: 90%;
+        min-width: 90%;
+        margin: 0;
+        background-color: vars.$color_second;
+      }
+    }
+
+    .wrapperTitle {
+      padding-left: 12px;
+      height: 0px;
+      margin: 0px 0 10px 0;
+    }
+
+    .menuContainer {
+      flex-direction: column;
+      row-gap: 8px;
+      overflow-y: hidden;
+
+      &:hover {
+        overflow-y: auto;
+      }
+
+      .menuItems {
+        flex-grow: 1;
+        padding-bottom: 10px;
+        overflow: hidden;
+        background-color: #fff;
+        z-index: 999;
+
+        .subMenuItemsTitle {
+          height: 2.25rem;
+          // font-size: 16px;
+        }
+
+        .subMenuItem {
+          margin-left: 30px;
+          background-color: #fff;
+          transition: 0.3s;
+
+          .item {
+            align-items: center;
+            transition: border-color 0.3s, background-color 0.3s,
+              padding 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
+            cursor: pointer;
+            padding-left: 12px;
+            padding-right: 16px;
+            border-radius: 8px !important;
+            margin: 4px 4px 4px 0px;
+            font-weight: 500;
+            width: calc(100% - 8px);
+            height: 40px;
+            border-radius: 4px;
+            // font-size: 16px;
+            color: vars.$color_sidebar_text_inactive;
+
+            &:hover {
+              font-weight: bold;
+              background-color: vars.$color_second;
+              color: vars.$color_primary;
+            }
+          }
+
+          .active {
+            background-color: vars.$color_second !important;
+            color: vars.$color_primary;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+    .subMenuLine {
+      position: absolute;
+      left: 30px;
+      width: 3px;
+      background-color: vars.$color_second;
+    }
+
+    .menuMinHeight {
+      min-height: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menuOverflowHidden {
+      overflow: hidden;
+    }
+
+    .profile {
+      align-items: center;
+      padding: 10px;
+      height: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: auto;
+
+      &:hover {
+        background-color: vars.$color_logout_bg_hover;
+      }
+
+      .logoutIcon {
+        font-size: 25px;
+        margin: 0 10px;
+        color: vars.$color_logout_text;
+      }
+
+      .logoutText {
+        margin-top: 4px;
+        white-space: nowrap;
+        font-size: 16px;
+        overflow: hidden;
+        font-weight: bold;
+        color: vars.$color_logout_text;
+      }
+    }
+  }
+  .dropdownIcon {
+    margin-left: -30px;
+    width: 40px;
+    height: 40px;
+    color: vars.$color_dropdown;
+  }
+}
+
+.popupContainer {
+  @include shared.popupContainer;
+}
+
+.menuItem {
+  align-items: center;
+  background-color: #fff !important;
+  color: inherit !important;
+  // font-size: 16px;
+
+  &:hover {
+    font-weight: bold;
+    background-color: vars.$color_second !important;
+    color: vars.$color_primary !important;
+  }
+}
+
+.menuIcon {
+  vertical-align: -0.325rem !important;
+  font-size: 20px !important;
+  span {
+    font-size: 20px !important;
+  }
+}
+
+.active {
+  background-color: vars.$color_second !important;
+  color: vars.$color_primary !important;
+  font-weight: bold;
+}

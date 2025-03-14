@@ -85,18 +85,31 @@ const useNotifications = () => {
     };
   }, [userId]);
 
-  // đánh dấu thông báo là đã đọc
   const markAsRead = async (notificationID: number) => {
     setNotifications((prev) =>
       prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: true } : n))
     );
 
     try {
-      if (socket) {
-        socket.send(JSON.stringify({ type: "markAsRead", userId, notificationId: notificationID }));
-      }
+      await notificationService.markAsRead(userId, "once", notificationID);
     } catch (error) {
       console.error("Error marking notification as read", error);
+  
+      setNotifications((prev) =>
+        prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: false } : n))
+      );
+    }
+  };
+
+  const markAllAsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+
+    try {
+      await notificationService.markAsRead(userId);
+    } catch (error) {
+      console.error("Error marking notification as read", error);
+  
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: false })));
     }
   };
 

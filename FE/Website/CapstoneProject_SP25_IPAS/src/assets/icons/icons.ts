@@ -55,6 +55,7 @@ export {
   FaDrawPolygon as drawPolygon,
   FaRegEye as eye,
   FaRegStar as star,
+  FaTasks as task,
 } from "react-icons/fa";
 export {
   PiFarm as farms,
@@ -80,6 +81,8 @@ export {
   FaWind as wind,
   FaTableList as table,
   FaCheck as check,
+  FaArrowUp as up,
+  FaArrowDown as down,
   FaScaleBalanced as scale,
 } from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";

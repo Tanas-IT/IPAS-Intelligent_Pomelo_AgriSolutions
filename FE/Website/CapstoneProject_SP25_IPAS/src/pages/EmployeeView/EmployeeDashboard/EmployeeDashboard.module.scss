@@ -1,0 +1,38 @@
+.employeeDashboard {
+    padding: 16px;
+
+    .statisticsContainer {
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      
+
+    .statisticsRow {
+        margin-bottom: 24px;
+    }
+
+    .titleCard {
+        display: flex;
+    }
+
+    .upcomingTasksCard,
+    .notificationsCard {
+        margin-top: 16px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+}

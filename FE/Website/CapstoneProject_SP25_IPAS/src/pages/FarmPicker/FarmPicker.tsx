@@ -67,7 +67,19 @@ function FarmPicker() {
           toast.warning("This farm's package has expired. Please contact the owner to renew.");
           navigate(PATHS.FARM_PICKER);
         } else {
-          navigate(PATHS.DASHBOARD);
+          switch (roleId) {
+            case UserRole.Owner.toString():
+            case UserRole.Manager.toString():
+              navigate(PATHS.DASHBOARD);
+              break;
+            case UserRole.Employee.toString():
+              navigate(PATHS.EMPLOYEE.DASHBOARD);
+              break;
+            default:
+              toast.error("Unauthorized access.");
+              navigate(PATHS.FARM_PICKER);
+              break;
+          }
         }
       } else {
         toast.error("Failed to fetch farm details.");

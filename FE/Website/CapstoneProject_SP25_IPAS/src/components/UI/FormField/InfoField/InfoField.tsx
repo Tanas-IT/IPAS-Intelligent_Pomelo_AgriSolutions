@@ -1,5 +1,5 @@
 import { useStyle } from "@/hooks";
-import { Select, Input, Form, Upload, UploadFile, DatePicker, Switch } from "antd";
+import { Select, Input, Form, Upload, UploadFile, DatePicker, Switch, TimePicker } from "antd";
 import style from "./InfoField.module.scss";
 import { Icons } from "@/assets";
 import dayjs from "dayjs";
@@ -13,7 +13,7 @@ interface InfoFieldProps {
   label: string;
   name: string;
   rules?: any[];
-  type?: "text" | "textarea" | "select" | "uploadDragger" | "dateRange" | "switch";
+  type?: "text" | "textarea" | "select" | "uploadDragger" | "dateRange" | "switch" | "timeRange";
   isEditing?: boolean;
   options?: Option[];
   onChange?: (value: any) => void;
@@ -102,24 +102,34 @@ const InfoField: React.FC<InfoFieldProps> = ({
         return (
           <RangePicker
             format="DD/MM/YYYY"
-            value={
-              value ? [dayjs(value[0]), dayjs(value[1])] : [null, null]
-            }
+            value={value ? [dayjs(value[0]), dayjs(value[1])] : null}
             onChange={onChange}
             disabled={!isEditing}
+            style={{width: "100%"}}
           />
         );
-        case "switch":
-          return (
-            <Switch
-              className={`${styles.customSwitch} ${value ? style.active : style.inActive}`}
-              checked={value}
-              onChange={onChange}
-              disabled={!isEditing}
-              unCheckedChildren="Inactive"
-              checkedChildren="Active"
-            />
-          );
+
+      case "timeRange":
+        return (
+          <TimePicker.RangePicker
+            format="HH:mm:ss"
+            value={value ? [dayjs(value[0], "HH:mm:ss"), dayjs(value[1], "HH:mm:ss")] : null}
+            onChange={onChange}
+            disabled={!isEditing}
+            style={{width: "100%"}}
+          />
+        );
+      case "switch":
+        return (
+          <Switch
+            className={`${styles.customSwitch} ${value ? style.active : style.inActive}`}
+            checked={value}
+            onChange={onChange}
+            disabled={!isEditing}
+            unCheckedChildren="Inactive"
+            checkedChildren="Active"
+          />
+        );
     }
   };
 

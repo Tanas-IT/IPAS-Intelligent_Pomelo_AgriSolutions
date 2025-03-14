@@ -55,15 +55,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
 
                     // Kiểm tra các điều kiện để chiết cành
-                    var validationResult = await CheckPlantBeforeGrafted(createRequest.PlantId);
+                    var validationResult = await CheckPlantConditionGrafted(createRequest.PlantId);
                     if (!string.IsNullOrEmpty(validationResult))
                         return new BusinessResult(400, validationResult);
 
                     // Kiểm tra cây đã hoàn thành đủ điều kiện để chiết cành chưa
-                    var criteriaResult = await CheckGraftedConditionCompletedAsync(plantId: createRequest.PlantId, null);
-                    if (criteriaResult.StatusCode != 200)
-                        return criteriaResult; // neu sai thi tra ve loi chua apply tieu chi nao luon
-
+                    //var criteriaResult = await CheckGraftedConditionCompletedAsync(plantId: createRequest.PlantId, null);
+                    var requiredConditions = _masterTypeConfig.GraftedCriteriaApply?.GraftedConditionApply ?? new List<string>();
+                    //var criteriaResult = await CheckPlantCriteriaCompletedAsync(plantId: createRequest.PlantId, criteriaRequireCheck: requiredConditions);
+                    //if (criteriaResult.StatusCode != 200)
+                    //return criteriaResult; // neu sai thi tra ve loi chua apply tieu chi nao luon
+                    if (plantExist.IsPassed != true)
+                        return new BusinessResult(400, "Plant is not mark as PASS to grafted");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
@@ -72,7 +75,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
                         GraftedPlantName = createRequest.GraftedPlantName,
-                        GrowthStage = createRequest.GrowthStage,
+                        //GrowthStage = createRequest.GrowthStage,
                         Status = /*createRequest.Status*/ "",
                         GraftedDate = createRequest.GraftedDate,
                         Note = createRequest.Note,
@@ -221,8 +224,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => filterList.Contains(x.PlantId.ToString()!));
                 }
 
-                if (!string.IsNullOrEmpty(getRequest.GrowthStage))
-                    filter = filter.And(x => x.GrowthStage!.ToLower().Contains(getRequest.GrowthStage.ToLower()));
+                //if (!string.IsNullOrEmpty(getRequest.GrowthStage))
+                //    filter = filter.And(x => x.GrowthStage!.ToLower().Contains(getRequest.GrowthStage.ToLower()));
 
                 if (!string.IsNullOrEmpty(getRequest.Status))
                     filter = filter.And(x => x.Status!.ToLower().Contains(getRequest.Status.ToLower()));
@@ -265,11 +268,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ? x => x.OrderByDescending(x => x.GraftedDate)
                                 : x => x.OrderBy(x => x.GraftedDate);
                             break;
-                        case "growthstage":
-                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
-                                ? x => x.OrderByDescending(x => x.GrowthStage)
-                                : x => x.OrderBy(x => x.GrowthStage);
-                            break;
+                        //case "growthstage":
+                        //    orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                        //        ? x => x.OrderByDescending(x => x.GrowthStage)
+                        //        : x => x.OrderBy(x => x.GrowthStage);
+                        //    break;
                         case "status":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.Status)
@@ -324,8 +327,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(updateRequest.GraftedPlantName))
                     existingGraftedPlant.GraftedPlantName = updateRequest.GraftedPlantName;
 
-                if (!string.IsNullOrEmpty(updateRequest.GrowthStage))
-                    existingGraftedPlant.GrowthStage = updateRequest.GrowthStage;
+                //if (!string.IsNullOrEmpty(updateRequest.GrowthStage))
+                //    existingGraftedPlant.GrowthStage = updateRequest.GrowthStage;
 
                 if (updateRequest.SeparatedDate.HasValue)
                     existingGraftedPlant.SeparatedDate = updateRequest.SeparatedDate.Value;
@@ -431,7 +434,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         /// --> update graftedPlant -> them PlantId, CompletedDate, PlantLotId (neu co)
         /// </summary>
         /// <param name="request"></param>
-        /// <returns></returns>
         public async Task<BusinessResult> CompletedGraftedPlant(CompletedGraftedPlantRequest request)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
@@ -443,9 +445,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Grafted Plant Not exist");
                     //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
                     // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
-                    var checkCriteriaBefore = await CheckGraftedConditionCompletedAsync(null, graftedId: request.GraftedPlantId);
-                    if (checkCriteriaBefore.StatusCode != 200)
-                        return checkCriteriaBefore;
+                    var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
+                    
+                    var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredCondition);
+                    if (checkCriteriaBefore.enable == true)
+                        return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);
+
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
                     {
                         var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
@@ -519,12 +524,46 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             return new BusinessResult(200, "The tree has complete all the criteria to be conducted a function");
         }
+
+        //public async Task<BusinessResult> CheckPlantCriteriaCompletedAsync(List<string> criteriaRequireCheck, int? plantId = null, int? graftedId = null)
+        //{
+        //    var appliedCriterias = new List<CriteriaTarget>();
+        //    List<string> targetType = new();
+        //    // 2. Lấy danh sách tiêu chí đã áp dụng
+        //    if (plantId != null)
+        //    {
+        //        appliedCriterias = (await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId)).ToList();
+        //    }
+        //    if (graftedId != null)
+        //    {
+        //        appliedCriterias = (await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(graftedPlantId: graftedId)).ToList();
+        //    }
+        //    // 3. Kiểm tra xem đã áp dụng **tất cả tiêu chí trong danh sách yêu cầu chưa**
+        //    var appliedCriteriaTargets = appliedCriterias
+        //        .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+        //        .ToList();
+
+        //    if (!appliedCriteriaTargets.Any())
+        //    {
+        //        return new BusinessResult(400, $"The plant lot has not been applied any required criteria set: {string.Join(",", criteriaRequireCheck)}");
+        //    }
+
+        //    // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
+        //    bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true);
+
+        //    if (!hasCompletedCriteria)
+        //    {
+        //        return new BusinessResult(400, $"The plant lot has not PASSS all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+        //    }
+
+        //    return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
+        //}
+
         /// <summary>
         /// hàm để tính được số nhánh có thể chiết được trên cây, dựa theo công thức tuyến tính 
         /// C=min(5×N^1.5,100)
         /// </summary>
         /// <param name="plantingDate"></param>
-        /// <returns></returns>
         private int CalculateMaxGraftedBranches(DateTime plantingDate)
         {
             // Lấy ngày hiện tại
@@ -546,7 +585,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return (int)Math.Floor(maxBranches);
         }
 
-        public async Task<string> CheckPlantBeforeGrafted(int plantId)
+        public async Task<string> CheckPlantConditionGrafted(int plantId)
         {
             var errors = new List<string>();
             var plant = await _unitOfWork.PlantRepository.getById(plantId);
@@ -554,21 +593,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //    errors.Add("Plant not found");
             //else
             //{
-                // kiểm tra xem cây đã ở giai đoạn được chiết cành chưa
-                var canGrafted = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId, "Grafted");
-                if (!canGrafted)
-                    errors.Add("Plant not in stage can be grafted.");
-                // kiem tra tinh trang suc khoe cua cay
-                if (!plant.HealthStatus!.Equals(HealthStatusConst.HEALTHY.ToString(), StringComparison.OrdinalIgnoreCase))
-                    errors.Add("This plant is not healthy enough to be grafted, please check again.");
-                // kiểm tra xem cây đã chiết bao nhiêu cành trong năm nay để ko cho chiết nữa
-                var maxGraftedBranches = CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
-                var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.PlantId == plantId
-                    && !x.IsDeleted!.Value
-                    && x.GraftedDate!.Value.Year == DateTime.Now.Year);
+            // kiểm tra xem cây đã ở giai đoạn được chiết cành chưa
+            var canGrafted = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId, ActFunctionGrStageEnum.Grafted.ToString());
+            if (!canGrafted)
+                errors.Add("Plant not in stage can be grafted.");
+            // kiem tra tinh trang suc khoe cua cay
+            if (!plant.HealthStatus!.Equals(HealthStatusConst.HEALTHY.ToString(), StringComparison.OrdinalIgnoreCase))
+                errors.Add("This plant is not healthy enough to be grafted, please check again.");
+            // kiểm tra xem cây đã chiết bao nhiêu cành trong năm nay để ko cho chiết nữa
+            var maxGraftedBranches = CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
+            var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.PlantId == plantId
+                && !x.IsDeleted!.Value
+                && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
-                if (countGraftedInYear >= maxGraftedBranches)
-                    errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
+            if (countGraftedInYear >= maxGraftedBranches)
+                errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;

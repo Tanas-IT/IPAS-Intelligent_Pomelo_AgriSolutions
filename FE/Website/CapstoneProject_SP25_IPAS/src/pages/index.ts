@@ -38,3 +38,5 @@ export { default as PaymentCancel } from "@/pages/Package/PaymentResult/PaymentC
 export { default as EmployeeList } from "@/pages/HR/Employee/EmployeeList";
 export { default as Partner } from "@/pages/Partner/Partner";
 export { default as NotFoundPage } from "@/pages/NotFoundPage/NotFoundPage";
+export { default as EmployeeWorklog } from "@/pages/EmployeeView/EmployeeWorklog/EmployeeWorklog";
+export { default as EmployeeWorklogDetail } from "@/pages/EmployeeView/EmployeeWorklog/WorklogDetail/EmployeeWorklogDetail";

@@ -879,17 +879,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> CheckPlantLotCriteriaCompletedAsync(int plantLotId, List<string> criteriaRequireCheck)
         {
-            // 🔹 1. Kiểm tra lô cây có tồn tại không
-            var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
-            if (plantLotExist == null)
-            {
-                return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
-            }
+            //// 1. Kiểm tra lô cây có tồn tại không
+            //var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
+            //if (plantLotExist == null)
+            //{
+            //    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+            //}
 
-            // 🔹 2. Lấy danh sách tiêu chí đã áp dụng
+            // 2. Lấy danh sách tiêu chí đã áp dụng
             var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
 
-            // 🔹 3. Kiểm tra xem đã áp dụng **tất cả tiêu chí trong danh sách yêu cầu chưa**
+            // 3. Kiểm tra xem đã áp dụng **tất cả tiêu chí trong danh sách yêu cầu chưa**
             var appliedCriteriaTargets = appliedCriterias
                 .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
                 .ToList();
@@ -899,7 +899,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(400, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
             }
 
-            // 🔹 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
+            // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
             bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsChecked == true);
 
             if (!hasCompletedCriteria)

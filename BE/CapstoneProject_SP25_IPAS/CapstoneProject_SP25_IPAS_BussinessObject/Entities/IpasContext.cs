@@ -333,9 +333,9 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GraftedPlantName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.GrowthStage)
-                .HasMaxLength(100)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.GrowthStage)
+                //.HasMaxLength(100)
+                //.UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Note).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
             entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");

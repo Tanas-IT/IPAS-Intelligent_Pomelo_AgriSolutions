@@ -1,8 +1,8 @@
 import { Flex } from "antd";
 import style from "./PlanList.module.scss";
-import { ActionMenuPlant, NavigationDot, SectionTitle, Table } from "@/components";
+import { ActionMenuPlant, ConfirmModal, NavigationDot, SectionTitle, Table } from "@/components";
 import { GetPlant } from "@/payloads";
-import { useFetchData } from "@/hooks";
+import { useFetchData, useModal, useTableDelete } from "@/hooks";
 import { useEffect, useState } from "react";
 import { getOptions } from "@/utils";
 import { planService } from "@/services";
@@ -11,6 +11,7 @@ import PlanFilter from "./PlanFilter";
 import { planColumns } from "./PlanColumn";
 import { TableTitle } from "./TableTitle";
 import { GetPlan } from "@/payloads/plan";
+import { toast } from "react-toastify";
 
 
 function PlanList() {
@@ -24,6 +25,7 @@ function PlanList() {
     isActive: [] as string[],
     assignor: [] as string[],
   });
+  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
 
   const {
     data,
@@ -48,6 +50,22 @@ function PlanList() {
   useEffect(() => {
     fetchData();
   }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
+
+  const { handleDelete } = useTableDelete(
+      {
+        deleteFunction: planService.deletePlan,
+        fetchData,
+        onSuccess: () => {
+          deleteConfirmModal.hideModal();
+        },
+      },
+      {
+        currentPage,
+        rowsPerPage,
+        totalRecords,
+        handlePageChange,
+      },
+    );
 
   const updateFilters = (key: string, value: any) => {
     setFilters((prev) => {
@@ -93,16 +111,23 @@ function PlanList() {
           columns={planColumns}
           rows={data}
           rowKey="planCode"
+          idName="planId"
           title={<TableTitle onSearch={handleSearch} filterContent={filterContent} />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          handleDelete={(ids) => handleDelete(ids)}
           isLoading={false}
           caption="Plan Management Table"
           notifyNoData="No data to display"
-          renderAction={(plan: GetPlan) => <ActionMenuPlan id={plan.planId} />}
+          renderAction={(plan: GetPlan) => (
+            <ActionMenuPlan
+              id={plan.planId}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [plan.planId] })}
+            />
+          )}
         />
 
         <NavigationDot
@@ -114,6 +139,13 @@ function PlanList() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Plan"
+        actionType="delete"
+      />
     </Flex>
   );
 }

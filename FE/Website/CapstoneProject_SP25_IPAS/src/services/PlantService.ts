@@ -97,7 +97,6 @@ export const getPlantNoPositionSelect = async (): Promise<ApiResponse<GetPlant[]
 export const getPlantOfRow = async (landRowId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-for-selected-by-row/${landRowId}`);
   const apiResponse = res.data as ApiResponse<GetPlantOfRowSelect[]>;
-
   return apiResponse;
 };
 
