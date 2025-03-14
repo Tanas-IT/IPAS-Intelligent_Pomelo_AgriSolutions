@@ -42,7 +42,7 @@ public partial class MasterType
    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
 
-    public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
+    public virtual ICollection<ProductHarvestHistory> HarvestTypeHistories { get; set; } = new List<ProductHarvestHistory>();
 
     //public virtual ICollection<MasterTypeDetail> MasterTypeDetails { get; set; } = new List<MasterTypeDetail>();
 

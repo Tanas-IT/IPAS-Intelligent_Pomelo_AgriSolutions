@@ -20,7 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? Priority { get; set; }
 
         public bool? IsActive { get; set; }
-
+        public bool? CreateDate { get; set; }
         public bool? IsChecked { get; set; }
         public bool? IsPassed { get; set; }
 

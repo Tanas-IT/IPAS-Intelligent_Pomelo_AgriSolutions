@@ -406,7 +406,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_ALL_HARVEST_HISTORY_WITH_PAGIN_EMPTY_CODE = "Get all harvest empty";
         public static int SUCCESS_GET_HARVEST_HISTORY_ALL_PAGINATION_CODE = 200;
         public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_HARVEST_HISTORY_MSG = "Get all pagination harvest success";
-        public static int SUCCESS_CREATE_HARVEST_HISTORY_CODE = 201;
+        public static int SUCCESS_CREATE_HARVEST_HISTORY_CODE = 200;
         public static string SUCCESS_CREATE_HARVEST_HISTORY_MSG = "Create harvest success";
         public static int SUCCESS_UPDATE_HARVEST_HISTORY_CODE = 200;
         public static string SUCCESS_UPDATE_HARVEST_HISTORY_MSG = "Update harvest success";

@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
@@ -18,10 +19,16 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> getHarvestById(int harvestId);
         public Task<BusinessResult> getHarvestForSelectedByPlotId(int cropId);
 
-        public Task<BusinessResult> createHarvesTypeHistory(CreateHarvestTypeHistoryRequest createRequest);
-        public Task<BusinessResult> updateHarvesTypeHistory(UpdateHarvesTypeHistoryRequest updateRequest);
+        public Task<BusinessResult> createProductHarvestHistory(CreateHarvestTypeHistoryRequest createRequest);
+        public Task<BusinessResult> createPlantRecordHarvest(CreatePlantRecordHarvestRequest createRequest);
+
+        public Task<BusinessResult> updateProductHarvest(UpdateProductHarvesRequest updateRequest);
         public Task<BusinessResult> getAllHistoryPlantOfHarvest(int harvestId, int masterTypeId);
-        public Task<BusinessResult> deleteHarvestType(int harvestHistory, int masterTypeId, int? plantId);
+        //public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId, int? plantId);
+        public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId);
+        public Task<BusinessResult> deletePlantRecord(DeletePlantRecoredRequest request);
         public Task<BusinessResult> statisticOfPlantByYear(int plantId, int year);
+        public Task<BusinessResult> getProductInHarvestForSelected(int harvestId);
+
     }
 }
