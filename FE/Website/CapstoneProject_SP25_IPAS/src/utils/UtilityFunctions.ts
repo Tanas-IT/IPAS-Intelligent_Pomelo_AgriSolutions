@@ -8,11 +8,13 @@ import {
   cropService,
   growthStageService,
   masterTypeService,
+  planService,
   processService,
   userService,
 } from "@/services";
-import { landRowSimulate } from "@/payloads";
+import { landRowSimulate, SelectedTarget } from "@/payloads";
 import { Dayjs } from "dayjs";
+import { getProcessDetail } from "@/services/ProcessService";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -281,6 +283,14 @@ export const statusOptions = [
   { label: "Completed", value: "completed" },
 ];
 
+export const unitOptions = [
+  { label: "Land Plot", value: "landplot" },
+  { label: "Row", value: "row" },
+  { label: "Plant", value: "plant" },
+  { label: "Plant Lot", value: "plantlot" },
+  { label: "Grafted Plant", value: "graftedplant" },
+];
+
 export const fetchTypeOptionsByName = async (typeName: string) => {
   const types = await masterTypeService.getTypeByName(typeName);
 
@@ -386,4 +396,101 @@ export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type
     return targetDate.isBetween(startDate, endDate, "day", "[]");
   }
   return false;
+};
+
+export const getGrowthStageOfProcess = async (processId: number): Promise<number> => {
+  const res = await getProcessDetail(processId);
+  return res.processGrowthStageModel.growthStageId;
+}
+
+export const isTargetOverlapping = (
+  index: number,
+  newLandPlotId: number | undefined,
+  newLandRows: number | number[],
+  newPlants: number[],
+  newUnit: string | undefined,
+  selectedUnits: (string | undefined)[],
+  selectedLandPlots: (number | undefined)[],
+  selectedLandRows: number[][],
+  selectedPlants: number[][]
+) => {
+  const newLandRowsArray = Array.isArray(newLandRows) ? newLandRows : [newLandRows];
+
+  for (let i = 0; i < selectedLandPlots.length; i++) {
+      if (i === index) continue;
+
+      const existingUnit = selectedUnits[i];
+      const existingLandPlot = selectedLandPlots[i];
+      const existingLandRows = selectedLandRows[i];
+      const existingPlants = selectedPlants[i];
+
+      if (newUnit === existingUnit || (newUnit === "row" && existingUnit === "landplot") || (newUnit === "plant" && existingUnit === "row")) {
+          if (newLandPlotId === existingLandPlot) {
+              if (newLandRowsArray.length > 0 && existingLandRows.length > 0) {
+                  const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+                  if (isRowOverlapping) {
+                      if (newPlants.length > 0 && existingPlants.length > 0) {
+                          const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
+                          if (isPlantOverlapping) {
+                              return true;
+                          }
+                      }
+                      return true;
+                  }
+              }
+              return true;
+          }
+      }
+  }
+  return false;
+};
+
+export const fetchTargetsByUnit = async (
+  unit: string,
+  selectedGrowthStage: number[],
+  index: number,
+  setSelectedTargets: React.Dispatch<React.SetStateAction<SelectedTarget[][]>>
+) => {
+  try {
+      const response = await planService.filterTargetByUnitGrowthStage(
+          unit,
+          selectedGrowthStage,
+          Number(getFarmId())
+      );
+
+      const formattedData = response.map((item) => ({
+          unit,
+          landPlotId: item.landPlotId ?? null,
+          landPlotName: item.landPlotName ?? "",
+          rows: unit === "row" || unit === "plant" ? item.rows.map((row) => ({
+              landRowId: row.landRowId,
+              rowIndex: row.rowIndex,
+              plants: row.plants.map((plant) => ({
+                  plantId: plant.plantId,
+                  plantName: plant.plantName,
+              })),
+          })) : [],
+          plants: unit === "plant" ? item.plants.map((plant) => ({
+              plantId: plant.plantId,
+              plantName: plant.plantName,
+          })) : [],
+          plantLots: unit === "plantlot" ? item.plantLots.map((lot) => ({
+              plantLotId: lot.plantLotId,
+              plantLotName: lot.plantLotName,
+          })) : [],
+          graftedPlants: unit === "graftedplant" ? item.graftedPlants.map((grafted) => ({
+              graftedPlantId: grafted.graftedPlantId,
+              graftedPlantName: grafted.graftedPlantName,
+          })) : [],
+      }));
+
+      setSelectedTargets((prev) => {
+          const newSelectedTargets = [...prev];
+          newSelectedTargets[index] = formattedData;
+          return newSelectedTargets;
+      });
+  } catch (error) {
+      console.error("Error fetching data:", error);
+      throw error;
+  }
 };

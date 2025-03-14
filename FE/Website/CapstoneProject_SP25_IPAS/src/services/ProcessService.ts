@@ -49,7 +49,7 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
 };
 
 
-export const getProcessDetail = async (processId: string) => {
+export const getProcessDetail = async (processId: string | number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`processes/get-process-by-id/${processId}`);
   console.log("res in getProcessDetail", res);
   

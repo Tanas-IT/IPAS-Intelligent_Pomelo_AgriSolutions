@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetPlant, GetPlantTargetResponse } from "@/payloads";
+import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
@@ -94,4 +94,11 @@ export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<
   const res = await axiosAuth.axiosJsonRequest.patch(`plan/soft-delete-plan`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
+};
+
+export const filterTypeWorkByGrowthStage = async (listGrowthStage: number[]) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/type-work/filter-by-growth-stage`,
+      { listGrowthStage });
+  const apiResponse = res.data as ApiResponse<GetMasterType[]>;
+  return apiResponse.data;
 };
