@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
-import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
+import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
 
 export const getPlans = async (
@@ -101,4 +101,10 @@ export const filterTypeWorkByGrowthStage = async (listGrowthStage: number[]) => 
       { listGrowthStage });
   const apiResponse = res.data as ApiResponse<GetMasterType[]>;
   return apiResponse.data;
+};
+
+export const updatePlan = async (payload: UpdatePlanRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
 };
