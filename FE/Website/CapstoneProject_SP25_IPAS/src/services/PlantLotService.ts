@@ -54,7 +54,7 @@ export const updateLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPl
     note: lot.note,
   };
 
-  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
+  const res = await axiosAuth.axiosJsonRequest.put("plant-lots", formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
   return apiResponse;
 };
@@ -70,7 +70,20 @@ export const updateQuantityLot = async (
       ? { lastQuantity: quantity }
       : { inputQuantity: quantity }),
   };
-  const res = await axiosAuth.axiosJsonRequest.put("update-plantLot-info", formatLotData);
+  const res = await axiosAuth.axiosJsonRequest.put("plant-lots", formatLotData);
+  const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
+export const updateIsCompletedLot = async (
+  lotId: number,
+  isCompleted: boolean,
+): Promise<ApiResponse<GetPlantLot2>> => {
+  const formatLotData = {
+    plantLotID: lotId,
+    isPass: isCompleted,
+  };
+  const res = await axiosAuth.axiosJsonRequest.put("plant-lots", formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
   return apiResponse;
 };
@@ -86,6 +99,19 @@ export const createLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPl
   };
   const res = await axiosAuth.axiosJsonRequest.post(`plant-lots`, formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
+export const createAdditionalLot = async (
+  lotIdParent: number,
+  importQuantity: number,
+): Promise<ApiResponse<Object>> => {
+  const formatLotData = {
+    mainPlantLotId: lotIdParent,
+    importedQuantity: importQuantity,
+  };
+  const res = await axiosAuth.axiosJsonRequest.post(`plant-lots/additional`, formatLotData);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
 

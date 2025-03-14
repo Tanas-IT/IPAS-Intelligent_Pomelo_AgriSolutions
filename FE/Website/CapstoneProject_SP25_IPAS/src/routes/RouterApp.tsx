@@ -35,7 +35,13 @@ import {
   Partner,
   PlantLotDetails,
 } from "@/pages";
-import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout, PaymentLayout } from "@/layouts";
+import {
+  EmptyLayout,
+  FarmPickerLayout,
+  GuestLayout,
+  ManagementLayout,
+  PaymentLayout,
+} from "@/layouts";
 import { PATHS } from "./Paths";
 
 interface RouteItem {
@@ -52,7 +58,11 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.LOGIN, component: Authentication, layout: EmptyLayout },
   { path: PATHS.AUTH.FORGOT_PASSWORD, component: ForgetPassword, layout: EmptyLayout },
   { path: PATHS.PACKAGE.PACKAGE_PURCHASE, component: PackagePurchase, layout: PaymentLayout },
-  { path: `${PATHS.PACKAGE.PAYMENT}/:packageId`, component: PaymentConfirmation, layout: PaymentLayout },
+  {
+    path: `${PATHS.PACKAGE.PAYMENT}/:packageId`,
+    component: PaymentConfirmation,
+    layout: PaymentLayout,
+  },
   { path: `${PATHS.PACKAGE.SUCCESS}`, component: PaymentSuccess, layout: PaymentLayout },
   { path: `${PATHS.PACKAGE.CANCEL}`, component: PaymentCancel, layout: PaymentLayout },
   {
@@ -83,6 +93,11 @@ export const publicRoutes: RouteItem[] = [
   },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LOT_DETAIL, component: PlantLotDetails, layout: ManagementLayout },
+  {
+    path: PATHS.FARM.FARM_PLANT_LOT_ADDITIONAL,
+    component: PlantLotDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
@@ -95,7 +110,6 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.HR.EMPLOYEES, component: EmployeeList, layout: ManagementLayout },
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
-  
 ];
 
 export const privateRoutes: RouteItem[] = [];

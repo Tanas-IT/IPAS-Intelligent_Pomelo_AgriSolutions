@@ -5,7 +5,19 @@ import {
   CriteriaCheckRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
+  GetCriteriaSelect,
 } from "@/payloads";
+
+export const getCriteriaTypeSelect = async (
+  lotId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/plantlot/get-for-selected/except?plantLotId=${lotId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
 
 export const getCriteriaByMasterType = async (
   typeId: number,

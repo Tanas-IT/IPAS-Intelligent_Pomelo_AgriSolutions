@@ -12,6 +12,7 @@ interface CustomButtonProps {
   isModal?: boolean;
   height?: string;
   fontSize?: string;
+  disabled?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -24,12 +25,15 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   isModal = false,
   height,
   fontSize = "16px",
+  disabled = false,
 }) => {
   const { isLoading: globalLoading } = useLoadingStore();
 
   return (
     <Button
-      className={`${isCancel ? style.cancelBtn : isModal ? style.btnModal : style.btn}`}
+      className={`${isCancel ? style.cancelBtn : isModal ? style.btnModal : style.btn} ${
+        disabled ? style.disable : ""
+      }`}
       icon={icon}
       onClick={handleOnClick}
       htmlType={htmlType}

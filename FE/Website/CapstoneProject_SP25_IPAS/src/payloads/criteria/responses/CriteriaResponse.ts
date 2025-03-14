@@ -25,3 +25,9 @@ export interface GetCriteriaObject {
   target: string;
   criteriaList: GetCriteriaCheck[];
 }
+
+export interface GetCriteriaSelect {
+  id: number;
+  code: string;
+  name: string;
+}

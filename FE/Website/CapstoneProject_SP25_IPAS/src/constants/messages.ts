@@ -23,4 +23,6 @@ export const MESSAGES = {
   PRIORITY_SEQUENTIAL: "Priority must be sequential (e.g., 1, 2, 3, 4).",
   LOT_CRITERIA_CONDITION: "Checked Quantity must be less than or equal to Initial quantity.",
   LOT_CRITERIA_EVALUATION: "Qualified Quantity must be less than or equal to Checked quantity.",
+  LOT_CRITERIA_EVALUATION_MAX: "The new quantity cannot exceed the existing Qualified quantity.",
+  LOT_CRITERIA_CONDITION_MAX: "The new quantity cannot exceed the existing Checked quantity.",
 } as const;
