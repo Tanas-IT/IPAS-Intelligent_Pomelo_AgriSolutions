@@ -70,7 +70,6 @@ const TableApplyCriteria = ({
         rowKey="id"
         pagination={false}
       />
-      ;
     </div>
   );
 };

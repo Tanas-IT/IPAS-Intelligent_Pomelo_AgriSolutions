@@ -120,3 +120,17 @@ export const getPlantLotSelected = async (): Promise<ApiResponse<GetPlantLot[]>>
   const apiResponse = res.data as ApiResponse<GetPlantLot[]>;
   return apiResponse;
 };
+
+export const fillPlantToPlot = async (
+  landPlotId: number,
+  plantLotId: number,
+  growthStageId: number,
+): Promise<ApiResponse<GetPlantLotDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`fill-plant-to-plot`, {
+    landPlotId,
+    plantLotId,
+    growthStageId,
+  });
+  const apiResponse = res.data as ApiResponse<GetPlantLotDetail>;
+  return apiResponse;
+};

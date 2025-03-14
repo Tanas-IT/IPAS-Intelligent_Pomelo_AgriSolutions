@@ -1,12 +1,13 @@
-import { Card, Checkbox, Divider, Flex, Form, Select, Table, Typography } from "antd";
-import { GetLandRow, GetPlant, PlantRequest, plantSimulate } from "@/payloads";
-import { CustomButton, ModalForm } from "@/components";
+import { Card, Flex, Select, Table, Typography } from "antd";
+import { GetLandPlotHaveEmptyPlant, PlantRequest } from "@/payloads";
+import { ConfirmModal, CustomButton, ModalForm } from "@/components";
 const { Text } = Typography;
 import style from "./LotSectionHeader.module.scss";
 import { useEffect, useState } from "react";
-import { plantService } from "@/services";
+import { landPlotService, plantLotService } from "@/services";
 import { usePlantLotStore } from "@/stores";
-import { formatDate } from "@/utils";
+import { useGrowthStageOptions, useModal } from "@/hooks";
+import { toast } from "react-toastify";
 
 type FillPlantsModalProps = {
   isOpen: boolean;
@@ -22,76 +23,142 @@ const fakeLots = Array.from({ length: 5 }, (_, index) => ({
 }));
 
 const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlantsModalProps) => {
-  const [lotList, setLotList] = useState(fakeLots);
-  const { lot, setLot, shouldRefetch } = usePlantLotStore();
+  const [plotList, setPlotList] = useState<GetLandPlotHaveEmptyPlant[]>();
+  const { lot, setLot, markForRefetch } = usePlantLotStore();
+  const confirmModal = useModal<{ plotId: number }>();
+  const { options } = useGrowthStageOptions();
+  const [selectedStage, setSelectedStage] = useState<number | undefined>();
+
+  useEffect(() => {
+    if (isOpen && options.length > 0) setSelectedStage(Number(options[0].value));
+  }, [isOpen, options]);
+
+  const fetchPlotHaveEmptyPlant = async () => {
+    const res = await landPlotService.getLandPlotHaveEmptyPlant();
+    if (res.statusCode === 200) {
+      setPlotList(res.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlotHaveEmptyPlant();
+  }, []);
+
+  const handleConfirm = (plotId: number) => {
+    if (lot?.usedQuantity === lot?.lastQuantity) {
+      toast.error("You have filled all available plants from this lot.");
+    } else {
+      confirmModal.showModal({ plotId });
+    }
+  };
+
+  const handleFillPlants = async () => {
+    const plotId = Number(confirmModal.modalState.data?.plotId);
+    if (!plotId || !lot || !selectedStage) return;
+    const res = await plantLotService.fillPlantToPlot(plotId, lot.plantLotId, selectedStage);
+    if (res.statusCode === 200 && res.data) {
+      toast.success(res.message);
+      confirmModal.hideModal();
+      setLot(res.data);
+      await fetchPlotHaveEmptyPlant();
+    } else {
+      toast.error(res.message);
+    }
+  };
 
   return (
-    <ModalForm
-      isOpen={isOpen}
-      onClose={onClose}
-      onSave={() => {}}
-      isLoading={isLoadingAction}
-      title={`Add Plants `}
-      saveLabel="Apply"
-      size="largeXL"
-    >
-      <Flex vertical gap={20} className={style.fillPlantsModal}>
-        {/* Thông tin lô hiện tại */}
-        <Card className={style.lotInfoCard} size="small">
-          <Flex vertical gap={8} className={style.lotInfoCardContent}>
-            <Text className={style.lotTitle}>
-              {lot?.plantLotName} ({lot?.plantLotCode})
-            </Text>
+    <>
+      <ModalForm
+        isOpen={isOpen}
+        onClose={onClose}
+        onSave={onClose}
+        isLoading={isLoadingAction}
+        title={`Distribute Plants from Lot`}
+        saveLabel="Close"
+        noCancel
+        size="largeXL"
+      >
+        <Flex vertical gap={20} className={style.fillPlantsModal}>
+          {/* Thông tin lô hiện tại */}
+          <Card className={style.lotInfoCard} size="small">
+            <Flex vertical gap={8} className={style.lotInfoCardContent}>
+              <Text className={style.lotTitle}>
+                {lot?.plantLotName} ({lot?.plantLotCode})
+              </Text>
 
-            <Flex className={style.lotStats}>
-              <Text>
-                ✅ Remaining: <strong>{lot?.lastQuantity}</strong> {lot?.unit}
-              </Text>
-              <Text>
-                🌱 Used: <strong>{lot?.usedQuantity ?? 0}</strong> {lot?.unit}
-              </Text>
+              <Flex className={style.lotStats}>
+                <Text>
+                  ✅ Remaining: <strong>{lot?.lastQuantity}</strong> {lot?.unit}
+                </Text>
+                <Text>
+                  🌱 Used: <strong>{lot?.usedQuantity ?? 0}</strong> {lot?.unit}
+                </Text>
+                <Flex align="center" gap={10}>
+                  <Text strong>Growth Stage:</Text>
+                  <Select
+                    options={options}
+                    value={selectedStage}
+                    onChange={(value) => setSelectedStage(value)}
+                    placeholder="Select growth stage"
+                    style={{ width: 240 }}
+                  />
+                </Flex>
+              </Flex>
             </Flex>
-          </Flex>
-        </Card>
+          </Card>
 
-        {/* Bảng danh sách cây chưa có vị trí */}
-        <div className={style.tableWrapper}>
-          <Table
-            className={style.table}
-            dataSource={lotList}
-            pagination={false}
-            columns={[
-              {
-                title: "#",
-                key: "index",
-                align: "center" as const,
-                render: (_: any, __: any, rowIndex: number) => rowIndex + 1,
-              },
-              { title: "Lot  Code", dataIndex: "plantLotCode" },
-              { title: "Lot  Code", dataIndex: "plantLotName" },
-              { title: "Empty Quantity", dataIndex: "lastQuantity", align: "center" },
-              {
-                title: "Action",
-                align: "center" as const,
-                render: () => <CustomButton label="Fill Plants" height="24px" fontSize="14px" />,
-              },
-            ]}
-          />
+          {/* Bảng danh sách cây chưa có vị trí */}
+          <div className={style.tableWrapper}>
+            <Table
+              className={style.table}
+              dataSource={plotList}
+              pagination={false}
+              columns={[
+                {
+                  title: "#",
+                  key: "index",
+                  align: "center" as const,
+                  render: (_: any, __: any, rowIndex: number) => rowIndex + 1,
+                },
+                { title: "Plot  Code", dataIndex: "landPlotCode" },
+                { title: "Plot  Name", dataIndex: "landPlotName" },
+                { title: "Empty Quantity", dataIndex: "emptySlot" },
+                { title: "Description", dataIndex: "description" },
+                { title: "Target Market", dataIndex: "targetMarket" },
+                {
+                  title: "Action",
+                  align: "center" as const,
+                  render: (_: any, record: GetLandPlotHaveEmptyPlant) => (
+                    <CustomButton
+                      label="Fill Plants"
+                      height="24px"
+                      fontSize="14px"
+                      handleOnClick={() => handleConfirm(Number(record.landPlotId))}
+                    />
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </Flex>
+
+        <div className={style.instructions}>
+          <Text strong>⚠️ Planting Instructions:</Text>
+          <Text type="secondary">
+            You can fill plants into the available plots until the <strong>Used</strong> quantity
+            matches the <strong>Remaining</strong> quantity in this lot. If there are still
+            remaining plants, you can continue filling until all slots are occupied.
+          </Text>
         </div>
-      </Flex>
-
-      {/* Hiển thị gợi ý vị trí còn trống */}
-      <div className={style.availablePositions}>
-        <Text strong>⚠️ Available Positions:</Text>
-        {/* <Flex wrap="wrap" gap={8} className={style.positionGrid}>
-          {getAvailablePositions().map((pos) => (
-            <div key={pos} className={style.gridItem}>
-              ⚠️ {pos}
-            </div>
-          ))}
-        </Flex> */}
-      </div>
-    </ModalForm>
+      </ModalForm>
+      <ConfirmModal
+        visible={confirmModal.modalState.visible}
+        onConfirm={() => handleFillPlants()}
+        onCancel={confirmModal.hideModal}
+        title="Confirm Plant Allocation"
+        description="Are you sure you want to allocate plants from this lot to the selected plot? You can continue filling until the remaining quantity reaches zero."
+      />
+    </>
   );
 };
 

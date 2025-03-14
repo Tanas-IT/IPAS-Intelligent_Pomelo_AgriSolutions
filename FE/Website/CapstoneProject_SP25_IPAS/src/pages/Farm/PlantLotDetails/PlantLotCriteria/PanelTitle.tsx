@@ -1,22 +1,26 @@
-import { Flex, Tooltip } from "antd";
+import { Flex } from "antd";
 import style from "./PlantLotCriteria.module.scss";
 import { Icons } from "@/assets";
-import { CustomButton } from "@/components";
+import { CustomButton, Tooltip } from "@/components";
+import { GetCriteriaCheck } from "@/payloads";
+import { formatDate } from "@/utils";
 
 interface PanelTitleProps {
   title: string;
   target: string;
-  data: any[];
+  data: GetCriteriaCheck[];
   isAllCompletedCheckUpdate: boolean;
   isAllConditionChecked: boolean;
-  updatedCriteria: Record<string, any>;
-  initialCriteria: Record<string, any>;
+  updatedCriteria: Record<string, boolean>;
+  initialCriteria: Record<string, boolean>;
   handleCancel: () => void;
   handleSave: (
     target: string,
     isAllCompletedCheckUpdate: boolean,
     isAllConditionChecked: boolean,
   ) => void;
+  handleDelete: (criteriaIds: number[]) => void;
+  isCompleted?: boolean;
 }
 
 export const PanelTitle = ({
@@ -29,6 +33,8 @@ export const PanelTitle = ({
   initialCriteria,
   handleCancel,
   handleSave,
+  handleDelete,
+  isCompleted = false,
 }: PanelTitleProps) => {
   const completedCount = data.filter((item) => item.isChecked).length;
   const hasChanges = data.some(
@@ -36,19 +42,30 @@ export const PanelTitle = ({
       updatedCriteria[item.criteriaId] !== undefined &&
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
-
+  const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
+  const criteriaIds = data.map((item) => item.criteriaId);
+  const date = data[0].createDate;
   return (
-    <Flex className={style.headerWrapper} gap={40}>
+    <Flex className={style.headerWrapper} gap={24}>
       <span className={style.panelTitle}>
         {title} - <span className={style.targetText}>{target}</span>
+        <span style={{ marginLeft: "8px", fontWeight: "normal" }}>({formatDate(date)})</span>
         <span className={style.completedCount}>
           ({completedCount}/{data.length})
         </span>
       </span>
       <Flex align="center" gap={20}>
-        <Tooltip title="Delete">
-          <Icons.delete className={style.deleteIcon} onClick={(e) => e.stopPropagation()} />
-        </Tooltip>
+        {!isCompleted && !isAllInitialCriteriaChecked && (
+          <Tooltip title="Delete">
+            <Icons.delete
+              className={style.deleteIcon}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(criteriaIds);
+              }}
+            />
+          </Tooltip>
+        )}
         {hasChanges && (
           <Flex gap={10}>
             <CustomButton

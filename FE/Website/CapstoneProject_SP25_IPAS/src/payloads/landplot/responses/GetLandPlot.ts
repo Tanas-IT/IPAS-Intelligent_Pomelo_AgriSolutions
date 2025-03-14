@@ -30,6 +30,10 @@ export interface GetLandPlot {
   landPlotCoordinations: landPlotCoordinations[];
 }
 
+export interface GetLandPlotHaveEmptyPlant extends GetLandPlot {
+  emptySlot: number;
+}
+
 export interface GetLandPlotSimulate {
   landPlotId: number;
   landPlotCode: string;

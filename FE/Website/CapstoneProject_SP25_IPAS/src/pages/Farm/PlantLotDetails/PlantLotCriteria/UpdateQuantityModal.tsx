@@ -25,10 +25,12 @@ const UpdateQuantityModal = ({
   const { lot } = usePlantLotStore();
   const [showSupplementInput, setShowSupplementInput] = useState(false);
   const [warningMessage, setWarningMessage] = useState("");
+  const [hasConfirmedNoSupplement, setHasConfirmedNoSupplement] = useState(false);
 
   const resetForm = () => {
     setShowSupplementInput(false);
     setWarningMessage("");
+    setHasConfirmedNoSupplement(false);
     form.resetFields();
   };
 
@@ -58,7 +60,8 @@ const UpdateQuantityModal = ({
       if (
         inputQuantity < lot.previousQuantity &&
         isNaN(supplementQuantity) &&
-        lot.additionalPlantLots.length === 0
+        lot.additionalPlantLots.length === 0 &&
+        !hasConfirmedNoSupplement
       ) {
         setWarningMessage(
           `The current quantity is lower than expected by ${requiredSupplement}. Would you like to add a supplementary lot?`,
@@ -146,6 +149,7 @@ const UpdateQuantityModal = ({
                       onClick={() => {
                         setShowSupplementInput(false);
                         setWarningMessage("");
+                        setHasConfirmedNoSupplement(true);
                       }}
                     >
                       No, continue

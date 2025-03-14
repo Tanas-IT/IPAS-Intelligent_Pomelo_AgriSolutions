@@ -22,6 +22,7 @@
         color: vars.$color_primary !important;
       }
       .lotStats {
+        align-items: center;
         color: #595959;
         gap: 14px;
       }
@@ -42,4 +43,8 @@
       }
     }
   }
+}
+
+.instructions {
+  margin-top: 20px;
 }

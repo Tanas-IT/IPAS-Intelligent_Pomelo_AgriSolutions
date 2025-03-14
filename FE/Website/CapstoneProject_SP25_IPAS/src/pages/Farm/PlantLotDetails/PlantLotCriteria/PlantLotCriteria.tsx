@@ -1,6 +1,6 @@
 import style from "./PlantLotCriteria.module.scss";
-import { Checkbox, Collapse, Divider, Empty, Flex, Table } from "antd";
-import { ConfirmModal, CustomButton, LoadingSkeleton, Tooltip } from "@/components";
+import { Collapse, Divider, Empty, Flex } from "antd";
+import { ConfirmModal, LoadingSkeleton } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantLotStore } from "@/stores";
 import LotSectionHeader from "../LotSectionHeader/LotSectionHeader";
@@ -10,15 +10,13 @@ import {
   CriteriaApplyRequest,
   CriteriaCheckData,
   CriteriaCheckRequest,
-  GetCriteriaCheck,
+  CriteriaDeleteRequest,
   GetCriteriaObject,
-  GetPlantLotDetail,
 } from "@/payloads";
-import { Icons } from "@/assets";
 import ApplyCriteriaModal from "../../PlantLot/ApplyCriteriaModal";
 import { toast } from "react-toastify";
 import UpdateQuantityModal from "./UpdateQuantityModal";
-import { CRITERIA_TARGETS, MESSAGES } from "@/constants";
+import { CRITERIA_TARGETS } from "@/constants";
 import { PanelTitle } from "./PanelTitle";
 import CriteriaCheckTable from "./CriteriaCheckTable";
 
@@ -33,15 +31,16 @@ function PlantLotCriteria() {
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const quantityModal = useModal<{ target: string }>();
   if (!lot) return;
 
   const fetchCriteriaPlantLot = async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // ⏳ Delay 1 giây
+    await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
       const res = await criteriaService.getCriteriaOfLandPlot(Number(lot.plantLotId));
-      // console.log(res);
+      console.log(res);
 
       if (res.statusCode === 200 && res.data) {
         setCriteriaGroups(res.data ?? []);
@@ -207,7 +206,28 @@ function PlantLotCriteria() {
     setCriteriaGroups(initialCriteriaGroups);
   };
 
-  const handleDelete = async (groupKey: string) => {};
+  const handleDeleteConfirm = async (criteriaIds: number[]) => {
+    deleteConfirmModal.showModal({ ids: criteriaIds });
+  };
+
+  const handleDelete = async (criteriaIds?: number[]) => {
+    if (!criteriaIds) return;
+    const deleteCriteria: CriteriaDeleteRequest = {
+      plantLotId: [lot.plantLotId],
+      criteriaSetId: criteriaIds,
+    };
+    try {
+      const res = await criteriaService.deleteCriteriaObject(deleteCriteria);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        await fetchCriteriaPlantLot();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      deleteConfirmModal.hideModal();
+    }
+  };
 
   return (
     <Flex className={style.contentDetailWrapper}>
@@ -274,6 +294,8 @@ function PlantLotCriteria() {
                       initialCriteria={initialCriteria}
                       handleCancel={handleCancel}
                       handleSave={handleSave}
+                      handleDelete={handleDeleteConfirm}
+                      isCompleted={lot.isPassed}
                     />
                   }
                   key={group.masterTypeId}
@@ -314,6 +336,13 @@ function PlantLotCriteria() {
         }
         target={quantityModal.modalState.data?.target}
         isLoadingAction={isLoading}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        actionType="delete"
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal

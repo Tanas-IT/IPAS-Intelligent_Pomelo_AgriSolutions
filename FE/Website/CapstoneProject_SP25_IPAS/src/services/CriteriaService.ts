@@ -3,6 +3,7 @@ import {
   ApiResponse,
   CriteriaApplyRequest,
   CriteriaCheckRequest,
+  CriteriaDeleteRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
   GetCriteriaSelect,
@@ -52,4 +53,16 @@ export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiRes
   );
   const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
+};
+
+export const deleteCriteriaObject = async (
+  criteria: CriteriaDeleteRequest,
+): Promise<ApiResponse<object>> => {
+  console.log(criteria);
+  
+  const res = await axiosAuth.axiosJsonRequest.delete(
+    `criterias/target/delete-for-multiple-target`,
+    { data: criteria },
+  );
+  return res.data as ApiResponse<object>;
 };
