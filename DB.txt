@@ -1033,6 +1033,8 @@ CREATE TABLE ipas.dbo.Report (
 	ReportID int IDENTITY(1,1) NOT NULL,
 	ReportCode nvarchar(300) NULL,
 	Description nvarchar(MAX) NULL,
+	CreateDate datetime NULL,
+	IsTrainned bit NULL,
 	AnswererID int NULL,
 	QuestionerID int NULL,
 	CONSTRAINT Report_PK PRIMARY KEY (ReportID),
