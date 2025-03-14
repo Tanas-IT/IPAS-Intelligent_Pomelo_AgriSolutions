@@ -1,24 +1,39 @@
 import { Button, Flex, Tag, Tooltip } from "antd";
 import style from "./LotSectionHeader.module.scss";
-import { GetPlantLotDetail } from "@/payloads";
 import { Icons } from "@/assets";
-import { CustomButton } from "@/components";
-import { useState } from "react";
+import { ActionMenuLot, ConfirmModal, CustomButton } from "@/components";
+import { usePlantLotStore } from "@/stores";
+import { plantLotService } from "@/services";
+import { toast } from "react-toastify";
+import { useModal } from "@/hooks";
+import { GetPlantLotDetail } from "@/payloads";
+import FillPlantsModal from "./FillPlantsModal";
 
 const LotSectionHeader = ({
-  lot,
   isCriteria = false,
   onApplyCriteria,
+  formModal,
+  deleteConfirmModal,
 }: {
-  lot: GetPlantLotDetail | null;
   isCriteria?: boolean;
   onApplyCriteria?: () => void;
+  formModal?: ReturnType<typeof useModal<GetPlantLotDetail>>;
+  deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
 }) => {
+  const { lot, setLot } = usePlantLotStore();
+  const updateConfirmModal = useModal();
+  const fillPlantsModal = useModal();
+
   if (!lot) return;
-  const [isPassed, setIsPassed] = useState(false);
-  const handleMarkAsPassed = () => {
-    setIsPassed(true);
-    console.log(`Lot ${lot.plantLotName} marked as Passed!`);
+  const handleMarkAsPassed = async () => {
+    var res = await plantLotService.updateIsCompletedLot(lot.plantLotId, true);
+    if (res.statusCode === 200) {
+      setLot({ ...lot, isPassed: true });
+      toast.success(`Lot ${lot.plantLotName} marked as Passed!`);
+      updateConfirmModal.hideModal();
+    } else {
+      toast.error(res.message);
+    }
   };
 
   return (
@@ -29,23 +44,25 @@ const LotSectionHeader = ({
           <Tooltip title="Hello">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
-          {/* <Tag
-            className={style.statusTag}
-            color={healthStatusColors[lot.healthStatus] || "default"}
-          >
-            {lot.healthStatus || "Unknown"}
-          </Tag> */}
           <Flex className={style.actionButtons}>
-            {isCriteria &&
-              (!lot.isPassed ? (
-                <Button type="primary" onClick={handleMarkAsPassed} ghost>
-                  Mark as Completed
-                </Button>
-              ) : (
+            {!lot.isPassed ? (
+              <Button type="primary" onClick={updateConfirmModal.showModal} ghost>
+                <Icons.check /> Mark as Completed
+              </Button>
+            ) : (
+              <Flex gap={10}>
                 <Tag color="green" className={style.passedTag}>
                   ✅ Lot Completed
                 </Tag>
-              ))}
+                {lot.lastQuantity !== lot.usedQuantity && (
+                  <CustomButton
+                    label="Fill Empty Plots"
+                    icon={<Icons.plantFill />}
+                    handleOnClick={fillPlantsModal.showModal}
+                  />
+                )}
+              </Flex>
+            )}
           </Flex>
         </Flex>
 
@@ -55,11 +72,37 @@ const LotSectionHeader = ({
               label="Add New Criteria"
               icon={<Icons.plus />}
               handleOnClick={onApplyCriteria}
+              disabled={lot.isPassed}
+            />
+          </Flex>
+        )}
+        {!isCriteria && (
+          <Flex>
+            <ActionMenuLot
+              id={lot.plantLotId}
+              isCompleted={lot.isPassed}
+              noView={true}
+              onEdit={() => formModal?.showModal(lot)}
+              onDelete={() => deleteConfirmModal?.showModal({ id: lot.plantLotId })}
             />
           </Flex>
         )}
       </Flex>
       <label className={style.subTitle}>Code: {lot.plantLotCode}</label>
+      <ConfirmModal
+        visible={updateConfirmModal.modalState.visible}
+        onConfirm={() => handleMarkAsPassed()}
+        onCancel={updateConfirmModal.hideModal}
+        actionType="update"
+        title="Mark as Completed"
+        description="Are you sure you want to mark this lot as completed? This action cannot be undone."
+      />
+      <FillPlantsModal
+        isOpen={fillPlantsModal.modalState.visible}
+        onClose={fillPlantsModal.hideModal}
+        onSave={fillPlantsModal.hideModal}
+        isLoadingAction={false}
+      />
     </Flex>
   );
 };

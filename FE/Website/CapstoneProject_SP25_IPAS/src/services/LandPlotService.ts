@@ -2,6 +2,7 @@ import { axiosAuth } from "@/api";
 import {
   ApiResponse,
   GetLandPlot,
+  GetLandPlotHaveEmptyPlant,
   GetLandPlotSelected,
   GetLandPlotSimulate,
   LandPlotRequest,
@@ -58,7 +59,6 @@ export const deleteLandPlot = async (id: number): Promise<ApiResponse<Object>> =
 export const updateLandPlotInfo = async (
   plot: LandPlotUpdateRequest,
 ): Promise<ApiResponse<Object>> => {
-  
   const res = await axiosAuth.axiosJsonRequest.put(`landplots/update-info`, plot);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -67,8 +67,15 @@ export const updateLandPlotInfo = async (
 export const updateLandPlotCoordination = async (
   coord: LandPlotUpdateCoordinationRequest,
 ): Promise<ApiResponse<Object>> => {
-  
   const res = await axiosAuth.axiosJsonRequest.put(`landplots/update-coordination`, coord);
   const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const getLandPlotHaveEmptyPlant = async (): Promise<
+  ApiResponse<GetLandPlotHaveEmptyPlant[]>
+> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`landplots/have-empty-index`);
+  const apiResponse = res.data as ApiResponse<GetLandPlotHaveEmptyPlant[]>;
   return apiResponse;
 };

@@ -24,5 +24,6 @@ export interface GetPlantLot2 {
 }
 
 export interface GetPlantLotDetail extends GetPlantLot2 {
+  plantLotReferenceId: number;
   additionalPlantLots: GetPlantLot2[];
 }

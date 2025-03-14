@@ -15,6 +15,7 @@ export interface GetCriteriaCheck {
   criteriaId: number;
   criteriaName: string;
   description: string;
+  createDate: Date;
   priority: number;
   isChecked: boolean;
 }
@@ -24,4 +25,10 @@ export interface GetCriteriaObject {
   masterTypeName: string;
   target: string;
   criteriaList: GetCriteriaCheck[];
+}
+
+export interface GetCriteriaSelect {
+  id: number;
+  code: string;
+  name: string;
 }

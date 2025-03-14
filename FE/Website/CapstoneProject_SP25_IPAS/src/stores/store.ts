@@ -51,8 +51,7 @@ export const useFarmStore = create<FarmState>((set) => {
           isFarmExpired: new Date(expiredDate) < new Date(),
         });
       }
-    }
-    
+    },
   };
 });
 
@@ -143,9 +142,13 @@ export const useGrowthStageStore = create<GrowthStageStore>((set) => ({
 interface PlantLotStore {
   lot: GetPlantLotDetail | null;
   setLot: (lot: GetPlantLotDetail | null) => void;
+  shouldRefetch: boolean;
+  markForRefetch: () => void;
 }
 
-export const usePlantLotStore = create<PlantLotStore>((set) => ({
+export const usePlantLotStore = create<PlantLotStore>((set, get) => ({
   lot: null,
   setLot: (lot) => set({ lot }),
+  shouldRefetch: false,
+  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
 }));

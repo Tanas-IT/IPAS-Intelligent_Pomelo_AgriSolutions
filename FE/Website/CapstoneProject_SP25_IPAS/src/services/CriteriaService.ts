@@ -3,9 +3,22 @@ import {
   ApiResponse,
   CriteriaApplyRequest,
   CriteriaCheckRequest,
+  CriteriaDeleteRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
+  GetCriteriaSelect,
 } from "@/payloads";
+
+export const getCriteriaTypeSelect = async (
+  lotId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/plantlot/get-for-selected/except?plantLotId=${lotId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
 
 export const getCriteriaByMasterType = async (
   typeId: number,
@@ -40,4 +53,16 @@ export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiRes
   );
   const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
+};
+
+export const deleteCriteriaObject = async (
+  criteria: CriteriaDeleteRequest,
+): Promise<ApiResponse<object>> => {
+  console.log(criteria);
+  
+  const res = await axiosAuth.axiosJsonRequest.delete(
+    `criterias/target/delete-for-multiple-target`,
+    { data: criteria },
+  );
+  return res.data as ApiResponse<object>;
 };
