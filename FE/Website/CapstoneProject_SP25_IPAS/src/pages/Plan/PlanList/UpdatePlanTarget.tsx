@@ -4,7 +4,7 @@ import { Section } from '@/components';
 import { Icons } from '@/assets';
 import { planService } from '@/services';
 import { determineUnit, fetchTargetsByUnit, getFarmId, isTargetOverlapping, unitOptions } from '@/utils';
-import { SelectedTarget } from '@/payloads';
+import { PlanTargetModel, SelectedTarget } from '@/payloads';
 
 const { Option } = Select;
 
@@ -19,7 +19,7 @@ interface UpdatePlanTargetProps {
     selectedGrowthStage: number[];
     onLandPlotChange?: (landPlotId: number) => void;
     onLandRowChange?: (landPlotId: number) => void;
-    initialValues?: SelectedTarget[][];
+    initialValues?: PlanTargetModel[];
     onChange?: (targets: SelectedTarget[][]) => void;
 }
 
@@ -43,8 +43,10 @@ const UpdatePlanTarget = ({
     const [selectedPlantLots, setSelectedPlantLots] = useState<number[][]>([]);
     const [selectedGraftedPlants, setSelectedGraftedPlants] = useState<number[][]>([]);
     const [form] = Form.useForm();
-    const [selectedTargets, setSelectedTargets] = useState<SelectedTarget[][]>([]);
-
+    const [selectedTargets, setSelectedTargets] = useState<PlanTargetModel[]>([]);
+    console.log("initialValues", initialValues);
+    console.log("selectedTargets", selectedTargets);
+    
     useEffect(() => {
         if (initialValues.length > 0) {
             const formattedValues = initialValues.map((target) => {
@@ -52,6 +54,7 @@ const UpdatePlanTarget = ({
                 return {
                     unit,
                     landPlotId: target.landPlotId,
+                    landPlotName: target.landPlotName,
                     rows: target.rows || [],
                     plants: target.plants || [],
                     plantLots: target.plantLots || [],

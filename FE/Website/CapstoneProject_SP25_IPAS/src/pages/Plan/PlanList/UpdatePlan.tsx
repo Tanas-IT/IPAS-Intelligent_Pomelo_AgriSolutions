@@ -617,7 +617,7 @@ const UpdatePlan = () => {
                     // onLandPlotChange={handleLandPlotChange}
                     // onLandRowChange={handleLandRowChange}
                     selectedGrowthStage={selectedGrowthStage}
-                    // initialValues={planData?.planTargetModels}
+                    initialValues={planData?.planTargetModels}
                 />
 
                 <Divider className={style.divider} />

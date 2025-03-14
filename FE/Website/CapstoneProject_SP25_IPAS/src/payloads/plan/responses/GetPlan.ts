@@ -90,6 +90,8 @@ interface RowModel {
 }
 
 export interface PlanTargetModel {
+  unit?: string;
+  landPlotId?: number;
   rows: RowModel[];
   landPlotName: string;
   graftedPlants: any[];
