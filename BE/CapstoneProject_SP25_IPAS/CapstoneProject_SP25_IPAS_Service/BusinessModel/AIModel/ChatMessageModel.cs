@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel
+namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.AIModel
 {
     public class ChatMessageModel
     {

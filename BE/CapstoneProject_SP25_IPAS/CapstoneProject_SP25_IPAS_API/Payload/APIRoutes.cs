@@ -409,6 +409,16 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string predictDiseaseByFile = prefix + "/predict-disease-by-file";
             public const string predictDiseaseByURL = prefix + "/predict-disease-by-url";
             public const string getHistoryOfChat = prefix + "/history-of-chat";
+            public const string getAllTags = prefix + "/get-all-tags";
+            public const string createTag = prefix + "/create-tag";
+            public const string deleteTag = prefix + "/delete-tag/{tagId}";
+            public const string uploadImageByLink = prefix + "/upload-image-by-link";
+            public const string uploadImageByFile = prefix + "/upload-image-by-file";
+            public const string deleteImage = prefix + "/delete-image";
+            public const string getAllImageAsync = prefix + "/get-all-image";
+            public const string getImageUntaggedAsync = prefix + "/get-image-untagged";
+            public const string getImageTaggedAsync = prefix + "/get-image-tagged";
+            public const string updateTag = prefix + "/update-tag";
         }
 
 

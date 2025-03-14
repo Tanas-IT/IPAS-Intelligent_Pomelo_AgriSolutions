@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? EndTime { get; set; }
         public DateTime? DateWork { get; set; }
         public List<EmployeeModel>? listEmployee { get; set; }
-        public List<UpdatePlanTargetModel>? ListPlanTargetModel { get; set; }
+        public List<PlanTargetModel>? PlanTargetModel { get; set; }
         public List<int>? GrowthStageIds { get; set; }
     }
 }
