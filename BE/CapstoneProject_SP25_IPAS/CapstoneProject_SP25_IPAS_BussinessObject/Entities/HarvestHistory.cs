@@ -22,7 +22,7 @@ public partial class HarvestHistory
 
     public virtual Crop? Crop { get; set; }
 
-    public virtual ICollection<HarvestTypeHistory> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistory>();
+    public virtual ICollection<ProductHarvestHistory> ProductHarvestHistories { get; set; } = new List<ProductHarvestHistory>();
 
     public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
 }

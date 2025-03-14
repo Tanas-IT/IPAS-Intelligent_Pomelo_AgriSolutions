@@ -11,7 +11,7 @@ public partial class GraftedPlant
 
     public string? GraftedPlantName { get; set; }
 
-    public string? GrowthStage { get; set; }
+    //public string? GrowthStage { get; set; }
 
     public DateTime? SeparatedDate { get; set; }
 

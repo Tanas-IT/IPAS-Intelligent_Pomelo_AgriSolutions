@@ -310,13 +310,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ReverseMap();
 
             CreateMap<HarvestHistory, HarvestHistoryModel>()
-               .ForMember(dest => dest.HarvestTypeHistories, opt => opt.MapFrom(src => src.HarvestTypeHistories))
+               .ForMember(dest => dest.ProductHarvestHistory, opt => opt.MapFrom(src => src.ProductHarvestHistories))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
                 .ReverseMap();
 
-            CreateMap<HarvestTypeHistory, HarvestTypeHistoryModel>()
+            CreateMap<ProductHarvestHistory, ProductHarvestHistoryModel>()
                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.MasterType.TypeName))
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
+               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+                .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant.PlantIndex))
+                .ForMember(dest => dest.LandRowIndex, opt => opt.MapFrom(src => src.Plant.LandRow.RowIndex))
+                .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant.LandRow.LandPlot.LandPlotName))
                 .ReverseMap();
 
             CreateMap<Order, OrderModel>()

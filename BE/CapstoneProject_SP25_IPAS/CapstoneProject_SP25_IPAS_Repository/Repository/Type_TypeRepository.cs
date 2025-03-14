@@ -20,7 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         }
 
 
-        public async Task<List<Type_Type>> GetAllNoPagin(Expression<Func<Type_Type, bool>> filter = null!,
+        public async Task<List<Type_Type>> GetAllNoPaging(Expression<Func<Type_Type, bool>> filter = null!,
             Func<IQueryable<Type_Type>, IOrderedQueryable<Type_Type>> orderBy = null!)
         {
             IQueryable<Type_Type> query = dbSet;
@@ -37,5 +37,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.Criterias);
             return await query.AsNoTracking().ToListAsync();
         }
+
     }
 }

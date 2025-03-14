@@ -35,13 +35,16 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/landplots";
             public const string createLandPlot = prefix + "";
+
             public const string getAllLandPlotNoPagin = prefix + "";
             public const string getAllForSelected = prefix + "/get-for-selected";
+            public const string getLandPlotEmpty = prefix + "/have-empty-index";
+            public const string getLandPlotById = prefix + "";
+            public const string getForMap = prefix + "/get-for-mapped";
+
             public const string updateLandPlotCoordination = prefix + "/update-coordination";
             public const string updateLandPlotInfo = prefix + "/update-info";
             public const string deleteLandPlotOfFarm = prefix + "";
-            public const string getLandPlotById = prefix + "";
-            public const string getForMap = prefix + "/get-for-mapped";
             public const string deleteSoftedLandPlotOfFarm = prefix + "/softed-delete";
 
         }
@@ -68,8 +71,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createPlantLotAdditional = Base + "/plant-lots/additional";
             public const string getPlantLotById = Base + "/get-plantLot-by-id/{id}";
             public const string getPlantLotWithPagination = Base + "/plantLots";
-            public const string permanenlyDelete = Base + "/delete-permanenly/{id}";
-            public const string updatePlantLotInfo = Base + "/update-plantLot-info";
+            public const string permanenlyDelete = Base + "/plant-lots/{id}";
+            public const string updatePlantLotInfo = Base + "/plant-lots";
             public const string createManyPlantFromPlantLot = Base + "/create-many-plant";
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
@@ -111,6 +114,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createMasTypeCriteria = prefix + "/create-master-type-criteria";
             public const string getCriteriaBySet = prefix + "/set-criteria";
             public const string getCriteriaSetPlantLotExcept = prefix + "/plantlot/get-for-selected/except";
+            public const string getCriteriaSetGraftedExcept = prefix + "/grafted-plant/get-for-selected/except";
+            public const string getCriteriaSetPlantExcept = prefix + "/plant/get-for-selected/except";
 
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
@@ -233,6 +238,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string importPlantFromExcel = prefix + "/import-excel";
             public const string getForSelectedForRow = prefix + "/get-for-selected-by-row";
             public const string getForSelectedForPlot = prefix + "/get-for-selected-by-plot";
+            public const string getForSelectedActFunc = prefix + "/get-for-selected/active-function";
             public const string getPlantPagin = prefix + "/get-plants-pagin";
             public const string softDeletePlant = prefix + "/soft-delete";
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
@@ -309,15 +315,18 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/harvests";
             public const string createHarvest = prefix + "";
-            public const string createHarvesTypeHistory = prefix + "/create-detail-of-harvest";
+            public const string createProductHarvestHistory = prefix + "/create-product-of-harvest";
+            public const string createPlantRecordHarvest = prefix + "/create-plant-record-of-harvest";
             public const string deletePermanentlyHarvest = prefix + "";
-            public const string deleteHarvestType = prefix + "/delete-harvest-detail";
+            public const string deleteProductHarvest = prefix + "/delete-product";
+            public const string deletePlantRecord = prefix + "/delete-plant-record";
             public const string updateHarvestInfo = prefix + "";
-            public const string updateHarvestTypeInfo = prefix + "/update-harvest-detail";
+            public const string updateProductHarvestInfo = prefix + "/update-product-harvest";
             public const string getHarvestById = prefix + "";
             public const string getAllHarvestPagin = prefix + "";
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
-            public const string getHarvestForSelectedByPlotId = prefix + "/get-for-selected";
+            public const string getHarvestForSelectedByPlotId = prefix + "/for-selected";
+            public const string getProductForSelectedInHarvest = prefix + "/for-selected/product-in-harvest";
             public const string statisticOfPlantByYear = prefix + "/plant-statistic-in-year";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
@@ -447,8 +456,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         }
         public static class ProductCriteriaSet
         {
-            public const string prefix = Base + "/product";
+            public const string prefix = Base + "/products";
             public const string getCriteriaSetOfProduct = prefix + "/criteria-set";
+            public const string getForSelectedProduct = prefix + "/criteria-set/get-for-selected";
             public const string DeleteCriteriaSetFromProduct = prefix + "/criteria-set";
             public const string UpdateCriteriaSetStatus = prefix + "/criteria-set";
             public const string ApplyCriteriaSetToProduct = prefix + "/criteria-set";

@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Har
         [Required]
         public int? CropId { get; set; }
 
-        public virtual ICollection<CreateHarvestTypeWoutPlantID> HarvestTypeHistories { get; set; } = new List<CreateHarvestTypeWoutPlantID>();
+        public virtual ICollection<CreateHarvestTypeWoutPlantID> ProductHarvestHistory { get; set; } = new List<CreateHarvestTypeWoutPlantID>();
 
     }
 }

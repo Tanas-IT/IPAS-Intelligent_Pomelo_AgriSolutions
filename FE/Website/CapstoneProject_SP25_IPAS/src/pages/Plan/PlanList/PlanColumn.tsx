@@ -2,12 +2,13 @@ import { TableColumn } from "@/types";
 import style from "./PlanList.module.scss";
 import { Tag } from "antd";
 import { GetPlan } from "@/payloads/plan";
+import { TableCell } from "@/components";
 
 export const planColumns: TableColumn<GetPlan>[] = [
     {
       header: "Plan Code",
       field: "planCode",
-      accessor: (plan) => plan.planCode,
+      accessor: (plan) => <TableCell value={plan.planCode} isCopyable={true} />,
       width: 150,
     },
     {
@@ -20,6 +21,12 @@ export const planColumns: TableColumn<GetPlan>[] = [
       header: "Plan Detail",
       field: "planDetail",
       accessor: (plan) => <div className={style.tableText}>{plan.planDetail}</div>,
+      width: 300,
+    },
+    {
+      header: "Growth Stage",
+      field: "growthStageName",
+      accessor: (plan) => <div className={style.tableText}>{plan.growthStageName.map((p) => p)}</div>,
       width: 300,
     },
     {

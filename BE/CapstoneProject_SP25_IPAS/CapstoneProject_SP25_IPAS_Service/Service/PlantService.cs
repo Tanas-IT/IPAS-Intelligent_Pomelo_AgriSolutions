@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -37,7 +38,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IExcelReaderService _excelReaderService;
         private readonly IFarmService _farmService;
         private readonly IGrowthStageService _growthStageService;
-        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService, IFarmService farmService, IGrowthStageService growthStageService)
+        private readonly ICriteriaTargetService _criteriaTargetService;
+        private readonly ProgramDefaultConfig _programConfig;
+        public PlantService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService, IFarmService farmService, IGrowthStageService growthStageService, ICriteriaTargetService criteriaTargetService, ProgramDefaultConfig programConfig)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -45,6 +48,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _excelReaderService = excelReaderService;
             _farmService = farmService;
             this._growthStageService = growthStageService;
+            _criteriaTargetService = criteriaTargetService;
+            _programConfig = programConfig;
         }
 
         public async Task<BusinessResult> createPlant(PlantCreateRequest plantCreateRequest)
@@ -524,7 +529,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
                     }
-
+                    // neu cho qua tat ca cac dieu kien cua grafted condition moi cho pass
+                    if (plantUpdateRequest.IsPassed.HasValue)
+                    {
+                        if (plantUpdateRequest.IsPassed!.Value == true)
+                        {
+                            var requireCondtion = _programConfig.GraftedCriteriaApply!.GraftedConditionApply ?? new List<string>();
+                            var checkGraftedConditionPass = await _criteriaTargetService.CheckCriteriaComplete(PlantId: plantUpdateRequest.PlantId, null, null, TargetsList: requireCondtion);
+                            if (checkGraftedConditionPass.enable == false)
+                                return new BusinessResult(400, checkGraftedConditionPass.ErrorMessage);
+                        }
+                        plantEntityUpdate.IsPassed = plantUpdateRequest.IsPassed;
+                        plantEntityUpdate.PassedDate = DateTime.Now;
+                    }
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantEntityUpdate);
 
@@ -859,6 +876,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
+            }
+        }
+
+        public async Task<BusinessResult> getPlantActFuncionForSelected(int plotid, int rowId, string actFunction)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == plotid
+                                                        && x.LandRowId == rowId
+                                                        && x.IsDead == false
+                                                        && x.IsDeleted == false;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                if (!string.IsNullOrEmpty(actFunction))
+                {
+                    var actFunctionLower = actFunction.ToLower();
+                    plantInPlot = plantInPlot
+                        .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction)
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction!)
+                                        .Any(f => f.Equals(actFunctionLower, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+                }
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

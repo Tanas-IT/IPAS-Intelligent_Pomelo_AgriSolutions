@@ -26,6 +26,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRe
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using Microsoft.AspNetCore.Components;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -161,7 +162,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ImportedDate = DateTime.Now,
                         PreviousQuantity = createPlantLotModel.ImportedQuantity,
                         //LastQuantity = 0,
-                        //UsedQuantity = 0,
+                        UsedQuantity = 0,
                         PartnerId = createPlantLotModel.PartnerId,
                         PlantLotName = createPlantLotModel.Name,
                         Unit = createPlantLotModel.Unit,
@@ -230,10 +231,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, "Main Plant Lot does not exist or is invalid.");
                     }
-                    if (mainPlantLot.LastQuantity.HasValue && mainPlantLot.LastQuantity == 0)
-                        return new BusinessResult(400, "Main PlantLot has not have last quantity");
+                    if (!mainPlantLot.InputQuantity.HasValue /*&& mainPlantLot.InputQuantity == 0*/)
+                        return new BusinessResult(400, "Main PlantLot has not have input quantity");
                     //  Tính số lượng còn thiếu
-                    int missingQuantity = (mainPlantLot.PreviousQuantity ?? 0) - (mainPlantLot.LastQuantity ?? 0);
+                    var totalInputQuantityAddition = 0;
+                    if (mainPlantLot.InversePlantLotReference.Any())
+                    {
+
+                        foreach (var additionaLot in mainPlantLot.InversePlantLotReference)
+                        {
+                            if (!additionaLot.InputQuantity.HasValue)
+                                return new BusinessResult(400, $"The lot name: {additionaLot.PlantLotName} not have input quantity to create new additional.");
+                        }
+                        totalInputQuantityAddition = mainPlantLot.InversePlantLotReference.Sum(x => x.InputQuantity)!.Value;
+                    }
+                    int missingQuantity = mainPlantLot.PreviousQuantity!.Value - (mainPlantLot.InputQuantity!.Value + totalInputQuantityAddition);
                     if (missingQuantity <= 0)
                     {
                         return new BusinessResult(400, "Main Plant Lot does not require additional stock.");
@@ -255,7 +267,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyyyy}-{Util.SplitByDash(mainPlantLot.PlantLotCode).First()}",
                         ImportedDate = DateTime.UtcNow,
                         PreviousQuantity = createModel.ImportedQuantity, // Số lượng nhập bù
-                        LastQuantity = 0,
+                        LastQuantity = null,
                         UsedQuantity = 0,
                         PartnerId = mainPlantLot.PartnerId,
                         PlantLotName = $"{mainPlantLot.PlantLotName} - Additional {mainPlantLot.InversePlantLotReference.Count() + 1}",
@@ -317,7 +329,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string includeProperties = "GraftedPlants";
+                string includeProperties = "CriteriaTargets";
                 var entityPlantLotDelete = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, includeProperties);
                 _unitOfWork.PlantLotRepository.Delete(entityPlantLotDelete);
                 var result = await _unitOfWork.SaveAsync();
@@ -665,7 +677,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         // Lấy danh sách cây hiện có trong hàng
                         var existingPlants = (await _unitOfWork.PlantRepository
-                            .GetAllNoPaging(x => x.LandRowId == row.LandRowId))
+                            .GetAllNoPaging(x => x.LandRowId == row.LandRowId && x.IsDead == false && x.IsDeleted == false))
                             .OrderBy(p => p.PlantIndex)
                             .ToList();
 
@@ -685,9 +697,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = plantLot.PlantLotName,
-                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{CodeAliasEntityConst.LANDPLOT}{row.LandPlotId}{CodeAliasEntityConst.LANDROW}{row.RowIndex}",
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{Util.SplitByDash(plantLot.PlantLotCode).First()}",
                                 PlantingDate = DateTime.UtcNow,
-                                HealthStatus = "Healthy",
+                                HealthStatus = HealthStatusConst.HEALTHY,
                                 LandRowId = row.LandRowId,
                                 FarmId = landPlot.FarmId,
                                 IsDeleted = false,
@@ -708,7 +720,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
+                    {
+                        await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
+                    }
                     // nếu sai
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE);
@@ -868,17 +883,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> CheckPlantLotCriteriaCompletedAsync(int plantLotId, List<string> criteriaRequireCheck)
         {
-            // 🔹 1. Kiểm tra lô cây có tồn tại không
-            var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
-            if (plantLotExist == null)
-            {
-                return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
-            }
+            //// 1. Kiểm tra lô cây có tồn tại không
+            //var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
+            //if (plantLotExist == null)
+            //{
+            //    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+            //}
 
-            // 🔹 2. Lấy danh sách tiêu chí đã áp dụng
+            // 2. Lấy danh sách tiêu chí đã áp dụng
             var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
 
-            // 🔹 3. Kiểm tra xem đã áp dụng **tất cả tiêu chí trong danh sách yêu cầu chưa**
+            // 3. Kiểm tra xem đã áp dụng **tất cả tiêu chí trong danh sách yêu cầu chưa**
             var appliedCriteriaTargets = appliedCriterias
                 .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
                 .ToList();
@@ -888,7 +903,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(400, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
             }
 
-            // 🔹 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
+            // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
             bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsChecked == true);
 
             if (!hasCompletedCriteria)

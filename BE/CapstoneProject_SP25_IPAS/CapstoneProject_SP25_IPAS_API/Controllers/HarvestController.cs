@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
@@ -45,7 +46,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _harvestHistoryService.getHarvestHistoryByCrop(cropId: cropId, paginationParameter:paginationParameter, filter: harvestFilter);
+                var result = await _harvestHistoryService.getHarvestHistoryByCrop(cropId: cropId, paginationParameter: paginationParameter, filter: harvestFilter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -59,7 +60,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Harvest.getPlantsHasHarvest , Name = "getDetailOfHarvest")]
+        [HttpGet(APIRoutes.Harvest.getPlantsHasHarvest, Name = "getDetailOfHarvest")]
         public async Task<IActionResult> GetDetailOfHarvestAsync([FromQuery] int harvestId, int masterTypeId)
         {
             try
@@ -78,84 +79,88 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpGet(APIRoutes.Harvest.getProductForSelectedInHarvest, Name = "getProductForSelectedInHarvest")]
+        public async Task<IActionResult> getProductForSelectedInHarvest([FromQuery] int harvestId)
+        {
+
+            var result = await _harvestHistoryService.getProductInHarvestForSelected(harvestId);
+            return Ok(result);
+
+        }
+
         [HttpPost(APIRoutes.Harvest.createHarvest, Name = "createHarvest")]
         public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest)
         {
-            try
-            {
-                var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
+            //try
+            //{
+            var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
+            return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    var response = new BaseResponse()
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //        Message = ex.Message
+            //    };
+            //    return BadRequest(response);
+            //}
         }
 
-        [HttpPost(APIRoutes.Harvest.createHarvesTypeHistory, Name = "createHarvesTypeHistory")]
-        public async Task<IActionResult> createHarvesTypeHistory([FromBody] CreateHarvestTypeHistoryRequest harvestTypeCreateRequest)
+        [HttpPost(APIRoutes.Harvest.createProductHarvestHistory, Name = "createProductHarvestHistory")]
+        public async Task<IActionResult> createProductHarvestHistory([FromBody] CreateHarvestTypeHistoryRequest harvestTypeCreateRequest)
         {
-            try
-            {
-                var result = await _harvestHistoryService.createHarvesTypeHistory(harvestTypeCreateRequest);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
+            //try
+            //{
+            var result = await _harvestHistoryService.createProductHarvestHistory(harvestTypeCreateRequest);
+            return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    var response = new BaseResponse()
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //        Message = ex.Message
+            //    };
+            //    return BadRequest(response);
+            //}
+        }
+
+        [HttpPost(APIRoutes.Harvest.createPlantRecordHarvest, Name = "createPlantRecordHarvest")]
+        public async Task<IActionResult> createPlantRecordHarvest([FromBody] CreatePlantRecordHarvestRequest request)
+        {
+            var result = await _harvestHistoryService.createPlantRecordHarvest(request);
+            return Ok(result);
         }
 
         [HttpPut(APIRoutes.Harvest.updateHarvestInfo, Name = "updateHarvestAsync")]
         public async Task<IActionResult> UpdateHarvestAsync([FromBody] UpdateHarvestHistoryRequest harvestUpdateRequest)
         {
-            try
-            {
-                var result = await _harvestHistoryService.updateHarvestHistoryInfo(harvestUpdateRequest);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
+            var result = await _harvestHistoryService.updateHarvestHistoryInfo(harvestUpdateRequest);
+            return Ok(result);
         }
 
-        [HttpPut(APIRoutes.Harvest.updateHarvestTypeInfo, Name = "updateHarvestTypeInfo")]
-        public async Task<IActionResult> updateHarvestTypeInfo([FromBody] UpdateHarvesTypeHistoryRequest harvestTypeUpdateRequest)
+        [HttpPut(APIRoutes.Harvest.updateProductHarvestInfo, Name = "updateHarvestTypeInfo")]
+        public async Task<IActionResult> updateHarvestTypeInfo([FromBody] UpdateProductHarvesRequest harvestTypeUpdateRequest)
         {
-            try
-            {
-                var result = await _harvestHistoryService.updateHarvesTypeHistory(harvestTypeUpdateRequest);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
+            //try
+            //{
+            var result = await _harvestHistoryService.updateProductHarvest(harvestTypeUpdateRequest);
+            return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    var response = new BaseResponse()
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //        Message = ex.Message
+            //    };
+            //    return BadRequest(response);
+            //}
         }
 
         [HttpDelete(APIRoutes.Harvest.deletePermanentlyHarvest + "/{harvest-id}", Name = "deletePermanentlyHarvest")]
-        public async Task<IActionResult> SoftDeleteHarvestAsync([FromRoute(Name = "harvest-id")] int harvestId)
+        public async Task<IActionResult> deletePermanentlyHarvest([FromRoute(Name = "harvest-id")] int harvestId)
         {
             try
             {
@@ -173,12 +178,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.Harvest.deleteHarvestType, Name = "deleteHarvestType")]
-        public async Task<IActionResult> deleteHarvestTypeAsync([FromQuery] int harvestId, int masterTypeId, int? plantId)
+        [HttpDelete(APIRoutes.Harvest.deleteProductHarvest, Name = "deleteProductHarvest")]
+        public async Task<IActionResult> deleteProductHarvestAsync([FromQuery] int harvestId, int masterTypeId)
         {
             try
             {
-                var result = await _harvestHistoryService.deleteHarvestType(harvestId,masterTypeId, plantId);
+                var result = await _harvestHistoryService.deleteProductHarvest(harvestId, masterTypeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.Harvest.deletePlantRecord, Name = "deletePlantRecord")]
+        public async Task<IActionResult> deletePlantRecordAsync(DeletePlantRecoredRequest request)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.deletePlantRecord(request);
                 return Ok(result);
             }
             catch (Exception ex)

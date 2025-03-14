@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestMo
 
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public virtual ICollection<HarvestTypeHistoryModel> HarvestTypeHistories { get; set; } = new List<HarvestTypeHistoryModel>();
+        public virtual ICollection<ProductHarvestHistoryModel> ProductHarvestHistory { get; set; } = new List<ProductHarvestHistoryModel>();
 
         //public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
     }

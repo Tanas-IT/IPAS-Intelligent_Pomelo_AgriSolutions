@@ -13,7 +13,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Har
         [Required]
         public int MasterTypeId { get; set; }
 
-        public int? PlantId { get; set; }
         [Required]
         public string? Unit { get; set; }
 

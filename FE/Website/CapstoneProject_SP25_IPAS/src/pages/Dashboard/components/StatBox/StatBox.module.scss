@@ -1,5 +1,6 @@
 .statBox {
   width: 233px;
+  max-width: 350px;
   height: 100px;
   background: #fff;
   border-radius: 8px;
@@ -49,5 +50,11 @@
   &Title {
     font-size: 14px;
     color: #666;
+  }
+
+  &.large {
+    min-width: 370px;
+    max-width: 350px;
+    height: 120px;
   }
 }

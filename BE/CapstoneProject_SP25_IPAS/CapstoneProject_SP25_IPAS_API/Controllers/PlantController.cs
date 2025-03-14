@@ -110,7 +110,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                if(!plantCreateRequest.FarmId.HasValue)
+                if (!plantCreateRequest.FarmId.HasValue)
                     plantCreateRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
                 if (!ModelState.IsValid && !plantCreateRequest.FarmId.HasValue)
                 {
@@ -242,7 +242,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 }
                 var result = await _plantService.ImportPlantAsync(request);
                 return Ok(result);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new BaseResponse
                 {
@@ -279,19 +280,33 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Plant.getForSelectedForRow + "/{row-id}")]
         public async Task<IActionResult> GetForSelectedForRow([FromRoute(Name = "row-id")] int plotId)
         {
-            try
-            {
-                var result = await _plantService.getPlantInRowForSelected(plotId);
-                return Ok(result);
-            }
-            catch (Exception ex)
+            //try
+            //{
+            var result = await _plantService.getPlantInRowForSelected(plotId);
+            return Ok(result);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return BadRequest(new BaseResponse
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //        Message = ex.Message
+            //    });
+            //}
+        }
+
+        [HttpGet(APIRoutes.Plant.getForSelectedActFunc)]
+        public async Task<IActionResult> getForSelectedActFunc([FromQuery] int plotId, int rowId, string actFunction)
+        {
+            if (!ModelState.IsValid)
             {
                 return BadRequest(new BaseResponse
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
                 });
             }
+            var result = await _plantService.getPlantActFuncionForSelected(plotId,rowId, actFunction);
+            return Ok(result);
         }
 
         [HttpPatch(APIRoutes.Plant.softDeletePlant, Name = "SoftedDeletePlant")]
@@ -313,7 +328,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.Plant.getPlantNotLocate )]
+        [HttpGet(APIRoutes.Plant.getPlantNotLocate)]
         public async Task<IActionResult> getPlantNotLocate([FromQuery(Name = "farmId")] int? farmId)
         {
             try

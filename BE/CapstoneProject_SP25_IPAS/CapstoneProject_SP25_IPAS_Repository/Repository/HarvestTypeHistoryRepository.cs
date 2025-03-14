@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
-    public class HarvestTypeHistoryRepository : GenericRepository<HarvestTypeHistory>, IHarvestTypeHistoryRepository
+    public class HarvestTypeHistoryRepository : GenericRepository<ProductHarvestHistory>, IHarvestTypeHistoryRepository
     {
         private readonly IpasContext _context;
 
@@ -18,9 +18,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<List<HarvestTypeHistory>> GetHarvestDataByYear(int year, int? farmId)
+        public async Task<List<ProductHarvestHistory>> GetHarvestDataByYear(int year, int? farmId)
         {
-            var result = await _context.HarvestTypeHistories
+            var result = await _context.ProductHarvestHistories
             .Include(ht => ht.HarvestHistory)
             .ThenInclude(hh => hh.Crop)
             .Include(ht => ht.MasterType)

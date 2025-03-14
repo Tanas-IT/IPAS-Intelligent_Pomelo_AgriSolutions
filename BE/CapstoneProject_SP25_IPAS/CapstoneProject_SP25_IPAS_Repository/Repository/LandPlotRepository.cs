@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .Include(x => x.LandPlotCrops)
                                 .ThenInclude(x => x.Crop)
                                 .ThenInclude(x => x.HarvestHistories)
-                                .ThenInclude(x => x.HarvestTypeHistories)
+                                .ThenInclude(x => x.ProductHarvestHistories)
                                 .ToListAsync();
             return result;
         }
@@ -117,7 +117,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<LandPlot>> GetLandPlotIncludeByFarmId(int farmId)
         {
             var landPlots = await _context.LandPlots
-                   .Where(lp => lp.FarmId == farmId)
+                   .Where(lp => lp.FarmId == farmId && lp.isDeleted == false)
                    .Include(lp => lp.LandRows)  // Bao gồm các Rows của LandPlot
                        .ThenInclude(r => r.Plants) // Bao gồm cả cây trồng trong Rows
                    .ToListAsync();

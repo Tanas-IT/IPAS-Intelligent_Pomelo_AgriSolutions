@@ -12,7 +12,7 @@ const { Text } = Typography;
 const Notification = () => {
   const { notifications, unreadCount, markAsRead, fetchNotifications } = useNotifications();
   console.log("noti in bell", notifications);
-  
+
   const popoverRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"All" | "Unread">("All");
 
@@ -80,7 +80,7 @@ const Notification = () => {
                         <div>
                           <Text strong>{item.title}</Text>
                           <Flex gap={4}>
-                            <Tag color={item.color} style={{color: "#333333"}}>{item.masterType.masterTypeName}</Tag>
+                            <Tag color={item.color} style={{ color: "#333333" }}>{item.masterType.masterTypeName}</Tag>
                           </Flex>
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -88,14 +88,19 @@ const Notification = () => {
                         </Text>
                       </Flex>
                     }
-                    description={<Text type="secondary" style={{color: "#555"}}>{item.content}</Text>}
+                    description={<Text type="secondary" style={{ color: "#555" }}>{item.content}</Text>}
                   />
-                  {!item.isRead && (
-                    <span className={style.unreadDot} onClick={(e) => {
+                  <span
+                    className={style.unreadDot}
+                    style={{ color: item.isRead ? "#ffffff" : "blue" }}
+                    onClick={(e) => {
                       e.stopPropagation();
-                      markAsRead(item.notificationId);
-                    }}>●</span>
-                  )}
+                      if (!item.isRead) markAsRead(item.notificationId);
+                    }}
+                  >
+                    ●
+                  </span>
+
                 </List.Item>
               ))}
             </div>
@@ -110,7 +115,8 @@ const Notification = () => {
       content={notificationContent}
       trigger="click"
       placement="bottomLeft"
-      overlayStyle={{ maxWidth: "350px", right: 300, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)", borderRadius: "10px",
+      overlayStyle={{
+        maxWidth: "350px", right: 300, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)", borderRadius: "10px",
       }}
       getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
       destroyTooltipOnHide

@@ -1,61 +1,20 @@
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #0a0a0a;
-    color: #fff;
+.paymentCancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+
+  .content {
+    max-width: 600px;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    overflow: hidden;
-    position: relative;
-  
-    .title {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      animation: fadeIn 2s ease-in-out;
-    }
-  
-    .subtitle {
-      font-size: 1.5rem;
-      animation: fadeIn 3s ease-in-out;
-    }
-  
-    .fireworks {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-  
-      .firework {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background-color: #ff4d4f; // Màu đỏ để phù hợp với trạng thái hủy
-        border-radius: 50%;
-        animation: explode 1.5s infinite;
-      }
-    }
   }
-  
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+
+  button {
+    margin-top: 16px;
   }
-  
-  @keyframes explode {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(10);
-      opacity: 0;
-    }
-  }
+}
