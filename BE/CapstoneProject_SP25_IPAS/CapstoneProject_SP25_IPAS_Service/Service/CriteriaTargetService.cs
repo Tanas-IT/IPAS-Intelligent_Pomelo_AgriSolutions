@@ -110,44 +110,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             //using (var transaction = await _unitOfWork.BeginTransactionAsync())
             //{
-                try
+            try
+            {
+                var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
+
+                if (!plantIds.Any() && !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
                 {
-                    var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
-
-                    if (!plantIds.Any() && !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
-                    {
-                        return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
-                    }
-
-                    var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
-
-                    var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, plantIds, graftedPlantIds, plantLotIds, existingCriteriaTargets);
-
-                    if (newCriteriaTargets.Any())
-                    {
-                        await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(newCriteriaTargets);
-                        var resultSave = await _unitOfWork.SaveAsync();
-                        if (resultSave > 0)
-                        {
-                            int numberObjectHasApply = 0;
-                            numberObjectHasApply = request.PlantId!.Any() ?  request.PlantId!.Count() : numberObjectHasApply;
-                            numberObjectHasApply = request.PlantLotId!.Any() ?  request.PlantLotId!.Count() : numberObjectHasApply;
-                            numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
-
-                            //await transaction.CommitAsync();
-                            return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
-                                $"Apply {request.CriteriaData.Count()} criteria for selected {numberObjectHasApply} objects success", new { success = true });
-                        }
-                    }
-
-                    //await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
+                    return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                 }
-                catch (Exception ex)
+
+                var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
+
+                var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, plantIds, graftedPlantIds, plantLotIds, existingCriteriaTargets);
+
+                if (newCriteriaTargets.Any())
                 {
-                    //await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(newCriteriaTargets);
+                    var resultSave = await _unitOfWork.SaveAsync();
+                    if (resultSave > 0)
+                    {
+                        int numberObjectHasApply = 0;
+                        numberObjectHasApply = request.PlantId!.Any() ? request.PlantId!.Count() : numberObjectHasApply;
+                        numberObjectHasApply = request.PlantLotId!.Any() ? request.PlantLotId!.Count() : numberObjectHasApply;
+                        numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
+
+                        //await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
+                            $"Apply {request.CriteriaData.Count()} criteria for selected {numberObjectHasApply} objects success", new { success = true });
+                    }
                 }
+
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
+            }
+            catch (Exception ex)
+            {
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
             //}
         }
 
@@ -421,39 +421,51 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-
-        public async Task<BusinessResult> DelteteCriteriaForMultipleTarget(DeleteCriteriaTargetRequest request)
+        public async Task<BusinessResult> DelteteCriteriaForMultipleTarget(DeleteCriteriaTargetRequest deleteRequest)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
-                    // Đảm bảo chỉ có một danh sách được truyền vào
-                    var targetList = request.PlantID?.Cast<int?>().ToList() ??
-                                     request.GraftedPlantID?.Cast<int?>().ToList() ??
-                                     request.PlantLotID?.Cast<int?>().ToList();
-
-                    if (targetList.IsNullOrEmpty() || request.CriteriaList.IsNullOrEmpty())
+                    // Kiểm tra đầu vào hợp lệ
+                    if (!deleteRequest.PlantId!.Any() && !deleteRequest.GraftedPlantId!.Any() && !deleteRequest.PlantLotId!.Any())
                     {
-                        return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                        return new BusinessResult(Const.FAIL_UPDATE_CRITERIA_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
-
-                    // Lấy dữ liệu hiện có trong database để tránh thêm trùng lặp
+                    if (!deleteRequest.CriteriaSetId.Any())
+                    {
+                        return new BusinessResult(400, "Can not found any criteria to delete");
+                    }
                     var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => targetList!.Contains(x.PlantID) ||
-                                        targetList.Contains(x.GraftedPlantID) ||
-                                        targetList.Contains(x.PlantLotID));
-
-                    // Nếu không tìm thấy tiêu chí nào để xoá
+                               .GetAllNoPaging(x =>
+                                   (deleteRequest.PlantId!.Contains(x.PlantID) ||
+                                    deleteRequest.GraftedPlantId!.Contains(x.GraftedPlantID) ||
+                                    deleteRequest.PlantLotId!.Contains(x.PlantLotID))
+                               );
                     if (!existingCriteriaTargets.Any())
                     {
-                        return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, "Can not found any criteria to delete");
+                        return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, "Cannot find any criteria to delete.");
                     }
-                    else if (request.clearAllCriteria == false)
+                    if (deleteRequest.clearAllCriteria)
                     {
-                        // new ko can clear tat ca criteria cua list object thi xoa tung cai criteria duoc truyen xuong
-                        existingCriteriaTargets = existingCriteriaTargets.Where(x => request.CriteriaList.Contains(x.CriteriaID!.Value));
+                        _unitOfWork.CriteriaTargetRepository.RemoveRange(existingCriteriaTargets);
+                        int result1 = await _unitOfWork.SaveAsync();
+                        if (result1 > 0)
+                        {
+                            await transaction.CommitAsync();
+                            int numberObjectHasApply = 0;
+                            numberObjectHasApply = deleteRequest.PlantId!.Any() ? deleteRequest.PlantId!.Count() : numberObjectHasApply;
+                            numberObjectHasApply = deleteRequest.PlantLotId!.Any() ? deleteRequest.PlantLotId!.Count() : numberObjectHasApply;
+                            numberObjectHasApply = deleteRequest.GraftedPlantId!.Any() ? deleteRequest.GraftedPlantId!.Count() : numberObjectHasApply;
+                            return new BusinessResult(Const.SUCCES_DELETE_CRITERIA_TARGET_CODE, $"Clear all criteria of {numberObjectHasApply} success");
+                        }
+                        else
+                        {
+                            return new BusinessResult(Const.FAIL_DELETE_CRITERIA_CODE, Const.FAIL_DELETE_CRITERIA_MSG);
+                        }
                     }
+                    existingCriteriaTargets = existingCriteriaTargets.Where(x =>
+                    deleteRequest.CriteriaSetId.Contains(x.Criteria!.MasterTypeID!.Value));
 
                     // Xoá các tiêu chí
                     _unitOfWork.CriteriaTargetRepository.RemoveRange(existingCriteriaTargets);
@@ -463,7 +475,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCES_DELETE_CRITERIA_TARGET_CODE, Const.SUCCES_DELETE_CRITERIA_TARGET_MSG);
+                        return new BusinessResult(Const.SUCCES_DELETE_CRITERIA_TARGET_CODE, $"Delete {deleteRequest.CriteriaSetId.Count()} criteria set success.");
                     }
                     else
                     {
@@ -477,6 +489,65 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+        //public async Task<BusinessResult> DelteteCriteriaForMultipleTarget(DeleteCriteriaTargetRequest request)
+        //{
+        //    using (var transaction = await _unitOfWork.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            // Đảm bảo chỉ có một danh sách được truyền vào
+        //            //var targetList = request.PlantID?.Cast<int?>().ToList() ??
+        //            //                 request.GraftedPlantID?.Cast<int?>().ToList() ??
+        //            //                 request.PlantLotID?.Cast<int?>().ToList();
+        //            var targetList = request.PlantLotID?.Any() == true ? request.PlantLotID.Cast<int?>().ToList()
+        //        : request.GraftedPlantID?.Any() == true ? request.GraftedPlantID.Cast<int?>().ToList()
+        //        : request.PlantID?.Any() == true ? request.PlantID.Cast<int?>().ToList()
+        //        : new List<int?>();
+
+        //            if (targetList.IsNullOrEmpty() || request.CriteriaList.IsNullOrEmpty())
+        //            {
+        //                return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+        //            }
+
+        //            // Lấy dữ liệu hiện có trong database để tránh thêm trùng lặp
+        //            var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
+        //                .GetAllNoPaging(x => targetList!.Contains(x.PlantID) ||
+        //                                targetList.Contains(x.GraftedPlantID) ||
+        //                                targetList.Contains(x.PlantLotID));
+
+        //            // Nếu không tìm thấy tiêu chí nào để xoá
+        //            if (!existingCriteriaTargets.Any())
+        //            {
+        //                return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, "Can not found any criteria to delete");
+        //            }
+        //            else if (request.clearAllCriteria == false)
+        //            {
+        //                // new ko can clear tat ca criteria cua list object thi xoa tung cai criteria duoc truyen xuong
+        //                existingCriteriaTargets = existingCriteriaTargets.Where(x => request.CriteriaList.Contains(x.CriteriaID!.Value));
+        //            }
+
+        //            // Xoá các tiêu chí
+        //            _unitOfWork.CriteriaTargetRepository.RemoveRange(existingCriteriaTargets);
+
+        //            // Lưu thay đổi vào database
+        //            int result = await _unitOfWork.SaveAsync();
+        //            if (result > 0)
+        //            {
+        //                await transaction.CommitAsync();
+        //                return new BusinessResult(Const.SUCCES_DELETE_CRITERIA_TARGET_CODE, Const.SUCCES_DELETE_CRITERIA_TARGET_MSG);
+        //            }
+        //            else
+        //            {
+        //                return new BusinessResult(Const.FAIL_DELETE_CRITERIA_CODE, Const.FAIL_DELETE_CRITERIA_MSG);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //        }
+        //    }
+        //}
 
         public async Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? plantId, int? graftedId, int? plantLotId, List<string> TargetsList)
         {
@@ -526,7 +597,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         /// <param name="plantLotIds"></param>
         /// <param name="existingCriteriaTargets">Cac criteria da duoc add vao tu truoc</param>
         /// <returns></returns>
-        private List<CriteriaTarget> GenerateNewCriteriaTargets( List<CriteriaData> criteriaData, List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds, List<CriteriaTarget> existingCriteriaTargets)
+        private List<CriteriaTarget> GenerateNewCriteriaTargets(List<CriteriaData> criteriaData, List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds, List<CriteriaTarget> existingCriteriaTargets)
         {
             return criteriaData
                 .SelectMany(criteria =>
