@@ -28,6 +28,7 @@ using CapstoneProject_SP25_IPAS_Service.BusinessModel.AIModel;
 using Google.Apis.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System.IO;
+using MimeKit.Cryptography;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -481,7 +482,7 @@ const generationConfig = {
                     TagIds = uploadImageModel.TagIds.Select(Guid.Parse).ToList(),
                 };
                 var uploadImageByURL = await trainingClient.CreateImagesFromUrlsAsync(projectId, imageUrlCreateBatch);
-                if(uploadImageByURL != null)
+                if(uploadImageByURL != null && uploadImageByURL.IsBatchSuccessful)
                 {
                     return new BusinessResult(200, "Upload image to Custom Vision success", uploadImageByURL);
                 }
@@ -536,7 +537,7 @@ const generationConfig = {
                 };
 
                 var uploadImageByFile = await trainingClient.CreateImagesFromFilesAsync(projectId, imageFileCreateBatch);
-                if(uploadImageByFile != null)
+                if(uploadImageByFile != null && uploadImageByFile.IsBatchSuccessful)
                 {
                     return new BusinessResult(200, "Upload image to Custom Vision success", uploadImageByFile);
                 }
@@ -659,11 +660,6 @@ const generationConfig = {
             }
         }
 
-        public async Task<BusinessResult> PublishIteration(GetImagesWithTagged getImagesTagged)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<BusinessResult> QuickTestImageByURL(QuickTestImageByURLModel quickTestImageByURLModel)
         {
             try
@@ -713,9 +709,17 @@ const generationConfig = {
             }
         }
 
-        public Task<BusinessResult> TrainedProject(GetImagesWithTagged getImagesTagged)
+        public async Task<BusinessResult> TrainedProject(TrainingProjectModel trainingProjectModel)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var trainedProject = await trainingClient.TrainProjectAsync(projectId, trainingProjectModel.TrainingType, trainingProjectModel.ReservedHours);
+                return new BusinessResult(Const.ERROR_EXCEPTION, "");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }
