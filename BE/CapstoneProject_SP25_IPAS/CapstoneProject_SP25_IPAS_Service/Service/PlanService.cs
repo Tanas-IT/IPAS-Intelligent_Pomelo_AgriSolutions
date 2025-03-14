@@ -887,79 +887,71 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public List<PlanTargetDisplayModel> MapPlanTargets(List<PlanTarget> planTargets)
         {
-            var displayModels = new List<PlanTargetDisplayModel>();
-            foreach (var planTarget in planTargets)
+            var displayModels = new Dictionary<int, PlanTargetDisplayModel>();
+
+            foreach (var getPlanTarget in planTargets)
             {
-                var displayModel = new PlanTargetDisplayModel
+                // Tìm hoặc tạo mới displayModel theo LandPlotId
+                if (!displayModels.TryGetValue(getPlanTarget.LandPlotID ?? 0, out var displayModel))
                 {
-                    LandPlotName = planTarget?.LandPlot?.LandPlotName,
-                    LandPlotId = planTarget?.LandPlotID,
-                    Rows = new List<LandRowDisplayModel>(),
-                    Plants = new List<PlantDisplayModel>(),
-                    PlantLots = new List<PlantLotDisplayModel>(),
-                    GraftedPlants = new List<GraftedPlantDisplayModel>()
-                };
+                    displayModel = new PlanTargetDisplayModel
+                    {
+                        LandPlotId = getPlanTarget.LandPlotID,
+                        LandPlotName = getPlanTarget.LandPlot?.LandPlotName,
+                        Rows = new List<LandRowDisplayModel>(),
+                        Plants = new List<PlantDisplayModel>(),
+                        PlantLots = new List<PlantLotDisplayModel>(),
+                        GraftedPlants = new List<GraftedPlantDisplayModel>()
+                    };
+                    displayModels[getPlanTarget.LandPlotID ?? 0] = displayModel;
+                }
 
-                // Nếu unit không được truyền vào, lấy tất cả dữ liệu có thể có
-                bool isFullMode = string.IsNullOrEmpty(planTarget.Unit);
+                // HashSet để tránh trùng lặp
+                
+                var rowIds = new HashSet<int>(displayModel.Rows.Select(r => r.LandRowId != null ? r.LandRowId.Value : 0));
+                var plantIds = new HashSet<int>(displayModel.Plants.Select(p => p.PlantId != null ? p.PlantId.Value : 0));
+                var plantLotIds = new HashSet<int>(displayModel.PlantLots.Select(p => p.PlantLotId != null ? p.PlantLotId.Value : 0));
+                var graftedPlantIds = new HashSet<int>(displayModel.GraftedPlants.Select(g => g.GraftedPlantId != null ? g.GraftedPlantId.Value : 0));
 
-                if (isFullMode || planTarget.Unit == "LandPlot")
+                bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
+
+                if (isFullMode || getPlanTarget.Unit == "Row")
                 {
-                    if (planTarget?.LandPlot != null)
+                    if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
-                        displayModel.LandPlotName = planTarget.LandPlot.LandPlotName;
-                        displayModel.LandPlotId = planTarget.LandPlotID;
+                        var row = _mapper.Map<LandRowDisplayModel>(getPlanTarget.LandRow);
+                        displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || planTarget?.Unit == "Row")
+                if (isFullMode || getPlanTarget.Unit == "Plant")
                 {
-                    if (planTarget?.LandRow != null)
+                    if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
-                        var row = _mapper.Map<LandRowDisplayModel>(planTarget.LandRow);
-                        if (!displayModel.Rows.Any(r => r.LandRowId == row.LandRowId))
-                        {
-                            displayModel.Rows.Add(row);
-                        }
+                        var plant = _mapper.Map<PlantDisplayModel>(getPlanTarget.Plant);
+                        displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || planTarget?.Unit == "Plant")
+                if (isFullMode || getPlanTarget.Unit == "PlantLot")
                 {
-                    if (planTarget?.Plant != null)
+                    if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
-                        var plant = _mapper.Map<PlantDisplayModel>(planTarget.Plant);
-                        if (!displayModel.Plants.Any(p => p.PlantId == plant.PlantId))
-                        {
-                            displayModel.Plants.Add(plant);
-                        }
+                        var plantLot = _mapper.Map<PlantLotDisplayModel>(getPlanTarget.PlantLot);
+                        displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || planTarget?.Unit == "PlantLot")
+                if (isFullMode || getPlanTarget.Unit == "GraftedPlant")
                 {
-                    if (planTarget?.PlantLot != null)
+                    if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
-                        var plantLot = _mapper.Map<PlantLotDisplayModel>(planTarget.PlantLot);
-                        if (!displayModel.PlantLots.Any(p => p.PlantLotId == plantLot.PlantLotId))
-                        {
-                            displayModel.PlantLots.Add(plantLot);
-                        }
+                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(getPlanTarget.GraftedPlant);
+                        displayModel.GraftedPlants.Add(graftedPlant);
                     }
                 }
-                if (isFullMode || planTarget?.Unit == "GraftedPlant")
-                {
-                    if (planTarget?.GraftedPlant != null)
-                    {
-                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(planTarget.GraftedPlant);
-                        if (!displayModel.GraftedPlants.Any(p => p.GraftedPlantId == graftedPlant.GraftedPlantId))
-                        {
-                            displayModel.GraftedPlants.Add(graftedPlant);
-                        }
-                    }
-                }
-                displayModels.Add(displayModel);
             }
 
-            return displayModels;
+            return displayModels.Values.ToList();
         }
+
 
 
         public async Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel)

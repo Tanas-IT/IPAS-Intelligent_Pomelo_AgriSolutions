@@ -28,10 +28,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetAllImageAsync(GetImagesModelWithPagination getImagesModelWithPagination);
         public Task<BusinessResult> GetImagesUnTagged(GetImagesWithTagged getImagesUnTagged);
         public Task<BusinessResult> GetImagesTagged(GetImagesWithTagged getImagesTagged);
-        public Task<BusinessResult> PublishIteration(GetImagesWithTagged getImagesTagged);
         public Task<BusinessResult> QuickTestImageByURL(QuickTestImageByURLModel quickTestImageByURLModel);
         public Task<BusinessResult> QuickTestImageByFile(QuickTestImageByFileModel quickTestImageByFileModel);
-        public Task<BusinessResult> TrainedProject(GetImagesWithTagged getImagesTagged);
+        public Task<BusinessResult> TrainedProject(TrainingProjectModel trainingProjectModel);
 
     }
 }
