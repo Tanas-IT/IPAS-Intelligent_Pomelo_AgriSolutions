@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.HarvestHistories)
                 .ThenInclude(x => x.CarePlanSchedules)
                 .Include(x => x.HarvestHistories)
-                .ThenInclude(x => x.HarvestTypeHistories)
+                .ThenInclude(x => x.ProductHarvestHistories)
                 .FirstOrDefaultAsync(x => x.CropId == cropId);
             return crop!;
         }

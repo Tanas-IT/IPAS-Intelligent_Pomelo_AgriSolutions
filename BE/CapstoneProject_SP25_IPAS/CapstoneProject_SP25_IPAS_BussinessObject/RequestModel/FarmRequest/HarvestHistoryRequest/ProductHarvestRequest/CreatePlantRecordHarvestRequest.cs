@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest
+namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest
 {
-    public class UpdateHarvesTypeHistoryRequest
+    public class CreatePlantRecordHarvestRequest
     {
         [Required]
         public int MasterTypeId { get; set; }
-        public int? PlantId { get; set; }
-        public string? Unit { get; set; }
-        
-        public double? Price { get; set; }
+        [Required]
+        public int PlantId { get; set; }
+        [Required]
         public int? Quantity { get; set; }
         [Required]
         public int? HarvestHistoryId { get; set; }

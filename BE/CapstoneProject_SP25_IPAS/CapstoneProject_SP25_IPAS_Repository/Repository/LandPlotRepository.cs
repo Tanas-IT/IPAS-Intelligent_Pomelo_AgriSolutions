@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .Include(x => x.LandPlotCrops)
                                 .ThenInclude(x => x.Crop)
                                 .ThenInclude(x => x.HarvestHistories)
-                                .ThenInclude(x => x.HarvestTypeHistories)
+                                .ThenInclude(x => x.ProductHarvestHistories)
                                 .ToListAsync();
             return result;
         }

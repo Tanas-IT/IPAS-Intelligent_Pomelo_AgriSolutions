@@ -39,7 +39,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<HarvestHistory> HarvestHistories { get; set; }
 
-    public virtual DbSet<HarvestTypeHistory> HarvestTypeHistories { get; set; }
+    public virtual DbSet<ProductHarvestHistory> ProductHarvestHistories { get; set; }
 
     public virtual DbSet<LandPlot> LandPlots { get; set; }
     public virtual DbSet<LandPlotCrop> LandPlotCrops { get; set; }
@@ -429,27 +429,27 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("HarvestHistory_Crop_FK");
         });
 
-        modelBuilder.Entity<HarvestTypeHistory>(entity =>
+        modelBuilder.Entity<ProductHarvestHistory>(entity =>
         {
-            entity.HasKey(e => new { e.HarvestTypeHistoryId }).HasName("PK__HarvestT__CAE5744A780B99C5");
+            entity.HasKey(e => new { e.ProductHarvestHistoryId }).HasName("PK__HarvestT__CAE5744A780B99C5");
 
-            entity.ToTable("HarvestTypeHistory");
+            entity.ToTable("ProductHarvestHistory");
 
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
-            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.HarvestTypeHistories)
+            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.ProductHarvestHistories)
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.MasterTypeId)
-                .HasConstraintName("HarvestTypeHistory_MasterType_FK");
+                .HasConstraintName("ProductHarvestHistory_MasterType_FK");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.PlantId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_HarvestTypeHistory_Plant");
+                .HasConstraintName("FK_ProductHarvestHistory_Plant");
 
            
         });

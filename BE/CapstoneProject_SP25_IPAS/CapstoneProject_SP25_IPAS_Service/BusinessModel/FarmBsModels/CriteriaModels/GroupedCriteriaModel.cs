@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaM
     {
         public int MasterTypeId { get; set; }
         public string? MasterTypeName { get; set; }
-        public string? Target {  get; set; }
+        public string? Target { get; set; }
         public List<CriteriaInfoModel> CriteriaList { get; set; } = new();
     }
 
@@ -22,9 +22,10 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.CriteriaM
         public int CriteriaId { get; set; }
         public string CriteriaName { get; set; }
         public bool? IsChecked { get; set; }
+        public DateTime? CreateDate { get; set; }
         public DateTime? CheckedDate { get; set; }
         public int? Priority { get; set; }
-        public bool? IsPassed {  get; set; }
+        public bool? IsPassed { get; set; }
         public string? Description { get; set; }
 
     }

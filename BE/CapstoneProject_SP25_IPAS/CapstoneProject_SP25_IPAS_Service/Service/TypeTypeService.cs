@@ -4,6 +4,7 @@ using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using System;
@@ -26,20 +27,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> GetCriteriaSetForProduct(int productId)
+        public async Task<BusinessResult> GetCriteriaSetOfProduct(int productId)
         {
             try
             {
-                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetAllNoPaging(x => productId.Equals(x.MasterTypeId)
+                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => productId.Equals(x.MasterTypeId)
                                                                     && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower())
                                                                     && x.IsActive == true
                                                                     && x.IsDelete == false);
-                if (!checkProductExist.Any())
+                if (checkProductExist == null)
                     return new BusinessResult(400, "No Product was found");
-                    // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
-                    Expression<Func<Type_Type, bool>> filter = x => productId.Equals(x.ProductId) && x.IsActive == true;
+                // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
+                Expression<Func<Type_Type, bool>> filter = x => productId.Equals(x.ProductId) && x.IsActive == true;
                 //string includeProperties = "CriteriaSet,Product";
-                var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPagin(filter: filter, null!);
+                var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(filter: filter, null!);
 
                 if (!criteriaSets.Any())
                     return new BusinessResult(200, "No criteria set found for this product.");
@@ -166,5 +167,62 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> getCriteriaSetForSelectedProduct(int productId, int farmId, string target)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                // 1. Kiểm tra PlantLot tồn tại
+                var productExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == productId 
+                                                                                && x.IsDelete == false
+                                                                                && x.IsActive == true 
+                                                                                && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower()));
+                if (productExist == null)
+                    return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+
+                // 2. Lấy tất cả bộ tiêu chí của Farm theo target
+                var allCriteriaSets = await _unitOfWork.MasterTypeRepository
+                    .GetMasterTypeByName(TypeNameInMasterEnum.Criteria.ToString(), farmId, target);
+
+                if (allCriteriaSets == null || !allCriteriaSets.Any())
+                {
+                    return new BusinessResult(400, $"Farm has no criteria set in type: {target}");
+                }
+
+                // 3. Lấy danh sách tiêu chí đã áp dụng cho PlantLot
+                var appliedCriteriaTargets = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(x => x.ProductId == productId);
+                if (!appliedCriteriaTargets.Any())
+                {
+                    return new BusinessResult(200, "All criteria sets are not applied yet.", _mapper.Map<List<ForSelectedModels>>(allCriteriaSets));
+                }
+                // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
+                var appliedMasterTypeIds = appliedCriteriaTargets
+                    .Where(x => x.CriteriaSet != null )
+                    .Select(x => x.CriteriaSet!.MasterTypeId)
+                    .Distinct() //  Tránh trùng lặp
+                    .ToList();
+
+
+                //  5. Lọc ra danh sách bộ tiêu chí chưa được áp dụng
+                var notAppliedCriteriaSets = allCriteriaSets
+                    .Where(x => !appliedMasterTypeIds.Contains(x.MasterTypeId))
+                    .ToList();
+
+                if (!notAppliedCriteriaSets.Any())
+                    return new BusinessResult(200, "All criteria sets have been applied.", new List<object>());
+
+                // 6. Map dữ liệu & trả về danh sách bộ tiêu chí chưa được áp dụng
+                var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(notAppliedCriteriaSets);
+                return new BusinessResult(200, "Criteria sets not applied retrieved successfully.", listMasterTypeModel);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+        
     }
 }

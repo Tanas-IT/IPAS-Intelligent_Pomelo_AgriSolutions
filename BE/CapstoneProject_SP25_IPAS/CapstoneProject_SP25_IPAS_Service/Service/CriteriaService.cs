@@ -191,10 +191,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             CriteriaName = pc.Criteria!.CriteriaName!,
                             Description = pc.Criteria!.CriteriaDescription!,
                             IsChecked = pc.IsChecked,
+                            CreateDate = pc.CreateDate,
                             CheckedDate = pc.CheckedDate,
                             IsPassed = pc.IsPassed,
                         }).ToList()
                     })
+                    .OrderBy(x => x.Target)
+                    .ThenBy(x => x.MasterTypeId)
                     .ToList();
 
                 return new BusinessResult(Const.SUCCES_GET_PLANT_CRITERIA_CODE, Const.SUCCES_GET_PLANT_CRITERIA_MSG, groupedData);
@@ -433,5 +436,110 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> GetCriteriaSetGraftedNotApply(int graftedId, int farmId, string target)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                // 1. Kiểm tra PlantLot tồn tại
+                var graftedPlantExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == graftedId && x.IsDeleted == false);
+                if (graftedPlantExist == null)
+                    return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+
+                // 2. Lấy tất cả bộ tiêu chí của Farm theo target
+                var allCriteriaSets = await _unitOfWork.MasterTypeRepository
+                    .GetMasterTypeByName(TypeNameInMasterEnum.Criteria.ToString(), farmId, target);
+
+                if (allCriteriaSets == null || !allCriteriaSets.Any())
+                {
+                    return new BusinessResult(400, $"Farm has no criteria set in type: {target}");
+                }
+
+                // 3. Lấy danh sách tiêu chí đã áp dụng cho PlantLot
+                var appliedCriteriaTargets = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(graftedPlantId: graftedId);
+                if (!appliedCriteriaTargets.Any())
+                {
+                    return new BusinessResult(200, "All criteria sets are not applied yet.", _mapper.Map<List<ForSelectedModels>>(allCriteriaSets));
+                }
+                // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
+                var appliedMasterTypeIds = appliedCriteriaTargets
+                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue)
+                    .Select(x => x.Criteria!.MasterTypeID!.Value)
+                    .Distinct() //  Tránh trùng lặp
+                    .ToList();
+
+
+                //  5. Lọc ra danh sách bộ tiêu chí chưa được áp dụng
+                var notAppliedCriteriaSets = allCriteriaSets
+                    .Where(x => !appliedMasterTypeIds.Contains(x.MasterTypeId))
+                    .ToList();
+
+                if (!notAppliedCriteriaSets.Any())
+                    return new BusinessResult(200, "All criteria sets have been applied.", new List<object>());
+
+                // 6. Map dữ liệu & trả về danh sách bộ tiêu chí chưa được áp dụng
+                var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(notAppliedCriteriaSets);
+                return new BusinessResult(200, "Criteria sets not applied retrieved successfully.", listMasterTypeModel);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetCriteriaSetPlantNotApply(int plantId, int farmId, string target)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                // 1. Kiểm tra PlantLot tồn tại
+                var graftedPlantExist = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plantId && x.IsDeleted == false);
+                if (graftedPlantExist == null)
+                    return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+
+                // 2. Lấy tất cả bộ tiêu chí của Farm theo target
+                var allCriteriaSets = await _unitOfWork.MasterTypeRepository
+                    .GetMasterTypeByName(TypeNameInMasterEnum.Criteria.ToString(), farmId, target);
+
+                if (allCriteriaSets == null || !allCriteriaSets.Any())
+                {
+                    return new BusinessResult(400, $"Farm has no criteria set in type: {target}");
+                }
+
+                // 3. Lấy danh sách tiêu chí đã áp dụng cho PlantLot
+                var appliedCriteriaTargets = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
+                if (!appliedCriteriaTargets.Any())
+                {
+                    return new BusinessResult(200, "All criteria sets are not applied yet.", _mapper.Map<List<ForSelectedModels>>(allCriteriaSets));
+                }
+                // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
+                var appliedMasterTypeIds = appliedCriteriaTargets
+                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue)
+                    .Select(x => x.Criteria!.MasterTypeID!.Value)
+                    .Distinct() //  Tránh trùng lặp
+                    .ToList();
+
+
+                //  5. Lọc ra danh sách bộ tiêu chí chưa được áp dụng
+                var notAppliedCriteriaSets = allCriteriaSets
+                    .Where(x => !appliedMasterTypeIds.Contains(x.MasterTypeId))
+                    .ToList();
+
+                if (!notAppliedCriteriaSets.Any())
+                    return new BusinessResult(200, "All criteria sets have been applied.", new List<object>());
+
+                // 6. Map dữ liệu & trả về danh sách bộ tiêu chí chưa được áp dụng
+                var listMasterTypeModel = _mapper.Map<List<ForSelectedModels>>(notAppliedCriteriaSets);
+                return new BusinessResult(200, "Criteria sets not applied retrieved successfully.", listMasterTypeModel);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

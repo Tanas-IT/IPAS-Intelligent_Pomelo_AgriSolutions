@@ -168,9 +168,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        
+
         [HttpPut(APIRoutes.Criteria.updateCriteriaMultipleTarget, Name = "updateCriteriaMultipleTarget")]
-        public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] CriteriaTargerRequest request )
+        public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] CriteriaTargerRequest request)
         {
             try
             {
@@ -256,31 +256,58 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Criteria.getCriteriaSetPlantLotExcept, Name = "getCriteriaSetPlantLotExcept")]
         public async Task<IActionResult> getCriteriaSetPlantLotExcept([FromQuery] int plantLotId, int? farmId, string? target)
         {
-            try
-            {
-                if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!farmId.HasValue)
-                {
-                    return BadRequest(new BaseResponse
-                    {
-                        StatusCode = StatusCodes.Status400BadRequest,
-                        Message = "Farm id has required"
-                    });
-                }    
-                var result = await _criteriaService.GetCriteriaSetPlantLotNotApply(plantlotId: plantLotId, farmId: farmId.Value, target: target);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
 
-                var response = new BaseResponse()
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
+                    Message = "Farm id has required"
+                });
             }
+            var result = await _criteriaService.GetCriteriaSetPlantLotNotApply(plantlotId: plantLotId, farmId: farmId.Value, target: target);
+            return Ok(result);
+
+        }
+
+        [HttpGet(APIRoutes.Criteria.getCriteriaSetGraftedExcept, Name = "getCriteriaSetGraftedExcept")]
+        public async Task<IActionResult> getCriteriaSetGraftedExcept([FromQuery] int grafted, int? farmId, string? target)
+        {
+
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm id has required"
+                });
+            }
+            var result = await _criteriaService.GetCriteriaSetGraftedNotApply(graftedId: grafted, farmId: farmId.Value, target: target);
+            return Ok(result);
+
+        }
+
+        [HttpGet(APIRoutes.Criteria.getCriteriaSetPlantExcept, Name = "getCriteriaSetPlantExcept")]
+        public async Task<IActionResult> getCriteriaSetPlantExcept([FromQuery] int plantId, int? farmId, string? target)
+        {
+
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm id has required"
+                });
+            }
+            var result = await _criteriaService.GetCriteriaSetPlantNotApply(plantId: plantId, farmId: farmId.Value, target: target);
+            return Ok(result);
+
         }
     }
 }

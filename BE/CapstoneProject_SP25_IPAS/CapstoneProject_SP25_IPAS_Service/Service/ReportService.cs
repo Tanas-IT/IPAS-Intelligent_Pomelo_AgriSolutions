@@ -187,14 +187,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     .Select(g => new MaterialsInStoreModel
                                     {
                                         Season = g.Key,  // Key là mùa
-                                        Count = g.SelectMany(h => h.HarvestTypeHistories)
+                                        Count = g.SelectMany(h => h.ProductHarvestHistories)
                                                  .Where(x => x.Plant != null
                                                           && x.Plant.LandRow != null
                                                           && x.Plant.LandRow.LandPlot != null
                                                           && x.Plant.LandRow.LandPlot.Farm != null
                                                           && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                                 .Sum(ht => ht.Quantity),
-                                        TypeOfProduct = g.SelectMany(h => h.HarvestTypeHistories)
+                                                 .Sum(ht => ht.QuantityNeed),
+                                        TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
                                         .Where(x => x.Plant != null
                                                  && x.Plant.LandRow != null
                                                  && x.Plant.LandRow.LandPlot != null
@@ -205,7 +205,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         {
                                             PlantName = plantGroup.Key.PlantName, // Tên cây
                                             MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
-                                            TotalQuantity = plantGroup.Sum(p => p.Quantity) // Tổng số lượng
+                                            TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
                                         })
                                         .ToList()
                                     }).ToList();
@@ -224,7 +224,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    Quantity = g.Sum(ht => ht.Quantity ?? 0)
+                    Quantity = g.Sum(ht => ht.QuantityNeed ?? 0)
                 })
                 .ToList();
 
@@ -260,7 +260,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 .Select(g => new QualityYieldStat
                 {
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    QuantityYield = g.Sum(ht => ht.Quantity ?? 0) // Tổng số lượng theo loại
+                    QuantityYield = g.Sum(ht => ht.QuantityNeed ?? 0) // Tổng số lượng theo loại
                 })
                 .ToList();
 
@@ -313,8 +313,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         LandPlotName = lp.LandPlotName,
                                         Status = lp.Status,
                                         Quantity = lpc.Crop.HarvestHistories
-                                            .SelectMany(hh => hh.HarvestTypeHistories)
-                                            .Sum(hth => hth.Quantity ?? 0)
+                                            .SelectMany(hh => hh.ProductHarvestHistories)
+                                            .Sum(hth => hth.QuantityNeed ?? 0)
                                     })
                                      .GroupBy(x => new { x.Year, x.HarvestSeason })
                                     .Select(group => new ProductivityByPlotModel

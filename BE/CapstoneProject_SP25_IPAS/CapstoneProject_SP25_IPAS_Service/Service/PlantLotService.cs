@@ -230,10 +230,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, "Main Plant Lot does not exist or is invalid.");
                     }
-                    if (mainPlantLot.LastQuantity.HasValue && mainPlantLot.LastQuantity == 0)
-                        return new BusinessResult(400, "Main PlantLot has not have last quantity");
+                    if (!mainPlantLot.InputQuantity.HasValue /*&& mainPlantLot.InputQuantity == 0*/)
+                        return new BusinessResult(400, "Main PlantLot has not have input quantity");
                     //  Tính số lượng còn thiếu
-                    int missingQuantity = (mainPlantLot.PreviousQuantity ?? 0) - (mainPlantLot.LastQuantity ?? 0);
+                    var totalInputQuantityAddition = 0;
+                    if (mainPlantLot.InversePlantLotReference.Any())
+                    {
+
+                        foreach (var additionaLot in mainPlantLot.InversePlantLotReference)
+                        {
+                            if (!additionaLot.InputQuantity.HasValue)
+                                return new BusinessResult(400, $"The lot name: {additionaLot.PlantLotName} not have input quantity to create new additional.");
+                        }
+                        totalInputQuantityAddition = mainPlantLot.InversePlantLotReference.Sum(x => x.InputQuantity)!.Value;
+                    }
+                    int missingQuantity = mainPlantLot.PreviousQuantity!.Value - (mainPlantLot.InputQuantity!.Value + totalInputQuantityAddition);
                     if (missingQuantity <= 0)
                     {
                         return new BusinessResult(400, "Main Plant Lot does not require additional stock.");
@@ -255,8 +266,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyyyy}-{Util.SplitByDash(mainPlantLot.PlantLotCode).First()}",
                         ImportedDate = DateTime.UtcNow,
                         PreviousQuantity = createModel.ImportedQuantity, // Số lượng nhập bù
-                        LastQuantity = 0,
-                        UsedQuantity = 0,
+                        LastQuantity = null,
+                        UsedQuantity = null,
                         PartnerId = mainPlantLot.PartnerId,
                         PlantLotName = $"{mainPlantLot.PlantLotName} - Additional {mainPlantLot.InversePlantLotReference.Count() + 1}",
                         Unit = mainPlantLot.Unit,
@@ -317,7 +328,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string includeProperties = "GraftedPlants";
+                string includeProperties = "CriteriaTargets";
                 var entityPlantLotDelete = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, includeProperties);
                 _unitOfWork.PlantLotRepository.Delete(entityPlantLotDelete);
                 var result = await _unitOfWork.SaveAsync();
