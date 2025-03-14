@@ -494,3 +494,22 @@ export const fetchTargetsByUnit = async (
       throw error;
   }
 };
+
+export const determineUnit = (target: any): string => {
+  if (target.graftedPlants && target.graftedPlants.length > 0) {
+      return "graftedplant";
+  }
+  if (target.plantLots && target.plantLots.length > 0) {
+      return "plantlot";
+  }
+  if (target.plants && target.plants.length > 0) {
+      return "plant";
+  }
+  if (target.rows && target.rows.length > 0) {
+      return "row";
+  }
+  if (target.landPlotId) {
+      return "landplot";
+  }
+  return "";
+};

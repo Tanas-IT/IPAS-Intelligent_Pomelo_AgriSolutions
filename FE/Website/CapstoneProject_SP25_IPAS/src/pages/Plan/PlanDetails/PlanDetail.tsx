@@ -130,82 +130,73 @@ function PlanDetail() {
         return "Unknown";
       };
 
-      const transformPlanTargetData = (planTargetModels: PlanTargetModel) => {
-        const { rows, landPlotName, graftedPlants, plantLots, plants } = planTargetModels;
-      
-        const unit = determineUnit(planTargetModels);
-      
-        const data: PlanTarget[] = [];
-      
-        switch (unit) {
-          case "Row":
-            if (rows && rows.length > 0) {
-              const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
-              const plantNames = rows.flatMap((row) =>
-                row.plants.map((plant) => plant.plantName)
-              );
-              const item: PlanTarget = {
-                type: "Row",
-                plotNames: landPlotName ? [landPlotName] : undefined,
-                rowNames: rowNames.length > 0 ? rowNames : undefined,
-                plantNames: plantNames.length > 0 ? plantNames : undefined,
-              };
-              data.push(item);
+      const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
+        return planTargetModels.flatMap((model) => {
+            const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+            const unit = determineUnit(model);
+            const data: PlanTarget[] = [];
+    
+            switch (unit) {
+                case "Row":
+                    if (rows && rows.length > 0) {
+                        const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+                        const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+                        data.push({
+                            type: "Row",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            rowNames: rowNames.length > 0 ? rowNames : undefined,
+                            plantNames: plantNames.length > 0 ? plantNames : undefined,
+                        });
+                    }
+                    break;
+    
+                case "Plant":
+                    if (plants && plants.length > 0) {
+                        data.push({
+                            type: "Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantNames: plants.map((plant) => plant.plantName),
+                        });
+                    }
+                    break;
+    
+                case "Grafted Plant":
+                    if (graftedPlants && graftedPlants.length > 0) {
+                        data.push({
+                            type: "Grafted Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                        });
+                    }
+                    break;
+    
+                case "Plant Lot":
+                    if (plantLots && plantLots.length > 0) {
+                        data.push({
+                            type: "Plant Lot",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantLotNames: plantLots.map((lot) => lot.name),
+                        });
+                    }
+                    break;
+    
+                case "Plot":
+                    if (landPlotName) {
+                        data.push({
+                            type: "Plot",
+                            plotNames: [landPlotName],
+                        });
+                    }
+                    break;
+    
+                default:
+                    break;
             }
-            break;
-      
-          case "Plant":
-            if (plants && plants.length > 0) {
-              const plantNames = plants.map((plant) => plant.plantName);
-              const item: PlanTarget = {
-                type: "Plant",
-                plotNames: landPlotName ? [landPlotName] : undefined,
-                plantNames: plantNames.length > 0 ? plantNames : undefined,
-              };
-              data.push(item);
-            }
-            break;
-      
-          case "Grafted Plant":
-            if (graftedPlants && graftedPlants.length > 0) {
-              const graftedPlantNames = graftedPlants.map((plant) => plant.name);
-              const item: PlanTarget = {
-                type: "Grafted Plant",
-                plotNames: landPlotName ? [landPlotName] : undefined,
-                graftedPlantNames: graftedPlantNames.length > 0 ? graftedPlantNames : undefined,
-              };
-              data.push(item);
-            }
-            break;
-      
-          case "Plant Lot":
-            if (plantLots && plantLots.length > 0) {
-              const plantLotNames = plantLots.map((lot) => lot.name);
-              const item: PlanTarget = {
-                type: "Plant Lot",
-                plotNames: landPlotName ? [landPlotName] : undefined,
-                plantLotNames: plantLotNames.length > 0 ? plantLotNames : undefined,
-              };
-              data.push(item);
-            }
-            break;
-      
-          case "Plot":
-            if (landPlotName) {
-              const item: PlanTarget = {
-                type: "Plot",
-                plotNames: [landPlotName],
-              };
-              data.push(item);
-            }
-            break;
-      
-          default:
-            break;
-        }
-      
-        return data;
-      };
+    
+            return data;
+        });
+    };
+    
 
 
     return (
@@ -237,7 +228,7 @@ function PlanDetail() {
                     <label className={style.textUpdated}>Assigned To:</label>
                     {planDetail?.listEmployee.map((employee, index) => (
                         <div className={style.containerUser}>
-                            <Image src={employee?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
+                            <Image src={employee?.avatarURL} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{employee?.fullName}</span>
                         </div>
                     ))}
@@ -247,7 +238,7 @@ function PlanDetail() {
                     <label className={style.textUpdated}>Reporter:</label>
                     {planDetail?.listReporter.map((report, index) => (
                         <div className={style.containerUser}>
-                            <Image src={report?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
+                            <Image src={report?.avatarURL} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{report?.fullName}</span>
                         </div>
                     ))}

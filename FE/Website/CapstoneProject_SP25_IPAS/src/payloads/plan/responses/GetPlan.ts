@@ -12,9 +12,12 @@ export interface GetPlan {
   isDelete: boolean;
   assignorName: string;
   processName: string;
+  processId: number;
   cropName: string;
-  growthStageName: string[];
+  cropId: number;
+  growthStages: GrowthStages[];
   masterTypeName: string;
+  masterTypeId: number;
   avatarOfAssignor: string;
   plantNames: string[];
   landPlotNames: string[];
@@ -30,17 +33,29 @@ export interface GetPlan {
   listWorkLog: WorkLog[];
   createDate: string;
   frequency: string;
-  planTargetModels: PlanTargetModel;
+  planTargetModels: PlanTargetModel[];
   graftedPlantName: string[];
   maxVolume: number;
   minVolume: number;
   pesticideName: string;
+  listLandPlotOfCrop: ListLandPlotOfCrop[]
+}
+
+interface ListLandPlotOfCrop {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface GrowthStages {
+  id: number;
+  name: string;
 }
 
 export interface User {
   userId: number;
   fullName: string;
-  avatar: string;
+  avatarURL: string;
 }
 
 export interface WorkLog {

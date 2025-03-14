@@ -25,8 +25,8 @@ export const planColumns: TableColumn<GetPlan>[] = [
     },
     {
       header: "Growth Stage",
-      field: "growthStageName",
-      accessor: (plan) => <div className={style.tableText}>{plan.growthStageName.map((p) => p)}</div>,
+      field: "growthStages",
+      accessor: (plan) => <div className={style.tableText}>{plan.growthStages.map((p) => p.name)}</div>,
       width: 300,
     },
     {

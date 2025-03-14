@@ -51,6 +51,7 @@ import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 import isBetween from "dayjs/plugin/isBetween";
 import { GetPlan } from "@/payloads/plan";
 import { SelectOption } from "@/types";
+import UpdatePlanTarget from "./UpdatePlanTarget";
 
 dayjs.extend(isBetween);
 
@@ -112,6 +113,18 @@ const UpdatePlan = () => {
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
     const [planData, setPlanData] = useState<GetPlan>();
+
+    useEffect(() => {
+        if (selectedCrop) {
+            form.setFieldValue("listLandPlotOfCrop", []);
+            cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
+                setLandPlotOfCropOptions(data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })));
+
+            });
+        } else {
+            setLandPlotOfCropOptions([]);
+        }
+    }, [selectedCrop]);
 
     const handleWeeklyDaySelection = (days: number[]) => {
         setDayOfWeek(days);
@@ -353,6 +366,12 @@ const UpdatePlan = () => {
                     setPlanData(result);
                     const startDate = result.startDate ? moment(result.startDate) : null;
                     const endDate = result.endDate ? moment(result.endDate) : null;
+                    const mergedEmployees = [...result.listReporter, ...result.listEmployee];
+                    // setSelectedCrop(result.cropId);
+                    setSelectedEmployees(mergedEmployees);
+
+                    // 📌 Set reporter ID (lấy ID đầu tiên trong danh sách reporter nếu có)
+                    setSelectedReporter(result.listReporter?.[0]?.userId || null);
                     setFrequency(result.frequency || "None");
                     const parsedCustomDates = result.customDates
                         ? JSON.parse(result.customDates).map((date: string) => moment(date))
@@ -361,7 +380,7 @@ const UpdatePlan = () => {
 
                     setFrequency(result.frequency || "None");
                     setDayOfMonth(result.dayOfMonth ? JSON.parse(result.dayOfMonth) : []);
-                    setSelectedIds(result.listEmployee?.map((emp) => emp.userId) || []);
+                    setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
 
                     form.setFieldsValue({
                         planId: result.planId,
@@ -369,6 +388,10 @@ const UpdatePlan = () => {
                         planDetail: result.planDetail,
                         notes: result.notes,
                         frequency: result.frequency,
+                        processId: result.processId,
+                        growthStageId: result.growthStages.map((g) => g.id),
+                        cropId: result.cropId,
+                        listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
                         isActive: result.isActive,
                         dateRange: startDate && endDate ? [startDate, endDate] : [],
                         timeRange: [
@@ -376,6 +399,7 @@ const UpdatePlan = () => {
                             moment(result.endTime, "HH:mm:ss"),
                         ],
                         customDates: parsedCustomDates,
+                        masterTypeId: result.masterTypeId
                     });
                 }
             }
@@ -584,7 +608,7 @@ const UpdatePlan = () => {
                 </Section>
 
                 <Divider className={style.divider} />
-                <PlanTarget
+                <UpdatePlanTarget
                     landPlotOptions={landPlots}
                     landRows={landRowOptions}
                     plants={plantsOptions}
@@ -593,6 +617,7 @@ const UpdatePlan = () => {
                     // onLandPlotChange={handleLandPlotChange}
                     // onLandRowChange={handleLandRowChange}
                     selectedGrowthStage={selectedGrowthStage}
+                    // initialValues={planData?.planTargetModels}
                 />
 
                 <Divider className={style.divider} />

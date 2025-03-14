@@ -3,7 +3,7 @@ import { Form, Select, Row, Col, Button, Table, message, Modal, Alert } from 'an
 import { Section } from '@/components';
 import { Icons } from '@/assets';
 import { planService } from '@/services';
-import { fetchTargetsByUnit, getFarmId, isTargetOverlapping, unitOptions } from '@/utils';
+import { determineUnit, fetchTargetsByUnit, getFarmId, isTargetOverlapping, unitOptions } from '@/utils';
 import { SelectedTarget } from '@/payloads';
 
 const { Option } = Select;
@@ -47,8 +47,23 @@ const UpdatePlanTarget = ({
 
     useEffect(() => {
         if (initialValues.length > 0) {
+            const formattedValues = initialValues.map((target) => {
+                const unit = determineUnit(target);
+                return {
+                    unit,
+                    landPlotId: target.landPlotId,
+                    rows: target.rows || [],
+                    plants: target.plants || [],
+                    plantLots: target.plantLots || [],
+                    graftedPlants: target.graftedPlants || [],
+                };
+            });
+    
+            setSelectedTargets(formattedValues);
+    
+            // Khởi tạo form values
             form.setFieldsValue({
-                planTargetModel: initialValues.map((target) => ({
+                planTargetModel: formattedValues.map((target) => ({
                     unit: target.unit,
                     landPlotID: target.landPlotId,
                     landRowID: target.rows.map((row) => row.landRowId),
@@ -57,6 +72,14 @@ const UpdatePlanTarget = ({
                     graftedPlantID: target.graftedPlants.map((grafted) => grafted.graftedPlantId),
                 })),
             });
+    
+            // Khởi tạo các state khác
+            setSelectedUnits(formattedValues.map((target) => target.unit));
+            setSelectedLandPlots(formattedValues.map((target) => target.landPlotId));
+            setSelectedLandRows(formattedValues.map((target) => target.rows.map((row) => row.landRowId)));
+            setSelectedPlants(formattedValues.map((target) => target.plants.map((plant) => plant.plantId)));
+            setSelectedPlantLots(formattedValues.map((target) => target.plantLots.map((lot) => lot.plantLotId)));
+            setSelectedGraftedPlants(formattedValues.map((target) => target.graftedPlants.map((grafted) => grafted.graftedPlantId)));
         }
     }, [initialValues, form]);
 
