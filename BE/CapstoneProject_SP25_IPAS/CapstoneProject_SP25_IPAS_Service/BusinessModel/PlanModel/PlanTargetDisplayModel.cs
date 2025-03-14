@@ -10,13 +10,13 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 {
     public class PlanTargetDisplayModel
     {
-        public List<LandRowDisplayModel>? Rows { get; set; }
+        public int? LandPlotId { get; set; }
         public string? LandPlotName { get; set; }
+        public List<LandRowDisplayModel>? Rows { get; set; }
         public string? Unit {  get; set; }
         public List<GraftedPlantDisplayModel>? GraftedPlants { get; set; }
         public List<PlantLotDisplayModel>? PlantLots { get; set; }
         public List<PlantDisplayModel>? Plants { get; set; }
-        public int? LandPlotId { get; set; }
     }
 
     public class LandRowDisplayModel

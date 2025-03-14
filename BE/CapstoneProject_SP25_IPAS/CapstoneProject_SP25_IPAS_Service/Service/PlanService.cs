@@ -832,7 +832,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach (var deletePlanTar in deletePlanTarget)
                         {
-                             _unitOfWork.PlanTargetRepository.Delete(deletePlanTar);
+                            _unitOfWork.PlanTargetRepository.Delete(deletePlanTar);
 
                         }
                         await _unitOfWork.SaveAsync();
@@ -885,30 +885,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public PlanTargetDisplayModel MapPlanTargets(List<PlanTarget> planTargets)
+        public List<PlanTargetDisplayModel> MapPlanTargets(List<PlanTarget> planTargets)
         {
-            var displayModel = new PlanTargetDisplayModel
-            {
-                LandPlotName = planTargets.FirstOrDefault()?.LandPlot?.LandPlotName,
-                LandPlotId = planTargets.FirstOrDefault()?.LandPlotID,
-                Rows = new List<LandRowDisplayModel>(),
-                Plants = new List<PlantDisplayModel>(),
-                PlantLots = new List<PlantLotDisplayModel>(),
-                GraftedPlants = new List<GraftedPlantDisplayModel>()
-            };
-
+            var displayModels = new List<PlanTargetDisplayModel>();
             foreach (var planTarget in planTargets)
             {
+                var displayModel = new PlanTargetDisplayModel
+                {
+                    LandPlotName = planTarget?.LandPlot?.LandPlotName,
+                    LandPlotId = planTarget?.LandPlotID,
+                    Rows = new List<LandRowDisplayModel>(),
+                    Plants = new List<PlantDisplayModel>(),
+                    PlantLots = new List<PlantLotDisplayModel>(),
+                    GraftedPlants = new List<GraftedPlantDisplayModel>()
+                };
+
                 // Nếu unit không được truyền vào, lấy tất cả dữ liệu có thể có
                 bool isFullMode = string.IsNullOrEmpty(planTarget.Unit);
 
                 if (isFullMode || planTarget.Unit == "LandPlot")
                 {
-                    // LandPlot đã được lấy từ FirstOrDefault()
+                    if (planTarget?.LandPlot != null)
+                    {
+                        displayModel.LandPlotName = planTarget.LandPlot.LandPlotName;
+                        displayModel.LandPlotId = planTarget.LandPlotID;
+                    }
                 }
-                if (isFullMode || planTarget.Unit == "Row")
+                if (isFullMode || planTarget?.Unit == "Row")
                 {
-                    if (planTarget.LandRow != null)
+                    if (planTarget?.LandRow != null)
                     {
                         var row = _mapper.Map<LandRowDisplayModel>(planTarget.LandRow);
                         if (!displayModel.Rows.Any(r => r.LandRowId == row.LandRowId))
@@ -917,9 +922,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || planTarget.Unit == "Plant")
+                if (isFullMode || planTarget?.Unit == "Plant")
                 {
-                    if (planTarget.Plant != null)
+                    if (planTarget?.Plant != null)
                     {
                         var plant = _mapper.Map<PlantDisplayModel>(planTarget.Plant);
                         if (!displayModel.Plants.Any(p => p.PlantId == plant.PlantId))
@@ -928,9 +933,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || planTarget.Unit == "PlantLot")
+                if (isFullMode || planTarget?.Unit == "PlantLot")
                 {
-                    if (planTarget.PlantLot != null)
+                    if (planTarget?.PlantLot != null)
                     {
                         var plantLot = _mapper.Map<PlantLotDisplayModel>(planTarget.PlantLot);
                         if (!displayModel.PlantLots.Any(p => p.PlantLotId == plantLot.PlantLotId))
@@ -939,9 +944,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                if (isFullMode || planTarget.Unit == "GraftedPlant")
+                if (isFullMode || planTarget?.Unit == "GraftedPlant")
                 {
-                    if (planTarget.GraftedPlant != null)
+                    if (planTarget?.GraftedPlant != null)
                     {
                         var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(planTarget.GraftedPlant);
                         if (!displayModel.GraftedPlants.Any(p => p.GraftedPlantId == graftedPlant.GraftedPlantId))
@@ -950,9 +955,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+                displayModels.Add(displayModel);
             }
 
-            return displayModel;
+            return displayModels;
         }
 
 
@@ -1080,7 +1086,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
                             if (removePlanTargetOfPlan != null)
                             {
-                                foreach(var removeOldPlanTarget in removePlanTargetOfPlan)
+                                foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                 {
                                     checkExistPlan.PlanTargets.Remove(removeOldPlanTarget);
                                 }
@@ -2272,7 +2278,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
-                if(getMasterType != null && getMasterType.Any())
+                if (getMasterType != null && getMasterType.Any())
                 {
                     return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
                 }
