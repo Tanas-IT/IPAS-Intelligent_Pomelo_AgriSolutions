@@ -670,7 +670,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	GraftedPlantID int IDENTITY(1,1) NOT NULL,
 	GraftedPlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedPlantName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	--GrowthStage nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	SeparatedDate datetime NULL,
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedDate datetime NULL,

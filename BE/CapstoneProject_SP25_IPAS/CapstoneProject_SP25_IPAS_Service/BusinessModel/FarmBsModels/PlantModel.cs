@@ -46,7 +46,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public int? GrowthStageID { get; set; }
         public string? GrowthStageName { get; set; }
         public bool? IsDead { get; set; }
-
+        public bool? IsPassed { get; set; }
+        public DateTime? PassedDate { get; set; }
 
         //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 

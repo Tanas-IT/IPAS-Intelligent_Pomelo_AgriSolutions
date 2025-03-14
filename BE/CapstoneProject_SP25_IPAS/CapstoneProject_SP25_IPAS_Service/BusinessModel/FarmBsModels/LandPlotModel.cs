@@ -46,6 +46,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public double? MaxLength { get; set; }
         public double? MinWidth { get; set; }
         public double? MaxWidth { get; set; }
+        public int? EmptySlot { get; set; }
         //public virtual ICollection<Crop> Crops { get; set; } = new List<Crop>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
