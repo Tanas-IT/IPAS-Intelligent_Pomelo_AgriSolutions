@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Pla
 
         public string? Description { get; set; }
 
+        public bool? IsPassed { get; set; }
         public int? MasterTypeId { get; set; }
 
         public int? LandRowId { get; set; }

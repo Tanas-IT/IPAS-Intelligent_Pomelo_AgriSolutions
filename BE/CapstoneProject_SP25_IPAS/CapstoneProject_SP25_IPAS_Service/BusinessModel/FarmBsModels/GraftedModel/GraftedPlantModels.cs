@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedMo
 
         public string? GraftedPlantName { get; set; }
 
-        public string? GrowthStage { get; set; }
+        //public string? GrowthStage { get; set; }
 
         public DateTime? SeparatedDate { get; set; }
 

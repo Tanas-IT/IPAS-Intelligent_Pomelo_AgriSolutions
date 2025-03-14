@@ -333,9 +333,9 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GraftedPlantName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.GrowthStage)
-                .HasMaxLength(100)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            //entity.Property(e => e.GrowthStage)
+                //.HasMaxLength(100)
+                //.UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Note).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
             entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");
@@ -1507,14 +1507,14 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.ReportCode).HasColumnName("ReportCode");
             entity.Property(e => e.Description).HasColumnName("Description");
             entity.Property(e => e.AnswererID).HasColumnName("AnswererID");
-            entity.Property(e => e.QuesttionerID).HasColumnName("QuesttionerID");
+            entity.Property(e => e.QuestionerID).HasColumnName("QuesttionerID");
 
             entity.HasOne(d => d.Answerer).WithMany(p => p.Answerers)
                 .HasForeignKey(d => d.AnswererID)
                 .HasConstraintName("FK_Report_Answerer__35227C52");
 
             entity.HasOne(d => d.Questioner).WithMany(p => p.Questioners)
-                .HasForeignKey(d => d.QuesttionerID)
+                .HasForeignKey(d => d.QuestionerID)
                 .HasConstraintName("FK_Report_Questioner__3231267C52");
 
            
