@@ -861,5 +861,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> getPlantActFuncionForSelected(int plotid, int rowId, string actFunction)
+        {
+            try
+            {
+                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == plotid
+                                                        && x.LandRowId == rowId
+                                                        && x.IsDead == false
+                                                        && x.IsDeleted == false;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
+                var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (!plantInPlot.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                if (!string.IsNullOrEmpty(actFunction))
+                {
+                    var actFunctionLower = actFunction.ToLower();
+                    plantInPlot = plantInPlot
+                        .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction) 
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction!)
+                                        .Any(f => f.Equals(actFunctionLower, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+                }
+                var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
+                return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, mapReturn);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

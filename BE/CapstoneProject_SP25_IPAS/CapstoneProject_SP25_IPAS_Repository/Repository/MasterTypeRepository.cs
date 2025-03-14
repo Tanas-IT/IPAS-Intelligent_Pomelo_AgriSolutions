@@ -113,15 +113,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<MasterType>> GetMasterTypesByGrowthStages(List<int?> growthStageIds)
         {
-            var result = await _context.GrowthStageMasterTypes
-                                .Where(gmt => gmt.GrowthStageID.HasValue // Đảm bảo không null
-                                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
-                                              && gmt.MasterType != null
-                                              && gmt.MasterType.TypeName != null
-                                              && gmt.MasterType.TypeName.ToLower() == "work")
-                                .Select(gmt => gmt.MasterType!)
-                                .Distinct()
-                                .ToListAsync();
+            if (growthStageIds == null || growthStageIds.Count == 0)
+                return new List<MasterType>();
+
+            var masterTypeIds = await _context.GrowthStageMasterTypes
+                .Where(gmt => gmt.GrowthStageID.HasValue
+                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
+                              && gmt.MasterType != null
+                              && gmt.MasterType.TypeName != null
+                              && gmt.MasterType.TypeName.ToLower() == "work")
+                .GroupBy(gmt => gmt.MasterTypeID)  // Nhóm theo MasterTypeID
+                .Where(group => group.Count() == growthStageIds.Count)  // Chỉ lấy các nhóm có số lần xuất hiện đúng bằng số GrowthStageID
+                .Select(group => group.Key)  // Lấy MasterTypeID
+                .ToListAsync();
+
+            var result = await _context.MasterTypes
+                .Where(mt => masterTypeIds.Contains(mt.MasterTypeId))
+                .ToListAsync();
 
             return result;
         }

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels
 {
-    public class HarvestTypeHistoryModel
+    public class ProductHarvestHistoryModel
     {
-        public int HarvestTypeHistoryId { get; set; }
+        public int ProductHarvestHistoryId { get; set; }
 
         public int MasterTypeId { get; set; }
 
@@ -20,15 +20,22 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestMo
 
         public double? Price { get; set; }
 
-        public int? Quantity { get; set; }
+        public int? QuantityNeed { get; set; }
+        public int? ActualQuantity { get; set; }
 
         public int HarvestHistoryId { get; set; }
 
         public string? ProductName { get; set; }
 
         public string? HarvestHistoryCode { get; set; }
-        public string? ProcessName { get; set; }
-        public int? ProcessId { get; set; }
+        public string? PlantName { get; set; }
+        public int? PlantIndex { get; set; }
+        public int? LandRowIndex { get; set;}
+        public string? LantPlotName { get; set; }
+
+        //public string? ProcessName { get; set; }
+
+        //public int? ProcessId { get; set; }
 
         //public virtual HarvestHistoryModel HarvestHistory { get; set; } = null!;
 

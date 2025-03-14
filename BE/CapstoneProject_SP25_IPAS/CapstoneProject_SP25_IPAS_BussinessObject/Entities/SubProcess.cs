@@ -28,9 +28,6 @@ public partial class SubProcess
 
     public int? MasterTypeId { get; set; }
 
-    public string? ResourceUrl { get; set; }
-
-    public string? Input { get; set; }
     public int? Order { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }

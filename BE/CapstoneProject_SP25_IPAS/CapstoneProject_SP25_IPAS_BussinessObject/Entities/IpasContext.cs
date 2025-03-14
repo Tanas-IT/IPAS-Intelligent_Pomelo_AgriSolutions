@@ -39,7 +39,7 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<HarvestHistory> HarvestHistories { get; set; }
 
-    public virtual DbSet<HarvestTypeHistory> HarvestTypeHistories { get; set; }
+    public virtual DbSet<ProductHarvestHistory> ProductHarvestHistories { get; set; }
 
     public virtual DbSet<LandPlot> LandPlots { get; set; }
     public virtual DbSet<LandPlotCrop> LandPlotCrops { get; set; }
@@ -101,6 +101,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<CriteriaTarget> CriteriaTargets { get; set; }
     public virtual DbSet<GrowthStagePlan> GrowthStagePlans { get; set; }
     public virtual DbSet<GrowthStageMasterType> GrowthStageMasterTypes { get; set; }
+    public virtual DbSet<Report> Reports { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -430,27 +431,27 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("HarvestHistory_Crop_FK");
         });
 
-        modelBuilder.Entity<HarvestTypeHistory>(entity =>
+        modelBuilder.Entity<ProductHarvestHistory>(entity =>
         {
-            entity.HasKey(e => new { e.HarvestTypeHistoryId }).HasName("PK__HarvestT__CAE5744A780B99C5");
+            entity.HasKey(e => new { e.ProductHarvestHistoryId }).HasName("PK__HarvestT__CAE5744A780B99C5");
 
-            entity.ToTable("HarvestTypeHistory");
+            entity.ToTable("ProductHarvestHistory");
 
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.PlantId).HasColumnName("PlantID");
-            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.HarvestTypeHistories)
+            entity.HasOne(d => d.HarvestHistory).WithMany(p => p.ProductHarvestHistories)
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.MasterTypeId)
-                .HasConstraintName("HarvestTypeHistory_MasterType_FK");
+                .HasConstraintName("ProductHarvestHistory_MasterType_FK");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.PlantId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_HarvestTypeHistory_Plant");
+                .HasConstraintName("FK_ProductHarvestHistory_Plant");
 
            
         });
@@ -1035,7 +1036,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.Property(e => e.GrowthStageId).HasColumnName("GrowthStageID");
-            entity.Property(e => e.Input).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
@@ -1046,10 +1046,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.ProcessName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.ResourceUrl)
-                .HasMaxLength(100)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS")
-                .HasColumnName("ResourceURL");
+           
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Processes)
@@ -1110,16 +1107,13 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.SubProcessID).HasColumnName("SubProcessID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.Input).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.ParentSubProcessId).HasColumnName("ParentSubProcessID");
             entity.Property(e => e.ProcessId).HasColumnName("ProcessID");
-            entity.Property(e => e.ResourceUrl)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS")
-                .HasColumnName("ResourceURL");
+           
             entity.Property(e => e.SubProcessCode)
                 .HasMaxLength(200)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -1502,6 +1496,28 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.Farm).WithMany(p => p.GrowthStageMasterTypes)
                .HasForeignKey(d => d.FarmID)
                .HasConstraintName("FK_GrowthStageMasterType_Farm__3234554C52");
+        });
+
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.HasKey(e => e.ReportID).HasName("PK__Report__22783GHYRT5");
+            entity.ToTable("Report");
+
+            entity.Property(e => e.ReportID).HasColumnName("ReportID");
+            entity.Property(e => e.ReportCode).HasColumnName("ReportCode");
+            entity.Property(e => e.Description).HasColumnName("Description");
+            entity.Property(e => e.AnswererID).HasColumnName("AnswererID");
+            entity.Property(e => e.QuesttionerID).HasColumnName("QuesttionerID");
+
+            entity.HasOne(d => d.Answerer).WithMany(p => p.Answerers)
+                .HasForeignKey(d => d.AnswererID)
+                .HasConstraintName("FK_Report_Answerer__35227C52");
+
+            entity.HasOne(d => d.Questioner).WithMany(p => p.Questioners)
+                .HasForeignKey(d => d.QuesttionerID)
+                .HasConstraintName("FK_Report_Questioner__3231267C52");
+
+           
         });
         OnModelCreatingPartial(modelBuilder);
     }

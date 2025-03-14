@@ -19,7 +19,11 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreateCriteriaWithMasterType(CreateCriteriaMasterTypeRequest request);
         public (bool IsValid, string ErrorMessage) ValidateCriteriaPriorities(List<CriteriaCreateRequest> criteriaList);
 
-        public Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantlotId, int farmId, string target = null);
         //public Task<string> CheckCriteriaSetExist(int? farmId, List<string> Targetlist);
+        public Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantlotId, int farmId, string target = null);
+        public Task<BusinessResult> GetCriteriaSetGraftedNotApply(int graftedId, int farmId, string target);
+        public Task<BusinessResult> GetCriteriaSetPlantNotApply(int plantId, int farmId, string target);
+
+
     }
 }

@@ -60,4 +60,6 @@ public partial class User
     public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
     public virtual ICollection<PlanNotification> PlanNotifications { get; set; } = new List<PlanNotification>();
+    public virtual ICollection<Report> Answerers { get; set; } = new List<Report>();
+    public virtual ICollection<Report> Questioners { get; set; } = new List<Report>();
 }

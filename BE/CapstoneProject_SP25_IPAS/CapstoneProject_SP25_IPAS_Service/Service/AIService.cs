@@ -142,9 +142,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TagType = p.TagType,
                     });
 
+                    result = result.Where(x => x.probability > 0.75);
+
                     if (result != null)
                     {
-                        return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_FILE_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_FILE_MSG, result);
+                        if(result.Count() > 0)
+                        {
+                            return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_FILE_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_FILE_MSG, result);
+                        }
+                        else
+                        {
+                            return new BusinessResult(404, "No data found");
+
+                        }
                     }
                     return new BusinessResult(Const.FAIL_PREDICT_IMAGE_BY_FILE_CODE, Const.FAIL_PREDICT_IMAGE_BY_FILE_MSG);
 
