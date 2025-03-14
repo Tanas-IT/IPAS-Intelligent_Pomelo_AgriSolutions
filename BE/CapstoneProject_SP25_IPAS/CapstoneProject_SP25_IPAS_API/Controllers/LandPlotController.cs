@@ -36,7 +36,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 farmId = _jwtTokenService.GetFarmIdFromToken();
             }
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm is required",
+                });
+            }
             var result = await _landPlotService.GetAllLandPlotNoPagin(farmId: farmId!.Value, searchKey: searchKey);
+            return Ok(result);
+        }
+
+        [HttpGet(APIRoutes.LandPlot.getLandPlotEmpty, Name = "getLandPlotEmptyAsync")]
+        public async Task<IActionResult> getLandPlotEmptyAsync([FromQuery] int? farmId)
+        {
+            if (!farmId.HasValue)
+            {
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            }
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm is required",
+                });
+            }
+            var result = await _landPlotService.GetLandPlotEmpty(farmId: farmId!.Value);
             return Ok(result);
         }
 

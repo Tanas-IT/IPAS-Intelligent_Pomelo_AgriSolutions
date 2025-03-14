@@ -62,7 +62,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmId = createRequest.FarmId,
                         Status = FarmStatus.Active.ToString(),
                         CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now,
+                        //UpdateDate = DateTime.Now,
                         RowPerLine = createRequest.RowPerLine,
                         RowSpacing = createRequest.RowSpacing,
                         LineSpacing = createRequest.LineSpacing,
@@ -245,6 +245,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
             }
+        }
+
+        public async Task<BusinessResult> GetLandPlotEmpty(int farmId)
+        {
+            // 1️ Kiểm tra farm 
+            var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId && x.IsDeleted == false);
+            if (checkFarmExist == null)
+                return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+            // 2️ Lấy danh sách thửa đất có chứa thông tin hàng & cây
+            var landPlots = await _unitOfWork.LandPlotRepository.GetLandPlotIncludeByFarmId(farmId);
+
+            if (!landPlots.Any())
+                return new BusinessResult(200, Const.WARNING_GET_ALL_LANDPLOT_NOT_EXIST_MSG);
+            var mappedResult = _mapper.Map<List<LandPlotModel>>(landPlots);
+            // 3 Tính số slot trống cho mỗi thửa đất
+            foreach (var lp in mappedResult)
+            {
+                lp.EmptySlot = lp.LandRows.Sum(row =>
+                    row.TreeAmount - row.Plants.Count(p => p.IsDead == false)
+                );
+                lp.LandRows = null;
+            }
+
+            // 5️Lọc bỏ các thửa đất không còn slot trống
+            mappedResult = mappedResult.Where(lp => lp.EmptySlot > 0).ToList();
+
+            //// 4️ Nếu không còn thửa nào trống thì trả về thông báo
+            //if (!landPlotData.Any())
+            //    return new BusinessResult(200, "All land plots are full. No empty slots available.");
+
+            // 5️⃣ Trả về kết quả
+            return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
         }
 
         public async Task<BusinessResult> GetLandPlotForSelected(int farmId)
@@ -434,7 +467,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, "Delete softed successfully", new {success = true});
+                        return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, "Delete softed successfully", new { success = true });
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
                 }
