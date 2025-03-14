@@ -50,17 +50,21 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
         public string? AssignorName { get; set; }
 
         public string? ProcessName { get; set; }
+        public int? ProcessId { get; set; }
 
         public string? CropName { get; set; }
+        public int? CropId { get; set; }
         public List<string>? GraftedPlantName { get; set; }
 
-        public List<string>? GrowthStageName { get; set; }
+        public List<ForSelectedModels>? GrowthStages { get; set; }
+        public List<ForSelectedModels>? ListLandPlotOfCrop { get; set; }
 
         public List<string>? PlantLotNames { get; set; }
         public List<int>? RowIndexs { get; set; }
 
 
         public string? MasterTypeName { get; set; }
+        public int? MasterTypeId { get; set; }
         public string? AssignedTo { get; set; }
         public string? AvatarOfAssignor { get; set; }
         public List<ReporterModel>? ListReporter { get; set; }
