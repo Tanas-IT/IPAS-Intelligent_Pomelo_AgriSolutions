@@ -33,10 +33,13 @@ import {
   PaymentCancel,
   PlantLot,
   Partner,
+  EmployeeWorklog,
+  EmployeeWorklogDetail,
   PlantLotDetails,
 } from "@/pages";
-import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout, PaymentLayout } from "@/layouts";
+import { EmployeeLayout, EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout, PaymentLayout } from "@/layouts";
 import { PATHS } from "./Paths";
+import EmployeeDashboard from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
 
 interface RouteItem {
   path: string;
@@ -67,6 +70,12 @@ export const publicRoutes: RouteItem[] = [
     layout: EmptyLayout,
   },
   { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
+  { path: PATHS.EMPLOYEE.DASHBOARD, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORK_SCHEDULE, component: EmployeeWorklog, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORKLOG_DETAIL, component: EmployeeWorklogDetail, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORKLOG, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },

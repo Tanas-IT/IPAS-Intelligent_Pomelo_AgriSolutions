@@ -7,7 +7,7 @@ import {
   GetFarmInfo,
   GetFarmPicker,
 } from "@/payloads";
-import { GetCrop } from "@/payloads/crop";
+import { CropResponse, GetCrop, GetLandPlotOfCrop } from "@/payloads/crop";
 import { getFarmId, getUserId } from "@/utils";
 export const getCropsOfFarm = async () => {
     const farmId = getFarmId();
@@ -36,4 +36,16 @@ export const getCropsOfLandPlotForSelect = async (landplotId: number) => {
       cropId, 
       cropName
     }));
+}
+
+export const getCropsInCurrentTime = async () => {
+  const res = await axiosAuth.axiosJsonRequest.get(`crops/get-crop-in-current-time`);
+  const apiResponse = res.data as ApiResponse<CropResponse[]>;
+  return apiResponse;
+}
+
+export const getLandPlotOfCrop = async (cropId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`crops/get-landPlot-of-crop/${cropId}`);
+  const apiResponse = res.data as ApiResponse<GetLandPlotOfCrop[]>;
+  return apiResponse;
 }

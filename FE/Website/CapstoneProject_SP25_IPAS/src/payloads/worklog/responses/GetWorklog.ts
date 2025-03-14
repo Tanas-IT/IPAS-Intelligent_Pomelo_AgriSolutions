@@ -61,6 +61,7 @@ export interface NoteOfWorkLog {
   notes: string;
   fullName: string;
   avatarURL: string;
+  userId: number;
   listResources: Resource[];
 }
 
@@ -79,6 +80,14 @@ export interface GetWorklogDetail {
   listGrowthStageName: string[];
   listTaskFeedback: TaskFeedback[];
   listNoteOfWorkLog: NoteOfWorkLog[];
+}
+
+export interface GetWorklogNote {
+  userWorklogId: string;
+  notes: string;
+  issue: string;
+  userId: string;
+  Resources: Resource[];
 }
 
 

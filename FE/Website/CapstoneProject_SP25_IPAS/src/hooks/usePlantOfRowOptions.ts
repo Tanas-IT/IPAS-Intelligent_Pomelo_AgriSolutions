@@ -18,6 +18,8 @@ const usePlantOfRowOptions = (landRowId: number | null) => {
     }
 
     const fetchOptions = async () => {
+      console.log("lại ảo", landRowId);
+      
       const result: ApiResponse<GetPlantOfRowSelect[]> =
         await plantService.getPlantOfRow(landRowId);
       console.log("apiResponse plant", result);

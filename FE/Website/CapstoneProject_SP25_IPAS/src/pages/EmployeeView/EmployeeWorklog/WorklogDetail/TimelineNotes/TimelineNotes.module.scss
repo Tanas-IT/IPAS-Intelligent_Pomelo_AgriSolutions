@@ -1,0 +1,49 @@
+@use "@/styles/variables.scss" as vars;
+.timelineContainer {
+    margin-top: 30px;
+
+    .createdDate {
+        color: #888;
+    }
+
+    .btnDetail {
+        margin-right: 8;
+        background-color: vars.$color_second;
+        color: vars.$color_primary;
+    }
+
+    .note {
+        margin-bottom: 10px;
+    }
+
+    .userName {
+        color: vars.$color_second;
+        font-weight: 700;
+    }
+
+    .infoRow {
+        margin-top: 10px;
+        
+        .label {
+            width: 80px;
+            font-weight: 700;
+        }
+    }
+
+    .timelineDetail {
+        width: 100%;
+    }
+
+    .avt {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.emptyNotesContainer {
+    padding: 30px 0;
+    .noNotesText {
+        font-weight: 700;
+    }
+}
+

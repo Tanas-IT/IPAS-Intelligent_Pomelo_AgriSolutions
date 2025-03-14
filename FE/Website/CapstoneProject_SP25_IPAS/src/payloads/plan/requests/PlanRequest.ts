@@ -2,27 +2,27 @@ import { Dayjs } from "dayjs";
 
 export interface PlanRequest {
     planName: string;
-    startDate: string; // ISO format
-    endDate: string;   // ISO format
+    startDate: string;
+    endDate: string;
     startTime: string;
     endTime: string;
     isActive: boolean;
     planDetail: string;
-    notes?: string; // Thêm theo Swagger
-    responsibleBy?: string; // Đổi từ string[] -> string
+    notes?: string;
+    responsibleBy?: string;
     frequency: string;
     assignorId: number;
-    pesticideName?: string; // Thêm theo Swagger
+    pesticideName?: string;
     maxVolume?: number;
     minVolume?: number;
     processId: number;
     cropId: number;
     growthStageId: number;
-    isDelete?: boolean; // Thêm theo Swagger
+    isDelete?: boolean;
     masterTypeId: number;
     dayOfWeek: number[];
     dayOfMonth: number[];
-    customDates?: string[]; // Chuyển từ Dayjs[] -> string[]
+    customDates?: string[];
     listEmployee: {
         userId: number;
         isReporter: boolean;
@@ -34,4 +34,5 @@ export interface PlanRequest {
         plantLotID: number;
         plantID: number;
     }[];
+    listLandPlotOfCrop: number[];
 }

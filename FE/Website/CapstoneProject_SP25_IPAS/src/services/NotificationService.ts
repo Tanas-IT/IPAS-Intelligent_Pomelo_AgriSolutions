@@ -16,8 +16,11 @@ export const getNotificationByUser = async (
   };
   
 
-export const markAsRead = async (notificationIds: number[]): Promise<ApiResponse<GetNotification[]>> => {
-    const res = await axiosAuth.axiosJsonRequest.post(`mark-notification-is-read`, notificationIds);
-    const apiResponse = res.data as ApiResponse<GetNotification[]>
+export const markAsRead = async (userId: number, status?: string, notificationId?: number): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(`mark-notification-is-read?userId=${userId}`, {
+      notificationId,
+      status
+    });
+    const apiResponse = res.data as ApiResponse<Object>
     return apiResponse;
 }
