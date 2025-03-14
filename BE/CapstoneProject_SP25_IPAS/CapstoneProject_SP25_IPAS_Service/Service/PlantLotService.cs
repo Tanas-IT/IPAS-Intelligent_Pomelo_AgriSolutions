@@ -26,6 +26,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRe
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using Microsoft.AspNetCore.Components;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -161,7 +162,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ImportedDate = DateTime.Now,
                         PreviousQuantity = createPlantLotModel.ImportedQuantity,
                         //LastQuantity = 0,
-                        //UsedQuantity = 0,
+                        UsedQuantity = 0,
                         PartnerId = createPlantLotModel.PartnerId,
                         PlantLotName = createPlantLotModel.Name,
                         Unit = createPlantLotModel.Unit,
@@ -267,7 +268,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ImportedDate = DateTime.UtcNow,
                         PreviousQuantity = createModel.ImportedQuantity, // Số lượng nhập bù
                         LastQuantity = null,
-                        UsedQuantity = null,
+                        UsedQuantity = 0,
                         PartnerId = mainPlantLot.PartnerId,
                         PlantLotName = $"{mainPlantLot.PlantLotName} - Additional {mainPlantLot.InversePlantLotReference.Count() + 1}",
                         Unit = mainPlantLot.Unit,
@@ -676,7 +677,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         // Lấy danh sách cây hiện có trong hàng
                         var existingPlants = (await _unitOfWork.PlantRepository
-                            .GetAllNoPaging(x => x.LandRowId == row.LandRowId))
+                            .GetAllNoPaging(x => x.LandRowId == row.LandRowId && x.IsDead == false && x.IsDeleted == false))
                             .OrderBy(p => p.PlantIndex)
                             .ToList();
 
@@ -696,9 +697,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = plantLot.PlantLotName,
-                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{CodeAliasEntityConst.LANDPLOT}{row.LandPlotId}{CodeAliasEntityConst.LANDROW}{row.RowIndex}",
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{Util.SplitByDash(plantLot.PlantLotCode).First()}",
                                 PlantingDate = DateTime.UtcNow,
-                                HealthStatus = "Healthy",
+                                HealthStatus = HealthStatusConst.HEALTHY,
                                 LandRowId = row.LandRowId,
                                 FarmId = landPlot.FarmId,
                                 IsDeleted = false,
@@ -719,7 +720,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
+                    {
+                        await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
+                    }
                     // nếu sai
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_UPDATE_PLANT_LOT_CODE, Const.FAIL_UPDATE_PLANT_LOT_MESSAGE);
