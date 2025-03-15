@@ -141,7 +141,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         }
 
-        public async Task<List<Plan>> GetPlanByInclude(int planId)
+        public async Task<Plan> GetPlanByInclude(int planId)
         {
             var result = await _context.Plans
                                      .Include(x => x.PlanTargets)
@@ -167,8 +167,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                                  .ThenInclude(uwl => uwl.User)
                                      .Include(x => x.GrowthStagePlans)
                                          .ThenInclude(gsp => gsp.GrowthStage)
-                                     .Where(x => x.PlanId == planId && x.IsDelete == false)
-                                     .ToListAsync();
+                                     .FirstOrDefaultAsync(x => x.PlanId == planId && x.IsDelete == false);
             return result;
         }
 
