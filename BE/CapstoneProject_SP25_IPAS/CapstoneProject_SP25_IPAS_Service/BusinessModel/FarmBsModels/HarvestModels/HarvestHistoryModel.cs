@@ -28,6 +28,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestMo
 
         public string? CropName { get; set; }
 
+        public double YieldHasRecord { get; set; }
+
 
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
