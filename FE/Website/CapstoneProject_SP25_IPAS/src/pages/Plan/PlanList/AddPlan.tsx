@@ -92,8 +92,6 @@ const AddPlan = () => {
   const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
   const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
 
-  const { socket } = useNotifications();
-
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
 
@@ -111,7 +109,6 @@ const AddPlan = () => {
 
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
-      // Nếu có processId, thực hiện logic hiện tại
       const growthStageId = await getGrowthStageOfProcess(processId);
       form.setFieldValue("growthStageId", [growthStageId]);
       setIsLockedGrowthStage(true);
@@ -123,10 +120,9 @@ const AddPlan = () => {
         })));
       });
     } else {
-      // Nếu processId bị xóa (clear), reset các giá trị liên quan
-      form.setFieldValue("growthStageId", undefined); // Xóa giá trị của growthStageId
-      setIsLockedGrowthStage(false); // Mở khóa trường Growth Stage
-      setProcessTypeOptions([]); // Xóa các tùy chọn trong processTypeOptions
+      form.setFieldValue("growthStageId", undefined);
+      setIsLockedGrowthStage(false);
+      setProcessTypeOptions([]);
     }
   };
 

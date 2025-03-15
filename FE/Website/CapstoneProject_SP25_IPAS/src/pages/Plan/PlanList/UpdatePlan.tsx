@@ -107,6 +107,7 @@ const UpdatePlan = () => {
     const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
     const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
     const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
+    const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
 
     // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
     const { options: growthStageOptions } = useGrowthStageOptions(false);
@@ -123,18 +124,33 @@ const UpdatePlan = () => {
 
     const dateFormat = 'YYYY/MM/DD';
     const timeFormat = 'HH:mm:ss';
+    console.log("selectedGrowthStage", selectedGrowthStage);
+    
 
     useEffect(() => {
-        if (selectedCrop) {
-            form.setFieldValue("listLandPlotOfCrop", []);
-            cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
-                setLandPlotOfCropOptions(data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })));
+        if (selectedCrop !== null && selectedCrop !== undefined) {
+          form.setFieldValue("listLandPlotOfCrop", []);
+          console.log("v la goi vao day r");
+          
+          cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
+            const landPlotOptions = data.data.map((item) => ({
+                value: item.landPlotId,
+                label: item.landPlotName,
+            }));
+            setLandPlotOfCropOptions(landPlotOptions);
 
-            });
+            // Set lại giá trị trong form nếu có dữ liệu ban đầu
+            if (planData?.listLandPlotOfCrop) {
+                form.setFieldValue(
+                    "listLandPlotOfCrop",
+                    planData.listLandPlotOfCrop.map((l) => l.id)
+                );
+            }
+        });
         } else {
-            setLandPlotOfCropOptions([]);
+          setLandPlotOfCropOptions([]);
         }
-    }, [selectedCrop]);
+      }, [selectedCrop]);
 
     const handleWeeklyDaySelection = (days: number[]) => {
         setDayOfWeek(days);
@@ -399,6 +415,23 @@ const UpdatePlan = () => {
             toast.error("Plan ID is required for updating.");
         }
     };
+    console.log("mêt qua", selectedCrop);
+    useEffect(() => {
+        form.setFieldValue("masterTypeId", undefined);
+        if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+            planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+                setProcessTypeOptions(
+                    data.map((item) => ({
+                        value: item.masterTypeId,
+                        label: item.masterTypeName,
+                    }))
+                );
+            });
+        } else {
+            setProcessTypeOptions([]); // Nếu không có growth stage nào được chọn, reset options
+        }
+    }, [selectedGrowthStage]);
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -416,10 +449,15 @@ const UpdatePlan = () => {
                     const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
                     const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
                     const mergedEmployees = [...result.listReporter, ...result.listEmployee];
+                    form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
                     if (result.processId) {
                         setIsLockedGrowthStage(true);
                     }
-                    setSelectedCrop(result.cropId);
+                    if (result.cropId) {
+                        setSelectedCrop(result.cropId);
+                        setIsTargetDisabled(false); // Enable nút Add target nếu có cropId
+                    }
+                    setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
                     setSelectedEmployees(mergedEmployees);
                     await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
                         setProcessTypeOptions(data.map((item) => ({
@@ -515,6 +553,7 @@ const UpdatePlan = () => {
                                     style={{ marginTop: "-20px", textAlign: "right" }}
                                     onClick={() => {
                                         form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                                        form.setFieldValue("masterTypeId", undefined);
                                         handleChangeProcess(undefined);
                                     }}>
                                     <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
@@ -712,7 +751,7 @@ const UpdatePlan = () => {
                     graftedPlants={graftedPlantsOptions}
                     selectedGrowthStage={selectedGrowthStage}
                     initialValues={planData?.planTargetModels}
-                    hasSelectedCrop={selectedCrop ? true : false}
+                    hasSelectedCrop={!isTargetDisabled}
                     onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
                 />
 

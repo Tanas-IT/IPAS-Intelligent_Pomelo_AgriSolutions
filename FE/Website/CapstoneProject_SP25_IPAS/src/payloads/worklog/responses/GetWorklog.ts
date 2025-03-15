@@ -48,6 +48,7 @@ export interface TaskFeedback {
   workLogId: number;
   managerId: number;
   workLogName: string;
+  reason?: string;
 }
 
 export interface Resource {

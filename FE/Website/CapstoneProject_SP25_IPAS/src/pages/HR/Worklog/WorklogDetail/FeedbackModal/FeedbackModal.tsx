@@ -32,14 +32,14 @@ const FeedbackModal = ({
   const [status, setStatus] = useState<string>("Done");
   const isUpdate = feedbackData !== undefined && Object.keys(feedbackData).length > 0;
 
-  const handleCancel = () => {
-    onClose();
-  };
-
   useEffect(() => {
     if (isOpen) {
       if (isUpdate && feedbackData) {
-        form.setFieldsValue({ ...feedbackData });
+        form.setFieldsValue({
+          content: feedbackData.content,
+          status: "Redo",
+          reason: feedbackData.reason,
+        });
       } else {
         form.resetFields();
       }
@@ -58,6 +58,8 @@ const FeedbackModal = ({
         status: values.status,
         reason: values.reason,
       };
+      console.log("payloadUpdate", payloadUpdate);
+      
       result = await feedbackService.updateFeedback(payloadUpdate);
     } else {
       const payload: CreateFeedbackRequest = {
@@ -88,7 +90,7 @@ const FeedbackModal = ({
   return (
     <ModalForm
       isOpen={isOpen}
-      onClose={handleCancel}
+      onClose={onClose}
       isUpdate={isUpdate}
       title={isUpdate ? "Update Feedback" : "Add New Feedback"}
       onSave={handleSave}

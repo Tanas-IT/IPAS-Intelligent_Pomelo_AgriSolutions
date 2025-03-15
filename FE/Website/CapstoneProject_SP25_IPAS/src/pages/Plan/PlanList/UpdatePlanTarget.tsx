@@ -50,7 +50,7 @@ const UpdatePlanTarget = ({
 
     useEffect(() => {
             if (hasSelectedCrop) {
-              onClearTargets(); // Gọi callback để xóa dữ liệu trong form
+              onClearTargets();
             }
           }, [hasSelectedCrop, onClearTargets]);
 
@@ -567,7 +567,7 @@ const UpdatePlanTarget = ({
         <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
             <Form.List name="planTargetModel">
                 {(fields, { add, remove }) => {
-                    console.log("fields", fields); // Kiểm tra fields có dữ liệu không
+                    console.log("fields", fields);
                     const handleAddField = () => {
                         const newIndex = fields.length;
                         add();

@@ -46,6 +46,17 @@ function WorklogDetail() {
     const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
     const { id } = useParams();
     const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
+    const [selectedFeedback, setSelectedFeedback] = useState<TaskFeedback>();
+
+    const handleUpdateFeedback = (feedback: TaskFeedback) => {
+        setSelectedFeedback(feedback);
+        formModal.showModal();
+    };
+
+    const handleCloseModal = () => {
+        setSelectedFeedback(undefined);
+        formModal.hideModal();
+    };
     const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: "Spring 2025", icon: Icons.growth },
         { label: "Plan Name", value: "Plan name", icon: Icons.box },
@@ -74,11 +85,6 @@ function WorklogDetail() {
             console.log("res", res);
 
             setWorklogDetail(res);
-            if (res.listTaskFeedback.length > 0) {
-                const users = await getUserById(res.listTaskFeedback[0].managerId);
-                console.log("ma", users);
-                setManager(users);
-            }
             setFeedbackList(res.listTaskFeedback || []);
 
             setInfoFieldsLeft([
@@ -178,20 +184,15 @@ function WorklogDetail() {
             {/* Feedback */}
 
             <Flex vertical justify="space-between" align="center" className={style.feedbackSection}>
-                <Flex vertical style={{ width: "100%" }}>
-                    <Divider className={style.divider} />
-                    <h4>Feedbacks</h4>
-                    <Divider className={style.divider} />
-                </Flex>
                 {feedbackList.length > 0 ? (
                     <div className={style.feedbackContent}>
                         {feedbackList.map((item, index) => (
                             <div
                                 key={index}
-                                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : ""}`}
+                                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : style.doneBackground}`}
                             >
                                 <Image
-                                    src={manager?.avatarURL || "https://via.placeholder.com/40"}
+                                    src={"https://via.placeholder.com/40"}
                                     width={40}
                                     height={40}
                                     className={style.avt}
@@ -203,21 +204,23 @@ function WorklogDetail() {
                                         <div className={style.feedbackName}>{manager?.fullName}</div>
                                         <div className={style.feedbackMessage}>{item.content}</div>
                                     </Flex>
-                                    {
-                                        worklogDetail?.status === "Redo" && (
-                                            <Flex vertical={false}>
-                                                <Button className={style.updateButton}>Update</Button>
-                                                <Button className={style.deleteButton}>Delete</Button>
-                                                <Button
-                                                    className={style.reassignButton}
-                                                    onClick={() => navigate("/hr-management/worklogs")}
-                                                >
-                                                    Re-assign
-                                                </Button>
-                                            </Flex>
-                                        )
-                                    }
-
+                                    {worklogDetail?.status === "Redo" && (
+                                        <Flex vertical={false}>
+                                            <Button
+                                                className={style.updateButton}
+                                                onClick={() => handleUpdateFeedback(item)}
+                                            >
+                                                Update
+                                            </Button>
+                                            <Button className={style.deleteButton}>Delete</Button>
+                                            <Button
+                                                className={style.reassignButton}
+                                                onClick={() => navigate("/hr-management/worklogs")}
+                                            >
+                                                Re-assign
+                                            </Button>
+                                        </Flex>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -225,29 +228,16 @@ function WorklogDetail() {
                 ) : (
                     <div className={style.noFeedback}>Chưa có feedback</div>
                 )}
-                {worklogDetail?.status === "Reviewing" ? (
-                    <Button onClick={handleFeedback} className={style.btnFeedback}>
-                        Feedback
-                    </Button>
-                ) : worklogDetail?.status !== "Done" ? (
-                    <>
-                        <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
-                            Feedback
-                        </Button>
-                        <p className={style.informFb}>The employee has not completed the task yet. Please check back later.</p>
-                    </>
-                ) : null}
-
-
             </Flex>
+
             <FeedbackModal
-                isOpen={addModal.modalState.visible}
-                onClose={addModal.hideModal}
+                isOpen={formModal.modalState.visible}
+                onClose={handleCloseModal}
                 onSave={handleAdd}
                 worklogId={Number(id)}
                 managerId={Number(getUserId())}
                 onSuccess={fetchPlanDetail}
-                feedbackData={worklogDetail?.listTaskFeedback[0]}
+                feedbackData={selectedFeedback}
             />
             <ToastContainer />
         </div>

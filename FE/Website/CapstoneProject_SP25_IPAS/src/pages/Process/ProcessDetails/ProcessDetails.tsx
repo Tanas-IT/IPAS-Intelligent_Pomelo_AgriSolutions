@@ -136,7 +136,7 @@ function ProcessDetails() {
       // Cập nhật giá trị form
       form.setFieldsValue({
         ...data,
-        masterTypeId: data.processMasterTypeModel ? String(data.processMasterTypeModel.masterTypeId) : "",
+        masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
         growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
       });
   
