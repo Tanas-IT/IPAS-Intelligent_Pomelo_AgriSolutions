@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             //CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
-                .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias))
+                .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias.Where(x => x.IsDeleted == false)))
                 .ReverseMap();
 
 
