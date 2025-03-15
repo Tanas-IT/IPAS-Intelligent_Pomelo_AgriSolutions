@@ -26,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                var result = await _cropService.getCrop(cropId);
+                var result = await _cropService.getCropById(cropId);
                 return Ok(result);
             }
             catch (Exception ex)

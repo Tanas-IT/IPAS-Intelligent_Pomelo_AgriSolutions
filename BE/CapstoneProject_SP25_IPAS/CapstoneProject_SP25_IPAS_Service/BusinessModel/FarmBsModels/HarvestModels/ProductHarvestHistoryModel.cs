@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestMo
 
         public string? Unit { get; set; }
 
-        public double? Price { get; set; }
+        public double? SellPrice { get; set; }
 
         public int? QuantityNeed { get; set; }
         public int? ActualQuantity { get; set; }

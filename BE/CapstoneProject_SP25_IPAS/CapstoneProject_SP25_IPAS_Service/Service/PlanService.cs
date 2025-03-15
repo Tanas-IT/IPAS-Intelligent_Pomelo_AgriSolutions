@@ -1619,14 +1619,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task<bool> UpdatePlanSchedule(Plan plan, UpdatePlanModel updatePlanModel)
         {
             CarePlanSchedule schedule = new CarePlanSchedule();
-
+            var result = 0;
             DateTime currentDate = updatePlanModel.StartDate.Value;
             if (currentDate <= DateTime.Now)
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
 
-            if (plan.Frequency == null && updatePlanModel.CustomDates != null)
+            if (plan.Frequency.ToLower() == "none" && updatePlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
                 {
@@ -1634,10 +1634,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
-                    CustomDates = updatePlanModel.CustomDates.ToString(),
+                    CustomDates = JsonConvert.SerializeObject(updatePlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+                result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
@@ -1649,8 +1651,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             conflictCustomDates.Add(customeDate);
                         }
                     }
-                }
 
+                }
                 if (conflictCustomDates.Count > 5)
                 {
                     throw new Exception("The schedule is conflicted");
@@ -1660,12 +1662,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (customeDate >= currentDate && customeDate <= plan.EndDate)
                     {
-                        // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
                             : updatePlanModel;
-                        await GenerateWorkLogsForUpdate(schedule, customeDate, tempModel);
 
+                        await GenerateWorkLogsForUpdate(schedule, customeDate, tempModel);
                     }
 
                 }
@@ -1744,9 +1745,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                         currentDate,
                                                                        updatePlanModel.MasterTypeId,
                                                                         updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
-            await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
-            var result = await _unitOfWork.SaveAsync();
-            while (currentDate <= plan.EndDate)
+            if (schedule.ScheduleId <= 0)
+            {
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+            }
+            result += await _unitOfWork.SaveAsync();
+            while (currentDate <= plan.EndDate && plan.Frequency.ToLower() != "none")
             {
                 if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
                 {
