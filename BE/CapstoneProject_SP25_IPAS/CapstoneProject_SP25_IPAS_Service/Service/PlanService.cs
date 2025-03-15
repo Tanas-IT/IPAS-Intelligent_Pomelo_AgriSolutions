@@ -762,8 +762,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var entities = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
-                var getPlan = entities.FirstOrDefault();
+                var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
@@ -960,7 +959,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedule, GrowthStagePlans");
+                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedule,GrowthStagePlans");
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -983,9 +982,78 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.IsDelete = updatePlanModel.IsDelete;
                         }
-                        if (updatePlanModel.CropId != null)
+                        if (updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop != null)
                         {
-                            checkExistPlan.CropId = updatePlanModel.CropId;
+                            var getCropToCheck = await _unitOfWork.CropRepository.GetByID(updatePlanModel.CropId.Value);
+                            if (getCropToCheck != null)
+                            {
+                                if (updatePlanModel.StartDate < getCropToCheck.StartDate ||
+                                 updatePlanModel.StartDate > getCropToCheck.EndDate ||
+                                 updatePlanModel.EndDate < getCropToCheck.StartDate ||
+                                 updatePlanModel.EndDate > getCropToCheck.EndDate)
+                                {
+                                    throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                                        $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                                }
+                            }
+                            if (updatePlanModel.ListLandPlotOfCrop.Any())
+                            {
+                                var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
+                                if (removePlanTargetOfPlan != null)
+                                {
+                                    foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
+                                    {
+                                         _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                        await _unitOfWork.SaveAsync();
+                                    }
+                                }
+                                foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
+                                {
+                                    List<int> landRowOfLandPlotOfCropIDs = new List<int>();
+                                    HashSet<int> inputPlantIDsOfLandPlot = new HashSet<int>();
+
+                                    var rowsInLandPlotOfCrop = await _unitOfWork.LandRowRepository
+                                       .GetRowsByLandPlotIdAsync(landPlotOfCrop);
+                                    landRowOfLandPlotOfCropIDs.AddRange(rowsInLandPlotOfCrop);
+
+
+                                    Dictionary<int, HashSet<int>> rowToPlantsOfLandPlotOfCrop = new Dictionary<int, HashSet<int>>();
+                                    foreach (var rowId in landRowOfLandPlotOfCropIDs)
+                                    {
+                                        var plantsInRow = await _unitOfWork.PlantRepository.getPlantByRowId(rowId);
+
+                                        if (!rowToPlantsOfLandPlotOfCrop.ContainsKey(rowId))
+                                        {
+                                            rowToPlantsOfLandPlotOfCrop[rowId] = new HashSet<int>();
+                                        }
+
+                                        rowToPlantsOfLandPlotOfCrop[rowId].UnionWith(plantsInRow);
+
+                                    }
+
+                                    foreach (var row in rowToPlantsOfLandPlotOfCrop)
+                                    {
+                                        foreach (var plantId in row.Value)
+                                        {
+                                            var newPlantTarget = new PlanTarget()
+                                            {
+                                                LandPlotID = landPlotOfCrop,
+                                                LandRowID = row.Key,
+                                                PlantID = plantId,
+                                                PlantLotID = null,
+                                                Unit = "Land Plot",
+                                                GraftedPlantID = null,
+                                                PlanID = checkExistPlan.PlanId,
+                                            };
+
+                                            await _unitOfWork.PlanTargetRepository.Insert(newPlantTarget);
+                                            await _unitOfWork.SaveAsync();
+
+                                        }
+                                    }
+                                }
+
+                            }
                         }
 
                         if (updatePlanModel.MasterTypeId != null)
@@ -1080,10 +1148,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                 {
-                                    checkExistPlan.PlanTargets.Remove(removeOldPlanTarget);
+                                     _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                      await _unitOfWork.SaveAsync();
                                 }
                             }
-                            await _unitOfWork.SaveAsync();
                             // HashSet để lưu các cặp (PlantID, LandPlotID, LandRowID) đã thêm vào tránh trùng lặp
                             HashSet<(int?, int?, int?)> addedPlanTargets = new HashSet<(int?, int?, int?)>();
 
@@ -1149,9 +1217,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     PlantLotID = null,
                                                     Unit = "Land Plot",
                                                     GraftedPlantID = null,
+                                                    PlanID = checkExistPlan.PlanId
                                                 };
-
-                                                checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                                await _unitOfWork.PlanTargetRepository.Insert(newPlantTarget);
+                                                await _unitOfWork.SaveAsync();
                                                 addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
                                             }
                                         }
@@ -1174,9 +1243,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     PlantLotID = null,
                                                     Unit = "Row",
                                                     GraftedPlantID = null,
+                                                    PlanID = checkExistPlan.PlanId
                                                 };
 
-                                                checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                                await _unitOfWork.PlanTargetRepository.Insert(newPlantTarget);
+                                                await _unitOfWork.SaveAsync();
                                                 addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
                                             }
                                         }
@@ -1195,10 +1266,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 LandRowID = null,
                                                 PlantLotID = null,
                                                 Unit = "Plant",
-                                                GraftedPlantID = null
+                                                GraftedPlantID = null,
+                                                PlanID = checkExistPlan.PlanId
                                             };
 
-                                            checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                            await _unitOfWork.PlanTargetRepository.Insert(newPlantTarget);
+                                            await _unitOfWork.SaveAsync();
                                             addedPlanTargets.Add((plantId, null, null)); // Đánh dấu đã thêm
                                         }
                                     }
@@ -1218,10 +1291,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 PlantID = null,
                                                 Unit = plantTarget.Unit,
                                                 PlantLotID = plantLotId,
-                                                GraftedPlantID = null
+                                                GraftedPlantID = null,
+                                                PlanID = checkExistPlan.PlanId
                                             };
-
-                                            checkExistPlan.PlanTargets.Add(newPlantLotTarget);
+                                            await _unitOfWork.PlanTargetRepository.Insert(newPlantLotTarget);
+                                            await _unitOfWork.SaveAsync();
                                             addedPlanTargets.Add((null, null, plantLotId)); // Đánh dấu đã thêm
                                         }
                                     }
@@ -1241,10 +1315,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 PlantID = null,
                                                 Unit = plantTarget.Unit,
                                                 PlantLotID = null,
-                                                GraftedPlantID = graftedPlantId
+                                                GraftedPlantID = graftedPlantId,
+                                                PlanID = checkExistPlan.PlanId
                                             };
 
-                                            checkExistPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                            await _unitOfWork.PlanTargetRepository.Insert(newGraftedPlantTarget);
+                                            await _unitOfWork.SaveAsync();
                                             addedPlanTargets.Add((null, null, graftedPlantId)); // Đánh dấu đã thêm
                                         }
                                     }
@@ -1261,6 +1337,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
+                                await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
                                 return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, Const.SUCCESS_UPDATE_PLAN_MSG, checkExistPlan);
                             }
@@ -1878,7 +1955,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (schedule == null) return false;
             var getTypePlan = await _unitOfWork.MasterTypeRepository.GetByID(updatePlanModel.MasterTypeId.Value);
-            var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(updatePlanModel.LandPlotId.Value);
+            string nameOfWorkLog = "";
+            if(updatePlanModel.ListLandPlotOfCrop != null)
+            {
+                foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
+                {
+                    var getLandPlotOfCrop = await _unitOfWork.LandPlotRepository.GetByID(landPlotOfCrop);
+                    if (getLandPlotOfCrop != null)
+                    {
+                        nameOfWorkLog += " " + getLandPlotOfCrop.LandPlotName; 
+                    }
+                }
+            }
+            if(updatePlanModel.LandPlotId != null)
+            {
+                var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(updatePlanModel.LandPlotId.Value);
+                nameOfWorkLog += " " + getLandPlot.LandPlotName;
+
+            }
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
@@ -1886,7 +1980,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Status = "Pending",
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + getLandPlot.LandPlotName,
+                WorkLogName = getTypePlan.MasterTypeName + " on " + nameOfWorkLog,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId

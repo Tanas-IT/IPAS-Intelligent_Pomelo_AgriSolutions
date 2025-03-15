@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(x => x.CarePlanId == planID)
                 .ToListAsync();
 
-            if (!listCarePlanSchedule.Any()) return false;
+            if (!listCarePlanSchedule.Any()) return true;
 
             // Lấy danh sách ScheduleId từ CarePlanSchedules
             var scheduleIds = listCarePlanSchedule.Select(x => x.ScheduleId).ToList();
