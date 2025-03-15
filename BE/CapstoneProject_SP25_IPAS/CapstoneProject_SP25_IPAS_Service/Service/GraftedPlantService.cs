@@ -60,13 +60,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, validationResult);
 
                     // Kiểm tra cây đã hoàn thành đủ điều kiện để chiết cành chưa
+
                     //var criteriaResult = await CheckGraftedConditionCompletedAsync(plantId: createRequest.PlantId, null);
-                    var requiredConditions = _masterTypeConfig.GraftedCriteriaApply?.GraftedConditionApply ?? new List<string>();
+                    //var requiredConditions = _masterTypeConfig.GraftedCriteriaApply?.GraftedConditionApply ?? new List<string>();
                     //var criteriaResult = await CheckPlantCriteriaCompletedAsync(plantId: createRequest.PlantId, criteriaRequireCheck: requiredConditions);
                     //if (criteriaResult.StatusCode != 200)
                     //return criteriaResult; // neu sai thi tra ve loi chua apply tieu chi nao luon
+
                     if (plantExist.IsPassed != true)
-                        return new BusinessResult(400, "Plant is not mark as PASS to grafted");
+                        return new BusinessResult(400, "Mother Plant is not mark as PASS to grafted");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;

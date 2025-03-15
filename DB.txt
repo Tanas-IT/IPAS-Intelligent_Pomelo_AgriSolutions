@@ -182,7 +182,7 @@ CREATE TABLE ipas.dbo.Criteria (
 	CriteriaDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Priority int NULL,
 	isActive bit NULL  DEFAULT 1,
-	isChecked bit NULL,
+	isDeleted bit NULL default 0,
         FrequencyDate int NULL,
         isDefault bit NULL,
 	MasterTypeID int NULL,
@@ -1192,7 +1192,7 @@ GO
 
 GO
 INSERT INTO [dbo].[Criteria]
-    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isChecked],[MasterTypeID])
+    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isDeleted],[MasterTypeID])
 VALUES
     ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 20),
     ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 1, 20),

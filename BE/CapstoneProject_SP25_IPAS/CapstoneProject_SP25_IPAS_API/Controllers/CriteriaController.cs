@@ -6,6 +6,8 @@ using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -77,6 +79,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             catch (Exception ex)
             {
 
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Criteria.getCriteriaSetPagin, Name = "getCriteriaSetPagin")]
+        public async Task<IActionResult> GetCriteriaSetPagin(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _criteriaService.GetAllCriteriaSetPagination(paginationParameter, masterTypeFilter, farmId!.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
                 var response = new BaseResponse()
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
@@ -273,7 +296,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Criteria.getCriteriaSetGraftedExcept, Name = "getCriteriaSetGraftedExcept")]
-        public async Task<IActionResult> getCriteriaSetGraftedExcept([FromQuery] int grafted, int? farmId, string? target)
+        public async Task<IActionResult> getCriteriaSetGraftedExcept([FromQuery] int graftedId, int? farmId, string? target)
         {
 
             if (!farmId.HasValue)
@@ -286,7 +309,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     Message = "Farm id has required"
                 });
             }
-            var result = await _criteriaService.GetCriteriaSetGraftedNotApply(graftedId: grafted, farmId: farmId.Value, target: target);
+            var result = await _criteriaService.GetCriteriaSetGraftedNotApply(graftedId: graftedId, farmId: farmId.Value, target: target);
             return Ok(result);
 
         }

@@ -116,6 +116,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCriteriaSetPlantLotExcept = prefix + "/plantlot/get-for-selected/except";
             public const string getCriteriaSetGraftedExcept = prefix + "/grafted-plant/get-for-selected/except";
             public const string getCriteriaSetPlantExcept = prefix + "/plant/get-for-selected/except";
+            public const string getCriteriaSetPagin = prefix + "/criteria-set";
 
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";

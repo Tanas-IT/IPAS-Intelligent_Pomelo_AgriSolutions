@@ -204,7 +204,7 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
+            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Criterias)

@@ -196,28 +196,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.IsActive == masterTypeFilter.isActive);
                 //if (masterTypeFilter.isDelete != null)
                 //    filter = filter.And(x => x.IsDelete == masterTypeFilter.isDelete);
-                if (masterTypeFilter.MasterTypeName != null)
+                if (!string.IsNullOrEmpty(masterTypeFilter.MasterTypeName))
                 {
-                    //List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName!);
-
                     // Kiểm tra nếu filterList có phần tử để tránh lỗi
-                    List<string> filterList = masterTypeFilter.TypeName.Split(',', StringSplitOptions.TrimEntries)
-                              .Select(f => f.ToLower()) // Chuyển về chữ thường
-                              .ToList();
-                    if (filterList.Any())
-                        //foreach (var item in filterList)
-                        //{
-                        filter = filter.And(x => x.MasterTypeName!.ToLower().Contains(masterTypeFilter.MasterTypeName.ToLower()));
-                    //}
+                    filter = filter.And(x => x.MasterTypeName!.ToLower().Contains(masterTypeFilter.MasterTypeName.ToLower()));
                 }
 
-                if (masterTypeFilter.TypeName != null)
+                if (!string.IsNullOrEmpty(masterTypeFilter.TypeName))
                 {
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
-                    //foreach (var item in filterList)
-                    //{
-                    filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
-                    //}
+                    filter = filter.And(x => filterList.Contains(x.TypeName!.ToLower()));
                 }
                 //if (masterTypeFilter.CreateBy != null)
                 //{
@@ -299,8 +287,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             break;
                     }
                 }
-                string includeProperties = "Criterias";
-                var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                //string includeProperties = "Criterias";
+                var entities = await _unitOfWork.MasterTypeRepository.Get(filter, orderBy, /*includeProperties*/ null!, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<MasterTypeModel>();
                 pagin.List = _mapper.Map<IEnumerable<MasterTypeModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.MasterTypeRepository.Count(filter);
@@ -428,7 +416,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             if (!_masterTypeConfig.CriteriaTargets.Any(target => target.Equals(updateMasterTypeModel.Target, StringComparison.OrdinalIgnoreCase)) && checkExistMasterType.TypeName!.ToLower().Equals("criteria"))
                                 return new BusinessResult(400, "Type name not suitable with system");
-                            checkExistMasterType.TypeName = updateMasterTypeModel.TypeName;
+                            checkExistMasterType.Target = updateMasterTypeModel.Target;
                         }
                         if (updateMasterTypeModel.IsActive != null)
                         {

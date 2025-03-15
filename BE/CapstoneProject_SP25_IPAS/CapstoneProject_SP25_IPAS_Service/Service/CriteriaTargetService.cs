@@ -2,19 +2,9 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
-using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -249,26 +239,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    // Xác định danh sách mục tiêu (chỉ lấy một danh sách được truyền vào)
-                    var targetList = request.PlantLotID?.Any() == true ? request.PlantLotID.Cast<int?>().ToList()
-                : request.GraftedPlantID?.Any() == true ? request.GraftedPlantID.Cast<int?>().ToList()
-                : request.PlantID?.Any() == true ? request.PlantID.Cast<int?>().ToList()
-                : new List<int?>();
-
-                    if (!targetList.Any() || !request.criteriaDatas.Any())
+                    if ((!request.PlantID.Any() && !request.GraftedPlantID.Any() && !request.PlantLotID.Any()) || !request.criteriaDatas.Any())
                     {
-                        return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                        return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
 
                     // Lấy danh sách CriteriaTarget phù hợp với danh sách đầu vào
-                    var plantCriteriaList = await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => targetList.Contains(x.PlantID) ||
-                                        targetList.Contains(x.GraftedPlantID) ||
-                                        targetList.Contains(x.PlantLotID));
+                    var plantCriteriaList = new List<CriteriaTarget>();
+                    if (request.PlantID!.Any())
+                    {
+                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(x => request.PlantID.Contains(x.PlantID!.Value))).ToList();
+                    }
+                    if (request.PlantLotID!.Any())
+                    {
+                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()))).ToList();
+                    }
+                    if (request.GraftedPlantID!.Any())
+                    {
+                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(x => request.GraftedPlantID!.Contains(x.GraftedPlantID.GetValueOrDefault()))).ToList();
+                    }
 
                     if (!plantCriteriaList.Any())
                     {
-                        return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, Const.FAIL_GET_CRITERIA_MSG);
+                        return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, "Don't have criteria to complete task");
                     }
 
                     // Duyệt qua danh sách request và cập nhật trạng thái isChecked
@@ -437,7 +433,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Can not found any criteria to delete");
                     }
                     var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                               .GetAllNoPaging(x =>
+                               .GetForDelete(x =>
                                    (deleteRequest.PlantId!.Contains(x.PlantID) ||
                                     deleteRequest.GraftedPlantId!.Contains(x.GraftedPlantID) ||
                                     deleteRequest.PlantLotId!.Contains(x.PlantLotID))
@@ -465,8 +461,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                     existingCriteriaTargets = existingCriteriaTargets.Where(x =>
-                    deleteRequest.CriteriaSetId.Contains(x.Criteria!.MasterTypeID!.Value));
-
+                    deleteRequest.CriteriaSetId.Contains(x.Criteria!.MasterTypeID!.Value)).ToList();
+                    foreach (var existingCriteriaTarget in existingCriteriaTargets)
+                    {
+                        existingCriteriaTarget.Criteria = null!;
+                    }
                     // Xoá các tiêu chí
                     _unitOfWork.CriteriaTargetRepository.RemoveRange(existingCriteriaTargets);
 
@@ -610,7 +609,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
         private CriteriaTarget CreateCriteriaTarget(int? plantId, int? graftedPlantId, int? plantLotId, CriteriaData criteria)
         {
-            return new CriteriaTarget
+            var newCriteriaTarget = new CriteriaTarget
             {
                 PlantID = plantId,
                 GraftedPlantID = graftedPlantId,
@@ -621,16 +620,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 CreateDate = DateTime.Now,
                 IsPassed = false,
             };
+            return newCriteriaTarget;
         }
         private bool IsDuplicate(CriteriaTarget newTarget, List<CriteriaTarget> existingTargets)
         // kiem tra xem criteria do da dc ap dung cho cay do chua
         {
-            return existingTargets.Any(e =>
-                (e.PlantID == newTarget.PlantID && newTarget.PlantID != null) ||
-                (e.GraftedPlantID == newTarget.GraftedPlantID && newTarget.GraftedPlantID != null) ||
-                (e.PlantLotID == newTarget.PlantLotID && newTarget.PlantLotID != null) &&
-                e.CriteriaID == newTarget.CriteriaID
-            );
+            var result = existingTargets.Any(e =>
+             ((e.PlantID == newTarget.PlantID && newTarget.PlantID != null) ||
+             (e.GraftedPlantID == newTarget.GraftedPlantID && newTarget.GraftedPlantID != null) ||
+             (e.PlantLotID == newTarget.PlantLotID && newTarget.PlantLotID != null)) &&
+             e.CriteriaID == newTarget.CriteriaID
+         );
+            return result;
         }
 
     }
