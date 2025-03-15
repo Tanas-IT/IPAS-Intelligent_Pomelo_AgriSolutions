@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,5 +36,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.ToListAsync();
         }
 
+        public async Task<IEnumerable<CriteriaTarget>> GetForDelete(
+            Expression<Func<CriteriaTarget, bool>> filter = null!)
+        {
+            IQueryable<CriteriaTarget> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(x => x.Criteria)
+                .ThenInclude(x => x.MasterType);
+            return await query.AsNoTracking().ToListAsync();
+
+        }
     }
 }

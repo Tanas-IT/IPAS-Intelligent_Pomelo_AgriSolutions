@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +15,14 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetCriteriasByMasterTypeId (int masterTypeId);
         public Task<BusinessResult> GetCriteriaById(int criteriaId);
+
         public Task<BusinessResult> UpdateListCriteriaInType(ListCriteriaUpdateRequest listCriteriaUpdateRequest);
         public Task<BusinessResult> UpdateOneCriteriaInType(CriteriaUpdateRequest criteriaUpdateRequests);
         public Task<BusinessResult> GetCriteriaOfTarget(GetCriteriaOfTargetRequest reqeust);
         public Task<BusinessResult> CreateCriteriaWithMasterType(CreateCriteriaMasterTypeRequest request);
         public (bool IsValid, string ErrorMessage) ValidateCriteriaPriorities(List<CriteriaCreateRequest> criteriaList);
 
+        public Task<BusinessResult> GetAllCriteriaSetPagination(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int farmId);
         //public Task<string> CheckCriteriaSetExist(int? farmId, List<string> Targetlist);
         public Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantlotId, int farmId, string target = null);
         public Task<BusinessResult> GetCriteriaSetGraftedNotApply(int graftedId, int farmId, string target);

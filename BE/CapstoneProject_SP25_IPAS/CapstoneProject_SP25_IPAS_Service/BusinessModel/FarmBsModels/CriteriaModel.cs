@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
         public bool? IsPassed { get; set; }
 
         public int? MasterTypeId { get; set; }
+        public int? FrequencyDate { get; set; }
 
         public string? MasterTypeName { get; set; }
 
