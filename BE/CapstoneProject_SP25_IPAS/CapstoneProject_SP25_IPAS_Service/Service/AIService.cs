@@ -29,6 +29,7 @@ using Google.Apis.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System.IO;
 using MimeKit.Cryptography;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -713,8 +714,27 @@ const generationConfig = {
         {
             try
             {
-                var trainedProject = await trainingClient.TrainProjectAsync(projectId, trainingProjectModel.TrainingType, trainingProjectModel.ReservedHours);
-                return new BusinessResult(Const.ERROR_EXCEPTION, "");
+                var validTrainingTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    "Regular", "Advanced", "Compact", "DenseNet"
+                };
+
+                // Kiểm tra nếu trainingProjectModel.TrainingType hợp lệ
+                if (!validTrainingTypes.Contains(trainingProjectModel.TrainingType))
+                {
+                    return new BusinessResult(400, "Invalid training type. Must be Regular, Advanced, Compact or DenseNet");
+                }
+
+                var trainedProject = await trainingClient.TrainProjectAsync(
+                    projectId,
+                    trainingProjectModel.TrainingType, 
+                    trainingProjectModel.ReservedHours
+                );
+                if(trainedProject != null)
+                {
+                    return new BusinessResult(200, $"Training Project success. Please wait {trainingProjectModel.ReservedHours} hours", trainedProject);
+                }
+                return new BusinessResult(400, "Training Project failed");
             }
             catch (Exception ex)
             {

@@ -299,7 +299,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.AI.updateTag, Name = "updateTag")]
-        public async Task<IActionResult> UpdateTagAsync(UpdateTagModel updateTagModel)
+        public async Task<IActionResult> UpdateTagAsync([FromBody] UpdateTagModel updateTagModel)
         {
             try
             {
@@ -318,5 +318,65 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPost(APIRoutes.AI.quickTestImageByFile, Name = "quickTestImageByFile")]
+        public async Task<IActionResult> QuickTestImageByFileAsync([FromForm] QuickTestImageByFileModel quickTestImageByFileModel)
+        {
+            try
+            {
+                var result = await _aiService.QuickTestImageByFile(quickTestImageByFileModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+
+        [HttpPost(APIRoutes.AI.quickTestImageByLink, Name = "quickTestImageByLink")]
+        public async Task<IActionResult> QuickTestImageByLinkAsync([FromBody] QuickTestImageByURLModel quickTestImageByURLModel)
+        {
+            try
+            {
+                var result = await _aiService.QuickTestImageByURL(quickTestImageByURLModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.AI.trainedProject, Name = "trainedProject")]
+        public async Task<IActionResult> TrainedProjectAsync([FromBody] TrainingProjectModel trainingProjectModel)
+        {
+            try
+            {
+                var result = await _aiService.TrainedProject(trainingProjectModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
