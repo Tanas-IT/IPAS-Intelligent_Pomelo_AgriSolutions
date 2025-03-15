@@ -16,3 +16,11 @@ export const updateFeedback = async (
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
+
+export const deleteFeedback = async (
+  feedbackId: number,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`task-feedback/${feedbackId}`);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};

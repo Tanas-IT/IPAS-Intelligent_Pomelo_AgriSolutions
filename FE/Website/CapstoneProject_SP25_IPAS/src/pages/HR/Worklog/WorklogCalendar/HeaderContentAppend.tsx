@@ -2,6 +2,8 @@ import { Icons } from "@/assets";
 import { CustomButton } from "@/components";
 import { Button, Flex, Popover } from "antd"
 import WorklogFilter from "./WorklogFilter/WorklogFilter";
+import { useNavigate } from "react-router-dom";
+import { PATHS } from "@/routes";
 
 interface HeaderContentAppendProps {
     addModal: {
@@ -13,6 +15,7 @@ interface HeaderContentAppendProps {
 }
 
 const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {
+    const navigate = useNavigate();
 
     return (
         <Flex gap={10}>
@@ -22,9 +25,10 @@ const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent
                 </>
             </Popover>
             <CustomButton
-                label="Add New Task"
+                label="Add New Plan"
                 icon={<Icons.plus />}
-                handleOnClick={() => addModal.showModal()}
+                // handleOnClick={() => addModal.showModal()}
+                handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
             />
         </Flex>
     )

@@ -10,11 +10,12 @@ import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
-import { worklogService } from "@/services";
+import { feedbackService, worklogService } from "@/services";
 import { GetWorklogDetail, TaskFeedback } from "@/payloads/worklog";
 import { formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser } from "@/payloads";
+import { ConfirmModal } from "@/components";
 
 const InfoField = ({
     icon: Icon,
@@ -47,6 +48,8 @@ function WorklogDetail() {
     const { id } = useParams();
     const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
     const [selectedFeedback, setSelectedFeedback] = useState<TaskFeedback>();
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+    const [selectedFeedbackToDelete, setSelectedFeedbackToDelete] = useState<TaskFeedback | null>(null);
 
     const handleUpdateFeedback = (feedback: TaskFeedback) => {
         setSelectedFeedback(feedback);
@@ -56,6 +59,26 @@ function WorklogDetail() {
     const handleCloseModal = () => {
         setSelectedFeedback(undefined);
         formModal.hideModal();
+    };
+
+    const handleOpenDeleteModal = (feedback: TaskFeedback) => {
+        setSelectedFeedbackToDelete(feedback);
+        setIsDeleteModalVisible(true);
+    };
+
+    const handleDeleteFeedback = async () => {
+        if (!selectedFeedbackToDelete) return;
+
+        try {
+            // Gọi API để xóa feedback
+            await feedbackService.deleteFeedback(selectedFeedbackToDelete.taskFeedbackId); // Thay thế bằng API thực tế của bạn
+            // Cập nhật danh sách feedback sau khi xóa
+            setFeedbackList(feedbackList.filter(fb => fb.taskFeedbackId !== selectedFeedbackToDelete.taskFeedbackId));
+            // Ẩn modal
+            setIsDeleteModalVisible(false);
+        } catch (error) {
+            console.error("Error deleting feedback:", error);
+        }
     };
     const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: "Spring 2025", icon: Icons.growth },
@@ -72,7 +95,7 @@ function WorklogDetail() {
     const addModal = useModal<CreateFeedbackRequest>();
 
     const handleFeedback = () => {
-        addModal.showModal();
+        formModal.showModal();
     };
 
     const handleAdd = () => {
@@ -212,7 +235,7 @@ function WorklogDetail() {
                                             >
                                                 Update
                                             </Button>
-                                            <Button className={style.deleteButton}>Delete</Button>
+                                            <Button className={style.deleteButton} onClick={() => handleOpenDeleteModal(item)} disabled>Delete</Button>
                                             <Button
                                                 className={style.reassignButton}
                                                 onClick={() => navigate("/hr-management/worklogs")}
@@ -228,9 +251,31 @@ function WorklogDetail() {
                 ) : (
                     <div className={style.noFeedback}>Chưa có feedback</div>
                 )}
+                {
+                    (worklogDetail?.status === "Reviewing" ||
+                        worklogDetail?.status === "Overdue") ? (
+                        <Button onClick={handleFeedback} className={style.btnFeedback}>
+                            Feedback
+                        </Button>
+                    ) :
+                        worklogDetail?.status === "Not Started" ||
+                            worklogDetail?.status === "In Progress" ||
+                            worklogDetail?.status === "On Redo" ? (
+                            <>
+                                <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
+                                    Feedback
+                                </Button>
+                                <p className={style.informFb}>
+                                    The employee has not completed the task yet. Please check back later.
+                                </p>
+                            </>
+                        ) :
+                            null
+                }
             </Flex>
 
             <FeedbackModal
+                // isOpen={true}
                 isOpen={formModal.modalState.visible}
                 onClose={handleCloseModal}
                 onSave={handleAdd}
@@ -238,6 +283,18 @@ function WorklogDetail() {
                 managerId={Number(getUserId())}
                 onSuccess={fetchPlanDetail}
                 feedbackData={selectedFeedback}
+            />
+            <ConfirmModal
+                visible={isDeleteModalVisible}
+                onConfirm={handleDeleteFeedback}
+                onCancel={() => setIsDeleteModalVisible(false)}
+                actionType="delete"
+                itemName="feedback"
+                title="Delete Feedback?"
+                description="Are you sure you want to delete this feedback? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                isDanger={true}
             />
             <ToastContainer />
         </div>

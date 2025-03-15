@@ -296,6 +296,16 @@ export const unitOptions = [
   { label: "Grafted Plant", value: "graftedplant" },
 ];
 
+export const worklogStatusOptions = [
+  { label: "Not Started", value: "notStarted" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Overdue", value: "overdue" },
+  { label: "Reviewing", value: "reviewing" },
+  { label: "Redo", value: "redo" },
+  { label: "Done", value: "done" },
+  { label: "On Redo", value: "onRedo" },
+];
+
 export const fetchTypeOptionsByName = async (typeName: string) => {
   const types = await masterTypeService.getTypeByName(typeName);
 
