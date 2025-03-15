@@ -8,12 +8,21 @@ import { ToastContainer } from "react-toastify";
 import StatusTag from "@/components/UI/StatusTag/StatusTag";
 import { useEffect, useState } from "react";
 import { planService } from "@/services";
-import { GetPlan } from "@/payloads/plan";
+import { GetPlan, PlanTargetModel } from "@/payloads/plan";
 import PlanTargetTable from "./PlanTargetTable";
 import { formatDate, formatDateW } from "@/utils";
 
 interface GeneralCalendarProps {
     selectedDays: number[];
+}
+
+interface PlanTarget {
+    type: "Plot" | "Row" | "Plant" | "Plant Lot" | "Grafted Plant";
+    plotNames?: string[];
+    rowNames?: string[];
+    plantNames?: string[];
+    plantLotNames?: string[];
+    graftedPlantNames?: string[];
 }
 
 const InfoField = ({
@@ -46,9 +55,9 @@ function PlanDetail() {
     const selectedDaysOfWeek = [1, 3, 5];
     const selectedDaysOfNoneType = ["06/02/2025", "16/02/2025"];
     const [frequencyType, setFrequencyType] = useState<string>("none");
-    const [processDetail, setProcessDetail] = useState<GetPlan>();
-    const numOfCompleted = 2;
-    const total = 12;
+    const [planDetail, setPlanDetail] = useState<GetPlan>();
+    const numOfCompleted = planDetail?.listWorkLog.filter((p) => p.status === "Done").length ?? 0;
+    const total = planDetail?.listWorkLog.length;
 
     const progress = 60;
 
@@ -73,7 +82,7 @@ function PlanDetail() {
                 const res = await planService.getPlanDetail(id);
                 console.log("res", res);
 
-                setProcessDetail(res);
+                setPlanDetail(res);
             } catch (error) {
                 console.error("error", error);
                 navigate("/error");
@@ -84,7 +93,7 @@ function PlanDetail() {
     }, [id]);
 
     const infoFieldsLeft = [
-        { label: "Crop", value: processDetail?.cropName || "No data", icon: Icons.growth },
+        { label: "Crop", value: planDetail?.cropName || "No data", icon: Icons.growth },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
     ];
 
@@ -93,20 +102,110 @@ function PlanDetail() {
         { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
     ];
 
-    // const additionalFields = [
-    //     { label: "Start Date", value: processDetail?.startDate, icon: Icons.calendar },
-    //     { label: "End Date", value: processDetail?.endDate, icon: Icons.calendar },
-    //     { label: "Status", value: processDetail?.isActive ? "Active" : "Inactive", icon: Icons.status },
-    //     { label: "Notes", value: processDetail?.notes, icon: Icons.detail },
-    //     { label: "Plan Detail", value: processDetail?.planDetail, icon: Icons.detail },
-    // ];
-
     const workLogs = [
         { id: 1, task: "Watering in plot 123", type: "Watering", status: "completed", date: "2nd Dec 2024" },
         { id: 2, task: "Fertilizing in plot 123", type: "Fertilizing", status: "pending", date: "5th Dec 2024" },
         { id: 3, task: "Pest Control in plot 123", type: "Pest Control", status: "progress", date: "8th Dec 2024" },
     ];
-    console.log(typeof processDetail?.startDate);
+    console.log(typeof planDetail?.startDate);
+
+    const determineUnit = (planTargetModels: PlanTargetModel) => {
+        const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
+      
+        if (rows && rows.length > 0) {
+          return "Row";
+        }
+        if (plants && plants.length > 0) {
+          return "Plant";
+        }
+        if (graftedPlants && graftedPlants.length > 0) {
+          return "Grafted Plant";
+        }
+        if (plantLots && plantLots.length > 0) {
+          return "Plant Lot";
+        }
+        if (landPlotName) {
+          return "Plot";
+        }
+        return "Unknown";
+      };
+
+      const transformPlanTargetData = (planTargetModels: PlanTargetModel) => {
+        const { rows, landPlotName, graftedPlants, plantLots, plants } = planTargetModels;
+      
+        const unit = determineUnit(planTargetModels);
+      
+        const data: PlanTarget[] = [];
+      
+        switch (unit) {
+          case "Row":
+            if (rows && rows.length > 0) {
+              const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+              const plantNames = rows.flatMap((row) =>
+                row.plants.map((plant) => plant.plantName)
+              );
+              const item: PlanTarget = {
+                type: "Row",
+                plotNames: landPlotName ? [landPlotName] : undefined,
+                rowNames: rowNames.length > 0 ? rowNames : undefined,
+                plantNames: plantNames.length > 0 ? plantNames : undefined,
+              };
+              data.push(item);
+            }
+            break;
+      
+          case "Plant":
+            if (plants && plants.length > 0) {
+              const plantNames = plants.map((plant) => plant.plantName);
+              const item: PlanTarget = {
+                type: "Plant",
+                plotNames: landPlotName ? [landPlotName] : undefined,
+                plantNames: plantNames.length > 0 ? plantNames : undefined,
+              };
+              data.push(item);
+            }
+            break;
+      
+          case "Grafted Plant":
+            if (graftedPlants && graftedPlants.length > 0) {
+              const graftedPlantNames = graftedPlants.map((plant) => plant.name);
+              const item: PlanTarget = {
+                type: "Grafted Plant",
+                plotNames: landPlotName ? [landPlotName] : undefined,
+                graftedPlantNames: graftedPlantNames.length > 0 ? graftedPlantNames : undefined,
+              };
+              data.push(item);
+            }
+            break;
+      
+          case "Plant Lot":
+            if (plantLots && plantLots.length > 0) {
+              const plantLotNames = plantLots.map((lot) => lot.name);
+              const item: PlanTarget = {
+                type: "Plant Lot",
+                plotNames: landPlotName ? [landPlotName] : undefined,
+                plantLotNames: plantLotNames.length > 0 ? plantLotNames : undefined,
+              };
+              data.push(item);
+            }
+            break;
+      
+          case "Plot":
+            if (landPlotName) {
+              const item: PlanTarget = {
+                type: "Plot",
+                plotNames: [landPlotName],
+              };
+              data.push(item);
+            }
+            break;
+      
+          default:
+            break;
+        }
+      
+        return data;
+      };
 
 
     return (
@@ -118,25 +217,25 @@ function PlanDetail() {
             </Flex>
             <Divider className={style.divider} />
             <Flex className={style.contentSectionTitleLeft}>
-                <p className={style.title}>{processDetail?.planName}</p>
+                <p className={style.title}>{planDetail?.planName}</p>
                 <Tooltip title="Hello">
                     <Icons.tag className={style.iconTag} />
                 </Tooltip>
-                <Tag className={`${style.statusTag} ${style.normal}`}>{processDetail?.status}</Tag>
+                <Tag className={`${style.statusTag} ${style.normal}`}>{planDetail?.status}</Tag>
             </Flex>
-            <label className={style.subTitle}>Code: {processDetail?.planCode}</label>
+            <label className={style.subTitle}>Code: {planDetail?.planCode}</label>
 
             {/* Assigned Info */}
             <Flex vertical gap={10} className={style.contentSectionUser}>
                 <Flex vertical={false} gap={15}>
                     <Image src={Images.avatar} width={25} className={style.avt} />
-                    <label className={style.createdBy}>{processDetail?.assignorName}</label>
+                    <label className={style.createdBy}>{planDetail?.assignorName}</label>
                     <label className={style.textCreated}>created this plan</label>
-                    <label className={style.createdDate}>{processDetail?.startDate ? formatDateW(processDetail?.startDate) : ""}</label>
+                    <label className={style.createdDate}>{planDetail?.startDate ? formatDateW(planDetail?.startDate) : ""}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Assigned To:</label>
-                    {processDetail?.listEmployee.map((employee, index) => (
+                    {planDetail?.listEmployee.map((employee, index) => (
                         <div className={style.containerUser}>
                             <Image src={employee?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{employee?.fullName}</span>
@@ -146,7 +245,7 @@ function PlanDetail() {
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Reporter:</label>
-                    {processDetail?.listReporter.map((report, index) => (
+                    {planDetail?.listReporter.map((report, index) => (
                         <div className={style.containerUser}>
                             <Image src={report?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{report?.fullName}</span>
@@ -160,7 +259,7 @@ function PlanDetail() {
             {/* Plan Progress */}
             <Flex className={style.progressContainer}>
                 <label className={style.progressLabel}>Plan Progress:</label>
-                <Progress percent={processDetail?.progress} status="active" strokeColor={'#20461e'} />
+                <Progress percent={planDetail?.progress} status="active" strokeColor={'#20461e'} />
             </Flex>
 
             <Divider className={style.divider} />
@@ -192,7 +291,7 @@ function PlanDetail() {
                             <Icons.calendar />
                             <span className={style.label}>Date:</span>
                             <span className={style.value}>
-                                {processDetail?.startDate ? formatDate(processDetail?.startDate) : ""} - {processDetail?.endDate ? formatDate(processDetail?.endDate) : ""}
+                                {planDetail?.startDate ? formatDate(planDetail?.startDate) : ""} - {planDetail?.endDate ? formatDate(planDetail?.endDate) : ""}
                             </span>
                         </div>
 
@@ -200,7 +299,7 @@ function PlanDetail() {
                             <Icons.calendar />
                             <span className={style.label}>Time:</span>
                             <span className={style.value}>
-                                {processDetail?.startTime} - {processDetail?.endTime}
+                                {planDetail?.startTime} - {planDetail?.endTime}
                             </span>
                         </div>
                     </div>
@@ -208,12 +307,12 @@ function PlanDetail() {
                     <div className={style.details}>
                         <div className={style.box}>
                             <span className={style.label}>Plan Detail:</span>
-                            <p className={style.value}>{processDetail?.planDetail}</p>
+                            <p className={style.value}>{planDetail?.planDetail}</p>
                         </div>
 
                         <div className={style.box}>
                             <span className={style.label}>Notes:</span>
-                            <p className={style.value}>{processDetail?.notes}</p>
+                            <p className={style.value}>{planDetail?.notes}</p>
                         </div>
                     </div>
                 </Flex>
@@ -223,28 +322,7 @@ function PlanDetail() {
 
             <Divider className={style.divider} />
             <PlanTargetTable
-                data={[
-                    {
-                        type: "Plot",
-                        plotNames: ["Plot 1", "Plot 2", "Plot 3"],
-                    },
-                    {
-                        type: "Row",
-                        rowNames: ["Row 1", "Row 2", "Row 3"],
-                    },
-                    {
-                        type: "Plant",
-                        plantNames: ["Plant 1", "Plant 2", "Plant 3"],
-                    },
-                    {
-                        type: "Plant Lot",
-                        plantLotNames: ["Plant Lot 1", "Plant Lot 2", "Plant Lot 3"],
-                    },
-                    {
-                        type: "Grafted Plant",
-                        graftedPlantNames: ["Grafted Plant 1", "Grafted Plant 2", "Grafted Plant 3"],
-                    },
-                ]}
+                data={planDetail?.planTargetModels ? transformPlanTargetData(planDetail.planTargetModels) : []}
             />
             <Divider className={style.divider} />
 
@@ -254,17 +332,18 @@ function PlanDetail() {
                     <Flex className={style.col}>
                         <div className={style.frequencyInfoFields}>
                             <h3 className={style.smallTitle}>Frequency</h3>
-                            <p><strong>Date:</strong> {processDetail?.startDate ? formatDate(processDetail?.startDate) : ""} - {processDetail?.endDate ? formatDate(processDetail?.endDate) : ""}</p>
-                            <p><strong>Time:</strong> {processDetail?.startTime} - {processDetail?.endTime}</p>
-                            <p><strong>Type:</strong> <span className={style.valueType}>{processDetail?.frequency}</span></p>
+                            <p><strong>Date:</strong> {planDetail?.startDate ? formatDate(planDetail?.startDate) : ""} - {planDetail?.endDate ? formatDate(planDetail?.endDate) : ""}</p>
+                            <p><strong>Time:</strong> {planDetail?.startTime} - {planDetail?.endTime}</p>
+                            <p><strong>Type:</strong> <span className={style.valueType}>{planDetail?.frequency}</span></p>
 
                             {frequencyType === "none" && (
                                 <ul className={style.dateList}>
-                                    {selectedDaysOfNoneType.map((day, index) => (
+                                    {JSON.parse(planDetail?.customDates || "[]").map((day: string, index: number) => (
                                         <li key={index}>{day}</li>
                                     ))}
                                 </ul>
                             )}
+
 
                             {frequencyType === "weekly" && (
                                 <Flex className={style.weekDays}>
@@ -302,7 +381,7 @@ function PlanDetail() {
                 {/* Work Log */}
                 <Flex className={style.workLogContainer} gap={15}>
                     <h3>Work Log From Plan <span>{numOfCompleted}/{total}</span></h3>
-                    {processDetail?.listWorkLog.map((log) => (
+                    {planDetail?.listWorkLog.map((log) => (
                         <Card key={log.workLogID} className={style.workLogCard}>
                             <Flex align="center" justify="space-between">
                                 <Flex align="center" gap={8}>

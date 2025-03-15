@@ -41,6 +41,7 @@ export const PATHS = {
     FARM_PLANT_DETAIL_FROM_ROW: "/farm/land-rows/:plotId/plants/:plantId/details",
     FARM_PLANT_LOT_LIST: "/farm/plant-lots",
     FARM_PLANT_LOT_DETAIL: "/farm/plant-lots/:id/details",
+    FARM_PLANT_LOT_ADDITIONAL: "/farm/plant-lots/:parentId/additional/:id/details",
   },
 
   // Process Management
@@ -81,5 +82,14 @@ export const PATHS = {
     PAYMENT: "/package/payment",
     SUCCESS: "/payment/payment-success",
     CANCEL: "/payment/payment-cancle",
+  },
+
+  EMPLOYEE: {
+    DASHBOARD: "/employee/dashboard",
+    WORK_SCHEDULE: "/employee/work-schedule",
+    WORKLOG: "/employee/worklog",
+    WORKLOG_DETAIL: "/employee/worklog/:id",
+    PLANTS: "/employee/plants",
+    AI_CONSULTING: "/employee/ai-consulting",
   },
 };

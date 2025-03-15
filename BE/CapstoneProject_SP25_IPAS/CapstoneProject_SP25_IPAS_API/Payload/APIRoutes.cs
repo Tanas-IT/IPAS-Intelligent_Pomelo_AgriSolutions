@@ -271,6 +271,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlanByName = prefix + "/get-plan-by-name/{name}";
             public const string getPlanByFarmId = prefix + "/get-for-select/{farm-id}";
             public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
+            public const string filterTypeWorkByGrowthStage = prefix + "/type-work/filter-by-growth-stage";
         }
 
         public static class UserWorkLog
@@ -307,6 +308,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllCropOfFarm = prefix + "/get-crop-of-farm";
             public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             public const string getAllCropOfLandPlotForSelect = prefix + "/get-crop-of-landplot-selected";
+            public const string getCropInCurrentTime = prefix + "/get-crop-in-current-time";
+            public const string getLandPlotOfCrop = prefix + "/get-landPlot-of-crop/{cropId}";
         }
 
         public static class Harvest
@@ -407,6 +410,19 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string predictDiseaseByFile = prefix + "/predict-disease-by-file";
             public const string predictDiseaseByURL = prefix + "/predict-disease-by-url";
             public const string getHistoryOfChat = prefix + "/history-of-chat";
+            public const string getAllTags = prefix + "/get-all-tags";
+            public const string createTag = prefix + "/create-tag";
+            public const string deleteTag = prefix + "/delete-tag/{tagId}";
+            public const string uploadImageByLink = prefix + "/upload-image-by-link";
+            public const string uploadImageByFile = prefix + "/upload-image-by-file";
+            public const string deleteImage = prefix + "/delete-image";
+            public const string getAllImageAsync = prefix + "/get-all-image";
+            public const string getImageUntaggedAsync = prefix + "/get-image-untagged";
+            public const string getImageTaggedAsync = prefix + "/get-image-tagged";
+            public const string updateTag = prefix + "/update-tag";
+            public const string quickTestImageByFile = prefix + "/quick-test-image-by-file";
+            public const string quickTestImageByLink = prefix + "/quick-test-image-by-link";
+            public const string trainedProject = prefix + "/trained-project";
         }
 
 
@@ -434,6 +450,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string markNotificationIsRead = Base + "/mark-notification-is-read";
         }
 
+        public static class GrowthStageMasterType
+        {
+            public const string prefix = Base + "/growthStage-masterType";
+            public const string createGrowthStageMasterType = prefix + "/create";
+            public const string getGrowthStageMasterType = prefix + "";
+            public const string updateGrowthStageMasterTypeInfo = prefix + "";
+            public const string deleteGrowthStageMasterType = prefix + "/delete";
+        }
         public static class ProductCriteriaSet
         {
             public const string prefix = Base + "/products";

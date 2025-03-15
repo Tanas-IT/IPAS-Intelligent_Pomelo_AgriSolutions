@@ -8,10 +8,8 @@ import {
   Row,
   Col,
   Divider,
-  Checkbox,
   Modal,
   Flex,
-  Button,
 } from "antd";
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Section, Tooltip } from "@/components";
@@ -22,13 +20,12 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useNotifications, useUnsavedChangesWarning } from "@/hooks";
+import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useNotifications, useUnsavedChangesWarning } from "@/hooks";
 import {
-  fetchGrowthStageOptions,
   fetchProcessesOfFarm,
-  fetchTypeOptionsByName,
   fetchUserInfoByRole,
   getFarmId,
+  getGrowthStageOfProcess,
   getUserId,
   isDayInRange,
   RulesManager,
@@ -36,10 +33,7 @@ import {
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
 import {
   cropService,
-  landPlotService,
-  landRowService,
   planService,
-  plantService,
 } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
@@ -49,36 +43,24 @@ import useLandPlotOptions from "@/hooks/useLandPlotOptions";
 import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
 import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 import isBetween from "dayjs/plugin/isBetween";
+import { SelectOption } from "@/types";
+import usePlantLotOptions from "@/hooks/usePlantLotOptions";
 
 dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
 
-interface CarePlanForm {
-  name: string;
-  detail?: string;
-  startDate: moment.Moment;
-  endDate: moment.Moment;
-  startTime?: moment.Moment;
-  endTime?: moment.Moment;
-  frequency: string;
-  typeOfWork: string;
-  crop: string;
-  process: string;
-  growthStage: string;
-  active: boolean;
-}
-
 type OptionType<T = string | number> = { value: T; label: string };
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 const AddPlan = () => {
-  const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [form] = Form.useForm();
   const userId = Number(getUserId());
+  const farmId = Number(getFarmId());
   const { getAuthData } = useLocalStorage();
   const authData = getAuthData();
-  const farmId = Number(getFarmId());
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -86,10 +68,7 @@ const AddPlan = () => {
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  // const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
-  // const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
-  const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
   const [assignorId, setAssignorId] = useState<number>();
   const [frequency, setFrequency] = useState<string>("none");
@@ -98,26 +77,49 @@ const AddPlan = () => {
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
+  const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
+  const [checked, setChecked] = useState<boolean>(false);
 
-  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
+  const { options: plantLotOptions } = usePlantLotOptions();
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
+  const { options: cropOptions } = useCropCurrentOption();
+
+  const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
+  const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
+  const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
 
   const { socket } = useNotifications();
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
 
-  const [planTargets, setPlanTargets] = useState<
-    {
-      landPlotID?: number;
-      landRowID?: number;
-      plantID?: number;
-    }[]
-  >([]);
+  useEffect(() => {
+    if (selectedCrop) {
+      form.setFieldValue("listLandPlotOfCrop", []);
+      cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
+        setLandPlotOfCropOptions(data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })));
+
+      });
+    } else {
+      setLandPlotOfCropOptions([]);
+    }
+  }, [selectedCrop]);
+
+  const handleChangeProcess = async (processId: number) => {
+    const growthStageId = await getGrowthStageOfProcess(processId);
+    form.setFieldValue("growthStageId", [growthStageId]);
+    setIsLockedGrowthStage(true);
+    const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
+      setProcessTypeOptions(data.map((item) => ({
+        value: item.masterTypeId,
+        label: item.masterTypeName
+      })))
+    });
+  }
 
   const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
     if (!dates || dates.some(date => date === null)) {
@@ -126,7 +128,6 @@ const AddPlan = () => {
       form.setFieldsValue({ dateRange: null });
       return;
     }
-
 
     const [startDate, endDate] = dates as [Dayjs, Dayjs];
     setDateRange([startDate, endDate]);
@@ -202,33 +203,9 @@ const AddPlan = () => {
       });
     }
   };
-  const handleAddPlanTarget = (target: {
-    landPlotID?: number;
-    landRowID?: number;
-    plantID?: number;
-  }) => {
-    setPlanTargets((prev) => [...prev, target]);
-  };
-
-  const handleRemovePlanTarget = (index: number) => {
-    setPlanTargets((prev) => prev.filter((_, i) => i !== index));
-  };
-  // const [landRows, setLandRows] = useState<OptionType<number>[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([]);
-
-  const [plants, setPlants] = useState<OptionType<number>[]>([]);
 
   const { isModalVisible, handleCancelNavigation, handleConfirmNavigation } =
     useUnsavedChangesWarning(isFormDirty);
-
-  const handleLandPlotChange = (landPlotId: number) => {
-    setSelectedLandPlot(landPlotId);
-  };
-
-
-  const handleLandRowChange = (landRowId: number) => {
-    setSelectedLandRow(landRowId);
-  };
 
   const handleReporterChange = (userId: number) => {
     setSelectedReporter(userId);
@@ -242,7 +219,7 @@ const AddPlan = () => {
     //   setErrorMessage("Please select at least one employee.");
     //   return;
     // }
-    
+
     setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
     setIsModalOpen(false);
   };
@@ -260,7 +237,6 @@ const AddPlan = () => {
       setDateError("Please select the date range first!");
       return;
     }
-
     const [startDate, endDate] = dateRange;
 
     // filter ra các ngày hợp lệ
@@ -314,13 +290,9 @@ const AddPlan = () => {
 
 
   const handleSubmit = async (values: any) => {
-    console.log("bấm add");
-
     const { dateRange, timeRange, planTargetModel } = values;
     const startDate = new Date(dateRange?.[0]);
     const endDate = new Date(dateRange?.[1]);
-    console.log("planTargetModel", planTargetModel);
-
 
     const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
     const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
@@ -373,17 +345,15 @@ const AddPlan = () => {
         plantLotID: target.plantLotID ?? [],
         unit: target.unit
       })),
+      listLandPlotOfCrop: values.listLandPlotOfCrop
     };
     console.log("planData", planData);
-    console.log("WebSocket trạng thái trước khi tạo plan:", socket?.readyState);
-
-
 
     const result = await planService.addPlan(planData);
 
     if (result.statusCode === 200) {
       await toast.success(result.message);
-      console.log("WebSocket trạng thái sau khi tạo plan:", socket?.readyState);
+      navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
       form.resetFields();
     } else {
       toast.error(result.message);
@@ -430,12 +400,7 @@ const AddPlan = () => {
         layout="vertical"
         className={style.form}
         onFinish={handleSubmit}
-        // onValuesChange={() => setIsFormDirty(true)}
         initialValues={{ isActive: true }}
-        onValuesChange={(changedValues, allValues) => {
-          // console.log("Changed:", changedValues);
-          // console.log("All Values:", allValues);
-        }}
       >
         {/* BASIC INFORMATION */}
         <Section
@@ -451,15 +416,43 @@ const AddPlan = () => {
                 isEditing={true}
                 type="select"
                 hasFeedback={false}
+                onChange={(value) => handleChangeProcess(value)}
               />
             </Col>
             <Col span={12}>
               <InfoField
                 label="Growth Stage"
                 name={addPlanFormFields.growthStageID}
+                rules={RulesManager.getGrowthStageRules()}
                 options={growthStageOptions}
-                isEditing={true}
+                isEditing={!isLockedGrowthStage}
                 onChange={(value) => setSelectedGrowthStage(value)}
+                type="select"
+                multiple
+                hasFeedback={false}
+              />
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <InfoField
+                label="Crop Name"
+                name={addPlanFormFields.cropId}
+                rules={RulesManager.getCropRules()}
+                options={cropOptions}
+                isEditing={true}
+                type="select"
+                hasFeedback={false}
+                onChange={(value) => setSelectedCrop(value)}
+              />
+            </Col>
+            <Col span={12}>
+              <InfoField
+                label="Land Plot"
+                name={addPlanFormFields.listLandPlotOfCrop}
+                rules={RulesManager.getLandPlotNameRules()}
+                options={landPlotOfCropOptions}
+                isEditing={true}
                 type="select"
                 multiple
                 hasFeedback={false}
@@ -471,7 +464,7 @@ const AddPlan = () => {
             name={addPlanFormFields.planName}
             rules={RulesManager.getPlanNameRules()}
             isEditing={true}
-            hasFeedback={false}
+            hasFeedback={true}
             placeholder="Enter care plan name"
           />
           <InfoField
@@ -496,7 +489,9 @@ const AddPlan = () => {
             name={addPlanFormFields.isActive}
             isEditing={true}
             type="switch"
+            value={checked}
             hasFeedback={false}
+            onChange={(value) => setChecked(value)}
           />
         </Section>
 
@@ -504,20 +499,23 @@ const AddPlan = () => {
 
         {/* SCHEDULE */}
         <Section title="Schedule" subtitle="Define the schedule for the care plan.">
-          <Form.Item
+          <InfoField
             label="Date Range"
             name="dateRange"
+            type="dateRange"
             rules={[{ required: true, message: "Please select the date range!" }]}
-          >
-            <RangePicker style={{ width: "100%" }} onChange={handleDateRangeChange} />
-          </Form.Item>
-          <Form.Item
+            isEditing
+            onChange={handleDateRangeChange}
+          />
+
+          <InfoField
             label="Time Range"
             name="timeRange"
+            type="timeRange"
             rules={[{ required: true, message: "Please select the time range!" }]}
-          >
-            <TimePicker.RangePicker style={{ width: "100%" }} />
-          </Form.Item>
+            isEditing
+          />
+
           <InfoField
             label="Frequency"
             name={addPlanFormFields.frequency}
@@ -584,10 +582,10 @@ const AddPlan = () => {
           landPlotOptions={landPlots}
           landRows={landRowOptions}
           plants={plantsOptions}
-          plantLots={[]}
+          plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}
-          onLandPlotChange={handleLandPlotChange}
-          onLandRowChange={handleLandRowChange}
+          // onLandPlotChange={handleLandPlotChange}
+          // onLandRowChange={handleLandRowChange}
           selectedGrowthStage={selectedGrowthStage}
         />
 
@@ -655,12 +653,12 @@ const AddPlan = () => {
       </Form>
       {isModalVisible && (
         <Modal
-          title="Bạn có chắc chắn muốn rời đi?"
+          title="Are you sure you want to leave this page?"
           visible={isModalVisible}
           onOk={handleConfirmNavigation}
           onCancel={handleCancelNavigation}
         >
-          <p>Tất cả thay đổi chưa lưu sẽ bị mất.</p>
+          <p>Every changes will be lost.</p>
         </Modal>
       )}
     </div>

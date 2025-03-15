@@ -119,7 +119,7 @@ const PlanFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
               label="Frequency:"
               fieldType="select"
               value={filters.frequency}
-              options={processTypeOptions}
+              options={frequencyOptions}
               onChange={(value) => updateFilters("frequency", value)}
             />
             <FormFieldFilter

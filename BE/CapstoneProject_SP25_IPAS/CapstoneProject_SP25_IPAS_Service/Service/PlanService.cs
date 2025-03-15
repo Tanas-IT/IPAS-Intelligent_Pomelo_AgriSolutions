@@ -113,6 +113,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (createPlanModel.CropId.HasValue && createPlanModel.ListLandPlotOfCrop != null)
                     {
+                        var getCropToCheck = await _unitOfWork.CropRepository.GetByID(createPlanModel.CropId.Value);
+                        if (getCropToCheck != null)
+                        {
+                            if (createPlanModel.StartDate < getCropToCheck.StartDate ||
+                             createPlanModel.StartDate > getCropToCheck.EndDate ||
+                             createPlanModel.EndDate < getCropToCheck.StartDate ||
+                             createPlanModel.EndDate > getCropToCheck.EndDate)
+                            {
+                                throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                                    $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                            }
+                        }
                         if (createPlanModel.ListLandPlotOfCrop.Any())
                         {
                             foreach (var landPlotOfCrop in createPlanModel.ListLandPlotOfCrop)
@@ -801,9 +813,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 foreach (var planId in planIds)
                 {
-                    string includeProperties = "CarePlanSchedule";
+                    string includeProperties = "CarePlanSchedule, PlanTargets";
                     var deletePlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == planId, includeProperties);
                     var deleteCarePlanSchedule = deletePlan.CarePlanSchedule;
+                    var deletePlanTarget = deletePlan.PlanTargets;
                     if (deleteCarePlanSchedule != null)
                     {
                         var getListWorkLogDelete = await _unitOfWork.WorkLogRepository.GetListWorkLogByScheduelId(deleteCarePlanSchedule.ScheduleId);
@@ -813,6 +826,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         }
                         _unitOfWork.CarePlanScheduleRepository.Delete(deleteCarePlanSchedule);
+                        await _unitOfWork.SaveAsync();
+                    }
+                    if (deletePlanTarget != null)
+                    {
+                        foreach (var deletePlanTar in deletePlanTarget)
+                        {
+                            _unitOfWork.PlanTargetRepository.Delete(deletePlanTar);
+
+                        }
                         await _unitOfWork.SaveAsync();
                     }
                     _unitOfWork.PlanRepository.Delete(deletePlan);
@@ -863,75 +885,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public PlanTargetDisplayModel MapPlanTargets(List<PlanTarget> planTargets)
+        public List<PlanTargetDisplayModel> MapPlanTargets(List<PlanTarget> planTargets)
         {
-            var displayModel = new PlanTargetDisplayModel
-            {
-                LandPlotName = planTargets.FirstOrDefault()?.LandPlot?.LandPlotName,
-                LandPlotId = planTargets.FirstOrDefault()?.LandPlotID,
-                Rows = new List<LandRowDisplayModel>(),
-                Plants = new List<PlantDisplayModel>(),
-                PlantLots = new List<PlantLotDisplayModel>(),
-                GraftedPlants = new List<GraftedPlantDisplayModel>()
-            };
+            var displayModels = new Dictionary<int, PlanTargetDisplayModel>();
 
-            foreach (var planTarget in planTargets)
+            foreach (var getPlanTarget in planTargets)
             {
-                // Nếu unit không được truyền vào, lấy tất cả dữ liệu có thể có
-                bool isFullMode = string.IsNullOrEmpty(planTarget.Unit);
+                // Tìm hoặc tạo mới displayModel theo LandPlotId
+                if (!displayModels.TryGetValue(getPlanTarget.LandPlotID ?? 0, out var displayModel))
+                {
+                    displayModel = new PlanTargetDisplayModel
+                    {
+                        LandPlotId = getPlanTarget.LandPlotID,
+                        LandPlotName = getPlanTarget.LandPlot?.LandPlotName,
+                        Rows = new List<LandRowDisplayModel>(),
+                        Plants = new List<PlantDisplayModel>(),
+                        PlantLots = new List<PlantLotDisplayModel>(),
+                        GraftedPlants = new List<GraftedPlantDisplayModel>()
+                    };
+                    displayModels[getPlanTarget.LandPlotID ?? 0] = displayModel;
+                }
 
-                if (isFullMode || planTarget.Unit == "LandPlot")
+                // HashSet để tránh trùng lặp
+                
+                var rowIds = new HashSet<int>(displayModel.Rows.Select(r => r.LandRowId != null ? r.LandRowId.Value : 0));
+                var plantIds = new HashSet<int>(displayModel.Plants.Select(p => p.PlantId != null ? p.PlantId.Value : 0));
+                var plantLotIds = new HashSet<int>(displayModel.PlantLots.Select(p => p.PlantLotId != null ? p.PlantLotId.Value : 0));
+                var graftedPlantIds = new HashSet<int>(displayModel.GraftedPlants.Select(g => g.GraftedPlantId != null ? g.GraftedPlantId.Value : 0));
+
+                bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
+
+                if (isFullMode || getPlanTarget.Unit == "Row")
                 {
-                    // LandPlot đã được lấy từ FirstOrDefault()
-                }
-                if (isFullMode || planTarget.Unit == "Row")
-                {
-                    if (planTarget.LandRow != null)
+                    if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
-                        var row = _mapper.Map<LandRowDisplayModel>(planTarget.LandRow);
-                        if (!displayModel.Rows.Any(r => r.LandRowId == row.LandRowId))
-                        {
-                            displayModel.Rows.Add(row);
-                        }
+                        var row = _mapper.Map<LandRowDisplayModel>(getPlanTarget.LandRow);
+                        displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || planTarget.Unit == "Plant")
+                if (isFullMode || getPlanTarget.Unit == "Plant")
                 {
-                    if (planTarget.Plant != null)
+                    if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
-                        var plant = _mapper.Map<PlantDisplayModel>(planTarget.Plant);
-                        if (!displayModel.Plants.Any(p => p.PlantId == plant.PlantId))
-                        {
-                            displayModel.Plants.Add(plant);
-                        }
+                        var plant = _mapper.Map<PlantDisplayModel>(getPlanTarget.Plant);
+                        displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || planTarget.Unit == "PlantLot")
+                if (isFullMode || getPlanTarget.Unit == "PlantLot")
                 {
-                    if (planTarget.PlantLot != null)
+                    if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
-                        var plantLot = _mapper.Map<PlantLotDisplayModel>(planTarget.PlantLot);
-                        if (!displayModel.PlantLots.Any(p => p.PlantLotId == plantLot.PlantLotId))
-                        {
-                            displayModel.PlantLots.Add(plantLot);
-                        }
+                        var plantLot = _mapper.Map<PlantLotDisplayModel>(getPlanTarget.PlantLot);
+                        displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || planTarget.Unit == "GraftedPlant")
+                if (isFullMode || getPlanTarget.Unit == "GraftedPlant")
                 {
-                    if (planTarget.GraftedPlant != null)
+                    if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
-                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(planTarget.GraftedPlant);
-                        if (!displayModel.GraftedPlants.Any(p => p.GraftedPlantId == graftedPlant.GraftedPlantId))
-                        {
-                            displayModel.GraftedPlants.Add(graftedPlant);
-                        }
+                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(getPlanTarget.GraftedPlant);
+                        displayModel.GraftedPlants.Add(graftedPlant);
                     }
                 }
             }
 
-            return displayModel;
+            return displayModels.Values.ToList();
         }
+
 
 
         public async Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel)
@@ -940,7 +960,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedules, GrowthStagePlans");
+                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedule, GrowthStagePlans");
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -1053,35 +1073,184 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             checkExistPlan.StartDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.StartTime));
                             checkExistPlan.EndDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.EndTime));
                         }
-                        if (updatePlanModel.UpdatePlanTargetModels != null)
+                        if (updatePlanModel.PlanTargetModel != null && updatePlanModel.PlanTargetModel.Count > 0)
                         {
-                            foreach (var updatePlanTarget in updatePlanModel.UpdatePlanTargetModels)
+                            var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
+                            if (removePlanTargetOfPlan != null)
                             {
-                                var getUpdatePlanTarget = await _unitOfWork.PlanTargetRepository.GetByCondition(x => x.PlanTargetID == updatePlanTarget.PlanTargetID);
-                                if (getUpdatePlanTarget != null)
+                                foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                 {
-                                    if (updatePlanTarget.PlantLotID != null)
-                                    {
-                                        getUpdatePlanTarget.PlantLotID = updatePlanTarget.PlantLotID;
-                                    }
-                                    if (updatePlanTarget.LandPlotID != null)
-                                    {
-                                        getUpdatePlanTarget.LandPlotID = updatePlanTarget.LandPlotID;
-                                    }
-                                    if (updatePlanTarget.LandRowID != null)
-                                    {
-                                        getUpdatePlanTarget.LandRowID = updatePlanTarget.LandRowID;
-                                    }
-                                    if (updatePlanTarget.PlantID != null)
-                                    {
-                                        getUpdatePlanTarget.PlantID = updatePlanTarget.PlantID;
-                                    }
-                                    if (updatePlanTarget.GraftedPlantID != null)
-                                    {
-                                        getUpdatePlanTarget.GraftedPlantID = updatePlanTarget.GraftedPlantID;
-                                    }
-                                    await _unitOfWork.SaveAsync();
+                                    checkExistPlan.PlanTargets.Remove(removeOldPlanTarget);
                                 }
+                            }
+                            await _unitOfWork.SaveAsync();
+                            // HashSet để lưu các cặp (PlantID, LandPlotID, LandRowID) đã thêm vào tránh trùng lặp
+                            HashSet<(int?, int?, int?)> addedPlanTargets = new HashSet<(int?, int?, int?)>();
+
+                            foreach (var plantTarget in updatePlanModel.PlanTargetModel)
+                            {
+                                List<int> landRowIDs = new List<int>();
+                                HashSet<int> inputPlantIDs = new HashSet<int>(plantTarget.PlantID ?? new List<int>());
+
+                                // Nếu có LandPlotID, lấy tất cả LandRowID thuộc LandPlot đó
+                                if (plantTarget.LandPlotID.HasValue)
+                                {
+                                    var rowsInPlot = await _unitOfWork.LandRowRepository
+                                        .GetRowsByLandPlotIdAsync(plantTarget.LandPlotID.Value);
+                                    landRowIDs.AddRange(rowsInPlot);
+                                }
+
+                                // Nếu có LandRowID từ input, thêm vào danh sách
+                                if (plantTarget.LandRowID != null)
+                                {
+                                    landRowIDs.AddRange(plantTarget.LandRowID);
+                                }
+
+                                // Xử lý danh sách không bị trùng LandRowID
+                                landRowIDs = landRowIDs.Distinct().ToList();
+
+                                // Tạo danh sách chứa tất cả các Plant đã có trong LandRows
+                                HashSet<int> existingPlantIDs = new HashSet<int>();
+
+                                // Dictionary để lưu danh sách Plant theo từng Row
+                                Dictionary<int, HashSet<int>> rowToPlants = new Dictionary<int, HashSet<int>>();
+
+                                foreach (var rowId in landRowIDs)
+                                {
+                                    // Lấy danh sách plants có sẵn trong row này
+                                    var plantsInRow = await _unitOfWork.PlantRepository.getPlantByRowId(rowId);
+
+                                    if (!rowToPlants.ContainsKey(rowId))
+                                    {
+                                        rowToPlants[rowId] = new HashSet<int>();
+                                    }
+
+                                    // Thêm plants từ DB vào row
+                                    rowToPlants[rowId].UnionWith(plantsInRow);
+
+                                    // Lưu lại tất cả PlantID đã có trong các LandRow để loại bỏ khỏi ListPlant bên ngoài
+                                    existingPlantIDs.UnionWith(plantsInRow);
+                                }
+
+                                if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
+                                {
+                                    // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
+                                    foreach (var row in rowToPlants)
+                                    {
+                                        foreach (var plantId in row.Value)
+                                        {
+                                            if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                            {
+                                                var newPlantTarget = new PlanTarget()
+                                                {
+                                                    LandPlotID = plantTarget.LandPlotID,
+                                                    LandRowID = row.Key,
+                                                    PlantID = plantId,
+                                                    PlantLotID = null,
+                                                    Unit = "Land Plot",
+                                                    GraftedPlantID = null,
+                                                };
+
+                                                checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                                addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
+                                    foreach (var row in rowToPlants)
+                                    {
+                                        foreach (var plantId in row.Value)
+                                        {
+                                            if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                            {
+                                                var newPlantTarget = new PlanTarget()
+                                                {
+                                                    LandPlotID = plantTarget.LandPlotID,
+                                                    LandRowID = row.Key,
+                                                    PlantID = plantId,
+                                                    PlantLotID = null,
+                                                    Unit = "Row",
+                                                    GraftedPlantID = null,
+                                                };
+
+                                                checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                                addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                            }
+                                        }
+                                    }
+
+                                    // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
+                                    var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
+                                    foreach (var plantId in plantsToInsert)
+                                    {
+                                        if (!addedPlanTargets.Contains((plantId, null, null)))
+                                        {
+                                            var newPlantTarget = new PlanTarget()
+                                            {
+                                                PlantID = plantId, // Chỉ insert PlantID nếu nó chưa có trong các LandRow
+                                                LandPlotID = null,
+                                                LandRowID = null,
+                                                PlantLotID = null,
+                                                Unit = "Plant",
+                                                GraftedPlantID = null
+                                            };
+
+                                            checkExistPlan.PlanTargets.Add(newPlantTarget);
+                                            addedPlanTargets.Add((plantId, null, null)); // Đánh dấu đã thêm
+                                        }
+                                    }
+
+                                }
+                                // **Insert mỗi PlantLotID một dòng riêng**
+                                if (plantTarget.PlantLotID != null)
+                                {
+                                    foreach (var plantLotId in plantTarget.PlantLotID)
+                                    {
+                                        if (!addedPlanTargets.Contains((null, null, plantLotId)))
+                                        {
+                                            var newPlantLotTarget = new PlanTarget()
+                                            {
+                                                LandPlotID = null,
+                                                LandRowID = null,
+                                                PlantID = null,
+                                                Unit = plantTarget.Unit,
+                                                PlantLotID = plantLotId,
+                                                GraftedPlantID = null
+                                            };
+
+                                            checkExistPlan.PlanTargets.Add(newPlantLotTarget);
+                                            addedPlanTargets.Add((null, null, plantLotId)); // Đánh dấu đã thêm
+                                        }
+                                    }
+                                }
+
+                                // **Insert mỗi GraftedPlantID một dòng riêng**
+                                if (plantTarget.GraftedPlantID != null)
+                                {
+                                    foreach (var graftedPlantId in plantTarget.GraftedPlantID)
+                                    {
+                                        if (!addedPlanTargets.Contains((null, null, graftedPlantId)))
+                                        {
+                                            var newGraftedPlantTarget = new PlanTarget()
+                                            {
+                                                LandPlotID = null,
+                                                LandRowID = null,
+                                                PlantID = null,
+                                                Unit = plantTarget.Unit,
+                                                PlantLotID = null,
+                                                GraftedPlantID = graftedPlantId
+                                            };
+
+                                            checkExistPlan.PlanTargets.Add(newGraftedPlantTarget);
+                                            addedPlanTargets.Add((null, null, graftedPlantId)); // Đánh dấu đã thêm
+                                        }
+                                    }
+                                }
+
+                                await _unitOfWork.SaveAsync();
                             }
                         }
                         checkExistPlan.UpdateDate = DateTime.Now;
@@ -2089,6 +2258,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.SUCCESS_FILTER_BY_GROWTHSTAGE_CODE, Const.SUCCESS_FILTER_BY_GROWTHSTAGE_MSG, result);
                 }
                 return new BusinessResult(Const.FAIL_FILTER_BY_GROWTHSTAGE_CODE, Const.FAIL_FILTER_BY_GROWTHSTAGE_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds)
+        {
+            try
+            {
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+                if (getMasterType != null && getMasterType.Any())
+                {
+                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+                }
+                return new BusinessResult(404, "Do not have any type of work");
             }
             catch (Exception ex)
             {

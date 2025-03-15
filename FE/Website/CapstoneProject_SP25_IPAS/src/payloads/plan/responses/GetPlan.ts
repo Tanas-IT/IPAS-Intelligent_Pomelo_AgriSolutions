@@ -13,7 +13,7 @@ export interface GetPlan {
   assignorName: string;
   processName: string;
   cropName: string;
-  growthStageName: string;
+  growthStageName: string[];
   masterTypeName: string;
   avatarOfAssignor: string;
   plantNames: string[];
@@ -22,7 +22,7 @@ export interface GetPlan {
   rowIndexs: number[];
   dayOfWeek: number[];
   dayOfMonth: string;
-  customDates: string[];
+  customDates: string;
   startTime: string;
   endTime: string;
   listReporter: User[];
@@ -30,7 +30,7 @@ export interface GetPlan {
   listWorkLog: WorkLog[];
   createDate: string;
   frequency: string;
-  planTargetModels: PlanTargetModel[];
+  planTargetModels: PlanTargetModel;
   graftedPlantName: string[];
   maxVolume: number;
   minVolume: number;
@@ -54,11 +54,30 @@ export interface WorkLog {
   avatarOfReporter: string;
 }
 
-interface PlanTargetModel {
-  rowIndex: string[];
+// interface PlanTargetModel {
+//   rowIndex: string[];
+//   landPlotName: string;
+//   graftedPlantName: string[];
+//   plantLotName: string[];
+//   plantName: string[];
+//   plantTargetId: number;
+// }
+
+interface PlantModel {
+  plantId: number;
+  plantName: string;
+}
+
+interface RowModel {
+  landRowId: number;
+  rowIndex: number;
+  plants: PlantModel[]
+}
+
+export interface PlanTargetModel {
+  rows: RowModel[];
   landPlotName: string;
-  graftedPlantName: string[];
-  plantLotName: string[];
-  plantName: string[];
-  plantTargetId: number;
+  graftedPlants: any[];
+  plantLots: any[];
+  plants: PlantModel[];
 }

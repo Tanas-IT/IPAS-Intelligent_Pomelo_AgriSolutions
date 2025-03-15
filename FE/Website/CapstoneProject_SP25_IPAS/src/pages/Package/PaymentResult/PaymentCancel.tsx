@@ -1,37 +1,46 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useWindowSize } from "react-use";
 import { Result, Button } from "antd";
 import styles from "./PaymentCancel.module.scss";
+import { PATHS } from "@/routes";
+import { authService } from "@/services";
+import { LOCAL_STORAGE_KEYS, MESSAGES } from "@/constants";
+import { toast } from "react-toastify";
 
 const PaymentCancel = () => {
   const navigate = useNavigate();
-  const { width, height } = useWindowSize();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/");
-    }, 5000);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     navigate("/");
+  //   }, 5000);
 
-    return () => clearTimeout(timer);
-  }, [navigate]);
+  //   return () => clearTimeout(timer);
+  // }, [navigate]);
+  const handleBack = async () => {
+      const result = await authService.refreshTokenOutFarm();
+      if (result.statusCode === 200) {
+        localStorage.setItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN, result.data.authenModel.accessToken);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.authenModel.refreshToken);
+        navigate(PATHS.FARM_PICKER);
+      } else {
+        toast.error(MESSAGES.ERROR_OCCURRED);
+      }
+    };
 
   return (
-    <div className={styles.container}>
-      <Result
-        status="error"
-        title="Payment Canceled!"
-        subTitle="Redirecting to the homepage..."
-        extra={[
-          <Button type="primary" key="home" onClick={() => navigate("/")}>
-            Về trang chủ ngay
-          </Button>,
-        ]}
-      />
-      <div className={styles.fireworks}>
-        <div className={styles.firework}></div>
-        <div className={styles.firework}></div>
-        <div className={styles.firework}></div>
+    <div className={styles.paymentCancel}>
+      <div className={styles.content}>
+        <Result
+          status="error"
+          title="Payment is cancelled"
+          subTitle="Turn back to home after 5s..."
+          extra={[
+            <Button type="primary" key="home" onClick={handleBack}>
+              Back Home
+            </Button>,
+          ]}
+        />
       </div>
     </div>
   );

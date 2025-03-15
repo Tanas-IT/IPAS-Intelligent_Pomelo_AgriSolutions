@@ -19,5 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> softedDeleteCrop(int cropId);
         public Task<BusinessResult> getAllCropOfLandPlot(int landPlotId, PaginationParameter paginationParameter, CropFilter cropFilter);
         public Task<BusinessResult> getAllCropOfFarmForSelected(int landPlot, string? searchValue);
+        public Task<BusinessResult> GetLandPlotsOfCrop(int cropId);
+        public Task<BusinessResult> GetCropInCurrentTime();
     }
 }

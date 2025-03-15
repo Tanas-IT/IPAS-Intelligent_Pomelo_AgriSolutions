@@ -54,7 +54,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Assigned Quantity",
     field: "usedQuantity",
-    accessor: (item) => <TableCell value={item.usedQuantity} />,
+    accessor: (item) => <TableCell value={item.usedQuantity ?? 0} />,
     width: 160,
   },
   {

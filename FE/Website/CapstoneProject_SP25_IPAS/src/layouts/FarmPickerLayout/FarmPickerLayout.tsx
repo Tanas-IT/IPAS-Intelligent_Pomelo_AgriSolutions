@@ -27,7 +27,7 @@ const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
       setIsUser(false);
       navigate(PATHS.DASHBOARD);
     }
-  }, []);
+  }, [navigate]);
 
   if (!isTokenChecked || !isUser) return <Loading />;
 

@@ -159,6 +159,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                      .Include(x => x.Process)
                                      .Include(x => x.User)
                                      .Include(x => x.Crop)
+                                     .ThenInclude(x => x.LandPlotCrops)
+                                     .ThenInclude(x => x.LandPlot)
                                      .Include(x => x.CarePlanSchedule)
                                          .ThenInclude(cs => cs.WorkLogs)
                                              .ThenInclude(wl => wl.UserWorkLogs)

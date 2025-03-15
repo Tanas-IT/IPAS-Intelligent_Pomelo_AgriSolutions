@@ -105,13 +105,11 @@ CREATE TABLE ipas.dbo.MasterType (
 	FarmID int NULL,
         Target nvarchar(MAX) NULL,
         IsConflict bit NULL,
-	GrowthStageID int NULL,
 	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	Characteristic nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
-	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
-	CONSTRAINT MasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
+	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),	
 );
 
 
@@ -555,8 +553,6 @@ CREATE TABLE ipas.dbo.Process (
 	[Order] int NULL,
 	IsSample bit NULL,
 	MasterTypeID int NULL,
-	ResourceURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__Process__1B39A976EDEF5BD5 PRIMARY KEY (ProcessID),
 	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
 	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES IPAS.dbo.GrowthStage(GrowthStageID),
@@ -586,8 +582,6 @@ CREATE TABLE ipas.dbo.SubProcess (
     [Order] int NULL,
 	ProcessID int NULL,
 	MasterTypeID int NULL,
-	ResourceURL nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Input] nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
 	CONSTRAINT PK__SubProce__F054A88CD66E5A59 PRIMARY KEY (SubProcessID),
 	CONSTRAINT FK__SubProces__Proce__3CF40B7E FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
@@ -1016,14 +1010,39 @@ CREATE TABLE ipas.dbo.PlanTarget (
 	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 
-CREATE TABLE IPAS.dbo.GrowthStagePlan (
-	GrowthStagePlanID int IDENTITY(0,1) NOT NULL,
+CREATE TABLE ipas.dbo.GrowthStagePlan (
+	GrowthStagePlanID int IDENTITY(1,1) NOT NULL,
 	GrowthStageID int NULL,
 	PlanID int NULL,
 	CONSTRAINT GrowthStagePlan_PK PRIMARY KEY (GrowthStagePlanID),
 	CONSTRAINT GrowthStagePlan_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT GrowthStagePlan_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID)
 );
+
+CREATE TABLE ipas.dbo.GrowthStageMasterType (
+	GrowthStageMasterTypeID int IDENTITY(1,1) NOT NULL,
+	GrowthStageID int NULL,
+	MasterTypeID int NULL,
+	FarmID int NULL,
+	CONSTRAINT GrowthStageMasterType_PK PRIMARY KEY (GrowthStageMasterTypeID),
+	CONSTRAINT GrowthStageMasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
+	CONSTRAINT GrowthStageMasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT GrowthStageMasterType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
+);
+
+CREATE TABLE ipas.dbo.Report (
+	ReportID int IDENTITY(1,1) NOT NULL,
+	ReportCode nvarchar(300) NULL,
+	Description nvarchar(MAX) NULL,
+	CreateDate datetime NULL,
+	IsTrainned bit NULL,
+	AnswererID int NULL,
+	QuestionerID int NULL,
+	CONSTRAINT Report_PK PRIMARY KEY (ReportID),
+	CONSTRAINT Report_User_FK FOREIGN KEY (AnswererID) REFERENCES ipas.dbo.[User](UserID),
+	CONSTRAINT Report_User_FK_1 FOREIGN KEY (QuestionerID) REFERENCES ipas.dbo.[User](UserID)
+);
+
 GO
 
 INSERT INTO [ipas].[dbo].[Farm] 
@@ -1358,18 +1377,18 @@ VALUES
     (32, 10, 3, 2500.5, 30, 3);
 GO
 INSERT INTO [ipas].dbo.Process 
-(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, ResourceURL, [Input], IsSample, FarmID)  
+(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
-(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, N'https://example.com/resource6', N'{"tools": "plow", "depth": "30cm"}', 1, 1),
-(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, N'https://example.com/resource7', N'{"chemical": "organic", "dosage": "500ml"}', 1, 2),
-(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, N'https://example.com/resource8', N'{"method": "manual", "frequency": "weekly"}', 1, 1),
-(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, N'https://example.com/resource9', N'{"sensor": "moisture probe"}', 1, 3),
-(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, N'https://example.com/resource10', N'{"storage": "cold room"}', 1, 2),
-(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, N'https://example.com/resource11', N'{"seed_type": "corn", "spacing": "10cm"}',1, 3),
-(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, N'https://example.com/resource12', N'{"system": "drip irrigation"}', 1, 1),
-(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, N'https://example.com/resource13', N'{"compost": "cow manure"}', 1, 2),
-(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, N'https://example.com/resource14', N'{"criteria": "size & color"}', 1, 3),
-(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, N'https://example.com/resource15', N'{"method": "sampling"}', 1, 1);
+(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, 1, 1),
+(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 1, 2),
+(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, 1, 1),
+(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, 1, 3),
+(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, 1, 2),
+(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1,1, 3),
+(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, 1, 1),
+(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, 1, 2),
+(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, 1, 3),
+(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, NULL, 1, 1);
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
 ('PKG101', 'Basic', 29.00, 30, 1, GETDATE(), NULL, 'Active'),
@@ -1524,3 +1543,23 @@ INSERT INTO [dbo].[PlanTarget]
            (9, 10, 1, 2, 1, 4, 'Plant'),
            (10, 1, 2, 3, 2, 5, 'Row');
 GO
+INSERT INTO [dbo].[GrowthStageMasterType] ([GrowthStageID], [MasterTypeID], [FarmID])
+VALUES 
+    (1, 15, 1),
+    (1, 16, 1),
+    (1, 18, 1),
+    (3, 15, 1),
+    (3, 16, 1),
+    (3, 17, 1),
+    (3, 18, 1),
+    (3, 19, 1),
+    (2, 15, 1),
+    (2, 16, 1),
+    (2, 18, 1),
+    (4, 15, 1),
+    (4, 16, 1),
+    (4, 17, 1),
+    (4, 18, 1),
+    (4, 19, 1),
+    (5, 19, 1);
+Go

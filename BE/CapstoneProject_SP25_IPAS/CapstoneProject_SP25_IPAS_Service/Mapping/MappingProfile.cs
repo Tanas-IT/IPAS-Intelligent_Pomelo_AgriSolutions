@@ -16,10 +16,11 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ChatModel;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.OrderModels;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageMasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -219,6 +220,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.PlantLots, opt => opt.Ignore())
                 .ForMember(dest => dest.GraftedPlants, opt => opt.Ignore());
 
+            CreateMap<LandPlot, ForSelectedModels>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandPlotId))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandPlotCode))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LandPlotName))
+                .ReverseMap();
+
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
              .ForMember(dest => dest.Frequency,
@@ -233,9 +240,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                             src.PlanTargets.Where(pt => pt.Plant != null).Select(pt => pt.Plant.PlantName).Distinct().ToList()))
                .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : ""))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : ""))
+               .ForMember(dest => dest.CropId, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropId : -1))
+               .ForMember(dest => dest.ProcessId, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessId : -1))
+               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeId : -1))
                .ForMember(dest => dest.GraftedPlantName, opt => opt.MapFrom(src =>
                                                             src.PlanTargets.Where(pt => pt.GraftedPlant != null).Select(pt => pt.GraftedPlant.GraftedPlantName).Distinct().ToList()))
-               .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => pt.GrowthStage.GrowthStageName).Distinct().ToList()))
+               .ForMember(dest => dest.GrowthStages, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => new ForSelectedModels() { Id = pt.GrowthStage.GrowthStageID, Name = pt.GrowthStage.GrowthStageName }).Distinct().ToList()))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : ""))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : ""))
@@ -265,6 +275,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.ListWorkLog, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.WorkLogs : null))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+               .ForMember(dest => dest.ListLandPlotOfCrop, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.LandPlotCrops.Select(x => x.LandPlot) : new List<LandPlot>()))
                .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
                .ReverseMap();
 
@@ -322,11 +333,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<PackageDetail, PackageDetailModel>()
                 .ReverseMap();
 
-            CreateMap<LandPlot, ForSelectedModels>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.LandPlotId))
-               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LandPlotCode))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.LandPlotName))
-                .ReverseMap();
+           
 
             CreateMap<Plan, ForSelectedModels>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlanId))
@@ -407,6 +414,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.AvatarURL, opt => opt.MapFrom(src => src.User.AvatarURL))
               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
               .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
+              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.UserId))
               .ForMember(dest => dest.CreateDate,
                 opt => opt.MapFrom(src => src.CreateDate))
             .ForMember(dest => dest.ListResources,
@@ -454,6 +462,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Payment, PaymentModel>()
                 .ReverseMap();
+
+            CreateMap<GrowthStageMasterType, GrowthStageMasterTypeModel>()
+                 .ForMember(dest => dest.GrowthStageMasterTypeID, opt => opt.MapFrom(src => src.GrowthStageMasterTypeID))
+                 .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(src => src.GrowthStageID))
+                 .ForMember(dest => dest.MasterTypeID, opt => opt.MapFrom(src => src.MasterTypeID))
+                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
+                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
+                 .ReverseMap();
         }
     }
 }

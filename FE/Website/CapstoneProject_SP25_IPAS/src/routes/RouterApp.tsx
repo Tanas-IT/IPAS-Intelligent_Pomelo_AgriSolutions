@@ -33,10 +33,20 @@ import {
   PaymentCancel,
   PlantLot,
   Partner,
+  EmployeeWorklog,
+  EmployeeWorklogDetail,
   PlantLotDetails,
 } from "@/pages";
-import { EmptyLayout, FarmPickerLayout, GuestLayout, ManagementLayout, PaymentLayout } from "@/layouts";
+import {
+  EmployeeLayout,
+  EmptyLayout,
+  FarmPickerLayout,
+  GuestLayout,
+  ManagementLayout,
+  PaymentLayout,
+} from "@/layouts";
 import { PATHS } from "./Paths";
+import EmployeeDashboard from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
 
 interface RouteItem {
   path: string;
@@ -52,7 +62,11 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.AUTH.LOGIN, component: Authentication, layout: EmptyLayout },
   { path: PATHS.AUTH.FORGOT_PASSWORD, component: ForgetPassword, layout: EmptyLayout },
   { path: PATHS.PACKAGE.PACKAGE_PURCHASE, component: PackagePurchase, layout: PaymentLayout },
-  { path: `${PATHS.PACKAGE.PAYMENT}/:packageId`, component: PaymentConfirmation, layout: PaymentLayout },
+  {
+    path: `${PATHS.PACKAGE.PAYMENT}/:packageId`,
+    component: PaymentConfirmation,
+    layout: PaymentLayout,
+  },
   { path: `${PATHS.PACKAGE.SUCCESS}`, component: PaymentSuccess, layout: PaymentLayout },
   { path: `${PATHS.PACKAGE.CANCEL}`, component: PaymentCancel, layout: PaymentLayout },
   {
@@ -67,6 +81,12 @@ export const publicRoutes: RouteItem[] = [
     layout: EmptyLayout,
   },
   { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
+  { path: PATHS.EMPLOYEE.DASHBOARD, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORK_SCHEDULE, component: EmployeeWorklog, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORKLOG_DETAIL, component: EmployeeWorklogDetail, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.WORKLOG, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
@@ -83,6 +103,11 @@ export const publicRoutes: RouteItem[] = [
   },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LOT_DETAIL, component: PlantLotDetails, layout: ManagementLayout },
+  {
+    path: PATHS.FARM.FARM_PLANT_LOT_ADDITIONAL,
+    component: PlantLotDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
@@ -95,7 +120,6 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.HR.EMPLOYEES, component: EmployeeList, layout: ManagementLayout },
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
-  
 ];
 
 export const privateRoutes: RouteItem[] = [];

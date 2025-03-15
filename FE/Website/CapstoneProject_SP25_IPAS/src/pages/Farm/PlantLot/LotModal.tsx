@@ -101,7 +101,14 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
         </Flex>
 
         <Flex gap={20}>
-          {!isUpdate ? (
+          {!isUpdate && (
+            <FormFieldModal
+              label="Import Quantity"
+              name={lotFormFields.previousQuantity}
+              rules={RulesManager.getQuantityRules()}
+            />
+          )}
+          {/* {!isUpdate ? (
             <FormFieldModal
               label="Quantity"
               name={lotFormFields.previousQuantity}
@@ -113,7 +120,7 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
               name={lotFormFields.lastQuantity}
               rules={RulesManager.getQuantityRules()}
             />
-          ) : null}
+          ) : null} */}
 
           <FormFieldModal
             label="Unit"

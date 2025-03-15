@@ -59,6 +59,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public GraftedPlantNoteRepository _graftedPlantNoteRepo;
         public PaymentRepository _paymentRepo;
         public ChatMessageRepository _chatMessageRepo;
+        public GrowthStageMasterTypeRepository _growthStageMasterTypeRepository;
+        public ReportRepository _reportRepository;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -103,6 +105,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _planTargetRepo = new PlanTargetRepository(context);
             _graftedPlantNoteRepo = new GraftedPlantNoteRepository(context);
             _paymentRepo = new PaymentRepository(context);
+            _growthStageMasterTypeRepository = new GrowthStageMasterTypeRepository(context);
+            _reportRepository = new ReportRepository(context);
         }
 
         private bool disposed = false;
@@ -651,6 +655,30 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._chatMessageRepo = new ChatMessageRepository(_context);
                 }
                 return _chatMessageRepo;
+            }
+        }
+
+        public GrowthStageMasterTypeRepository GrowthStageMasterTypeRepository
+        {
+            get
+            {
+                if (_growthStageMasterTypeRepository == null)
+                {
+                    this._growthStageMasterTypeRepository = new GrowthStageMasterTypeRepository(_context);
+                }
+                return _growthStageMasterTypeRepository;
+            }
+        }
+
+        public ReportRepository ReportRepository
+        {
+            get
+            {
+                if (_reportRepository == null)
+                {
+                    this._reportRepository = new ReportRepository(_context);
+                }
+                return _reportRepository;
             }
         }
     }

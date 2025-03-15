@@ -229,6 +229,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> GetCropInCurrentTime()
+        {
+            try
+            {
+                var getCropInCurrentTime = await _unitOfWork.CropRepository.GetCropsInCurrentTime();
+                if(getCropInCurrentTime != null && getCropInCurrentTime.Any())
+                {
+                    return new BusinessResult(200, "Get crop in current time success", getCropInCurrentTime);
+                }
+                return new BusinessResult(400, "Get crop in current time failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetLandPlotsOfCrop(int cropId)
+        {
+            try
+            {
+                var getLandPlotOfCrop = await _unitOfWork.CropRepository.GetLandPlotOfCrops(cropId);
+                if(getLandPlotOfCrop != null && getLandPlotOfCrop.Any())
+                {
+                    return new BusinessResult(200, "Get LandPlot of Crop success", getLandPlotOfCrop);
+                }
+                return new BusinessResult(400, "Get LandPlot of Crop failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
         public async Task<BusinessResult> permanentlyDeleteCrop(int cropId)
         {
             try
