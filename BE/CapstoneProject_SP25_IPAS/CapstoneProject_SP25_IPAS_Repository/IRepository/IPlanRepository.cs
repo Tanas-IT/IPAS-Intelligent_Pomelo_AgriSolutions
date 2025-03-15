@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
            int? pageSize = null);
 
         public Task<List<PlanTarget>> GetListPlanByFarmId(int? farmId);
-        public Task<List<Plan>> GetPlanByInclude(int planId);
+        public Task<Plan> GetPlanByInclude(int planId);
 
 
     }

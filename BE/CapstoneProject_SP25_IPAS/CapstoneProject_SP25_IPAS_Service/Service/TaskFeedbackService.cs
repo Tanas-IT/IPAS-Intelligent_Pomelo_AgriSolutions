@@ -44,13 +44,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ManagerId = createTaskFeedbackModel.ManagerId,
                         WorkLogId = createTaskFeedbackModel.WorkLogId
                     };
-                    if(createTaskFeedbackModel.Status != null && createTaskFeedbackModel.Status.ToLower().Equals("redo"))
+                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId != null ? createTaskFeedbackModel.WorkLogId.Value : -1);
+                    if(createTaskFeedbackModel.Status != null && getWorkLog != null)
                     {
-                        var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId.Value);
-                        if(getWorkLog.Status.ToLower().Equals(""))
-                        getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
+                        if(createTaskFeedbackModel.Status.ToLower().Equals("redo"))
+                        {
+                            getWorkLog.Status = "Redo";
+                            getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
+                        }
+                        else
+                        {
+                            getWorkLog.Status = createTaskFeedbackModel.Status;
+                        }
                         _unitOfWork.WorkLogRepository.Update(getWorkLog);
                     }
+
                     await _unitOfWork.TaskFeedbackRepository.Insert(newTaskFeedback);
 
                     var checkInsertTaskFeedback = await _unitOfWork.SaveAsync();
@@ -203,7 +211,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getTaskFeedback = await _unitOfWork.TaskFeedbackRepository.GetByID(taskFeedbackId);
                 if (getTaskFeedback != null)
                 {
-                    var getTaskFeedbackModel = _mapper.Map<List<TaskFeedbackModel>>(getTaskFeedback);
+                    var getTaskFeedbackModel = _mapper.Map<TaskFeedbackModel>(getTaskFeedback);
                     return new BusinessResult(Const.SUCCESS_GET_TASK_FEEDBACK_BY_ID_CODE, Const.SUCCESS_GET_TASK_FEEDBACK_BY_ID_MSG, getTaskFeedbackModel);
                 }
                 return new BusinessResult(Const.WARNING_TASK_FEEDBACK_NOT_EXIST_CODE, Const.WARNING_TASK_FEEDBACK_NOT_EXIST_MSG);
@@ -281,6 +289,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkExistTaskFeedback = await _unitOfWork.TaskFeedbackRepository.GetByID(updateTaskFeedbackModel.TaskFeedbackId);
+                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(checkExistTaskFeedback.WorkLogId != null ? checkExistTaskFeedback.WorkLogId.Value : -1);
+                    if(getWorkLog != null && getWorkLog.Status != null)
+                    {
+                        if(getWorkLog.Status.ToLower().Equals("done"))
+                        {
+                            return new BusinessResult(400, "This workLog is done. Can not update task feedback");
+                        }
+                    }
                     if (checkExistTaskFeedback != null)
                     {
                         if (updateTaskFeedbackModel.Content != null)
