@@ -41,6 +41,7 @@ export const PATHS = {
     FARM_PLANT_DETAIL_FROM_ROW: "/farm/land-rows/:plotId/plants/:plantId/details",
     FARM_PLANT_LOT_LIST: "/farm/plant-lots",
     FARM_PLANT_LOT_DETAIL: "/farm/plant-lots/:id/details",
+    FARM_PLANT_LOT_ADDITIONAL: "/farm/plant-lots/:parentId/additional/:id/details",
   },
 
   // Process Management

@@ -3,4 +3,48 @@
 
 .contentSectionHeader {
   @include shared.contentSectionHeader;
+  .passedTag {
+    font-size: 14px;
+    padding: 6px 16px;
+  }
+}
+
+.fillPlantsModal {
+  .lotInfoCard {
+    background: #f6ffed;
+    border-left: 4px solid #52c41a;
+    border-radius: 8px;
+    .lotInfoCardContent {
+      margin-left: 10px;
+      .lotTitle {
+        font-size: 16px;
+        font-weight: 600;
+        color: vars.$color_primary !important;
+      }
+      .lotStats {
+        align-items: center;
+        color: #595959;
+        gap: 14px;
+      }
+    }
+  }
+  .tableWrapper {
+    max-height: 25rem;
+    overflow: auto;
+    .table {
+      th {
+        background: vars.$color_second !important;
+        color: vars.$color_primary !important;
+        font-weight: bold;
+        text-align: center;
+      }
+      td {
+        text-align: center;
+      }
+    }
+  }
+}
+
+.instructions {
+  margin-top: 20px;
 }

@@ -54,7 +54,8 @@ export {
   FaRegFolderOpen as folder,
   FaDrawPolygon as drawPolygon,
   FaRegEye as eye,
-  FaTasks as task
+  FaRegStar as star,
+  FaTasks as task,
 } from "react-icons/fa";
 export {
   PiFarm as farms,
@@ -76,7 +77,14 @@ export { TfiHelpAlt as help } from "react-icons/tfi";
 export { GrOverview as overview, GrMapLocation as location, GrPlan as plan } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
 export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
-export { FaWind as wind, FaTableList as table, FaArrowUp as up, FaArrowDown as down } from "react-icons/fa6";
+export {
+  FaWind as wind,
+  FaTableList as table,
+  FaCheck as check,
+  FaArrowUp as up,
+  FaArrowDown as down,
+  FaScaleBalanced as scale,
+} from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";
 export { BsCloudRainFill as cloudRain } from "react-icons/bs";
 export {

@@ -191,6 +191,7 @@ function PlantLot() {
           renderAction={(lot: GetPlantLot2) => (
             <ActionMenuLot
               id={lot.plantLotId}
+              isCompleted={lot.isPassed}
               onEdit={() => formModal.showModal(lot)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [lot.plantLotId] })}
               onApplyCriteria={() => criteriaModal.showModal({ id: lot.plantLotId })}
@@ -225,7 +226,7 @@ function PlantLot() {
           visible={deleteConfirmModal.modalState.visible}
           onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
           onCancel={deleteConfirmModal.hideModal}
-          itemName="Lot"
+          itemName="Plant Lot"
           actionType="delete"
         />
         {/* Confirm Update Modal */}
@@ -233,7 +234,7 @@ function PlantLot() {
           visible={updateConfirmModal.modalState.visible}
           onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.lot)}
           onCancel={updateConfirmModal.hideModal}
-          itemName="Lot"
+          itemName="Plant Lot"
           actionType="update"
         />
         {/* Confirm Cancel Modal */}
