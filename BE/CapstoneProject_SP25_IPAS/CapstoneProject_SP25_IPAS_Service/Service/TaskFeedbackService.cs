@@ -208,7 +208,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getTaskFeedback = await _unitOfWork.TaskFeedbackRepository.GetByID(taskFeedbackId);
+                var getTaskFeedback = await _unitOfWork.TaskFeedbackRepository.GetByCondition(x => x.TaskFeedbackId == taskFeedbackId, "WorkLog,Manager");
                 if (getTaskFeedback != null)
                 {
                     var getTaskFeedbackModel = _mapper.Map<TaskFeedbackModel>(getTaskFeedback);
