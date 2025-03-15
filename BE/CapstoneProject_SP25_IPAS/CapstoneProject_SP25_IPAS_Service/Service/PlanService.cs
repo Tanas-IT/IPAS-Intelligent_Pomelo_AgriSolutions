@@ -76,7 +76,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + createPlanModel.MasterTypeId.Value,
+                        PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{createPlanModel.MasterTypeId}",
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -1384,7 +1384,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 schedule = new CarePlanSchedule()
                 {
-                    CarePlanId = plan.PlanId,
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
@@ -1392,7 +1391,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
-                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+                plan.CarePlanSchedule = schedule;
+                _unitOfWork.PlanRepository.Update(plan);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in createPlanModel.CustomDates)
@@ -1630,7 +1630,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 schedule = new CarePlanSchedule()
                 {
-                    CarePlanId = plan.PlanId,
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
@@ -1638,7 +1637,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
-                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+                plan.CarePlanSchedule = schedule;
+                 _unitOfWork.PlanRepository.Update(plan);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in updatePlanModel.CustomDates)
@@ -1982,7 +1982,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Pending",
+                Status = "In Progress",
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + nameOfWorkLog,
@@ -2369,6 +2369,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+                if (getMasterType != null && getMasterType.Any())
+                {
+                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+                }
+                return new BusinessResult(404, "Do not have any type of work");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName)
+        {
+            try
+            {
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesWithTypeNameByGrowthStages(growthStageIds, typeName);
                 if (getMasterType != null && getMasterType.Any())
                 {
                     return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);

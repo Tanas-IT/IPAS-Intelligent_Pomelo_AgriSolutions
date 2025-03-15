@@ -10,4 +10,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel
     {
         public List<int?> ListGrowthStage {  get; set; }
     }
+    public class ListFilterGrowthStageModel
+    {
+        public List<int?> ListGrowthStage { get; set; }
+        public string TypeName { get; set; }
+    }
 }
