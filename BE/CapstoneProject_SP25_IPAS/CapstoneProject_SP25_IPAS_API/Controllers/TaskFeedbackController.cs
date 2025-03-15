@@ -139,7 +139,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPut(APIRoutes.TaskFeedback.deleteTaskFeedback, Name = "deleteTaskFeedback")]
+        [HttpDelete(APIRoutes.TaskFeedback.deleteTaskFeedback, Name = "deleteTaskFeedback")]
         public async Task<IActionResult> DeleteTaskFeedback([FromRoute] int id)
         {
             try

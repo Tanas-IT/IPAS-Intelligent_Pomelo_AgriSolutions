@@ -1337,6 +1337,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
+                                _unitOfWork.PlanRepository.Update(checkExistPlan);
                                 await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
                                 return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, Const.SUCCESS_UPDATE_PLAN_MSG, checkExistPlan);
