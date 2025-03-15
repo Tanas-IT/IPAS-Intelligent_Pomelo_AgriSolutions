@@ -303,6 +303,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistTaskFeedback.Content = updateTaskFeedbackModel.Content;
                         }
+                        if (updateTaskFeedbackModel.Status != null && getWorkLog != null)
+                        {
+                            if (updateTaskFeedbackModel.Status.ToLower().Equals("redo"))
+                            {
+                                getWorkLog.Status = "Redo";
+                                getWorkLog.ReasonDelay = updateTaskFeedbackModel.Reason;
+                            }
+                            else
+                            {
+                                getWorkLog.Status = updateTaskFeedbackModel.Status;
+                            }
+                            _unitOfWork.WorkLogRepository.Update(getWorkLog);
+                        }
+
 
                         if (updateTaskFeedbackModel.ManagerId != null)
                         {
