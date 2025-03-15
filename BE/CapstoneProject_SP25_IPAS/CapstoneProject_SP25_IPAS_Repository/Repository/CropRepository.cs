@@ -40,6 +40,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var crop = await _context.Crops
                 .Where(x => x.CropId == cropId
                 && x.EndDate >= DateTime.Now)
+                .Include(x => x.HarvestHistories)
                 .FirstOrDefaultAsync();
             return crop!;
         }
@@ -48,6 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var crop = await _context
                 .Crops
                 .Include(x => x.HarvestHistories)
+                .ThenInclude(x => x.ProductHarvestHistories)
                 .Include(x => x.LandPlotCrops)
                 .ThenInclude(x => x.LandPlot)
                 .FirstOrDefaultAsync(x => x.CropId == id && x.IsDeleted == false);

@@ -14,9 +14,9 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels
         public string? Status { get; set; }
         public string? Reason { get; set; }
 
-        public DateTime? CreateDate { get; set; }
+        //public DateTime? CreateDate { get; set; }
 
-        public int? WorkLogId { get; set; }
+        //public int? WorkLogId { get; set; }
 
         public int? ManagerId { get; set; }
 
