@@ -169,7 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           label: "Manage Plant Lots",
           icon: Images.radius,
           to: PATHS.FARM.FARM_PLANT_LOT_LIST,
-          activePaths: [PATHS.FARM.FARM_PLANT_LOT_LIST],
+          activePaths: [PATHS.FARM.FARM_PLANT_LOT_LIST, PATHS.FARM.FARM_PLANT_LOT_DETAIL],
         },
         {
           key: "Manage Grafted Plants",

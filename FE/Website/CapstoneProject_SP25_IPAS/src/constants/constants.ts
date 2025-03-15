@@ -69,9 +69,11 @@ export const CRITERIA_TARGETS = {
   "Grafted Evaluation": "Grafted Evaluation",
   "Plantlot Condition": "Plantlot Condition",
   "Plantlot Evaluation": "Plantlot Evaluation",
-};
+} as const;
 
 export const ROUTES = {
   FARM_PLANT_LOT_DETAIL: (id: number) => `/farm/plant-lots/${id}/details`,
   FARM_PLANT_DETAIL: (id: number) => `/farm/plants/${id}/details`,
+  FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
+    `/farm/plant-lots/${parentId}/additional/${id}/details`,
 };

@@ -5,7 +5,19 @@
   @include shared.contentDetailWrapper;
 }
 
-.additionalTable {
+.additionalTableWrapper {
   max-height: 25rem;
   overflow: auto;
+  .additionalTable {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center !important;
+    }
+    td {
+      text-align: center !important;
+      padding: 4px 0;
+    }
+  }
 }

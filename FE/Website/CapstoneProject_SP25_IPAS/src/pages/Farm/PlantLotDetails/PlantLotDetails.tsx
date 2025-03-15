@@ -7,12 +7,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import PlantLotDetail from "./PlantLotDetail/PlantLotDetail";
 import PlantLotCriteria from "./PlantLotCriteria/PlantLotCriteria";
-const TabPane = Tabs.TabPane;
+import { usePlantLotStore } from "@/stores";
+import { ROUTES } from "@/constants";
 
 function PlantLotDetails() {
-  const { plotId } = useParams();
   const navigate = useNavigate();
   const { styles } = useStyle();
+  const { parentId, id } = useParams<{ parentId: string; id: string }>();
 
   const items: TabsProps["items"] = [
     {
@@ -29,7 +30,13 @@ function PlantLotDetails() {
     },
   ];
 
-  const handleBack = () => navigate(PATHS.FARM.FARM_PLANT_LOT_LIST);
+  const handleBack = () => {
+    if (parentId) {
+      navigate(ROUTES.FARM_PLANT_LOT_DETAIL(Number(parentId)));
+    } else {
+      navigate(PATHS.FARM.FARM_PLANT_LOT_LIST);
+    }
+  };
 
   return (
     <Flex className={style.detailContainer}>

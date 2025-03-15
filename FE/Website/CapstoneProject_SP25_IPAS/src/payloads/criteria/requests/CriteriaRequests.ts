@@ -35,3 +35,10 @@ export interface CriteriaCheckRequest {
   graftedPlantID?: number[];
   criteriaDatas: CriteriaCheckData[];
 }
+
+export interface CriteriaDeleteRequest {
+  plantLotId?: number[];
+  plantId?: number[];
+  graftedPlantId?: number[];
+  criteriaSetId: number[];
+}
