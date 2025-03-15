@@ -109,17 +109,26 @@ const AddPlan = () => {
     }
   }, [selectedCrop]);
 
-  const handleChangeProcess = async (processId: number) => {
-    const growthStageId = await getGrowthStageOfProcess(processId);
-    form.setFieldValue("growthStageId", [growthStageId]);
-    setIsLockedGrowthStage(true);
-    const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
-      setProcessTypeOptions(data.map((item) => ({
-        value: item.masterTypeId,
-        label: item.masterTypeName
-      })))
-    });
-  }
+  const handleChangeProcess = async (processId: number | undefined) => {
+    if (processId) {
+      // Nếu có processId, thực hiện logic hiện tại
+      const growthStageId = await getGrowthStageOfProcess(processId);
+      form.setFieldValue("growthStageId", [growthStageId]);
+      setIsLockedGrowthStage(true);
+
+      const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
+        setProcessTypeOptions(data.map((item) => ({
+          value: item.masterTypeId,
+          label: item.masterTypeName
+        })));
+      });
+    } else {
+      // Nếu processId bị xóa (clear), reset các giá trị liên quan
+      form.setFieldValue("growthStageId", undefined); // Xóa giá trị của growthStageId
+      setIsLockedGrowthStage(false); // Mở khóa trường Growth Stage
+      setProcessTypeOptions([]); // Xóa các tùy chọn trong processTypeOptions
+    }
+  };
 
   const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
     if (!dates || dates.some(date => date === null)) {
@@ -305,7 +314,7 @@ const AddPlan = () => {
       return;
     }
 
-    if (planTargetModel.length === 0) {
+    if (!selectedCrop && planTargetModel.length === 0) {
       toast.error("Please select at least one plan target.");
       return;
     }
@@ -409,15 +418,25 @@ const AddPlan = () => {
         >
           <Row gutter={16}>
             <Col span={12}>
-              <InfoField
-                label="Process Name"
-                name={addPlanFormFields.processId}
-                options={processFarmOptions}
-                isEditing={true}
-                type="select"
-                hasFeedback={false}
-                onChange={(value) => handleChangeProcess(value)}
-              />
+              <Flex vertical>
+                <InfoField
+                  label="Process Name"
+                  name={addPlanFormFields.processId}
+                  options={processFarmOptions}
+                  isEditing={true}
+                  type="select"
+                  hasFeedback={false}
+                  onChange={(value) => handleChangeProcess(value)}
+                />
+                <div
+                  style={{ marginTop: "-20px", textAlign: "right" }}
+                  onClick={() => {
+                    form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                    handleChangeProcess(undefined);
+                  }}>
+                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                </div>
+              </Flex>
             </Col>
             <Col span={12}>
               <InfoField
@@ -435,24 +454,48 @@ const AddPlan = () => {
           </Row>
           <Row gutter={16}>
             <Col span={12}>
-              <InfoField
-                label="Crop Name"
-                name={addPlanFormFields.cropId}
-                rules={RulesManager.getCropRules()}
-                options={cropOptions}
-                isEditing={true}
-                type="select"
-                hasFeedback={false}
-                onChange={(value) => setSelectedCrop(value)}
-              />
+              <Flex vertical>
+                <InfoField
+                  label="Crop Name"
+                  name={addPlanFormFields.cropId}
+                  // rules={RulesManager.getCropRules()}
+                  options={cropOptions}
+                  isEditing={true}
+                  type="select"
+                  hasFeedback={false}
+                  onChange={(value) => {
+                    setSelectedCrop(value);
+                    form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
+                    form.setFieldsValue({ planTargetModel: [] });
+                  }}
+                />
+                <div
+                  style={{ marginTop: "-20px", textAlign: "right" }}
+                  onClick={() => {
+                    setSelectedCrop(null);
+                    form.setFieldValue("cropId", undefined);
+                    form.setFieldValue("listLandPlotOfCrop", []);
+                  }}>
+                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                </div>
+              </Flex>
             </Col>
             <Col span={12}>
               <InfoField
                 label="Land Plot"
                 name={addPlanFormFields.listLandPlotOfCrop}
-                rules={RulesManager.getLandPlotNameRules()}
+                rules={[
+                  {
+                    validator: (_: any, value: any) => {
+                      if (selectedCrop && (!value || value.length === 0)) {
+                        return Promise.reject(new Error("Please select at least one Land Plot for the Crop!"));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
                 options={landPlotOfCropOptions}
-                isEditing={true}
+                isEditing={selectedCrop ? true : false}
                 type="select"
                 multiple
                 hasFeedback={false}
@@ -477,7 +520,7 @@ const AddPlan = () => {
           />
           <InfoField
             label="Note"
-            name={addPlanFormFields.planNote}
+            name={addPlanFormFields.notes}
             isEditing={true}
             hasFeedback={false}
             type="textarea"
@@ -584,9 +627,9 @@ const AddPlan = () => {
           plants={plantsOptions}
           plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}
-          // onLandPlotChange={handleLandPlotChange}
-          // onLandRowChange={handleLandRowChange}
           selectedGrowthStage={selectedGrowthStage}
+          hasSelectedCrop={selectedCrop ? true : false}
+          onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
         />
 
         <Divider className={style.divider} />

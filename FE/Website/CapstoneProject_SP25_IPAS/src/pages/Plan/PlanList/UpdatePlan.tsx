@@ -29,6 +29,7 @@ import {
     fetchTypeOptionsByName,
     fetchUserInfoByRole,
     getFarmId,
+    getGrowthStageOfProcess,
     getUserId,
     isDayInRange,
     RulesManager,
@@ -52,8 +53,11 @@ import isBetween from "dayjs/plugin/isBetween";
 import { GetPlan } from "@/payloads/plan";
 import { SelectOption } from "@/types";
 import UpdatePlanTarget from "./UpdatePlanTarget";
+import usePlantLotOptions from "@/hooks/usePlantLotOptions";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 dayjs.extend(isBetween);
+dayjs.extend(customParseFormat);
 
 const { RangePicker } = DatePicker;
 
@@ -101,18 +105,24 @@ const UpdatePlan = () => {
     const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
     const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
     const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
+    const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
+    const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
 
-    const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
+    // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
     const { options: growthStageOptions } = useGrowthStageOptions(false);
     const { options: landPlots } = useLandPlotOptions();
     const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
     const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
     const { options: cropOptions } = useCropCurrentOption();
+    const { options: plantLotOptions } = usePlantLotOptions();
 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
     const [planData, setPlanData] = useState<GetPlan>();
+
+    const dateFormat = 'YYYY/MM/DD';
+    const timeFormat = 'HH:mm:ss';
 
     useEffect(() => {
         if (selectedCrop) {
@@ -274,6 +284,38 @@ const UpdatePlan = () => {
         }
     };
 
+    // const handleChangeProcess = async (processId: number) => {
+    //     const growthStageId = await getGrowthStageOfProcess(processId);
+    //     form.setFieldValue("growthStageId", [growthStageId]);
+    //     setIsLockedGrowthStage(true);
+    //     const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
+    //         setProcessTypeOptions(data.map((item) => ({
+    //             value: item.masterTypeId,
+    //             label: item.masterTypeName
+    //         })))
+    //     });
+    // }
+    const handleChangeProcess = async (processId: number | undefined) => {
+        if (processId) {
+            // Nếu có processId, thực hiện logic hiện tại
+            const growthStageId = await getGrowthStageOfProcess(processId);
+            form.setFieldValue("growthStageId", [growthStageId]);
+            setIsLockedGrowthStage(true);
+
+            const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
+                setProcessTypeOptions(data.map((item) => ({
+                    value: item.masterTypeId,
+                    label: item.masterTypeName
+                })));
+            });
+        } else {
+            // Nếu processId bị xóa (clear), reset các giá trị liên quan
+            form.setFieldValue("growthStageId", undefined); // Xóa giá trị của growthStageId
+            setIsLockedGrowthStage(false); // Mở khóa trường Growth Stage
+            setProcessTypeOptions([]); // Xóa các tùy chọn trong processTypeOptions
+        }
+    };
+
     const handleConfirmAssign = () => {
         setAssignorId(userId);
         // if (selectedIds.length === 0) {
@@ -296,14 +338,17 @@ const UpdatePlan = () => {
         const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
         const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
 
-        if (assignorId === undefined) {
-            toast.error("Assignor ID is required.");
-            return;
-        }
+        // if (assignorId === undefined) {
+        //     toast.error("Assignor ID is required.");
+        //     return;
+        // }
+        console.log("planTargetModel", planTargetModel);
+        console.log("listLandPlotOfCrop", values.listLandPlotOfCrop);
+
 
         const planData: UpdatePlanRequest = {
             planId: Number(id) ?? 0,
-            status: values.status,
+            status: "Not Started",
             planName: values.planName,
             planDetail: values.planDetail,
             notes: values.notes || "",
@@ -313,7 +358,7 @@ const UpdatePlan = () => {
             frequency: values.frequency,
             isActive: values.isActive,
             masterTypeId: values.masterTypeId,
-            assignorId,
+            // assignorId,
             responsibleBy: values.responsibleBy || "",
             pesticideName: values.pesticideName || "",
             maxVolume: values.maxVolume || 0,
@@ -337,8 +382,10 @@ const UpdatePlan = () => {
                 graftedPlantID: target.graftedPlantID ?? [],
                 plantLotID: target.plantLotID ?? [],
             })),
-            listLandPlotOfCrop: []
+            listLandPlotOfCrop: values.listLandPlotOfCrop
         };
+        console.log("plandata for updating", planData);
+
 
         if (id) {
             const result = await planService.updatePlan(planData);
@@ -364,13 +411,21 @@ const UpdatePlan = () => {
 
                 if (result) {
                     setPlanData(result);
-                    const startDate = result.startDate ? moment(result.startDate) : null;
-                    const endDate = result.endDate ? moment(result.endDate) : null;
+                    const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
+                    const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
+                    const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
+                    const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
                     const mergedEmployees = [...result.listReporter, ...result.listEmployee];
-                    // setSelectedCrop(result.cropId);
+                    if (result.processId) {
+                        setIsLockedGrowthStage(true);
+                    }
                     setSelectedEmployees(mergedEmployees);
-
-                    // 📌 Set reporter ID (lấy ID đầu tiên trong danh sách reporter nếu có)
+                    await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
+                        setProcessTypeOptions(data.map((item) => ({
+                            value: item.masterTypeId,
+                            label: item.masterTypeName
+                        })))
+                    });
                     setSelectedReporter(result.listReporter?.[0]?.userId || null);
                     setFrequency(result.frequency || "None");
                     const parsedCustomDates = result.customDates
@@ -393,13 +448,10 @@ const UpdatePlan = () => {
                         cropId: result.cropId,
                         listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
                         isActive: result.isActive,
-                        dateRange: startDate && endDate ? [startDate, endDate] : [],
-                        timeRange: [
-                            moment(result.startTime, "HH:mm:ss"),
-                            moment(result.endTime, "HH:mm:ss"),
-                        ],
                         customDates: parsedCustomDates,
-                        masterTypeId: result.masterTypeId
+                        masterTypeId: result.masterTypeId,
+                        dateRange: [startDate, endDate],
+                        timeRange: [startTime, endTime],
                     });
                 }
             }
@@ -418,8 +470,8 @@ const UpdatePlan = () => {
                         onClick={() => {
                             if (isFormDirty) {
                                 Modal.confirm({
-                                    title: "Bạn có chắc chắn muốn rời đi?",
-                                    content: "Tất cả thay đổi chưa lưu sẽ bị mất.",
+                                    title: "Are you sure you want to leave?",
+                                    content: "All unsaved changes will be lost.",
                                     onOk: () => navigate(PATHS.PLAN.PLAN_LIST),
                                 });
                             } else {
@@ -436,7 +488,9 @@ const UpdatePlan = () => {
                 layout="vertical"
                 className={style.form}
                 onFinish={handleSubmit}
-                initialValues={{ isActive: true }}
+                initialValues={{
+                    isActive: true,
+                }}
                 onValuesChange={() => setIsFormDirty(true)}
             >
                 {/* BASIC INFORMATION */}
@@ -446,21 +500,33 @@ const UpdatePlan = () => {
                 >
                     <Row gutter={16}>
                         <Col span={12}>
-                            <InfoField
-                                label="Process Name"
-                                name={addPlanFormFields.processId}
-                                options={processFarmOptions}
-                                isEditing={true}
-                                type="select"
-                                hasFeedback={false}
-                            />
+                            <Flex vertical>
+                                <InfoField
+                                    label="Process Name"
+                                    name={addPlanFormFields.processId}
+                                    options={processFarmOptions}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                    onChange={(value) => handleChangeProcess(value)}
+                                />
+                                <div
+                                    style={{ marginTop: "-20px", textAlign: "right" }}
+                                    onClick={() => {
+                                        form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                                        handleChangeProcess(undefined);
+                                    }}>
+                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                </div>
+                            </Flex>
                         </Col>
                         <Col span={12}>
                             <InfoField
                                 label="Growth Stage"
                                 name={addPlanFormFields.growthStageID}
+                                rules={RulesManager.getGrowthStageRules()}
                                 options={growthStageOptions}
-                                isEditing={true}
+                                isEditing={!isLockedGrowthStage}
                                 onChange={(value) => setSelectedGrowthStage(value)}
                                 type="select"
                                 multiple
@@ -470,24 +536,48 @@ const UpdatePlan = () => {
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <InfoField
-                                label="Crop Name"
-                                name={addPlanFormFields.cropId}
-                                rules={RulesManager.getCropRules()}
-                                options={cropOptions}
-                                isEditing={true}
-                                type="select"
-                                hasFeedback={false}
-                                onChange={(value) => setSelectedCrop(value)}
-                            />
+                            <Flex vertical>
+                                <InfoField
+                                    label="Crop Name"
+                                    name={addPlanFormFields.cropId}
+                                    // rules={RulesManager.getCropRules()}
+                                    options={cropOptions}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                    onChange={(value) => {
+                                        setSelectedCrop(value);
+                                        form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
+                                        form.setFieldsValue({ planTargetModel: [] });
+                                    }}
+                                />
+                                <div
+                                    style={{ marginTop: "-20px", textAlign: "right" }}
+                                    onClick={() => {
+                                        setSelectedCrop(null);
+                                        form.setFieldValue("cropId", undefined);
+                                        form.setFieldValue("listLandPlotOfCrop", []);
+                                    }}>
+                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                </div>
+                            </Flex>
                         </Col>
                         <Col span={12}>
                             <InfoField
                                 label="Land Plot"
                                 name={addPlanFormFields.listLandPlotOfCrop}
-                                rules={RulesManager.getLandPlotNameRules()}
+                                rules={[
+                                    {
+                                        validator: (_: any, value: any) => {
+                                            if (selectedCrop && (!value || value.length === 0)) {
+                                                return Promise.reject(new Error("Please select at least one Land Plot for the Crop!"));
+                                            }
+                                            return Promise.resolve();
+                                        },
+                                    },
+                                ]}
                                 options={landPlotOfCropOptions}
-                                isEditing={true}
+                                isEditing={selectedCrop ? true : false}
                                 type="select"
                                 multiple
                                 hasFeedback={false}
@@ -512,7 +602,7 @@ const UpdatePlan = () => {
                     />
                     <InfoField
                         label="Note"
-                        name={addPlanFormFields.planNote}
+                        name={addPlanFormFields.notes}
                         isEditing={true}
                         hasFeedback={false}
                         type="textarea"
@@ -537,7 +627,11 @@ const UpdatePlan = () => {
                         name="dateRange"
                         rules={[{ required: true, message: "Please select the date range!" }]}
                     >
-                        <RangePicker style={{ width: "100%" }} onChange={handleDateRangeChange} />
+                        <RangePicker
+                            style={{ width: "100%" }}
+                            onChange={handleDateRangeChange}
+                            format={dateFormat}
+                        />
                     </Form.Item>
                     <Form.Item
                         label="Time Range"
@@ -609,13 +703,12 @@ const UpdatePlan = () => {
 
                 <Divider className={style.divider} />
                 <UpdatePlanTarget
+                    form={form}
                     landPlotOptions={landPlots}
                     landRows={landRowOptions}
                     plants={plantsOptions}
-                    plantLots={[]}
+                    plantLots={plantLotOptions}
                     graftedPlants={graftedPlantsOptions}
-                    // onLandPlotChange={handleLandPlotChange}
-                    // onLandRowChange={handleLandRowChange}
                     selectedGrowthStage={selectedGrowthStage}
                     initialValues={planData?.planTargetModels}
                 />
@@ -671,7 +764,7 @@ const UpdatePlan = () => {
                     <label className={style.createdBy}>
                         {" "}
                         <span>Created by: </span>
-                        {authData.fullName}
+                        {planData?.assignorName}
                     </label>
                 </Section>
 
@@ -683,12 +776,12 @@ const UpdatePlan = () => {
             </Form>
             {isModalVisible && (
                 <Modal
-                    title="Bạn có chắc chắn muốn rời đi?"
+                    title="Are you sure you want to leave this page?"
                     visible={isModalVisible}
                     onOk={handleConfirmNavigation}
                     onCancel={handleCancelNavigation}
                 >
-                    <p>Tất cả thay đổi chưa lưu sẽ bị mất.</p>
+                    <p>Every changes will be lost.</p>
                 </Modal>
             )}
         </div>

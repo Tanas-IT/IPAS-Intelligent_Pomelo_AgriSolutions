@@ -51,7 +51,7 @@ export interface UpdatePlanRequest {
     notes?: string;
     responsibleBy?: string;
     frequency: string;
-    assignorId: number;
+    assignorId?: number;
     pesticideName?: string;
     maxVolume?: number;
     minVolume?: number;

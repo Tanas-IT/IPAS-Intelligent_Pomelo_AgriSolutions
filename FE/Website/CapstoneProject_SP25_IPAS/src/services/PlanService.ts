@@ -104,7 +104,7 @@ export const filterTypeWorkByGrowthStage = async (listGrowthStage: number[]) => 
 };
 
 export const updatePlan = async (payload: UpdatePlanRequest): Promise<ApiResponse<Object>> => {
-  const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
+  const res = await axiosAuth.axiosJsonRequest.put(`plan`, payload);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

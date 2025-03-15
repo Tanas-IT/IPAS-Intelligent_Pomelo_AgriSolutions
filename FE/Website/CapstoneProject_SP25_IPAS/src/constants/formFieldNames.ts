@@ -177,7 +177,7 @@ export const addPlanFormFields = {
   frequency: "frequency",
   status: "status",
   assignor: "assignor",
-  planNote: "planNote",
+  notes: "planNote",
   listLandPlotOfCrop: "listLandPlotOfCrop"
 };
 

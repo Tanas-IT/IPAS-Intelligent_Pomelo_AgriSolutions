@@ -14,9 +14,10 @@ type FeedbackModalProps = {
   onSave: (values: { feedback: string; status: string }) => void;
   worklogId: number;
   managerId: number;
+  onSuccess: () => void;
 };
 
-const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: FeedbackModalProps) => {
+const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId, onSuccess }: FeedbackModalProps) => {
   const [form] = Form.useForm();
   const [status, setStatus] = useState<string>("done");
 
@@ -40,6 +41,7 @@ const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: Feedba
     if (result.statusCode === 200) {
       toast.success(result.message);
       form.resetFields();
+      onSuccess();
     } else {
       toast.error(result.message);
     }

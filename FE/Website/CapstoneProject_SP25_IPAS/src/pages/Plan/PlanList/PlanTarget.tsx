@@ -19,6 +19,8 @@ interface PlanTargetProps {
     selectedGrowthStage: number[];
     onLandPlotChange?: (landPlotId: number) => void;
     onLandRowChange?: (landPlotId: number) => void;
+    hasSelectedCrop: boolean;
+    onClearTargets: () => void;
 }
 
 const PlanTarget = ({
@@ -28,6 +30,8 @@ const PlanTarget = ({
     plantLots,
     graftedPlants,
     selectedGrowthStage,
+    hasSelectedCrop,
+    onClearTargets,
     // onLandPlotChange,
     // onLandRowChange,
 }: PlanTargetProps) => {
@@ -40,6 +44,12 @@ const PlanTarget = ({
     const [selectedGraftedPlants, setSelectedGraftedPlants] = useState<number[][]>([]);
     const [form] = Form.useForm();
     const [selectedTargets, setSelectedTargets] = useState<SelectedTarget[][]>([]);
+    console.log("selectedTargets in add", selectedTargets);
+    useEffect(() => {
+        if (hasSelectedCrop) {
+          onClearTargets(); // Gọi callback để xóa dữ liệu trong form
+        }
+      }, [hasSelectedCrop, onClearTargets]);
 
     const showModal = (title: string, content: string, onOk: () => void) => {
         Modal.confirm({
@@ -387,7 +397,7 @@ const PlanTarget = ({
                             >
                                 <Select
                                     placeholder="Select Land Row"
-                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined} // Thêm điều kiện
+                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined}
                                     onChange={(value) => handleLandRowChange(value, index)}
                                 >
                                     {selectedTarget
@@ -431,7 +441,7 @@ const PlanTarget = ({
                             >
                                 <Select
                                     placeholder="Select Land Row"
-                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined} // Thêm điều kiện
+                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined}
                                     onChange={(value) => handleLandRowChange(value, index)}
                                 >
                                     {selectedTarget
@@ -458,7 +468,7 @@ const PlanTarget = ({
                                     {selectedTarget
                                         ?.find((target) => target.landPlotId === selectedLandPlot)
                                         ?.rows
-                                        .find((row) => row.landRowId === selectedLandRow[0]) // Lấy phần tử đầu tiên của mảng
+                                        .find((row) => row.landRowId === selectedLandRow[0])
                                         ?.plants.map((plant) => (
                                             <Option key={plant.plantId} value={plant.plantId}>
                                                 {plant.plantName}
@@ -570,7 +580,7 @@ const PlanTarget = ({
                                 </Row>
                             ))}
                             <Form.Item>
-                                <Button type="dashed" onClick={handleAddField} block>
+                                <Button type="dashed" onClick={handleAddField} block disabled={hasSelectedCrop}>
                                     Add Target
                                 </Button>
                             </Form.Item>

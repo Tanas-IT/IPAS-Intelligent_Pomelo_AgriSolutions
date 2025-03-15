@@ -64,33 +64,35 @@ function WorklogDetail() {
         // Handle add feedback
     }
 
+    const fetchPlanDetail = async () => {
+        try {
+            const res = await worklogService.getWorklogDetail(Number(id));
+            console.log("res", res);
+
+            setWorklogDetail(res);
+            setFeedbackList(res.listTaskFeedback || []);
+
+            setInfoFieldsLeft([
+                { label: "Crop", value: res.listGrowthStageName.join(", ") || "Spring 2025", icon: Icons.growth },
+                { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
+                { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
+            ]);
+
+            infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
+            infoFieldsRight[1].value = res.status || "Watering";
+            // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
+        } catch (error) {
+            console.error("error", error);
+            navigate("/error");
+        }
+    };
+
     useEffect(() => {
         if (!id) {
             navigate("/404");
             return;
         }
-        const fetchPlanDetail = async () => {
-            try {
-                const res = await worklogService.getWorklogDetail(Number(id));
-                console.log("res", res);
-
-                setWorklogDetail(res);
-                setFeedbackList(res.listTaskFeedback || []);
-
-                setInfoFieldsLeft([
-                    { label: "Crop", value: res.listGrowthStageName.join(", ") || "Spring 2025", icon: Icons.growth },
-                    { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
-                    { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
-                ]);
-
-                infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
-                infoFieldsRight[1].value = res.status || "Watering";
-                // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
-            } catch (error) {
-                console.error("error", error);
-                navigate("/error");
-            }
-        };
+        
 
         fetchPlanDetail();
     }, [id]);
@@ -231,6 +233,7 @@ function WorklogDetail() {
                 onSave={handleAdd}
                 worklogId={Number(id)}
                 managerId={Number(getUserId())}
+                onSuccess={fetchPlanDetail}
             />
             <ToastContainer />
         </div>

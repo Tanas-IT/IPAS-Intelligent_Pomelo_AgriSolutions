@@ -16,7 +16,7 @@ interface ManagementLayoutProps {
 
 const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
   useToastMessage();
-  useFarmExpiration();
+  // useFarmExpiration();
   useToastFromLocalStorage();
   const navigate = useNavigate();
   const location = useLocation();
