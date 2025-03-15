@@ -18,7 +18,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public int? ProcessId { get; set; }
         public int? MasterTypeId { get; set; }
         public int? CropId { get; set; }
-        public int? LandPlotId { get; set; }
+        public int? HarvestHistoryId { get; set; }
         public int? AssignorId { get; set; }
         public List<int>? ListLandPlotOfCrop { get; set; }
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
