@@ -20,6 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetDetailWorkLog(int workLogId);
         public Task<BusinessResult> UpdateWorkLog(UpdateWorkLogModel updateWorkLogModel, int? farmId);
         public Task<BusinessResult> NoteForWorkLog(CreateNoteModel createNoteModel);
+        public Task<BusinessResult> DeleteWorkLog(int workLogId);
 
     }
 }

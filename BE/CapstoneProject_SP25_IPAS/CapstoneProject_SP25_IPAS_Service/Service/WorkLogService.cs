@@ -98,6 +98,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                         FarmID = farmId,
                         Status = "Active",
+                        HarvestHistoryID = addNewTaskModel.HarvestHistoryId
                     };
 
 
@@ -892,6 +893,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
             return url.Contains("/image/") && validImageExtensions.Contains(Path.GetExtension(url).ToLower());
+        }
+
+        public async Task<BusinessResult> DeleteWorkLog(int workLogId)
+        {
+            try
+            {
+                // Lấy WorkLog và include các bảng liên quan
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(
+                    x => x.WorkLogId == workLogId,
+                    "UserWorkLogs,TaskFeedbacks,Schedule"
+                );
+
+                if (getWorkLog == null)
+                {
+                    return new BusinessResult(404, "Cannot find any WorkLog");
+                }
+
+                // Nếu WorkLog đã quá hạn, không cho phép xóa
+                if (getWorkLog.Date <= DateTime.Now)
+                {
+                    return new BusinessResult(404, "This WorkLog is overdue. Cannot delete");
+                }
+
+                int result = 0;
+
+               
+
+                // Xóa danh sách UserWorkLogs (nếu có)
+                if (getWorkLog.UserWorkLogs?.Any() == true)
+                {
+                    _unitOfWork.UserWorkLogRepository.RemoveRange(getWorkLog.UserWorkLogs);
+                }
+
+                // Xóa danh sách TaskFeedbacks (nếu có)
+                if (getWorkLog.TaskFeedbacks?.Any() == true)
+                {
+                    _unitOfWork.TaskFeedbackRepository.RemoveRange(getWorkLog.TaskFeedbacks);
+                }
+
+                if (getWorkLog.ScheduleId != null)
+                {
+                    var getScheduleDelete = await _unitOfWork.CarePlanScheduleRepository.GetByID(getWorkLog.ScheduleId.Value);
+                    if (getScheduleDelete != null)
+                    {
+                        _unitOfWork.CarePlanScheduleRepository.Delete(getScheduleDelete);
+                    }
+                }
+
+                // Xóa chính WorkLog
+                _unitOfWork.WorkLogRepository.Delete(getWorkLog);
+
+                // Lưu tất cả thay đổi trong một lần
+                result = await _unitOfWork.SaveAsync();
+
+                if (result > 0)
+                {
+                    return new BusinessResult(200, "Delete WorkLog Success", result);
+                }
+                else
+                {
+                    return new BusinessResult(400, "Delete WorkLog Failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
     }

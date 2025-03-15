@@ -179,5 +179,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpDelete(APIRoutes.WorkLog.deleteWorkLog, Name = "DeleteWorkLog")]
+        public async Task<IActionResult> DeleteWorkLog([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _workLogService.DeleteWorkLog(id);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
