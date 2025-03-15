@@ -6,7 +6,7 @@ import { PATHS } from "@/routes";
 import { ToastContainer } from "react-toastify";
 import TimelineNotes from "./TimelineNotes/TimelineNotes";
 import { useModal } from "@/hooks";
-import { CreateFeedbackRequest } from "@/payloads/feedback";
+import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
@@ -38,6 +38,7 @@ const InfoField = ({
 
 function WorklogDetail() {
     const navigate = useNavigate();
+    const formModal = useModal<GetFeedback>();
     const [feedback, setFeedback] = useState<string>("");
     const [feedbackList, setFeedbackList] = useState<any[]>([]);
     const { id } = useParams();
@@ -47,7 +48,7 @@ function WorklogDetail() {
         { label: "Plan Name", value: "Plan name", icon: Icons.box },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
     ]);
-    
+
 
     const infoFieldsRight = [
         { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
@@ -92,7 +93,7 @@ function WorklogDetail() {
             navigate("/404");
             return;
         }
-        
+
 
         fetchPlanDetail();
     }, [id]);
@@ -193,19 +194,21 @@ function WorklogDetail() {
                                         <div className={style.feedbackName}>{item.fullName}</div>
                                         <div className={style.feedbackMessage}>{item.content}</div>
                                     </Flex>
-                                    {worklogDetail?.status === "Redo"}
-                                    <Flex vertical={false}>
-                                        <Button className={style.updateButton}>Update</Button>
-                                        <Button className={style.deleteButton}>Delete</Button>
-                                        {worklogDetail?.status === "Redo" && (
-                                            <Button
-                                                className={style.reassignButton}
-                                                onClick={() => navigate("/hr-management/worklogs")}
-                                            >
-                                                Re-assign
-                                            </Button>
-                                        )}
-                                    </Flex>
+                                    {
+                                        worklogDetail?.status === "Redo" && (
+                                            <Flex vertical={false}>
+                                                <Button className={style.updateButton}>Update</Button>
+                                                <Button className={style.deleteButton}>Delete</Button>
+                                                <Button
+                                                    className={style.reassignButton}
+                                                    onClick={() => navigate("/hr-management/worklogs")}
+                                                >
+                                                    Re-assign
+                                                </Button>
+                                            </Flex>
+                                        )
+                                    }
+
                                 </div>
                             </div>
                         ))}
@@ -215,17 +218,17 @@ function WorklogDetail() {
                 )}
                 {worklogDetail?.status === "Reviewing" ? (
                     <Button onClick={handleFeedback} className={style.btnFeedback}>
-                    Feedback
-                </Button>
+                        Feedback
+                    </Button>
                 ) : (
                     <>
-                    <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
-                    Feedback
-                </Button>
-                <p className={style.informFb}>The employee has not completed the task yet. Please check back later.</p>
-                </>
+                        <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
+                            Feedback
+                        </Button>
+                        <p className={style.informFb}>The employee has not completed the task yet. Please check back later.</p>
+                    </>
                 )}
-                
+
             </Flex>
             <FeedbackModal
                 isOpen={addModal.modalState.visible}
@@ -234,6 +237,7 @@ function WorklogDetail() {
                 worklogId={Number(id)}
                 managerId={Number(getUserId())}
                 onSuccess={fetchPlanDetail}
+                feedbackData={worklogDetail?.listTaskFeedback[0]}
             />
             <ToastContainer />
         </div>

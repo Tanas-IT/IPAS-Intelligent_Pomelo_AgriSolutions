@@ -22,6 +22,8 @@ interface UpdatePlanTargetProps {
     onLandRowChange?: (landPlotId: number) => void;
     initialValues?: PlanTargetModel[];
     onChange?: (targets: SelectedTarget[][]) => void;
+    hasSelectedCrop: boolean;
+    onClearTargets: () => void;
 }
 
 const UpdatePlanTarget = ({
@@ -34,6 +36,8 @@ const UpdatePlanTarget = ({
     selectedGrowthStage,
     initialValues = [],
     onChange,
+    hasSelectedCrop,
+    onClearTargets,
 }: UpdatePlanTargetProps) => {
     const [, forceUpdate] = useState({});
     const [selectedUnits, setSelectedUnits] = useState<(string | undefined)[]>([]);
@@ -43,6 +47,12 @@ const UpdatePlanTarget = ({
     const [selectedPlantLots, setSelectedPlantLots] = useState<number[][]>([]);
     const [selectedGraftedPlants, setSelectedGraftedPlants] = useState<number[][]>([]);
     const [selectedTargets, setSelectedTargets] = useState<SelectedTarget[][]>([]);
+
+    useEffect(() => {
+            if (hasSelectedCrop) {
+              onClearTargets(); // Gọi callback để xóa dữ liệu trong form
+            }
+          }, [hasSelectedCrop, onClearTargets]);
 
     useEffect(() => {
         if (initialValues.length > 0) {
@@ -602,7 +612,7 @@ const UpdatePlanTarget = ({
                                 </Row>
                             ))}
                             <Form.Item>
-                                <Button type="dashed" onClick={handleAddField} block>
+                                <Button type="dashed" onClick={handleAddField} block disabled={hasSelectedCrop}>
                                     Add Target
                                 </Button>
                             </Form.Item>

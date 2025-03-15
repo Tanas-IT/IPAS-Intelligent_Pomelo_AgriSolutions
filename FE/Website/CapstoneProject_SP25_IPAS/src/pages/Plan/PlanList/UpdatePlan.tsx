@@ -419,6 +419,7 @@ const UpdatePlan = () => {
                     if (result.processId) {
                         setIsLockedGrowthStage(true);
                     }
+                    setSelectedCrop(result.cropId);
                     setSelectedEmployees(mergedEmployees);
                     await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
                         setProcessTypeOptions(data.map((item) => ({
@@ -711,6 +712,8 @@ const UpdatePlan = () => {
                     graftedPlants={graftedPlantsOptions}
                     selectedGrowthStage={selectedGrowthStage}
                     initialValues={planData?.planTargetModels}
+                    hasSelectedCrop={selectedCrop ? true : false}
+                    onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
                 />
 
                 <Divider className={style.divider} />
