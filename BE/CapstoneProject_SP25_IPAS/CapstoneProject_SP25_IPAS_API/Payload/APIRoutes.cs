@@ -272,6 +272,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlanByFarmId = prefix + "/get-for-select/{farm-id}";
             public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
             public const string filterTypeWorkByGrowthStage = prefix + "/type-work/filter-by-growth-stage";
+            public const string filterTypeNameByGrowthStage = prefix + "/type-name/filter-by-growth-stage";
         }
 
         public static class UserWorkLog

@@ -14,13 +14,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
     public class AddNewTaskModel
     {
         public string? TaskName { get; set; }
-        [JsonProperty("Labels")]
-        public int? ProcessId { get; set; }
-        public int? MasterTypeId { get; set; }
-        public int? CropId { get; set; }
         public int? HarvestHistoryId { get; set; }
         public int? AssignorId { get; set; }
-        public List<int>? ListLandPlotOfCrop { get; set; }
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string? StartTime { get; set; }
@@ -29,7 +24,5 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
         public string? EndTime { get; set; }
         public DateTime? DateWork { get; set; }
         public List<EmployeeModel>? listEmployee {  get; set; }
-        public List<PlanTargetModel>? PlanTargetModel { get; set; }
-        public List<int>? GrowthStageIds { get; set; }
     }
 }
