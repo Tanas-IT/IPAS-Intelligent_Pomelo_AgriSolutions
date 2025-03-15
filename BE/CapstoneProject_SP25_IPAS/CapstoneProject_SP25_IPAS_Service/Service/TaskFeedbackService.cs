@@ -211,6 +211,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getTaskFeedback = await _unitOfWork.TaskFeedbackRepository.GetByCondition(x => x.TaskFeedbackId == taskFeedbackId, "WorkLog,Manager");
                 if (getTaskFeedback != null)
                 {
+                    //var getTaskFeedbackModel = _mapper.Map<List<TaskFeedbackModel>>(getTaskFeedback);
                     var getTaskFeedbackModel = _mapper.Map<TaskFeedbackModel>(getTaskFeedback);
                     return new BusinessResult(Const.SUCCESS_GET_TASK_FEEDBACK_BY_ID_CODE, Const.SUCCESS_GET_TASK_FEEDBACK_BY_ID_MSG, getTaskFeedbackModel);
                 }
@@ -299,7 +300,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (checkExistTaskFeedback != null)
                     {
-                        if (updateTaskFeedbackModel.Content != null)
+                        if (!string.IsNullOrEmpty(updateTaskFeedbackModel.Content))
                         {
                             checkExistTaskFeedback.Content = updateTaskFeedbackModel.Content;
                         }
@@ -317,15 +318,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             _unitOfWork.WorkLogRepository.Update(getWorkLog);
                         }
 
-
-                        if (updateTaskFeedbackModel.ManagerId != null)
+                        if (updateTaskFeedbackModel.ManagerId.HasValue)
                         {
                             checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
                         }
-                        if (updateTaskFeedbackModel.WorkLogId != null)
-                        {
-                            checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
-                        }
+                        //if (updateTaskFeedbackModel.WorkLogId != null)
+                        //{
+                        //    checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
+                        //}
+                        _unitOfWork.TaskFeedbackRepository.Update(checkExistTaskFeedback);
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
