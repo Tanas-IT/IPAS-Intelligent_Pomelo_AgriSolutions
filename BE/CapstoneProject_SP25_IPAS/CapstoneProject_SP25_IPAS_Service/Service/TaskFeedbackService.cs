@@ -318,10 +318,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             _unitOfWork.WorkLogRepository.Update(getWorkLog);
                         }
 
-                        if (updateTaskFeedbackModel.ManagerId.HasValue)
-                        {
-                            checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
-                        }
+                        //if (updateTaskFeedbackModel.ManagerId.HasValue)
+                        //{
+                        //    checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
+                        //}
                         if (updateTaskFeedbackModel.WorkLogId != null)
                         {
                             checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
