@@ -187,6 +187,11 @@ export const getUserId = (): string => {
   return jwtDecode<DecodedToken>(accessToken).UserId;
 };
 
+export const getUserInfoById = (userId: number) => {
+  const user = userService.getUserById(userId);
+  return user;
+}
+
 export const getFarmId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   if (!accessToken) return "";

@@ -37,3 +37,12 @@ export const getUsersByRole = async (role: string): Promise<GetUser[]> => {
     avatarURL,
   }));
 };
+
+export const getUserById = async (userId: number): Promise<GetUser> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`users/get-user-by-id/${userId}`);
+
+  const apiResponse = res.data as ApiResponse<GetUser>;
+  console.log("apiResponse", apiResponse);
+
+  return apiResponse.data;
+};

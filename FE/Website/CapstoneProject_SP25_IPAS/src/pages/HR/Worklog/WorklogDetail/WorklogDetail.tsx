@@ -11,8 +11,10 @@ import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { worklogService } from "@/services";
-import { GetWorklogDetail } from "@/payloads/worklog";
+import { GetWorklogDetail, TaskFeedback } from "@/payloads/worklog";
 import { formatDateW, getUserId } from "@/utils";
+import { getUserById } from "@/services/UserService";
+import { GetUser } from "@/payloads";
 
 const InfoField = ({
     icon: Icon,
@@ -40,7 +42,8 @@ function WorklogDetail() {
     const navigate = useNavigate();
     const formModal = useModal<GetFeedback>();
     const [feedback, setFeedback] = useState<string>("");
-    const [feedbackList, setFeedbackList] = useState<any[]>([]);
+    const [manager, setManager] = useState<GetUser | null>(null);
+    const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
     const { id } = useParams();
     const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail>();
     const [infoFieldsLeft, setInfoFieldsLeft] = useState([
@@ -71,6 +74,11 @@ function WorklogDetail() {
             console.log("res", res);
 
             setWorklogDetail(res);
+            if (res.listTaskFeedback.length > 0) {
+                const users = await getUserById(res.listTaskFeedback[0].managerId);
+                console.log("ma", users);
+                setManager(users);
+            }
             setFeedbackList(res.listTaskFeedback || []);
 
             setInfoFieldsLeft([
@@ -183,15 +191,16 @@ function WorklogDetail() {
                                 className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : ""}`}
                             >
                                 <Image
-                                    src={item.avatar || "https://via.placeholder.com/40"}
+                                    src={manager?.avatarURL || "https://via.placeholder.com/40"}
                                     width={40}
                                     height={40}
                                     className={style.avt}
                                     preview={false}
+                                    crossOrigin="anonymous"
                                 />
                                 <div className={style.feedbackText}>
                                     <Flex vertical>
-                                        <div className={style.feedbackName}>{item.fullName}</div>
+                                        <div className={style.feedbackName}>{manager?.fullName}</div>
                                         <div className={style.feedbackMessage}>{item.content}</div>
                                     </Flex>
                                     {
@@ -220,14 +229,15 @@ function WorklogDetail() {
                     <Button onClick={handleFeedback} className={style.btnFeedback}>
                         Feedback
                     </Button>
-                ) : (
+                ) : worklogDetail?.status !== "Done" ? (
                     <>
                         <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
                             Feedback
                         </Button>
                         <p className={style.informFb}>The employee has not completed the task yet. Please check back later.</p>
                     </>
-                )}
+                ) : null}
+
 
             </Flex>
             <FeedbackModal

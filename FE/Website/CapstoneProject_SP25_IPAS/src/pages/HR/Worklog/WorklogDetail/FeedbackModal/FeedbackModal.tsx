@@ -3,7 +3,7 @@ import { FormFieldModal, InfoField, ModalForm } from "@/components";
 import { feedbackFormFields, worklogFormFields } from "@/constants";
 import { Flex } from "antd";
 import { useEffect, useState } from "react";
-import { RulesManager } from "@/utils";
+import { getUserId, RulesManager } from "@/utils";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads";
 import { feedbackService } from "@/services";
 import { toast } from "react-toastify";
@@ -48,27 +48,32 @@ const FeedbackModal = ({
 
   const handleSave = async () => {
     const values = await form.validateFields();
-    const payload: CreateFeedbackRequest = {
-      content: values.content,
-      managerId,
-      worklogId,
-      status: values.status,
-      reason: values.reason,
-    };
-
     let result;
     if (isUpdate) {
-      // Gọi API update feedback
-      result = await feedbackService.updateFeedback(feedbackData.id, payload);
+      const payloadUpdate: CreateFeedbackRequest = {
+        taskFeedbackId: feedbackData.taskFeedbackId,
+        content: values.content,
+        managerId: Number(getUserId()),
+        worklogId: feedbackData.workLogId,
+        status: values.status,
+        reason: values.reason,
+      };
+      result = await feedbackService.updateFeedback(payloadUpdate);
     } else {
-      // Gọi API tạo feedback
+      const payload: CreateFeedbackRequest = {
+        content: values.content,
+        managerId,
+        worklogId,
+        status: values.status,
+        reason: values.reason,
+      };
       result = await feedbackService.createFeedback(payload);
     }
 
     if (result.statusCode === 200) {
       toast.success(result.message);
       form.resetFields();
-      onSuccess(); // Gọi callback để cập nhật UI
+      onSuccess();
     } else {
       toast.error(result.message);
     }
