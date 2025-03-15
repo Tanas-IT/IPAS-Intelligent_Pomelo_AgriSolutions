@@ -322,10 +322,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
                         }
-                        //if (updateTaskFeedbackModel.WorkLogId != null)
-                        //{
-                        //    checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
-                        //}
+                        if (updateTaskFeedbackModel.WorkLogId != null)
+                        {
+                            checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
+                        }
                         _unitOfWork.TaskFeedbackRepository.Update(checkExistTaskFeedback);
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)
