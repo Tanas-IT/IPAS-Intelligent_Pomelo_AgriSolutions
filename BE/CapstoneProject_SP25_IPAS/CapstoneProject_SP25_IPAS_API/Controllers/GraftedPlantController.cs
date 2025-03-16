@@ -95,6 +95,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpPost(APIRoutes.GraftedPlant.CreatePlantFromGrafted, Name = "CreatePlantFromGrafted")]
+        public async Task<IActionResult> CreatePlantFromGrafted([FromBody] CreatePlantFromGraftedRequest createRequest)
+        {
+            var result = await _graftedPlantService.CreatePlantFromGrafted(createRequest);
+            return Ok(result);
+        }
+
         // Cập nhật thông tin cây ghép
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedInfo, Name = "updateGraftedPlant")]
@@ -113,6 +121,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     Message = ex.Message
                 });
             }
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpPost(APIRoutes.GraftedPlant.GroupGraftedPlantsIntoPlantLot, Name = "GroupGraftedPlantsIntoPlantLot")]
+        public async Task<IActionResult> GroupGraftedPlantsIntoPlantLot([FromBody] GroupingGraftedRequest createRequest)
+        {
+            var result = await _graftedPlantService.GroupGraftedPlantsIntoPlantLot(createRequest);
+            return Ok(result);
         }
 
         // Xóa mềm cây ghép (chuyển trạng thái đã xóa)
@@ -208,7 +224,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                if(!farmId.HasValue)
+                if (!farmId.HasValue)
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }

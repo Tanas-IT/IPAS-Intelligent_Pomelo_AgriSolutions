@@ -23,7 +23,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.ProductHarvestHistories
             .Include(ht => ht.HarvestHistory)
             .ThenInclude(hh => hh.Crop)
-            .Include(ht => ht.MasterType)
+            .Include(ht => ht.Product)
             .Where(ht => ht.HarvestHistory.DateHarvest.HasValue &&
                          ht.HarvestHistory.DateHarvest.Value.Year == year &&
                          ht.HarvestHistory.Crop.FarmId == farmId && ht.HarvestHistory.HarvestStatus.ToLower().Equals("completed"))
