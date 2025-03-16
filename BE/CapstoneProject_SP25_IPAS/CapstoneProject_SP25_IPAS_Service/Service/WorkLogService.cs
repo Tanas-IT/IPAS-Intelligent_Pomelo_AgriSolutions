@@ -425,7 +425,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_NO_SCHEDULE_CODE, Const.WARNING_NO_SCHEDULE_MSG, new PageEntity<ScheduleModel>());
+                    return new BusinessResult(Const.WARNING_NO_SCHEDULE_CODE, Const.WARNING_NO_SCHEDULE_MSG, new List<ScheduleModel>());
                 }
             }
             catch (Exception ex)

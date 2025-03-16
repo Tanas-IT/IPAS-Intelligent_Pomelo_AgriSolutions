@@ -470,5 +470,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string UpdateCriteriaSetStatus = prefix + "/criteria-set";
             public const string ApplyCriteriaSetToProduct = prefix + "/criteria-set";
         }
+
+        public static class ReportOfUser
+        {
+            public const string prefix = Base + "/report-of-user";
+            public const string getAllReportOfUser = prefix + "/get-all";
+            public const string createReportOfUser = prefix + "/create";
+            public const string DeleteReportOfUser = prefix + "/delete";
+            public const string UpdateReportOfUser = prefix + "/update";
+        }
     }
 }

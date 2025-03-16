@@ -72,6 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
                                 $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
+                            
                         }
                     }
                     var newPlan = new Plan()
@@ -98,6 +99,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
                     };
+                    if(checkExistProcess != null)
+                    {
+                        if(checkExistProcess.MasterTypeId != null)
+                        {
+                            newPlan.MasterTypeId = checkExistProcess.MasterTypeId;
+                        }
+                    }
                     if (createPlanModel.StartDate == createPlanModel.EndDate)
                     {
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
@@ -959,7 +967,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedule,GrowthStagePlans");
+                    var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -996,6 +1004,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
                                 }
                             }
+                            checkExistPlan.CropId = updatePlanModel.CropId;
                             if (updatePlanModel.ListLandPlotOfCrop.Any())
                             {
                                 var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
@@ -1059,6 +1068,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.MasterTypeId != null)
                         {
                             checkExistPlan.MasterTypeId = updatePlanModel.MasterTypeId;
+                            if(updatePlanModel.ProcessId != null)
+                            {
+                                var getCheckExistProcess = await _unitOfWork.ProcessRepository.GetByID(updatePlanModel.ProcessId.Value);
+                                if (getCheckExistProcess != null)
+                                {
+                                    if (getCheckExistProcess.MasterTypeId != null)
+                                    {
+                                        checkExistPlan.MasterTypeId = getCheckExistProcess.MasterTypeId;
+                                    }
+                                }
+                            }
                         }
                         if (updatePlanModel.GrowthStageId != null && updatePlanModel.GrowthStageId.Any() && checkExistPlan.ProcessId == null)
                         {
@@ -1085,6 +1105,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.ProcessId != null)
                         {
                             checkExistPlan.ProcessId = updatePlanModel.ProcessId;
+                           
                         }
 
                         if (updatePlanModel.Status != null)
@@ -1389,10 +1410,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     DayOfMonth = null,
                     CustomDates = JsonConvert.SerializeObject(createPlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
-                    EndTime = TimeSpan.Parse(createPlanModel.EndTime)
+                    EndTime = TimeSpan.Parse(createPlanModel.EndTime),
+                    CarePlanId = plan.PlanId
                 };
                 plan.CarePlanSchedule = schedule;
-                _unitOfWork.PlanRepository.Update(plan);
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in createPlanModel.CustomDates)
@@ -1635,10 +1657,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     DayOfMonth = null,
                     CustomDates = JsonConvert.SerializeObject(updatePlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
-                    EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
+                    EndTime = TimeSpan.Parse(updatePlanModel.EndTime),
+                    CarePlanId = plan.PlanId
                 };
+
                 plan.CarePlanSchedule = schedule;
-                 _unitOfWork.PlanRepository.Update(plan);
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in updatePlanModel.CustomDates)
@@ -1747,6 +1771,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                         updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
             if (schedule.ScheduleId <= 0)
             {
+                plan.CarePlanSchedule = schedule;
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             }
             result += await _unitOfWork.SaveAsync();

@@ -1022,6 +1022,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                         hasDeleted = true;
+                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
                     }
 
                     // Lưu thay đổi vào DB nếu có process nào được xóa
