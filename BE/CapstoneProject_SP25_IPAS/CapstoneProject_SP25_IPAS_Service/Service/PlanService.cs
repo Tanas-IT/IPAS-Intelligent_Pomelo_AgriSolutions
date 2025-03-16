@@ -990,7 +990,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.IsDelete = updatePlanModel.IsDelete;
                         }
-                        if (updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop != null)
+                        if (updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop != null && updatePlanModel.PlanTargetModel == null)
                         {
                             var getCropToCheck = await _unitOfWork.CropRepository.GetByID(updatePlanModel.CropId.Value);
                             if (getCropToCheck != null)
@@ -1059,6 +1059,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             await _unitOfWork.SaveAsync();
 
                                         }
+                                    }
+                                }
+                                var deletePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
+                                if (deletePlanTargetOfPlan != null)
+                                {
+                                    foreach (var removeOldPlanTarget in deletePlanTargetOfPlan)
+                                    {
+                                        _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                        await _unitOfWork.SaveAsync();
                                     }
                                 }
 
@@ -1162,8 +1171,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             checkExistPlan.StartDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.StartTime));
                             checkExistPlan.EndDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.EndTime));
                         }
-                        if (updatePlanModel.PlanTargetModel != null && updatePlanModel.PlanTargetModel.Count > 0)
+                        if (updatePlanModel.PlanTargetModel != null && updatePlanModel.PlanTargetModel.Count > 0 && !updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop == null)
                         {
+                            checkExistPlan.CropId = null;
                             var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
                             if (removePlanTargetOfPlan != null)
                             {
@@ -1902,11 +1912,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var getTypePlan = await _unitOfWork.MasterTypeRepository.GetByID(createPlanModel.MasterTypeId.Value);
             string plantLotName = "";
             int count = 0;
-            foreach (var plantTarget in createPlanModel.PlanTargetModel)
+            if (createPlanModel.ListLandPlotOfCrop != null)
             {
-                if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
+                foreach (var landPlotId in createPlanModel.ListLandPlotOfCrop)
                 {
-                    var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
+                    var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId);
                     if (count > 0)
                     {
                         plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
@@ -1916,47 +1926,66 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
                     }
                 }
-
-                if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
-                {
-                    foreach (var landRowId in plantTarget.LandRowID)
-                    {
-                        var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
-                        plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
-                    }
-
-                }
-
-                if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
-                {
-                    foreach (var plantId in plantTarget.PlantID)
-                    {
-                        var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
-                        plantLotName = plantLotName + "_" + getPlant.PlantName;
-                    }
-
-                }
-
-                if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
-                {
-                    foreach (var graftedPlantId in plantTarget.GraftedPlantID)
-                    {
-                        var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
-                        plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
-                    }
-                }
-
-                if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
-                {
-                    foreach (var plantLotID in plantTarget.PlantLotID)
-                    {
-                        var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
-                        plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
-                    }
-
-                }
-                count++;
             }
+            if(createPlanModel.PlanTargetModel != null)
+            {
+                foreach (var plantTarget in createPlanModel.PlanTargetModel)
+                {
+                    if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
+                    {
+                        var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
+                        if (count > 0)
+                        {
+                            plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
+                        }
+                        else
+                        {
+                            plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
+                        }
+                    }
+
+                    if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
+                    {
+                        foreach (var landRowId in plantTarget.LandRowID)
+                        {
+                            var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
+                            plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
+                        }
+
+                    }
+
+                    if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
+                    {
+                        foreach (var plantId in plantTarget.PlantID)
+                        {
+                            var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
+                            plantLotName = plantLotName + "_" + getPlant.PlantName;
+                        }
+
+                    }
+
+                    if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
+                    {
+                        foreach (var graftedPlantId in plantTarget.GraftedPlantID)
+                        {
+                            var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
+                            plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
+                        }
+                    }
+
+                    if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
+                    {
+                        foreach (var plantLotID in plantTarget.PlantLotID)
+                        {
+                            var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
+                            plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
+                        }
+
+                    }
+                    count++;
+                }
+            }
+           
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
@@ -1985,24 +2014,82 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (schedule == null) return false;
             var getTypePlan = await _unitOfWork.MasterTypeRepository.GetByID(updatePlanModel.MasterTypeId.Value);
-            string nameOfWorkLog = "";
-            if(updatePlanModel.ListLandPlotOfCrop != null)
+            string plantLotName = "";
+            int count = 0;
+            if (updatePlanModel.ListLandPlotOfCrop != null)
             {
-                foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
+                foreach (var landPlotId in updatePlanModel.ListLandPlotOfCrop)
                 {
-                    var getLandPlotOfCrop = await _unitOfWork.LandPlotRepository.GetByID(landPlotOfCrop);
-                    if (getLandPlotOfCrop != null)
+                    var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId);
+                    if (count > 0)
                     {
-                        nameOfWorkLog += " " + getLandPlotOfCrop.LandPlotName; 
+                        plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
+                    }
+                    else
+                    {
+                        plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
                     }
                 }
             }
-            if(updatePlanModel.LandPlotId != null)
+            if (updatePlanModel.PlanTargetModel != null)
             {
-                var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(updatePlanModel.LandPlotId.Value);
-                nameOfWorkLog += " " + getLandPlot.LandPlotName;
+                foreach (var plantTarget in updatePlanModel.PlanTargetModel)
+                {
+                    if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
+                    {
+                        var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
+                        if (count > 0)
+                        {
+                            plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
+                        }
+                        else
+                        {
+                            plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
+                        }
+                    }
 
+                    if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
+                    {
+                        foreach (var landRowId in plantTarget.LandRowID)
+                        {
+                            var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
+                            plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
+                        }
+
+                    }
+
+                    if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
+                    {
+                        foreach (var plantId in plantTarget.PlantID)
+                        {
+                            var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
+                            plantLotName = plantLotName + "_" + getPlant.PlantName;
+                        }
+
+                    }
+
+                    if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
+                    {
+                        foreach (var graftedPlantId in plantTarget.GraftedPlantID)
+                        {
+                            var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
+                            plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
+                        }
+                    }
+
+                    if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
+                    {
+                        foreach (var plantLotID in plantTarget.PlantLotID)
+                        {
+                            var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
+                            plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
+                        }
+
+                    }
+                    count++;
+                }
             }
+
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
@@ -2010,7 +2097,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Status = "In Progress",
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + nameOfWorkLog,
+                WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId
@@ -2334,30 +2421,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 });
                                 return result;
                             }
-                        case "graftedplant":
-                            var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
-                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
-                                .ToList();
+                            
+                        //case "graftedplant":
+                        //    var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
+                        //    var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
+                        //        .ToList();
 
-                            if (validGraftedPlants.Any())
-                            {
-                                result.Add(new LandPlotFilterModel
-                                {
-                                    FarmId = farmId,
-                                    Unit = unit,
-                                    GraftedPlants = validGraftedPlants.Select(gp => new GraftedPlantFilterModel { GraftedPlantId = gp.GraftedPlantId, GraftedPlantName = gp.GraftedPlantName }).ToList()
-                                });
-                                return result;
-                            }
-                            else
-                            {
-                                result.Add(new LandPlotFilterModel
-                                {
-                                    FarmId = farmId,
-                                    Unit = unit,
-                                });
-                                return result;
-                            }
+                        //    if (validGraftedPlants.Any())
+                        //    {
+                        //        result.Add(new LandPlotFilterModel
+                        //        {
+                        //            FarmId = farmId,
+                        //            Unit = unit,
+                        //            GraftedPlants = validGraftedPlants.Select(gp => new GraftedPlantFilterModel { GraftedPlantId = gp.GraftedPlantId, GraftedPlantName = gp.GraftedPlantName }).ToList()
+                        //        });
+                        //        return result;
+                        //    }
+                        //    else
+                        //    {
+                        //        result.Add(new LandPlotFilterModel
+                        //        {
+                        //            FarmId = farmId,
+                        //            Unit = unit,
+                        //        });
+                        //        return result;
+                        //    }
 
                         default:
                             throw new ArgumentException("Unit is not valid.");
