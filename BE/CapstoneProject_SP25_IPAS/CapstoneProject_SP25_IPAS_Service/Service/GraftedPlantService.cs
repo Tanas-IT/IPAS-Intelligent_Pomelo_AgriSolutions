@@ -82,7 +82,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = GraftedPlantStatusConst.HEALTHY,
                         GraftedDate = createRequest.GraftedDate,
                         Note = createRequest.Note,
-                        MortherPlantId = plantExist.PlantId,
+                        MotherPlantId = plantExist.PlantId,
                         IsDeleted = false,
                         IsCompleted = false,
                     };
@@ -225,7 +225,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(getRequest.PlantIds))
                 {
                     var filterList = Util.SplitByComma(getRequest.PlantIds);
-                    filter = filter.And(x => filterList.Contains(x.MortherPlantId.ToString()!));
+                    filter = filter.And(x => filterList.Contains(x.MotherPlantId.ToString()!));
                 }
 
                 //if (!string.IsNullOrEmpty(getRequest.GrowthStage))
@@ -619,7 +619,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 errors.Add("This plant is not healthy enough to be grafted, please check again.");
             // kiểm tra xem cây đã chiết bao nhiêu cành trong năm nay để ko cho chiết nữa
             var maxGraftedBranches = CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
-            var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.MortherPlantId == plantId
+            var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.MotherPlantId == plantId
                 && !x.IsDeleted!.Value
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
@@ -822,7 +822,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "GraftedPlant does not exist.");
                     if (graftedPlant.IsCompleted == false)
                         return new BusinessResult(400, "This grafted not complete to plant.");
-                    var motherPlant = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == graftedPlant.MortherPlantId);
+                    var motherPlant = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == graftedPlant.MotherPlantId);
                     //  2️ Kiểm tra điều kiện
 
                     if (graftedPlant.Status == GraftedPlantStatusConst.IS_USED)
@@ -864,7 +864,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = DateTime.Now,
                         HealthStatus = graftedPlant.Status,
                         MasterTypeId = motherPlant.MasterTypeId ?? null, // Lấy MasterTypeId từ MotherPlant
-                        PlantReferenceId = graftedPlant.MortherPlantId, // Gán cây mẹ
+                        PlantReferenceId = graftedPlant.MotherPlantId, // Gán cây mẹ
                         Description = $"Generated from GraftedPlant {graftedPlant.GraftedPlantCode}",
                         FarmId = graftedPlant.FarmId,
                         LandRowId = request.LandRowId, // Chưa có hàng trồng cụ thể
