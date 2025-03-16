@@ -47,7 +47,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId && x.IsDefault == false && x.IsDelete == false, "Criterias");
                     if (masterType == null)
                         return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
-
+                    // update MasterType
                     if (!string.IsNullOrEmpty(listUpdate.MasterTypeName))
                     {
                         masterType.MasterTypeName = listUpdate.MasterTypeName;
@@ -80,8 +80,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (request.CriteriaId.HasValue && existingCriteriaDict.ContainsKey(request.CriteriaId.Value))
                         {
                             // Cập nhật dữ liệu
-                            //var existingCriteria = await _unitOfWork.CriteriaRepository.GetByID(int.Parse(existingCriteriaDict[request.CriteriaId.Value].ToString()));
-                            var existingCriteria = await _unitOfWork.CriteriaRepository.GetByID(request.CriteriaId.Value);
+                            var existingCriteria = existingCriteriaDict[request.CriteriaId.Value];
+                            //var existingCriteria = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == request.CriteriaId.Value);
                             existingCriteria.CriteriaName = request.CriteriaName;
                             existingCriteria.CriteriaDescription = request.CriteriaDescription;
                             existingCriteria.Priority = request.Priority;
@@ -109,16 +109,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
 
+                    //masterType.Criterias = null!;
+                    _unitOfWork.MasterTypeRepository.Update(masterType);
                     // Tìm các phần tử cần xóa (không có trong danh sách cập nhật
                     var criteriaToRemove = masterType.Criterias.Where(c => !receivedCriteriaIds.Contains(c.CriteriaId)).ToList();
                     foreach (var criteria in criteriaToRemove)
                     {
                         criteria.IsDeleted = true;
+                        criteria.MasterType = null;
                     }
                     // Thực hiện các thao tác với EF
                     if (criteriaToRemove.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToRemove);
-                    _unitOfWork.MasterTypeRepository.Update(masterType);
-                    //if (criteriaToUpdate.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToUpdate);
+                    if (criteriaToUpdate.Any()) _unitOfWork.CriteriaRepository.UpdateRange(criteriaToUpdate);
                     if (criteriaToAdd.Any()) await _unitOfWork.CriteriaRepository.InsertRangeAsync(criteriaToAdd);
 
                     // Luu thay đổi

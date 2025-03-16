@@ -522,7 +522,7 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PassedDate datetime null,
 	MasterTypeId int NULL,
 	GrowthStageID int NULL,
-	IsFromGrafted bit default 0,
+	-- IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
@@ -675,7 +675,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
+	MortherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
@@ -684,7 +684,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	FinishedPlantCode nvarchar(50) NULL,
 	--GrowthStageID int NULL,
 	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
-	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (MortherPlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
 	--CONSTRAINT GraftedPlant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
 );
