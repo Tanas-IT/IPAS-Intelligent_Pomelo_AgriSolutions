@@ -164,31 +164,32 @@ const AddPlan = () => {
       setDateError("Please select the date range first!");
       return;
     }
-
     const [startDate, endDate] = dateRange;
-    const isValid = dates.every((date) => date.isBetween(startDate, endDate, "day", "[]"));
+    const validDates = dates.filter((date) => date.isBetween(startDate, endDate, "day", "[]"));
 
-    if (!isValid) {
+    if (validDates.length === 0) {
       setDateError("Selected dates must be within the date range.");
-    } else {
-      setDateError(null);
-      setCustomDates(dates);
+      return;
+    }
 
-      if (frequency === "None" && dates.length === 1) {
+    setDateError(null);
+    setCustomDates(validDates);
+    if (frequency === "None" && validDates.length === 1) {
+      const isDateRangeAdjusted = startDate.isSame(validDates[0], "day") && endDate.isSame(validDates[0], "day");
+      if (!isDateRangeAdjusted) {
         Modal.confirm({
           title: "Adjust Date Rangetttttt",
           content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
           onOk: () => {
-            setDateRange([dates[0], dates[0]]);
-            form.setFieldsValue({ dateRange: [dates[0], dates[0]] });
+            const newDateRange = [validDates[0], validDates[0]] as [Dayjs, Dayjs];
+            setDateRange(newDateRange);
+            form.setFieldsValue({ dateRange: newDateRange });
           },
           onCancel: () => {
             setCustomDates([]);
           },
         });
       }
-      console.log("dates", dates);
-
     }
   };
 
@@ -240,23 +241,21 @@ const AddPlan = () => {
     setDayOfMonth(days);
   };
 
-  const handleSaveDays = (days: number[], type: "weekly" | "monthly") => {
+  const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
     if (!dateRange) {
       setDateError("Please select the date range first!");
-      return;
+      return false;
     }
     const [startDate, endDate] = dateRange;
 
-    // filter ra các ngày hợp lệ
     const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
 
-    // không có ngày nào hợp lệ
     if (validDays.length === 0) {
       setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-      return;
+      return false;
     }
 
-    // có ngày không hợp lệ
+    // Có ngày không hợp lệ
     if (validDays.length < days.length) {
       setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
       if (type === "weekly") {
@@ -269,36 +268,60 @@ const AddPlan = () => {
     }
 
     if (validDays.length === 1) {
-      Modal.confirm({
-        title: "Adjust Date Range",
-        content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
-        onOk: () => {
-          const selectedDay = validDays[0];
-          let targetDate = startDate.clone();
+      const selectedDay = validDays[0];
+      let targetDate = startDate.clone();
+      if (type === "weekly") {
+        while (targetDate.day() !== selectedDay) {
+          targetDate = targetDate.add(1, "day");
+        }
+      } else if (type === "monthly") {
+        targetDate = startDate.date(selectedDay);
+      }
+      const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
 
-          if (type === "weekly") {
-            while (targetDate.day() !== selectedDay) {
-              targetDate = targetDate.add(1, "day");
-            }
-          } else if (type === "monthly") {
-            targetDate = startDate.date(selectedDay);
-          }
+      if (!isDateRangeAdjusted) {
+        return new Promise((resolve) => {
+          Modal.confirm({
+            title: "Adjust Date Range",
+            content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+            onOk: () => {
+              const selectedDay = validDays[0];
+              let targetDate = startDate.clone();
 
-          const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
-          setDateRange(newDateRange);
-          form.setFieldsValue({ dateRange: newDateRange });
-        },
-        onCancel: () => {
-          // Không làm gì
-        },
-      });
+              if (type === "weekly") {
+                while (targetDate.day() !== selectedDay) {
+                  targetDate = targetDate.add(1, "day");
+                }
+              } else if (type === "monthly") {
+                targetDate = startDate.date(selectedDay);
+              }
+
+              const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+              setDateRange(newDateRange);
+              form.setFieldsValue({ dateRange: newDateRange });
+              resolve(true);
+            },
+            onCancel: () => {
+              if (type === "weekly") {
+                setDayOfWeek([]);
+                resolve(false);
+              } else if (type === "monthly") {
+                setDayOfMonth([]);
+                resolve(false);
+              }
+            },
+          });
+        });
+      }
     }
+
+    return true;
   };
 
 
 
   const handleSubmit = async (values: any) => {
-    const { dateRange, timeRange, planTargetModel } = values;
+    const { dateRange, timeRange, planTargetModel, frequency } = values;
     const startDate = new Date(dateRange?.[0]);
     const endDate = new Date(dateRange?.[1]);
 
@@ -307,6 +330,15 @@ const AddPlan = () => {
 
     const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
     const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
+    if (frequency === "Weekly" && customDates.length === 0) {
+      toast.error("Please select at least one custom date for Weekly frequency.");
+      return;
+    }
+  
+    if (frequency === "Monthly" && dayOfMonth.length === 0) {
+      toast.error("Please select at least one day for Monthly frequency.");
+      return;
+    }
 
     if (assignorId === undefined) {
       toast.error("Please select at least one employee.");
@@ -431,6 +463,7 @@ const AddPlan = () => {
                   style={{ marginTop: "-20px", textAlign: "right" }}
                   onClick={() => {
                     form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                    form.setFieldValue("masterTypeId", undefined);
                     handleChangeProcess(undefined);
                   }}>
                   <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
@@ -578,7 +611,10 @@ const AddPlan = () => {
             >
               <DaySelector
                 onSelectDays={handleWeeklyDaySelection}
-                onSave={(days) => handleSaveDays(days, "weekly")}
+                onSave={async (days) => {
+                  const isSuccess = await handleSaveDays(days, "weekly");
+                  return isSuccess;
+                }}
                 selectedDays={dayOfWeek}
                 type="weekly"
               />

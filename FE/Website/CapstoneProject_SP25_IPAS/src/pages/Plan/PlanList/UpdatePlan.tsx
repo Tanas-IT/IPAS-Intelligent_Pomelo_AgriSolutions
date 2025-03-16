@@ -12,9 +12,10 @@ import {
     Modal,
     Flex,
     Button,
+    Spin,
 } from "antd";
 import moment, { Moment } from "moment";
-import { CustomButton, InfoField, Section, Tooltip } from "@/components";
+import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import dayjs, { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
@@ -30,6 +31,7 @@ import {
     fetchUserInfoByRole,
     getFarmId,
     getGrowthStageOfProcess,
+    getTypeOfProcess,
     getUserId,
     isDayInRange,
     RulesManager,
@@ -88,6 +90,7 @@ const UpdatePlan = () => {
     const authData = getAuthData();
     const farmId = Number(getFarmId());
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isFormDirty, setIsFormDirty] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
@@ -126,33 +129,34 @@ const UpdatePlan = () => {
     const timeFormat = 'HH:mm:ss';
     console.log("selectedGrowthStage", selectedGrowthStage);
     console.log("isTargetDisabled", isTargetDisabled);
-    
-    
+    console.log("processFarmOptions", processFarmOptions);
+
+
 
     useEffect(() => {
         if (selectedCrop !== null && selectedCrop !== undefined) {
-          form.setFieldValue("listLandPlotOfCrop", []);
-          console.log("v la goi vao day r");
-          
-          cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
-            const landPlotOptions = data.data.map((item) => ({
-                value: item.landPlotId,
-                label: item.landPlotName,
-            }));
-            setLandPlotOfCropOptions(landPlotOptions);
+            form.setFieldValue("listLandPlotOfCrop", []);
+            console.log("v la goi vao day r");
 
-            // Set lại giá trị trong form nếu có dữ liệu ban đầu
-            if (planData?.listLandPlotOfCrop) {
-                form.setFieldValue(
-                    "listLandPlotOfCrop",
-                    planData.listLandPlotOfCrop.map((l) => l.id)
-                );
-            }
-        });
+            cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
+                const landPlotOptions = data.data.map((item) => ({
+                    value: item.landPlotId,
+                    label: item.landPlotName,
+                }));
+                setLandPlotOfCropOptions(landPlotOptions);
+
+                // Set lại giá trị trong form nếu có dữ liệu ban đầu
+                if (planData?.listLandPlotOfCrop) {
+                    form.setFieldValue(
+                        "listLandPlotOfCrop",
+                        planData.listLandPlotOfCrop.map((l) => l.id)
+                    );
+                }
+            });
         } else {
-          setLandPlotOfCropOptions([]);
+            setLandPlotOfCropOptions([]);
         }
-      }, [selectedCrop]);
+    }, [selectedCrop]);
 
     const handleWeeklyDaySelection = (days: number[]) => {
         setDayOfWeek(days);
@@ -162,60 +166,82 @@ const UpdatePlan = () => {
         setDayOfMonth(days);
     };
 
-    const handleSaveDays = (days: number[], type: "weekly" | "monthly") => {
+    const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
         if (!dateRange) {
-            setDateError("Please select the date range first!");
-            return;
+          setDateError("Please select the date range first!");
+          return false;
         }
         const [startDate, endDate] = dateRange;
-
-        // filter ra các ngày hợp lệ
+    
         const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
-
-        // không có ngày nào hợp lệ
+    
         if (validDays.length === 0) {
-            setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-            return;
+          setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+          return false;
         }
-
-        // có ngày không hợp lệ
+    
+        // Có ngày không hợp lệ
         if (validDays.length < days.length) {
-            setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
-            if (type === "weekly") {
-                setDayOfWeek(validDays);
-            } else if (type === "monthly") {
-                setDayOfMonth(validDays);
-            }
+          setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+          if (type === "weekly") {
+            setDayOfWeek(validDays);
+          } else if (type === "monthly") {
+            setDayOfMonth(validDays);
+          }
         } else {
-            setDateError(null);
+          setDateError(null);
         }
-
+    
         if (validDays.length === 1) {
-            Modal.confirm({
+          const selectedDay = validDays[0];
+          let targetDate = startDate.clone();
+          if (type === "weekly") {
+            while (targetDate.day() !== selectedDay) {
+              targetDate = targetDate.add(1, "day");
+            }
+          } else if (type === "monthly") {
+            targetDate = startDate.date(selectedDay);
+          }
+          const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
+    
+          if (!isDateRangeAdjusted) {
+            return new Promise((resolve) => {
+              Modal.confirm({
                 title: "Adjust Date Range",
                 content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
                 onOk: () => {
-                    const selectedDay = validDays[0];
-                    let targetDate = startDate.clone();
-
-                    if (type === "weekly") {
-                        while (targetDate.day() !== selectedDay) {
-                            targetDate = targetDate.add(1, "day");
-                        }
-                    } else if (type === "monthly") {
-                        targetDate = startDate.date(selectedDay);
+                  const selectedDay = validDays[0];
+                  let targetDate = startDate.clone();
+    
+                  if (type === "weekly") {
+                    while (targetDate.day() !== selectedDay) {
+                      targetDate = targetDate.add(1, "day");
                     }
-
-                    const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
-                    setDateRange(newDateRange);
-                    form.setFieldsValue({ dateRange: newDateRange });
+                  } else if (type === "monthly") {
+                    targetDate = startDate.date(selectedDay);
+                  }
+    
+                  const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+                  setDateRange(newDateRange);
+                  form.setFieldsValue({ dateRange: newDateRange });
+                  resolve(true);
                 },
                 onCancel: () => {
-                    // Không làm gì
+                  if (type === "weekly") {
+                    setDayOfWeek([]);
+                    resolve(false);
+                  } else if (type === "monthly") {
+                    setDayOfMonth([]);
+                    resolve(false);
+                  }
                 },
+              });
             });
+          }
         }
-    };
+    
+        return true;
+      };
 
     const handleDateChange = (dates: Dayjs[]) => {
         if (!dateRange) {
@@ -315,9 +341,10 @@ const UpdatePlan = () => {
     // }
     const handleChangeProcess = async (processId: number | undefined) => {
         if (processId) {
-            // Nếu có processId, thực hiện logic hiện tại
             const growthStageId = await getGrowthStageOfProcess(processId);
+            const masterTypeId = await getTypeOfProcess(processId);
             form.setFieldValue("growthStageId", [growthStageId]);
+            form.setFieldValue("masterTypeId", Number(masterTypeId));
             setIsLockedGrowthStage(true);
 
             const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
@@ -327,10 +354,9 @@ const UpdatePlan = () => {
                 })));
             });
         } else {
-            // Nếu processId bị xóa (clear), reset các giá trị liên quan
-            form.setFieldValue("growthStageId", undefined); // Xóa giá trị của growthStageId
-            setIsLockedGrowthStage(false); // Mở khóa trường Growth Stage
-            setProcessTypeOptions([]); // Xóa các tùy chọn trong processTypeOptions
+            form.setFieldValue("growthStageId", undefined);
+            setIsLockedGrowthStage(false);
+            setProcessTypeOptions([]);
         }
     };
 
@@ -430,76 +456,90 @@ const UpdatePlan = () => {
                 );
             });
         } else {
-            setProcessTypeOptions([]); // Nếu không có growth stage nào được chọn, reset options
+            setProcessTypeOptions([]);
         }
     }, [selectedGrowthStage]);
-    
+
 
     useEffect(() => {
         const fetchData = async () => {
-            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-            setEmployee(await fetchUserInfoByRole("User"));
+            setIsLoading(true);
+            try {
+                setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+                setEmployee(await fetchUserInfoByRole("User"));
 
-            if (id) {
-                const result = await planService.getPlanDetail(id);
-                console.log("plan detail ne", result);
+                if (id) {
+                    const result = await planService.getPlanDetail(id);
+                    console.log("plan detail ne", result);
 
-                if (result) {
-                    setPlanData(result);
-                    const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
-                    const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
-                    const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
-                    const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
-                    const mergedEmployees = [...result.listReporter, ...result.listEmployee];
-                    form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
-                    if (result.processId) {
-                        setIsLockedGrowthStage(true);
+                    if (result) {
+                        setPlanData(result);
+                        const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
+                        const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
+                        const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
+                        const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
+                        const mergedEmployees = [...result.listReporter, ...result.listEmployee];
+                        form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
+                        if (result.processId) {
+                            setIsLockedGrowthStage(true);
+                        }
+                        if (result.cropId) {
+                            setSelectedCrop(result.cropId);
+                            setIsTargetDisabled(true); // Enable nếu có cropId
+                        }
+                        setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
+                        setSelectedGrowthStage(result.growthStages.map((g) => g.id));
+                        setSelectedEmployees(mergedEmployees);
+                        await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
+                            setProcessTypeOptions(data.map((item) => ({
+                                value: item.masterTypeId,
+                                label: item.masterTypeName
+                            })))
+                        });
+                        setSelectedReporter(result.listReporter?.[0]?.userId || null);
+                        setFrequency(result.frequency || "None");
+                        const parsedCustomDates = result.customDates
+                            ? JSON.parse(result.customDates).map((date: string) => moment(date))
+                            : [];
+
+                        const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
+                        setDayOfMonth(parsedDayOfMonth);
+
+                        setDayOfWeek(result.dayOfWeek || []);
+
+                        setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
+
+                        form.setFieldsValue({
+                            planId: result.planId,
+                            planName: result.planName,
+                            planDetail: result.planDetail,
+                            notes: result.notes,
+                            frequency: result.frequency,
+                            processId: result.processId,
+                            growthStageId: result.growthStages.map((g) => g.id),
+                            cropId: result.cropId,
+                            listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
+                            isActive: result.isActive,
+                            customDates: parsedCustomDates,
+                            masterTypeId: result.masterTypeId,
+                            dateRange: [startDate, endDate],
+                            timeRange: [startTime, endTime],
+                        });
                     }
-                    if (result.cropId) {
-                        setSelectedCrop(result.cropId);
-                        setIsTargetDisabled(true); // Enable nút Add target nếu có cropId
-                    }
-                    setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
-                    setSelectedEmployees(mergedEmployees);
-                    await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
-                        setProcessTypeOptions(data.map((item) => ({
-                            value: item.masterTypeId,
-                            label: item.masterTypeName
-                        })))
-                    });
-                    setSelectedReporter(result.listReporter?.[0]?.userId || null);
-                    setFrequency(result.frequency || "None");
-                    const parsedCustomDates = result.customDates
-                        ? JSON.parse(result.customDates).map((date: string) => moment(date))
-                        : [];
-                    setCustomDates(parsedCustomDates);
-
-                    setFrequency(result.frequency || "None");
-                    setDayOfMonth(result.dayOfMonth ? JSON.parse(result.dayOfMonth) : []);
-                    setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
-
-                    form.setFieldsValue({
-                        planId: result.planId,
-                        planName: result.planName,
-                        planDetail: result.planDetail,
-                        notes: result.notes,
-                        frequency: result.frequency,
-                        processId: result.processId,
-                        growthStageId: result.growthStages.map((g) => g.id),
-                        cropId: result.cropId,
-                        listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
-                        isActive: result.isActive,
-                        customDates: parsedCustomDates,
-                        masterTypeId: result.masterTypeId,
-                        dateRange: [startDate, endDate],
-                        timeRange: [startTime, endTime],
-                    });
                 }
+            } catch (error) {
+                console.error("Lỗi khi fetch dữ liệu:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchData();
     }, [id, form]);
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <div className={style.contentSectionBody}>
@@ -721,7 +761,7 @@ const UpdatePlan = () => {
                             <DaySelector
                                 onSelectDays={handleMonthlyDaySelection}
                                 onSave={(days) => handleSaveDays(days, "monthly")}
-                                selectedDays={form.getFieldValue("dayOfMonth")}
+                                selectedDays={dayOfMonth}
                                 type="monthly"
                             />
                         </Form.Item>
