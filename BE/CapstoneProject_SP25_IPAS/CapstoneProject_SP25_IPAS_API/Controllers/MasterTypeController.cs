@@ -6,6 +6,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -22,6 +24,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
         public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int? farmId)
         {
@@ -43,6 +46,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.MasterType.getMasterTypeById, Name = "getMasterTypeById")]
         public async Task<IActionResult> GetMasterTypeById([FromRoute] int id)
         {
@@ -62,6 +66,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
         public async Task<IActionResult> GetMasterTypeByName([FromQuery(Name = "typeName")] string typeName, int? farmId)
         {
@@ -85,6 +90,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
         public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeRequestModel createMasterTypeModel)
         {
@@ -106,6 +112,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.MasterType.updateMasterTypeInfo, Name = "updateMasterType")]
         public async Task<IActionResult> UpdateMasterType([FromBody] UpdateMasterTypeModel updateMasterTypeModel)
         {
@@ -125,6 +132,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.MasterType.permanenlyDelete, Name = "deleteMasterType")]
         public async Task<IActionResult> DeleteMasterType([FromRoute] int id)
         {
@@ -144,6 +152,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.MasterType.permanenlyDeletemanyMasterType, Name = "deleteManyMasterType")]
         public async Task<IActionResult> DeleteManyMasterType([FromBody] List<int> masterTypeId)
         {
@@ -162,6 +171,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.MasterType.softedDelete, Name = "SoftedDeleteMasterType")]
         public async Task<IActionResult> SoftedDeleteMasterType([FromBody] List<int> MasterTypeIds)
         {
@@ -181,6 +192,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.MasterType.getForSelected, Name = "getMasterTypeForSelected")]
         public async Task<IActionResult> getMasterTypeForSelected([FromQuery] string typeName, string? target, int? farmId)
         {

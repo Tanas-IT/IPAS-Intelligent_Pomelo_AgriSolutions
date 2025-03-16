@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +24,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Lấy cây ghép theo ID
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getGraftedById + "/{graftedPlantId}", Name = "getGraftedById")]
         public async Task<IActionResult> GetGraftedByIdAsync([FromRoute] int graftedPlantId)
         {
@@ -41,6 +44,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Lấy danh sách cây ghép theo phân trang
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getGraftedOfPlantPagin")]
         public async Task<IActionResult> GetGraftedOfPlantPaginAsync([FromQuery] GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
@@ -72,6 +76,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Tạo mới cây ghép
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.GraftedPlant.createGrafted, Name = "createGraftedPlant")]
         public async Task<IActionResult> CreateGraftedPlantAsync([FromBody] CreateGraftedPlantRequest createRequest)
         {
@@ -91,6 +96,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Cập nhật thông tin cây ghép
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedInfo, Name = "updateGraftedPlant")]
         public async Task<IActionResult> UpdateGraftedPlantAsync([FromBody] UpdateGraftedPlantRequest updateRequest)
         {
@@ -110,6 +116,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Xóa mềm cây ghép (chuyển trạng thái đã xóa)
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.GraftedPlant.deleteSoftedGrafted, Name = "softDeleteGraftedPlant")]
         public async Task<IActionResult> SoftDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
         {
@@ -129,6 +136,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Xóa vĩnh viễn cây ghép
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.GraftedPlant.deletePermanentlyGrafted, Name = "permanentDeleteGraftedPlant")]
         public async Task<IActionResult> PermanentDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
         {
@@ -148,7 +156,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // get for selected
-        // Lấy cây ghép theo ID
+        // Lấy cây ghép theo ID khong lay cay chet va da su dung
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.GraftedPlant.getGraftedForSelectedByFarmId + "/{farm-id}", Name = "getGraftedForSelectedByFarmIdAsync")]
         public async Task<IActionResult> getGraftedForSelectedByFarmIdAsync([FromRoute(Name = "farm-id")] int farmId)
         {
@@ -166,7 +175,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.checkGraftedHasApplyCriteria, Name = "checkGraftedHasApplyCriteria")]
         public async Task<IActionResult> checkGraftedHasApplyCriteria([FromQuery] int? plantId, int? graftedPlantId)
         {
@@ -193,6 +202,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getHistoryOfGraftedPlantById, Name = "getHistoryOfGraftedPlantById")]
         public async Task<IActionResult> getHistoryOfGraftedByPlantId([FromQuery] int? farmId, int plantId)
         {
@@ -215,6 +225,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.CompleteGraftedPlant, Name = "CompleteGraftedPlant")]
         public async Task<IActionResult> CompleteGraftedPlant([FromBody] CompletedGraftedPlantRequest Request)
         {

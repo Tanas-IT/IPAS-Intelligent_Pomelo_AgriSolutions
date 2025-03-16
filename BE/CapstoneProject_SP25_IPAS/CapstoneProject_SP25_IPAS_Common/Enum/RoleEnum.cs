@@ -14,5 +14,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Enum
         OWNER = 3,
         MANAGER = 4,
         EMPLOYEE = 5,
+        EXPERT = 6,
     }
 }
