@@ -111,7 +111,7 @@ function WorklogDetail() {
             setFeedbackList(res.listTaskFeedback || []);
 
             setInfoFieldsLeft([
-                { label: "Crop", value: res.listGrowthStageName.join(", ") || "Spring 2025", icon: Icons.growth },
+                { label: "Crop", value: res.listGrowthStageName.join(", ") || "None", icon: Icons.growth },
                 { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
                 { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
             ]);

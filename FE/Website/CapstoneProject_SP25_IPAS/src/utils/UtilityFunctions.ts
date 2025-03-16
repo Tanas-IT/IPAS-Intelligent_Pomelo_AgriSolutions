@@ -297,13 +297,13 @@ export const unitOptions = [
 ];
 
 export const worklogStatusOptions = [
-  { label: "Not Started", value: "notStarted" },
-  { label: "In Progress", value: "inProgress" },
-  { label: "Overdue", value: "overdue" },
-  { label: "Reviewing", value: "reviewing" },
-  { label: "Redo", value: "redo" },
-  { label: "Done", value: "done" },
-  { label: "On Redo", value: "onRedo" },
+  { label: "Not Started", value: "Not Started" },
+  { label: "In Progress", value: "In Progress" },
+  { label: "Overdue", value: "Overdue" },
+  { label: "Reviewing", value: "Reviewing" },
+  { label: "Redo", value: "Redo" },
+  { label: "Done", value: "Done" },
+  { label: "On Redo", value: "On Redo" },
 ];
 
 export const fetchTypeOptionsByName = async (typeName: string) => {

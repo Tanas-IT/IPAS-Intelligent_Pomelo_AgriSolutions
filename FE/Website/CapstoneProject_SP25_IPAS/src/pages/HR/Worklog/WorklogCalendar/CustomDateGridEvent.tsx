@@ -21,8 +21,6 @@ export default function CustomDateGridEvent({ calendarEvent }: Props) {
   };
 
   const calendarId = calendarEvent.calendarId;
-  console.log(calendarEvent.start);
-  
 
   return (
     <div

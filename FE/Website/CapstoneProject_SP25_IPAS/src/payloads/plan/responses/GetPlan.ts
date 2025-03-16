@@ -55,7 +55,7 @@ interface GrowthStages {
 export interface User {
   userId: number;
   fullName: string;
-  avatarURL: string;
+  avatar: string;
 }
 
 export interface WorkLog {

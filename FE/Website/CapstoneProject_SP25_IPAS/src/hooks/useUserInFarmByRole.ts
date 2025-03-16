@@ -26,7 +26,7 @@ const useUserInFarmByRole = (listRole: number[]) => {
 
         if (result.statusCode === 200) {
           const mappedOptions = result.data.map((user) => ({
-            value: user.userId,
+            value: user.fullName,
             label: user.fullName,
             avatarURL: user.user.avatarURL,
           }));

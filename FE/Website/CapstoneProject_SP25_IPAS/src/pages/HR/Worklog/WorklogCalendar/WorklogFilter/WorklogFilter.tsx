@@ -1,5 +1,5 @@
 import { Button, Flex, Select, Space } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import style from "./WorklogFilter.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { useGrowthStageOptions, useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
@@ -8,65 +8,70 @@ import { worklogStatusOptions } from "@/utils";
 
 type FilterProps = {
   filters: {
-    workDateFrom: string; // Ngày làm (bắt đầu)
-    workDateTo: string; // Ngày làm (kết thúc)
-    growthStage: string[]; // Giai đoạn phát triển
-    status: string[]; // Trạng thái
-    employees: string[]; // Nhân viên
-    plan: string[]; // Kế hoạch
-    processTypes: string[]; // Loại quy trình
+    workDateFrom: string;
+    workDateTo: string;
+    growthStage: string[];
+    status: string[];
+    employees: string[];
+    typePlan: string[];
   };
-  updateFilters: (filters: any) => void; // Cập nhật filters từ Worklog
-  onClear: () => void; // Xử lý khi clear filter
-  onApply: () => void; // Xử lý khi apply filter
+  updateFilters: (filters: any) => void;
+  onClear: () => void;
+  onApply: () => void;
 };
 
 const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
-  const [localFilters, setLocalFilters] = useState(filters); // Local state để quản lý filter tạm thời
+  const [localFilters, setLocalFilters] = useState(filters);
 
-  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
-  const { options: growthStageOptions } = useGrowthStageOptions(false);
-  const listRole = [5, 4]; // Ví dụ: role 5 và 4
+  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, true);
+  const { options: growthStageOptions } = useGrowthStageOptions(true);
+  const listRole = [5, 4];
   const { options } = useUserInFarmByRole(listRole);
 
-  const planOptions = [
-    { value: "plan1", label: "Plan 1" },
-    { value: "plan2", label: "Plan 2" },
-    { value: "plan3", label: "Plan 3" },
-  ];
-
-  // Kiểm tra filter có rỗng không
   const isFilterEmpty = !(
     localFilters.workDateFrom ||
     localFilters.workDateTo ||
     localFilters.growthStage.length > 0 ||
     localFilters.status.length > 0 ||
     localFilters.employees.length > 0 ||
-    localFilters.plan.length > 0 ||
-    localFilters.processTypes.length > 0
+    localFilters.typePlan.length > 0
   );
 
-  // Kiểm tra filter có thay đổi không
   const isFilterChanged = JSON.stringify(localFilters) !== JSON.stringify(filters);
 
-  // Xử lý khi nhấn Apply
   const handleApply = () => {
-    updateFilters(localFilters); // Cập nhật filters từ Worklog
-    onApply(); // Gọi API hoặc xử lý logic khác
+    updateFilters(localFilters);
+    // onApply();
   };
 
   // Xử lý khi nhấn Clear
+  // const handleClear = () => {
+  //   setLocalFilters({
+  //     workDateFrom: "",
+  //     workDateTo: "",
+  //     growthStage: [],
+  //     status: [],
+  //     employees: [],
+  //     plan: [],
+  //     typePlan: [],
+  //   });
+  //   onClear();
+  // };
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
   const handleClear = () => {
-    setLocalFilters({
+    const resetFilters = {
       workDateFrom: "",
       workDateTo: "",
       growthStage: [],
       status: [],
       employees: [],
-      plan: [],
-      processTypes: [],
-    });
-    onClear(); // Gọi hàm clear từ Worklog
+      typePlan: [],
+    };
+    setLocalFilters(resetFilters);
+    updateFilters(resetFilters);
+    onClear();
   };
 
   return (
@@ -86,7 +91,6 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
           }}
         />
 
-        {/* Growth Stage và Process Type */}
         <Flex gap={20}>
           <FormFieldFilter
             label="Growth Stage"
@@ -98,22 +102,12 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
           <FormFieldFilter
             label="Process Type"
             fieldType="select"
-            value={localFilters.processTypes}
+            value={localFilters.typePlan}
             options={processTypeOptions}
-            onChange={(value) => setLocalFilters((prev) => ({ ...prev, processTypes: value }))}
+            onChange={(value) => setLocalFilters((prev) => ({ ...prev, typePlan: value }))}
           />
         </Flex>
 
-        {/* Plan */}
-        <FormFieldFilter
-          label="Plan"
-          fieldType="select"
-          value={localFilters.plan}
-          options={planOptions}
-          onChange={(value) => setLocalFilters((prev) => ({ ...prev, plan: value }))}
-        />
-
-        {/* Employee */}
         <FormFieldFilter
           label="Employee"
           fieldType="selectCustom"
@@ -122,7 +116,6 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
           onChange={(value) => setLocalFilters((prev) => ({ ...prev, employees: value }))}
         />
 
-        {/* Status */}
         <FormFieldFilter
           label="Status"
           fieldType="select"
@@ -131,7 +124,6 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
           onChange={(value) => setLocalFilters((prev) => ({ ...prev, status: value }))}
         />
 
-        {/* Footer với nút Clear và Apply */}
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

@@ -228,7 +228,7 @@ function PlanDetail() {
                     <label className={style.textUpdated}>Assigned To:</label>
                     {planDetail?.listEmployee.map((employee, index) => (
                         <div className={style.containerUser}>
-                            <Image src={employee?.avatarURL} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
+                            <Image src={employee?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{employee?.fullName}</span>
                         </div>
                     ))}
@@ -238,7 +238,7 @@ function PlanDetail() {
                     <label className={style.textUpdated}>Reporter:</label>
                     {planDetail?.listReporter.map((report, index) => (
                         <div className={style.containerUser}>
-                            <Image src={report?.avatarURL} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
+                            <Image src={report?.avatar} crossOrigin="anonymous" width={27} height={27} className={style.avatar} />
                             <span className={style.name}>{report?.fullName}</span>
                         </div>
                     ))}
