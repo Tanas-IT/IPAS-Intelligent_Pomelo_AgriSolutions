@@ -21,16 +21,16 @@ public partial class GraftedPlant
 
     public string? Note { get; set; }
 
-    public int? PlantId { get; set; }
+    public int? MotherPlantId { get; set; }
 
     public int? PlantLotId { get; set; }
 
     public bool? IsDeleted { get; set; }
-    public int? FinishedPlant { get; set; }
+    public string? FinishedPlantCode { get; set; }
     public int? FarmId { get; set; }
     public bool? IsCompleted { get; set; }
-    public int? GrowthStageID { get; set; }
-    public virtual GrowthStage? GrowthStageInclude { get; set; }
+    //public int? GrowthStageID { get; set; }
+    //public virtual GrowthStage? GrowthStageInclude { get; set; }
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
     public virtual Plant? Plant { get; set; }
     public virtual PlantLot? PlantLot { get; set; }

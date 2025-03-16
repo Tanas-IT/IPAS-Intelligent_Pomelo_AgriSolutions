@@ -37,6 +37,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels
 
         public double? ActualYield { get; set; }
 
+        public double YieldHasRecord { get; set; }
+
         public string? Status { get; set; }
 
         public string? Notes { get; set; }

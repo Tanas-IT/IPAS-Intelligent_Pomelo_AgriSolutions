@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> createCrop(CropCreateRequest CropCreateRequest);
         public Task<BusinessResult> updateCrop(CropUpdateInfoRequest historyUpdateRequest);
-        public Task<BusinessResult> getCrop(int CropId);
+        public Task<BusinessResult> getCropById(int CropId);
         public Task<BusinessResult> getAllCropOfFarm(int farmId, PaginationParameter paginationParameter, CropFilter cropFilter);
         public Task<BusinessResult> permanentlyDeleteCrop(int cropId);
         public Task<BusinessResult> softedDeleteCrop(int cropId);

@@ -36,6 +36,8 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
 
         public DateTime? PassedDate { get; set; }
 
+        public bool? IsFromGrafted { get; set; }
+
         public int? PlantLotReferenceId { get; set; }
 
         public int? MasterTypeId { get; set; }

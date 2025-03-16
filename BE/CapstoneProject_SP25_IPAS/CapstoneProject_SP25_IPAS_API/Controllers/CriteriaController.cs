@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -24,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
             _criteriaTargetService = criteriaTargetService;
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaById + "/{criteria-id}", Name = "getCriteriaById")]
         public async Task<IActionResult> GetCriteriaById([FromRoute(Name = "criteria-id")] int id)
         {
@@ -48,6 +50,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lay nhieu criteria theo mastertype id
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaBySet + "/{mastertype-id}", Name = "getCriteriaBySet")]
         public async Task<IActionResult> getCriteriaBySet([FromRoute(Name = "mastertype-id")] int id)
         {
@@ -67,9 +70,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaOfObject, Name = "getCriteriaOfPlantById")]
-        public async Task<IActionResult> GetCriteriaOfPObject([FromQuery] GetCriteriaOfTargetRequest request)
+        public async Task<IActionResult> GetCriteriaOfObject([FromQuery] GetCriteriaOfTargetRequest request)
         {
             try
             {
@@ -87,7 +90,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaSetPagin, Name = "getCriteriaSetPagin")]
         public async Task<IActionResult> GetCriteriaSetPagin(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int? farmId)
         {
@@ -108,7 +111,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Criteria.createMasTypeCriteria, Name = "createMasTypeCriteria")]
         public async Task<IActionResult> createMasTypeCriteria([FromBody] CreateCriteriaMasterTypeRequest request)
         {
@@ -132,6 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Criteria.applyCriteriaTargetMultiple, Name = "applyCriteriaTargetMultiple")]
         public async Task<IActionResult> applyCriteriaTargetMultiple([FromBody] CriteriaTargerRequest request)
         {
@@ -153,6 +157,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.updateCriteriaInfo, Name = "updateCriteria")]
         public async Task<IActionResult> UpdateCriteria(CriteriaUpdateRequest updateRequest)
         {
@@ -172,6 +177,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.updateListCriteriaType, Name = "updateListCriteria")]
         public async Task<IActionResult> UpdateListCriteria([FromBody] ListCriteriaUpdateRequest request)
         {
@@ -192,6 +198,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.updateCriteriaMultipleTarget, Name = "updateCriteriaMultipleTarget")]
         public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] CriteriaTargerRequest request)
         {
@@ -212,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.updateCriteriaTarget, Name = "updateCriteriaTarget")]
         public async Task<IActionResult> updateCriteriaTarget([FromBody] UpdateCriteriaTargetRequest request)
         {
@@ -234,6 +241,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.checkCriteriaForTarget, Name = "checkCriteriaForTarget")]
         public async Task<IActionResult> checkCriteriaForTarget([FromBody] CheckPlantCriteriaRequest request)
         {
@@ -255,6 +263,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpDelete(APIRoutes.Criteria.deleteCriteriaMultipleTarger, Name = "deleteCriteriaMultipleTarger")]
         public async Task<IActionResult> deleteCriteriaMultipleTarger([FromBody] DeleteCriteriaTargetRequest request)
         {
@@ -276,6 +285,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaSetPlantLotExcept, Name = "getCriteriaSetPlantLotExcept")]
         public async Task<IActionResult> getCriteriaSetPlantLotExcept([FromQuery] int plantLotId, int? farmId, string? target)
         {
@@ -295,6 +305,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaSetGraftedExcept, Name = "getCriteriaSetGraftedExcept")]
         public async Task<IActionResult> getCriteriaSetGraftedExcept([FromQuery] int graftedId, int? farmId, string? target)
         {
@@ -314,6 +325,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Criteria.getCriteriaSetPlantExcept, Name = "getCriteriaSetPlantExcept")]
         public async Task<IActionResult> getCriteriaSetPlantExcept([FromQuery] int plantId, int? farmId, string? target)
         {

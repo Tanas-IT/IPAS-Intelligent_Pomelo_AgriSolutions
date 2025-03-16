@@ -104,15 +104,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                );
 
                 var filteredTask = toltalTask
-                                     .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
-                                     .Where(p =>
-                                         p.Schedule.CarePlan.PlanTargets.Any(pt =>
-                                             (pt.LandPlot != null && pt.LandPlot.FarmId == farmId) || // Kiểm tra LandPlot thuộc Farm
-                                             (pt.Plant != null && pt.LandRow != null && pt.LandRow.FarmId == farmId) // Kiểm tra Plant và LandRow
-                                         )
+                                 .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
+                                 .Where(p => p.Schedule != null && p.Schedule.CarePlan != null) // Lọc trước khi gọi thuộc tính bên trong
+                                 .Where(p =>
+                                     p.Schedule.CarePlan.PlanTargets.Any(pt =>
+                                         (pt.LandPlot != null && pt.LandPlot.FarmId == farmId) ||
+                                         (pt.Plant != null && pt.LandRow != null && pt.LandRow.FarmId == farmId)
                                      )
-                                     .ToList(); // Tránh gọi Count() nhiều lần
-
+                                 )
+                                 .ToList();
                 var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
 
                 var listTaskStatusDistribution = filteredTask
@@ -200,7 +200,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                  && x.Plant.LandRow.LandPlot != null
                                                  && x.Plant.LandRow.LandPlot.Farm != null
                                                  && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.MasterType.MasterTypeName }) // Nhóm theo tên cây và loại cây
+                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
                                         .Select(plantGroup => new TypeOfProduct
                                         {
                                             PlantName = plantGroup.Key.PlantName, // Tên cây
@@ -219,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Nhóm dữ liệu theo mùa vụ
             var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
                 .Select(g => new
                 {
                     HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
@@ -256,7 +256,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
             var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
                 .Select(g => new QualityYieldStat
                 {
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",

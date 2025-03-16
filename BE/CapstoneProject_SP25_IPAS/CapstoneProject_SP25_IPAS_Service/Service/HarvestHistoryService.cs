@@ -43,14 +43,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    if (!createRequest.CropId.HasValue)
-                        return new BusinessResult(Const.WARNING_HARVEST_MUST_IN_CROP_CODE, Const.WARNING_HARVEST_MUST_IN_CROP_MSG);
+                    var cropExist = await _unitOfWork.CropRepository.getCropInExpired(createRequest.CropId);
+                    if (cropExist == null)
+                        return new BusinessResult(Const.WARNING_CROP_EXPIRED_CODE, Const.WARNING_CROP_EXPIRED_MSG);
+                    if (!cropExist.HarvestHistories.Any())
+                    {
+                        cropExist.CropActualTime = DateTime.Now;
+                        cropExist.Status = CropStatusEnum.Harvesting.ToString();
+                    }
                     if (createRequest.DateHarvest < DateTime.Now)
                         return new BusinessResult(Const.WARNING_HARVEST_DATE_IN_PAST_CODE, Const.WARNING_HARVEST_DATE_IN_PAST_MSG);
 
-                    var cropExist = await _unitOfWork.CropRepository.getCropInExpired(createRequest.CropId.Value);
-                    if (cropExist == null)
-                        return new BusinessResult(Const.WARNING_CROP_EXPIRED_CODE, Const.WARNING_CROP_EXPIRED_MSG);
                     var harvestHistory = new HarvestHistory()
                     {
                         HarvestHistoryCode = $"{CodeAliasEntityConst.HARVEST_HISTORY}{CodeHelper.GenerateCode()}-{createRequest.DateHarvest!.Value.ToString("ddMMyy")}-{Util.SplitByDash(cropExist.CropCode!).First().ToUpper()}",
@@ -73,9 +76,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             return new BusinessResult(400, $"You has select duplicate product type");
                         }
-                        //var masterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName(TypeNameInMasterEnum.HarvestType.ToString());
-                        //if (masterType == null)
-                        //    return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE, Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
                         foreach (var item in createRequest.ProductHarvestHistory)
                         {
                             var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.Product.ToString());
@@ -88,22 +88,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 MasterTypeId = item.MasterTypeId,
                                 SellPrice = item.SellPrice,
                                 Unit = item.Unit,
-                                QuantityNeed = item.Quantity,
+                                QuantityNeed = item.QuantityNeed,
                                 //ProcessId = item.ProcessId ?? null,
                             };
-                            //if (item.ProcessId.HasValue)
-                            //{
-                            //    var processExists = await _unitOfWork.ProcessRepository.GetByID(item.ProcessId.Value);
-                            //    if (processExists != null)
-                            //    {
-                            //        historyType.ProcessId = item.ProcessId;
-                            //    }
-                            //}
                             harvestHistory.ProductHarvestHistories.Add(historyType);
                         }
                     }
 
                     await _unitOfWork.HarvestHistoryRepository.Insert(harvestHistory);
+                    _unitOfWork.CropRepository.Update(cropExist);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -134,7 +127,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (!createRequest.HarvestHistoryId.HasValue)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
-                    // 1. Kiểm tra MasterType có tồn tại hay không
+                    // 1. Kiểm tra Product có tồn tại hay không
                     var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(
                         createRequest.MasterTypeId, TypeNameInMasterEnum.Product.ToString());
 
@@ -554,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year)
+        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year, int productId)
         {
             try
             {
@@ -565,6 +558,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
                     .GetAllNoPaging(x => x.PlantId == plantId &&
                                              x.HarvestHistory.DateHarvest.HasValue &&
+                                             x.MasterTypeId == productId &&
                                              x.HarvestHistory.DateHarvest >= startDate &&
                                              x.HarvestHistory.DateHarvest <= endDate,
                                         includeProperties: "HarvestHistory,MasterType");
@@ -578,20 +572,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     Year = year,
                     MonthlyData = harvestData
-                        .Where(x => x.QuantityNeed.HasValue)
+                        .Where(x => x.ActualQuantity.HasValue)
                         .GroupBy(x => x.HarvestHistory.DateHarvest.Value.Month)
                         .OrderBy(g => g.Key)
                         .Select(monthGroup => new MonthlyStatistic
                         {
                             Month = monthGroup.Key,
-                            TotalQuatity = monthGroup.Sum(x => x.QuantityNeed ?? 0),
+                            TotalQuatity = monthGroup.Sum(x => x.ActualQuantity ?? 0),
                             HarvestDetails = monthGroup
                                 .GroupBy(x => x.MasterTypeId)
                                 .Select(mtGroup => new HarvestStatistic
                                 {
                                     MasterTypeId = mtGroup.Key,
-                                    MasterTypeCode = mtGroup.FirstOrDefault()!.MasterType.MasterTypeCode,
-                                    MasterTypeName = mtGroup.FirstOrDefault()!.MasterType?.MasterTypeName,
+                                    MasterTypeCode = mtGroup.FirstOrDefault()!.Product.MasterTypeCode,
+                                    MasterTypeName = mtGroup.FirstOrDefault()!.Product?.MasterTypeName,
                                     TotalQuantity = mtGroup.Sum(x => x.QuantityNeed ?? 0)
                                 }).ToList()
                         }).ToList()
@@ -660,7 +654,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var productInHarvest = await _unitOfWork.HarvestTypeHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "MasterType");
                 if (!productInHarvest.Any())
                     return new BusinessResult(400, "No product found in this harvest");
-                var product = productInHarvest.Select(x => x.MasterType);
+                var product = productInHarvest.Select(x => x.Product);
                 var mappedResult = _mapper.Map<ForSelectedModels>(product);
                 return new BusinessResult(200, "Get Product for selected success", mappedResult);
 

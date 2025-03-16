@@ -22,6 +22,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> getHistoryOfGraftedPlant(int farmId, int plantId);
         public Task<BusinessResult> CompletedGraftedPlant(CompletedGraftedPlantRequest request);
+        public Task<BusinessResult> GroupGraftedPlantsIntoPlantLot(GroupingGraftedRequest request);
+        public Task<BusinessResult> CreatePlantFromGrafted(CreatePlantFromGraftedRequest request);
 
     }
 }

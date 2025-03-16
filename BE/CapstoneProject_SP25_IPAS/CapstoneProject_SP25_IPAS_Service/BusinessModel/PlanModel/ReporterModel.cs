@@ -10,6 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
     {
         public int UserId { get; set; }
         public string FullName { get; set; }
-        public string Avatar { get; set; }
+        public string avatarURL { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -29,6 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _webSocketService = webSocketService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plan.getPlanWithPagination, Name = "getAllPlanAsync")]
         public async Task<IActionResult> GetAllPlanWithPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int? farmId)
         {
@@ -53,6 +56,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plan.getPlanById, Name = "getPlanById")]
         public async Task<IActionResult> GetPlanById([FromRoute] int id)
         {
@@ -72,7 +76,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plan.getPlanByName, Name = "getPlanByName")]
         public async Task<IActionResult> GetPlanByName([FromRoute] string name, int? farmId)
         {
@@ -98,6 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Plan.createPlan, Name = "createPlanAsync")]
         public async Task<IActionResult> CreatePlanAsync([FromBody] CreatePlanModel createPlanModel, int? farmId)
         {
@@ -131,6 +136,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.Plan.updatePlanInfo, Name = "updatePlanAsync")]
         public async Task<IActionResult> UpdatePlanAsync([FromBody] UpdatePlanModel updatePlanModel)
         {
@@ -151,6 +157,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Plan.deletePlan, Name = "deletePlanAsync")]
         public async Task<IActionResult> DeletePlan([FromRoute] int id)
         {
@@ -170,7 +177,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Plan.deleteManyPlan, Name = "deleteManyPlanAsync")]
         public async Task<IActionResult> DeleteManyPlan([FromBody] List<int> planIds)
         {
@@ -190,7 +197,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Plan.softDeletePlan, Name = "softDeletePlanAsync")]
         public async Task<IActionResult> SoftDeletePlan([FromBody] List<int> PlanIds)
         {
@@ -211,6 +218,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Plan.unSoftDeletePlan, Name = "unSoftDeletePlanAsync")]
         public async Task<IActionResult> UnSoftDeletePlan([FromRoute] int id)
         {
@@ -231,6 +239,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Plan.getPlanByFarmId, Name = "getPlanByFarmId")]
         public async Task<IActionResult> GetPlanByFarmId([FromRoute(Name = "farm-id")] int? farmId)
         {
@@ -255,6 +264,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Plan.filterByGrowthStage, Name = "filterByGrowthStage")]
         public async Task<IActionResult> FilterByGrowthStage([FromBody] ListGrowthStageModel listGrowthStageModel, int? farmId, string unit)
         {
@@ -279,12 +289,33 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Plan.filterTypeWorkByGrowthStage, Name = "filterTypeWorkByGrowthStage")]
         public async Task<IActionResult> FilterTypeWorkByGrowthStage([FromBody] ListGrowthStageModel listGrowthStageModel)
         {
             try
             {
                 var result = await _planService.FilterTypeOfWorkByGrowthStageIds(listGrowthStageModel.ListGrowthStage);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.Plan.filterTypeNameByGrowthStage, Name = "filterTypeNameByGrowthStage")]
+        public async Task<IActionResult> FilterTypeNameByGrowthStage([FromBody] ListFilterGrowthStageModel listFilterGrowthStageModel)
+        {
+            try
+            {
+                var result = await _planService.FilterMasterTypeByGrowthStageIds(listFilterGrowthStageModel.ListGrowthStage, listFilterGrowthStageModel.TypeName);
                 return Ok(result);
             }
             catch (Exception ex)

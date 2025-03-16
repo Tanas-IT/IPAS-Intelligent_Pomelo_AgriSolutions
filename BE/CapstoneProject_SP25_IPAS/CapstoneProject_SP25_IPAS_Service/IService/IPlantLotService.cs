@@ -23,7 +23,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetAllPlantLots(GetPlantLotRequest filterRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> CreateManyPlant(List<CriteriaForPlantLotRequestModel> criterias, int quantity);
         public Task<BusinessResult> FillPlantToPlot(FillPlanToPlotRequest fillRequest);
-        public Task<BusinessResult> GetForSelectedByFarmId(int farmId);
+        public Task<BusinessResult> GetForSelectedByFarmId(int farmId, bool? isFromGrafted);
         public Task<BusinessResult> softedMultipleDelete(List<int> plantLotIds);
     }
 }

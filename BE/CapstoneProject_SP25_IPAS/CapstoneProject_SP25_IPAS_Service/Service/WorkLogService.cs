@@ -55,234 +55,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception("Start time must be less than End Time");
                         }
                     }
-                    var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == addNewTaskModel.ProcessId);
-                    var checkStartDateOfProcess = addNewTaskModel.StartTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null;
-                    var checkEndDateOfProcess = addNewTaskModel?.EndTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null;
-                    if (checkExistProcess != null)
-                    {
-                        if (checkStartDateOfProcess < checkExistProcess.StartDate ||
-                             checkStartDateOfProcess > checkExistProcess.EndDate ||
-                            checkEndDateOfProcess < checkExistProcess.StartDate ||
-                             checkEndDateOfProcess > checkExistProcess.EndDate)
-                        {
-                            throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
-                                $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
-                        }
-                    }
-                    var newPlan = new Plan()
-                    {
-                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + addNewTaskModel!.MasterTypeId ?? "",
-                        PlanName = addNewTaskModel.TaskName,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now,
-                        AssignorId = addNewTaskModel.AssignorId,
-                        CropId = addNewTaskModel.CropId,
-                        EndDate = addNewTaskModel.DateWork != null ? (addNewTaskModel.EndTime != null ? addNewTaskModel.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null) : null,
-                        StartDate = addNewTaskModel.DateWork != null ? (addNewTaskModel.StartTime != null ? addNewTaskModel.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null) : null,
-                        Frequency = null,
-                        IsActive = true,
-                        IsDelete = false,
-                        MasterTypeId = addNewTaskModel?.MasterTypeId,
-                        ProcessId = addNewTaskModel?.ProcessId,
-                        Status = "Active",
-                        FarmID = farmId,
-                    };
-                    if (addNewTaskModel!.CropId.HasValue && addNewTaskModel.ListLandPlotOfCrop != null)
-                    {
-                        var getCropToCheck = await _unitOfWork.CropRepository.GetByID(addNewTaskModel.CropId.Value);
-                        if (getCropToCheck != null)
-                        {
-                            if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null && addNewTaskModel.DateWork != null)
-                            {
-                                if (addNewTaskModel?.DateWork!.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) < getCropToCheck.StartDate ||
-                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) > getCropToCheck.EndDate ||
-                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) < getCropToCheck.StartDate ||
-                            addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) > getCropToCheck.EndDate)
-                                {
-                                    throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
-                                        $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
-                                }
-                            }
+                    //var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == addNewTaskModel.ProcessId);
+                    //var checkStartDateOfProcess = addNewTaskModel.StartTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null;
+                    //var checkEndDateOfProcess = addNewTaskModel?.EndTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null;
+                    //if (checkExistProcess != null)
+                    //{
+                    //    if (checkStartDateOfProcess < checkExistProcess.StartDate ||
+                    //         checkStartDateOfProcess > checkExistProcess.EndDate ||
+                    //        checkEndDateOfProcess < checkExistProcess.StartDate ||
+                    //         checkEndDateOfProcess > checkExistProcess.EndDate)
+                    //    {
+                    //        throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
+                    //            $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
+                    //    }
+                    //}
+                   
+                    //if (addNewTaskModel!.CropId.HasValue && addNewTaskModel.ListLandPlotOfCrop != null)
+                    //{
+                    //    var getCropToCheck = await _unitOfWork.CropRepository.GetByID(addNewTaskModel.CropId.Value);
+                    //    if (getCropToCheck != null)
+                    //    {
+                    //        if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null && addNewTaskModel.DateWork != null)
+                    //        {
+                    //            if (addNewTaskModel?.DateWork!.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) < getCropToCheck.StartDate ||
+                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) > getCropToCheck.EndDate ||
+                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) < getCropToCheck.StartDate ||
+                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) > getCropToCheck.EndDate)
+                    //            {
+                    //                throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                    //                    $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                    //            }
+                    //        }
 
-                        }
-                        if (addNewTaskModel!.ListLandPlotOfCrop.Any())
-                        {
-                            foreach (var landPlotOfCrop in addNewTaskModel.ListLandPlotOfCrop)
-                            {
-                                List<int> landRowOfLandPlotOfCropIDs = new List<int>();
-                                HashSet<int> inputPlantIDsOfLandPlot = new HashSet<int>();
+                    //    }
+                        
+                    //}
 
-                                var rowsInLandPlotOfCrop = await _unitOfWork.LandRowRepository
-                                   .GetRowsByLandPlotIdAsync(landPlotOfCrop);
-                                landRowOfLandPlotOfCropIDs.AddRange(rowsInLandPlotOfCrop);
-
-
-                                Dictionary<int, HashSet<int>> rowToPlantsOfLandPlotOfCrop = new Dictionary<int, HashSet<int>>();
-                                foreach (var rowId in landRowOfLandPlotOfCropIDs)
-                                {
-                                    var plantsInRow = await _unitOfWork.PlantRepository.getPlantByRowId(rowId);
-
-                                    if (!rowToPlantsOfLandPlotOfCrop.ContainsKey(rowId))
-                                    {
-                                        rowToPlantsOfLandPlotOfCrop[rowId] = new HashSet<int>();
-                                    }
-
-                                    rowToPlantsOfLandPlotOfCrop[rowId].UnionWith(plantsInRow);
-
-                                }
-
-                                foreach (var row in rowToPlantsOfLandPlotOfCrop)
-                                {
-                                    foreach (var plantId in row.Value)
-                                    {
-                                        var newPlantTarget = new PlanTarget()
-                                        {
-                                            LandPlotID = landPlotOfCrop,
-                                            LandRowID = row.Key,
-                                            PlantID = plantId,
-                                            PlantLotID = null,
-                                            Unit = "Land Plot",
-                                            GraftedPlantID = null,
-                                        };
-
-                                        newPlan.PlanTargets.Add(newPlantTarget);
-
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                    if (addNewTaskModel.PlanTargetModel != null && addNewTaskModel.PlanTargetModel.Count > 0)
-                    {
-                        foreach (var plantTarget in addNewTaskModel.PlanTargetModel)
-                        {
-                            List<int> landRowIDs = new List<int>();
-                            HashSet<int> inputPlantIDs = new HashSet<int>(plantTarget.PlantID ?? new List<int>());
-
-                            // Nếu có LandPlotID, lấy tất cả LandRowID thuộc LandPlot đó
-                            if (plantTarget.LandPlotID.HasValue)
-                            {
-                                var rowsInPlot = await _unitOfWork.LandRowRepository
-                                    .GetRowsByLandPlotIdAsync(plantTarget.LandPlotID.Value);
-                                landRowIDs.AddRange(rowsInPlot);
-                            }
-
-                            // Nếu có LandRowID từ input, thêm vào danh sách
-                            if (plantTarget.LandRowID != null)
-                            {
-                                landRowIDs.AddRange(plantTarget.LandRowID);
-                            }
-
-                            // Xử lý danh sách không bị trùng LandRowID
-                            landRowIDs = landRowIDs.Distinct().ToList();
-
-                            // Tạo danh sách chứa tất cả các Plant đã có trong LandRows
-                            HashSet<int> existingPlantIDs = new HashSet<int>();
-
-                            // Dictionary để lưu danh sách Plant theo từng Row
-                            Dictionary<int, HashSet<int>> rowToPlants = new Dictionary<int, HashSet<int>>();
-
-                            foreach (var rowId in landRowIDs)
-                            {
-                                // Lấy danh sách plants có sẵn trong row này
-                                var plantsInRow = await _unitOfWork.PlantRepository
-                                    .getPlantByRowId(rowId);
-
-                                if (!rowToPlants.ContainsKey(rowId))
-                                {
-                                    rowToPlants[rowId] = new HashSet<int>();
-                                }
-
-                                // Thêm plants từ DB vào row
-                                rowToPlants[rowId].UnionWith(plantsInRow);
-
-                                // Lưu lại tất cả PlantID đã có trong các LandRow để loại bỏ khỏi ListPlant bên ngoài
-                                existingPlantIDs.UnionWith(plantsInRow);
-                            }
-
-                            // **Insert dữ liệu cho từng LandRow**
-                            foreach (var row in rowToPlants)
-                            {
-                                foreach (var plantId in row.Value)
-                                {
-                                    var newPlantTarget = new PlanTarget()
-                                    {
-                                        LandPlotID = plantTarget.LandPlotID,
-                                        LandRowID = row.Key,
-                                        PlantID = plantId,
-                                        PlantLotID = null,
-                                        GraftedPlantID = null,
-                                    };
-
-                                    newPlan.PlanTargets.Add(newPlantTarget);
-                                }
-                            }
-
-                            // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
-                            var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
-                            foreach (var plantId in plantsToInsert)
-                            {
-                                var newPlantTarget = new PlanTarget()
-                                {
-                                    PlantID = plantId, // Chỉ insert PlantID nếu nó chưa có trong các LandRow
-                                    LandPlotID = null,
-                                    LandRowID = null,
-                                    PlantLotID = null,
-                                    GraftedPlantID = null
-                                };
-
-                                newPlan.PlanTargets.Add(newPlantTarget);
-                            }
-
-                            // **Insert mỗi PlantLotID một dòng riêng**
-                            if (plantTarget.PlantLotID != null)
-                            {
-                                foreach (var plantLotId in plantTarget.PlantLotID)
-                                {
-                                    var newPlantLotTarget = new PlanTarget()
-                                    {
-                                        LandPlotID = null,
-                                        LandRowID = null,
-                                        PlantID = null,
-                                        PlantLotID = plantLotId,
-                                        GraftedPlantID = null
-                                    };
-
-                                    newPlan.PlanTargets.Add(newPlantLotTarget);
-                                }
-
-                            }
-                            // **Insert mỗi GraftedPlantID một dòng riêng**
-                            if (plantTarget.GraftedPlantID != null)
-                            {
-                                foreach (var graftedPlantId in plantTarget.GraftedPlantID)
-                                {
-                                    var newGraftedPlantTarget = new PlanTarget()
-                                    {
-                                        LandPlotID = null,
-                                        LandRowID = null,
-                                        PlantID = null,
-                                        PlantLotID = null,
-                                        GraftedPlantID = graftedPlantId
-                                    };
-
-                                    newPlan.PlanTargets.Add(newGraftedPlantTarget);
-                                }
-
-                            }
-                            await _unitOfWork.SaveAsync();
-                        }
-                    }
-                    foreach (var growthStagePlanItem in addNewTaskModel.GrowthStageIds)
-                    {
-                        var growthStagePlan = new GrowthStagePlan()
-                        {
-                            GrowthStageID = growthStagePlanItem,
-                        };
-                        newPlan.GrowthStagePlans.Add(growthStagePlan);
-                    }
                     var newSchedule = new CarePlanSchedule()
                     {
                         CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
@@ -290,6 +98,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                         FarmID = farmId,
                         Status = "Active",
+                        HarvestHistoryID = addNewTaskModel.HarvestHistoryId
                     };
 
 
@@ -366,6 +175,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
+                var mappedPlanTargets = MapPlanTargets(getDetailWorkLog.Schedule.CarePlan.PlanTargets.ToList());
+                result.PlanTargetModels = mappedPlanTargets;
                 if (result != null)
                 {
                     return new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
@@ -378,6 +189,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public List<PlanTargetDisplayModel> MapPlanTargets(List<PlanTarget> planTargets)
+        {
+            var displayModels = new Dictionary<int, PlanTargetDisplayModel>();
+
+            foreach (var getPlanTarget in planTargets)
+            {
+                // Tìm hoặc tạo mới displayModel theo LandPlotId
+                if (!displayModels.TryGetValue(getPlanTarget.LandPlotID ?? 0, out var displayModel))
+                {
+                    displayModel = new PlanTargetDisplayModel
+                    {
+                        LandPlotId = getPlanTarget.LandPlotID,
+                        LandPlotName = getPlanTarget.LandPlot?.LandPlotName,
+                        Rows = new List<LandRowDisplayModel>(),
+                        Plants = new List<PlantDisplayModel>(),
+                        PlantLots = new List<PlantLotDisplayModel>(),
+                        GraftedPlants = new List<GraftedPlantDisplayModel>()
+                    };
+                    displayModels[getPlanTarget.LandPlotID ?? 0] = displayModel;
+                }
+
+                // HashSet để tránh trùng lặp
+
+                var rowIds = new HashSet<int>(displayModel.Rows.Select(r => r.LandRowId != null ? r.LandRowId.Value : 0));
+                var plantIds = new HashSet<int>(displayModel.Plants.Select(p => p.PlantId != null ? p.PlantId.Value : 0));
+                var plantLotIds = new HashSet<int>(displayModel.PlantLots.Select(p => p.PlantLotId != null ? p.PlantLotId.Value : 0));
+                var graftedPlantIds = new HashSet<int>(displayModel.GraftedPlants.Select(g => g.GraftedPlantId != null ? g.GraftedPlantId.Value : 0));
+
+                bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
+
+                if (isFullMode || getPlanTarget.Unit == "Row")
+                {
+                    if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
+                    {
+                        var row = _mapper.Map<LandRowDisplayModel>(getPlanTarget.LandRow);
+                        displayModel.Rows.Add(row);
+                    }
+                }
+                if (isFullMode || getPlanTarget.Unit == "Plant")
+                {
+                    if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
+                    {
+                        var plant = _mapper.Map<PlantDisplayModel>(getPlanTarget.Plant);
+                        displayModel.Plants.Add(plant);
+                    }
+                }
+                if (isFullMode || getPlanTarget.Unit == "PlantLot")
+                {
+                    if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
+                    {
+                        var plantLot = _mapper.Map<PlantLotDisplayModel>(getPlanTarget.PlantLot);
+                        displayModel.PlantLots.Add(plantLot);
+                    }
+                }
+                if (isFullMode || getPlanTarget.Unit == "GraftedPlant")
+                {
+                    if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
+                    {
+                        var graftedPlant = _mapper.Map<GraftedPlantDisplayModel>(getPlanTarget.GraftedPlant);
+                        displayModel.GraftedPlants.Add(graftedPlant);
+                    }
+                }
+            }
+
+            return displayModels.Values.ToList();
         }
 
         public async Task<BusinessResult> GetScheduleEvents(ParamScheduleModel paramCalendarModel)
@@ -502,6 +380,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
+                if (scheduleFilter.GrowthStage != null)
+                {
+                    List<string> filterList = scheduleFilter.GrowthStage.Split(',', StringSplitOptions.TrimEntries)
+                                   .Select(f => f.ToLower()) // Chuyển về chữ thường
+                                   .ToList();
+
+                    foreach (var item in filterList)
+                    {
+                        filter = filter.And(x => x.Schedule.CarePlan.GrowthStagePlans.Any(y => y.GrowthStage.GrowthStageName.ToLower().Equals(item)));
+                    }
+                }
+
 
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
                 var result = entities
@@ -535,7 +425,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_NO_SCHEDULE_CODE, Const.WARNING_NO_SCHEDULE_MSG, new PageEntity<ScheduleModel>());
+                    return new BusinessResult(Const.WARNING_NO_SCHEDULE_CODE, Const.WARNING_NO_SCHEDULE_MSG, new List<ScheduleModel>());
                 }
             }
             catch (Exception ex)
@@ -1003,6 +893,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
             return url.Contains("/image/") && validImageExtensions.Contains(Path.GetExtension(url).ToLower());
+        }
+
+        public async Task<BusinessResult> DeleteWorkLog(int workLogId)
+        {
+            try
+            {
+                // Lấy WorkLog và include các bảng liên quan
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(
+                    x => x.WorkLogId == workLogId,
+                    "UserWorkLogs,TaskFeedbacks,Schedule"
+                );
+
+                if (getWorkLog == null)
+                {
+                    return new BusinessResult(404, "Cannot find any WorkLog");
+                }
+
+                // Nếu WorkLog đã quá hạn, không cho phép xóa
+                if (getWorkLog.Date <= DateTime.Now)
+                {
+                    return new BusinessResult(404, "This WorkLog is overdue. Cannot delete");
+                }
+
+                int result = 0;
+
+               
+
+                // Xóa danh sách UserWorkLogs (nếu có)
+                if (getWorkLog.UserWorkLogs?.Any() == true)
+                {
+                    _unitOfWork.UserWorkLogRepository.RemoveRange(getWorkLog.UserWorkLogs);
+                }
+
+                // Xóa danh sách TaskFeedbacks (nếu có)
+                if (getWorkLog.TaskFeedbacks?.Any() == true)
+                {
+                    _unitOfWork.TaskFeedbackRepository.RemoveRange(getWorkLog.TaskFeedbacks);
+                }
+
+                if (getWorkLog.ScheduleId != null)
+                {
+                    var getScheduleDelete = await _unitOfWork.CarePlanScheduleRepository.GetByID(getWorkLog.ScheduleId.Value);
+                    if (getScheduleDelete != null)
+                    {
+                        _unitOfWork.CarePlanScheduleRepository.Delete(getScheduleDelete);
+                    }
+                }
+
+                // Xóa chính WorkLog
+                _unitOfWork.WorkLogRepository.Delete(getWorkLog);
+
+                // Lưu tất cả thay đổi trong một lần
+                result = await _unitOfWork.SaveAsync();
+
+                if (result > 0)
+                {
+                    return new BusinessResult(200, "Delete WorkLog Success", result);
+                }
+                else
+                {
+                    return new BusinessResult(400, "Delete WorkLog Failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
     }

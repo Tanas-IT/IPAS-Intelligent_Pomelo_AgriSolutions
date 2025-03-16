@@ -189,7 +189,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<User, ReporterModel>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.AvatarURL))
+                .ForMember(dest => dest.avatarURL, opt => opt.MapFrom(src => src.AvatarURL))
                 .ReverseMap();
 
             CreateMap<WorkLog, WorkLogInPlanModel>()
@@ -227,28 +227,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<Plan, PlanModel>()
-               .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
+               .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : (string?)null))
              .ForMember(dest => dest.Frequency,
                                                     opt => opt.MapFrom(src => src.CarePlanSchedule != null && src.CarePlanSchedule.CarePlan != null
                                                         ? src.CarePlanSchedule.CarePlan.Frequency
-                                                        : ""))
+                                                        : (string?)null))
                 .ForMember(dest => dest.LandPlotNames, opt => opt.MapFrom(src =>
                                                            src.PlanTargets.Where(pt => pt.LandPlot != null).Select(pt => pt.LandPlot.LandPlotName).Distinct().ToList()))
                .ForMember(dest => dest.PlantLotNames, opt => opt.MapFrom(src =>
                                                             src.PlanTargets.Where(pt => pt.PlantLot != null).Select(pt => pt.PlantLot.PlantLotName).Distinct().ToList()))
                 .ForMember(dest => dest.PlantNames, opt => opt.MapFrom(src =>
                                                             src.PlanTargets.Where(pt => pt.Plant != null).Select(pt => pt.Plant.PlantName).Distinct().ToList()))
-               .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : ""))
-               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : ""))
-               .ForMember(dest => dest.CropId, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropId : -1))
-               .ForMember(dest => dest.ProcessId, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessId : -1))
-               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeId : -1))
+               .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : (string?)null))
+               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : (string?)null))
+              .ForMember(dest => dest.CropId, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropId : (int?)null))
+               .ForMember(dest => dest.ProcessId, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessId : (int?)null))
+               .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeId : (int?)null))
                .ForMember(dest => dest.GraftedPlantName, opt => opt.MapFrom(src =>
                                                             src.PlanTargets.Where(pt => pt.GraftedPlant != null).Select(pt => pt.GraftedPlant.GraftedPlantName).Distinct().ToList()))
                .ForMember(dest => dest.GrowthStages, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => new ForSelectedModels() { Id = pt.GrowthStage.GrowthStageID, Name = pt.GrowthStage.GrowthStageName }).Distinct().ToList()))
-               .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : ""))
+               .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : (string?)null))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
-               .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : ""))
+               .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : (string?)null))
                .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
                                                                  src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
                                                                 ? src.CarePlanSchedule.WorkLogs
@@ -315,7 +315,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<ProductHarvestHistory, ProductHarvestHistoryModel>()
-               .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.MasterType.TypeName))
+               .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.TypeName))
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
                .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
                 .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant.PlantIndex))

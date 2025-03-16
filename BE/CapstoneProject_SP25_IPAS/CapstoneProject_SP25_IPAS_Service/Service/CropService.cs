@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.WebSockets;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,7 +70,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         EndDate = cropCreateRequest.EndDate,
                         IsDeleted = false
                     };
-                    if(crop.StartDate > DateTime.Now)
+                    if (crop.StartDate > DateTime.Now)
                         crop.Status = CropStatusEnum.Planned.ToString();
                     else crop.Status = CropStatusEnum.Active.ToString();
                     foreach (var landplotId in cropCreateRequest.LandPlotId)
@@ -209,7 +211,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getCrop(int CropId)
+        public async Task<BusinessResult> getCropById(int CropId)
         {
             try
             {
@@ -217,6 +219,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (crop == null)
                     if (crop == null) return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
                 var mappedResult = _mapper.Map<CropModel>(crop);
+                // tinh tong tat ca san pham ma da ghi nhan thu hoach
+                foreach (var harvest in crop.HarvestHistories)
+                {
+                    var ProdutRecord = harvest.ProductHarvestHistories.Where(x => x.PlantId.HasValue).Sum(x => x.ActualQuantity) ?? 0;
+                    mappedResult.YieldHasRecord += ProdutRecord;
+                }
                 foreach (var cropItem in mappedResult.LandPlotCrops)
                 {
                     cropItem.LandPlot = null!;
@@ -234,7 +242,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getCropInCurrentTime = await _unitOfWork.CropRepository.GetCropsInCurrentTime();
-                if(getCropInCurrentTime != null && getCropInCurrentTime.Any())
+                if (getCropInCurrentTime != null && getCropInCurrentTime.Any())
                 {
                     return new BusinessResult(200, "Get crop in current time success", getCropInCurrentTime);
                 }
@@ -252,7 +260,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getLandPlotOfCrop = await _unitOfWork.CropRepository.GetLandPlotOfCrops(cropId);
-                if(getLandPlotOfCrop != null && getLandPlotOfCrop.Any())
+                if (getLandPlotOfCrop != null && getLandPlotOfCrop.Any())
                 {
                     return new BusinessResult(200, "Get LandPlot of Crop success", getLandPlotOfCrop);
                 }

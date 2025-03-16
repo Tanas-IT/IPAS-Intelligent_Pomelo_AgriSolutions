@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest
 {
-    public class CreateHarvestTypeWoutPlantID
+    public class CreateProductHarvestWoutPlantID
     {
         [Required]
         public int MasterTypeId { get; set; }
@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Har
 
         public double? SellPrice { get; set; }
         [Required]
-        public int? Quantity { get; set; }
+        public int? QuantityNeed { get; set; }
         //public int? ProcessId { get; set; }
     }
 }

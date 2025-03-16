@@ -5,6 +5,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -20,7 +22,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandPlot.getLandPlotById + "/{landplot-id}", Name = "getLandPlotByIdAsync")]
         public async Task<IActionResult> GetLantPlotByIdAsync([FromRoute(Name = "landplot-id")] int landplotId)
         {
@@ -28,7 +30,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
 
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPaginAsync")]
         public async Task<IActionResult> getAllLandPlotNoPaginAsync([FromQuery] int? farmId, string? searchKey)
         {
@@ -47,7 +49,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             var result = await _landPlotService.GetAllLandPlotNoPagin(farmId: farmId!.Value, searchKey: searchKey);
             return Ok(result);
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.LandPlot.getLandPlotEmpty, Name = "getLandPlotEmptyAsync")]
         public async Task<IActionResult> getLandPlotEmptyAsync([FromQuery] int? farmId)
         {
@@ -67,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandPlot.getAllForSelected, Name = "GetAllForSelectedAsync")]
         public async Task<IActionResult> getAllForSelectedAsync([FromQuery] int? farmId)
         {
@@ -87,6 +90,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpPost(APIRoutes.LandPlot.createLandPlot, Name = "createLandPlotAsync")]
         public async Task<IActionResult> CreateLandPlotAsync([FromBody] LandPlotCreateRequest landPlotCreateRequest)
         {
@@ -103,6 +107,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.LandPlot.updateLandPlotInfo, Name = "updateLandPlotInfoAsync")]
         public async Task<IActionResult> updateLandPlotInfoAsync([FromBody] LandPlotUpdateRequest landplotUpdateModel)
         {
@@ -115,6 +120,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpPut(APIRoutes.LandPlot.updateLandPlotCoordination, Name = "updateLandPlotCooridinationAsync")]
         public async Task<IActionResult> UpdateLandPlotCoorAsync([FromBody] LandPlotUpdateCoordinationRequest updateCoorRequest)
         {
@@ -126,6 +132,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpDelete(APIRoutes.LandPlot.deleteLandPlotOfFarm, Name = "DeleteLandPlotAsync")]
         public async Task<IActionResult> DeleteLandPlot([FromQuery] int landPlotId)
         {
@@ -141,6 +148,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpPatch(APIRoutes.LandPlot.deleteSoftedLandPlotOfFarm, Name = "deleteSoftedLandPlotOfFarm")]
         public async Task<IActionResult> deleteSoftedLandPlotOfFarm([FromBody] int plantIds)
         {

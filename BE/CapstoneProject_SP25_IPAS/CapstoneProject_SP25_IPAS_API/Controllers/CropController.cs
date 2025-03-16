@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
@@ -21,12 +23,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getCropById + "/{crop-id}", Name = "getCropById")]
         public async Task<IActionResult> GetCropByIdAsync([FromRoute(Name = "crop-id")] int cropId)
         {
             try
             {
-                var result = await _cropService.getCrop(cropId);
+                var result = await _cropService.getCropById(cropId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,6 +43,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getAllCropOfFarm , Name = "getAllCropsOfFarm")]
         public async Task<IActionResult> GetAllCropsOfFarmAsync([FromQuery] int? farmId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
         {
@@ -71,6 +75,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getAllCropOfLandPlot, Name = "getAllCropsOfLandPlot")]
         public async Task<IActionResult> GetAllCropsOfLandPlotAsync([FromQuery] int? landPlotId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
         {
@@ -89,7 +94,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Crop.getAllCropOfLandPlotForSelect , Name = "getAllCropsOfLandPlotForSelect")]
         public async Task<IActionResult> GetAllCropsOfLandPlotForSelectAsync([FromQuery] int? landplotId, string? searchValue)
         {
@@ -112,7 +118,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Crop.createCrop, Name = "createCrop")]
         public async Task<IActionResult> CreateCropAsync([FromBody] CropCreateRequest cropCreateRequest)
         {
@@ -144,6 +150,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.Crop.updateCropInfo, Name = "updateCrop")]
         public async Task<IActionResult> UpdateCropAsync([FromBody] CropUpdateInfoRequest cropUpdateRequest)
         {
@@ -163,6 +170,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Crop.deleteSoftedCrop + "/{crop-id}", Name = "softDeleteCrop")]
         public async Task<IActionResult> SoftDeleteCropAsync([FromRoute(Name = "crop-id")] int cropId)
         {
@@ -182,6 +190,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Crop.deletePanentlyCrop + "/{crop-id}", Name = "permanentDeleteCrop")]
         public async Task<IActionResult> PermanentDeleteCropAsync([FromRoute(Name = "crop-id")] int cropId)
         {
@@ -201,6 +210,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getCropInCurrentTime, Name = "getCropInCurrentTime")]
         public async Task<IActionResult> GetCropInCurrentTimeAsync()
         {
@@ -220,6 +230,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getLandPlotOfCrop, Name = "getLandPlotOfCrop")]
         public async Task<IActionResult> GetLandPlotOfCropAsync([FromRoute] int cropId)
         {
