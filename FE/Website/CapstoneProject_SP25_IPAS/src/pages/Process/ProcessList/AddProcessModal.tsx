@@ -6,11 +6,12 @@ import { fetchGrowthStageOptions, fetchTypeOptionsByName, getFarmId, RulesManage
 import { MASTER_TYPE, processFormFields } from "@/constants";
 import { Icons } from "@/assets";
 import AddPlanModal from "./AddPlanModal";
-import { processService } from "@/services";
+import { planService, processService } from "@/services";
 import { ProcessRequest } from "@/payloads/process/requests";
 import { toast } from "react-toastify";
 import { useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "./PlanList";
+import { SelectOption } from "@/types";
 
 type ProcessModalProps = {
     isOpen: boolean;
@@ -36,8 +37,9 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
     // const [form] = Form.useForm();
     // const [planForm] = Form.useForm();
     const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
+    const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
     const farmId = Number(getFarmId());
-    const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+    // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
     const {
         plans, planForm, isPlanModalOpen, editPlan,
         handleAddPlan, handleEditPlan, handleDeletePlan,
@@ -100,6 +102,15 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
         setIsSample(newChecked);
     };
 
+    const handleGrowthStageChange = async (grStId: number) => {
+        await planService.filterTypeWorkByGrowthStage([grStId]).then((data) => {
+            setProcessTypeOptions(data.map((item) => ({
+                value: item.masterTypeId,
+                label: item.masterTypeName
+            })))
+        });
+    }
+
 
     return (
         <ModalForm isOpen={isOpen} onSave={handleOk} onClose={handleCancel} title="Add New Process" isUpdate={false}>
@@ -118,6 +129,7 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                         name={processFormFields.growthStageId}
                         options={growthStageOptions}
                         rules={RulesManager.getGrowthStageRules()}
+                        onChange={(value) => handleGrowthStageChange(value)}
                         type="select" />
                     <FormFieldModal
                         label="Process Type"

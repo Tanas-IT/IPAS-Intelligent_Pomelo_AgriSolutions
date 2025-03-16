@@ -78,6 +78,7 @@ function ProcessDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+  
   const {
     plans,
     planForm,

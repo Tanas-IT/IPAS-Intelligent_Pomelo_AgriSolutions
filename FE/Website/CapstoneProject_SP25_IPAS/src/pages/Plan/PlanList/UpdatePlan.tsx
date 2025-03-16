@@ -125,6 +125,8 @@ const UpdatePlan = () => {
     const dateFormat = 'YYYY/MM/DD';
     const timeFormat = 'HH:mm:ss';
     console.log("selectedGrowthStage", selectedGrowthStage);
+    console.log("isTargetDisabled", isTargetDisabled);
+    
     
 
     useEffect(() => {
@@ -455,7 +457,7 @@ const UpdatePlan = () => {
                     }
                     if (result.cropId) {
                         setSelectedCrop(result.cropId);
-                        setIsTargetDisabled(false); // Enable nút Add target nếu có cropId
+                        setIsTargetDisabled(true); // Enable nút Add target nếu có cropId
                     }
                     setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
                     setSelectedEmployees(mergedEmployees);
@@ -587,6 +589,7 @@ const UpdatePlan = () => {
                                     hasFeedback={false}
                                     onChange={(value) => {
                                         setSelectedCrop(value);
+                                        setIsTargetDisabled(true)
                                         form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
                                         form.setFieldsValue({ planTargetModel: [] });
                                     }}
@@ -597,6 +600,7 @@ const UpdatePlan = () => {
                                         setSelectedCrop(null);
                                         form.setFieldValue("cropId", undefined);
                                         form.setFieldValue("listLandPlotOfCrop", []);
+                                        setIsTargetDisabled(false)
                                     }}>
                                     <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
                                 </div>
@@ -751,7 +755,7 @@ const UpdatePlan = () => {
                     graftedPlants={graftedPlantsOptions}
                     selectedGrowthStage={selectedGrowthStage}
                     initialValues={planData?.planTargetModels}
-                    hasSelectedCrop={!isTargetDisabled}
+                    hasSelectedCrop={isTargetDisabled}
                     onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
                 />
 

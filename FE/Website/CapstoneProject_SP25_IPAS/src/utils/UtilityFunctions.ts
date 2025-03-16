@@ -418,6 +418,11 @@ export const getGrowthStageOfProcess = async (processId: number): Promise<number
   return res.processGrowthStageModel.growthStageId;
 }
 
+export const getTypeOfProcess = async (processId: number): Promise<number> => {
+  const res = await getProcessDetail(processId);
+  return res.processMasterTypeModel.masterTypeId;
+}
+
 export const isTargetOverlapping = (
   index: number,
   newLandPlotId: number | undefined,

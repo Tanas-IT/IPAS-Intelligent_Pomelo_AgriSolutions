@@ -26,6 +26,7 @@ import {
   fetchUserInfoByRole,
   getFarmId,
   getGrowthStageOfProcess,
+  getTypeOfProcess,
   getUserId,
   isDayInRange,
   RulesManager,
@@ -110,7 +111,9 @@ const AddPlan = () => {
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
+      const masterTypeId = await getTypeOfProcess(processId);
       form.setFieldValue("growthStageId", [growthStageId]);
+      form.setFieldValue("masterTypeId", Number(masterTypeId));
       setIsLockedGrowthStage(true);
 
       const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {

@@ -79,7 +79,6 @@ const AddPlanModal = ({
           name={processFormFields.growthStageId}
           options={growthStageOptions}
           isEditing
-          // rules={RulesManager.getGrowthStageRules()}
           type="select"
         />
         <InfoField
