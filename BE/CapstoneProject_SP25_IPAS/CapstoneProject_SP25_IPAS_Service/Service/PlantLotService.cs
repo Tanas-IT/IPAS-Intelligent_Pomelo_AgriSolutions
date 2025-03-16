@@ -155,7 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkPartnerExist == null)
                         return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
 
-                    // 🔹 7. Tạo lô cây (PlantLot)
+                    //  7. Tạo lô cây (PlantLot)
                     var plantLot = new PlantLot()
                     {
                         PlantLotCode = $"{CodeAliasEntityConst.PLANT_LOT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{createPlantLotModel.ImportedQuantity}",
@@ -173,6 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotReferenceId = null,
                         isDeleted = false,
                         IsPassed = false,
+                        IsFromGrafted = createPlantLotModel.IsFromGrafted,
                         //InputQuantity = 0
                     };
 
@@ -329,7 +330,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string includeProperties = "CriteriaTargets";
+                string includeProperties = "CriteriaTargets,InversePlantLotReference";
                 var entityPlantLotDelete = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId, includeProperties);
                 _unitOfWork.PlantLotRepository.Delete(entityPlantLotDelete);
                 var result = await _unitOfWork.SaveAsync();
@@ -378,6 +379,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    || x.Note.ToLower().Contains(paginationParameter.Search.ToLower())
                                    || x.Partner.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower()));
                     //}
+                }
+                if (filterRequest.isFromGrafted.HasValue)
+                {
+                    filter = filter.And(x => x.IsFromGrafted == filterRequest.isFromGrafted);
                 }
                 if (!string.IsNullOrEmpty(filterRequest.PartnerId))
                 {
@@ -704,7 +709,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 FarmId = landPlot.FarmId,
                                 IsDeleted = false,
                                 GrowthStageID = fillRequest.growthStageId,
-                                MasterTypeId = plantLot.MasterTypeId,  // gán giống của lô đó vào cho cây này
+                                MasterTypeId = plantLot.MasterTypeId,  // gán giống của lô đó vào cho cây này (cần kiểm tra xem lô cây đó là chiét ra hay sao nữa)
                                 PlantIndex = availableIndexes[i], // Gán vị trí trống hợp lệ
                                 IsDead = false,
                             };
@@ -736,14 +741,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetForSelectedByFarmId(int farmId)
+        public async Task<BusinessResult> GetForSelectedByFarmId(int farmId, bool? isFromGrafted)
         {
             try
             {
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.isDeleted == false;
+                if (isFromGrafted.HasValue)
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
-                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.isDeleted == false, orderBy: orderBy);
+                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (plantLot != null)
                 {
                     var result = _mapper.Map<IEnumerable<ForSelectedModels>>(plantLot);

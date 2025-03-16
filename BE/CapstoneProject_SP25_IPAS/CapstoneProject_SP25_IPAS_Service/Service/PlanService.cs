@@ -2399,7 +2399,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         case "plantlot":
                             var validPlantLotsTemp = await _unitOfWork.PlantLotRepository.GetAllNoPaging();
-                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
+                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && (getAllPlants /*|| growthStageIds.Contains(pl.GrowthStageID)*/))
                                 .ToList();
 
                             if (validPlantLots.Any())

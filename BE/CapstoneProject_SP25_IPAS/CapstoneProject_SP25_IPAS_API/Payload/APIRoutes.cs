@@ -395,6 +395,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
             public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
+            public const string GroupGraftedPlantsIntoPlantLot = prefix + "/grouping";
+            public const string CreatePlantFromGrafted = prefix + "/create-plant";
 
             public const string graftedNotePrefix = prefix + "/note";
             public const string createGraftedNote = graftedNotePrefix + "";

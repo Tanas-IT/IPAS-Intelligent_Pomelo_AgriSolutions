@@ -337,7 +337,7 @@ public partial class IpasContext : DbContext
                 //.HasMaxLength(100)
                 //.UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Note).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PlantId).HasColumnName("PlantID");
+            entity.Property(e => e.MortherPlantId).HasColumnName("MortherPlantID");
             entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");
             entity.Property(e => e.SeparatedDate).HasColumnType("datetime");
             entity.Property(e => e.Status)
@@ -345,7 +345,7 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.HasOne(d => d.Plant).WithMany(p => p.GraftedPlants)
-                .HasForeignKey(d => d.PlantId)
+                .HasForeignKey(d => d.MortherPlantId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__GraftedPl__Plant__531856C7");
 
@@ -354,9 +354,9 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("GraftedPlant_PlantLot_FK");
 
-            entity.HasOne(d => d.GrowthStageInclude).WithMany(p => p.GraftedPlants)
-                .HasForeignKey(d => d.GrowthStageID)
-                .HasConstraintName("GraftedPlant_GrowthStage_FK");
+            //entity.HasOne(d => d.GrowthStageInclude).WithMany(p => p.GraftedPlants)
+            //    .HasForeignKey(d => d.GrowthStageID)
+            //    .HasConstraintName("GraftedPlant_GrowthStage_FK");
         });
 
         modelBuilder.Entity<GraftedPlantNote>(entity =>
@@ -444,7 +444,7 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.HarvestHistoryId)
                 .HasConstraintName("FK__HarvestTy__Harve__40058253");
 
-            entity.HasOne(d => d.MasterType).WithMany(p => p.HarvestTypeHistories)
+            entity.HasOne(d => d.Product).WithMany(p => p.HarvestTypeHistories)
                 .HasForeignKey(d => d.MasterTypeId)
                 .HasConstraintName("ProductHarvestHistory_MasterType_FK");
 
@@ -974,9 +974,9 @@ public partial class IpasContext : DbContext
                .HasForeignKey(d => d.FarmID)
                .HasConstraintName("FK_PlantLot_Farm");
 
-            entity.HasOne(d => d.GrowthStage).WithMany(p => p.PlantLots)
-                .HasForeignKey(d => d.GrowthStageID)
-                .HasConstraintName("PlantLot_GrowthStage_FK");
+            //entity.HasOne(d => d.GrowthStage).WithMany(p => p.PlantLots)
+            //    .HasForeignKey(d => d.GrowthStageID)
+            //    .HasConstraintName("PlantLot_GrowthStage_FK");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.PlantLots)
                 .HasForeignKey(d => d.MasterTypeId)

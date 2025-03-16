@@ -25,6 +25,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using System.Net.WebSockets;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -78,11 +79,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
                         GraftedPlantName = createRequest.GraftedPlantName,
                         //GrowthStage = createRequest.GrowthStage,
-                        Status = /*createRequest.Status*/ "",
+                        Status = GraftedPlantStatusConst.HEALTHY,
                         GraftedDate = createRequest.GraftedDate,
                         Note = createRequest.Note,
-                        PlantId = plantExist.PlantId,
+                        MortherPlantId = plantExist.PlantId,
                         IsDeleted = false,
+                        IsCompleted = false,
                     };
 
                     //// Insert the new grafted entity into the repository
@@ -223,14 +225,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(getRequest.PlantIds))
                 {
                     var filterList = Util.SplitByComma(getRequest.PlantIds);
-                    filter = filter.And(x => filterList.Contains(x.PlantId.ToString()!));
+                    filter = filter.And(x => filterList.Contains(x.MortherPlantId.ToString()!));
                 }
 
                 //if (!string.IsNullOrEmpty(getRequest.GrowthStage))
                 //    filter = filter.And(x => x.GrowthStage!.ToLower().Contains(getRequest.GrowthStage.ToLower()));
 
                 if (!string.IsNullOrEmpty(getRequest.Status))
-                    filter = filter.And(x => x.Status!.ToLower().Contains(getRequest.Status.ToLower()));
+                {
+                    var filterList = Util.SplitByComma(getRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+
+                    //filter = filter.And(x => x.Status!.ToLower().Contains(getRequest.Status.ToLower()));
+                }
 
                 if (getRequest.SeparatedDateFrom.HasValue && getRequest.SeparatedDateTo.HasValue)
                 {
@@ -336,7 +343,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     existingGraftedPlant.SeparatedDate = updateRequest.SeparatedDate.Value;
 
                 if (!string.IsNullOrEmpty(updateRequest.Status))
+                {
+                    if (updateRequest.Status.Equals(GraftedPlantStatusConst.IS_USED, StringComparison.OrdinalIgnoreCase) && existingGraftedPlant.IsCompleted == false)
+                        return new BusinessResult(400, "This grafted is not complete to use");
                     existingGraftedPlant.Status = updateRequest.Status;
+                }
 
                 if (updateRequest.GraftedDate.HasValue)
                     existingGraftedPlant.GraftedDate = updateRequest.GraftedDate.Value;
@@ -448,17 +459,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
                     // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
                     var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
-                    
+
                     var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredCondition);
                     if (checkCriteriaBefore.enable == true)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);
 
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
                     {
+                        // neu complete xong add vô trong lô thì có thể truyền lotId liền luôn, còn ko thì để đó
                         var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
                         if (checkPlantLotExist == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                        checkPlantLotExist.InputQuantity += 1;
+                        _unitOfWork.PlantLotRepository.Update(checkPlantLotExist);
                         checkGraftedExist.PlantLotId = request.PlantLotId.Value;
+                        checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
                     }
                     checkGraftedExist.IsCompleted = true;
                     checkGraftedExist.SeparatedDate = DateTime.Now;
@@ -604,7 +619,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 errors.Add("This plant is not healthy enough to be grafted, please check again.");
             // kiểm tra xem cây đã chiết bao nhiêu cành trong năm nay để ko cho chiết nữa
             var maxGraftedBranches = CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
-            var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.PlantId == plantId
+            var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.MortherPlantId == plantId
                 && !x.IsDeleted!.Value
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
@@ -699,7 +714,195 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 ChildPlants = GetDescendants(child, generation + 1)
             }).ToList();
         }
+        public async Task<BusinessResult> GroupGraftedPlantsIntoPlantLot(GroupingGraftedRequest request)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    //  1️ Kiểm tra lô tồn tại
+                    var plantLot = await _unitOfWork.PlantLotRepository
+                        .GetByCondition(x => x.PlantLotId == request.plantLotId && x.isDeleted == false);
 
+                    if (plantLot == null)
+                        return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, "PlantLot does not exist.");
+
+                    //  2️ Lấy danh sách GraftedPlants truyền vào
+                    var graftedPlants = await _unitOfWork.GraftedPlantRepository
+                        .GetAllNoPaging(filter: x => request.graftedPlantIds.Contains(x.GraftedPlantId), includeProperties: "Plant");
+
+                    if (!graftedPlants.Any())
+                        return new BusinessResult(400, "No valid GraftedPlants found.");
+
+                    List<string> errorMessages = new();
+
+                    //  3️ Kiểm tra điều kiện từng graftedPlant
+                    foreach (var grafted in graftedPlants)
+                    {
+                        if (grafted.IsDeleted == true)
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is deleted.");
+
+                        if (grafted.IsCompleted == false)
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is not completed yet.");
+
+                        if (grafted.Status!.Equals(GraftedPlantStatusConst.GROUPED, StringComparison.OrdinalIgnoreCase) || grafted.Status.Equals(GraftedPlantStatusConst.IS_USED, StringComparison.OrdinalIgnoreCase))
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is already used.");
+                    }
+                    var distinctMasterTypes = graftedPlants
+                        .Where(gp => gp.Plant != null)
+                        .Select(gp => gp.Plant!.MasterTypeId)
+                        .Distinct()
+                        .ToList();
+
+                    if (distinctMasterTypes.Count > 1)
+                    {
+                        return new BusinessResult(400, "All GraftedPlants must have the same seeding to be grouped.");
+                    }
+
+                    int? selectedMasterTypeId = distinctMasterTypes.FirstOrDefault();
+
+                    // 🔹 6️⃣ Kiểm tra MasterType của PlantLot
+                    if (plantLot.MasterTypeId == null)
+                    {
+                        // Nếu PlantLot chưa có giống, gán MasterType của GraftedPlant vào
+                        plantLot.MasterTypeId = selectedMasterTypeId;
+                    }
+                    else if (plantLot.MasterTypeId != selectedMasterTypeId)
+                    {
+                        return new BusinessResult(400, "The PlantLot has a different seeding. Cannot group these Grafted Plants.");
+                    }
+                    //  4️ Nếu có lỗi, trả về danh sách lỗi
+                    if (errorMessages.Any())
+                        return new BusinessResult(400, "Some thing wrong.", new { Errors = errorMessages });
+
+                    //  5️ Cập nhật GraftedPlant & số lượng PlantLot
+                    foreach (var grafted in graftedPlants)
+                    {
+
+                        grafted.PlantLotId = plantLot.PlantLotId;   // Đánh dấu đã gán vào lô
+                        grafted.Status = GraftedPlantStatusConst.GROUPED;
+                        grafted.Plant = null;
+                    }
+
+                    // 6️ Cập nhật lại số lượng của lô
+                    plantLot.PreviousQuantity = plantLot.PreviousQuantity.GetValueOrDefault() + graftedPlants.Count();
+
+                    // 7️ Lưu 
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);
+                    _unitOfWork.PlantLotRepository.Update(plantLot);
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(200, $"Successfully grouped {graftedPlants.Count()} GraftedPlants into PlantLot. {plantLot.PlantLotName}", true);
+                    }
+                    else
+                    {
+                        return new BusinessResult(500, "Failed to save changes.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(500, ex.Message);
+                }
+            }
+
+        }
+        public async Task<BusinessResult> CreatePlantFromGrafted(CreatePlantFromGraftedRequest request)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    //  1️ Kiểm tra GraftedPlant có tồn tại không
+                    var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.graftedId && x.IsDeleted == false);
+                    if (graftedPlant == null)
+                        return new BusinessResult(400, "GraftedPlant does not exist.");
+                    if (graftedPlant.IsCompleted == false)
+                        return new BusinessResult(400, "This grafted not complete to plant.");
+                    var motherPlant = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == graftedPlant.MortherPlantId);
+                    //  2️ Kiểm tra điều kiện
+
+                    if (graftedPlant.Status == GraftedPlantStatusConst.IS_USED)
+                        return new BusinessResult(400, $"GraftedPlant {graftedPlant.GraftedPlantCode} is already used.");
+
+
+                    if (graftedPlant.Status != GraftedPlantStatusConst.HEALTHY)
+                        return new BusinessResult(400, $"GraftedPlant {graftedPlant.GraftedPlantCode} is not in a healthy condition for planting.");
+
+
+
+                    // 2.1 kiểm tra vị trí sắp trồng có trống hay ko
+                    var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == request.LandRowId, "Plants,LandPlot");
+                    if (landrowExist == null)
+                        return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
+                    if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
+                        return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
+                    if (landrowExist.Plants.Any(x => x.PlantIndex == request.PlantIndex && x.IsDead == false && x.IsDeleted == false))
+                        return new BusinessResult(400, $"Index {request.PlantIndex} in row {landrowExist.RowIndex} has exist plant");
+
+                    if (graftedPlant.Status.Equals(GraftedPlantStatusConst.GROUPED, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == graftedPlant.PlantLotId);
+                        if (plantLotExist.UsedQuantity.HasValue && plantLotExist.UsedQuantity.Value == plantLotExist.LastQuantity.Value)
+                            return new BusinessResult(400, "Plant lot of this grafted plant has used completed.");
+                        plantLotExist.PreviousQuantity -= 1;
+                        plantLotExist.LastQuantity = plantLotExist.LastQuantity.Value > 0 ? plantLotExist.LastQuantity - 1 : null;
+                        plantLotExist.InputQuantity = plantLotExist.InputQuantity.Value > 0 ? plantLotExist.InputQuantity - 1 : null;
+                        // cap nhat lai plantlot
+                        _unitOfWork.PlantLotRepository.Update(plantLotExist);
+                    }
+
+                    //  4️ Tạo mới một Plant từ GraftedPlant
+                    var newPlant = new Plant
+                    {
+                        PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(motherPlant.PlantCode!).First()}",
+                        PlantName = graftedPlant.GraftedPlantName,
+                        PlantingDate = DateTime.Now,
+                        CreateDate = DateTime.Now,
+                        HealthStatus = graftedPlant.Status,
+                        MasterTypeId = motherPlant.MasterTypeId ?? null, // Lấy MasterTypeId từ MotherPlant
+                        PlantReferenceId = graftedPlant.MortherPlantId, // Gán cây mẹ
+                        Description = $"Generated from GraftedPlant {graftedPlant.GraftedPlantCode}",
+                        FarmId = graftedPlant.FarmId,
+                        LandRowId = request.LandRowId, // Chưa có hàng trồng cụ thể
+                        IsDeleted = false,
+                        IsPassed = false,
+                        IsDead = false,
+                        PlantIndex = request.PlantIndex
+                    };
+                    newPlant.PlantName = $"Plant {newPlant.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
+                    //  5️ Cập nhật trạng thái của GraftedPlant thành IS_USED
+                    graftedPlant.FinishedPlantCode = newPlant.PlantCode;
+                    graftedPlant.Status = GraftedPlantStatusConst.IS_USED;
+
+                    // 6️ cap nhật PlantLot bên kia vì đã sài cây này rồi
+
+                    await _unitOfWork.PlantRepository.Insert(newPlant);
+                    _unitOfWork.GraftedPlantRepository.Update(graftedPlant);
+
+                    //  7️ Lưu thay đổi vào DB
+                    int result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        var mappedPlant = _mapper.Map<PlantModel>(newPlant);
+                        return new BusinessResult(200, "Successfully created Plant from GraftedPlant.", mappedPlant);
+                    }
+                    else
+                    {
+                        return new BusinessResult(500, "Failed to save changes.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(500, ex.Message);
+                }
+            }
+        }
     }
 }
 

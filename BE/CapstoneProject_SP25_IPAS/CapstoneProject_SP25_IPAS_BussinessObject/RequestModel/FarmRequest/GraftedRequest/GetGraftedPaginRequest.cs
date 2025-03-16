@@ -16,16 +16,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Gra
         // filter here
         public string? PlantIds { get; set; }
 
-        public string? GrowthStage { get; set; }
-
+        //public string? GrowthStage { get; set; }
         public DateTime? SeparatedDateFrom { get; set; }
         public DateTime? SeparatedDateTo { get; set; }
-
         public string? Status { get; set; }
-
         public DateTime? GraftedDateFrom { get; set; }
         public DateTime? GraftedDateTo { get; set; }
-
         public string? PlantLotId { get; set; }
 
     }
