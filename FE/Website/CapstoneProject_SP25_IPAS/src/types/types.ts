@@ -40,7 +40,7 @@ export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 export type FilterMasterTypeState = {
   createDateFrom: string;
   createDateTo: string;
-  typeName: string[];
+  isActive: boolean | null;
 };
 
 export type FilterPlantLotState = {
@@ -49,6 +49,13 @@ export type FilterPlantLotState = {
   partnerId: string[];
   previousQuantityFrom: number | undefined;
   previousQuantityTo: number | undefined;
+};
+
+export type FilterCriteriaState = {
+  createDateFrom: string;
+  createDateTo: string;
+  target: string[];
+  isActive: boolean | null;
 };
 
 export type FilterPlantState = {

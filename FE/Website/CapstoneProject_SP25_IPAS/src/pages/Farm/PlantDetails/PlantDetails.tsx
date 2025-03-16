@@ -6,6 +6,7 @@ import { Tooltip } from "@/components";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import PlantDetail from "./PlantDetail/PlantDetail";
+import PlantCriteria from "./PlantCriteria/PlantCriteria";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -30,7 +31,7 @@ function PlantDetails() {
       key: "3",
       icon: <Icons.criteria className={style.iconTab} />,
       label: <label className={style.titleTab}>Criteria</label>,
-      children: "Content of Tab Pane 3",
+      children: <PlantCriteria />,
     },
     {
       key: "4",

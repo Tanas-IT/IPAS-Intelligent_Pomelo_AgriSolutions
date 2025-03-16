@@ -1,6 +1,4 @@
-import { Table, Button, InputNumber, Select } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
-import { CRITERIA_TARGETS } from "@/constants";
+import { Table, InputNumber } from "antd";
 import style from "./TableApplyCriteria.module.scss";
 import { Icons } from "@/assets";
 

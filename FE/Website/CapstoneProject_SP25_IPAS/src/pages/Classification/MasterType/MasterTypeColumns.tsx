@@ -11,7 +11,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
     header: "Code",
     field: "masterTypeCode",
     accessor: (item) => <TableCell value={item.masterTypeCode} isCopyable={true} />,
-    width: 160,
+    width: 200,
   },
   {
     header: "Name",
@@ -29,7 +29,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
     header: "Description",
     field: "masterTypeDescription",
     accessor: (item) => <TableCell value={item.masterTypeDescription} />,
-    width: 300,
+    width: 250,
   },
   {
     header: "Created Date",

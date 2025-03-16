@@ -22,7 +22,6 @@ const AddPlantsModal = ({
   isLoadingAction,
 }: AddPlantsModalProps) => {
   if (!rowData) return;
-  console.log(rowData);
   const [plantList, setPlantList] = useState<GetPlant[]>([]);
   const [selectedPlants, setSelectedPlants] = useState<{ plantId: number; position?: number }[]>(
     [],
@@ -33,11 +32,9 @@ const AddPlantsModal = ({
   useEffect(() => {
     const fetchPlants = async () => {
       const res = await plantService.getPlantNoPositionSelect();
-      console.log(res);
 
       if (res.statusCode === 200) {
         setPlantList(res.data);
-        // setFilteredPlants(res.data);
       }
     };
     fetchPlants();

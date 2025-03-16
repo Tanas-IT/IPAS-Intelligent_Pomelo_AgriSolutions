@@ -10,6 +10,7 @@ export { default as Table } from "@/components/UI/Table/Table";
 export { default as TableCell } from "@/components/UI/Table/TableCell/TableCell";
 export { default as TableExpandCell } from "@/components/UI/Table/TableExpandCell/TableExpandCell";
 export { default as TableApplyCriteria } from "@/components/UI/Table/TableApplyCriteria/TableApplyCriteria";
+export { default as CriteriaCheckTable } from "@/components/UI/Table/CriteriaCheckTable/CriteriaCheckTable";
 export { default as TableTitle } from "@/components/UI/Table/TableTitle/TableTitle";
 export { default as Tooltip } from "@/components/UI/Tooltip/Tooltip";
 export { default as TagRender } from "@/components/UI/Tag/CustomTag";
@@ -27,6 +28,7 @@ export { default as ActionMenuGrowthStage } from "@/components/UI/ActionMenu/Act
 export { default as ActionMenuLot } from "@/components/UI/ActionMenu/ActionMenuLot";
 export { default as ActionMenuEmployee } from "@/components/UI/ActionMenu/ActionMenuEmployee";
 export { default as ActionMenuPartner } from "@/components/UI/ActionMenu/ActionMenuPartner";
+export { default as ActionMenuCriteria } from "@/components/UI/ActionMenu/ActionMenuCriteria";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";

@@ -9,18 +9,18 @@ import { plantService } from "@/services";
 import { GetPlantDetail, PlantRequest } from "@/payloads";
 import { useModal, useTableUpdate } from "@/hooks";
 import PlantModel from "../../Plant/PlantModal";
-import PlantSectionHeader from "./PlantSectionHeader";
 import DescriptionSection from "./DescriptionSection";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 import PlantMarkAsDeadModal from "../../Plant/PlantMarkAsDeadModal";
+import { usePlantStore } from "@/stores";
+import PlantSectionHeader from "../PlantSectionHeader/PlantSectionHeader";
 
 function PlantDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
-  const [plant, setPlant] = useState<GetPlantDetail>(DEFAULT_PLANT);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetPlantDetail>();
   const markAsDeadModal = useModal<{ id: number }>();
@@ -28,9 +28,9 @@ function PlantDetail() {
   const updateConfirmModal = useModal<{ updatedPlant: PlantRequest }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
+  const { plant, setPlant, shouldRefetch } = usePlantStore();
 
   const fetchPlant = async () => {
-    setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
       const res = await plantService.getPlant(Number(plantId));
@@ -84,6 +84,7 @@ function PlantDetail() {
   };
 
   const handleUpdateConfirm = (updatedPlant: PlantRequest) => {
+    if (!plant) return;
     if (hasChanges(plant, updatedPlant)) {
       updateConfirmModal.showModal({ updatedPlant });
     } else {
@@ -92,6 +93,7 @@ function PlantDetail() {
   };
 
   const handleCancelConfirm = (updatedPlant: PlantRequest) => {
+    if (!plant) return;
     const hasUnsavedChanges = hasChanges(plant, updatedPlant);
 
     if (hasUnsavedChanges) {
@@ -132,37 +134,42 @@ function PlantDetail() {
   };
 
   const infoFieldsLeft = [
-    { label: "Growth Status", value: plant.growthStageName, icon: Icons.growth },
+    { label: "Growth Status", value: plant?.growthStageName, icon: Icons.growth },
     { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
-    { label: "Mother Plant", value: plant.plantReferenceCode ?? "N/A", icon: Icons.plant },
-    { label: "Create Date", value: formatDayMonthAndTime(plant.createDate), icon: Icons.time },
+    { label: "Mother Plant", value: plant?.plantReferenceCode ?? "N/A", icon: Icons.plant },
+    {
+      label: "Create Date",
+      value: plant?.createDate ? formatDayMonthAndTime(plant.createDate) : "N/A",
+      icon: Icons.time,
+    },
   ];
 
   const infoFieldsRight = [
     {
       label: "Plant Location",
       value:
-        plant.landPlotName && plant.rowIndex !== undefined && plant.plantIndex !== undefined
+        plant?.landPlotName && plant.rowIndex !== undefined && plant.plantIndex !== undefined
           ? `${plant.landPlotName} - Row ${plant.rowIndex} - Plant #${plant.plantIndex}`
           : "Not Assigned",
       icon: Icons.location,
     },
     {
       label: "Cultivar",
-      value: `${plant.masterTypeName} - ${plant.characteristic}`,
+      value: `${plant?.masterTypeName} - ${plant?.characteristic}`,
       icon: Icons.plant,
     },
-    { label: "Planting Date", value: formatDayMonth(plant.plantingDate), icon: Icons.time },
+    {
+      label: "Planting Date",
+      value: plant?.plantingDate ? formatDayMonth(plant.plantingDate) : "N/A",
+      icon: Icons.time,
+    },
   ];
-
-  const description = plant.description ?? "N/A";
 
   if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
     <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader
-        plant={plant}
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
         markAsDeadModal={markAsDeadModal}
@@ -190,7 +197,7 @@ function PlantDetail() {
           ))}
         </Flex>
       </Flex>
-      <DescriptionSection description={description} id={plant.plantId} code={plant.plantCode} />
+      <DescriptionSection />
       <PlantModel
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}

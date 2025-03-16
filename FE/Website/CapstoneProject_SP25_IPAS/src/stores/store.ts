@@ -1,5 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { GetPlantLotDetail } from "@/payloads";
+import { GetPlantDetail, GetPlantLotDetail } from "@/payloads";
 import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
@@ -149,6 +149,20 @@ interface PlantLotStore {
 export const usePlantLotStore = create<PlantLotStore>((set, get) => ({
   lot: null,
   setLot: (lot) => set({ lot }),
+  shouldRefetch: false,
+  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+}));
+
+interface PlantStore {
+  plant: GetPlantDetail | null;
+  setPlant: (lot: GetPlantDetail | null) => void;
+  shouldRefetch: boolean;
+  markForRefetch: () => void;
+}
+
+export const usePlantStore = create<PlantStore>((set, get) => ({
+  plant: null,
+  setPlant: (plant) => set({ plant }),
   shouldRefetch: false,
   markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
 }));
