@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ProductCriteriaSetRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
@@ -21,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.ProductCriteriaSet.getCriteriaSetOfProduct, Name = "getCriteriaSetOfProduct")]
         public async Task<IActionResult> getCriteriaSetOfProduct([FromQuery] int productId)
         {
@@ -40,7 +43,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.ProductCriteriaSet.getForSelectedProduct, Name = "getForSelectedProduct")]
         public async Task<IActionResult> getForSelectedProduct([FromQuery] int productId, int? farmId, string target)
         {
@@ -68,7 +71,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.ProductCriteriaSet.ApplyCriteriaSetToProduct)]
         public async Task<IActionResult> ApplyCriteriaSetToProduct([FromBody] ApplyCriteriaSetToProductRequest request)
         {
@@ -80,6 +83,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.ProductCriteriaSet.DeleteCriteriaSetFromProduct)]
         public async Task<IActionResult> DeleteCriteriaSetFromProduct([FromBody] DeleteCriteriaSetFromProductRequest request)
         {
@@ -91,6 +95,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.ProductCriteriaSet.UpdateCriteriaSetStatus)]
         public async Task<IActionResult> UpdateCriteriaSetStatus([FromBody] UpdateProductCriteriaSetRequest request)
         {

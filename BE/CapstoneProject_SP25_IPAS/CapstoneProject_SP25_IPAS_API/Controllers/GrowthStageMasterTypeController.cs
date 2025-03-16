@@ -1,5 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageMasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -21,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.GrowthStageMasterType.createGrowthStageMasterType, Name = "createGrowthStageMasterType")]
         public async Task<IActionResult> CreateGrowthStageMasterTypeAsync([FromBody] List<CreateGrowthStageMasterTypeModel> createGrowthStageMasterTypeModel, int? farmId)
         {
@@ -44,6 +47,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GrowthStageMasterType.getGrowthStageMasterType, Name = "getGrowthStageMasterType")]
         public async Task<IActionResult> GetGrowthStageMasterTypeAsync(int? farmId)
         {
@@ -68,6 +72,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GrowthStageMasterType.updateGrowthStageMasterTypeInfo, Name = "updateGrowthStageMasterTypeInfo")]
         public async Task<IActionResult> UpdateGrowthStageMasterTypeAsync([FromBody] UpdateGrowthStageMasterTypeModel updateGrowthStageMasterTypeModel, int? farmId)
         {
@@ -91,6 +96,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GrowthStageMasterType.deleteGrowthStageMasterType, Name = "deleteGrowthStageMasterType")]
         public async Task<IActionResult> DeleteGrowthStageMasterTypeAsync([FromBody] List<int> deleteGrowthStageIds)
         {

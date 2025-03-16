@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PartnerRequest;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -23,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Partner.getPartnerWithPagination, Name = "getPartnerWithPagination")]
         public async Task<IActionResult> GetAllPartner([FromQuery] GetPartnerFilterRequest filterRequest, [FromQuery]PaginationParameter paginationParameter)
         {
@@ -50,6 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Partner.getPartnerById, Name = "getPartnerById")]
         public async Task<IActionResult> GetPartnerById([FromRoute] int id)
         {
@@ -69,6 +73,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Partner.createPartner, Name = "createPartner")]
         public async Task<IActionResult> CreateaPartner([FromBody] CreatePartnerModel createPartnerModel)
         {
@@ -96,6 +101,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.Partner.updatePartnerInfo, Name = "updatePartnerInfo")]
         public async Task<IActionResult> UpdatePartner([FromBody] UpdatePartnerModel updatePartnerModel)
         {
@@ -115,6 +121,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Partner.permanenlyDelete, Name = "permanentlyDeletePartner")]
         public async Task<IActionResult> DeletePartner([FromRoute] int id)
         {
@@ -134,6 +141,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Partner.getPartnerByRoleName, Name = "getPartnerByRoleName")]
         public async Task<IActionResult> GetPartnerByRoleName([FromRoute] string roleName)
         {
@@ -153,6 +161,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Partner.getForSelected, Name = "getPartnerForSelected")]
         public async Task<IActionResult> getPartnerForSelected([FromQuery] int? farmId, string? Major)
         {
@@ -180,6 +189,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Partner.softedDeletePartner, Name = "softedDeletePartnerAsync")]
         public async Task<IActionResult> softedDeletePartnerAsync([FromBody] List<int> partners)
         {

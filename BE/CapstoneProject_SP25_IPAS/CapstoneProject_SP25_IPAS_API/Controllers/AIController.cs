@@ -1,6 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -23,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _aiService = aiService;
             _jwtTokenService = jwtTokenService;
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
         public async Task<IActionResult> AskQuestion([FromBody] ChatRequest request, int? farmId, int? userId)
         {
@@ -115,7 +117,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpGet(APIRoutes.AI.getAllTags, Name = "getAllTags")]
         public async Task<IActionResult> GetAllTags()
         {
@@ -135,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.createTag, Name = "createTag")]
         public async Task<IActionResult> CreateTag([FromBody] CreateTagModel createTagModel)
         {
@@ -155,7 +157,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.uploadImageByFile, Name = "uploadImageByFile")]
         public async Task<IActionResult> UploadImageByFile([FromForm] UploadImageByFileModel uploadImageByFileModel)
         {
@@ -176,6 +178,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.uploadImageByLink, Name = "uploadImageByLink")]
         public async Task<IActionResult> UploadImageByLink([FromForm] UploadImageModel uploadImageModel)
         {
@@ -195,7 +198,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.deleteTag, Name = "deleteTag")]
         public async Task<IActionResult> DeleteTag([FromRoute] string tagId)
         {
@@ -215,7 +218,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpGet(APIRoutes.AI.getAllImageAsync, Name = "getAllImageAsync")]
         public async Task<IActionResult> GetAllImageAsync([FromQuery] GetImagesModelWithPagination getImagesModelWithPagination)
         {
@@ -235,7 +238,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpGet(APIRoutes.AI.getImageUntaggedAsync, Name = "getImageUntaggedAsync")]
         public async Task<IActionResult> GetImageUntaggedAsync([FromQuery] GetImagesWithTagged getImagesWithTagged)
         {
@@ -256,7 +259,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpGet(APIRoutes.AI.getImageTaggedAsync, Name = "getImageTaggedAsync")]
         public async Task<IActionResult> GetImageTaggedAsync([FromQuery] GetImagesWithTagged getImagesWithTagged)
         {
@@ -277,7 +280,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpDelete(APIRoutes.AI.deleteImage, Name = "deleteImage")]
         public async Task<IActionResult> DeleteImageAsync(DeleteImagesModel deleteImagesModel)
         {
@@ -297,7 +300,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPut(APIRoutes.AI.updateTag, Name = "updateTag")]
         public async Task<IActionResult> UpdateTagAsync([FromBody] UpdateTagModel updateTagModel)
         {
@@ -317,7 +320,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.quickTestImageByFile, Name = "quickTestImageByFile")]
         public async Task<IActionResult> QuickTestImageByFileAsync([FromForm] QuickTestImageByFileModel quickTestImageByFileModel)
         {
@@ -338,7 +341,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.quickTestImageByLink, Name = "quickTestImageByLink")]
         public async Task<IActionResult> QuickTestImageByLinkAsync([FromBody] QuickTestImageByURLModel quickTestImageByURLModel)
         {
@@ -358,7 +361,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.trainedProject, Name = "trainedProject")]
         public async Task<IActionResult> TrainedProjectAsync([FromBody] TrainingProjectModel trainingProjectModel)
         {

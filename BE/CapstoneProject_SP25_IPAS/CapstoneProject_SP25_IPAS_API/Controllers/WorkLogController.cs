@@ -1,5 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -22,6 +24,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.WorkLog.getSchedule, Name = "GetSchedule")]
         public async Task<IActionResult> GetSchedule(int userId, int? planId, DateTime? startDate, DateTime? endDate, int? farmId)
         {
@@ -51,6 +54,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.WorkLog.getAllSchedule, Name = "GetAllSchedule")]
         public async Task<IActionResult> GetAllSchedule(ScheduleFilter scheduleFilter, int? farmId)
         {
@@ -73,6 +78,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.assignTask, Name = "AssignTask")]
         public async Task<IActionResult> AssignTask(int employeeId, int workLogId)
         {
@@ -93,6 +99,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.addNewTask, Name = "AddNewTask")]
         public async Task<IActionResult> AddNewTask([FromBody] AddNewTaskModel addNewTaskModel, int? farmId)
         {
@@ -115,6 +122,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.WorkLog.getDetailTask, Name = "GetDetailTask")]
         public async Task<IActionResult> GetDetailTask([FromRoute] int workLogId)
         {
@@ -136,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.NoteForWorkLog, Name = "NoteForWorkLog")]
         public async Task<IActionResult> NoteForWorkLog([FromForm] CreateNoteModel createNoteModel)
         {
@@ -157,6 +166,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.WorkLog.updateWorkLogInfo, Name = "UpdateWorkLogInfo")]
         public async Task<IActionResult> UpdateWorkLog([FromBody] UpdateWorkLogModel updateWorkLogModel, int? farmId)
         {
@@ -165,6 +175,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var result = await _workLogService.UpdateWorkLog(updateWorkLogModel, farmId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.WorkLog.deleteWorkLog, Name = "DeleteWorkLog")]
+        public async Task<IActionResult> DeleteWorkLog([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _workLogService.DeleteWorkLog(id);
 
                 return Ok(result);
             }
