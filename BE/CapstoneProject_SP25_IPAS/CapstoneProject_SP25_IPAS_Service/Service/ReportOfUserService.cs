@@ -177,14 +177,55 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public Task<BusinessResult> SoftDeleteReportOfCustomer(DeleteReportOfUserModel softDeleteReportOfUserModel)
+        public async Task<BusinessResult> UpdateReportOfCustomer(UpdateReportOfUserModel updateReportOfUserModel)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                var getUpdateReport = await _unitOfWork.ReportRepository.GetByID(updateReportOfUserModel.ReportID);
+                if(getUpdateReport != null)
+                {
+                    if(string.IsNullOrEmpty(updateReportOfUserModel.Description))
+                    {
+                        getUpdateReport.Description = updateReportOfUserModel.Description;
+                    }
+                    if(updateReportOfUserModel.ImageFile != null && updateReportOfUserModel.ImageFile.Length > 0)
+                    {
+                        if(IsImageFile(updateReportOfUserModel.ImageFile))
+                        {
+                            var getLinkDownLoad = await _cloudinaryService.UploadImageAsync(updateReportOfUserModel.ImageFile, "reportOfUser");
+                            getUpdateReport.ImageURL = getLinkDownLoad;
+                        }
+                    }
+                    if(updateReportOfUserModel.QuestionerID != null)
+                    {
+                        getUpdateReport.QuestionerID = updateReportOfUserModel.QuestionerID;
+                    }
+                    if (updateReportOfUserModel.AnswererID != null)
+                    {
+                        getUpdateReport.AnswererID = updateReportOfUserModel.AnswererID;
+                    }
+                    if (updateReportOfUserModel.IsTrainned != null)
+                    {
+                        getUpdateReport.IsTrainned = updateReportOfUserModel.IsTrainned;
+                    }
+                     _unitOfWork.ReportRepository.Update(getUpdateReport);
+                    var result = await _unitOfWork.SaveAsync();
+                    if(result > 0)
+                    {
+                        return new BusinessResult(200, "Update Report Success", result);
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Update Report Failed");
+                    }
+                }
+                return new BusinessResult(404, "Can not find any report");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ReportOfUserModel>());
 
-        public Task<BusinessResult> UpdateReportOfCustomer(UpdateReportOfUserModel updateReportOfUserModel)
-        {
-            throw new NotImplementedException();
+            }
         }
 
         public bool IsImageFile(IFormFile file)
@@ -196,6 +237,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string extension = Path.GetExtension(file.FileName)?.ToLower();
 
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
+        }
+
+        public Task<BusinessResult> AssignTagToImage(string tagId, string imageURL)
+        {
+            throw new NotImplementedException();
         }
     }
 }
