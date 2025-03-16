@@ -21,7 +21,7 @@ public partial class GraftedPlant
 
     public string? Note { get; set; }
 
-    public int? MortherPlantId { get; set; }
+    public int? MotherPlantId { get; set; }
 
     public int? PlantLotId { get; set; }
 
