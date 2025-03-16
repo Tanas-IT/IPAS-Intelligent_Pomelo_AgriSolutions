@@ -188,6 +188,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
             public const string getProcessesForSelect = Base + "/proceesses/get-for-select";
+            public const string getProccessByTypeName = Base + "/proceesses/get-by-type-name";
         }
 
         public static class SubProcess

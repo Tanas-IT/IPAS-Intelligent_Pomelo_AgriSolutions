@@ -1095,5 +1095,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> GetProcessByTypeName(int farmId, string typeName)
+        {
+            try
+            {
+                var getProcessByTypeName = await _unitOfWork.ProcessRepository.GetProcessByTypeName(farmId, typeName);
+                if(getProcessByTypeName != null && getProcessByTypeName.Any())
+                {
+                    var result = _mapper.Map<List<ProcessModel>>(getProcessByTypeName);
+                    return new BusinessResult(200, "Get Process By Type Name Success", result);
+                }
+                return new BusinessResult(404, "Does not have any process");
+               
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
