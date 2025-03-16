@@ -8,6 +8,12 @@ export interface GetCriteria {
 
 export interface GetCriteriaByMasterType {
   masterTypeId: number;
+  masterTypeCode: string;
+  masterTypeName: string;
+  masterTypeDescription: string;
+  target: string;
+  createDate: Date;
+  isActive: boolean;
   criterias: GetCriteria[];
 }
 
@@ -17,7 +23,8 @@ export interface GetCriteriaCheck {
   description: string;
   createDate: Date;
   priority: number;
-  isChecked: boolean;
+  isChecked?: boolean;
+  isPassed?: boolean;
 }
 
 export interface GetCriteriaObject {

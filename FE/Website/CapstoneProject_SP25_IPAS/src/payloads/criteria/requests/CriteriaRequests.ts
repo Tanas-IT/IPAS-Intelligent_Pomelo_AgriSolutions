@@ -1,15 +1,18 @@
-export interface CriteriaRequest {
+export interface CriteriaMasterRequest {
   masterTypeId: number;
   masterTypeName: string;
   masterTypeDescription: string;
-  backgroundColor: string;
-  textColor: string;
-  characteristic: string;
-  typeName: string;
   isActive: boolean;
   createBy?: string;
-  isConflict: boolean;
   target: string;
+  criterias: CriteriaRequest[]
+}
+
+export interface CriteriaRequest {
+  criteriaId: number;
+  criteriaName: string;
+  criteriaDescription: string;
+  priority: number;
 }
 
 interface CriteriaApplyData {

@@ -16,6 +16,7 @@ type TableTitleProps = {
   noImport?: boolean;
   isEdit?: boolean;
   extraContent?: React.ReactNode;
+  sectionRightSize?: "full" | "small";
 };
 
 const TableTitle = ({
@@ -31,6 +32,7 @@ const TableTitle = ({
   noImport = true,
   isEdit = false,
   extraContent,
+  sectionRightSize = "full",
 }: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
@@ -52,9 +54,10 @@ const TableTitle = ({
             </>
           </Popover>
         )}
+        {/* {extraContent && <Flex className={style.extraContent}>{extraContent}</Flex>} */}
+        {extraContent && <> {extraContent}</>}
       </Flex>
-      {extraContent && <Flex className={style.extraContent}>{extraContent}</Flex>}
-      <Flex className={style.sectionRight}>
+      <Flex className={`${style.sectionRight} ${style[sectionRightSize]}`}>
         {!noImport && (
           <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
         )}
