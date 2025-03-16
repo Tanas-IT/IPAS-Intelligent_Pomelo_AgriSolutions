@@ -522,6 +522,7 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PassedDate datetime null,
 	MasterTypeId int NULL,
 	GrowthStageID int NULL,
+        IsFromGrafted bit NULL,
 	-- IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
@@ -1459,7 +1460,7 @@ VALUES
 ('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
 GO
 INSERT INTO ipas.dbo.GraftedPlant 
-(GraftedPlantCode, GraftedPlantName, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
+(GraftedPlantCode, GraftedPlantName, SeparatedDate, Status, GraftedDate, Note, MotherPlantId, IsDeleted,isCompleted ,PlantLotID, FarmID) 
 VALUES
 ('GP001', 'Grafted Plant A', '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,0 , 3, 1),
 ('GP002', 'Grafted Plant B', '2024-02-10', 'Growing', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,3, 1),
