@@ -522,7 +522,7 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PassedDate datetime null,
 	MasterTypeId int NULL,
 	GrowthStageID int NULL,
-	IsFromGrafted bit default 0,
+	-- IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
@@ -675,15 +675,15 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Status nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedDate datetime NULL,
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantID int NULL,
+	MortherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
 	FarmID int NULL,
-	FinishedPlant nvarchar(50) NULL,
+	FinishedPlant int NULL,
 	--GrowthStageID int NULL,
 	CONSTRAINT PK__GraftedP__883CF82ACBB74009 PRIMARY KEY (GraftedPlantID),
-	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
+	CONSTRAINT FK__GraftedPl__Plant__531856C7 FOREIGN KEY (MortherPlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
 	--CONSTRAINT GraftedPlant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT GraftedPlant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE CASCADE
 );
@@ -1458,23 +1458,23 @@ VALUES
 ('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
 GO
 INSERT INTO ipas.dbo.GraftedPlant 
-(GraftedPlantCode, GraftedPlantName, GrowthStage, SeparatedDate, Status, GraftedDate, Note, PlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
+(GraftedPlantCode, GraftedPlantName,/* GrowthStage,*/ SeparatedDate, Status, GraftedDate, Note, MortherPlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
 VALUES
-('GP001', 'Grafted Plant A', 'Stage 1', '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,0 , 3, 1),
-('GP002', 'Grafted Plant B', 'Stage 2', '2024-02-10', 'Growing', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,3, 1),
-('GP003', 'Grafted Plant C', 'Stage 3', '2024-03-05', 'Healthy', '2024-02-25', 'Strong growth', 3, 0, 0 ,3, 1),
-('GP004', 'Grafted Plant D', 'Stage 1', '2024-04-20', 'Weak', '2024-04-10', 'Requires extra care', 4, 0, 0 ,3, 1),
-('GP005', 'Grafted Plant E', 'Stage 2', '2024-05-12', 'Healthy', '2024-05-01', 'Excellent condition', 5, 0,0 , 3, 1),
-('GP006', 'Grafted Plant F', 'Stage 1', '2024-06-10', 'Healthy', '2024-06-01', 'Stable condition', 6, 0, 0 ,3, 1),
-('GP007', 'Grafted Plant G', 'Stage 2', '2024-07-15', 'Growing', '2024-07-05', 'Showing good progress', 7, 0 ,0, 3, 1),
-('GP008', 'Grafted Plant H', 'Stage 3', '2024-08-20', 'Weak', '2024-08-10', 'Needs more nutrients', 8, 0, 0 ,3, 1),
-('GP009', 'Grafted Plant I', 'Stage 1', '2024-09-10', 'Healthy', '2024-09-01', 'No issues', 9, 0, 0 ,3, 2),
-('GP010', 'Grafted Plant J', 'Stage 2', '2024-10-05', 'Dying', '2024-09-25', 'Urgent care required', 10, 0,0 , 3, 2),
-('GP011', 'Grafted Plant K', 'Stage 3', '2024-11-12', 'Growing', '2024-11-01', 'Needs more light', 1, 0,0 , 3, 2),
-('GP012', 'Grafted Plant L', 'Stage 1', '2024-12-08', 'Healthy', '2024-12-01', 'Great potential', 2, 0, 0 ,3, 2),
-('GP013', 'Grafted Plant M', 'Stage 2', '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
-('GP014', 'Grafted Plant N', 'Stage 3', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
-('GP015', 'Grafted Plant O', 'Stage 1', '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
+('GP001', 'Grafted Plant A', /*'Stage 1',*/ '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,0 , 3, 1),
+('GP002', 'Grafted Plant B', /*'Stage 2',*/ '2024-02-10', 'Growing', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,3, 1),
+('GP003', 'Grafted Plant C', /*'Stage 3',*/ '2024-03-05', 'Healthy', '2024-02-25', 'Strong growth', 3, 0, 0 ,3, 1),
+('GP004', 'Grafted Plant D', /*'Stage 1',*/'2024-04-20', 'Weak', '2024-04-10', 'Requires extra care', 4, 0, 0 ,3, 1),
+('GP005', 'Grafted Plant E', /*'Stage 2',*/ '2024-05-12', 'Healthy', '2024-05-01', 'Excellent condition', 5, 0,0 , 3, 1),
+('GP006', 'Grafted Plant F', /*'Stage 1',*/ '2024-06-10', 'Healthy', '2024-06-01', 'Stable condition', 6, 0, 0 ,3, 1),
+('GP007', 'Grafted Plant G', /*'Stage 2',*/ '2024-07-15', 'Growing', '2024-07-05', 'Showing good progress', 7, 0 ,0, 3, 1),
+('GP008', 'Grafted Plant H', /*'Stage 3',*/ '2024-08-20', 'Weak', '2024-08-10', 'Needs more nutrients', 8, 0, 0 ,3, 1),
+('GP009', 'Grafted Plant I', /*'Stage 1',*/ '2024-09-10', 'Healthy', '2024-09-01', 'No issues', 9, 0, 0 ,3, 2),
+('GP010', 'Grafted Plant J', /*'Stage 2',*/ '2024-10-05', 'Dying', '2024-09-25', 'Urgent care required', 10, 0,0 , 3, 2),
+('GP011', 'Grafted Plant K', /*'Stage 3',*/ '2024-11-12', 'Growing', '2024-11-01', 'Needs more light', 1, 0,0 , 3, 2),
+('GP012', 'Grafted Plant L', /*'Stage 1',*/ '2024-12-08', 'Healthy', '2024-12-01', 'Great potential', 2, 0, 0 ,3, 2),
+('GP013', 'Grafted Plant M', /*'Stage 2',*/ '2025-01-15', 'Weak', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
+('GP014', 'Grafted Plant N', /*'Stage 3',*/ '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
+('GP015', 'Grafted Plant O', /*'Stage 1',*/ '2025-03-10', 'Dying', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
 GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
