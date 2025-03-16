@@ -23,7 +23,7 @@ public partial class ProductHarvestHistory
 
     public virtual HarvestHistory HarvestHistory { get; set; } = null!;
 
-    public virtual MasterType MasterType { get; set; } = null!;
+    public virtual MasterType Product { get; set; } = null!;
 
     public virtual Plant? Plant { get; set; }
 }

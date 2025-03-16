@@ -2287,7 +2287,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         case "plantlot":
                             var validPlantLotsTemp = await _unitOfWork.PlantLotRepository.GetAllNoPaging();
-                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
+                            var validPlantLots = validPlantLotsTemp.Where(pl => pl.FarmID == farmId && (getAllPlants /*|| growthStageIds.Contains(pl.GrowthStageID)*/))
                                 .ToList();
 
                             if (validPlantLots.Any())
@@ -2311,7 +2311,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         case "graftedplant":
                             var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
-                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
+                            var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants /*|| growthStageIds.Contains(pl.GrowthStageID)*/))
                                 .ToList();
 
                             if (validGraftedPlants.Any())

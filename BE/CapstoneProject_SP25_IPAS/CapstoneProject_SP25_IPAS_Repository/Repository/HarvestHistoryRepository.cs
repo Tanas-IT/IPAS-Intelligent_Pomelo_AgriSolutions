@@ -25,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var historys = await _context.HarvestHistories
                 .Include(x => x.Crop)
                 .Include(x => x.ProductHarvestHistories.Where(x => x.PlantId == null))
-                .ThenInclude(x => x.MasterType)
+                .ThenInclude(x => x.Product)
                 .Where(x => x.HarvestHistoryId == harvestId)
                 .FirstOrDefaultAsync();
             return historys;
@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lọc theo LandPlotId
             query = query
                 .Include(x => x.ProductHarvestHistories.Where(x => x.PlantId == null))
-                .ThenInclude(x => x.MasterType)
+                .ThenInclude(x => x.Product)
                 .Include(x => x.Crop)
                 .Where(c => c.CropId == cropId && c.Crop!.IsDeleted == false);
 
@@ -125,7 +125,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var historys = await _context.ProductHarvestHistories
                 .Include(x => x.HarvestHistory)
-                .Include(x => x.MasterType)
+                .Include(x => x.Product)
                 .Include(x => x.Plant)
                 .ThenInclude(x => x.LandRow)
                 .ThenInclude(x => x.LandPlot)
@@ -144,7 +144,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                             .ThenInclude(lr => lr.LandPlot)
                                                 .ThenInclude(lp => lp.Farm)
                                 .Include(h => h.ProductHarvestHistories)
-                                    .ThenInclude(ht => ht.MasterType)
+                                    .ThenInclude(ht => ht.Product)
                                 .Where(x => x.Crop.FarmId == farmId)
                                 .ToListAsync();
             return historys;

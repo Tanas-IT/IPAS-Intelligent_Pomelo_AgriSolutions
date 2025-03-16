@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         //public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId, int? plantId);
         public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId);
         public Task<BusinessResult> deletePlantRecord(DeletePlantRecoredRequest request);
-        public Task<BusinessResult> statisticOfPlantByYear(int plantId, int year);
+        public Task<BusinessResult> statisticOfPlantByYear(int plantId, int year, int productId);
         public Task<BusinessResult> getProductInHarvestForSelected(int harvestId);
 
     }
