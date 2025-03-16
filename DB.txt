@@ -1179,7 +1179,7 @@ VALUES
     
     ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
     ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting'),
     
     ('MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Watering'),
     ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer'),
@@ -1564,5 +1564,6 @@ VALUES
     (4, 17, 1),
     (4, 18, 1),
     (4, 19, 1),
-    (5, 19, 1);
+    (5, 19, 1),
+    (NULL, 14, 1);
 Go
