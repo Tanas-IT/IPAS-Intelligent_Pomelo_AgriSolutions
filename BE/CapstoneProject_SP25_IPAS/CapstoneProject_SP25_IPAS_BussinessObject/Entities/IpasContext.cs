@@ -337,7 +337,7 @@ public partial class IpasContext : DbContext
                 //.HasMaxLength(100)
                 //.UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Note).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.MortherPlantId).HasColumnName("MortherPlantID");
+            entity.Property(e => e.MotherPlantId).HasColumnName("MotherPlantID");
             entity.Property(e => e.PlantLotId).HasColumnName("PlantLotID");
             entity.Property(e => e.SeparatedDate).HasColumnType("datetime");
             entity.Property(e => e.Status)
@@ -345,7 +345,7 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
             entity.HasOne(d => d.Plant).WithMany(p => p.GraftedPlants)
-                .HasForeignKey(d => d.MortherPlantId)
+                .HasForeignKey(d => d.MotherPlantId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__GraftedPl__Plant__531856C7");
 
