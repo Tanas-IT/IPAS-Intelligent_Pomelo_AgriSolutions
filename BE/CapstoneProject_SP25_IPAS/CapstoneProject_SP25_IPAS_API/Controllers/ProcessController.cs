@@ -6,6 +6,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -21,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Process.getProcessWithPagination, Name = "getAllProcessPaginationAsync")]
         public async Task<IActionResult> GetAllProcess(PaginationParameter paginationParameter, ProcessFilters processFilters, int? farmId)
         {
@@ -44,6 +47,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Process.getProcessByName, Name = "getProcessByNameAsync")]
         public async Task<IActionResult> GetProcessByName([FromRoute] string name)
         {
@@ -66,6 +70,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
 
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Process.getProcessById, Name = "getProcessByIdAsync")]
         public async Task<IActionResult> GetProcessByIdAsync([FromRoute] int id)
         {
@@ -86,6 +91,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Process.createProcess, Name = "createProcessAsync")]
         public async Task<IActionResult> CreateProcess([FromForm] CreateProcessModel createProcessModel, int? farmId)
         {
@@ -107,6 +113,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Process.createManyProcess, Name = "createManyProcessAsync")]
         public async Task<IActionResult> CreateManyProcess([FromBody] List<CreateManyProcessModel> listCreateProcessModel, int? farmId)
         {
@@ -128,6 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.Process.updateProcessInfo, Name = "updateProcessInfoAsync")]
         public async Task<IActionResult> UpdateProcessAsync([FromForm] UpdateProcessModel updateProcessModel)
         {
@@ -147,6 +155,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Process.permanenlyDelete, Name = "deleteProcessAsync")]
         public async Task<IActionResult> DeleteProcessAsync([FromRoute] int id)
         {
@@ -166,6 +175,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Process.softDeleteProcess, Name = "softDeleteProcessAsync")]
         public async Task<IActionResult> SoftDeleteProcessAsync([FromBody] List<int> listProcessId)
         {
@@ -185,6 +195,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Process.getProcessesForSelect, Name = "getProcessesForSelectAsync")]
         public async Task<IActionResult> getProcessesForSelect(int? farmId, string? searchValue, bool? isSample)
         {

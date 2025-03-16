@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -20,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _landRowService = landRowService;
         }
 
-        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowById + "/{id}", Name = "getLandRowByIdAsync")]
         public async Task<IActionResult> GetLandRowByIdAsync([FromRoute(Name = "id")] int landRowId)
         {
@@ -40,7 +41,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotNoPagin + "/{plotId}", Name = "getAllLandRowOfLandPlotNoPaginAsync")]
         public async Task<IActionResult> GetAllLandRowOfLandPlotNoPaginAsync([FromRoute(Name = "plotId")] int plotId)
         {
@@ -60,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.LandRow.createLandRow, Name = "createLandRowAsync")]
         public async Task<IActionResult> CreateLandRowAsync([FromBody] CreateLandRowRequest createRequest)
         {
@@ -83,6 +85,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.LandRow.updateLandRowInfo, Name = "updateLandRowInfoAsync")]
         public async Task<IActionResult> UpdateLandRowInfoAsync([FromBody] UpdateLandRowRequest updateRequest)
         {
@@ -106,6 +109,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.LandRow.deleteLandRow + "/{id}", Name = "deleteLandRowOfFarmAsync")]
         public async Task<IActionResult> DeleteLandRowOfFarmAsync([FromRoute(Name = "id")] int rowId)
         {
@@ -125,7 +129,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowForSelected + "/{plot-id}", Name = "getLandRowForSelectedAsync")]
         public async Task<IActionResult> getLandRowForSelectedAsync([FromRoute(Name = "plot-id")] int plotId)
         {
@@ -145,7 +149,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotPagin, Name = "getLandRowOfPlotPaginAsync")]
         public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromQuery] GetPlantRowPaginRequest request, PaginationParameter paginationParameter)
         {
@@ -178,6 +182,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.LandRow.softedDeleteMultipleRow, Name = "softedDeleteMultipleRow")]
         public async Task<IActionResult> softedDeleteMultipleRow([FromBody] List<int> rowIds)
         {
@@ -200,7 +205,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// lấy ra những index chưa có cây trồng theo hàng
         /// </summary>
-        //[HybridAuthorize("Admin,User", "Owner,Manager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.LandRow.getSelectedIndexEmptyInRow + "/{row-id}", Name = "getSelectedIndexEmptyInRowAsync")]
         public async Task<IActionResult> getSelectedIndexEmptyInRowAsync([FromRoute(Name = "row-id")] int rowId)
         {

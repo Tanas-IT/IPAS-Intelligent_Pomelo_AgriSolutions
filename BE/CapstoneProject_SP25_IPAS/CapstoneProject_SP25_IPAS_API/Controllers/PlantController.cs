@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy thông tin cây theo ID
         /// </summary>
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}", $"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getPlantById + "/{plant-id}", Name = "GetPlantById")]
         public async Task<IActionResult> GetPlantById([FromRoute(Name = "plant-id")] int plantId)
         {
@@ -53,6 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getPlantPagin)]
         public async Task<IActionResult> GetPlantPagin([FromQuery] GetPlantPaginRequest request, PaginationParameter paginationParameter)
         {
@@ -105,6 +106,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Tạo mới một cây trồng
         /// </summary>
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Plant.createPlant)]
         public async Task<IActionResult> CreatePlant([FromForm] PlantCreateRequest plantCreateRequest)
         {
@@ -141,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Cập nhật thông tin cây trồng
         /// </summary>
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Plant.updatePlantInfo)]
         public async Task<IActionResult> UpdatePlant([FromBody] PlantUpdateRequest plantUpdateRequest)
         {
@@ -175,6 +179,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Xóa cây trồng theo ID
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Plant.deletePlant + "/{plant-id}")]
         public async Task<IActionResult> DeletePlant([FromRoute(Name = "plant-id")] int plantId)
         {
@@ -196,6 +201,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Xóa nhiều cây trồng cùng lúc
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Plant.deleteMultiplePlant)]
         public async Task<IActionResult> DeleteMultiplePlants([FromBody] List<int> plantIds)
         {
@@ -214,6 +220,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Plant.importPlantFromExcel)]
         public async Task<IActionResult> ImportPlantFromExcel([FromForm] ImportExcelRequest request)
         {
@@ -256,6 +263,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả cây của một thửa
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getForSelectedForPlot + "/{plot-id}")]
         public async Task<IActionResult> GetForSelectedForPlot([FromRoute(Name = "plot-id")] int plotId)
         {
@@ -277,6 +285,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả cây của một hàng
         /// </summary>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getForSelectedForRow + "/{row-id}")]
         public async Task<IActionResult> GetForSelectedForRow([FromRoute(Name = "row-id")] int plotId)
         {
@@ -295,6 +304,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             //}
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getForSelectedActFunc)]
         public async Task<IActionResult> getForSelectedActFunc([FromQuery] int plotId, int rowId, string actFunction)
         {
@@ -309,6 +319,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Plant.softDeletePlant, Name = "SoftedDeletePlant")]
         public async Task<IActionResult> SoftedDeletePlant([FromBody] List<int> plantIds)
         {
@@ -328,6 +339,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getPlantNotLocate)]
         public async Task<IActionResult> getPlantNotLocate([FromQuery(Name = "farmId")] int? farmId)
         {
@@ -360,6 +372,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// Lấy ra tất cả các cây ở trong giai đoạn có thể làm gì 
         /// </summary>
         /// <param name="activeFunction">Harvest,Grafted</param>
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getPlantByGrowthFunc)]
         public async Task<IActionResult> getPlantByGrowthFunc([FromQuery(Name = "farmId")] int? farmId, string activeFunction)
         {
@@ -389,6 +402,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.Plant.PlantDeadMark + "/{plant-id}", Name = "PlantDeadMark")]
         public async Task<IActionResult> PlantDeadMark([FromRoute(Name = "plant-id")] int plantId)
         {

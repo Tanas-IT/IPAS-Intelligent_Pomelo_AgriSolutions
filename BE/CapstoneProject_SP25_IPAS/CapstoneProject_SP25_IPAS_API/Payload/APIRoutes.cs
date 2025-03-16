@@ -327,7 +327,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllHarvestPagin = prefix + "";
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
             public const string getHarvestForSelectedByPlotId = prefix + "/for-selected";
-            public const string getProductForSelectedInHarvest = prefix + "/for-selected/product-in-harvest";
+            public const string getProductInHarvestForSelected = prefix + "/for-selected/product-in-harvest";
             public const string statisticOfPlantByYear = prefix + "/plant-statistic-in-year";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
