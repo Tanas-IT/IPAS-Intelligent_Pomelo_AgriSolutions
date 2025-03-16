@@ -27,11 +27,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 
         public string? Frequency { get; set; }
 
-        public int? PlantId { get; set; }
-
-        public int? LandPlotId { get; set; }
-        public int? LandRowId { get; set; }
-
         public int? AssignorId { get; set; }
 
         public string? PesticideName { get; set; }
@@ -83,9 +78,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
             PlanDetail = model.PlanDetail;
             ResponsibleBy = model.ResponsibleBy;
             Frequency = model.Frequency;
-            PlantId = model.PlantId;
-            LandPlotId = model.LandPlotId;
-            LandRowId = model.LandRowId;
             AssignorId = model.AssignorId;
             PesticideName = model.PesticideName;
             MaxVolume = model.MaxVolume;
