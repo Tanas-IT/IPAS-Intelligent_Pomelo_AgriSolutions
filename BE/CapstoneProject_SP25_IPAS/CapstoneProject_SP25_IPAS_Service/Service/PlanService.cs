@@ -967,7 +967,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == updatePlanModel.PlanId, "CarePlanSchedule,GrowthStagePlans");
+                    var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -1004,6 +1004,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
                                 }
                             }
+                            checkExistPlan.CropId = updatePlanModel.CropId;
                             if (updatePlanModel.ListLandPlotOfCrop.Any())
                             {
                                 var removePlanTargetOfPlan = await _unitOfWork.PlanTargetRepository.GetPlanTargetsByPlanId(checkExistPlan.PlanId);
