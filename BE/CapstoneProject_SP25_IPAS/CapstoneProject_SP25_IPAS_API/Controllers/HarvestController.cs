@@ -252,11 +252,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Harvest.statisticOfPlantByYear, Name = "statisticOfPlantByYear")]
-        public async Task<IActionResult> statisticOfPlantByYear([FromQuery] int plantId, int year)
+        public async Task<IActionResult> statisticOfPlantByYear([FromQuery] int plantId, int year, int productId)
         {
             try
             {
-                var result = await _harvestHistoryService.statisticOfPlantByYear(plantId, year);
+                var result = await _harvestHistoryService.statisticOfPlantByYear(plantId, year, productId);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -31,11 +31,11 @@ public partial class PlantLot
     public bool? IsPassed { get; set; }
     public DateTime? PassedDate { get; set; }
     public int? PlantLotReferenceId { get; set; }
-    public int? GrowthStageID { get; set; }
+    //public int? GrowthStageID { get; set; }
     public int? MasterTypeId { get; set; }
-    public virtual GrowthStage? GrowthStage { get; set; }
+    public bool? IsFromGrafted { get; set; }
+    //public virtual GrowthStage? GrowthStage { get; set; }
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
-
     public virtual ICollection<PlantLot> InversePlantLotReference { get; set; } = new List<PlantLot>();
 
     public virtual Partner? Partner { get; set; }
@@ -44,4 +44,5 @@ public partial class PlantLot
     public virtual PlantLot? PlantLotReference { get; set; }
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
     public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
+
 }

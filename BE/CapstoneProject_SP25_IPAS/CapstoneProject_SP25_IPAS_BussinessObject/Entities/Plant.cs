@@ -33,7 +33,6 @@ public partial class Plant
     public bool? IsPassed { get; set; }
     public bool? IsDead { get; set; }
     public DateTime? PassedDate { get; set; }
-
     public int? LandRowId { get; set; }
 
     public int? FarmId { get; set; }

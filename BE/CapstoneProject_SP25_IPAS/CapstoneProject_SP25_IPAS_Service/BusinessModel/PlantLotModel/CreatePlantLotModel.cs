@@ -16,5 +16,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel
         public string? Note { get; set; } = "";
         public int? FarmId { get; set; }
         public int MasterTypeId { get; set; }
+        public bool? IsFromGrafted { get; set; }
     }
 }

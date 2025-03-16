@@ -547,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year)
+        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year, int productId)
         {
             try
             {
@@ -558,6 +558,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
                     .GetAllNoPaging(x => x.PlantId == plantId &&
                                              x.HarvestHistory.DateHarvest.HasValue &&
+                                             x.MasterTypeId == productId &&
                                              x.HarvestHistory.DateHarvest >= startDate &&
                                              x.HarvestHistory.DateHarvest <= endDate,
                                         includeProperties: "HarvestHistory,MasterType");
@@ -571,20 +572,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     Year = year,
                     MonthlyData = harvestData
-                        .Where(x => x.QuantityNeed.HasValue)
+                        .Where(x => x.ActualQuantity.HasValue)
                         .GroupBy(x => x.HarvestHistory.DateHarvest.Value.Month)
                         .OrderBy(g => g.Key)
                         .Select(monthGroup => new MonthlyStatistic
                         {
                             Month = monthGroup.Key,
-                            TotalQuatity = monthGroup.Sum(x => x.QuantityNeed ?? 0),
+                            TotalQuatity = monthGroup.Sum(x => x.ActualQuantity ?? 0),
                             HarvestDetails = monthGroup
                                 .GroupBy(x => x.MasterTypeId)
                                 .Select(mtGroup => new HarvestStatistic
                                 {
                                     MasterTypeId = mtGroup.Key,
-                                    MasterTypeCode = mtGroup.FirstOrDefault()!.MasterType.MasterTypeCode,
-                                    MasterTypeName = mtGroup.FirstOrDefault()!.MasterType?.MasterTypeName,
+                                    MasterTypeCode = mtGroup.FirstOrDefault()!.Product.MasterTypeCode,
+                                    MasterTypeName = mtGroup.FirstOrDefault()!.Product?.MasterTypeName,
                                     TotalQuantity = mtGroup.Sum(x => x.QuantityNeed ?? 0)
                                 }).ToList()
                         }).ToList()
@@ -653,7 +654,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var productInHarvest = await _unitOfWork.HarvestTypeHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "MasterType");
                 if (!productInHarvest.Any())
                     return new BusinessResult(400, "No product found in this harvest");
-                var product = productInHarvest.Select(x => x.MasterType);
+                var product = productInHarvest.Select(x => x.Product);
                 var mappedResult = _mapper.Map<ForSelectedModels>(product);
                 return new BusinessResult(200, "Get Product for selected success", mappedResult);
 

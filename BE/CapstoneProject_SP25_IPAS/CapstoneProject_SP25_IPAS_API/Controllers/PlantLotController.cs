@@ -202,7 +202,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantLot.GetPlantPlotForSelected, Name = "GetPlantPlotForSelected")]
-        public async Task<IActionResult> GetPlantPlotForSelected([FromQuery] int? farmId)
+        public async Task<IActionResult> GetPlantPlotForSelected([FromQuery] int? farmId, bool? isFromGrafted)
         {
             if (!farmId.HasValue)
                 farmId = _jwtTokenService.GetFarmIdFromToken();
@@ -215,7 +215,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
-            var result = await _plantLotService.GetForSelectedByFarmId(farmId.Value);
+            var result = await _plantLotService.GetForSelectedByFarmId(farmId.Value, isFromGrafted);
             return Ok(result);
         }
 

@@ -200,7 +200,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                  && x.Plant.LandRow.LandPlot != null
                                                  && x.Plant.LandRow.LandPlot.Farm != null
                                                  && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.MasterType.MasterTypeName }) // Nhóm theo tên cây và loại cây
+                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
                                         .Select(plantGroup => new TypeOfProduct
                                         {
                                             PlantName = plantGroup.Key.PlantName, // Tên cây
@@ -219,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Nhóm dữ liệu theo mùa vụ
             var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
                 .Select(g => new
                 {
                     HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
@@ -256,7 +256,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
             var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.MasterType.MasterTypeName })
+                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
                 .Select(g => new QualityYieldStat
                 {
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",
