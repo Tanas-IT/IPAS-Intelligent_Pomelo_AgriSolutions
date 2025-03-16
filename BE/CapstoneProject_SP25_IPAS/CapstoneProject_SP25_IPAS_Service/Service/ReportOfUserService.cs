@@ -238,5 +238,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
         }
+
+        public Task<BusinessResult> AssignTagToImage(string tagId, string imageURL)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
