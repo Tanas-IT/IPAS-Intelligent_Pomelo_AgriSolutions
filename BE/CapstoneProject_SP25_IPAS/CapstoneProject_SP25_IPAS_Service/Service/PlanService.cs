@@ -76,7 +76,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + createPlanModel.MasterTypeId.Value,
+                        PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{createPlanModel.MasterTypeId}",
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -1384,7 +1384,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 schedule = new CarePlanSchedule()
                 {
-                    CarePlanId = plan.PlanId,
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
@@ -1392,7 +1391,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
-                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+                plan.CarePlanSchedule = schedule;
+                _unitOfWork.PlanRepository.Update(plan);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in createPlanModel.CustomDates)
@@ -1619,25 +1619,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task<bool> UpdatePlanSchedule(Plan plan, UpdatePlanModel updatePlanModel)
         {
             CarePlanSchedule schedule = new CarePlanSchedule();
-
+            var result = 0;
             DateTime currentDate = updatePlanModel.StartDate.Value;
             if (currentDate <= DateTime.Now)
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
 
-            if (plan.Frequency == null && updatePlanModel.CustomDates != null)
+            if (plan.Frequency.ToLower() == "none" && updatePlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
                 {
-                    CarePlanId = plan.PlanId,
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
-                    CustomDates = updatePlanModel.CustomDates.ToString(),
+                    CustomDates = JsonConvert.SerializeObject(updatePlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime)
                 };
+                plan.CarePlanSchedule = schedule;
+                 _unitOfWork.PlanRepository.Update(plan);
+                result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
@@ -1649,8 +1651,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             conflictCustomDates.Add(customeDate);
                         }
                     }
-                }
 
+                }
                 if (conflictCustomDates.Count > 5)
                 {
                     throw new Exception("The schedule is conflicted");
@@ -1660,12 +1662,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (customeDate >= currentDate && customeDate <= plan.EndDate)
                     {
-                        // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
                             : updatePlanModel;
-                        await GenerateWorkLogsForUpdate(schedule, customeDate, tempModel);
 
+                        await GenerateWorkLogsForUpdate(schedule, customeDate, tempModel);
                     }
 
                 }
@@ -1744,9 +1745,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                         currentDate,
                                                                        updatePlanModel.MasterTypeId,
                                                                         updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
-            await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
-            var result = await _unitOfWork.SaveAsync();
-            while (currentDate <= plan.EndDate)
+            if (schedule.ScheduleId <= 0)
+            {
+                await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
+            }
+            result += await _unitOfWork.SaveAsync();
+            while (currentDate <= plan.EndDate && plan.Frequency.ToLower() != "none")
             {
                 if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && updatePlanModel.DayOfWeek != null)
                 {
@@ -1978,7 +1982,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var newWorkLog = new WorkLog
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                Status = "Pending",
+                Status = "In Progress",
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + nameOfWorkLog,
@@ -2365,6 +2369,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+                if (getMasterType != null && getMasterType.Any())
+                {
+                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+                }
+                return new BusinessResult(404, "Do not have any type of work");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName)
+        {
+            try
+            {
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesWithTypeNameByGrowthStages(growthStageIds, typeName);
                 if (getMasterType != null && getMasterType.Any())
                 {
                     return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);

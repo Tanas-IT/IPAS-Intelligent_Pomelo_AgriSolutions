@@ -1035,6 +1035,7 @@ CREATE TABLE ipas.dbo.Report (
 	ReportCode nvarchar(300) NULL,
 	Description nvarchar(MAX) NULL,
 	CreateDate datetime NULL,
+        ImageURL nvarchar(MAX),
 	IsTrainned bit NULL,
 	AnswererID int NULL,
 	QuestionerID int NULL,

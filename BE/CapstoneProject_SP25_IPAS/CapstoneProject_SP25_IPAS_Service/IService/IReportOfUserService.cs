@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IReportOfUserService
     {
         public Task<BusinessResult> CreateReportOfCustomer(CreateReportOfUserModel createReportOfUserModel);
-        public Task<BusinessResult> GetAllReportOfCustomer(PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetAllReportOfCustomer(GetAllReportOfUserModel getAllReportOfUserModel);
         public Task<BusinessResult> UpdateReportOfCustomer(UpdateReportOfUserModel updateReportOfUserModel);
         public Task<BusinessResult> SoftDeleteReportOfCustomer(DeleteReportOfUserModel softDeleteReportOfUserModel);
         public Task<BusinessResult> PermantlyDeleteReportOfCustomer(DeleteReportOfUserModel PermentlyDeleteReportOfUserModel);

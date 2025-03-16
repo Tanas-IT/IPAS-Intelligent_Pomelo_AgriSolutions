@@ -318,14 +318,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             _unitOfWork.WorkLogRepository.Update(getWorkLog);
                         }
 
-                        if (updateTaskFeedbackModel.ManagerId.HasValue)
-                        {
-                            checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
-                        }
-                        //if (updateTaskFeedbackModel.WorkLogId != null)
+                        //if (updateTaskFeedbackModel.ManagerId.HasValue)
                         //{
-                        //    checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
+                        //    checkExistTaskFeedback.ManagerId = updateTaskFeedbackModel.ManagerId;
                         //}
+                        if (updateTaskFeedbackModel.WorkLogId != null)
+                        {
+                            checkExistTaskFeedback.WorkLogId = updateTaskFeedbackModel.WorkLogId;
+                        }
                         _unitOfWork.TaskFeedbackRepository.Update(checkExistTaskFeedback);
                         var result = await _unitOfWork.SaveAsync();
                         if (result > 0)

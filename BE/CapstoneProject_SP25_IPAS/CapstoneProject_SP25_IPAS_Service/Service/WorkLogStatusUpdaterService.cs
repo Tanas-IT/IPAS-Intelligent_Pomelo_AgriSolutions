@@ -47,18 +47,26 @@ public class WorkLogStatusUpdaterService : BackgroundService
         var now = DateTime.UtcNow;
 
         var workLogsToUpdate = await dbContext.WorkLogs
-            .Where(wl => wl.Status != "In Progress" && wl.Date == now.Date && wl.ActualStartTime <= now.TimeOfDay)
+            .Where(wl => wl.Date == now.Date) // Chỉ lấy WorkLogs của ngày hôm nay
             .ToListAsync();
 
         if (workLogsToUpdate.Any())
         {
             foreach (var workLog in workLogsToUpdate)
             {
-                workLog.Status = "In Progress";
+                if (workLog.Status != "In Progress" && workLog.ActualStartTime <= now.TimeOfDay)
+                {
+                    workLog.Status = "In Progress";
+                }
+
+                if (workLog.ActualEndTime < now.TimeOfDay)
+                {
+                    workLog.Status = "Overdue";
+                }
             }
 
             await dbContext.SaveChangesAsync();
-            _logger.LogInformation($"Updated {workLogsToUpdate.Count} WorkLogs to 'In Progress'.");
+            _logger.LogInformation($"Updated {workLogsToUpdate.Count} WorkLogs statuses.");
         }
     }
 }
