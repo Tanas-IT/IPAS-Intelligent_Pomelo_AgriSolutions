@@ -1,50 +1,28 @@
 import { Flex } from "antd";
-import style from "./PlantLotCriteria.module.scss";
+import style from "./PlantCriteria.module.scss";
 import { Icons } from "@/assets";
 import { CustomButton, Tooltip } from "@/components";
 import { GetCriteriaCheck } from "@/payloads";
 import { formatDate } from "@/utils";
 
-interface PanelTitleProps {
+interface PlantPanelTitleProps {
   title: string;
   target: string;
   criteriaSetId: number;
   data: GetCriteriaCheck[];
-  isAllCompletedCheckUpdate: boolean;
-  isAllConditionChecked: boolean;
-  updatedCriteria: Record<string, boolean>;
-  initialCriteria: Record<string, boolean>;
-  handleCancel: () => void;
-  handleSave: (
-    target: string,
-    isAllCompletedCheckUpdate: boolean,
-    isAllConditionChecked: boolean,
-  ) => void;
   handleDelete: (criteriaSetId: number) => void;
   isCompleted?: boolean;
 }
 
-export const PanelTitle = ({
+export const PlantPanelTitle = ({
   title,
   target,
   criteriaSetId,
   data,
-  isAllCompletedCheckUpdate,
-  isAllConditionChecked,
-  updatedCriteria,
-  initialCriteria,
-  handleCancel,
-  handleSave,
   handleDelete,
   isCompleted = false,
-}: PanelTitleProps) => {
+}: PlantPanelTitleProps) => {
   const completedCount = data.filter((item) => item.isChecked).length;
-  const hasChanges = data.some(
-    (item) =>
-      updatedCriteria[item.criteriaId] !== undefined &&
-      updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
-  );
-  const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
   const date = data[0].createDate;
   return (
     <Flex className={style.headerWrapper} gap={24}>
@@ -56,18 +34,17 @@ export const PanelTitle = ({
         </span>
       </span>
       <Flex align="center" gap={20}>
-        {!isCompleted && !isAllInitialCriteriaChecked && (
-          <Tooltip title="Delete">
-            <Icons.delete
-              className={style.deleteIcon}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(criteriaSetId);
-              }}
-            />
-          </Tooltip>
-        )}
-        {hasChanges && (
+        <Tooltip title="Delete">
+          <Icons.delete
+            className={style.deleteIcon}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(criteriaSetId);
+            }}
+          />
+        </Tooltip>
+
+        {/* {hasChanges && (
           <Flex gap={10}>
             <CustomButton
               label="Cancel"
@@ -89,7 +66,7 @@ export const PanelTitle = ({
               }}
             />
           </Flex>
-        )}
+        )} */}
       </Flex>
     </Flex>
   );

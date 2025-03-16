@@ -52,9 +52,7 @@ export const packageColumns: TableColumn<GetPackage>[] = [
     header: "Status",
     field: "isActive",
     accessor: (pkg) => (
-      <Tag color={pkg.isActive ? "green" : "red"}>
-        {pkg.isActive ? "Active" : "Inactive"}
-      </Tag>
+      <Tag color={pkg.isActive ? "green" : "red"}>{pkg.isActive ? "Active" : "Inactive"}</Tag>
     ),
     width: 120,
   },

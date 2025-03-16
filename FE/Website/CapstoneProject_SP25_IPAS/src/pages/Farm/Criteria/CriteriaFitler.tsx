@@ -1,21 +1,28 @@
 import { Flex, Space } from "antd";
 import { useState } from "react";
-import style from "./MasterType.module.scss";
+import style from "./Criteria.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
-import { FilterMasterTypeState } from "@/types";
+import { FilterCriteriaState } from "@/types";
+import { CRITERIA_TARGETS } from "@/constants";
 
 type FilterProps = {
-  filters: FilterMasterTypeState;
-  updateFilters: (key: keyof FilterMasterTypeState, value: any) => void;
+  filters: FilterCriteriaState;
+  updateFilters: (key: keyof FilterCriteriaState, value: any) => void;
   onClear: () => void;
   onApply: () => void;
 };
-const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
+const CriteriaFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
+
+  const options = Object.keys(CRITERIA_TARGETS).map((key) => ({
+    value: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
+    label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
+  }));
 
   const isFilterEmpty = !(
     filters.createDateFrom ||
     filters.createDateTo ||
+    filters.target.length > 0 ||
     filters.isActive !== undefined
   );
 
@@ -40,6 +47,13 @@ const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterPr
           }}
         />
         <FormFieldFilter
+          label="Target:"
+          fieldType="select"
+          value={filters.target}
+          options={options}
+          onChange={(value) => updateFilters("target", value)}
+        />
+        <FormFieldFilter
           label="Is Active"
           fieldType="radio"
           value={filters.isActive}
@@ -50,6 +64,7 @@ const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterPr
           onChange={(value) => updateFilters("isActive", value)}
           direction="row"
         />
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}
@@ -60,4 +75,4 @@ const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterPr
     </Flex>
   );
 };
-export default MasterTypeFilter;
+export default CriteriaFilter;
