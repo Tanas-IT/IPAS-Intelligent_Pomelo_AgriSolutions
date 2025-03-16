@@ -359,11 +359,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetProcessSelectedByMasterType(int masterTypeId)
+        public async Task<BusinessResult> GetProcessSelectedByMasterType(List<int> masterTypeId)
         {
             try
             {
-                var getProcess = await _unitOfWork.ProcessRepository.GetAllNoPaging(x => x.MasterTypeId == masterTypeId && x.IsDeleted == false && x.IsActive == true);
+                var getProcess = await _unitOfWork.ProcessRepository.GetAllNoPaging(x => masterTypeId.Contains(x.MasterTypeId.Value) && x.IsDeleted == false && x.IsActive == true);
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<List<ForSelectedModels>>(getProcess);

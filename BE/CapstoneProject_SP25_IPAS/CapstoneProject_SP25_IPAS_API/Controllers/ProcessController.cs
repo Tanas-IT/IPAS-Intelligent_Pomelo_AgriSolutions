@@ -94,7 +94,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Process.getProcessSelectedByMasterType, Name = "getProcessSelectedByMasterType")]
-        public async Task<IActionResult> getProcessSelectedByMasterType([FromRoute] int id)
+        public async Task<IActionResult> getProcessSelectedByMasterType([FromQuery] List<int> id)
         {
             try
             {

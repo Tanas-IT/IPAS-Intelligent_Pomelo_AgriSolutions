@@ -180,7 +180,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string createProcess = Base + "/processes";
             public const string createManyProcess = Base + "/processes/create-many";
-            public const string getProcessSelectedByMasterType = Base + "/processes/for-selected-by-master-type/{id}";
+            public const string getProcessSelectedByMasterType = Base + "/processes/for-selected-by-master-type";
             public const string getProcessWithPagination = Base + "/processes";
             public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
 
