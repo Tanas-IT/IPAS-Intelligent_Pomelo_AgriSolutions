@@ -1,7 +1,9 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.GraftedRequest.GraftedNoteRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +22,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _graftedNoteService = graftedNoteService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.GraftedPlant.createGraftedNote, Name = "CreateGraftedNoteAsync")]
         public async Task<IActionResult> CreateGraftedNoteAsync([FromForm] CreateGraftedNoteRequest request)
         {
@@ -43,6 +46,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedNoteInfo, Name = "updateGraftedNoteInfoAsync")]
         public async Task<IActionResult> updateGraftedNoteInfoAsync([FromBody] UpdateGraftedNoteRequest request)
         {
@@ -67,6 +71,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getGraftedNoteById + "/{grafted-note-id}", Name = "GetGraftedNoteByIdAsync")]
         public async Task<IActionResult> GetGraftedNoteByIdAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId)
         {
@@ -86,6 +91,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getAllNoteOfGraftedById + "/{grafted-id}", Name = "GetAllNoteOfGraftedByIdAsync")]
         public async Task<IActionResult> GetAllNoteOfGraftedByIdAsync([FromRoute(Name = "grafted-id")] int graftedId)
         {
@@ -105,6 +111,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)}")]
         [HttpDelete(APIRoutes.GraftedPlant.deleteGraftedNote + "/{grafted-note-id}", Name = "DeleteGraftedNoteAsync")]
         public async Task<IActionResult> DeleteGraftedNoteAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId)
         {

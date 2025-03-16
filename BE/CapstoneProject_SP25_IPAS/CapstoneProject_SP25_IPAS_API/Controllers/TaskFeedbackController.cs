@@ -1,5 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -19,6 +21,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _taskFeedbackService = taskFeedbackService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackWithPagination, Name = "GetAllTaskFeedback")]
         public async Task<IActionResult> GetAllTaskFeedback(PaginationParameter paginationParameter, TaskFeedbackFilter taskFeedbackFilter)
         {
@@ -39,6 +42,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackById, Name = "GetTaskFeedbackById")]
         public async Task<IActionResult> GetTaskFeedbackById([FromRoute] int id)
         {
@@ -59,6 +63,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackByManagerId, Name = "GetTaskFeedbackByManagerId")]
         public async Task<IActionResult> GetTaskFeedbackByManagerId([FromRoute] int id)
         {
@@ -79,6 +84,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackByWorkLogId, Name = "GetTaskFeedbackByWorkLogId")]
         public async Task<IActionResult> GetTaskFeedbackByWorkLogId([FromRoute] int id)
         {
@@ -99,6 +105,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.TaskFeedback.createTaskFeedback, Name = "createTaskFeedback")]
         public async Task<IActionResult> CreateTaskFeedback([FromBody] CreateTaskFeedbackModel createTaskFeedbackModel)
         {
@@ -119,6 +126,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.TaskFeedback.updateTaskFeedbackInfo, Name = "updateTaskFeedback")]
         public async Task<IActionResult> UpdateTaskFeedback([FromBody] UpdateTaskFeedbackModel updateTaskFeedbackModel)
         {
@@ -139,6 +147,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.TaskFeedback.deleteTaskFeedback, Name = "deleteTaskFeedback")]
         public async Task<IActionResult> DeleteTaskFeedback([FromRoute] int id)
         {

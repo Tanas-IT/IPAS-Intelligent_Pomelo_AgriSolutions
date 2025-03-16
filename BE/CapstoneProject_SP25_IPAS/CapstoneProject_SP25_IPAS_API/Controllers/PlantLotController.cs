@@ -7,6 +7,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -21,9 +23,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _plantLotService = plantLotService;
             _jwtTokenService = jwtTokenService;
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantLot.getPlantLotWithPagination, Name = "getPlantLotWithPagination")]
-        public async Task<IActionResult> GetAllPlantLot([FromQuery] GetPlantLotRequest filterRequest,[FromQuery] PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPlantLot([FromQuery] GetPlantLotRequest filterRequest, [FromQuery] PaginationParameter paginationParameter)
         {
             try
             {
@@ -35,7 +37,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         StatusCode = StatusCodes.Status400BadRequest,
                         Message = "FarmId cannot be null"
                     });
-                var result = await _plantLotService.GetAllPlantLots(filterRequest,paginationParameter);
+                var result = await _plantLotService.GetAllPlantLots(filterRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -48,7 +50,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantLot.getPlantLotById, Name = "getPlantLotById")]
         public async Task<IActionResult> GetPlantLotById([FromRoute] int id)
         {
@@ -67,7 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.PlantLot.createPlantLot, Name = "createPlantLot")]
         public async Task<IActionResult> CreatePlantLot([FromBody] CreatePlantLotModel createPlantLotModel)
         {
@@ -95,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.PlantLot.createPlantLotAdditional, Name = "createPlantLotAdditional")]
         public async Task<IActionResult> createPlantLotAdditional([FromBody] CreateAdditionalPlantLotModel createPlantLotModel)
         {
@@ -115,7 +117,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.PlantLot.updatePlantLotInfo, Name = "updatePlantLotInfo")]
         public async Task<IActionResult> UpdatePlantLot([FromBody] UpdatePlantLotModel updatePlantLotModel)
         {
@@ -135,6 +137,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.PlantLot.permanenlyDelete, Name = "permanentlyDeletePlantLot")]
         public async Task<IActionResult> DeletePlantLot([FromRoute] int id)
         {
@@ -175,6 +179,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //    }
         //}
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.PlantLot.FillPlantToPlot, Name = "FillPlantToPlotAsync")]
         public async Task<IActionResult> FillPlantToPlotAsync([FromBody] FillPlanToPlotRequest fillRequest)
         {
@@ -195,36 +200,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantLot.GetPlantPlotForSelected, Name = "GetPlantPlotForSelected")]
         public async Task<IActionResult> GetPlantPlotForSelected([FromQuery] int? farmId)
         {
-            try
-            {
-                if(!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken();
-                if (!farmId.HasValue)
-                {
-                    var response = new BaseResponse()
-                    {
-                        StatusCode = StatusCodes.Status400BadRequest,
-                        Message = "Farm Id is required"
-                    };
-                    return BadRequest(response);
-                }
-                var result = await _plantLotService.GetForSelectedByFarmId(farmId.Value);
-                return Ok(result);
-            }
-            catch (Exception ex)
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
             {
                 var response = new BaseResponse()
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
+                    Message = "Farm Id is required"
                 };
                 return BadRequest(response);
             }
+            var result = await _plantLotService.GetForSelectedByFarmId(farmId.Value);
+            return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.PlantLot.SoftedDeletePlantLot, Name = "SoftedDeletePlantLot")]
         public async Task<IActionResult> SoftedDeletePlantLot([FromBody] List<int> plantIds)
         {

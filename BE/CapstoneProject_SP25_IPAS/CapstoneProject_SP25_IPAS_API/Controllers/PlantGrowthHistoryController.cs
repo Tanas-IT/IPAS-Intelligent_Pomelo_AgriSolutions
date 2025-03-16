@@ -4,6 +4,8 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -18,6 +20,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _plantGrowthHistoryService = plantGrowthHistoryService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.PlantGrowthHistory.createPlantGrowthHistory, Name = "createPlantGrowthHistoryAsync")]
         public async Task<IActionResult> CreatePlantGrowthHistoryAsync([FromForm] CreatePlantGrowthHistoryRequest request)
         {
@@ -41,6 +44,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.PlantGrowthHistory.updatePlantGrowthHistoryInfo, Name = "updatePlantGrowthHistoryAsync")]
         public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromBody] UpdatePlantGrowthHistoryRequest request)
         {
@@ -65,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantGrowthHistory.getPlantGrowthHistoryById + "/{plant-growth-history-id}", Name = "getPlantGrowthByIdAsync")]
         public async Task<IActionResult> GetPlantGrowthByIdAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
         {
@@ -84,6 +89,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantGrowthHistory.getAllHistoryOfPlantById + "/{plant-id}", Name = "getAllHistoryOfPlantByIdAsync")]
         public async Task<IActionResult> GetAllHistoryOfPlantByIdAsync([FromRoute(Name = "plant-id")] int plantId)
         {
@@ -102,7 +108,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpDelete(APIRoutes.PlantGrowthHistory.deletePlantGrowthHistory + "/{plant-growth-history-id}", Name = "deleteGrowthHistoryAsync")]
         public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
         {

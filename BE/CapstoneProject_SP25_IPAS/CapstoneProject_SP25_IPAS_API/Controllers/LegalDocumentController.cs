@@ -1,7 +1,9 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LegalDocumentRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.LegalDocument.createLegalDocument, Name = "createLegalDocumentAsync")]
         public async Task<IActionResult> CreateLegalDocumentAsync([FromForm] LegalDocumentCreateRequest request)
         {
@@ -47,6 +50,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.LegalDocument.updateLegalDocumentInfo + "", Name = "updateLegalDocumentAsync")]
         public async Task<IActionResult> UpdateLegalDocumentAsync([FromForm] LegalDocumentUpdateRequest request)
         {
@@ -65,6 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.LegalDocument.getLegalDocumentById + "/{document-id}", Name = "getLegalDocumentAsync")]
         public async Task<IActionResult> GetLegalDocumentAsync([FromRoute(Name = "document-id")] int documentId)
         {
@@ -79,6 +84,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.LegalDocument.getAllLegalDocumentIfFarm + "/{farm-id}", Name = "getAllLegalDocumentsOfFarmAsync")]
         public async Task<IActionResult> GetAllLegalDocumentsOfFarmAsync([FromRoute(Name = "farm-id")] int farmId, [FromQuery(Name = "search-value")] string? searchValue)
         {
@@ -93,6 +99,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpDelete( APIRoutes.LegalDocument.deleteLegalDocument + "/{document-id}", Name = "deleteLegalDocumentAsync")]
         public async Task<IActionResult> DeleteLegalDocumentAsync([FromRoute(Name = "document-id")] int documentId)
         {
