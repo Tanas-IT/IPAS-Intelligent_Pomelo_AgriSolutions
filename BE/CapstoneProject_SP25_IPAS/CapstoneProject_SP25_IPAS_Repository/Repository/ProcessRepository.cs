@@ -32,5 +32,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ThenInclude(x => x.Plans).FirstOrDefaultAsync(x => x.ProcessId == processId);
             return result;
         }
+
+        public async Task<List<Process>> GetProcessByTypeName(int farmId, string typeName)
+        {
+            var result = await _context.Processes
+                .Include(x => x.GrowthStage)
+                .Include(x => x.Farm)
+                .Include(x => x.MasterType)
+                .Include(x => x.SubProcesses)
+                .Where(x => x.MasterType.TypeName.ToLower().Equals(typeName.ToLower()) && x.FarmId == farmId)
+                .ToListAsync();
+            return result;
+        }
     }
 }

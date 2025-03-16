@@ -219,5 +219,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpGet(APIRoutes.Process.getProccessByTypeName, Name = "getProccessByTypeName")]
+        public async Task<IActionResult> getProccessByTypeName(int? farmId, string typeName)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                var result = await _processService.GetProcessByTypeName(farmId!.Value, typeName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
