@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

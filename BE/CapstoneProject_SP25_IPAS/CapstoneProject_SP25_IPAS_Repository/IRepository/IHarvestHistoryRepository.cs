@@ -1,5 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using System;
 using System.Collections.Generic;
