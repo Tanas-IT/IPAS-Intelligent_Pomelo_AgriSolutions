@@ -23,6 +23,6 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string? EndTime { get; set; }
         public DateTime? DateWork { get; set; }
-        public List<EmployeeModel>? listEmployee {  get; set; }
+        public List<EmployeeModel> listEmployee { get; set; } = new List<EmployeeModel>();
     }
 }
