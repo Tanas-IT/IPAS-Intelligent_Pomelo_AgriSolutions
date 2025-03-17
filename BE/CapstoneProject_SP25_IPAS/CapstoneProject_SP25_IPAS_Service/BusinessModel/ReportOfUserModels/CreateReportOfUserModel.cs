@@ -10,9 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportOfUserModels
     public class CreateReportOfUserModel
     {
         public string? Description { get; set; }
-        public DateTime? CreatedDate { get; set; }
         public IFormFile? ImageFile { get; set; }
-        public int? AnswererID { get; set; }
         public int? QuestionerID { get; set; }
     }
 }

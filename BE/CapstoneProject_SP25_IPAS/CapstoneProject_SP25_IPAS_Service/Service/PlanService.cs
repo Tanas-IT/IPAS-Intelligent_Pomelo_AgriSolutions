@@ -41,6 +41,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IWebSocketService _webSocketService;
+        private string warningAddMessage = string.Empty;
+        private string warningUpdateMessage = string.Empty;
 
         public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
         {
@@ -233,7 +235,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
 
-                            if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
+                            if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID.Count() == 0 && plantTarget.PlantID.Count() == 0)
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                 foreach (var row in rowToPlants)
@@ -411,20 +413,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     await _unitOfWork.SaveAsync();
-                    if (createPlanModel.ListEmployee != null)
-                    {
-                        foreach (var employeeModel in createPlanModel.ListEmployee)
-                        {
-                            await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
-                        }
-                    }
-
+                    
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);
                     if (result)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_CREATE_PLAN_CODE, Const.SUCCESS_CREATE_PLAN_MSG, result);
+                        if (createPlanModel.ListEmployee != null)
+                        {
+                            foreach (var employeeModel in createPlanModel.ListEmployee)
+                            {
+                                await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                            }
+                        }
+                        if(!string.IsNullOrEmpty(warningAddMessage))
+                        {
+                            return new BusinessResult(Const.SUCCESS_CREATE_PLAN_CODE, warningAddMessage, result);
+                        }
+                        else
+                        {
+                            return new BusinessResult(Const.SUCCESS_CREATE_PLAN_CODE, Const.SUCCESS_CREATE_PLAN_MSG, result);
+                        }
                     }
                     else
                     {
@@ -923,7 +932,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
 
-                if (isFullMode || getPlanTarget.Unit == "Row")
+                if (isFullMode || getPlanTarget.Unit.ToLower() == "row")
                 {
                     if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
@@ -931,7 +940,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "Plant")
+                if (isFullMode || getPlanTarget.Unit.ToLower() == "plant")
                 {
                     if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
@@ -939,7 +948,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "PlantLot")
+                if (isFullMode || getPlanTarget.Unit.ToLower() == "plantlot")
                 {
                     if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
@@ -947,7 +956,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "GraftedPlant")
+                if (isFullMode || getPlanTarget.Unit.ToLower() == "graftedplant")
                 {
                     if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
@@ -1370,9 +1379,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (result)
                             {
                                 _unitOfWork.PlanRepository.Update(checkExistPlan);
+                                var addNotification = new Notification()
+                                {
+                                    Content = "Plan " + updatePlanModel.PlanName + " has just been created",
+                                    Title = "Plan",
+                                    MasterTypeId = updatePlanModel?.MasterTypeId,
+                                    IsRead = false,
+                                    CreateDate = DateTime.Now,
+                                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                                };
+                                await _unitOfWork.NotificationRepository.Insert(addNotification);
                                 await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
-                                return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, Const.SUCCESS_UPDATE_PLAN_MSG, checkExistPlan);
+                                if (updatePlanModel.ListEmployee != null)
+                                {
+                                    foreach (var employeeModel in updatePlanModel.ListEmployee)
+                                    {
+                                        await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(warningUpdateMessage))
+                                {
+                                    return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, warningUpdateMessage, result);
+                                }
+                                else
+                                {
+                                    return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, Const.SUCCESS_UPDATE_PLAN_MSG, checkExistPlan);
+                                }
                             }
                             else
                             {
@@ -1440,9 +1474,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
+                
                 if (conflictCustomDates.Count > 5)
                 {
-                    throw new Exception("The schedule is conflicted");
+                    throw new Exception("Schedule is conflicted");
+                }
+                if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
+                {
+                    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                 }
 
                 foreach (var customeDate in createPlanModel.CustomDates)
@@ -1557,7 +1596,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (conflictDatesInWeekly.Count > 5)
                     {
-                        throw new Exception("The schedule is conflicted");
+                        throw new Exception("Schedule is conflicted");
+                    }
+                    if (conflictDatesInWeekly.Count() > 0 && conflictDatesInWeekly.Count() < 5)
+                    {
+                        warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDatesInWeekly.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                     }
                     foreach (int day in createPlanModel.DayOfWeek)
                     {
@@ -1595,9 +1638,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                    
                     if (conflictDatesInMonthly.Count > 5)
                     {
-                        throw new Exception("The schedule is conflicted");
+                        throw new Exception("Schedule is conflicted");
+                    }
+                    if (conflictDatesInMonthly.Count() > 0 && conflictDatesInMonthly.Count() < 5)
+                    {
+                        warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDatesInMonthly.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                     }
 
                     foreach (int day in createPlanModel.DayOfMonth)
@@ -1626,9 +1674,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         conflictDatesInDaily.Add(currentDate);
                     }
+                   
                     if (conflictDatesInDaily.Count > 5)
                     {
-                        throw new Exception("The schedule is conflicted");
+                        throw new Exception("Schedule is conflicted");
+                    }
+                    if (conflictDatesInDaily.Count() > 0 && conflictDatesInDaily.Count() < 5)
+                    {
+                        warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDatesInDaily.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                     }
 
                     var tempModel = conflictDatesInDaily.Contains(currentDate)
@@ -1688,10 +1741,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
+               
+
                 if (conflictCustomDates.Count > 5)
                 {
-                    throw new Exception("The schedule is conflicted");
+                    throw new Exception("Schedule is conflicted");
                 }
+                if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
+                {
+                    warningUpdateMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
+                }
+
 
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
@@ -1804,9 +1864,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                   
                     if (conflictDatesInWeekly.Count > 5)
                     {
                         throw new Exception("Schedule is conflicted");
+                    }
+                    if (conflictDatesInWeekly.Count() > 0 && conflictDatesInWeekly.Count() < 5)
+                    {
+                        warningUpdateMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDatesInWeekly.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                     }
 
                     foreach (int day in updatePlanModel.DayOfWeek)
@@ -1848,6 +1913,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         throw new Exception("Schedule is conflicted");
                     }
+                    if(conflictDates.Count() > 0 && conflictDates.Count() < 5)
+                    {
+                        warningUpdateMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
+                    }
 
                     // Duyệt lại để tạo WorkLogs
                     foreach (int day in updatePlanModel.DayOfMonth)
@@ -1877,10 +1946,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         conflictDatesDaily.Add(currentDate);
                     }
+                   
                     if (conflictDatesDaily.Count > 5)
                     {
                         throw new Exception("Schedule is conflicted");
-
+                    }
+                    if (conflictDatesDaily.Count() > 0 && conflictDatesDaily.Count() < 5)
+                    {
+                        warningUpdateMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictDatesDaily.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                     }
 
                     // Nếu ngày này nằm trong danh sách bị conflict thì đặt ListEmployee = null
@@ -2121,19 +2194,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
 
             // 🔹 Duyệt qua từng WorkLog để tạo UserWorkLog
+            var conflictDetailsSet = new HashSet<string>();
+
             foreach (var workLog in savedWorkLogs)
             {
-                foreach (EmployeeModel user in userIds)
+                var conflictedUsers = new List<string>();
+
+                foreach (var user in userIds)
                 {
-                    // Kiểm tra User có bị trùng lịch không?
-                    bool isConflicted = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                    var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
 
-                    if (isConflicted)
+                    if (conflictedUser != null)
                     {
-                        throw new Exception($"User {user.UserId} had task in {workLog.Date}.");
+                        conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
                     }
+                }
 
-                    // Thêm vào danh sách UserWorkLog
+                if (conflictedUsers.Any())
+                {
+                    var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+                }
+
+                foreach (var user in userIds)
+                {
                     userWorkLogs.Add(new UserWorkLog
                     {
                         WorkLogId = workLog.WorkLogId,
@@ -2142,6 +2226,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     });
                 }
             }
+
+            if (conflictDetailsSet.Any())
+            {
+                throw new Exception(string.Join("\n", conflictDetailsSet));
+            }
+
 
             // 🔹 Lưu UserWorkLogs vào DB
             await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);

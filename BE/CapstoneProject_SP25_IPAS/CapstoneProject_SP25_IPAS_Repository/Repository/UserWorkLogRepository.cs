@@ -65,17 +65,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return isConflicted;
         }
 
-        public async Task<bool> CheckUserConflictSchedule(int userId, WorkLog workLog)
+        public async Task<List<UserWorkLog>> CheckUserConflictSchedule(int userId, WorkLog workLog)
         {
             var checkTimeSchedule = await _context.CarePlanSchedules.FirstOrDefaultAsync(x => x.ScheduleId == workLog.ScheduleId);
-            bool isConflicted = await _context.UserWorkLogs
+            var conflictedUser = await _context.UserWorkLogs
                         .Include(uwl => uwl.WorkLog)
                         .ThenInclude(uwl => uwl.Schedule)
-                        .AnyAsync(uwl => uwl.UserId == userId &&
+                        .Include(x => x.User)
+                        .Where(uwl => uwl.UserId == userId &&
                                      EF.Functions.DateDiffDay(uwl.WorkLog.Date, workLog.Date) == 0 &&
                                     !(checkTimeSchedule.EndTime < uwl.WorkLog.Schedule.StartTime ||
-                                      checkTimeSchedule.StartTime > uwl.WorkLog.Schedule.EndTime));
-            return isConflicted;
+                                      checkTimeSchedule.StartTime > uwl.WorkLog.Schedule.EndTime)).ToListAsync();
+            return conflictedUser;
         }
 
         public async Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogId(int workLogId)

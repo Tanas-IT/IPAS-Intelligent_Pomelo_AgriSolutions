@@ -484,6 +484,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createReportOfUser = prefix + "/create";
             public const string DeleteReportOfUser = prefix + "/delete";
             public const string UpdateReportOfUser = prefix + "/update";
+            public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
         }
     }
 }
