@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantGrowthHistoryRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Upload;
@@ -11,22 +10,10 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Management;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -446,6 +433,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //Expression<Func<Plant, bool>> filter = x => x.PlantId == plantId!;
                 //string includeProperties = "Plans,MasterType,LandRow";
                 var plant = await _unitOfWork.PlantRepository.getById(plantId);
+                if (plant == null)
+                    return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
+                var mapResult = _mapper.Map<PlantModel>(plant);
+                return new BusinessResult(Const.SUCCESS_GET_PLANT_BY_ID_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_BY_ID_PAGINATION_MSG, mapResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getByCode(string plantCode)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(plantCode))
+                    return new BusinessResult(500, "Code is Required");
+                Expression<Func<Plant, bool>> filter = x => x.PlantCode.ToLower().Equals(plantCode) && x.IsDeleted == false;
+                //string includeProperties = "Plans,MasterType,LandRow";
+                var plant = await _unitOfWork.PlantRepository.GetByCondition(filter);
                 if (plant == null)
                     return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
                 var mapResult = _mapper.Map<PlantModel>(plant);

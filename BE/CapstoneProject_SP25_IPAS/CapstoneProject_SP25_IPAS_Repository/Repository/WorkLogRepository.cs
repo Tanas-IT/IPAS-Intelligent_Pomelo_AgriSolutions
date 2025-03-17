@@ -357,11 +357,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                               uwl.WorkLog.Date == dayCheck &&
                               uwl.WorkLog.Schedule.StartTime < newEndTime &&
                               uwl.WorkLog.Schedule.EndTime > newStartTime)
+                .Select(uwl => new
+                {
+                    uwl.User.FullName,  // Lấy tên nhân viên nếu có
+                    uwl.UserId,
+                    StartTime = uwl.WorkLog.Schedule.StartTime,
+                    EndTime = uwl.WorkLog.Schedule.EndTime
+                })
                 .ToListAsync();
 
             if (userConflicts.Any())
             {
-                throw new Exception("Some employees are already assigned to another WorkLog in this time slot.");
+                var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
+                    $"[{uwl.FullName} - {uwl.StartTime:HH:mm} to {uwl.EndTime:HH:mm}]"
+                ));
+                throw new Exception($"The following employees have scheduling conflicts: {conflictDetails}");
             }
         }
 
@@ -369,6 +379,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.WorkLogs.Include(x => x.Schedule.CarePlan)
                 .Where(x => x.Schedule.CarePlan.PlanId == planId).ToListAsync();
+            return result;
+        }
+
+        public async Task<List<WorkLog>> GetWorkLogsByFarm(int farmId)
+        {
+            var nowTimeSpan = DateTime.Now.TimeOfDay;
+            var timeAfter3Hours = DateTime.Now.AddHours(3).TimeOfDay;
+
+            var result = await _context.WorkLogs
+                .Include(x => x.Schedule)
+                .ThenInclude(x => x.CarePlan)
+                .ThenInclude(x => x.MasterType)
+                .Where(x => x.Schedule.FarmID == farmId &&
+                            x.ActualStartTime.HasValue &&
+                            x.ActualStartTime.Value >= nowTimeSpan &&
+                            x.ActualStartTime.Value <= timeAfter3Hours)
+                .ToListAsync();
             return result;
         }
     }

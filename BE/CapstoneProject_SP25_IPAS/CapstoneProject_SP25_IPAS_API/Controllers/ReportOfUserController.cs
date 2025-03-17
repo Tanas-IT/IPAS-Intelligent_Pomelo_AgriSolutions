@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
@@ -13,9 +14,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class ReportOfUserController : ControllerBase
     {
         private readonly IReportOfUserService _reportOfUserService;
-        public ReportOfUserController(IReportOfUserService reportOfUserService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public ReportOfUserController(IReportOfUserService reportOfUserService, IJwtTokenService jwtTokenService)
         {
             _reportOfUserService = reportOfUserService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpGet(APIRoutes.ReportOfUser.getAllReportOfUser, Name = "GetAllReportOfUser")]
@@ -43,6 +46,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if(createReportOfUserModel.QuestionerID == null)
+                {
+                    createReportOfUserModel.QuestionerID = _jwtTokenService.GetUserIdFromToken();
+                }
                 var result = await _reportOfUserService.CreateReportOfCustomer(createReportOfUserModel);
                 return Ok(result);
             }
@@ -84,6 +91,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _reportOfUserService.PermantlyDeleteReportOfCustomer(deleteReportOfUser);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.ReportOfUser.AssignTagToImageinReportOfUser, Name = "assignTagToImageinReportOfUser")]
+        public async Task<IActionResult> AssignTagToImageinReportOfUser([FromBody] AssignTagToImageModel assignTagToImageModel)
+        {
+            try
+            {
+                if (assignTagToImageModel.AnswererId == null)
+                {
+                    assignTagToImageModel.AnswererId = _jwtTokenService.GetUserIdFromToken();
+                }
+                var result = await _reportOfUserService.AssignTagToImage(assignTagToImageModel.TagId, assignTagToImageModel.ImageURL, assignTagToImageModel.AnswererId);
                 return Ok(result);
             }
             catch (Exception ex)

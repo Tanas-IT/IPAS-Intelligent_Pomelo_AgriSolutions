@@ -1,9 +1,9 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
+//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -18,10 +18,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class HarvestController : ControllerBase
     {
         private readonly IHarvestHistoryService _harvestHistoryService;
-
-        public HarvestController(IHarvestHistoryService harvestHistoryService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public HarvestController(IHarvestHistoryService harvestHistoryService, IJwtTokenService jwtTokenService)
         {
             _harvestHistoryService = harvestHistoryService;
+            _jwtTokenService = jwtTokenService;
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
@@ -94,24 +95,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Harvest.getHarvestByCode + "/{harvest-code}", Name = "getHarvestByCode")]
+        public async Task<IActionResult> getHarvestByCode([FromRoute(Name = "harvest-code")] string harvestCode)
+        {
+
+            var result = await _harvestHistoryService.getHarvestByCode(harvestCode);
+            return Ok(result);
+
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Harvest.createHarvest, Name = "createHarvest")]
         public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest)
         {
-            //try
-            //{
             var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
             return Ok(result);
-            //}
-            //catch (Exception ex)
-            //{
-            //    var response = new BaseResponse()
-            //    {
-            //        StatusCode = StatusCodes.Status400BadRequest,
-            //        Message = ex.Message
-            //    };
-            //    return BadRequest(response);
-            //}
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
@@ -252,22 +251,40 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Harvest.statisticOfPlantByYear, Name = "statisticOfPlantByYear")]
-        public async Task<IActionResult> statisticOfPlantByYear([FromQuery] int plantId, int year, int productId)
+        public async Task<IActionResult> statisticOfPlantByYear([FromQuery] GetStatictisOfPlantByYearRequest request)
         {
-            try
-            {
-                var result = await _harvestHistoryService.statisticOfPlantByYear(plantId, year, productId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var response = new BaseResponse()
+            var result = await _harvestHistoryService.StatisticOfPlantByYear(request);
+            return Ok(result);
+        }
+
+        [HttpGet(APIRoutes.Harvest.statisticOfTopByYear, Name = "statisticOfTopByYear")]
+        public async Task<IActionResult> statisticOfTopByYear([FromQuery] GetTopStatisticByYearRequest request)
+        {
+            if (!request.farmId.HasValue)
+                request.farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!request.farmId.HasValue)
+                return BadRequest(new BaseResponse
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
+                    Message = "Farm is required"
+                });
+            var result = await _harvestHistoryService.GetTopPlantsByYear(request);
+            return Ok(result);
+        }
+
+        [HttpGet(APIRoutes.Harvest.statisticOfTopByCrop, Name = "statisticOfTopByCrop")]
+        public async Task<IActionResult> statisticOfTopByCrop([FromQuery] GetTopStatisticByCropRequest request)
+        {
+            if (!request.farmId.HasValue)
+                request.farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!request.farmId.HasValue)
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm is required"
+                });
+            var result = await _harvestHistoryService.GetTopPlantsByCrop(request);
+            return Ok(result);
         }
     }
 }

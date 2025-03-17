@@ -30,6 +30,8 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System.IO;
 using MimeKit.Cryptography;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -232,7 +234,7 @@ const generationConfig = {
             {
                 Role = "user",
                 Parts = "Bạn là chuyên gia trong lĩnh vực trồng và chăm sóc cây bưởi ..."
-            }, 
+            },
             new InputContent
             {
                 Role = "user",
@@ -468,7 +470,7 @@ const generationConfig = {
                     return new BusinessResult(400, "Tag for image is required");
 
                 List<ImageUrlCreateEntry> listImageUrlCreateEntry = new List<ImageUrlCreateEntry>();
-                foreach(var uploadImage in uploadImageModel.ImageUrls)
+                foreach (var uploadImage in uploadImageModel.ImageUrls)
                 {
                     ImageUrlCreateEntry imageUrlCreateEntry = new ImageUrlCreateEntry()
                     {
@@ -483,7 +485,7 @@ const generationConfig = {
                     TagIds = uploadImageModel.TagIds.Select(Guid.Parse).ToList(),
                 };
                 var uploadImageByURL = await trainingClient.CreateImagesFromUrlsAsync(projectId, imageUrlCreateBatch);
-                if(uploadImageByURL != null && uploadImageByURL.IsBatchSuccessful)
+                if (uploadImageByURL != null && uploadImageByURL.IsBatchSuccessful)
                 {
                     return new BusinessResult(200, "Upload image to Custom Vision success", uploadImageByURL);
                 }
@@ -501,7 +503,7 @@ const generationConfig = {
         {
             try
             {
-                if(uploadImageByFileModel.FileImages == null || uploadImageByFileModel.FileImages.Count() == 0)
+                if (uploadImageByFileModel.FileImages == null || uploadImageByFileModel.FileImages.Count() == 0)
                 {
                     return new BusinessResult(400, "File is required");
                 }
@@ -510,7 +512,7 @@ const generationConfig = {
                     return new BusinessResult(400, "Tag for image is required");
 
                 List<ImageFileCreateEntry> listImageFileCreateEntry = new List<ImageFileCreateEntry>();
-               
+
                 foreach (var uploadImage in uploadImageByFileModel.FileImages)
                 {
                     using (var stream = uploadImage.OpenReadStream())
@@ -529,7 +531,7 @@ const generationConfig = {
                         };
                         listImageFileCreateEntry.Add(imageFileCreateEntry);
                     }
-                   
+
                 }
                 ImageFileCreateBatch imageFileCreateBatch = new ImageFileCreateBatch()
                 {
@@ -538,7 +540,8 @@ const generationConfig = {
                 };
 
                 var uploadImageByFile = await trainingClient.CreateImagesFromFilesAsync(projectId, imageFileCreateBatch);
-                if(uploadImageByFile != null && uploadImageByFile.IsBatchSuccessful)
+
+                if (uploadImageByFile != null && uploadImageByFile.IsBatchSuccessful)
                 {
                     return new BusinessResult(200, "Upload image to Custom Vision success", uploadImageByFile);
                 }
@@ -575,8 +578,8 @@ const generationConfig = {
                 {
                     Name = updateTagModel.NewTagName,
                 };
-                var updateTagToCustomVision =  await trainingClient.UpdateTagAsync(projectId, oldTagId, updateTag);
-                if(updateTagToCustomVision != null)
+                var updateTagToCustomVision = await trainingClient.UpdateTagAsync(projectId, oldTagId, updateTag);
+                if (updateTagToCustomVision != null)
                 {
                     return new BusinessResult(200, "Update tag success", updateTagToCustomVision);
                 }
@@ -595,7 +598,7 @@ const generationConfig = {
             {
                 var calculateTakeIndex = (getImagesModelWithPagination.PageIndex - 1) * getImagesModelWithPagination.PageSize;
                 var getAllImages = await trainingClient.GetImagesAsync(projectId, taggingStatus: getImagesModelWithPagination.TaggingStatus, filter: getImagesModelWithPagination.Filter, orderBy: getImagesModelWithPagination.OrderBy, take: getImagesModelWithPagination.PageSize, skip: calculateTakeIndex);
-                if(getAllImages != null && getAllImages.Count() > 0)
+                if (getAllImages != null && getAllImages.Count() > 0)
                 {
                     return new BusinessResult(200, "Get All Images From Custom Vision Success", getAllImages);
                 }
@@ -661,85 +664,56 @@ const generationConfig = {
             }
         }
 
-        public async Task<BusinessResult> QuickTestImageByURL(QuickTestImageByURLModel quickTestImageByURLModel)
+        public async Task<BusinessResult> TrainedProject()
         {
             try
             {
-                ImageUrl imageUrl = new ImageUrl()
+                // Kiểm tra ảnh hợp lệ trước khi train
+                var images = await trainingClient.GetImagesAsync(projectId);
+                if (images.Count == 0)
                 {
-                    Url = quickTestImageByURLModel.ImageURL
-                };
-                var quickTestImageByURL = await trainingClient.QuickTestImageUrlAsync(projectId, imageUrl);
-                if(quickTestImageByURL != null)
-                {
-                    return new BusinessResult(200, "Quick Test Image By URL Success", quickTestImageByURL);
-                }
-                return new BusinessResult(400, "Quick Test Image By URL Failed");
-            }
-            catch (Exception ex)
-            {
-
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
-        public async Task<BusinessResult> QuickTestImageByFile(QuickTestImageByFileModel quickTestImageByFileModel)
-        {
-            try
-            {
-                using (var stream = quickTestImageByFileModel.FileImage.OpenReadStream())
-                {
-                    byte[] imageBytes;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await stream.CopyToAsync(memoryStream);
-                        imageBytes = memoryStream.ToArray();
-                    }
-                    var quickTestImageByFile = await trainingClient.QuickTestImageAsync(projectId, stream);
-                    if (quickTestImageByFile != null)
-                    {
-                        return new BusinessResult(200, "Quick Test Image By File Success", quickTestImageByFile);
-                    }
-                    return new BusinessResult(400, "Quick Test Image By File Failed");
-                }
-            }
-            catch (Exception ex)
-            {
-
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
-        }
-
-        public async Task<BusinessResult> TrainedProject(TrainingProjectModel trainingProjectModel)
-        {
-            try
-            {
-                var validTrainingTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    "Regular", "Advanced", "Compact", "DenseNet"
-                };
-
-                // Kiểm tra nếu trainingProjectModel.TrainingType hợp lệ
-                if (!validTrainingTypes.Contains(trainingProjectModel.TrainingType))
-                {
-                    return new BusinessResult(400, "Invalid training type. Must be Regular, Advanced, Compact or DenseNet");
+                    return new BusinessResult(400, "No images available for training.");
                 }
 
-                var trainedProject = await trainingClient.TrainProjectAsync(
-                    projectId,
-                    trainingProjectModel.TrainingType, 
-                    trainingProjectModel.ReservedHours
-                );
-                if(trainedProject != null)
+                var taggedImages = images.Where(img => img.Tags != null && img.Tags.Count > 0).ToList();
+                if (taggedImages.Count == 0)
                 {
-                    return new BusinessResult(200, $"Training Project success. Please wait {trainingProjectModel.ReservedHours} hours", trainedProject);
+                    return new BusinessResult(400, "All images must have at least one tag before training.");
                 }
-                return new BusinessResult(400, "Training Project failed");
+
+                // Kiểm tra project có đang training không
+                var iterations = await trainingClient.GetIterationsAsync(projectId);
+                var latestIteration = iterations.OrderByDescending(i => i.Created).FirstOrDefault();
+                if (latestIteration != null && latestIteration.Status == "Training")
+                {
+                    return new BusinessResult(400, "Project is already training. Please wait.");
+                }
+
+                // Bắt đầu train
+                var iteration = await trainingClient.TrainProjectAsync(projectId);
+
+                // Chờ training hoàn tất
+                while (iteration.Status == "Training" || iteration.Status == "Queued")
+                {
+                    await Task.Delay(3000); // Chờ 3 giây trước khi kiểm tra lại
+                    iteration = await trainingClient.GetIterationAsync(projectId, iteration.Id);
+                }
+
+                if (iteration.Status != "Completed")
+                {
+                    return new BusinessResult(500, $"Training failed with status: {iteration.Status}");
+                }
+
+                
+                await trainingClient.UpdateIterationAsync(projectId, iteration.Id, iteration);
+
+                return new BusinessResult(200, "Training Project Success");
             }
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
     }
 }

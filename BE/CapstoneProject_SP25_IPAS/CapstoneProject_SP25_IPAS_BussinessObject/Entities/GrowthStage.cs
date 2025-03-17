@@ -25,7 +25,7 @@ public partial class GrowthStage
     public virtual ICollection<Process> Processes { get; set; } = new List<Process>();
     public virtual ICollection<Plant> Plants { get; set; } = new List<Plant>();
     public virtual ICollection<GrowthStagePlan> GrowthStagePlans { get; set; } = new List<GrowthStagePlan>();
-    public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
+    //public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
     //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
     public virtual ICollection<GrowthStageMasterType> GrowthStageMasterTypes { get; set; } = new List<GrowthStageMasterType>();
 }

@@ -1,4 +1,4 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PartnerRequest;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PartnerRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;

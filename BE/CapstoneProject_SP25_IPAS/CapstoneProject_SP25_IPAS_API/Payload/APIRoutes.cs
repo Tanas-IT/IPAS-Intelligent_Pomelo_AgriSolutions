@@ -237,6 +237,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
             public const string updatePlantInfo = prefix + "";
             public const string getPlantById = prefix + "";
+            public const string getPlantByCode = prefix + "/get-by-code";
             //public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
             //public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";
@@ -332,7 +333,11 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantsHasHarvest = prefix + "/get-plant-has-harvest";
             public const string getHarvestForSelectedByPlotId = prefix + "/for-selected";
             public const string getProductInHarvestForSelected = prefix + "/for-selected/product-in-harvest";
-            public const string statisticOfPlantByYear = prefix + "/plant-statistic-in-year";
+            public const string statisticOfPlantByYear = prefix + "/statistic/plant-in-year";
+            public const string getHarvestByCode = prefix + "/get-by-code";
+            public const string statisticOfTopByYear = prefix + "/statistic/top-in-year";
+            public const string statisticOfTopByCrop = prefix + "/statistic/top-in-crop";
+
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }
@@ -426,8 +431,6 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getImageUntaggedAsync = prefix + "/get-image-untagged";
             public const string getImageTaggedAsync = prefix + "/get-image-tagged";
             public const string updateTag = prefix + "/update-tag";
-            public const string quickTestImageByFile = prefix + "/quick-test-image-by-file";
-            public const string quickTestImageByLink = prefix + "/quick-test-image-by-link";
             public const string trainedProject = prefix + "/trained-project";
         }
 
@@ -481,6 +484,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createReportOfUser = prefix + "/create";
             public const string DeleteReportOfUser = prefix + "/delete";
             public const string UpdateReportOfUser = prefix + "/update";
+            public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
         }
     }
 }

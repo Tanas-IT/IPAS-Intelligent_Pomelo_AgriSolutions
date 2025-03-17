@@ -1,6 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using FluentValidation;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -50,6 +50,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Plant.getPlantByCode + "/{plant-code}", Name = "getPlantByCode")]
+        public async Task<IActionResult> getPlantByCode([FromRoute(Name = "plant-code")] string plantCode)
+        {
+            try
+            {
+                var result = await _plantService.getByCode(plantCode);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
         /// <summary>
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>

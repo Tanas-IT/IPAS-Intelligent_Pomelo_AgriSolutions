@@ -320,54 +320,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+             
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
-        [HttpPost(APIRoutes.AI.quickTestImageByFile, Name = "quickTestImageByFile")]
-        public async Task<IActionResult> QuickTestImageByFileAsync([FromForm] QuickTestImageByFileModel quickTestImageByFileModel)
-        {
-            try
-            {
-                var result = await _aiService.QuickTestImageByFile(quickTestImageByFileModel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
-
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
-        [HttpPost(APIRoutes.AI.quickTestImageByLink, Name = "quickTestImageByLink")]
-        public async Task<IActionResult> QuickTestImageByLinkAsync([FromBody] QuickTestImageByURLModel quickTestImageByURLModel)
-        {
-            try
-            {
-                var result = await _aiService.QuickTestImageByURL(quickTestImageByURLModel);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-
-                var response = new BaseResponse()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = ex.Message
-                };
-                return BadRequest(response);
-            }
-        }
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.trainedProject, Name = "trainedProject")]
-        public async Task<IActionResult> TrainedProjectAsync([FromBody] TrainingProjectModel trainingProjectModel)
+        public async Task<IActionResult> TrainedProjectAsync()
         {
             try
             {
-                var result = await _aiService.TrainedProject(trainingProjectModel);
+                var result = await _aiService.TrainedProject();
                 return Ok(result);
             }
             catch (Exception ex)

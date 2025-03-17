@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common;
@@ -17,10 +16,14 @@ using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
+using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
+using Microsoft.IdentityModel.Tokens;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -29,12 +32,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
-
-        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config)
+        private readonly IWorkLogService _workLogService;
+        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = config;
+            _workLogService = workLogService;
         }
 
         public async Task<BusinessResult> createHarvestHistory(CreateHarvestHistoryRequest createRequest)
@@ -50,6 +54,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         cropExist.CropActualTime = DateTime.Now;
                         cropExist.Status = CropStatusEnum.Harvesting.ToString();
+                        // Cập nhật crop neu no la ngay dau tien trong mua
+                        _unitOfWork.CropRepository.Update(cropExist);
                     }
                     if (createRequest.DateHarvest < DateTime.Now)
                         return new BusinessResult(Const.WARNING_HARVEST_DATE_IN_PAST_CODE, Const.WARNING_HARVEST_DATE_IN_PAST_MSG);
@@ -94,13 +100,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             harvestHistory.ProductHarvestHistories.Add(historyType);
                         }
                     }
-
                     await _unitOfWork.HarvestHistoryRepository.Insert(harvestHistory);
-                    _unitOfWork.CropRepository.Update(cropExist);
                     int result = await _unitOfWork.SaveAsync();
+
                     if (result > 0)
                     {
+                        // Gán HarvestId cho task
+                        createRequest.AddNewTask.HarvestHistoryId = harvestHistory.HarvestHistoryId;
+                        createRequest.AddNewTask.TaskName = $"Harvest-{harvestHistory.HarvestHistoryCode}";
+                        createRequest.AddNewTask.DateWork = harvestHistory.DateHarvest;
+                        // Gọi service tạo Task sau khi đã có ID
+                        var addNewTask = await _workLogService.AddNewTask(createRequest.AddNewTask, cropExist.FarmId);
+                        if (addNewTask.StatusCode != 200)
+                            return addNewTask;
+
+
+
+                        await _unitOfWork.SaveAsync();
                         await transaction.CommitAsync();
+
                         var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
                         return new BusinessResult(Const.SUCCESS_CREATE_HARVEST_HISTORY_CODE, Const.SUCCESS_CREATE_HARVEST_HISTORY_MSG, mappedResult);
                     }
@@ -113,7 +131,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
+                    return new BusinessResult(400, "Fail to create harvest.", ex.Message);
                 }
             }
         }
@@ -453,6 +471,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> getHarvestByCode(string harvestCode)
+        {
+            if (string.IsNullOrEmpty(harvestCode))
+                return new BusinessResult(400, "Code is empty");
+
+            var harvest = await _unitOfWork.HarvestHistoryRepository.GetByCondition(h => h.HarvestHistoryCode!.ToLower().Equals(harvestCode.ToLower()));
+            if (harvest == null)
+                return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
+            var mappedResult = _mapper.Map<HarvestHistoryModel>(harvest);
+            return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
+
+        }
+
         public async Task<BusinessResult> updateHarvestHistoryInfo(UpdateHarvestHistoryRequest updateRequest)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
@@ -547,53 +578,50 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year, int productId)
+        public async Task<BusinessResult> StatisticOfPlantByYear(GetStatictisOfPlantByYearRequest request)
         {
             try
             {
-                // Lọc dữ liệu theo năm cụ thể
-                DateTime startDate = new DateTime(year, 1, 1);
-                DateTime endDate = new DateTime(year, 12, 31);
-
+                // 🔹 1. Lấy dữ liệu thu hoạch từ DB theo năm, sản phẩm và cây trồng
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
-                    .GetAllNoPaging(x => x.PlantId == plantId &&
-                                             x.HarvestHistory.DateHarvest.HasValue &&
-                                             x.MasterTypeId == productId &&
-                                             x.HarvestHistory.DateHarvest >= startDate &&
-                                             x.HarvestHistory.DateHarvest <= endDate,
-                                        includeProperties: "HarvestHistory,MasterType");
+                    .GetAllNoPaging(x => x.PlantId == request.plantId &&
+                                         x.HarvestHistory.DateHarvest.HasValue &&
+                                         x.MasterTypeId == request.productId &&
+                                         x.HarvestHistory.DateHarvest.Value.Year >= request.yearFrom &&
+                                         x.HarvestHistory.DateHarvest.Value.Year <= request.yearTo,
+                                         includeProperties: "HarvestHistory,Product");
 
+                //  2. Kiểm tra dữ liệu
                 if (harvestData == null || !harvestData.Any())
                 {
-                    return new BusinessResult(200, "No harvest data found for this plant in the selected year.");
+                    return new BusinessResult(200, "No harvest data found for this plant in the selected years.");
                 }
+
+                //  3. Lấy thông tin sản phẩm (chỉ có 1 loại sản phẩm duy nhất)
+                var masterType = harvestData.First().Product;
+                var totalQuantity = harvestData.Sum(x => x.ActualQuantity ?? 0);
 
                 var yearlyStatistic = new YearlyStatistic
                 {
-                    Year = year,
+                    YearFrom = request.yearFrom,
+                    YearTo = request.yearTo,
+                    TotalYearlyQuantity = totalQuantity,
+                    MasterTypeId = masterType.MasterTypeId,
+                    MasterTypeCode = masterType.MasterTypeCode,
+                    MasterTypeName = masterType.MasterTypeName,
+                    NumberHarvest = harvestData.Count(),
                     MonthlyData = harvestData
-                        .Where(x => x.ActualQuantity.HasValue)
-                        .GroupBy(x => x.HarvestHistory.DateHarvest.Value.Month)
-                        .OrderBy(g => g.Key)
-                        .Select(monthGroup => new MonthlyStatistic
+                        .Where(x => x.HarvestHistory.DateHarvest.HasValue)
+                        .GroupBy(x => new { x.HarvestHistory.DateHarvest.Value.Year, x.HarvestHistory.DateHarvest.Value.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(group => new MonthlyStatistic
                         {
-                            Month = monthGroup.Key,
-                            TotalQuatity = monthGroup.Sum(x => x.ActualQuantity ?? 0),
-                            HarvestDetails = monthGroup
-                                .GroupBy(x => x.MasterTypeId)
-                                .Select(mtGroup => new HarvestStatistic
-                                {
-                                    MasterTypeId = mtGroup.Key,
-                                    MasterTypeCode = mtGroup.FirstOrDefault()!.Product.MasterTypeCode,
-                                    MasterTypeName = mtGroup.FirstOrDefault()!.Product?.MasterTypeName,
-                                    TotalQuantity = mtGroup.Sum(x => x.QuantityNeed ?? 0)
-                                }).ToList()
+                            Year = group.Key.Year,
+                            Month = group.Key.Month,
+                            TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0),
+                            HarvestCount = group.Count()
                         }).ToList()
                 };
-
-                // Tính tổng sản lượng của cả năm
-                yearlyStatistic.TotalYearlyQuantity = yearlyStatistic.MonthlyData
-                    .Sum(m => m.HarvestDetails.Sum(h => h.TotalQuantity));
 
                 return new BusinessResult(200, "Successfully retrieved statistics.", yearlyStatistic);
             }
@@ -662,6 +690,92 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(500, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetTopPlantsByYear(GetTopStatisticByYearRequest request)
+        {
+            try
+            {
+                //  1. Lấy danh sách thu hoạch theo loại sản phẩm
+                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                    .getToTopStatistic(
+                        x => x.MasterTypeId == request.productId &&
+                             x.PlantId.HasValue &&
+                             x.ActualQuantity.HasValue &&
+                             x.Plant!.FarmId == request.farmId &&
+                             x.Plant.IsDead == false &&
+                             x.Plant.IsDeleted == false &&
+                             x.HarvestHistory.DateHarvest.HasValue &&
+                             x.HarvestHistory.DateHarvest.Value.Year >= request.yearFrom &&
+                             x.HarvestHistory.DateHarvest.Value.Year <= request.yearTo
+                    );
+
+                if (harvestData == null || !harvestData.Any())
+                {
+                    return new BusinessResult(200, "No harvest data found for this product.");
+                }
+
+                //  2. Nhóm theo cây và tính tổng sản lượng + số lần thu hoạch
+                var topPlants = harvestData
+           .GroupBy(x => x.Plant)
+           .Select(group => new
+           {
+               Plant = _mapper.Map<PlantModel>(group.Key),  // Lấy object Plant đầy đủ
+               TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
+               HarvestCount = group.Count() // Số lần thu hoạch
+           })
+           .OrderByDescending(x => x.TotalQuantity) // Sắp xếp theo tổng sản lượng
+           .Take(request.topN ?? 20) // Giới hạn số lượng
+           .ToList();
+
+                return new BusinessResult(200, "Successfully retrieved top plants.", topPlants);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetTopPlantsByCrop(GetTopStatisticByCropRequest request)
+        {
+            try
+            {
+                //  1. Lấy danh sách thu hoạch theo loại sản phẩm
+                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                    .getToTopStatistic(
+                        x => x.MasterTypeId == request.productId &&
+                             x.PlantId.HasValue &&
+                             x.ActualQuantity.HasValue &&
+                             x.Plant!.FarmId == request.farmId &&
+                             x.Plant.IsDead == false &&
+                             x.Plant.IsDeleted == false &&
+                             request.cropId.Contains(x.HarvestHistory.CropId!.Value) 
+                    );
+
+                if (harvestData == null || !harvestData.Any())
+                {
+                    return new BusinessResult(200, "No harvest data found for this product.");
+                }
+
+                //  2. Nhóm theo cây và tính tổng sản lượng + số lần thu hoạch
+                var topPlants = harvestData
+           .GroupBy(x => x.Plant)
+           .Select(group => new
+           {
+               Plant = _mapper.Map<PlantModel>(group.Key),  // Lấy object Plant đầy đủ
+               TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
+               HarvestCount = group.Count() // Số lần thu hoạch
+           })
+           .OrderByDescending(x => x.TotalQuantity) // Sắp xếp theo tổng sản lượng
+           .Take(request.topN ?? 20) // Giới hạn số lượng
+           .ToList();
+
+                return new BusinessResult(200, "Successfully retrieved top plants.", topPlants);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

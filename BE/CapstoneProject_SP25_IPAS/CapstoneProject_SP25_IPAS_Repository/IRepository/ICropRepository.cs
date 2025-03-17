@@ -1,5 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CropRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using System;
 using System.Collections.Generic;

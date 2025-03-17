@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather
 {
-    using System.Text.Json.Serialization;
 
     public class WeatherForecastResponse
     {
@@ -40,6 +39,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather
 
         [JsonPropertyName("wind")]
         public WeatherForecastWind Wind { get; set; } = new();
+
+        public DateTime ForecastDateTime => DateTime.Parse(DateTimeText);
     }
 
     public class WeatherForecastMain

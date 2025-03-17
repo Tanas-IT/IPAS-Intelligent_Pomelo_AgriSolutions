@@ -521,14 +521,14 @@ CREATE TABLE ipas.dbo.PlantLot (
 	IsPassed bit DEFAULT 0,
 	PassedDate datetime null,
 	MasterTypeId int NULL,
-	GrowthStageID int NULL,
+	--GrowthStageID int NULL,
         IsFromGrafted bit NULL,
 	-- IsForGrafted bit default 0,
 	CONSTRAINT PK__PlantLot__58D457ABDE17F2CF PRIMARY KEY (PlantLotID),
 	CONSTRAINT FK_PlantLot_Partner FOREIGN KEY (PartnerID) REFERENCES ipas.dbo.Partner(PartnerID) ON DELETE CASCADE,
 	CONSTRAINT PlantLot_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
 	CONSTRAINT PlantLot_MasterType_FK FOREIGN KEY (MasterTypeId) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
+	--CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
 
 
