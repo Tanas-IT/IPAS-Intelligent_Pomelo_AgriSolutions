@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,6 +30,29 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                          ht.HarvestHistory.Crop.FarmId == farmId && ht.HarvestHistory.HarvestStatus.ToLower().Equals("completed"))
             .ToListAsync();
             return result;
+        }
+
+        public async Task<IEnumerable<ProductHarvestHistory>> getToTopStatistic(
+            Expression<Func<ProductHarvestHistory, bool>> filter = null!,
+            Func<IQueryable<ProductHarvestHistory>, IOrderedQueryable<ProductHarvestHistory>> orderBy = null!)
+        {
+            IQueryable<ProductHarvestHistory> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            query = query.Include(x => x.Plant)
+                .ThenInclude(x => x.LandRow)
+                .ThenInclude(x => x.LandPlot).
+                Include(x => x.HarvestHistory); ;
+
+            return await query.AsNoTracking().ToListAsync();
+
         }
     }
 }

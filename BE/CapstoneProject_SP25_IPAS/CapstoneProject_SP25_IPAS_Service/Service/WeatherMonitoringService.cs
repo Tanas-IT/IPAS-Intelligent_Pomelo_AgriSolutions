@@ -210,6 +210,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     await _notificationService.NotificationWeather(new List<CreateNotificationRequest> { notification });
                     await _webSocketService.SendToUser(user.UserId, $"⚠ {notification.Content}");
+                    Console.WriteLine(warningMessage);
                 }
             }
         }
