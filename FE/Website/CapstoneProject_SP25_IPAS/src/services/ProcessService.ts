@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
-import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
+import { GetProcess, GetProcessDetail, GetProcessList, GetProcessSelect } from "@/payloads/process";
 import { ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
@@ -143,4 +143,17 @@ export const deleteProcess = async (ids: number[] | string[]): Promise<ApiRespon
   return apiResponse;
 };
 
+export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
+  const queryParams = processIds.map(id => `id=${id}`).join('&');
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `processes/for-selected-by-master-type?${queryParams}`
+  );
+  const apiResponse = res.data as ApiResponse<GetProcessSelect[]>;
+  console.log("res getProcessOfFarmByMasterType", apiResponse);
+  
+  return apiResponse.data.map(({ id, name }) => ({
+    value: id,
+    label: name
+  }));
+}
 

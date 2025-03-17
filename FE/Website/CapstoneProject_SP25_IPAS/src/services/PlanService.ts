@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantTargetResponse } from "@/payloads";
+import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantLot2, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
 import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
@@ -86,6 +86,20 @@ export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStag
       { listGrowthStage });
   const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
   return apiResponse.data;
+};
+
+export const filterPlantLotsByUnitAndGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
+      { listGrowthStage });
+  const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
+  console.log("log filter lot", apiResponse);
+  
+  return apiResponse.data.flatMap((lot) =>
+    lot.plantLots.map((lotItem) => ({
+      value: lotItem.plantLotId,
+      label: lotItem.plantLotName,
+    }))
+  );
 };
 
 export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {

@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useNotifications, useUnsavedChangesWarning } from "@/hooks";
 import {
+  fetchPlantLotsByUnitAndGrowthStage,
   fetchProcessesOfFarm,
   fetchUserInfoByRole,
   getFarmId,
@@ -36,6 +37,8 @@ import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
 import {
   cropService,
   planService,
+  plantLotService,
+  processService,
 } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
@@ -47,6 +50,7 @@ import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 import isBetween from "dayjs/plugin/isBetween";
 import { SelectOption } from "@/types";
 import usePlantLotOptions from "@/hooks/usePlantLotOptions";
+import { Rule } from "antd/es/form";
 
 dayjs.extend(isBetween);
 
@@ -88,13 +92,14 @@ const AddPlan = () => {
   const { options: landPlots } = useLandPlotOptions();
   const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
-  const { options: plantLotOptions } = usePlantLotOptions();
+  // const { options: plantLotOptions } = usePlantLotOptions();
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
   const { options: cropOptions } = useCropCurrentOption();
 
   const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
   const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
   const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
+  const [plantLotOptions, setPlantLotOptions] = useState<SelectOption[]>([]);
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
@@ -104,53 +109,96 @@ const AddPlan = () => {
       form.setFieldValue("listLandPlotOfCrop", []);
       cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
         setLandPlotOfCropOptions(data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })));
-
       });
     } else {
       setLandPlotOfCropOptions([]);
     }
   }, [selectedCrop]);
-
+  
+  useEffect(() => {
+          form.setFieldValue("masterTypeId", undefined);
+          if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+              planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+                  setProcessTypeOptions(
+                      data.map((item) => ({
+                          value: item.masterTypeId,
+                          label: item.masterTypeName,
+                      }))
+                  );
+              });
+          } else {
+              setProcessTypeOptions([]);
+          }
+      }, [selectedGrowthStage]);
+  
+  useEffect(() => {
+    const updateProcessFarmOptions = async () => {
+      if (targetType === "graftedPlant") {
+        setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+      } else {
+        setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+      }
+    };
+  
+    updateProcessFarmOptions();
+  }, [targetType]);
+  
   const handlePlanTargetChange = async (target: string) => {
     setTargetType(target);
     form.setFieldsValue({
       planTargetModel: [],
     });
+  
     if (target === "graftedPlant") {
-      form.setFieldValue("processId", 14);
+      setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
       form.setFieldValue("growthStageId", undefined);
-      handleChangeProcess(14);
+      form.setFieldValue("processId", undefined);
+      setIsLockedGrowthStage(false);
       setIsTargetDisabled(true);
+      setSelectedGrowthStage([]); // Reset selectedGrowthStage
     } else if (target === "plantLot") {
+      setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(true);
       form.setFieldValue("processId", undefined);
+      setIsLockedGrowthStage(false);
     } else {
       form.setFieldValue("processId", undefined);
+      setIsLockedGrowthStage(false);
+      setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(false);
     }
-  }
-
+  };
+  
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
+      form.setFieldValue("processId", processId);
       const masterTypeId = await getTypeOfProcess(processId);
-      form.setFieldValue("growthStageId", [growthStageId]);
       form.setFieldValue("masterTypeId", Number(masterTypeId));
       setIsLockedGrowthStage(true);
-
-      const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
-        setProcessTypeOptions(data.map((item) => ({
-          value: item.masterTypeId,
-          label: item.masterTypeName
-        })));
-      });
+      // neu process co type la grafting
+      if (masterTypeId === 14) {
+        setTargetType("graftedPlant");
+        form.setFieldValue("planTarget", "graftedPlant");
+        form.setFieldValue("growthStageId", undefined);
+        setIsLockedGrowthStage(true);
+      } else if (targetType === "plantLot") {
+        // const growthStageId = await getGrowthStageOfProcess(processId);
+        form.setFieldValue("growthStageId", [growthStageId]);
+        setSelectedGrowthStage([growthStageId]);
+      } else {
+        form.setFieldValue("growthStageId", [growthStageId]);
+        setSelectedGrowthStage([growthStageId]);
+        form.setFieldsValue({ planTargetModel: [] });
+      }
     } else {
+      form.setFieldValue("processId", undefined);
       form.setFieldValue("growthStageId", undefined);
+      form.setFieldValue("masterTypeId", undefined);
       setIsLockedGrowthStage(false);
       setProcessTypeOptions([]);
     }
   };
-
   const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
     if (!dates || dates.some(date => date === null)) {
       setDateRange(null);
@@ -343,7 +391,7 @@ const AddPlan = () => {
 
 
   const handleSubmit = async (values: any) => {
-    const { dateRange, timeRange, planTargetModel, frequency } = values;
+    const { dateRange, timeRange, planTargetModel, frequency, graftedPlant, plantLot } = values;
     const startDate = new Date(dateRange?.[0]);
     const endDate = new Date(dateRange?.[1]);
 
@@ -352,7 +400,7 @@ const AddPlan = () => {
 
     const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
     const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
-    if (frequency === "Weekly" && customDates.length === 0) {
+    if (frequency === "Weekly" && dayOfWeek.length === 0) {
       toast.error("Please select at least one custom date for Weekly frequency.");
       return;
     }
@@ -367,41 +415,95 @@ const AddPlan = () => {
       return;
     }
 
-    if (!selectedCrop && planTargetModel.length === 0) {
+    if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
       toast.error("Please select at least one plan target.");
       return;
     }
+    console.log("planTargetModel", planTargetModel);
+    console.log("graftedPlant", graftedPlant);
+    console.log("plantLot", plantLot);
+    
 
-    const formattedPlanTargetModel = planTargetModel.map((target: any) => {
-      if (targetType === "regular") {
-        return {
-          landPlotID: target.landPlotID ?? 0,
-          landRowID: target.landRowID ?? [],
-          plantID: target.plantID ?? [],
-          graftedPlantID: [],
-          plantLotID: [],
-          unit: target.unit,
-        };
-      } else if (targetType === "plantLot") {
-        return {
-          landPlotID: 0,
-          landRowID: [],
-          plantID: [],
-          graftedPlantID: [],
-          plantLotID: target.plantLotID ?? [],
-          unit: target.unit,
-        };
-      } else if (targetType === "graftedPlant") {
-        return {
-          landPlotID: 0,
-          landRowID: [],
-          plantID: [],
-          graftedPlantID: target.graftedPlantID ?? [],
-          plantLotID: [],
-          unit: target.unit,
-        };
-      }
+    const graftedPlantIDs = graftedPlant || [];
+  const plantLotIDs = plantLot || [];
+  console.log("graftedPlantIDs", graftedPlantIDs);
+    console.log("plantLotIDs", plantLotIDs);
+    console.log("targetType", targetType);
+
+    let formattedPlanTargetModel;
+  // Format planTargetModel
+  if (targetType === "regular") {
+    formattedPlanTargetModel = planTargetModel.map((target: any) => {
+      return {
+        landPlotID: target.landPlotID ?? 0,
+        // landRowID: target.landRowID ?? [],
+        // landRowID: (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) ?? [],
+        landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
+        plantID: target.plantID ?? [],
+        graftedPlantID: [], // Không có graftedPlant trong planTargetModel
+        plantLotID: [], // Không có plantLot trong planTargetModel
+        unit: target.unit,
+      };
     });
+  } else if (targetType === "plantLot") {
+    console.log("vô plantLot");
+    formattedPlanTargetModel = [{
+      landPlotID: undefined,
+        landRowID: [],
+        plantID: [],
+        graftedPlantID: [], // Không có graftedPlant trong planTargetModel
+        plantLotID: plantLotIDs, // Lấy từ form
+        unit: targetType,
+    }];
+  } else if (targetType === "graftedPlant") {
+    console.log("vô grafted");
+    
+    formattedPlanTargetModel = [{
+      landPlotID: undefined,
+        landRowID: [],
+        plantID: [],
+        graftedPlantID: graftedPlantIDs, // Không có graftedPlant trong planTargetModel
+        plantLotID: [], // Lấy từ form
+        unit: targetType,
+    }];
+  }
+  //  formattedPlanTargetModel = planTargetModel.map((target: any) => {
+  //   console.log("ủa kì v tr");
+    
+  //   if (targetType === "regular") {
+  //     return {
+  //       landPlotID: target.landPlotID ?? 0,
+  //       landRowID: target.landRowID ?? [],
+  //       plantID: target.plantID ?? [],
+  //       graftedPlantID: [], // Không có graftedPlant trong planTargetModel
+  //       plantLotID: [], // Không có plantLot trong planTargetModel
+  //       unit: target.unit,
+  //     };
+  //   } else if (targetType === "plantLot") {
+  //     return {
+  //       landPlotID: 0,
+  //       landRowID: [],
+  //       plantID: [],
+  //       graftedPlantID: [], // Không có graftedPlant trong planTargetModel
+  //       plantLotID: plantLotIDs, // Lấy từ form
+  //       unit: target.unit,
+  //     };
+  //   } else if (targetType === "graftedPlant") {
+  //     console.log("hummmm");
+      
+  //     return {
+  //       landPlotID: 0,
+  //       landRowID: [],
+  //       plantID: [],
+  //       graftedPlantID: [1,2,3], // Lấy từ form
+  //       plantLotID: [], // Không có plantLot trong planTargetModel
+  //       unit: target.unit,
+  //     };
+  //   }
+  // });
+
+  console.log("formattedPlanTargetModel", formattedPlanTargetModel);
+    
 
     const planData: PlanRequest = {
       planName: values.planName,
@@ -430,41 +532,37 @@ const AddPlan = () => {
       endDate: adjustedEndDate.toISOString(),
       startTime: startTime,
       endTime: endTime,
-      // planTargetModel: planTargetModel.map((target: any) => ({
-      //   landPlotID: target.landPlotID ?? 0,
-      //   landRowID: target.landRowID ?? [],
-      //   plantID: target.plantID ?? [],
-      //   graftedPlantID: target.graftedPlantID ?? [],
-      //   plantLotID: target.plantLotID ?? [],
-      //   unit: target.unit
-      // })),
       planTargetModel: formattedPlanTargetModel,
       listLandPlotOfCrop: values.listLandPlotOfCrop
     };
     console.log("planData", planData);
 
-    // const result = await planService.addPlan(planData);
+    const result = await planService.addPlan(planData);
 
-    // if (result.statusCode === 200) {
-    //   await toast.success(result.message);
-    //   navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
-    //   form.resetFields();
-    // } else {
-    //   toast.error(result.message);
-    // }
+    if (result.statusCode === 200) {
+      await toast.success(result.message);
+      navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
+      form.resetFields();
+    } else {
+      toast.error(result.message);
+    }
 
     setIsFormDirty(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-      console.log("d");
-      setEmployee(await fetchUserInfoByRole("User"));
-    };
+  const fetchData = async () => {
+    setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+    setEmployee(await fetchUserInfoByRole("User"));
+    // setPlantLotOptions((await usePlantLotOptions()).options);
+    const plantLots = await plantLotService.getPlantLotSelected();
+    setPlantLotOptions(plantLots)
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+  console.log("s k log duoc employee", employee);
+  
 
   return (
     <div className={style.contentSectionBody}>
@@ -501,7 +599,7 @@ const AddPlan = () => {
           title="Basic Information"
           subtitle="Enter the basic information for the care plan."
         >
-          
+
           <Row gutter={16}>
             <Col span={12}>
               <Flex vertical>
@@ -516,9 +614,13 @@ const AddPlan = () => {
                 />
                 <div
                   style={{ marginTop: "-20px", textAlign: "right" }}
-                  onClick={() => {
-                    form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
-                    form.setFieldValue("masterTypeId", undefined);
+                  onClick={ async() => {
+                    const masterTypeId = await getTypeOfProcess(form.getFieldValue("processId"));
+                    if (masterTypeId === 14) {
+                      form.setFieldValue("planTarget", undefined);
+                      form.setFieldValue("graftedPlant", undefined);
+                      setTargetType(undefined);
+                    }
                     handleChangeProcess(undefined);
                   }}>
                   <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
@@ -529,10 +631,29 @@ const AddPlan = () => {
               <InfoField
                 label="Growth Stage"
                 name={addPlanFormFields.growthStageID}
-                rules={RulesManager.getGrowthStageRules()}
+                // rules={RulesManager.getGrowthStageRules()}
+                rules={[
+                  {
+                    // Chỉ validate khi submit form
+                    validateTrigger: 'onSubmit',
+                    validator: (_: any, value: any) => {
+                      const processId = form.getFieldValue(addPlanFormFields.processId);
+                      // Nếu không có Process được chọn và Growth Stage cũng không được chọn
+                      if (!processId && (!value || value.length === 0)) {
+                        return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
                 options={growthStageOptions}
                 isEditing={!isLockedGrowthStage}
-                onChange={(value) => setSelectedGrowthStage(value)}
+                onChange={(value) => {
+                  setSelectedGrowthStage(value);
+                  if(targetType === "regular") {
+                    form.setFieldsValue({ planTargetModel: [] });
+                  }
+                }}
                 type="select"
                 multiple
                 hasFeedback={false}
@@ -576,6 +697,7 @@ const AddPlan = () => {
                   // rules={RulesManager.getGraftedPlantRules()}
                   isEditing={true}
                   type="select"
+                  multiple
                   hasFeedback={false}
                 />
               </Col>
@@ -594,6 +716,11 @@ const AddPlan = () => {
                   hasFeedback={false}
                   onChange={(value) => {
                     setSelectedCrop(value);
+                    if(targetType === "regular") {
+                      setTargetType(undefined);
+                    form.setFieldValue("planTarget", undefined);
+                    }
+                    
                     setIsTargetDisabled(true);
                     form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
                     form.setFieldsValue({ planTargetModel: [] });

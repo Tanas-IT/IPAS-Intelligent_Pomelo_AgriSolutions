@@ -2,7 +2,7 @@ import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
-import { DecodedToken, FileType, rowStateType } from "@/types";
+import { DecodedToken, FileType } from "@/types";
 import { HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
@@ -122,6 +122,14 @@ export const getOptions = (total: number): number[] => {
   if (total > 10) return [5, 10, 20];
   if (total > 5) return [5, 10];
   return [5];
+};
+
+export const getCriteriaOptions = (total: number): number[] => {
+  if (total > 50) return [3, 10, 20, 50, 100];
+  if (total > 20) return [3, 10, 20, 50];
+  if (total > 10) return [3, 10, 20];
+  if (total > 5) return [3, 10];
+  return [3];
 };
 
 export const formatCurrencyVND = (amount: string): string => {
@@ -244,6 +252,8 @@ export const fetchUserByRole = async (role: string) => {
 
 export const fetchUserInfoByRole = async (role: string) => {
   const users = await userService.getUsersByRole(role);
+  console.log("khong goi toi day");
+  
   console.log("users", users);
 
   return users.map((user) => ({
@@ -324,7 +334,6 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
 export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
   const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
   console.log("process farm", processFarms);
-  
 
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,
@@ -353,35 +362,35 @@ export const isPlantOverflowing = (
   return totalPlantSpace > rowLength;
 };
 
-export const normalizeRow = (row: landRowSimulate | rowStateType) => ({
-  rowId: "landRowId" in row ? row.landRowId : row.id,
-  rowCode: "landRowCode" in row ? row.landRowCode : "", // Nếu không có thì gán chuỗi rỗng
-  length: row.length,
-  width: row.width,
-  treeAmount: "treeAmount" in row ? row.treeAmount : row.plantsPerRow,
-  distance: "distance" in row ? row.distance : row.plantSpacing,
-  plants:
-    "plants" in row
-      ? row.plants.map((plant) => ({
-          plantId: plant.plantId,
-          plantCode: plant.plantCode,
-          plantIndex: plant.plantIndex,
-          healthStatus: plant.healthStatus ?? HEALTH_STATUS.HEALTHY,
-        }))
-      : Array.from({ length: row.plantsPerRow }).map((_, i) => ({
-          id: i,
-          healthStatus: HEALTH_STATUS.HEALTHY,
-        })),
-  rowIndex: "rowIndex" in row ? row.rowIndex : row.index,
-});
+// export const normalizeRow = (row: landRowSimulate | rowStateType) => ({
+//   rowId: "landRowId" in row ? row.landRowId : row.id,
+//   rowCode: "landRowCode" in row ? row.landRowCode : "", // Nếu không có thì gán chuỗi rỗng
+//   length: row.length,
+//   width: row.width,
+//   treeAmount: "treeAmount" in row ? row.treeAmount : row.plantsPerRow,
+//   distance: "distance" in row ? row.distance : row.plantSpacing,
+//   plants:
+//     "plants" in row
+//       ? row.plants.map((plant) => ({
+//           plantId: plant.plantId,
+//           plantCode: plant.plantCode,
+//           plantIndex: plant.plantIndex,
+//           healthStatus: plant.healthStatus ?? HEALTH_STATUS.HEALTHY,
+//         }))
+//       : Array.from({ length: row.plantsPerRow }).map((_, i) => ({
+//           id: i,
+//           healthStatus: HEALTH_STATUS.HEALTHY,
+//         })),
+//   rowIndex: "rowIndex" in row ? row.rowIndex : row.index,
+// });
 
 export const formatDateW = (dateString: string): string => {
   const date = new Date(dateString);
   const options: Intl.DateTimeFormatOptions = {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   };
 
   const day = date.getDate();
@@ -395,14 +404,23 @@ const getDaySuffix = (day: number): string => {
   if (day >= 11 && day <= 13) return "th";
   const lastDigit = day % 10;
   switch (lastDigit) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
   }
 };
 
-export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type: "weekly" | "monthly") => {
+export const isDayInRange = (
+  day: number,
+  startDate: Dayjs,
+  endDate: Dayjs,
+  type: "weekly" | "monthly",
+) => {
   if (type === "weekly") {
     let currentDate = startDate.clone();
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
@@ -422,12 +440,58 @@ export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type
 export const getGrowthStageOfProcess = async (processId: number): Promise<number> => {
   const res = await getProcessDetail(processId);
   return res.processGrowthStageModel.growthStageId;
-}
+};
 
 export const getTypeOfProcess = async (processId: number): Promise<number> => {
   const res = await getProcessDetail(processId);
   return res.processMasterTypeModel.masterTypeId;
 }
+
+// export const isTargetOverlapping = (
+//   index: number,
+//   newLandPlotId: number | undefined,
+//   newLandRows: number | number[],
+//   newPlants: number[],
+//   newUnit: string | undefined,
+//   selectedUnits: (string | undefined)[],
+//   selectedLandPlots: (number | undefined)[],
+//   selectedLandRows: number[][],
+//   selectedPlants: number[][],
+// ) => {
+//   const newLandRowsArray = Array.isArray(newLandRows) ? newLandRows : [newLandRows];
+
+//   for (let i = 0; i < selectedLandPlots.length; i++) {
+//     if (i === index) continue;
+
+//     const existingUnit = selectedUnits[i];
+//     const existingLandPlot = selectedLandPlots[i];
+//     const existingLandRows = selectedLandRows[i];
+//     const existingPlants = selectedPlants[i];
+
+//     if (
+//       newUnit === existingUnit ||
+//       (newUnit === "row" && existingUnit === "landplot") ||
+//       (newUnit === "plant" && existingUnit === "row")
+//     ) {
+//       if (newLandPlotId === existingLandPlot) {
+//         if (newLandRowsArray.length > 0 && existingLandRows.length > 0) {
+//           const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+//           if (isRowOverlapping) {
+//             if (newPlants.length > 0 && existingPlants.length > 0) {
+//               const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
+//               if (isPlantOverlapping) {
+//                 return true;
+//               }
+//             }
+//             return true;
+//           }
+//         }
+//         return true;
+//       }
+//     }
+//   }
+//   return false;
+// };
 
 export const isTargetOverlapping = (
   index: number,
@@ -438,86 +502,161 @@ export const isTargetOverlapping = (
   selectedUnits: (string | undefined)[],
   selectedLandPlots: (number | undefined)[],
   selectedLandRows: number[][],
-  selectedPlants: number[][]
+  selectedPlants: number[][],
 ) => {
   const newLandRowsArray = Array.isArray(newLandRows) ? newLandRows : [newLandRows];
 
   for (let i = 0; i < selectedLandPlots.length; i++) {
-      if (i === index) continue;
+    if (i === index) continue;
 
-      const existingUnit = selectedUnits[i];
-      const existingLandPlot = selectedLandPlots[i];
-      const existingLandRows = selectedLandRows[i];
-      const existingPlants = selectedPlants[i];
+    const existingUnit = selectedUnits[i];
+    const existingLandPlot = selectedLandPlots[i];
+    const existingLandRows = selectedLandRows[i];
+    const existingPlants = selectedPlants[i];
 
-      if (newUnit === existingUnit || (newUnit === "row" && existingUnit === "landplot") || (newUnit === "plant" && existingUnit === "row")) {
-          if (newLandPlotId === existingLandPlot) {
-              if (newLandRowsArray.length > 0 && existingLandRows.length > 0) {
-                  const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
-                  if (isRowOverlapping) {
-                      if (newPlants.length > 0 && existingPlants.length > 0) {
-                          const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
-                          if (isPlantOverlapping) {
-                              return true;
-                          }
-                      }
-                      return true;
-                  }
-              }
-              return true;
-          }
+    // Kiểm tra trùng lặp khi newUnit và existingUnit là plot
+    if (newUnit === "landplot" && existingUnit === "landplot") {
+      if (newLandPlotId === existingLandPlot) {
+        return true; // Trùng lặp vì cùng landplot
       }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là row và existingUnit là landplot
+    if (newUnit === "row" && existingUnit === "landplot") {
+      if (newLandPlotId === existingLandPlot) {
+        return true; // Trùng lặp vì row nằm trong landplot
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là landplot
+    if (newUnit === "plant" && existingUnit === "landplot") {
+      if (newLandPlotId === existingLandPlot) {
+        return true; // Trùng lặp vì plant nằm trong landplot
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là row và existingUnit là row
+    if (newUnit === "row" && existingUnit === "row") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          return true; // Trùng lặp vì cùng landplot và landrow
+        }
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là row
+    if (newUnit === "plant" && existingUnit === "row") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          return true; // Trùng lặp vì plant nằm trong row
+        }
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là plant
+    if (newUnit === "plant" && existingUnit === "plant") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
+          if (isPlantOverlapping) {
+            return true; // Trùng lặp vì cùng landplot, landrow, và plant
+          }
+        }
+      }
+    }
   }
   return false;
 };
-
 export const fetchTargetsByUnit = async (
   unit: string,
   selectedGrowthStage: number[],
   index: number,
-  setSelectedTargets: React.Dispatch<React.SetStateAction<SelectedTarget[][]>>
+  setSelectedTargets: React.Dispatch<React.SetStateAction<SelectedTarget[][]>>,
 ) => {
   try {
-      const response = await planService.filterTargetByUnitGrowthStage(
-          unit,
-          selectedGrowthStage,
-          Number(getFarmId())
-      );
+    const response = await planService.filterTargetByUnitGrowthStage(
+      unit,
+      selectedGrowthStage,
+      Number(getFarmId()),
+    );
 
-      const formattedData = response.map((item) => ({
-          unit,
-          landPlotId: item.landPlotId ?? null,
-          landPlotName: item.landPlotName ?? "",
-          rows: unit === "row" || unit === "plant" ? item.rows.map((row) => ({
+    const formattedData = response.map((item) => ({
+      unit,
+      landPlotId: item.landPlotId ?? null,
+      landPlotName: item.landPlotName ?? "",
+      rows:
+        unit === "row" || unit === "plant"
+          ? item.rows.map((row) => ({
               landRowId: row.landRowId,
               rowIndex: row.rowIndex,
               plants: row.plants.map((plant) => ({
-                  plantId: plant.plantId,
-                  plantName: plant.plantName,
+                plantId: plant.plantId,
+                plantName: plant.plantName,
               })),
-          })) : [],
-          plants: unit === "plant" ? item.plants.map((plant) => ({
+            }))
+          : [],
+      plants:
+        unit === "plant"
+          ? item.plants.map((plant) => ({
               plantId: plant.plantId,
               plantName: plant.plantName,
-          })) : [],
-          plantLots: unit === "plantlot" ? item.plantLots.map((lot) => ({
+            }))
+          : [],
+      plantLots:
+        unit === "plantlot"
+          ? item.plantLots.map((lot) => ({
               plantLotId: lot.plantLotId,
               plantLotName: lot.plantLotName,
-          })) : [],
-          graftedPlants: unit === "graftedplant" ? item.graftedPlants.map((grafted) => ({
+            }))
+          : [],
+      graftedPlants:
+        unit === "graftedplant"
+          ? item.graftedPlants.map((grafted) => ({
               graftedPlantId: grafted.graftedPlantId,
               graftedPlantName: grafted.graftedPlantName,
-          })) : [],
-      }));
+            }))
+          : [],
+    }));
 
-      setSelectedTargets((prev) => {
-          const newSelectedTargets = [...prev];
-          newSelectedTargets[index] = formattedData;
-          return newSelectedTargets;
-      });
+    setSelectedTargets((prev) => {
+      const newSelectedTargets = [...prev];
+      newSelectedTargets[index] = formattedData;
+      return newSelectedTargets;
+    });
   } catch (error) {
-      console.error("Error fetching data:", error);
-      throw error;
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+
+export const fetchPlantLotsByUnitAndGrowthStage = async (
+  unit: string,
+  selectedGrowthStage: number[],
+  farmId: number,
+) => {
+  try {
+    const response = await planService.filterTargetByUnitGrowthStage(
+      unit,
+      selectedGrowthStage,
+      farmId,
+    );
+    console.log("filter lot", response);
+    
+
+    const formattedData = response.flatMap((item) =>
+      item.plantLots.map((lot) => ({
+        value: lot.plantLotId,
+        label: `${item.landPlotName} - ${lot.plantLotName}`,
+      }))
+    );
+
+    return formattedData;
+  } catch (error) {
+    console.error("Error fetching plant lots:", error);
+    throw error;
   }
 };
 

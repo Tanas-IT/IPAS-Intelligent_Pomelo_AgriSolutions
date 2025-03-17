@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 interface FormFieldModalProps {
   label: string;
   description?: string;
-  name?: string;
+  name?: string | (string | number)[];
   rules?: any[];
   type?:
     | "text"

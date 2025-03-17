@@ -1,6 +1,6 @@
 import style from "./PlantLotCriteria.module.scss";
 import { Collapse, Divider, Empty, Flex } from "antd";
-import { ConfirmModal, LoadingSkeleton } from "@/components";
+import { ConfirmModal, CriteriaCheckTable, LoadingSkeleton } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantLotStore } from "@/stores";
 import LotSectionHeader from "../LotSectionHeader/LotSectionHeader";
@@ -18,10 +18,10 @@ import { toast } from "react-toastify";
 import UpdateQuantityModal from "./UpdateQuantityModal";
 import { CRITERIA_TARGETS } from "@/constants";
 import { PanelTitle } from "./PanelTitle";
-import CriteriaCheckTable from "./CriteriaCheckTable";
 
 function PlantLotCriteria() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true); // 👈 Thêm state mới
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, boolean>>({});
@@ -31,23 +31,21 @@ function PlantLotCriteria() {
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
-  const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const deleteConfirmModal = useModal<{ id: number }>();
   const quantityModal = useModal<{ target: string }>();
   if (!lot) return;
 
   const fetchCriteriaPlantLot = async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
+    if (isFirstLoad) await new Promise((resolve) => setTimeout(resolve, 500));
     try {
       const res = await criteriaService.getCriteriaOfLandPlot(Number(lot.plantLotId));
-      console.log(res);
-
       if (res.statusCode === 200 && res.data) {
         setCriteriaGroups(res.data ?? []);
         setInitialCriteriaGroups(res.data ?? []);
         const initialState = res.data.reduce((acc, group) => {
           group.criteriaList.forEach((item) => {
-            acc[item.criteriaId] = item.isChecked;
+            acc[item.criteriaId] = item.isChecked ?? false;
           });
           return acc;
         }, {} as Record<number, boolean>);
@@ -56,6 +54,7 @@ function PlantLotCriteria() {
       }
     } finally {
       setIsLoading(false);
+      setIsFirstLoad(false);
     }
   };
 
@@ -63,7 +62,7 @@ function PlantLotCriteria() {
     fetchCriteriaPlantLot();
   }, []);
 
-  if (isLoading) return <LoadingSkeleton rows={10} />;
+  if (isFirstLoad) return <LoadingSkeleton rows={10} />;
 
   const handleCloseCriteria = () => {
     if (isDirty) {
@@ -127,6 +126,12 @@ function PlantLotCriteria() {
       toast.error("Please complete all 'Plant Lot Condition' criteria before proceeding.");
       return;
     }
+
+    if (target && isAllCompletedCheckUpdate && !quantity) {
+      quantityModal.showModal({ target });
+      return;
+    }
+
     const criteriaDatas: CriteriaCheckData[] = Object.entries(updatedCriteria).map(
       ([criteriaId, isChecked]) => ({
         criteriaId: Number(criteriaId),
@@ -138,11 +143,6 @@ function PlantLotCriteria() {
       plantLotID: lot?.plantLotId ? [lot.plantLotId] : undefined,
       criteriaDatas,
     };
-
-    if (target && isAllCompletedCheckUpdate && !quantity) {
-      quantityModal.showModal({ target });
-      return;
-    }
 
     try {
       setIsLoading(true);
@@ -206,15 +206,15 @@ function PlantLotCriteria() {
     setCriteriaGroups(initialCriteriaGroups);
   };
 
-  const handleDeleteConfirm = async (criteriaIds: number[]) => {
-    deleteConfirmModal.showModal({ ids: criteriaIds });
+  const handleDeleteConfirm = async (criteriaSetId: number) => {
+    deleteConfirmModal.showModal({ id: criteriaSetId });
   };
 
-  const handleDelete = async (criteriaIds?: number[]) => {
-    if (!criteriaIds) return;
+  const handleDelete = async (criteriaSetId?: number) => {
+    if (!criteriaSetId) return;
     const deleteCriteria: CriteriaDeleteRequest = {
       plantLotId: [lot.plantLotId],
-      criteriaSetId: criteriaIds,
+      criteriaSetId: [criteriaSetId],
     };
     try {
       const res = await criteriaService.deleteCriteriaObject(deleteCriteria);
@@ -259,12 +259,20 @@ function PlantLotCriteria() {
                 // Nếu target có nhóm nhưng chưa được tick hết -> false
                 if (filteredGroups.length === 0) return false;
 
-                // Kiểm tra xem tất cả các nhóm của target này có được tick hết không
-                return filteredGroups.every((group) =>
-                  group.criteriaList.every(
+                return filteredGroups.some((group) => {
+                  // Trạng thái ban đầu của nhóm: nhóm đã được tick hết từ đầu chưa?
+                  const initialGroupCompleted = group.criteriaList.every(
+                    (item) => initialCriteria[item.criteriaId] ?? item.isChecked,
+                  );
+
+                  // Trạng thái sau khi cập nhật: nhóm có được tick hết không?
+                  const updatedGroupCompleted = group.criteriaList.every(
                     (item) => updatedCriteria[item.criteriaId] ?? item.isChecked,
-                  ),
-                );
+                  );
+
+                  return !initialGroupCompleted && updatedGroupCompleted;
+                  // ✅ Chỉ trả về true nếu nhóm trước đó chưa hoàn thành nhưng giờ đã hoàn thành
+                });
               });
 
               const isAllConditionChecked = (() => {
@@ -287,6 +295,7 @@ function PlantLotCriteria() {
                     <PanelTitle
                       title={group.masterTypeName}
                       target={group.target}
+                      criteriaSetId={group.masterTypeId}
                       data={group.criteriaList}
                       isAllCompletedCheckUpdate={isAllCompletedCheckUpdate}
                       isAllConditionChecked={isAllConditionChecked}
@@ -302,6 +311,7 @@ function PlantLotCriteria() {
                 >
                   <CriteriaCheckTable
                     data={group.criteriaList}
+                    hasCompleteCheck
                     isConditionCompleted={isConditionCompleted}
                     handleCompletedChange={handleCompletedChange}
                   />
@@ -340,7 +350,7 @@ function PlantLotCriteria() {
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
-        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
         onCancel={deleteConfirmModal.hideModal}
         actionType="delete"
       />

@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _reportService = reportService;
             _jwtTokenService = jwtTokenService;
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.CropCareReport, Name = "CropCareReport")]
         public async Task<IActionResult> CropCareReport([FromQuery]int landPlotId, [FromQuery] int year)
         {
@@ -39,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.DashboardReport, Name = "DashboardReport")]
         public async Task<IActionResult> DashboardReport(int? year, int? month, int? farmId)
         {
@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.MaterialsInStore, Name = "MaterialInStore")]
         public async Task<IActionResult> MaterialInStore([FromQuery] int? farmId, [FromQuery] int year)
         {
@@ -83,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.ProductivityByPlot, Name = "ProductivityByPlot")]
         public async Task<IActionResult> ProductivityByPlot([FromQuery] int? farmId, [FromQuery] int year)
         {
@@ -105,7 +105,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.PomeloQualityBreakdown, Name = "PomeloQualityReport")]
         public async Task<IActionResult> PomeloQualityBreakdown([FromQuery] int? farmId, [FromQuery] int year)
         {
@@ -127,7 +127,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.SeasonYield, Name = "SeasonYield")]
         public async Task<IActionResult> SeasonYield([FromQuery] int? farmId, [FromQuery] int year)
         {
@@ -149,7 +149,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Report.WorkProgressOverview, Name = "WorkProgressOverview")]
         public async Task<IActionResult> WorkProgressOverview([FromQuery] int? farmId, [FromQuery] int year, [FromQuery] int month)
         {

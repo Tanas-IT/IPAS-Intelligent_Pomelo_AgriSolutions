@@ -180,14 +180,17 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string createProcess = Base + "/processes";
             public const string createManyProcess = Base + "/processes/create-many";
-            public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
+            public const string getProcessSelectedByMasterType = Base + "/processes/for-selected-by-master-type";
             public const string getProcessWithPagination = Base + "/processes";
+            public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
+
             public const string permanenlyDelete = Base + "/processes/delete-permanenly/{id}";
             public const string softDeleteProcess = Base + "/processes/soft-delete";
             public const string updateProcessInfo = Base + "/processes/update-process-info";
             public const string getProcessByName = Base + "/processes/get-process-by-name/{name}";
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
             public const string getProcessesForSelect = Base + "/proceesses/get-for-select";
+            public const string getProccessByTypeName = Base + "/proceesses/get-by-type-name";
         }
 
         public static class SubProcess

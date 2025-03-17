@@ -34,6 +34,7 @@ import {
     getTypeOfProcess,
     getUserId,
     isDayInRange,
+    planTargetOptions,
     RulesManager,
 } from "@/utils";
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
@@ -43,6 +44,7 @@ import {
     landRowService,
     planService,
     plantService,
+    processService,
 } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
@@ -111,6 +113,8 @@ const UpdatePlan = () => {
     const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
     const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
     const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
+    const [targetType, setTargetType] = useState<string>();
+    const [checked, setChecked] = useState<boolean>(false);
 
     // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
     const { options: growthStageOptions } = useGrowthStageOptions(false);
@@ -158,6 +162,34 @@ const UpdatePlan = () => {
         }
     }, [selectedCrop]);
 
+    useEffect(() => {
+        form.setFieldValue("masterTypeId", undefined);
+        if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+            planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+                setProcessTypeOptions(
+                    data.map((item) => ({
+                        value: item.masterTypeId,
+                        label: item.masterTypeName,
+                    }))
+                );
+            });
+        } else {
+            setProcessTypeOptions([]);
+        }
+    }, [selectedGrowthStage]);
+
+    useEffect(() => {
+        const updateProcessFarmOptions = async () => {
+            if (targetType === "graftedPlant") {
+                setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+            } else {
+                setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+            }
+        };
+
+        updateProcessFarmOptions();
+    }, [targetType]);
+
     const handleWeeklyDaySelection = (days: number[]) => {
         setDayOfWeek(days);
     };
@@ -168,80 +200,80 @@ const UpdatePlan = () => {
 
     const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
         if (!dateRange) {
-          setDateError("Please select the date range first!");
-          return false;
+            setDateError("Please select the date range first!");
+            return false;
         }
         const [startDate, endDate] = dateRange;
-    
+
         const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
-    
+
         if (validDays.length === 0) {
-          setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-          return false;
+            setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+            return false;
         }
-    
+
         // Có ngày không hợp lệ
         if (validDays.length < days.length) {
-          setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
-          if (type === "weekly") {
-            setDayOfWeek(validDays);
-          } else if (type === "monthly") {
-            setDayOfMonth(validDays);
-          }
-        } else {
-          setDateError(null);
-        }
-    
-        if (validDays.length === 1) {
-          const selectedDay = validDays[0];
-          let targetDate = startDate.clone();
-          if (type === "weekly") {
-            while (targetDate.day() !== selectedDay) {
-              targetDate = targetDate.add(1, "day");
+            setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+            if (type === "weekly") {
+                setDayOfWeek(validDays);
+            } else if (type === "monthly") {
+                setDayOfMonth(validDays);
             }
-          } else if (type === "monthly") {
-            targetDate = startDate.date(selectedDay);
-          }
-          const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
-    
-          if (!isDateRangeAdjusted) {
-            return new Promise((resolve) => {
-              Modal.confirm({
-                title: "Adjust Date Range",
-                content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
-                onOk: () => {
-                  const selectedDay = validDays[0];
-                  let targetDate = startDate.clone();
-    
-                  if (type === "weekly") {
-                    while (targetDate.day() !== selectedDay) {
-                      targetDate = targetDate.add(1, "day");
-                    }
-                  } else if (type === "monthly") {
-                    targetDate = startDate.date(selectedDay);
-                  }
-    
-                  const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
-                  setDateRange(newDateRange);
-                  form.setFieldsValue({ dateRange: newDateRange });
-                  resolve(true);
-                },
-                onCancel: () => {
-                  if (type === "weekly") {
-                    setDayOfWeek([]);
-                    resolve(false);
-                  } else if (type === "monthly") {
-                    setDayOfMonth([]);
-                    resolve(false);
-                  }
-                },
-              });
-            });
-          }
+        } else {
+            setDateError(null);
         }
-    
+
+        if (validDays.length === 1) {
+            const selectedDay = validDays[0];
+            let targetDate = startDate.clone();
+            if (type === "weekly") {
+                while (targetDate.day() !== selectedDay) {
+                    targetDate = targetDate.add(1, "day");
+                }
+            } else if (type === "monthly") {
+                targetDate = startDate.date(selectedDay);
+            }
+            const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
+
+            if (!isDateRangeAdjusted) {
+                return new Promise((resolve) => {
+                    Modal.confirm({
+                        title: "Adjust Date Range",
+                        content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+                        onOk: () => {
+                            const selectedDay = validDays[0];
+                            let targetDate = startDate.clone();
+
+                            if (type === "weekly") {
+                                while (targetDate.day() !== selectedDay) {
+                                    targetDate = targetDate.add(1, "day");
+                                }
+                            } else if (type === "monthly") {
+                                targetDate = startDate.date(selectedDay);
+                            }
+
+                            const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+                            setDateRange(newDateRange);
+                            form.setFieldsValue({ dateRange: newDateRange });
+                            resolve(true);
+                        },
+                        onCancel: () => {
+                            if (type === "weekly") {
+                                setDayOfWeek([]);
+                                resolve(false);
+                            } else if (type === "monthly") {
+                                setDayOfMonth([]);
+                                resolve(false);
+                            }
+                        },
+                    });
+                });
+            }
+        }
+
         return true;
-      };
+    };
 
     const handleDateChange = (dates: Dayjs[]) => {
         if (!dateRange) {
@@ -328,17 +360,32 @@ const UpdatePlan = () => {
         }
     };
 
-    // const handleChangeProcess = async (processId: number) => {
-    //     const growthStageId = await getGrowthStageOfProcess(processId);
-    //     form.setFieldValue("growthStageId", [growthStageId]);
-    //     setIsLockedGrowthStage(true);
-    //     const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
-    //         setProcessTypeOptions(data.map((item) => ({
-    //             value: item.masterTypeId,
-    //             label: item.masterTypeName
-    //         })))
-    //     });
-    // }
+    const handlePlanTargetChange = async (target: string) => {
+        setTargetType(target);
+        form.setFieldsValue({
+            planTargetModel: [],
+        });
+
+        if (target === "graftedPlant") {
+            setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+            form.setFieldValue("growthStageId", undefined);
+            form.setFieldValue("processId", undefined);
+            setIsLockedGrowthStage(false);
+            setIsTargetDisabled(true);
+            setSelectedGrowthStage([]); // Reset selectedGrowthStage
+        } else if (target === "plantLot") {
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+            setIsTargetDisabled(true);
+            form.setFieldValue("processId", undefined);
+            setIsLockedGrowthStage(false);
+        } else {
+            form.setFieldValue("processId", undefined);
+            setIsLockedGrowthStage(false);
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+            setIsTargetDisabled(false);
+        }
+    };
+
     const handleChangeProcess = async (processId: number | undefined) => {
         if (processId) {
             const growthStageId = await getGrowthStageOfProcess(processId);
@@ -606,15 +653,77 @@ const UpdatePlan = () => {
                             <InfoField
                                 label="Growth Stage"
                                 name={addPlanFormFields.growthStageID}
-                                rules={RulesManager.getGrowthStageRules()}
+                                // rules={RulesManager.getGrowthStageRules()}
+                                rules={[
+                                    {
+                                        // Chỉ validate khi submit form
+                                        validateTrigger: 'onSubmit',
+                                        validator: (_: any, value: any) => {
+                                            const processId = form.getFieldValue(addPlanFormFields.processId);
+                                            // Nếu không có Process được chọn và Growth Stage cũng không được chọn
+                                            if (!processId && (!value || value.length === 0)) {
+                                                return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
+                                            }
+                                            return Promise.resolve();
+                                        },
+                                    },
+                                ]}
                                 options={growthStageOptions}
                                 isEditing={!isLockedGrowthStage}
-                                onChange={(value) => setSelectedGrowthStage(value)}
+                                onChange={(value) => {
+                                    setSelectedGrowthStage(value);
+                                    if (targetType === "regular") {
+                                        form.setFieldsValue({ planTargetModel: [] });
+                                    }
+                                }}
                                 type="select"
                                 multiple
                                 hasFeedback={false}
                             />
                         </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <InfoField
+                                label="Select Plan Target"
+                                name={addPlanFormFields.planTarget}
+                                options={planTargetOptions}
+                                rules={RulesManager.getPlanTargetRules()}
+                                isEditing={true}
+                                type="select"
+                                hasFeedback={false}
+                                onChange={(value) => handlePlanTargetChange(value)}
+                            />
+                        </Col>
+                        {targetType === "plantLot" && (
+                            <Col span={12}>
+                                <InfoField
+                                    label="Select Plant Lot"
+                                    name={addPlanFormFields.plantLot}
+                                    options={plantLotOptions}
+                                    multiple
+                                    // rules={RulesManager.getPlantLotRules()}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                />
+                            </Col>
+                        )}
+
+                        {targetType === "graftedPlant" && (
+                            <Col span={12}>
+                                <InfoField
+                                    label="Select Grafted Plant"
+                                    name={addPlanFormFields.graftedPlant}
+                                    options={graftedPlantsOptions}
+                                    // rules={RulesManager.getGraftedPlantRules()}
+                                    isEditing={true}
+                                    type="select"
+                                    multiple
+                                    hasFeedback={false}
+                                />
+                            </Col>
+                        )}
                     </Row>
                     <Row gutter={16}>
                         <Col span={12}>
@@ -629,7 +738,12 @@ const UpdatePlan = () => {
                                     hasFeedback={false}
                                     onChange={(value) => {
                                         setSelectedCrop(value);
-                                        setIsTargetDisabled(true)
+                                        if (targetType === "regular") {
+                                            setTargetType(undefined);
+                                            form.setFieldValue("planTarget", undefined);
+                                        }
+
+                                        setIsTargetDisabled(true);
                                         form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
                                         form.setFieldsValue({ planTargetModel: [] });
                                     }}
@@ -698,7 +812,9 @@ const UpdatePlan = () => {
                         name={addPlanFormFields.isActive}
                         isEditing={true}
                         type="switch"
+                        value={checked}
                         hasFeedback={false}
+                        onChange={(value) => setChecked(value)}
                     />
                 </Section>
 
@@ -706,24 +822,22 @@ const UpdatePlan = () => {
 
                 {/* SCHEDULE */}
                 <Section title="Schedule" subtitle="Define the schedule for the care plan.">
-                    <Form.Item
+                    <InfoField
                         label="Date Range"
                         name="dateRange"
+                        type="dateRange"
                         rules={[{ required: true, message: "Please select the date range!" }]}
-                    >
-                        <RangePicker
-                            style={{ width: "100%" }}
-                            onChange={handleDateRangeChange}
-                            format={dateFormat}
-                        />
-                    </Form.Item>
-                    <Form.Item
+                        isEditing
+                        onChange={handleDateRangeChange}
+                    />
+
+                    <InfoField
                         label="Time Range"
                         name="timeRange"
+                        type="timeRange"
                         rules={[{ required: true, message: "Please select the time range!" }]}
-                    >
-                        <TimePicker.RangePicker style={{ width: "100%" }} />
-                    </Form.Item>
+                        isEditing
+                    />
                     <InfoField
                         label="Frequency"
                         name={addPlanFormFields.frequency}
@@ -744,7 +858,10 @@ const UpdatePlan = () => {
                         >
                             <DaySelector
                                 onSelectDays={handleWeeklyDaySelection}
-                                onSave={(days) => handleSaveDays(days, "weekly")}
+                                onSave={async (days) => {
+                                    const isSuccess = await handleSaveDays(days, "weekly");
+                                    return isSuccess;
+                                }}
                                 selectedDays={dayOfWeek}
                                 type="weekly"
                             />
@@ -760,7 +877,10 @@ const UpdatePlan = () => {
                         >
                             <DaySelector
                                 onSelectDays={handleMonthlyDaySelection}
-                                onSave={(days) => handleSaveDays(days, "monthly")}
+                                onSave={async (days) => {
+                                    const isSuccess = await handleSaveDays(days, "monthly");
+                                    return isSuccess;
+                                }}
                                 selectedDays={dayOfMonth}
                                 type="monthly"
                             />

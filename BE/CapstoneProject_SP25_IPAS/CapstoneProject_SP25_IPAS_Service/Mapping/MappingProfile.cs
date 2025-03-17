@@ -122,6 +122,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
                 .ReverseMap();
 
+
             CreateMap<SubProcess, SubProcessModel>()
                 .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process!.ProcessName))
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
@@ -470,6 +471,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
                  .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
                  .ReverseMap();
+
+            CreateMap<Process, ForSelectedModels>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ProcessId))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ProcessCode))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProcessName))
+                .ReverseMap();
         }
     }
 }

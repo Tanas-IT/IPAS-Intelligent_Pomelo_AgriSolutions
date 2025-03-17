@@ -26,10 +26,12 @@ export const getUsers = async (
 };
 
 export const getUsersByRole = async (role: string): Promise<GetUser[]> => {
+  console.log("ảo nữa");
+  
   const res = await axiosAuth.axiosJsonRequest.get(`users/get-all-user-by-role/${role}`);
 
   const apiResponse = res.data as ApiResponse<GetUser[]>;
-  console.log("apiResponse", apiResponse);
+  console.log("apiResponseuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu", apiResponse);
 
   return apiResponse.data.map(({ userId, fullName, avatarURL }) => ({
     userId,

@@ -9,6 +9,7 @@ import {
 import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
+  FilterCriteriaState,
   FilterEmployeeState,
   FilterLandRowState,
   FilterMasterTypeState,
@@ -41,6 +42,7 @@ export const getDefaultFarm = (): GetFarmInfo => ({
   status: "Inactive",
   longitude: 0,
   latitude: 0,
+  farmExpiredDate: "",
   owner: {
     email: "",
     fullName: "",
@@ -93,7 +95,7 @@ export const defaultCoordsFarm: CoordsState = {
 export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
   createDateFrom: "",
   createDateTo: "",
-  typeName: [] as string[],
+  isActive: null,
 };
 
 export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
@@ -102,6 +104,13 @@ export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   partnerId: [] as string[],
   previousQuantityFrom: undefined,
   previousQuantityTo: undefined,
+};
+
+export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {
+  createDateFrom: "",
+  createDateTo: "",
+  target: [] as string[],
+  isActive: null,
 };
 
 export const DEFAULT_PLANT_FILTERS: FilterPlantState = {

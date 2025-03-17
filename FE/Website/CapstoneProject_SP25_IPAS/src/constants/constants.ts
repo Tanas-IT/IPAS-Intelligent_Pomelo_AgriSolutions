@@ -1,5 +1,13 @@
 export const DEFAULT_ROWS_PER_PAGE = 5;
 
+export const MASTER_TYPE_SHOW_TABLE = {
+  PROCESS: "Process",
+  DOCUMENT: "Document",
+  CULTIVAR: "Cultivar",
+  WORK: "Work",
+  PRODUCT: "Product",
+};
+
 export const MASTER_TYPE = {
   DOCUMENT: "Document",
   CULTIVAR: "Cultivar",

@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters, int farmId);
 
+        public Task<BusinessResult> GetProcessSelectedByMasterType(List<int> masterTypeId);
+
         public Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel, int? farmId);
 
         public Task<BusinessResult> UpdateProcessInfo(UpdateProcessModel updateProcessModel);
@@ -27,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> InsertManyProcess(List<CreateManyProcessModel> listCreateProcessModel, int? farmId);
 
         public Task<BusinessResult> GetForSelect(int farmId, string? search, bool? isSample);
+        public Task<BusinessResult> GetProcessByTypeName(int farmId, string typeName);
 
 
     }

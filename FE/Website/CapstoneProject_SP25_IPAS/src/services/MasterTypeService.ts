@@ -16,16 +16,14 @@ export const getMasterTypes = async (
   sortField?: string,
   sortDirection?: string,
   searchValue?: string,
+  typeName?: string,
   additionalParams?: Record<string, any>,
 ): Promise<GetData<GetMasterType>> => {
-  const params = buildParams(
-    currentPage,
-    rowsPerPage,
-    sortField,
-    sortDirection,
-    searchValue,
-    additionalParams,
-  );
+  const params = buildParams(currentPage, rowsPerPage, sortField, sortDirection, searchValue, {
+    typeName: typeName,
+    ...additionalParams,
+  });
+
   const res = await axiosAuth.axiosJsonRequest.get("masterTypes", { params });
   const apiResponse = res.data as ApiResponse<GetData<GetMasterType>>;
   return apiResponse.data as GetData<GetMasterType>;

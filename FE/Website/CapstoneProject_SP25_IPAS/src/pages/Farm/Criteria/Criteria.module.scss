@@ -1,0 +1,65 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+  .header {
+    flex-direction: column;
+  }
+  .itemWrapper {
+    margin-bottom: 24px;
+    padding: 24px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    .criteriaHeader {
+      padding-bottom: 10px;
+      .criteriaTitle {
+        font-size: 18px;
+        font-weight: 600;
+        color: vars.$color_primary;
+      }
+      .criteriaTarget {
+        font-size: 14px;
+        color: vars.$color_selected;
+        margin: 4px 0;
+      }
+      .criteriaDescription {
+        font-size: 14px;
+        color: vars.$color_selected;
+      }
+      .tag {
+        font-size: 14px;
+        padding: 2px 8px;
+      }
+    }
+  }
+}
+
+.filterContent {
+  @include shared.filterContent;
+}
+
+.criteriaTableWrapper {
+  max-height: 25rem;
+  overflow: auto;
+
+  .criteriaTable {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center;
+    }
+    td {
+      padding: 4px 0;
+    }
+  }
+}
+
+.noMargin {
+  margin: 0;
+}
+.actionIcon {
+  cursor: pointer;
+}

@@ -1,17 +1,17 @@
 import { Icons } from "@/assets";
 import { CustomButton } from "@/components";
-import { Button, Flex, Popover } from "antd"
+import { Button, Flex, Popover } from "antd";
 import WorklogFilter from "./WorklogFilter/WorklogFilter";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 
 interface HeaderContentAppendProps {
-    addModal: {
-        showModal: () => void;
-        hideModal: () => void;
-        modalState: { visible: boolean };
-    };
-    filterContent: JSX.Element;
+  addModal: {
+    showModal: () => void;
+    hideModal: () => void;
+    modalState: { visible: boolean };
+  };
+  filterContent: JSX.Element;
 }
 
 const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {

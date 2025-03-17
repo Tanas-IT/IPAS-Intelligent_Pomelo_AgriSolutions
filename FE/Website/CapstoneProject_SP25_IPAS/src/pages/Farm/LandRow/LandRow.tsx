@@ -44,8 +44,8 @@ function LandRow() {
   }, [location.state]);
 
   useEffect(() => {
-    // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
-    if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
+    if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
+    // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
   }, [plotOptions, location.state]);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterLandRowState>(
