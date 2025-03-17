@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -166,6 +167,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         };
                         await _unitOfWork.NotificationRepository.Insert(addNotification);
+                        await _unitOfWork.SaveAsync();
                         foreach (var employee in addNewTaskModel.listEmployee)
                         {
                             var addPlanNotification = new PlanNotification()
