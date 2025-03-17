@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="RequestModel\FarmRequest\PlantCriteriaRequest\" />
+    <Folder Include="RequestModel\PlantCriteriaRequest\" />
   </ItemGroup>
 
 </Project>

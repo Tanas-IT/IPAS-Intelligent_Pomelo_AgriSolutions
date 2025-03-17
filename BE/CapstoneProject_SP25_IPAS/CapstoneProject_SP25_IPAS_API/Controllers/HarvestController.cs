@@ -1,9 +1,9 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
+//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -94,24 +94,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Harvest.getHarvestByCode, Name = "getHarvestByCode")]
+        public async Task<IActionResult> getHarvestByCode([FromQuery] string harvestCode)
+        {
+
+            var result = await _harvestHistoryService.getHarvestByCode(harvestCode);
+            return Ok(result);
+
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Harvest.createHarvest, Name = "createHarvest")]
         public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest)
         {
-            //try
-            //{
             var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
             return Ok(result);
-            //}
-            //catch (Exception ex)
-            //{
-            //    var response = new BaseResponse()
-            //    {
-            //        StatusCode = StatusCodes.Status400BadRequest,
-            //        Message = ex.Message
-            //    };
-            //    return BadRequest(response);
-            //}
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]

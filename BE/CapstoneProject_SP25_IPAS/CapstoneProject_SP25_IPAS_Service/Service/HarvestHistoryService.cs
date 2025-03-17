@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common;
@@ -17,10 +16,13 @@ using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.HarvestModels;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.HarvestHistoryRequest.ProductHarvestRequest;
+using Microsoft.AspNetCore.Mvc;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -29,12 +31,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
-
-        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config)
+        private readonly IWorkLogService _workLogService;
+        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = config;
+            _workLogService = workLogService;
         }
 
         public async Task<BusinessResult> createHarvestHistory(CreateHarvestHistoryRequest createRequest)
@@ -50,6 +53,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         cropExist.CropActualTime = DateTime.Now;
                         cropExist.Status = CropStatusEnum.Harvesting.ToString();
+                        // Cập nhật crop neu no la ngay dau tien trong mua
+                        _unitOfWork.CropRepository.Update(cropExist);
                     }
                     if (createRequest.DateHarvest < DateTime.Now)
                         return new BusinessResult(Const.WARNING_HARVEST_DATE_IN_PAST_CODE, Const.WARNING_HARVEST_DATE_IN_PAST_MSG);
@@ -94,13 +99,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             harvestHistory.ProductHarvestHistories.Add(historyType);
                         }
                     }
-
                     await _unitOfWork.HarvestHistoryRepository.Insert(harvestHistory);
-                    _unitOfWork.CropRepository.Update(cropExist);
                     int result = await _unitOfWork.SaveAsync();
+
                     if (result > 0)
                     {
+                        // Gán HarvestId cho task
+                        createRequest.AddNewTask.HarvestHistoryId = harvestHistory.HarvestHistoryId;
+                        createRequest.AddNewTask.TaskName = $"Harvest-{harvestHistory.HarvestHistoryCode}";
+                        createRequest.AddNewTask.DateWork = harvestHistory.DateHarvest;
+                        // Gọi service tạo Task sau khi đã có ID
+                        var addNewTask = await _workLogService.AddNewTask(createRequest.AddNewTask, cropExist.FarmId);
+                        if (addNewTask.StatusCode != 200)
+                            return addNewTask;
+
+                        
+
+                        await _unitOfWork.SaveAsync();  
                         await transaction.CommitAsync();
+
                         var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
                         return new BusinessResult(Const.SUCCESS_CREATE_HARVEST_HISTORY_CODE, Const.SUCCESS_CREATE_HARVEST_HISTORY_MSG, mappedResult);
                     }
@@ -113,7 +130,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
+                    return new BusinessResult(400, "Fail to create harvest.", ex.Message);
                 }
             }
         }
@@ -451,6 +468,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<BusinessResult> getHarvestByCode(string harvestCode)
+        {
+            if(string.IsNullOrEmpty(harvestCode))
+                return new BusinessResult(400, "Code is empty");
+
+            var harvest = await _unitOfWork.HarvestHistoryRepository.GetByCondition(h => h.HarvestHistoryCode!.ToLower().Equals(harvestCode.ToLower()));
+            if (harvest == null)
+                return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
+            var mappedResult = _mapper.Map<HarvestHistoryModel>(harvest);
+            return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
+
         }
 
         public async Task<BusinessResult> updateHarvestHistoryInfo(UpdateHarvestHistoryRequest updateRequest)
