@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.NotificationRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
@@ -28,5 +29,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> MarkisRead(MarkNotificationIsReadModel markNotificationIsReadModel, int? userId);
 
         public Task<BusinessResult> UpdatePlantNotification(List<int> plantIds, int? newGrowthStageId);
+
+        public Task NotificationWeather(List<CreateNotificationRequest> createNotificationModel);
+
     }
 }

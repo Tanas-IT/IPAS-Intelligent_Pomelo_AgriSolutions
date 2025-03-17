@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.NotificationRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
@@ -77,6 +78,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task NotificationWeather(List<CreateNotificationRequest> createNotificationRequests)
+        {
+            if (createNotificationRequests == null || !createNotificationRequests.Any())
+                return; // Không có gì để xử lý
+            try
+            {
+                List<Notification> createNoti = new List<Notification>();
+                //using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                //{
+                foreach (var item in createNotificationRequests)
+                {
+                    var newNotification = new Notification()
+                    {
+                        NotificationCode = "NTF-" + DateTime.Now,
+                        CreateDate = DateTime.Now,
+                        Content = item.Content,
+                        IsRead = false,
+                        Link = item.Link,
+                        MasterTypeId = item.MasterTypeId,
+                        SenderID = item.UserId,
+                        Title = item.Title,
+                    };
+                    createNoti.Add(newNotification);
+                }
+
+                if (createNoti.Any())
+                {
+                    await _unitOfWork.NotificationRepository.InsertRangeAsync(createNoti);
+                    var result = await _unitOfWork.SaveAsync();
+                }
+                return;
+                //if (result > 0)
+                //{
+                //await transaction.CommitAsync();
+                //return /*new BusinessResult(200, "Create notification success", newNotification)*/;
+                //}
+                //return /*new BusinessResult(400, "Create notification failed")*/;
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex; /*new BusinessResult(Const.ERROR_EXCEPTION, ex.Message)*/
+            }
+        }
+
         public Task<BusinessResult> GetAllNotificationPagination(PaginationParameter paginationParameter, int farmId)
         {
             throw new NotImplementedException();
@@ -137,7 +184,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(markNotificationIsReadModel.NotificationId.Value);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(markNotificationIsReadModel.NotificationId.Value);
-               
+
                 if (getNotificationById != null)
                 {
                     getNotificationById.IsRead = true;
@@ -159,7 +206,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                if(userId != null)
+                if (userId != null)
                 {
                     var getListNotificationByUserId = await _unitOfWork.NotificationRepository.GetListNotificationUnReadByUserId(userId.Value);
                     foreach (var noti in getListNotificationByUserId)
@@ -169,7 +216,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
             }
-           
+
 
             var result = await _unitOfWork.SaveAsync();
             if (result > 0)

@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
 using Microsoft.IdentityModel.Tokens;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -113,9 +114,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (addNewTask.StatusCode != 200)
                             return addNewTask;
 
-                        
 
-                        await _unitOfWork.SaveAsync();  
+
+                        await _unitOfWork.SaveAsync();
                         await transaction.CommitAsync();
 
                         var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
@@ -472,7 +473,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> getHarvestByCode(string harvestCode)
         {
-            if(string.IsNullOrEmpty(harvestCode))
+            if (string.IsNullOrEmpty(harvestCode))
                 return new BusinessResult(400, "Code is empty");
 
             var harvest = await _unitOfWork.HarvestHistoryRepository.GetByCondition(h => h.HarvestHistoryCode!.ToLower().Equals(harvestCode.ToLower()));
@@ -577,53 +578,50 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> statisticOfPlantByYear(int plantId, int year, int productId)
+        public async Task<BusinessResult> StatisticOfPlantByYear(GetStatictisOfPlantByYearRequest request)
         {
             try
             {
-                // Lọc dữ liệu theo năm cụ thể
-                DateTime startDate = new DateTime(year, 1, 1);
-                DateTime endDate = new DateTime(year, 12, 31);
-
+                // 🔹 1. Lấy dữ liệu thu hoạch từ DB theo năm, sản phẩm và cây trồng
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
-                    .GetAllNoPaging(x => x.PlantId == plantId &&
-                                             x.HarvestHistory.DateHarvest.HasValue &&
-                                             x.MasterTypeId == productId &&
-                                             x.HarvestHistory.DateHarvest >= startDate &&
-                                             x.HarvestHistory.DateHarvest <= endDate,
-                                        includeProperties: "HarvestHistory,MasterType");
+                    .GetAllNoPaging(x => x.PlantId == request.plantId &&
+                                         x.HarvestHistory.DateHarvest.HasValue &&
+                                         x.MasterTypeId == request.productId &&
+                                         x.HarvestHistory.DateHarvest.Value.Year >= request.yearFrom &&
+                                         x.HarvestHistory.DateHarvest.Value.Year <= request.yearTo,
+                                         includeProperties: "HarvestHistory,Product");
 
+                //  2. Kiểm tra dữ liệu
                 if (harvestData == null || !harvestData.Any())
                 {
-                    return new BusinessResult(200, "No harvest data found for this plant in the selected year.");
+                    return new BusinessResult(200, "No harvest data found for this plant in the selected years.");
                 }
+
+                //  3. Lấy thông tin sản phẩm (chỉ có 1 loại sản phẩm duy nhất)
+                var masterType = harvestData.First().Product;
+                var totalQuantity = harvestData.Sum(x => x.ActualQuantity ?? 0);
 
                 var yearlyStatistic = new YearlyStatistic
                 {
-                    Year = year,
+                    YearFrom = request.yearFrom,
+                    YearTo = request.yearTo,
+                    TotalYearlyQuantity = totalQuantity,
+                    MasterTypeId = masterType.MasterTypeId,
+                    MasterTypeCode = masterType.MasterTypeCode,
+                    MasterTypeName = masterType.MasterTypeName,
+                    NumberHarvest = harvestData.Count(),
                     MonthlyData = harvestData
-                        .Where(x => x.ActualQuantity.HasValue)
-                        .GroupBy(x => x.HarvestHistory.DateHarvest.Value.Month)
-                        .OrderBy(g => g.Key)
-                        .Select(monthGroup => new MonthlyStatistic
+                        .Where(x => x.HarvestHistory.DateHarvest.HasValue)
+                        .GroupBy(x => new { x.HarvestHistory.DateHarvest.Value.Year, x.HarvestHistory.DateHarvest.Value.Month })
+                        .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                        .Select(group => new MonthlyStatistic
                         {
-                            Month = monthGroup.Key,
-                            TotalQuatity = monthGroup.Sum(x => x.ActualQuantity ?? 0),
-                            HarvestDetails = monthGroup
-                                .GroupBy(x => x.MasterTypeId)
-                                .Select(mtGroup => new HarvestStatistic
-                                {
-                                    MasterTypeId = mtGroup.Key,
-                                    MasterTypeCode = mtGroup.FirstOrDefault()!.Product.MasterTypeCode,
-                                    MasterTypeName = mtGroup.FirstOrDefault()!.Product?.MasterTypeName,
-                                    TotalQuantity = mtGroup.Sum(x => x.QuantityNeed ?? 0)
-                                }).ToList()
+                            Year = group.Key.Year,
+                            Month = group.Key.Month,
+                            TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0),
+                            HarvestCount = group.Count()
                         }).ToList()
                 };
-
-                // Tính tổng sản lượng của cả năm
-                yearlyStatistic.TotalYearlyQuantity = yearlyStatistic.MonthlyData
-                    .Sum(m => m.HarvestDetails.Sum(h => h.TotalQuantity));
 
                 return new BusinessResult(200, "Successfully retrieved statistics.", yearlyStatistic);
             }
@@ -692,6 +690,92 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(500, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetTopPlantsByYear(GetTopStatisticByYearRequest request)
+        {
+            try
+            {
+                //  1. Lấy danh sách thu hoạch theo loại sản phẩm
+                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                    .getToTopStatistic(
+                        x => x.MasterTypeId == request.productId &&
+                             x.PlantId.HasValue &&
+                             x.ActualQuantity.HasValue &&
+                             x.Plant!.FarmId == request.farmId &&
+                             x.Plant.IsDead == false &&
+                             x.Plant.IsDeleted == false &&
+                             x.HarvestHistory.DateHarvest.HasValue &&
+                             x.HarvestHistory.DateHarvest.Value.Year >= request.yearFrom &&
+                             x.HarvestHistory.DateHarvest.Value.Year <= request.yearTo
+                    );
+
+                if (harvestData == null || !harvestData.Any())
+                {
+                    return new BusinessResult(200, "No harvest data found for this product.");
+                }
+
+                //  2. Nhóm theo cây và tính tổng sản lượng + số lần thu hoạch
+                var topPlants = harvestData
+           .GroupBy(x => x.Plant)
+           .Select(group => new
+           {
+               Plant = _mapper.Map<PlantModel>(group.Key),  // Lấy object Plant đầy đủ
+               TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
+               HarvestCount = group.Count() // Số lần thu hoạch
+           })
+           .OrderByDescending(x => x.TotalQuantity) // Sắp xếp theo tổng sản lượng
+           .Take(request.topN ?? 20) // Giới hạn số lượng
+           .ToList();
+
+                return new BusinessResult(200, "Successfully retrieved top plants.", topPlants);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetTopPlantsByCrop(GetTopStatisticByCropRequest request)
+        {
+            try
+            {
+                //  1. Lấy danh sách thu hoạch theo loại sản phẩm
+                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                    .getToTopStatistic(
+                        x => x.MasterTypeId == request.productId &&
+                             x.PlantId.HasValue &&
+                             x.ActualQuantity.HasValue &&
+                             x.Plant!.FarmId == request.farmId &&
+                             x.Plant.IsDead == false &&
+                             x.Plant.IsDeleted == false &&
+                             request.cropId.Contains(x.HarvestHistory.CropId!.Value) 
+                    );
+
+                if (harvestData == null || !harvestData.Any())
+                {
+                    return new BusinessResult(200, "No harvest data found for this product.");
+                }
+
+                //  2. Nhóm theo cây và tính tổng sản lượng + số lần thu hoạch
+                var topPlants = harvestData
+           .GroupBy(x => x.Plant)
+           .Select(group => new
+           {
+               Plant = _mapper.Map<PlantModel>(group.Key),  // Lấy object Plant đầy đủ
+               TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
+               HarvestCount = group.Count() // Số lần thu hoạch
+           })
+           .OrderByDescending(x => x.TotalQuantity) // Sắp xếp theo tổng sản lượng
+           .Take(request.topN ?? 20) // Giới hạn số lượng
+           .ToList();
+
+                return new BusinessResult(200, "Successfully retrieved top plants.", topPlants);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

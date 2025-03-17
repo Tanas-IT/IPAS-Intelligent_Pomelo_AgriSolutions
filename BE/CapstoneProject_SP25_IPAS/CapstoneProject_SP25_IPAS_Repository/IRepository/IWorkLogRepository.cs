@@ -32,5 +32,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<WorkLog>> GetConflictWorkLogsOnSameLocation(TimeSpan startTime, TimeSpan endTime, DateTime date, List<int>? treeIds, List<int>? rowIds, List<int?> plotIds);
         public Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds);
         public Task CheckWorkLogAvailabilityWhenAddPlan(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, int? masterTypeId, List<int> listEmployeeIds);
+        public Task<List<WorkLog>> GetWorkLogsByFarm(int farmId);
+
+
     }
 }
