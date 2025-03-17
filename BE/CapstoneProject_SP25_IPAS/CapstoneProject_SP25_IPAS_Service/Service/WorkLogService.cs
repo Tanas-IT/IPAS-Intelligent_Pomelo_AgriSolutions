@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -46,159 +47,186 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             //using (var transaction = await _unitOfWork.BeginTransactionAsync())
             //{
-                try
+            try
+            {
+                if (addNewTaskModel.DateWork <= DateTime.Now)
                 {
-                    if (addNewTaskModel.DateWork <= DateTime.Now)
+                    throw new Exception("Date Work must be greater than or equal now");
+                }
+                if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
+                {
+                    if (TimeSpan.Parse(addNewTaskModel.StartTime) >= TimeSpan.Parse(addNewTaskModel.EndTime))
                     {
-                        throw new Exception("Date Work must be greater than or equal now");
+                        throw new Exception("Start time must be less than End Time");
                     }
-                    if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
+                }
+                //var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == addNewTaskModel.ProcessId);
+                //var checkStartDateOfProcess = addNewTaskModel.StartTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null;
+                //var checkEndDateOfProcess = addNewTaskModel?.EndTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null;
+                //if (checkExistProcess != null)
+                //{
+                //    if (checkStartDateOfProcess < checkExistProcess.StartDate ||
+                //         checkStartDateOfProcess > checkExistProcess.EndDate ||
+                //        checkEndDateOfProcess < checkExistProcess.StartDate ||
+                //         checkEndDateOfProcess > checkExistProcess.EndDate)
+                //    {
+                //        throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
+                //            $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
+                //    }
+                //}
+
+                //if (addNewTaskModel!.CropId.HasValue && addNewTaskModel.ListLandPlotOfCrop != null)
+                //{
+                //    var getCropToCheck = await _unitOfWork.CropRepository.GetByID(addNewTaskModel.CropId.Value);
+                //    if (getCropToCheck != null)
+                //    {
+                //        if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null && addNewTaskModel.DateWork != null)
+                //        {
+                //            if (addNewTaskModel?.DateWork!.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) < getCropToCheck.StartDate ||
+                //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) > getCropToCheck.EndDate ||
+                //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) < getCropToCheck.StartDate ||
+                //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) > getCropToCheck.EndDate)
+                //            {
+                //                throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
+                //                    $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
+                //            }
+                //        }
+
+                //    }
+
+                //}
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeName.ToLower().Equals("Harvesting"));
+
+                var newPlan = new Plan()
+                {
+                    PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{getMasterType.MasterTypeId}",
+                    PlanName = addNewTaskModel.TaskName,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    StartDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
+                    EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
+                    Frequency = "None",
+                    IsActive = true,
+                    IsDelete = false,
+                    Status = "Active",
+                    FarmID = farmId,
+                };
+                await _unitOfWork.PlanRepository.Insert(newPlan);
+                await _unitOfWork.SaveAsync();
+
+                var newSchedule = new CarePlanSchedule()
+                {
+                    CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
+                    StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
+                    EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
+                    FarmID = farmId,
+                    Status = "Active",
+                    HarvestHistoryID = addNewTaskModel.HarvestHistoryId
+                };
+
+                newPlan.CarePlanSchedule = newSchedule;
+                await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
+                await _unitOfWork.SaveAsync();
+
+                var getListEmployeeId = addNewTaskModel.listEmployee.Select(x => x.UserId).ToList();
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime), addNewTaskModel.DateWork.Value, getMasterType.MasterTypeId, getListEmployeeId);
+
+                var newWorkLog = new WorkLog()
+                {
+                    WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                    ScheduleId = newSchedule.ScheduleId,
+                    Status = "Not Started",
+                    ActualStartTime = newSchedule.StartTime,
+                    ActualEndTime = newSchedule.EndTime,
+                    Date = addNewTaskModel.DateWork,
+                    WorkLogName = addNewTaskModel.TaskName,
+                    IsConfirm = false,
+                };
+                await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
+                await _unitOfWork.SaveAsync();
+                var conflictDetailsSet = new HashSet<string>();
+                if (addNewTaskModel.listEmployee != null)
+                {
+                    List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
+                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
+
+                    foreach (var workLog in savedWorkLogs)
                     {
-                        if (TimeSpan.Parse(addNewTaskModel.StartTime) >= TimeSpan.Parse(addNewTaskModel.EndTime))
+                        var conflictedUsers = new List<string>();
+                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                         {
-                            throw new Exception("Start time must be less than End Time");
-                        }
-                    }
-                    //var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == addNewTaskModel.ProcessId);
-                    //var checkStartDateOfProcess = addNewTaskModel.StartTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) : null;
-                    //var checkEndDateOfProcess = addNewTaskModel?.EndTime != null ? addNewTaskModel?.DateWork?.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) : null;
-                    //if (checkExistProcess != null)
-                    //{
-                    //    if (checkStartDateOfProcess < checkExistProcess.StartDate ||
-                    //         checkStartDateOfProcess > checkExistProcess.EndDate ||
-                    //        checkEndDateOfProcess < checkExistProcess.StartDate ||
-                    //         checkEndDateOfProcess > checkExistProcess.EndDate)
-                    //    {
-                    //        throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
-                    //            $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
-                    //    }
-                    //}
-                   
-                    //if (addNewTaskModel!.CropId.HasValue && addNewTaskModel.ListLandPlotOfCrop != null)
-                    //{
-                    //    var getCropToCheck = await _unitOfWork.CropRepository.GetByID(addNewTaskModel.CropId.Value);
-                    //    if (getCropToCheck != null)
-                    //    {
-                    //        if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null && addNewTaskModel.DateWork != null)
-                    //        {
-                    //            if (addNewTaskModel?.DateWork!.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) < getCropToCheck.StartDate ||
-                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.StartTime)) > getCropToCheck.EndDate ||
-                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) < getCropToCheck.StartDate ||
-                    //        addNewTaskModel?.DateWork.Value.Date.Add(TimeSpan.Parse(addNewTaskModel.EndTime)) > getCropToCheck.EndDate)
-                    //            {
-                    //                throw new Exception($"StartDate and EndDate of plan must be within the duration of crop from " +
-                    //                    $"{getCropToCheck.StartDate:dd/MM/yyyy} to {getCropToCheck.EndDate:dd/MM/yyyy}");
-                    //            }
-                    //        }
-
-                    //    }
-                        
-                    //}
-
-                    var newSchedule = new CarePlanSchedule()
-                    {
-                        CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
-                        StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
-                        EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
-                        FarmID = farmId,
-                        Status = "Active",
-                        HarvestHistoryID = addNewTaskModel.HarvestHistoryId
-                    };
-
-
-                    await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
-
-                    await _unitOfWork.SaveAsync();
-                   
-                    var getListEmployeeId = addNewTaskModel.listEmployee.Select(x => x.UserId).ToList();
-                    await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime), addNewTaskModel.DateWork.Value,19, getListEmployeeId);
-
-                    var newWorkLog = new WorkLog()
-                    {
-                        WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
-                        ScheduleId = newSchedule.ScheduleId,
-                        Status = "Not Started",
-                        ActualStartTime = newSchedule.StartTime,
-                        ActualEndTime = newSchedule.EndTime,
-                        Date = addNewTaskModel.DateWork,
-                        WorkLogName = addNewTaskModel.TaskName,
-                        IsConfirm = false,
-                    };
-                    await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
-                    await _unitOfWork.SaveAsync();
-
-                    if (addNewTaskModel.listEmployee != null)
-                    {
-                        List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
-                        var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
-
-                        foreach (var workLog in savedWorkLogs)
-                        {
-                            foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                            // Kiểm tra User có bị trùng lịch không?
+                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                            if (conflictedUser != null)
                             {
-                                // Kiểm tra User có bị trùng lịch không?
-                                bool isConflicted = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
-
-                                if (isConflicted)
-                                {
-                                    throw new Exception($"User {user.UserId} had task in {workLog.Date}.");
-                                }
-
-                                // Thêm vào danh sách UserWorkLog
-                                userWorkLogs.Add(new UserWorkLog
-                                {
-                                    WorkLogId = workLog.WorkLogId,
-                                    UserId = user.UserId,
-                                    IsReporter = user.isReporter
-                                });
+                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
                             }
                         }
 
-                        // 🔹 Lưu UserWorkLogs vào DB
-                        await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
-
-                        var addNotification = new Notification()
+                        if (conflictedUsers.Any())
                         {
-                            Content = "Work " + addNewTaskModel.TaskName + " has just been created",
-                            Title = "Plan",
-                            IsRead = false,
-                            CreateDate = DateTime.Now,
-                            NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+                        }
 
-                        };
-                        await _unitOfWork.NotificationRepository.Insert(addNotification);
-                        await _unitOfWork.SaveAsync();
-                        foreach (var employee in addNewTaskModel.listEmployee)
+                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                         {
-                            var addPlanNotification = new PlanNotification()
+                            userWorkLogs.Add(new UserWorkLog
                             {
-                                NotificationID = addNotification.NotificationId,
-                                CreatedDate = DateTime.Now,
-                                UserID = employee.UserId,
-                                isRead = false,
-                            };
+                                WorkLogId = workLog.WorkLogId,
+                                UserId = user.UserId,
+                                IsReporter = user.isReporter
+                            });
 
-                            await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
-                        }
-                        foreach (var employeeModel in addNewTaskModel.listEmployee)
-                        {
-                            await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                         }
                     }
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
+
+                    // 🔹 Lưu UserWorkLogs vào DB
+                    await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+
+                    var addNotification = new Notification()
                     {
-                        //await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
-                    }
-                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
+                        Content = "Work " + addNewTaskModel.TaskName + " has just been created",
+                        Title = "Plan",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    foreach (var employee in addNewTaskModel.listEmployee)
+                    {
+                        var addPlanNotification = new PlanNotification()
+                        {
+                            NotificationID = addNotification.NotificationId,
+                            CreatedDate = DateTime.Now,
+                            UserID = employee.UserId,
+                            isRead = false,
+                        };
+
+                        await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                    }
+                    foreach (var employeeModel in addNewTaskModel.listEmployee)
+                    {
+                        await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                    }
                 }
-                catch (Exception ex)
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
                 {
-                    //await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    //await transaction.CommitAsync();
+                    return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
                 }
+                return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
+
+            }
+            catch (Exception ex)
+            {
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
             //}
         }
 
@@ -835,10 +863,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updateWorkLogModel.StartTime != null)
                         {
                             findWorkLog.Schedule.StartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
+                            findWorkLog.ActualStartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
                         }
                         if (updateWorkLogModel.EndTime != null)
                         {
                             findWorkLog.Schedule.EndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
+                            findWorkLog.ActualEndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
                         }
                         if (updateWorkLogModel.DateWork != null)
                         {
@@ -969,7 +999,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 int result = 0;
 
-               
+
 
                 // Xóa danh sách UserWorkLogs (nếu có)
                 if (getWorkLog.UserWorkLogs?.Any() == true)
