@@ -235,94 +235,6 @@ const PlanTarget = ({
             return newSelectedPlants;
         });
     };
-
-    const handlePlantLotChange = (value: number[], index: number) => {
-        const currentUnit = selectedUnits[index];
-        if (isTargetOverlapping(
-            index,
-            selectedLandPlots[index],
-            value,
-            selectedPlants[index],
-            currentUnit,
-            selectedUnits,
-            selectedLandPlots,
-            selectedLandRows,
-            selectedPlants
-        )) {
-            showModal(
-                "Warning",
-                "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
-                () => {
-                    setSelectedPlantLots((prev) => {
-                        const newSelectedPlantLots = [...prev];
-                        newSelectedPlantLots[index] = [];
-                        return newSelectedPlantLots;
-                    });
-
-                    form.setFieldsValue({
-                        planTargetModel: {
-                            [index]: {
-                                plantLotID: undefined,
-                            },
-                        },
-                    });
-                    forceUpdate({});
-                }
-            );
-            return;
-        }
-        //cap nhat neu k trung
-        setSelectedPlantLots((prev) => {
-            const newSelectedPlantLots = [...prev];
-            newSelectedPlantLots[index] = value;
-            return newSelectedPlantLots;
-        });
-    };
-
-    const handleGraftedPlantChange = (value: number[], index: number) => {
-        const currentUnit = selectedUnits[index];
-        if (isTargetOverlapping(
-            index,
-            selectedLandPlots[index],
-            value,
-            selectedPlants[index],
-            currentUnit,
-            selectedUnits,
-            selectedLandPlots,
-            selectedLandRows,
-            selectedPlants
-        )) {
-            showModal(
-                "Warning",
-                "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
-                () => {
-                    setSelectedGraftedPlants((prev) => {
-                        const newSelectedGraftedPlants = [...prev];
-                        newSelectedGraftedPlants[index] = [];
-                        return newSelectedGraftedPlants;
-                    });
-
-                    form.setFieldsValue({
-                        planTargetModel: {
-                            [index]: {
-                                graftedPlantID: undefined,
-                            },
-                        },
-                    });
-
-                    forceUpdate({});
-                }
-            );
-            return;
-        }
-
-        //cap nhat neu k trung
-        setSelectedGraftedPlants((prev) => {
-            const newSelectedGraftedPlants = [...prev];
-            newSelectedGraftedPlants[index] = value;
-            return newSelectedGraftedPlants;
-        });
-    };
     console.log("selectedTargets", selectedTargets);
 
 
@@ -330,207 +242,115 @@ const PlanTarget = ({
         const selectedTarget = selectedTargets[index];
         const selectedLandPlot = selectedLandPlots[index];
         const selectedLandRow = selectedLandRows[index];
-
+      
         const isUnitDisabled = (unit === "graftedplant" || unit === "plantlot") &&
-            selectedUnits.some((u, i) => i !== index && u === unit);
-
+          selectedUnits.some((u, i) => i !== index && u === unit);
+      
         if (isUnitDisabled) {
-            return (
-                <Col span={6}>
-                    <Alert
-                        message={`You have already selected ${unit} before. Please choose the same as the existing target.`}
-                        type="warning"
-                        showIcon
-                    />
-                </Col>
-            );
+          return (
+            <Col span={6}>
+              <Alert
+                message={`You have already selected ${unit} before. Please choose the same as the existing target.`}
+                type="warning"
+                showIcon
+              />
+            </Col>
+          );
         }
-
+      
+        const renderLandPlotSelect = () => (
+          <Col span={6}>
+            <Form.Item
+              name={[index, 'landPlotID']}
+              label="Land Plot"
+              rules={[{ required: true, message: 'Please select a land plot!' }]}
+            >
+              <Select
+                placeholder="Select Land Plot"
+                onChange={(value) => handleLandPlotChange(value, index)}
+              >
+                {selectedTarget?.map((target) => (
+                  <Option key={target.landPlotId} value={target.landPlotId}>
+                    {target.landPlotName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        );
+      
+        const renderLandRowSelect = (isMultiple: boolean = false) => (
+          <Col span={6}>
+            <Form.Item
+              name={[index, 'landRowID']}
+              label="Land Row"
+              rules={[{ required: true, message: 'Please select a land row!' }]}
+            >
+              <Select
+                placeholder="Select Land Row"
+                mode={isMultiple ? "multiple" : undefined}
+                onChange={(value) => handleLandRowChange(value, index)}
+              >
+                {selectedTarget
+                  ?.find((target) => target.landPlotId === selectedLandPlot)
+                  ?.rows.map((row) => (
+                    <Option key={row.landRowId} value={row.landRowId}>
+                      {`Row ${row.rowIndex}`}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        );
+      
+        const renderPlantSelect = () => (
+          <Col span={6}>
+            <Form.Item
+              name={[index, 'plantID']}
+              label="Plant"
+              rules={[{ required: true, message: 'Please select a plant!' }]}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select Plant"
+                onChange={(value) => handlePlantChange(value, index)}
+              >
+                {selectedTarget
+                  ?.find((target) => target.landPlotId === selectedLandPlot)
+                  ?.rows
+                  .find((row) => row.landRowId === selectedLandRow[0])
+                  ?.plants.map((plant) => (
+                    <Option key={plant.plantId} value={plant.plantId}>
+                      {plant.plantName}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        );
+      
         switch (unit) {
-            case 'landplot':
-                return (
-                    <Col span={6}>
-                        <Form.Item
-                            name={[index, 'landPlotID']}
-                            label="Land Plot"
-                            rules={[{ required: true, message: 'Please select a land plot!' }]}
-                        >
-                            <Select
-                                placeholder="Select Land Plot"
-                                onChange={(value) => handleLandPlotChange(value, index)}
-                            >
-                                {selectedTarget?.map((target) => (
-                                    <Option key={target.landPlotId} value={target.landPlotId}>
-                                        {target.landPlotName}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                );
-            case 'row':
-                return (
-                    <>
-                        <Col span={6}>
-                            <Form.Item
-                                name={[index, 'landPlotID']}
-                                label="Land Plot"
-                                rules={[{ required: true, message: 'Please select a land plot!' }]}
-                            >
-                                <Select
-                                    placeholder="Select Land Plot"
-                                    onChange={(value) => handleLandPlotChange(value, index)}
-                                >
-                                    {selectedTarget?.map((target) => (
-                                        <Option key={target.landPlotId} value={target.landPlotId}>
-                                            {target.landPlotName}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item
-                                name={[index, 'landRowID']}
-                                label="Land Row"
-                                rules={[{ required: true, message: 'Please select a land row!' }]}
-                            >
-                                <Select
-                                    placeholder="Select Land Row"
-                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined}
-                                    onChange={(value) => handleLandRowChange(value, index)}
-                                >
-                                    {selectedTarget
-                                        ?.find((target) => target.landPlotId === selectedLandPlot)
-                                        ?.rows.map((row) => (
-                                            <Option key={row.landRowId} value={row.landRowId}>
-                                                {`Row ${row.rowIndex}`}
-                                            </Option>
-                                        ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </>
-                );
-            case 'plant':
-                return (
-                    <>
-                        <Col span={6}>
-                            <Form.Item
-                                name={[index, 'landPlotID']}
-                                label="Land Plot"
-                                rules={[{ required: true, message: 'Please select a land plot!' }]}
-                            >
-                                <Select
-                                    placeholder="Select Land Plot"
-                                    onChange={(value) => handleLandPlotChange(value, index)}
-                                >
-                                    {selectedTarget?.map((target) => (
-                                        <Option key={target.landPlotId} value={target.landPlotId}>
-                                            {target.landPlotName}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item
-                                name={[index, 'landRowID']}
-                                label="Land Row"
-                                rules={[{ required: true, message: 'Please select a land row!' }]}
-                            >
-                                <Select
-                                    placeholder="Select Land Row"
-                                    mode={selectedUnits[index] === "row" ? "multiple" : undefined}
-                                    onChange={(value) => handleLandRowChange(value, index)}
-                                >
-                                    {selectedTarget
-                                        ?.find((target) => target.landPlotId === selectedLandPlot)
-                                        ?.rows.map((row) => (
-                                            <Option key={row.landRowId} value={row.landRowId}>
-                                                {`Row ${row.rowIndex}`}
-                                            </Option>
-                                        ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item
-                                name={[index, 'plantID']}
-                                label="Plant"
-                                rules={[{ required: true, message: 'Please select a plant!' }]}
-                            >
-                                <Select
-                                    mode="multiple"
-                                    placeholder="Select Plant"
-                                    onChange={(value) => handlePlantChange(value, index)}
-                                >
-                                    {selectedTarget
-                                        ?.find((target) => target.landPlotId === selectedLandPlot)
-                                        ?.rows
-                                        .find((row) => row.landRowId === selectedLandRow[0])
-                                        ?.plants.map((plant) => (
-                                            <Option key={plant.plantId} value={plant.plantId}>
-                                                {plant.plantName}
-                                            </Option>
-                                        ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </>
-                );
-            case 'plantlot':
-                return (
-                    <Col span={6}>
-                        <Form.Item
-                            name={[index, 'plantLotID']}
-                            label="Plant Lot"
-                            rules={[{ required: true, message: 'Please select a plant lot!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                placeholder="Select Plant Lot"
-                                onChange={(value) => handlePlantLotChange(value, index)}
-                            >
-                                {selectedTarget?.map((target) =>
-                                    target.plantLots.map((plantLot) => (
-                                        <Option key={plantLot.plantLotId} value={plantLot.plantLotId}>
-                                            {plantLot.plantLotName}
-                                        </Option>
-                                    ))
-                                )}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                );
-            case 'graftedplant':
-                return (
-                    <Col span={6}>
-                        <Form.Item
-                            name={[index, 'graftedPlantID']}
-                            label="Grafted Plant"
-                            rules={[{ required: true, message: 'Please select a grafted plant!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                placeholder="Select Grafted Plant"
-                                onChange={(value) => handleGraftedPlantChange(value, index)}
-                            >
-                                {selectedTarget?.map((target) =>
-                                    target.graftedPlants.map((graftedPlant) => (
-                                        <Option key={graftedPlant.graftedPlantId} value={graftedPlant.graftedPlantId}>
-                                            {graftedPlant.graftedPlantName}
-                                        </Option>
-                                    ))
-                                )}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                );
-            default:
-                return null;
+          case 'landplot':
+            return renderLandPlotSelect();
+          case 'row':
+            return (
+              <>
+                {renderLandPlotSelect()}
+                {renderLandRowSelect(selectedUnits[index] === "row")}
+              </>
+            );
+          case 'plant':
+            return (
+              <>
+                {renderLandPlotSelect()}
+                {renderLandRowSelect()}
+                {renderPlantSelect()}
+              </>
+            );
+          default:
+            return null;
         }
-    };
+      };
 
     return (
         <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
@@ -543,8 +363,6 @@ const PlanTarget = ({
                         setSelectedLandPlots((prev) => [...prev, 1]);
                         setSelectedLandRows((prev) => [...prev, []]);
                         setSelectedPlants((prev) => [...prev, []]);
-                        setSelectedPlantLots((prev) => [...prev, []]);
-                        setSelectedGraftedPlants((prev) => [...prev, []]);
                         setSelectedTargets((prev) => [...prev, []]);
                     };
 

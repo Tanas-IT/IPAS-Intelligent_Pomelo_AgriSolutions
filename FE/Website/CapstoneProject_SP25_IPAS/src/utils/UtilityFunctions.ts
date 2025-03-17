@@ -292,8 +292,8 @@ export const unitOptions = [
   { label: "Land Plot", value: "landplot" },
   { label: "Row", value: "row" },
   { label: "Plant", value: "plant" },
-  { label: "Plant Lot", value: "plantlot" },
-  { label: "Grafted Plant", value: "graftedplant" },
+  // { label: "Plant Lot", value: "plantlot" },
+  // { label: "Grafted Plant", value: "graftedplant" },
 ];
 
 export const worklogStatusOptions = [
@@ -304,6 +304,12 @@ export const worklogStatusOptions = [
   { label: "Redo", value: "Redo" },
   { label: "Done", value: "Done" },
   { label: "On Redo", value: "On Redo" },
+];
+
+export const planTargetOptions = [
+  { label: "Land Plot/ Land Row/ Plant", value: "regular" },
+  { label: "Plant Lot", value: "plantLot" },
+  { label: "Grafted Plant", value: "graftedPlant" }
 ];
 
 export const fetchTypeOptionsByName = async (typeName: string) => {

@@ -29,6 +29,7 @@ import {
   getTypeOfProcess,
   getUserId,
   isDayInRange,
+  planTargetOptions,
   RulesManager,
 } from "@/utils";
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
@@ -80,6 +81,8 @@ const AddPlan = () => {
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
   const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(false);
+  const [targetType, setTargetType] = useState<string>();
+  const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
 
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
@@ -107,6 +110,25 @@ const AddPlan = () => {
       setLandPlotOfCropOptions([]);
     }
   }, [selectedCrop]);
+
+  const handlePlanTargetChange = async (target: string) => {
+    setTargetType(target);
+    form.setFieldsValue({
+      planTargetModel: [],
+    });
+    if (target === "graftedPlant") {
+      form.setFieldValue("processId", 14);
+      form.setFieldValue("growthStageId", undefined);
+      handleChangeProcess(14);
+      setIsTargetDisabled(true);
+    } else if (target === "plantLot") {
+      setIsTargetDisabled(true);
+      form.setFieldValue("processId", undefined);
+    } else {
+      form.setFieldValue("processId", undefined);
+      setIsTargetDisabled(false);
+    }
+  }
 
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
@@ -334,7 +356,7 @@ const AddPlan = () => {
       toast.error("Please select at least one custom date for Weekly frequency.");
       return;
     }
-  
+
     if (frequency === "Monthly" && dayOfMonth.length === 0) {
       toast.error("Please select at least one day for Monthly frequency.");
       return;
@@ -349,6 +371,37 @@ const AddPlan = () => {
       toast.error("Please select at least one plan target.");
       return;
     }
+
+    const formattedPlanTargetModel = planTargetModel.map((target: any) => {
+      if (targetType === "regular") {
+        return {
+          landPlotID: target.landPlotID ?? 0,
+          landRowID: target.landRowID ?? [],
+          plantID: target.plantID ?? [],
+          graftedPlantID: [],
+          plantLotID: [],
+          unit: target.unit,
+        };
+      } else if (targetType === "plantLot") {
+        return {
+          landPlotID: 0,
+          landRowID: [],
+          plantID: [],
+          graftedPlantID: [],
+          plantLotID: target.plantLotID ?? [],
+          unit: target.unit,
+        };
+      } else if (targetType === "graftedPlant") {
+        return {
+          landPlotID: 0,
+          landRowID: [],
+          plantID: [],
+          graftedPlantID: target.graftedPlantID ?? [],
+          plantLotID: [],
+          unit: target.unit,
+        };
+      }
+    });
 
     const planData: PlanRequest = {
       planName: values.planName,
@@ -377,27 +430,28 @@ const AddPlan = () => {
       endDate: adjustedEndDate.toISOString(),
       startTime: startTime,
       endTime: endTime,
-      planTargetModel: planTargetModel.map((target: any) => ({
-        landPlotID: target.landPlotID ?? 0,
-        landRowID: target.landRowID ?? [],
-        plantID: target.plantID ?? [],
-        graftedPlantID: target.graftedPlantID ?? [],
-        plantLotID: target.plantLotID ?? [],
-        unit: target.unit
-      })),
+      // planTargetModel: planTargetModel.map((target: any) => ({
+      //   landPlotID: target.landPlotID ?? 0,
+      //   landRowID: target.landRowID ?? [],
+      //   plantID: target.plantID ?? [],
+      //   graftedPlantID: target.graftedPlantID ?? [],
+      //   plantLotID: target.plantLotID ?? [],
+      //   unit: target.unit
+      // })),
+      planTargetModel: formattedPlanTargetModel,
       listLandPlotOfCrop: values.listLandPlotOfCrop
     };
     console.log("planData", planData);
 
-    const result = await planService.addPlan(planData);
+    // const result = await planService.addPlan(planData);
 
-    if (result.statusCode === 200) {
-      await toast.success(result.message);
-      navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
-      form.resetFields();
-    } else {
-      toast.error(result.message);
-    }
+    // if (result.statusCode === 200) {
+    //   await toast.success(result.message);
+    //   navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
+    //   form.resetFields();
+    // } else {
+    //   toast.error(result.message);
+    // }
 
     setIsFormDirty(false);
   };
@@ -447,6 +501,7 @@ const AddPlan = () => {
           title="Basic Information"
           subtitle="Enter the basic information for the care plan."
         >
+          
           <Row gutter={16}>
             <Col span={12}>
               <Flex vertical>
@@ -486,6 +541,48 @@ const AddPlan = () => {
           </Row>
           <Row gutter={16}>
             <Col span={12}>
+              <InfoField
+                label="Select Plan Target"
+                name={addPlanFormFields.planTarget}
+                options={planTargetOptions}
+                rules={RulesManager.getPlanTargetRules()}
+                isEditing={true}
+                type="select"
+                hasFeedback={false}
+                onChange={(value) => handlePlanTargetChange(value)}
+              />
+            </Col>
+            {targetType === "plantLot" && (
+              <Col span={12}>
+                <InfoField
+                  label="Select Plant Lot"
+                  name={addPlanFormFields.plantLot}
+                  options={plantLotOptions}
+                  multiple
+                  // rules={RulesManager.getPlantLotRules()}
+                  isEditing={true}
+                  type="select"
+                  hasFeedback={false}
+                />
+              </Col>
+            )}
+
+            {targetType === "graftedPlant" && (
+              <Col span={12}>
+                <InfoField
+                  label="Select Grafted Plant"
+                  name={addPlanFormFields.graftedPlant}
+                  options={graftedPlantsOptions}
+                  // rules={RulesManager.getGraftedPlantRules()}
+                  isEditing={true}
+                  type="select"
+                  hasFeedback={false}
+                />
+              </Col>
+            )}
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
               <Flex vertical>
                 <InfoField
                   label="Crop Name"
@@ -497,6 +594,7 @@ const AddPlan = () => {
                   hasFeedback={false}
                   onChange={(value) => {
                     setSelectedCrop(value);
+                    setIsTargetDisabled(true);
                     form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
                     form.setFieldsValue({ planTargetModel: [] });
                   }}
@@ -507,6 +605,7 @@ const AddPlan = () => {
                     setSelectedCrop(null);
                     form.setFieldValue("cropId", undefined);
                     form.setFieldValue("listLandPlotOfCrop", []);
+                    setIsTargetDisabled(false);
                   }}>
                   <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
                 </div>
@@ -663,7 +762,7 @@ const AddPlan = () => {
           plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}
           selectedGrowthStage={selectedGrowthStage}
-          hasSelectedCrop={selectedCrop ? true : false}
+          hasSelectedCrop={isTargetDisabled}
           onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
         />
 

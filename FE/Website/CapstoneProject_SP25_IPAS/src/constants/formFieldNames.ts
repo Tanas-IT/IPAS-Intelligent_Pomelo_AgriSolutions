@@ -178,7 +178,10 @@ export const addPlanFormFields = {
   status: "status",
   assignor: "assignor",
   notes: "notes",
-  listLandPlotOfCrop: "listLandPlotOfCrop"
+  listLandPlotOfCrop: "listLandPlotOfCrop",
+  planTarget: "planTarget",
+  plantLot: "plantLot",
+  graftedPlant: "graftedPlant"
 };
 
 export const packageFormFields = {
