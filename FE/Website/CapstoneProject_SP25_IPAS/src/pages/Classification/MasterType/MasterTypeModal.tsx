@@ -2,7 +2,12 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, MASTER_TYPE, masterTypeFormFields, WORK_TARGETS } from "@/constants";
+import {
+  CRITERIA_TARGETS,
+  MASTER_TYPE_SHOW_TABLE,
+  masterTypeFormFields,
+  WORK_TARGETS,
+} from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
@@ -11,6 +16,7 @@ type MasterTypeModelProps = {
   onSave: (values: MasterTypeRequest) => void;
   isLoadingAction?: boolean;
   masterTypeData?: GetMasterType;
+  typeCurrent: string;
 };
 
 const MasterTypeModel = ({
@@ -19,15 +25,11 @@ const MasterTypeModel = ({
   onSave,
   masterTypeData,
   isLoadingAction,
+  typeCurrent,
 }: MasterTypeModelProps) => {
   const [form] = Form.useForm();
-  const [selectedType, setSelectedType] = useState<string>("");
   const [checked, setChecked] = useState<boolean>(false);
   const isUpdate = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
-  const typeOptions = Object.keys(MASTER_TYPE).map((key) => ({
-    value: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
-    label: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
-  }));
   const workTargetOptions = Object.keys(WORK_TARGETS).map((key) => ({
     value: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
     label: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
@@ -44,23 +46,19 @@ const MasterTypeModel = ({
   const resetForm = () => {
     form.resetFields();
     setChecked(false);
-    setSelectedType("");
   };
 
   useEffect(() => {
     resetForm();
     if (isOpen) {
       if (isUpdate && masterTypeData) {
-        form.setFieldsValue({ ...masterTypeData });
+        form.setFieldsValue({ ...masterTypeData, [masterTypeFormFields.typeName]: typeCurrent });
         setChecked(masterTypeData.isActive);
-        setSelectedType(masterTypeData.typeName);
+      } else {
+        form.setFieldsValue({ [masterTypeFormFields.typeName]: typeCurrent });
       }
     }
   }, [isOpen, masterTypeData]);
-
-  const handleTypeChange = (value: string) => {
-    setSelectedType(value);
-  };
 
   const getFormData = (): MasterTypeRequest => ({
     masterTypeId: form.getFieldValue(masterTypeFormFields.masterTypeId),
@@ -119,16 +117,9 @@ const MasterTypeModel = ({
           placeholder="Enter the description"
         />
 
-        <FormFieldModal
-          type="select"
-          label="Type"
-          name={masterTypeFormFields.typeName}
-          rules={RulesManager.getTypeRules()}
-          options={typeOptions}
-          onChange={handleTypeChange}
-        />
+        <FormFieldModal label="Type" readonly={true} name={masterTypeFormFields.typeName} />
 
-        {selectedType === MASTER_TYPE.WORK && (
+        {typeCurrent === MASTER_TYPE_SHOW_TABLE.WORK && (
           <>
             <Flex justify="space-between" gap={40}>
               <FormFieldModal
@@ -165,7 +156,7 @@ const MasterTypeModel = ({
           </>
         )}
 
-        {selectedType === MASTER_TYPE.CRITERIA && (
+        {/* {typeCurrent === MASTER_TYPE_SHOW_TABLE.CRITERIA && (
           <>
             <FormFieldModal
               type="select"
@@ -175,9 +166,9 @@ const MasterTypeModel = ({
               options={criteriaTargetOptions}
             />
           </>
-        )}
+        )} */}
 
-        {selectedType === MASTER_TYPE.CULTIVAR && (
+        {typeCurrent === MASTER_TYPE_SHOW_TABLE.CULTIVAR && (
           <>
             <FormFieldModal
               type="textarea"

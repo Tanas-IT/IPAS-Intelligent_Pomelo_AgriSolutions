@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
@@ -348,6 +349,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var result = _mapper.Map<ProcessModel>(getProcess);
                     return new BusinessResult(Const.SUCCESS_GET_PROCESS_BY_ID_CODE, Const.SUCCESS_GET_PROCESS_BY_ID_MESSAGE, result);
+                }
+                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetProcessSelectedByMasterType(List<int> masterTypeId)
+        {
+            try
+            {
+                var getProcess = await _unitOfWork.ProcessRepository.GetAllNoPaging(x => masterTypeId.Contains(x.MasterTypeId.Value) && x.IsDeleted == false && x.IsActive == true);
+                if (getProcess != null)
+                {
+                    var result = _mapper.Map<List<ForSelectedModels>>(getProcess);
+                    return new BusinessResult(Const.SUCCESS_GET_PROCESS_BY_ID_CODE, "Get Process for selected by master type success", result);
                 }
                 return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
             }

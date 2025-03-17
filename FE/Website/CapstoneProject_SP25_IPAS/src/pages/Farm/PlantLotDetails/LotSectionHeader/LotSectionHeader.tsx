@@ -26,13 +26,16 @@ const LotSectionHeader = ({
 
   if (!lot) return;
   const handleMarkAsPassed = async () => {
-    var res = await plantLotService.updateIsCompletedLot(lot.plantLotId, true);
-    if (res.statusCode === 200) {
-      setLot({ ...lot, isPassed: true });
-      toast.success(`Lot ${lot.plantLotName} marked as Passed!`);
+    try {
+      var res = await plantLotService.updateIsCompletedLot(lot.plantLotId, true);
+      if (res.statusCode === 200) {
+        setLot({ ...lot, isPassed: true });
+        toast.success(`Lot ${lot.plantLotName} marked as Passed!`);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
       updateConfirmModal.hideModal();
-    } else {
-      toast.error(res.message);
     }
   };
 

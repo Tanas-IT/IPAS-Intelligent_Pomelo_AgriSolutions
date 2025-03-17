@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

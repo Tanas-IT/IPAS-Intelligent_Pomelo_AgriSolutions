@@ -1,8 +1,8 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LegalDocumentRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ResourceRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LegalDocumentRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;

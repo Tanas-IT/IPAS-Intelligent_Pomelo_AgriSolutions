@@ -180,8 +180,10 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string createProcess = Base + "/processes";
             public const string createManyProcess = Base + "/processes/create-many";
-            public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
+            public const string getProcessSelectedByMasterType = Base + "/processes/for-selected-by-master-type";
             public const string getProcessWithPagination = Base + "/processes";
+            public const string getProcessById = Base + "/processes/get-process-by-id/{id}";
+
             public const string permanenlyDelete = Base + "/processes/delete-permanenly/{id}";
             public const string softDeleteProcess = Base + "/processes/soft-delete";
             public const string updateProcessInfo = Base + "/processes/update-process-info";
@@ -331,6 +333,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestForSelectedByPlotId = prefix + "/for-selected";
             public const string getProductInHarvestForSelected = prefix + "/for-selected/product-in-harvest";
             public const string statisticOfPlantByYear = prefix + "/plant-statistic-in-year";
+            public const string getHarvestByCode = prefix + "/get-by-code";
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
         }

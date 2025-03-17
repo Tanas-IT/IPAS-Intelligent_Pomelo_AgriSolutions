@@ -32,6 +32,10 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
           const oldValue = oldData[typedKey];
           const newValue = newData[typedKey];
 
+          if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+            return false;
+          }
+
           if (typeof oldValue === "object" && typeof newValue === "object") {
             return JSON.stringify(oldValue) !== JSON.stringify(newValue);
           }
@@ -83,6 +87,10 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
 
           const defaultValue = defaultValues?.[typedKey];
           const newValue = newData[typedKey];
+
+          if (Array.isArray(newValue)) {
+            return false;
+          }
 
           // Nếu không có giá trị mặc định thì kiểm tra nếu newValue có dữ liệu
           if (defaultValue === undefined) {

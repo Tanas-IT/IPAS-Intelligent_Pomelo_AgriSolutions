@@ -6,9 +6,9 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {

@@ -75,6 +75,7 @@ export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {
   plantLotName: "plantLotName",
   unit: "unit",
   previousQuantity: "previousQuantity",
+  inputQuantity: "inputQuantity",
   lastQuantity: "lastQuantity",
   usedQuantity: "usedQuantity",
   status: "status",
@@ -178,7 +179,7 @@ export const addPlanFormFields = {
   status: "status",
   assignor: "assignor",
   planNote: "planNote",
-  listLandPlotOfCrop: "listLandPlotOfCrop"
+  listLandPlotOfCrop: "listLandPlotOfCrop",
 };
 
 export const packageFormFields = {

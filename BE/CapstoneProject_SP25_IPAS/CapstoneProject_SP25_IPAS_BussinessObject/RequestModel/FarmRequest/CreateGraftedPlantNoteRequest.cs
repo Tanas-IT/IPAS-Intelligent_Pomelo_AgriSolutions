@@ -1,4 +1,4 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.ResourceRequest;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ResourceRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;

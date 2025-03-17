@@ -1,12 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CriteriaRequest.CriteriaTagerRequest;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
-using System.Collections.Generic;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel
 {

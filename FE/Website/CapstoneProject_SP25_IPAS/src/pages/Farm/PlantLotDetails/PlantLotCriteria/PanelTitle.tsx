@@ -8,6 +8,7 @@ import { formatDate } from "@/utils";
 interface PanelTitleProps {
   title: string;
   target: string;
+  criteriaSetId: number;
   data: GetCriteriaCheck[];
   isAllCompletedCheckUpdate: boolean;
   isAllConditionChecked: boolean;
@@ -19,13 +20,14 @@ interface PanelTitleProps {
     isAllCompletedCheckUpdate: boolean,
     isAllConditionChecked: boolean,
   ) => void;
-  handleDelete: (criteriaIds: number[]) => void;
+  handleDelete: (criteriaSetId: number) => void;
   isCompleted?: boolean;
 }
 
 export const PanelTitle = ({
   title,
   target,
+  criteriaSetId,
   data,
   isAllCompletedCheckUpdate,
   isAllConditionChecked,
@@ -43,13 +45,12 @@ export const PanelTitle = ({
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
   const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
-  const criteriaIds = data.map((item) => item.criteriaId);
   const date = data[0].createDate;
   return (
     <Flex className={style.headerWrapper} gap={24}>
       <span className={style.panelTitle}>
         {title} - <span className={style.targetText}>{target}</span>
-        <span style={{ marginLeft: "8px", fontWeight: "normal" }}>({formatDate(date)})</span>
+        <span className={style.date}>({formatDate(date)})</span>
         <span className={style.completedCount}>
           ({completedCount}/{data.length})
         </span>
@@ -61,7 +62,7 @@ export const PanelTitle = ({
               className={style.deleteIcon}
               onClick={(e) => {
                 e.stopPropagation();
-                handleDelete(criteriaIds);
+                handleDelete(criteriaSetId);
               }}
             />
           </Tooltip>

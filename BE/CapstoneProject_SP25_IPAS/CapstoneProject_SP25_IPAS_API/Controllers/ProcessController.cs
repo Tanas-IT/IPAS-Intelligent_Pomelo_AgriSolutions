@@ -91,6 +91,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Process.getProcessSelectedByMasterType, Name = "getProcessSelectedByMasterType")]
+        public async Task<IActionResult> getProcessSelectedByMasterType([FromQuery] List<int> id)
+        {
+            try
+            {
+                var result = await _processService.GetProcessSelectedByMasterType(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Process.createProcess, Name = "createProcessAsync")]
         public async Task<IActionResult> CreateProcess([FromForm] CreateProcessModel createProcessModel, int? farmId)

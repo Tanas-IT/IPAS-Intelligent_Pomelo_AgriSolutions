@@ -3,7 +3,6 @@ import { useState } from "react";
 import style from "./MasterType.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterMasterTypeState } from "@/types";
-import { MASTER_TYPE } from "@/constants";
 
 type FilterProps = {
   filters: FilterMasterTypeState;
@@ -14,15 +13,10 @@ type FilterProps = {
 const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
 
-  const options = Object.keys(MASTER_TYPE).map((key) => ({
-    value: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
-    label: MASTER_TYPE[key as keyof typeof MASTER_TYPE],
-  }));
-
   const isFilterEmpty = !(
     filters.createDateFrom ||
     filters.createDateTo ||
-    filters.typeName.length > 0
+    filters.isActive !== undefined
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -46,13 +40,16 @@ const MasterTypeFilter = ({ filters, updateFilters, onClear, onApply }: FilterPr
           }}
         />
         <FormFieldFilter
-          label="Type Name:"
-          fieldType="select"
-          value={filters.typeName}
-          options={options}
-          onChange={(value) => updateFilters("typeName", value)}
+          label="Is Active"
+          fieldType="radio"
+          value={filters.isActive}
+          options={[
+            { value: true, label: "Active" },
+            { value: false, label: "Inactive" },
+          ]}
+          onChange={(value) => updateFilters("isActive", value)}
+          direction="row"
         />
-
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

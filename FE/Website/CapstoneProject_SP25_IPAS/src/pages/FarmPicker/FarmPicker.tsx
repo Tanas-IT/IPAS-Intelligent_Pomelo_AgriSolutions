@@ -24,8 +24,6 @@ function FarmPicker() {
       try {
         setLoading(true);
         const result = await farmService.getFarmsOfUser();
-        console.log(result);
-
         if (result.statusCode === 200) {
           setFarmsData(result.data ?? []);
         } else {
@@ -49,20 +47,17 @@ function FarmPicker() {
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_NAME, result.data.farmName);
       localStorage.setItem(LOCAL_STORAGE_KEYS.FARM_LOGO, result.data.farmLogo);
 
-
       const farmResult = await farmService.getFarm(farmId.toString());
       if (farmResult.statusCode === 200) {
         const farmExpiredDate = farmResult.data.farmExpiredDate;
         const isExpired = farmExpiredDate && new Date(farmExpiredDate) < new Date();
 
-        useFarmStore.getState().setFarmInfo(
-          result.data.farmName,
-          result.data.farmLogo,
-          farmExpiredDate,
-        );
+        useFarmStore
+          .getState()
+          .setFarmInfo(result.data.farmName, result.data.farmLogo, farmExpiredDate);
 
         const roleId = getRoleId();
-        
+
         if (isExpired && roleId !== UserRole.Owner.toString()) {
           toast.warning("This farm's package has expired. Please contact the owner to renew.");
           navigate(PATHS.FARM_PICKER);
@@ -91,14 +86,13 @@ function FarmPicker() {
 
   // const handleCreateNewFarm = async () => {
   //   console.log("ủaaaaaaaaaa");
-    
+
   //   try {
   //     const farmExpiredDate = useFarmStore.getState().farmExpiredDate;
   //     const isExpired = farmExpiredDate ? new Date(farmExpiredDate) < new Date() : true;
   //     console.log("farmExpiredDateeeeee", farmExpiredDate);
   //     console.log("isExpired", isExpired);
-      
-  
+
   //     if (isExpired) {
   //       toast.warning(
   //         farmExpiredDate
@@ -114,7 +108,7 @@ function FarmPicker() {
   //     toast.error(MESSAGES.ERROR_OCCURRED);
   //   }
   // };
-  
+
   const handleCreateNewFarm = async () => {
     try {
       navigate(PATHS.FARM.CREATE_FARM);
@@ -138,7 +132,11 @@ function FarmPicker() {
             </Typography.Text>
           }
         >
-          <CustomButton label="Create New Farm" icon={<Icons.plus />} handleOnClick={handleCreateNewFarm} />
+          <CustomButton
+            label="Create New Farm"
+            icon={<Icons.plus />}
+            handleOnClick={handleCreateNewFarm}
+          />
         </Empty>
       </Flex>
     );
@@ -188,8 +186,9 @@ function FarmPicker() {
                           <Text className={style.label}>Created at:</Text>
                           <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
                           <Tag
-                            className={`${style.statusTag} ${isInactive ? style.inactive : style.active
-                              }`}
+                            className={`${style.statusTag} ${
+                              isInactive ? style.inactive : style.active
+                            }`}
                           >
                             {isInactive ? "Inactive" : "Active"}
                           </Tag>
@@ -200,8 +199,9 @@ function FarmPicker() {
                     <Col span={4}>
                       <Flex className={style.roleTagWrapper}>
                         <Tag
-                          className={`${style.statusTag} ${farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
-                            }`}
+                          className={`${style.statusTag} ${
+                            farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
+                          }`}
                         >
                           {farm.roleName}
                         </Tag>

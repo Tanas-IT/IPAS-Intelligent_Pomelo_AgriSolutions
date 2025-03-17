@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -42,8 +43,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId)
         {
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
-            {
+            //using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            //{
                 try
                 {
                     if (addNewTaskModel.DateWork <= DateTime.Now)
@@ -185,7 +186,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
-                        await transaction.CommitAsync();
+                        //await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
                     }
                     return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
@@ -193,10 +194,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync();
+                    //await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
-            }
+            //}
         }
 
         public async Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId)

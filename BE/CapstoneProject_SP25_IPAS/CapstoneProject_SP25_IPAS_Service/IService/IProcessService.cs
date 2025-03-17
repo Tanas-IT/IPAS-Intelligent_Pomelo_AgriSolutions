@@ -17,6 +17,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllProcessPagination(PaginationParameter paginationParameter, ProcessFilters processFilters, int farmId);
 
+        public Task<BusinessResult> GetProcessSelectedByMasterType(List<int> masterTypeId);
+
         public Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel, int? farmId);
 
         public Task<BusinessResult> UpdateProcessInfo(UpdateProcessModel updateProcessModel);

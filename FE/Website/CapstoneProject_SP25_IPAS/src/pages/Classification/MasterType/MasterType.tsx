@@ -1,4 +1,4 @@
-import { Flex } from "antd";
+import { Flex, Select } from "antd";
 import style from "./MasterType.module.scss";
 import {
   ActionMenuMasterType,
@@ -18,19 +18,25 @@ import {
   useFilters,
   useHasChanges,
 } from "@/hooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
 import { masterTypeService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
-import { masterTypeColumns } from "./MasterTypeColumn";
+import { masterTypeColumns } from "./MasterTypeColumns";
 import MasterTypeFilter from "./MasterTypeFilter";
 import MasterTypeModel from "./MasterTypeModal";
+import { MASTER_TYPE_SHOW_TABLE } from "@/constants";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
+  const typeOptions = Object.keys(MASTER_TYPE_SHOW_TABLE).map((key) => ({
+    value: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
+    label: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
+  }));
+  const [typeName, setTypeName] = useState<string>(MASTER_TYPE_SHOW_TABLE.PROCESS);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
@@ -55,12 +61,24 @@ function MasterType() {
     isLoading,
   } = useFetchData<GetMasterType>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      masterTypeService.getMasterTypes(page, limit, sortField, sortDirection, searchValue, filters),
+      masterTypeService.getMasterTypes(
+        page,
+        limit,
+        sortField,
+        sortDirection,
+        searchValue,
+        typeName,
+        filters,
+      ),
   });
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue, typeName]);
+
+  const handleTypeChange = (type: string) => {
+    setTypeName(type);
+  };
 
   const { handleDelete } = useTableDelete(
     {
@@ -91,7 +109,7 @@ function MasterType() {
   const handleCancelConfirm = (stage: MasterTypeRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(stage, "masterTypeId")
-      : hasChanges(stage, undefined, { isActive: false });
+      : hasChanges(stage, undefined, { isActive: false, typeName: typeName });
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
     } else {
@@ -141,6 +159,16 @@ function MasterType() {
               filterContent={filterContent}
               addLabel="Add New Type"
               onAdd={() => formModal.showModal()}
+              extraContent={
+                <Select
+                  placeholder="Select Type"
+                  value={typeName}
+                  style={{ width: "20rem" }}
+                  options={typeOptions}
+                  onChange={(value) => handleTypeChange(value)}
+                />
+              }
+              sectionRightSize="small"
             />
           }
           handleSortClick={handleSortChange}
@@ -175,6 +203,7 @@ function MasterType() {
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
         masterTypeData={formModal.modalState.data}
+        typeCurrent={typeName}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
