@@ -50,6 +50,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Plant.getPlantByCode + "/{plant-code}", Name = "getPlantByCode")]
+        public async Task<IActionResult> getPlantByCode([FromRoute(Name = "plant-code")] string plantCode)
+        {
+            try
+            {
+                var result = await _plantService.getByCode(plantCode);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
         /// <summary>
         /// Lấy tất cả cây của một mảnh đất có phân trang
         /// </summary>

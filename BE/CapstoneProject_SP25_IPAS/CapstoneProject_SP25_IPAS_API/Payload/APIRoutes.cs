@@ -237,6 +237,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteMultiplePlant = prefix + "/delete-multiple-plant";
             public const string updatePlantInfo = prefix + "";
             public const string getPlantById = prefix + "";
+            public const string getPlantByCode = prefix + "/get-by-code";
             //public const string getPlantOfPlot = prefix + "/get-plants-of-plot";
             //public const string getPlantOfFarm = prefix + "/get-plants-of-farm";
             public const string importPlantFromExcel = prefix + "/import-excel";

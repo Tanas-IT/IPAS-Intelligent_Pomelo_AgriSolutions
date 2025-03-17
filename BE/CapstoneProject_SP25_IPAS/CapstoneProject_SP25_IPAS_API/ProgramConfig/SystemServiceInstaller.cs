@@ -128,7 +128,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ITaskFeedbackService, TaskFeedbackService>();
             services.AddScoped<IHarvestHistoryService, HarvestHistoryService>();
-            services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
+            //services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
             services.AddScoped<IWebSocketService, WebSocketService>();
             services.AddScoped<ITypeTypeService, TypeTypeService>();
 

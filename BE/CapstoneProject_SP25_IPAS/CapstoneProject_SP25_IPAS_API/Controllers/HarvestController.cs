@@ -95,8 +95,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [HttpGet(APIRoutes.Harvest.getHarvestByCode, Name = "getHarvestByCode")]
-        public async Task<IActionResult> getHarvestByCode([FromQuery] string harvestCode)
+        [HttpGet(APIRoutes.Harvest.getHarvestByCode + "/{harvest-code}", Name = "getHarvestByCode")]
+        public async Task<IActionResult> getHarvestByCode([FromRoute(Name = "harvest-code")] string harvestCode)
         {
 
             var result = await _harvestHistoryService.getHarvestByCode(harvestCode);
