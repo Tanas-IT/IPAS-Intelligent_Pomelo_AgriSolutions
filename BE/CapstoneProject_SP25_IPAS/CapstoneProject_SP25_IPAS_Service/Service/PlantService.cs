@@ -444,6 +444,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> getByCode(string plantCode)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(plantCode))
+                    return new BusinessResult(500, "Code is Required");
+                Expression<Func<Plant, bool>> filter = x => x.PlantCode.ToLower().Equals(plantCode) && x.IsDeleted == false;
+                //string includeProperties = "Plans,MasterType,LandRow";
+                var plant = await _unitOfWork.PlantRepository.GetByCondition(filter);
+                if (plant == null)
+                    return new BusinessResult(Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_CODE, Const.WARNING_GET_ALL_PLANT_DOES_NOT_EXIST_MSG);
+                var mapResult = _mapper.Map<PlantModel>(plant);
+                return new BusinessResult(Const.SUCCESS_GET_PLANT_BY_ID_PAGINATION_CODE, Const.SUCCESS_GET_PLANT_BY_ID_PAGINATION_MSG, mapResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
         public async Task<BusinessResult> updatePlant(PlantUpdateRequest plantUpdateRequest)
         {
             try

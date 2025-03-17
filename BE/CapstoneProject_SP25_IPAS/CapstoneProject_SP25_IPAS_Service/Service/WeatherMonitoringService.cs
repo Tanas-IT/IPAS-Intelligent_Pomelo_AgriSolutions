@@ -1,5 +1,9 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.NotificationRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,36 +50,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                //var forecastService = scope.ServiceProvider.GetRequiredService<WeatherForecastService>();
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-
                 var farms = await unitOfWork.FarmRepository.GetAllNoPaging(x => x.IsDeleted != true);
                 foreach (var farm in farms)
                 {
                     if (farm.Latitude == null || farm.Longitude == null) continue;
-                    // lay thoi tiet tai vi tri trang trai do
                     var forecastData = await GetWeatherForecastAsync(farm.Latitude.Value, farm.Longitude.Value);
-                    if (forecastData == null) continue;
-
                     if (forecastData == null || forecastData.List.Count == 0) continue;
 
-                    var warnings = new List<string>();
+                    var now = DateTime.UtcNow;
+                    var workLogs = await unitOfWork.WorkLogRepository.GetWorkLogsByFarm(farm.FarmId);
+                    //var workLogsToCheck = workLogs.Where(wl => wl.ActualStartTime.HasValue &&
+                    //                                            wl.ActualStartTime.Value >= now &&
+                    //                                            wl.ActualStartTime.Value <= now.AddHours(3)).ToList();
 
-                    // Duyệt qua tất cả dự báo trong vòng 24 giờ tới
-                    foreach (var forecast in forecastData.List.Take(8)) // 8 * 3h = 24h
+                    foreach (var workLog in workLogs)
                     {
-                        var forecastWarnings = CheckWeatherWarnings(forecast);
-                        if (forecastWarnings.Any())
-                        {
-                            warnings.Add($"{forecast.DateTimeText}: {string.Join(", ", forecastWarnings)}");
-                        }
-                    }
-
-                    if (warnings.Any())
-                    {
-                        // gui thong bao neu co bat ki thong bao nao
-                        var notificationService = scope.ServiceProvider.GetRequiredService<IWeatherNotificationService>();
-                        await notificationService.ProcessWeatherWarningsAsync(farm.FarmId, warnings);
+                        await CheckAndProcessWeatherWarning(workLog, forecastData);
                     }
                 }
             }
@@ -159,9 +150,74 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             return warnings;
         }
-    }
 
+        private async Task CheckAndProcessWeatherWarning(WorkLog workLog, WeatherForecastResponse forecastData)
+        {
+            var workType = workLog.Schedule.CarePlan.MasterType?.Target;
+            var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
+            if (string.IsNullOrEmpty(workType) || !rules.ContainsKey(workType)) return;
+
+            var rule = rules[workType];
+            var actualStartDateTime = workLog.Date.Value.Add(workLog.ActualStartTime.Value);
+            var closestForecast = forecastData.List
+                    .OrderBy(f => Math.Abs((f.ForecastDateTime - actualStartDateTime).TotalMinutes))
+                    .FirstOrDefault();
+
+            if (closestForecast == null) return;
+
+            var workWarnings = new List<string>();
+            if (rule.MinTemperature.HasValue && closestForecast.Main.Temperature < rule.MinTemperature)
+                workWarnings.Add($"Temperature too low: {closestForecast.Main.Temperature}°C");
+            if (rule.MaxTemperature.HasValue && closestForecast.Main.Temperature > rule.MaxTemperature)
+                workWarnings.Add($"Temperature too high: {closestForecast.Main.Temperature}°C");
+            if (rule.RainCondition == "NoRain" && closestForecast.Weather.Any(w => w.Main.Contains("Rain")))
+                workWarnings.Add("Rain detected, avoid work.");
+            // troi qua kho
+            if (rule.MinHumidity.HasValue && closestForecast.Main.Humidity < rule.MinHumidity)
+                workWarnings.Add($"Humidity too low: {closestForecast.Main.Humidity}%");
+            // qua am
+            if (rule.MaxHumidity.HasValue && closestForecast.Main.Humidity > rule.MaxHumidity)
+                workWarnings.Add($"Humidity too high: {closestForecast.Main.Humidity}%");
+            // nhieu gio
+            if (rule.MaxWindSpeed.HasValue && closestForecast.Wind.Speed > rule.MaxWindSpeed)
+                workWarnings.Add($"Wind speed too high: {closestForecast.Wind.Speed} m/s");
+
+            if (workWarnings.Any())
+            {
+                var warningMessage = $"{workLog.WorkLogName} - {string.Join(", ", workWarnings)}";
+                await ProcessWeatherWarning(workLog, warningMessage);
+            }
+        }
+
+        private async Task ProcessWeatherWarning(WorkLog workLog, string warningMessage)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                var _webSocketService = scope.ServiceProvider.GetRequiredService<IWebSocketService>();
+                var _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var users = await _unitOfWork.UserFarmRepository.GetUserOfFarm(workLog.Schedule!.FarmID!.Value);
+
+                foreach (var user in users)
+                {
+                    var notification = new CreateNotificationRequest
+                    {
+                        UserId = user.UserId,
+                        Title = "Weather Warning",
+                        Content = user.Role!.RoleName!.Equals(RoleEnum.EMPLOYEE.ToString(), StringComparison.OrdinalIgnoreCase) ?
+                            $"Công việc {workLog.WorkLogName} của bạn có thể bị ảnh hưởng." : warningMessage
+                    };
+
+                    await _notificationService.NotificationWeather(new List<CreateNotificationRequest> { notification });
+                    await _webSocketService.SendToUser(user.UserId, $"⚠ {notification.Content}");
+                    Console.WriteLine(warningMessage);
+                }
+            }
+        }
+    }
 }
+
+
 
 
 

@@ -7,6 +7,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IPlantService
     {
         public Task<BusinessResult> getById(int plantId);
+        public Task<BusinessResult> getByCode(string plantCode);
         //public Task<BusinessResult> getAllPlantOfPlot(int landplotId, PaginationParameter paginationParameter);
         //public Task<BusinessResult> getAllPlantOfFarm(int farmId, PaginationParameter paginationParameter);
         public Task<BusinessResult> createPlant(PlantCreateRequest plantCreateRequest);
