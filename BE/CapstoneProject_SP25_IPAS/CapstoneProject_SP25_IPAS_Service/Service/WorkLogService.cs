@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -31,12 +32,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IWebSocketService _webSocketService;
 
-        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IWebSocketService webSocketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _webSocketService = webSocketService;
         }
 
         public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId)
@@ -105,12 +108,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
 
-                    var checkConflict = await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflictedForWorkLog(farmId, addNewTaskModel.DateWork.Value, addNewTaskModel.DateWork.Value, TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime));
-                    if (checkConflict)
-                    {
-                        throw new Exception($"The date {addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy")} with StartTime: {addNewTaskModel.StartTime} and EndTime: {addNewTaskModel.EndTime} is conflicted. Please try another");
-                    }
                     await _unitOfWork.SaveAsync();
+                   
+                    var getListEmployeeId = addNewTaskModel.listEmployee.Select(x => x.UserId).ToList();
+                    await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime), addNewTaskModel.DateWork.Value,19, getListEmployeeId);
+
                     var newWorkLog = new WorkLog()
                     {
                         WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
@@ -125,15 +127,63 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.WorkLogRepository.Insert(newWorkLog);
                     await _unitOfWork.SaveAsync();
 
-                    foreach (var employee in addNewTaskModel.listEmployee)
+                    if (addNewTaskModel.listEmployee != null)
                     {
-                        var newUserWorkLog = new UserWorkLog()
+                        List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
+                        var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
+
+                        foreach (var workLog in savedWorkLogs)
                         {
-                            WorkLogId = newWorkLog.WorkLogId,
-                            UserId = employee.UserId,
-                            IsReporter = employee.isReporter,
+                            foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                            {
+                                // Kiểm tra User có bị trùng lịch không?
+                                bool isConflicted = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+
+                                if (isConflicted)
+                                {
+                                    throw new Exception($"User {user.UserId} had task in {workLog.Date}.");
+                                }
+
+                                // Thêm vào danh sách UserWorkLog
+                                userWorkLogs.Add(new UserWorkLog
+                                {
+                                    WorkLogId = workLog.WorkLogId,
+                                    UserId = user.UserId,
+                                    IsReporter = user.isReporter
+                                });
+                            }
+                        }
+
+                        // 🔹 Lưu UserWorkLogs vào DB
+                        await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+
+                        var addNotification = new Notification()
+                        {
+                            Content = "Work " + addNewTaskModel.TaskName + " has just been created",
+                            Title = "Plan",
+                            IsRead = false,
+                            CreateDate = DateTime.Now,
+                            NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
                         };
-                        await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                        await _unitOfWork.NotificationRepository.Insert(addNotification);
+                        await _unitOfWork.SaveAsync();
+                        foreach (var employee in addNewTaskModel.listEmployee)
+                        {
+                            var addPlanNotification = new PlanNotification()
+                            {
+                                NotificationID = addNotification.NotificationId,
+                                CreatedDate = DateTime.Now,
+                                UserID = employee.UserId,
+                                isRead = false,
+                            };
+
+                            await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        }
+                        foreach (var employeeModel in addNewTaskModel.listEmployee)
+                        {
+                            await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                        }
                     }
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
