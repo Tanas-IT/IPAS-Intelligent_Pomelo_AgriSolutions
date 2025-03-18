@@ -1025,7 +1025,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                     {
                                          _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
-                                        await _unitOfWork.SaveAsync();
+                                         await _unitOfWork.SaveAsync();
                                     }
                                 }
                                 foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
@@ -1126,7 +1126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.ProcessId != null)
                         {
                             checkExistPlan.ProcessId = updatePlanModel.ProcessId;
-                           
+
                         }
 
                         if (updatePlanModel.Status != null)
@@ -1392,6 +1392,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                                 };
                                 await _unitOfWork.NotificationRepository.Insert(addNotification);
+                                await _unitOfWork.PlanRepository.UpdatePlan(checkExistPlan);
                                 await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
                                 if (updatePlanModel.ListEmployee != null)
@@ -2586,6 +2587,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
 
         public async Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName)
         {

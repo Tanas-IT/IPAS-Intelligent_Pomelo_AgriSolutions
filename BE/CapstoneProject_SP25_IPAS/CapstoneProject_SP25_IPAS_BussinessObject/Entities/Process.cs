@@ -23,6 +23,7 @@ public partial class Process
 
     public bool? IsDeleted { get; set; }
     public bool? IsSample { get; set; }
+    public int? PlanTargetInProcess { get; set; }
 
     public int? FarmId { get; set; }
 
