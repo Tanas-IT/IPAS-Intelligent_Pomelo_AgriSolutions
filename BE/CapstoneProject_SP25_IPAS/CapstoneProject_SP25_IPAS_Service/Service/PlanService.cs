@@ -29,6 +29,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using GenerativeAI.Types;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -2605,5 +2606,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
+        {
+            int count = 0;
+            foreach(var createPlan in createPlanModel)
+            {
+                var result = await CreatePlan(createPlan, farmId);
+                if(result.StatusCode == 200)
+                {
+                    count++;
+                }
+            }
+            if(count == createPlanModel.Count)
+            {
+                return new BusinessResult(200, "Create Many Plan Sucess");
+            }
+            return new BusinessResult(400, "Create Many Plan Failed");
+        }
+
+        public async Task<BusinessResult> GetPlanByProcessID(int processId)
+        {
+            try
+            {
+                var getListPlan = await _unitOfWork.PlanRepository.GetPlanIncludeByProcessId(processId);
+                if (getListPlan != null && getListPlan.Count() > 0)
+                {   
+                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
+                }
+                return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
     }
 }

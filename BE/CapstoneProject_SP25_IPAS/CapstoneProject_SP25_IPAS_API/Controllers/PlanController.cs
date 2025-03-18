@@ -330,5 +330,44 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPost(APIRoutes.Plan.createManyPlan, Name = "createManyPlan")]
+        public async Task<IActionResult> createManyPlan([FromBody] List<CreatePlanModel> createPlanModel, int? farmId)
+        {
+            try
+            {
+                var result = await _planService.CreateManyPlan(createPlanModel, farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        [HttpPost(APIRoutes.Plan.getPlanByProcessId, Name = "getPlanByProcessId")]
+        public async Task<IActionResult> getPlanByProcessId([FromRoute] int id)
+        {
+            try
+            {
+                var result = await _planService.GetPlanByProcessID(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
     }
 }
