@@ -18,6 +18,10 @@ export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
     navigate("/plans/add");
   }
 
+  const handleClickAddPlanByProcess = () => {
+    navigate("/plans/add-plan-by-process");
+  }
+
   
   return (
     <Flex className={style.headerWrapper}>
@@ -30,7 +34,7 @@ export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
         </Popover>
       </Flex>
       <Flex className={style.sectionRight} gap={15}>
-        <CustomButton label="Add Plan By Process" icon={<Icons.plus />} handleOnClick={handleClickAddPlan} />
+        <CustomButton label="Add Plan By Process" icon={<Icons.plus />} handleOnClick={handleClickAddPlanByProcess} />
         <CustomButton label="Add New Plan" icon={<Icons.plus />} handleOnClick={handleClickAddPlan} />
       </Flex>
     </Flex>

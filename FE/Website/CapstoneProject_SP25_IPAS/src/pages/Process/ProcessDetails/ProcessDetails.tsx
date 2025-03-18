@@ -18,6 +18,7 @@ import {
   formatDateAndTime,
   generatePlanId,
   getFarmId,
+  planTargetOptions2,
   RulesManager,
 } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
@@ -130,7 +131,7 @@ function ProcessDetails() {
       console.error("Failed to fetch process details", error);
       toast.error("Failed to fetch process details. Please try again later.");
     } finally {
-      setIsLoading(false); // Kết thúc loading (dù thành công hay thất bại)
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -808,14 +809,14 @@ function ProcessDetails() {
               options={processTypeOptions}
               type="select"
             />
-            {/* <InfoField
-              label="Growth Stage"
-              name={processFormFields.growthStageId}
-              rules={RulesManager.getGrowthStageRules()}
+            <InfoField
+              label="Plan Target"
+              name={processFormFields.planTarget}
+              rules={RulesManager.getPlanTargetRules()}
               isEditing={isEditing}
-              options={growthStageOptions}
+              options={planTargetOptions2}
               type="select"
-            /> */}
+            />
           </Flex>
         </Flex>
         <Divider className={style.divider} />
