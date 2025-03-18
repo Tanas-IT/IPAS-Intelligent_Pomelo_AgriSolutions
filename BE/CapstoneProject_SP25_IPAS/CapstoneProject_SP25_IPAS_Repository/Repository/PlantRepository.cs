@@ -260,7 +260,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lấy cây từ database
             var plant = await _context.Plants
                 .Where( p => p.PlantId == plantId && p.IsDeleted == false && p.IsDead == false)
-                .Include(p => p.GrowthStage)
+                //.Include(p => p.GrowthStage)
                 .FirstOrDefaultAsync();
 
             // Kiểm tra cây có tồn tại không
@@ -270,7 +270,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             //}
 
             // Kiểm tra cây có giai đoạn sinh trưởng không
-            if (plant.GrowthStage == null)
+            if (plant.GrowthStageID == null)
             {
                 return false; // Không có giai đoạn -> Không thể chiết
             }
@@ -279,6 +279,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             bool canBeGrafted = (Util.SplitByComma(plant.GrowthStage.ActiveFunction?.Trim()!)).Contains(targetType.ToLower());
 
             return canBeGrafted;
+        }
+
+        public async Task<List<Plant>> GetAllForBrService(int farmId)
+        {
+            var plants = await _context.Plants
+                .Where(x => x.FarmId == farmId &&
+                x.IsDead == false &&
+                x.IsDeleted == false &&
+                x.PlantingDate.HasValue)
+                .AsNoTracking().ToListAsync();
+            return plants;
         }
     }
 }

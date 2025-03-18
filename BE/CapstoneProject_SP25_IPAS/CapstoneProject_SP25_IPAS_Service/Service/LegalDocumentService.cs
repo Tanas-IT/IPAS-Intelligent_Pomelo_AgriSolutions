@@ -11,10 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LegalDocumentRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
@@ -52,7 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IssueDate = documentCreateRequest.IssueDate,
                         ExpiredDate = documentCreateRequest.ExpiredDate,
                         CreateAt = DateTime.Now,
-                        Status = nameof(FarmStatus.Active),
+                        Status = nameof(FarmStatusEnum.Active),
                         FarmId = farmId
                     };
 

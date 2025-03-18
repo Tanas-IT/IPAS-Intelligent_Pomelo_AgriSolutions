@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [HttpGet(APIRoutes.Crop.getAllCropOfFarm , Name = "getAllCropsOfFarm")]
+        [HttpGet(APIRoutes.Crop.getAllCropOfFarm, Name = "getAllCropsOfFarm")]
         public async Task<IActionResult> GetAllCropsOfFarmAsync([FromQuery] int? farmId, [FromQuery] PaginationParameter paginationParameter, [FromQuery] CropFilter cropFilter)
         {
             try
@@ -94,9 +94,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        
+
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlotForSelect , Name = "getAllCropsOfLandPlotForSelect")]
+        [HttpGet(APIRoutes.Crop.getAllCropOfLandPlotForSelect, Name = "getAllCropsOfLandPlotForSelect")]
         public async Task<IActionResult> GetAllCropsOfLandPlotForSelectAsync([FromQuery] int? landplotId, string? searchValue)
         {
             try
@@ -105,7 +105,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 //{
                 //    landplotId = _jwtTokenService.GetFarmIdFromToken();
                 //}
-                var result = await _cropService.getAllCropOfFarmForSelected(landplotId!.Value, searchValue);
+                var result = await _cropService.getAllCropOfPlotForSelected(landplotId!.Value, searchValue);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -118,6 +118,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpGet(APIRoutes.Crop.getAllCropOfFarmSelected, Name = "getAllCropOfFarmSelected")]
+        public async Task<IActionResult> getAllCropOfFarmSelected([FromQuery] int? farmId)
+        {
+            if (!farmId.HasValue)
+            {
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            }
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Data = StatusCodes.Status400BadRequest,
+                    Message = "Farm is required"
+                });
+            }
+
+            var result = await _cropService.GetCropsOfFarmForSelected(farmId!.Value);
+            return Ok(result);
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Crop.createCrop, Name = "createCrop")]
         public async Task<IActionResult> CreateCropAsync([FromBody] CropCreateRequest cropCreateRequest)
@@ -210,13 +232,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Crop.getCropInCurrentTime, Name = "getCropInCurrentTime")]
-        public async Task<IActionResult> GetCropInCurrentTimeAsync()
+        public async Task<IActionResult> GetCropInCurrentTimeAsync(int? farmId)
         {
             try
             {
-                var result = await _cropService.GetCropInCurrentTime();
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                if (!farmId.HasValue)
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Farm is required"
+                    });
+                var result = await _cropService.GetCropInCurrentTime(farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

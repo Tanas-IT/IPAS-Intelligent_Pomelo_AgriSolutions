@@ -266,7 +266,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return lastId + 1;
         }
 
-        public async Task<List<Crop>> GetCropsInCurrentTime()
+        public async Task<List<Crop>> GetCropsInCurrentTime(int? farmId)
         {
             var currentDate = DateTime.Now;
             var result = await _context.Crops
