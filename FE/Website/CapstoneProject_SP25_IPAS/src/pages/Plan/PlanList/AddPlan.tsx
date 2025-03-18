@@ -155,15 +155,15 @@ const AddPlan = () => {
       form.setFieldValue("processId", undefined);
       setIsLockedGrowthStage(false);
       setIsTargetDisabled(true);
-      setSelectedGrowthStage([]); // Reset selectedGrowthStage
+      setSelectedGrowthStage([]);
     } else if (target === "plantLot") {
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(true);
-      form.setFieldValue("processId", undefined);
-      setIsLockedGrowthStage(false);
+      // form.setFieldValue("processId", undefined);
+      // setIsLockedGrowthStage(false);
     } else {
-      form.setFieldValue("processId", undefined);
-      setIsLockedGrowthStage(false);
+      // form.setFieldValue("processId", undefined);
+      // setIsLockedGrowthStage(false);
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(false);
     }
@@ -711,7 +711,7 @@ const AddPlan = () => {
                   name={addPlanFormFields.cropId}
                   // rules={RulesManager.getCropRules()}
                   options={cropOptions}
-                  isEditing={true}
+                  isEditing={(targetType === "graftedPlant" || targetType === "plantLot") ? false : true}
                   type="select"
                   hasFeedback={false}
                   onChange={(value) => {

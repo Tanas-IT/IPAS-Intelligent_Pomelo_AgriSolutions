@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
 import { Button, Divider, Flex, Form, Tag, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons, Images } from "@/assets";
-import { CustomButton, EditActions, InfoField, Section, Tooltip } from "@/components";
+import { CustomButton, EditActions, InfoField, Loading, Section, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -76,6 +76,7 @@ function ProcessDetails() {
   const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
   const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // lưu task mới tạo
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
   
@@ -104,51 +105,22 @@ function ProcessDetails() {
     return;
   }
 
-  // const fetchProcessDetails = async () => {
-  //   try {
-  //     const data = await processService.getProcessDetail(id);
-  //     console.log(data);
-
-  //     setProcessDetail(data);
-
-  //     form.setFieldsValue({
-  //       ...data,
-  //       masterTypeId: String(data.processMasterTypeModel.masterTypeId),
-  //       growthStageId: data.processGrowthStageModel.growthStageId,
-  //     });
-
-  //     setTreeData(mapSubProcessesToTree(data.subProcesses));
-  //     if (data.listPlan) {
-  //       setPlans(data.listPlan);
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to fetch process details", error);
-  //   }
-  // };
-
   const fetchProcessDetails = async () => {
     try {
+      setIsLoading(true);
       const data = await processService.getProcessDetail(id);
-      console.log("Fetched data:", data);
-  
-      // Cập nhật state processDetail
       setProcessDetail(data);
-  
-      // Cập nhật giá trị form
       form.setFieldsValue({
         ...data,
         masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
         growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
       });
-  
-      // Cập nhật treeData
       if (data.subProcesses && Array.isArray(data.subProcesses)) {
         setTreeData(mapSubProcessesToTree(data.subProcesses));
       } else {
         setTreeData([]);
       }
   
-      // Cập nhật plans
       if (data.listPlan && Array.isArray(data.listPlan)) {
         setPlans(data.listPlan);
       } else {
@@ -157,6 +129,8 @@ function ProcessDetails() {
     } catch (error) {
       console.error("Failed to fetch process details", error);
       toast.error("Failed to fetch process details. Please try again later.");
+    } finally {
+      setIsLoading(false); // Kết thúc loading (dù thành công hay thất bại)
     }
   };
   useEffect(() => {
@@ -736,7 +710,6 @@ function ProcessDetails() {
       status: "add",
       growthStageId: values.growthStageId,
       masterTypeId: values.masterTypeId,
-      // Thêm các field khác từ values vào đây
     };
 
     setTreeData((prevTree) => {
@@ -772,6 +745,12 @@ function ProcessDetails() {
   };
   // console.log("tree data", treeData);
   console.log("tplansssss", plans);
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" style={{ width: "100%" }}>
+        <Loading />
+      </Flex>
+    );
 
   return (
     <div className={style.container}>
@@ -829,14 +808,14 @@ function ProcessDetails() {
               options={processTypeOptions}
               type="select"
             />
-            <InfoField
+            {/* <InfoField
               label="Growth Stage"
               name={processFormFields.growthStageId}
               rules={RulesManager.getGrowthStageRules()}
               isEditing={isEditing}
               options={growthStageOptions}
               type="select"
-            />
+            /> */}
           </Flex>
         </Flex>
         <Divider className={style.divider} />

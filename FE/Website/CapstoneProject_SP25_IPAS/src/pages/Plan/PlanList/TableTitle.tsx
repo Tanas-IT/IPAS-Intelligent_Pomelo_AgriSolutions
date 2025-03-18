@@ -29,7 +29,8 @@ export const TableTitle = ({ onSearch, filterContent }: TableTitleProps) => {
           </>
         </Popover>
       </Flex>
-      <Flex className={style.sectionRight}>
+      <Flex className={style.sectionRight} gap={15}>
+        <CustomButton label="Add Plan By Process" icon={<Icons.plus />} handleOnClick={handleClickAddPlan} />
         <CustomButton label="Add New Plan" icon={<Icons.plus />} handleOnClick={handleClickAddPlan} />
       </Flex>
     </Flex>

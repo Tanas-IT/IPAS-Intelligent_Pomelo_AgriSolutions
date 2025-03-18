@@ -119,7 +119,7 @@ function PlanList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
-          isLoading={false}
+          isLoading={isLoading}
           caption="Plan Management Table"
           notifyNoData="No data to display"
           renderAction={(plan: GetPlan) => (

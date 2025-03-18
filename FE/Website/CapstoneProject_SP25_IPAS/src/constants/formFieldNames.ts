@@ -201,4 +201,7 @@ export const processFormFields = {
   growthStageId: "growthStageId",
   listPlan: "listPlan",
   isSample: "isSample",
+  planTarget: "planTarget",
+  plantLot: "plantLot",
+  graftedPlant: "graftedPlant"
 };

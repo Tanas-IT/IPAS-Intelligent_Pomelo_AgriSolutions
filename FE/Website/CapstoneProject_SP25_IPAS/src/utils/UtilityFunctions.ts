@@ -322,6 +322,12 @@ export const planTargetOptions = [
   { label: "Grafted Plant", value: "graftedPlant" }
 ];
 
+export const planTargetOptions2 = [
+  { label: "Land Plot/ Land Row/ Plant", value: 1 },
+  { label: "Plant Lot", value: 2 },
+  { label: "Grafted Plant", value: 3 }
+];
+
 export const fetchTypeOptionsByName = async (typeName: string) => {
   const types = await masterTypeService.getTypeByName(typeName);
 

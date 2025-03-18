@@ -1,8 +1,8 @@
-import { Button, Divider, Flex, Form, Input, Modal, Select, Switch } from "antd";
+import { Button, Col, Divider, Flex, Form, Input, Modal, Row, Select, Switch } from "antd";
 import { useState, useEffect } from "react";
 import { CustomButton, FormFieldModal, InfoField, ModalForm } from "@/components";
 import style from "./ProcessList.module.scss";
-import { fetchGrowthStageOptions, fetchTypeOptionsByName, getFarmId, RulesManager } from "@/utils";
+import { fetchGrowthStageOptions, fetchTypeOptionsByName, getFarmId, planTargetOptions, planTargetOptions2, RulesManager } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
 import { Icons } from "@/assets";
 import AddPlanModal from "./AddPlanModal";
@@ -12,6 +12,8 @@ import { toast } from "react-toastify";
 import { useMasterTypeOptions, usePlanManager } from "@/hooks";
 import PlanList from "./PlanList";
 import { SelectOption } from "@/types";
+import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
+import usePlantLotOptions from "@/hooks/usePlantLotOptions";
 
 type ProcessModalProps = {
     isOpen: boolean;
@@ -34,12 +36,15 @@ type PlanType = {
 };
 
 const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
-    // const [form] = Form.useForm();
+    const [form] = Form.useForm();
     // const [planForm] = Form.useForm();
     const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
-    const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
+    const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
+    const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
     const farmId = Number(getFarmId());
-    // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+    const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+    const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
+    const { options: plantLotOptions } = usePlantLotOptions();
     const {
         plans, planForm, isPlanModalOpen, editPlan,
         handleAddPlan, handleEditPlan, handleDeletePlan,
@@ -47,6 +52,26 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
     } = usePlanManager();
     const [isActive, setIsActive] = useState<boolean>(false);
     const [isSample, setIsSample] = useState<boolean>(false);
+    const [targetType, setTargetType] = useState<string>();
+
+    const handlePlanTargetChange = async (target: string) => {
+        setTargetType(target);
+        form.setFieldsValue({
+            planTargetModel: [],
+        });
+
+        if (target === "graftedPlant") {
+            setIsLockedGrowthStage(false);
+            setIsTargetDisabled(true);
+        } else if (target === "plantLot") {
+            setIsTargetDisabled(true);
+            // form.setFieldValue("processId", undefined);
+            // setIsLockedGrowthStage(false);
+        } else {
+            // setIsLockedGrowthStage(false);
+            setIsTargetDisabled(false);
+        }
+    };
 
 
 
@@ -77,7 +102,8 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 GrowthStageId: values.growthStageId,
                 IsActive: values.isActive,
                 ListPlan: formattedPlans,
-                IsSample: values.isSample
+                IsSample: values.isSample,
+                PlanTargetInProcess: values.planTarget
             };
 
             onSave(payload);
@@ -102,15 +128,6 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
         setIsSample(newChecked);
     };
 
-    const handleGrowthStageChange = async (grStId: number) => {
-        await planService.filterTypeWorkByGrowthStage([grStId]).then((data) => {
-            setProcessTypeOptions(data.map((item) => ({
-                value: item.masterTypeId,
-                label: item.masterTypeName
-            })))
-        });
-    }
-
 
     return (
         <ModalForm isOpen={isOpen} onSave={handleOk} onClose={handleCancel} title="Add New Process" isUpdate={false}>
@@ -125,18 +142,23 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 />
                 <Flex gap={26}>
                     <FormFieldModal
-                        label="Growth Stage:"
-                        name={processFormFields.growthStageId}
-                        options={growthStageOptions}
-                        rules={RulesManager.getGrowthStageRules()}
-                        onChange={(value) => handleGrowthStageChange(value)}
-                        type="select" />
-                    <FormFieldModal
                         label="Process Type"
                         name={processFormFields.masterTypeId}
                         options={processTypeOptions}
                         rules={RulesManager.getProcessTypeRules()}
                         type="select" />
+                </Flex>
+                <Flex gap={20}>
+                    <FormFieldModal
+                        label="Select Plan Target"
+                        name={processFormFields.planTarget}
+                        options={planTargetOptions2}
+                        rules={RulesManager.getPlanTargetRules()}
+                        disable={false}
+                        type="select"
+                        hasFeedback={false}
+                        onChange={(value) => handlePlanTargetChange(value)}
+                    />
                 </Flex>
                 <Flex vertical>
                     <FormFieldModal

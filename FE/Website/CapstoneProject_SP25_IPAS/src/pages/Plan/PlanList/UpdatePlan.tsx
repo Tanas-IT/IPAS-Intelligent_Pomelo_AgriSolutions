@@ -498,7 +498,7 @@ const UpdatePlan = () => {
     useEffect(() => {
         form.setFieldValue("masterTypeId", undefined);
         if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-            planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+            planService.filterMasterTypeByGrowthStage(selectedGrowthStage, "Work").then((data) => {
                 setProcessTypeOptions(
                     data.map((item) => ({
                         value: item.masterTypeId,
@@ -512,14 +512,15 @@ const UpdatePlan = () => {
     }, [selectedGrowthStage]);
 
     const determineTargetType = (planTargetModels: any[]) => {
+        console.log("lay ra planTargetModels", planTargetModels);
+        
         for (const target of planTargetModels) {
             if (target.graftedPlants && target.graftedPlants.length > 0) {
                 return "graftedPlant";
             }
             if (target.plantLots && target.plantLots.length > 0) {
                 return "plantLot";
-            }
-            if (target.rows && target.rows.length > 0 && target.rows.some((row: any) => row.plants && row.plants.length > 0)) {
+            } else {
                 return "regular";
             }
         }
@@ -541,6 +542,8 @@ const UpdatePlan = () => {
                     if (result) {
                         setPlanData(result);
                         const target = determineTargetType(result.planTargetModels);
+                        console.log("=======================================================", target);
+                        
                         form.setFieldValue("planTarget", target)
                         if(target === "regular") {
                             setIsTargetDisabled(false);
