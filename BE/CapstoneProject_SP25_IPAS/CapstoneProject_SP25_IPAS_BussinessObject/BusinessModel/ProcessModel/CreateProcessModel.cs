@@ -18,6 +18,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
         public int? MasterTypeId { get; set; }
         public int? GrowthStageID { get; set; }
         public int? Order { get; set; }
+        public int? PlanTargetInProcess { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 

@@ -9,7 +9,7 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {

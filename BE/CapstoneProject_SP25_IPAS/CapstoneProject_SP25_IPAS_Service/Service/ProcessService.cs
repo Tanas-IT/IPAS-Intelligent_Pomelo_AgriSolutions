@@ -58,6 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         GrowthStageId = createProcessModel.GrowthStageID,
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
+                        PlanTargetInProcess = createProcessModel.PlanTargetInProcess,
                         IsDefault = false,
                         IsSample = createProcessModel.IsSample,
                         IsActive = createProcessModel.IsActive,
@@ -72,6 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         createProcessModel.ListPlan = null;
                     }
+
 
                     if (createProcessModel.ListSubProcess != null)
                     {

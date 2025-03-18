@@ -1,5 +1,4 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
-using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
 using CapstoneProject_SP25_IPAS_Service.IService;

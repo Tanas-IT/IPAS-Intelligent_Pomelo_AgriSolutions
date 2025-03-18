@@ -1850,6 +1850,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Migrations
                         .HasColumnType("int")
                         .HasColumnName("FarmID");
 
+                    b.Property<int?>("PlanTargetInProcess")
+                        .HasColumnType("int")
+                        .HasColumnName("PlanTargetInProcess");
+
                     b.Property<int?>("GrowthStageId")
                         .HasColumnType("int")
                         .HasColumnName("GrowthStageID");

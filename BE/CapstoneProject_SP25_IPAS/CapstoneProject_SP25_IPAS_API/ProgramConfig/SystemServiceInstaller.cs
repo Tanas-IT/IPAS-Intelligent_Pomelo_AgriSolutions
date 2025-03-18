@@ -148,6 +148,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
             services.AddHostedService<WorkLogStatusUpdaterService>();
+            services.AddHostedService<PlantGrowthUpdateService>();
 
 
 
