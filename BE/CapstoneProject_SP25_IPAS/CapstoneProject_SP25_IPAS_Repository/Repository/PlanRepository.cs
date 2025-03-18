@@ -196,6 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 getPlanToUpdate.Notes = plan.Notes;
                 getPlanToUpdate.UpdateDate = DateTime.Now;
                 getPlanToUpdate.IsDelete = plan.IsDelete;
+                _context.Plans.Update(getPlanToUpdate);
                 var result = await _context.SaveChangesAsync();
                 return result > 0;
             }

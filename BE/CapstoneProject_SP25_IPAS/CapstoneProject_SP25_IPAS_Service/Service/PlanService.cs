@@ -1532,7 +1532,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
-                    DayOfWeek = JsonConvert.SerializeObject(currentDate.DayOfWeek),
+                    DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
