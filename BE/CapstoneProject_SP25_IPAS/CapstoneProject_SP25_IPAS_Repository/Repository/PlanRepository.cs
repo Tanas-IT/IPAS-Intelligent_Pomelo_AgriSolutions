@@ -171,6 +171,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
+        public async Task<List<Plan>> GetPlanIncludeByProcessId(int processId)
+        {
+            var result = await _context.Plans
+                                     .Include(x => x.MasterType)
+                                     .Include(x => x.Process)
+                                     .Include(x => x.User)
+                                     .Include(x => x.Crop)
+                                     .ThenInclude(x => x.LandPlotCrops)
+                                     .ThenInclude(x => x.LandPlot)
+                                     .Include(x => x.CarePlanSchedule)
+                                     .Include(x => x.GrowthStagePlans)
+                                     .Where(x => x.ProcessId == processId && x.IsDelete == false).ToListAsync();
+            return result;
+        }
+
         public async Task<bool> UpdatePlan(Plan plan)
         {
             var getPlanToUpdate = await _context.Plans.FirstOrDefaultAsync(x => x.PlanId == plan.PlanId);
