@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
+namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
 {
     public interface IPaymentService
     {
@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
         public Task<PaymentLinkInformation> getPaymentLinkInformation(int orderId);
         public Task<BusinessResult> CreatePayOsPaymentForOrder(CreatePaymentLinkRequest createPaymentLinkRequest);
         public Task<BusinessResult> HandlePaymentCallback(PaymentCallbackRequest callback);
-        public  Task<BusinessResult> GetPaymentInfo(int paymentId);
+        public Task<BusinessResult> GetPaymentInfo(int paymentId);
 
     }
 }

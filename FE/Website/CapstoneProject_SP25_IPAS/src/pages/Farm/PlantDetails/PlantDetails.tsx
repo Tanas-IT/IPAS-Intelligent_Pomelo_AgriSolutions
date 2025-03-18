@@ -3,24 +3,44 @@ import style from "./PlantDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import PlantDetail from "./PlantDetail/PlantDetail";
 import PlantCriteria from "./PlantCriteria/PlantCriteria";
 import PlantOverview from "./PlantOverview/PlantOverview";
+import dayjs from "dayjs";
+import { usePlantStore } from "@/stores";
+import { useEffect } from "react";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
-  const { plotId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { plotId } = useParams();
+  const { productType, yearRange } = location.state || {};
+  const { setPlantId } = usePlantStore();
+  const formattedTimeline: [dayjs.Dayjs, dayjs.Dayjs] | undefined =
+    Array.isArray(yearRange) &&
+    yearRange.length === 2 &&
+    yearRange.every((t) => typeof t === "string" && dayjs(t).isValid())
+      ? ([dayjs(yearRange[0]), dayjs(yearRange[1])] as [dayjs.Dayjs, dayjs.Dayjs])
+      : undefined;
+  const pathnames = location.pathname.split("/");
+  const plantId = pathnames[pathnames.length - 2];
   const { styles } = useStyle();
+
+  useEffect(() => {
+    if (plantId) {
+      setPlantId(Number(plantId));
+    }
+  }, [plantId, setPlantId]);
 
   const items: TabsProps["items"] = [
     {
       key: "1",
       icon: <Icons.overview className={style.iconTab} />,
       label: <label className={style.titleTab}>Overview</label>,
-      children: <PlantOverview />,
+      children: <PlantOverview productType={productType} timeline={formattedTimeline} />,
     },
     {
       key: "2",
@@ -56,7 +76,7 @@ function PlantDetails() {
     <Flex className={style.detailContainer}>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="2"
+        defaultActiveKey={productType && yearRange ? "1" : "2"}
         items={items}
         tabBarExtraContent={{
           left: (
