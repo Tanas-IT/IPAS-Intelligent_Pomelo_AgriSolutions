@@ -1,0 +1,23 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    width: 100%;
+    justify-content: space-between;
+    .filterSection {
+      align-items: center;
+      margin-bottom: 12px;
+      .select {
+        min-width: 10rem;
+      }
+    }
+    .summarySection {
+      margin-bottom: 12px;
+    }
+    .chartContainer {
+      height: 360px;
+    }
+  }
+}

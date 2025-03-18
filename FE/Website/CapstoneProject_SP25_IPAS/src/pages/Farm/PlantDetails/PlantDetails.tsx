@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import PlantDetail from "./PlantDetail/PlantDetail";
 import PlantCriteria from "./PlantCriteria/PlantCriteria";
+import PlantOverview from "./PlantOverview/PlantOverview";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -19,7 +20,7 @@ function PlantDetails() {
       key: "1",
       icon: <Icons.overview className={style.iconTab} />,
       label: <label className={style.titleTab}>Overview</label>,
-      children: "Content of Tab Pane 1",
+      children: <PlantOverview />,
     },
     {
       key: "2",
@@ -51,17 +52,12 @@ function PlantDetails() {
     }
   };
 
-  const onChange = (key: string) => {
-    console.log(key);
-  };
-
   return (
     <Flex className={style.detailContainer}>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey="2"
         items={items}
-        onChange={onChange}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>

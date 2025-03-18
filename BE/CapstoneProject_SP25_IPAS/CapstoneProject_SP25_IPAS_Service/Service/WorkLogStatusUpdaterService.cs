@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,7 +39,7 @@ public class WorkLogStatusUpdaterService : BackgroundService
                 _logger.LogError(ex, "An error occurred while updating WorkLog statuses.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Kiểm tra mỗi phút
+            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken); // Kiểm tra mỗi phút
         }
     }
 
@@ -56,11 +57,11 @@ public class WorkLogStatusUpdaterService : BackgroundService
             {
                 if (workLog.ActualStartTime <= now.TimeOfDay && now.TimeOfDay < workLog.ActualEndTime)
                 {
-                    workLog.Status = "In Progress";
+                    workLog.Status = WorkLogStatusConst.IN_PROGRESS;
                 }
                 else if (workLog.ActualEndTime < now.TimeOfDay)
                 {
-                    workLog.Status = "Overdue";
+                    workLog.Status = WorkLogStatusConst.OVERDUE;
                 }
             }
 
@@ -68,4 +69,5 @@ public class WorkLogStatusUpdaterService : BackgroundService
             _logger.LogInformation($"Updated {workLogsToUpdate.Count} WorkLogs statuses.");
         }
     }
+
 }

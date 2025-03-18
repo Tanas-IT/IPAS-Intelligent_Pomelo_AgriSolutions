@@ -4,12 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneProject_SP25_IPAS_Common.ObjectStatus
+namespace CapstoneProject_SP25_IPAS_Common.Enum
 {
-    public enum UserStatus
+    public enum FarmStatusEnum
     {
         Active,
         Inactive,
-        Banned,
+    }
+
+    public enum LandRowStatus
+    {
+        Active,
+        Inactive,
     }
 }

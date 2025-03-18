@@ -1,18 +1,12 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common.Constants;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
@@ -697,7 +691,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                if (request.yearFrom.HasValue && request.yearTo.HasValue && request.yearFrom > request.yearTo)
+                    return new BusinessResult(400, "Year From larger than Year To ");
                 //  1. Lấy danh sách thu hoạch theo loại sản phẩm
+                request.yearFrom = request.yearFrom ?? DateTime.Now.Year;
+                request.yearTo = request.yearFrom ?? DateTime.Now.Year;
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
                     .getToTopStatistic(
                         x => x.MasterTypeId == request.productId &&
@@ -741,6 +739,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                if (request.cropId.Any())
+                {
+                    var checkCropExist = await _unitOfWork.CropRepository
+                        .GetAllNoPaging(x => request.cropId.Contains(x.CropId) &&
+                            x.IsDeleted == false &&
+                            x.FarmId == request.farmId);
+                    if (!checkCropExist.Any())
+                        return new BusinessResult(400, "No crop was found");
+                }
+                else
+                {
+                    request.cropId = (await _unitOfWork.CropRepository.GetCropsInCurrentTime(request.farmId)).Select(x => x.CropId).ToList();
+                }
                 //  1. Lấy danh sách thu hoạch theo loại sản phẩm
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
                     .getToTopStatistic(
@@ -750,7 +761,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              x.Plant!.FarmId == request.farmId &&
                              x.Plant.IsDead == false &&
                              x.Plant.IsDeleted == false &&
-                             request.cropId.Contains(x.HarvestHistory.CropId!.Value) 
+                             request.cropId.Contains(x.HarvestHistory.CropId!.Value)
                     );
 
                 if (harvestData == null || !harvestData.Any())

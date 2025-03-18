@@ -6,7 +6,6 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFar
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -73,7 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //var index = await _unitOfWork.FarmRepository.GetLastFarmID();
                     string haftCode = GenerateFarmCode(farmCreateRequest);
                     farmCreateEntity.FarmCode = $"{CodeAliasEntityConst.FARM}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{haftCode}";
-                    farmCreateEntity.Status = FarmStatus.Active.ToString();
+                    farmCreateEntity.Status = FarmStatusEnum.Active.ToString();
                     farmCreateEntity.IsDeleted = false;
                     farmCreateEntity.CreateDate = DateTime.Now;
                     farmCreateEntity.UpdateDate = DateTime.Now;

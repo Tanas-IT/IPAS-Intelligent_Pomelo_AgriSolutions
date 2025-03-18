@@ -21,6 +21,8 @@ export * as paymentService from "./PaymentService";
 export * as notificationService from "./NotificationService";
 export * as partnerService from "./PartnerService";
 export * as criteriaService from "./CriteriaService";
+export * as harvestService from "./HarvestService";
+
 
 
 
