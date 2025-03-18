@@ -154,13 +154,17 @@ export const usePlantLotStore = create<PlantLotStore>((set, get) => ({
 }));
 
 interface PlantStore {
+  plantId: number | null;
+  setPlantId: (plantId: number | null) => void;
   plant: GetPlantDetail | null;
-  setPlant: (lot: GetPlantDetail | null) => void;
+  setPlant: (plant: GetPlantDetail | null) => void;
   shouldRefetch: boolean;
   markForRefetch: () => void;
 }
 
 export const usePlantStore = create<PlantStore>((set, get) => ({
+  plantId: null,
+  setPlantId: (plantId) => set({ plantId }),
   plant: null,
   setPlant: (plant) => set({ plant }),
   shouldRefetch: false,
