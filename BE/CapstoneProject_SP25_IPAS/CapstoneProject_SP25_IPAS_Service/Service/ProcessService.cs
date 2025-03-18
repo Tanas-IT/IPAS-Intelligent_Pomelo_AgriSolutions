@@ -51,11 +51,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newProcess = new Process()
                     {
-                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{farmId}-{CodeAliasEntityConst.GROWTHSTAGE}{createProcessModel.GrowthStageID}",
+                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{farmId}-{CodeAliasEntityConst.GROWTHSTAGE}",
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         FarmId = farmId,
-                        GrowthStageId = createProcessModel.GrowthStageID,
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         PlanTargetInProcess = createProcessModel.PlanTargetInProcess,
@@ -412,7 +411,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ListPlan = createProcessModel.ListPlan,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = createProcessModel.IsDeleted,
-                        GrowthStageID = createProcessModel.GrowthStageID,
                         Order = createProcessModel.Order,
                     };
                     var result = await CreateProcess(newProcessModel, farmId);
