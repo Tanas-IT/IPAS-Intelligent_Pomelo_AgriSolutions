@@ -1294,20 +1294,16 @@ VALUES
 INSERT INTO [ipas].dbo.Plant 
 (PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
 VALUES
--- 5 cây có PlantIndex và LandRowID
 ('P001', 'Green Skin Pomelo A', 1, 'Healthy', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
 ('P002', 'Green Skin Pomelo B', 2, 'Moderate', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
 ('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2024-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
 ('P004', 'Green Skin Pomelo D', 4, 'Unhealthy', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
 ('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2024-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
-
--- 5 cây có PlantIndex và LandRowID NULL
-('P006', 'Green Skin Pomelo F', NULL, 'Moderate', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', NULL, 1, 1),
-('P007', 'Green Skin Pomelo G', NULL, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', NULL, 1, 1),
-('P008', 'Green Skin Pomelo H', NULL, 'Unhealthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', NULL, 2, 1),
-('P009', 'Green Skin Pomelo I', NULL, 'Moderate', '2024-02-09', '2024-02-13', '2023-12-28', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', NULL, 3, 1),
-('P010', 'Green Skin Pomelo J', NULL, 'Healthy', '2024-02-10', '2024-02-14', '2023-12-25', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', NULL, 4, 1);
-
+('P006', 'Green Skin Pomelo F', 6, 'Moderate', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 1, 1, 1),
+('P007', 'Green Skin Pomelo G', 7, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', 1, 1, 1),
+('P008', 'Green Skin Pomelo H', 8, 'Unhealthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 1, 2, 1),
+('P009', 'Green Skin Pomelo I', 9, 'Moderate', '2024-02-09', '2024-02-13', '2023-3-28', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 1, 3, 1),
+('P010', 'Green Skin Pomelo J', 10, 'Healthy', '2024-02-10', '2024-02-14', '2023-3-25', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 1, 4, 1);
 
 GO
 -- Chèn dữ liệu vào bảng LegalDocument
@@ -1329,16 +1325,23 @@ VALUES
 ('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL);
 GO
 -- Insert fake data into Crop
-INSERT INTO [ipas].dbo.Crop (CropCode, CropName,StartDate, EndDate ,CreateDate, UpdateDate, CropExpectedTime, /*Year,*/ CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
+INSERT INTO [ipas].dbo.Crop (CropCode, CropName, StartDate, EndDate, CreateDate, UpdateDate, CropExpectedTime, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
 VALUES 
-(N'CRP001', N'Rice', '2024-10-10', '2025-06-15', '2023-01-10', '2023-06-15', '2023-05-01', /*2023,*/ '2023-06-10', N'Spring', 5000, 4800, 0, N'Active', N'High yield', 1200, 1),
-(N'CRP002', N'Corn', '2024-10-10', '2025-06-15','2023-02-05', '2023-07-20', '2023-06-10', /*2023,*/ '2023-07-25', N'Summer', 3000, 2900, 0, N'Active', N'Good season', 800, 1),
-(N'CRP003', N'Wheat', '2024-10-10', '2025-06-15','2023-03-12', '2023-08-10', '2023-07-15', /*2023,*/ '2023-08-20', N'Autumn', 4000, 3900, 0, N'Active', N'Quality harvest', 1000, 2),
-(N'CRP004', N'Barley', '2024-10-10', '2025-06-15','2023-04-18', '2023-09-30', '2023-09-01', /*2023,*/ '2023-10-10', N'Winter', 2500, 2400, 0, N'Inactive', N'Needs better soil', 900, 2),
-(N'CRP005', N'Soybean','2024-10-10', '2025-06-15', '2023-05-20', '2023-11-15', '2023-10-10', /*2023,*/ '2023-11-20', N'Spring', 3200, 3100, 0, N'Active', N'Great market demand', 1100, 3),
-(N'CRP006', N'Peanut', '2024-10-10', '2025-06-15','2023-06-25', '2023-12-10', '2023-11-01', /*2023,*/ '2023-12-15', N'Summer', 2700, 2600, 0, N'Active', N'Organic crop', 1050, 3),
-(N'CRP007', N'Potato', '2024-10-10', '2025-06-15','2023-07-30', '2024-01-05', '2023-12-20',/* 2024,*/ '2024-01-10', N'Winter', 3500, 3400, 0, N'Inactive', N'Requires more nutrients', 1150, 4),
-(N'CRP008', N'Carrot', '2024-10-10', '2025-06-15','2023-08-15', '2024-02-10', '2024-01-10', /*2024,*/ '2024-02-15', N'Autumn', 2800, 2750, 0, N'Active', N'Excellent growth rate', 950, 4);
+-- 2023
+(N'CRP001', N'Pomelo', '2023-01-01', '2023-03-31', '2022-12-15', '2023-04-10', '2023-02-01', '2023-04-05', N'Pomelo Winter Harvest', 5400, 5300, 0, N'Active', N'Quality harvest', 1200, 2),
+(N'CRP002', N'Pomelo', '2023-04-01', '2023-06-30', '2023-01-20', '2023-07-05', '2023-05-01', '2023-07-05', N'Pomelo Spring Harvest', 4900, 4800, 0, N'Active', N'Good market demand', 1100, 2),
+(N'CRP003', N'Pomelo', '2023-07-01', '2023-09-30', '2023-02-10', '2023-10-10', '2023-08-01', '2023-10-05', N'Pomelo Summer Harvest', 5100, 5000, 0, N'Active', N'High yield', 1150, 2),
+(N'CRP004', N'Pomelo', '2023-10-01', '2023-12-31', '2023-03-15', '2024-01-05', '2023-11-01', '2024-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Active', N'Excellent growth', 1100, 2),
+
+-- 2024
+(N'CRP005', N'Pomelo', '2024-01-01', '2024-03-31', '2023-12-10', '2024-04-15', '2024-02-01', '2024-04-05', N'Pomelo Winter Harvest', 5000, 4800, 0, N'Active', N'High yield', 1200, 3),
+(N'CRP006', N'Pomelo', '2024-04-01', '2024-06-30', '2024-01-15', '2024-07-10', '2024-05-01', '2024-07-05', N'Pomelo Spring Harvest', 4500, 4300, 0, N'Active', N'Good season', 1100, 3),
+(N'CRP007', N'Pomelo', '2024-07-01', '2024-09-30', '2024-02-10', '2024-10-15', '2024-08-01', '2024-10-05', N'Pomelo Summer Harvest', 4700, 4600, 0, N'Active', N'Quality harvest', 1150, 3),
+(N'CRP008', N'Pomelo', '2024-10-01', '2024-12-31', '2024-03-10', '2025-01-05', '2024-11-01', '2025-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Active', N'Needs more care', 1000, 3),
+
+-- 2025
+(N'CRP009', N'Pomelo', '2025-01-01', '2025-03-31', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'Active', N'Excellent growth', 1200, 4);
+
 GO
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
 INSERT INTO [ipas].dbo.LandPlotCrop (LandPlotID, CropID)
@@ -1355,29 +1358,119 @@ GO
 INSERT INTO [ipas].dbo.HarvestHistory 
     (HarvestHistoryCode, DateHarvest, HarvestHistoryNote, TotalPrice, HarvestStatus, CropID)
 VALUES 
-    ('HH001', '2024-01-10', 'First harvest of the year', 15000.0, 'Completed', 1),
-    ('HH002', '2024-02-15', 'Spring harvest', 25000.0, 'Completed', 1),
-    ('HH003', '2024-03-20', 'Rainy season harvest', 18000.5, 'Pending', 1),
-    ('HH004', '2024-04-05', 'Harvest delayed due to weather', 21000.0, 'In Progress', 2),
-    ('HH005', '2024-05-12', 'Testing new harvesting method', 32000.0, 'Completed', 2),
-    ('HH006', '2024-06-25', 'Summer harvest', 27000.8, 'Completed', 3),
-    ('HH007', '2024-07-30', 'Low yield this season', 15000.0, 'Pending', 3),
-    ('HH008', '2024-08-22', 'Excellent harvest', 40000.0, 'Completed', 4),
-    ('HH009', '2024-09-10', 'Stored for future sale', 36000.5, 'Completed', 4),
-    ('HH010', '2024-10-15', 'Final harvest before winter', 22000.0, 'Pending', 5);
+    ('HH001', '2023-03-01', 'Winter harvest', 23000.0, 'Completed', 1),
+    ('HH002', '2023-06-01', 'Spring harvest', 24000.0, 'Completed', 2),
+    ('HH003', '2023-09-01', 'Summer harvest', 25000.0, 'Completed', 3),
+    ('HH004', '2023-12-01', 'Fall harvest', 26000.0, 'Completed', 4),
+
+    ('HH005', '2024-03-01', 'Winter harvest', 27000.0, 'Completed', 5),
+    ('HH006', '2024-06-01', 'Spring harvest', 28000.0, 'Completed', 6),
+    ('HH007', '2024-09-01', 'Summer harvest', 29000.0, 'Completed', 7),
+    ('HH008', '2024-12-01', 'Fall harvest', 30000.0, 'Completed', 8);
+
 GO
-INSERT INTO [ipas].dbo.ProductHarvestHistory (MasterTypeID, PlantID, Unit, SellPrice, QuantityNeed, HarvestHistoryID)
+INSERT INTO [ipas].dbo.ProductHarvestHistory 
+    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
 VALUES 
-    (30, NULL, 10, 5000.5, 100, 1),
-    (31, NULL, 5, 7500.0, 50, 1),
-    (32, NULL, 8, 6200.3, 80, 1),
-    (33, 4, 12, 8800.0, 120, 2),
-    (30, 5, 7, 4300.7, 70, 2),
-    (31, 6, 6, 6700.2, 60, 2),
-    (32, 7, 9, 9100.4, 90, 2),
-    (30, 8, 4, 3000.9, 40, 3),
-    (31, 9, 11, 5000.0, 110, 3),
-    (32, 10, 3, 2500.5, 30, 3);
+    -- PlantID 9
+    (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1),  -- HarvestHistoryID 1
+    (32, 9, N'kg', 9500.0, 9000.0, 130, 160, 2),  -- HarvestHistoryID 2
+    (31, 9, N'kg', 9800.5, 9300.0, 140, 170, 3),  -- HarvestHistoryID 3
+    (32, 9, N'kg', 10200.3, 9700.0, 150, 180, 4),  -- HarvestHistoryID 4
+    (31, 9, N'kg', 10500.0, 10000.0, 160, 190, 5),  -- HarvestHistoryID 5
+    (32, 9, N'kg', 11000.2, 10400.0, 170, 200, 6),  -- HarvestHistoryID 6
+    (31, 9, N'kg', 11500.4, 10900.0, 180, 210, 7),  -- HarvestHistoryID 7
+    (32, 9, N'kg', 12000.0, 11400.0, 190, 220, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 10
+    (32, 10, N'kg', 9800.0, 9300.0, 150, 175, 1),  -- HarvestHistoryID 1
+    (31, 10, N'kg', 10200.3, 9700.0, 160, 185, 2),  -- HarvestHistoryID 2
+    (32, 10, N'kg', 10500.2, 10000.0, 170, 200, 3),  -- HarvestHistoryID 3
+    (31, 10, N'kg', 10800.0, 10300.0, 180, 210, 4),  -- HarvestHistoryID 4
+    (32, 10, N'kg', 11200.5, 10700.0, 190, 220, 5),  -- HarvestHistoryID 5
+    (31, 10, N'kg', 11500.4, 11000.0, 200, 230, 6),  -- HarvestHistoryID 6
+    (32, 10, N'kg', 11800.3, 11300.0, 210, 240, 7),  -- HarvestHistoryID 7
+    (31, 10, N'kg', 12200.2, 11700.0, 220, 250, 8),  -- HarvestHistoryID 8
+
+	    -- PlantID 1
+    (32, 1, N'kg', 5200.0, 4800.0, 80, 75, 1),  -- HarvestHistoryID 1
+    (31, 1, N'kg', 5500.0, 5000.0, 90, 85, 2),  -- HarvestHistoryID 2
+    (32, 1, N'kg', 6000.5, 5500.0, 95, 90, 3),  -- HarvestHistoryID 3
+    (31, 1, N'kg', 6700.2, 6200.0, 80, 75, 4),  -- HarvestHistoryID 4
+    (32, 1, N'kg', 7000.3, 6500.0, 100, 95, 5),  -- HarvestHistoryID 5
+    (31, 1, N'kg', 7500.0, 7000.0, 110, 105, 6),  -- HarvestHistoryID 6
+    (32, 1, N'kg', 8000.4, 7500.0, 85, 80, 7),  -- HarvestHistoryID 7
+    (31, 1, N'kg', 8500.0, 8000.0, 90, 85, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 2
+    (31, 2, N'kg', 4900.0, 4500.0, 100, 95, 1),  -- HarvestHistoryID 1
+    (32, 2, N'kg', 5300.0, 4800.0, 80, 75, 2),  -- HarvestHistoryID 2
+    (31, 2, N'kg', 5900.3, 5500.0, 85, 80, 3),  -- HarvestHistoryID 3
+    (32, 2, N'kg', 6300.0, 5900.0, 90, 85, 4),  -- HarvestHistoryID 4
+    (31, 2, N'kg', 6800.2, 6400.0, 100, 95, 5),  -- HarvestHistoryID 5
+    (32, 2, N'kg', 7100.5, 6700.0, 110, 105, 6),  -- HarvestHistoryID 6
+    (31, 2, N'kg', 7600.0, 7100.0, 95, 90, 7),  -- HarvestHistoryID 7
+    (32, 2, N'kg', 7900.4, 7400.0, 90, 85, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 3
+    (31, 3, N'kg', 5200.0, 4800.0, 85, 80, 1),  -- HarvestHistoryID 1
+    (32, 3, N'kg', 5500.0, 5000.0, 90, 85, 2),  -- HarvestHistoryID 2
+    (31, 3, N'kg', 5800.2, 5400.0, 95, 90, 3),  -- HarvestHistoryID 3
+    (32, 3, N'kg', 6000.3, 5600.0, 100, 95, 4),  -- HarvestHistoryID 4
+    (31, 3, N'kg', 6300.4, 5900.0, 110, 105, 5),  -- HarvestHistoryID 5
+    (32, 3, N'kg', 6600.0, 6200.0, 115, 110, 6),  -- HarvestHistoryID 6
+    (31, 3, N'kg', 7000.2, 6600.0, 95, 90, 7),  -- HarvestHistoryID 7
+    (32, 3, N'kg', 7300.4, 6900.0, 100, 95, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 4
+    (32, 4, N'kg', 5100.0, 4700.0, 95, 90, 1),  -- HarvestHistoryID 1
+    (31, 4, N'kg', 5300.2, 4900.0, 100, 95, 2),  -- HarvestHistoryID 2
+    (32, 4, N'kg', 5600.3, 5200.0, 85, 80, 3),  -- HarvestHistoryID 3
+    (31, 4, N'kg', 5900.4, 5500.0, 75, 70, 4),  -- HarvestHistoryID 4
+    (32, 4, N'kg', 6200.0, 5800.0, 90, 85, 5),  -- HarvestHistoryID 5
+    (31, 4, N'kg', 6400.2, 6000.0, 105, 100, 6),  -- HarvestHistoryID 6
+    (32, 4, N'kg', 6700.0, 6300.0, 115, 110, 7),  -- HarvestHistoryID 7
+    (31, 4, N'kg', 7000.0, 6600.0, 95, 90, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 5
+    (32, 5, N'kg', 6000.0, 5600.0, 100, 95, 1),  -- HarvestHistoryID 1
+    (31, 5, N'kg', 6500.0, 6000.0, 90, 85, 2),  -- HarvestHistoryID 2
+    (32, 5, N'kg', 6900.4, 6500.0, 85, 80, 3),  -- HarvestHistoryID 3
+    (31, 5, N'kg', 7100.3, 6700.0, 95, 90, 4),  -- HarvestHistoryID 4
+    (32, 5, N'kg', 7400.2, 7000.0, 110, 105, 5),  -- HarvestHistoryID 5
+    (31, 5, N'kg', 7700.0, 7300.0, 90, 85, 6),  -- HarvestHistoryID 6
+    (32, 5, N'kg', 8000.5, 7600.0, 95, 90, 7),  -- HarvestHistoryID 7
+    (31, 5, N'kg', 8200.3, 7800.0, 80, 75, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 6
+    (31, 6, N'kg', 5600.0, 5200.0, 85, 80, 1),  -- HarvestHistoryID 1
+    (32, 6, N'kg', 5900.3, 5500.0, 75, 70, 2),  -- HarvestHistoryID 2
+    (31, 6, N'kg', 6200.5, 5800.0, 90, 85, 3),  -- HarvestHistoryID 3
+    (32, 6, N'kg', 6500.0, 6100.0, 100, 95, 4),  -- HarvestHistoryID 4
+    (31, 6, N'kg', 6800.4, 6400.0, 85, 80, 5),  -- HarvestHistoryID 5
+    (32, 6, N'kg', 7100.5, 6700.0, 95, 90, 6),  -- HarvestHistoryID 6
+    (31, 6, N'kg', 7400.3, 7000.0, 105, 100, 7),  -- HarvestHistoryID 7
+    (32, 6, N'kg', 7700.2, 7300.0, 90, 85, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 7
+    (31, 7, N'kg', 5900.2, 5500.0, 85, 80, 1),  -- HarvestHistoryID 1
+    (32, 7, N'kg', 6200.0, 5800.0, 95, 90, 2),  -- HarvestHistoryID 2
+    (31, 7, N'kg', 6500.3, 6100.0, 100, 95, 3),  -- HarvestHistoryID 3
+    (32, 7, N'kg', 6800.2, 6400.0, 75, 70, 4),  -- HarvestHistoryID 4
+    (31, 7, N'kg', 7100.0, 6700.0, 85, 80, 5),  -- HarvestHistoryID 5
+    (32, 7, N'kg', 7400.4, 7000.0, 90, 85, 6),  -- HarvestHistoryID 6
+    (31, 7, N'kg', 7700.3, 7300.0, 95, 90, 7),  -- HarvestHistoryID 7
+    (32, 7, N'kg', 8000.2, 7600.0, 100, 95, 8),  -- HarvestHistoryID 8
+
+    -- PlantID 8
+    (31, 8, N'kg', 5200.0, 4800.0, 95, 90, 1),  -- HarvestHistoryID 1
+    (32, 8, N'kg', 5500.0, 5000.0, 80, 75, 2),  -- HarvestHistoryID 2
+    (31, 8, N'kg', 5800.5, 5400.0, 75, 70, 3),  -- HarvestHistoryID 3
+    (32, 8, N'kg', 6100.0, 5700.0, 90, 85, 4),  -- HarvestHistoryID 4
+    (31, 8, N'kg', 6400.2, 6000.0, 100, 95, 5),  -- HarvestHistoryID 5
+    (32, 8, N'kg', 6700.3, 6300.0, 105, 100, 6),  -- HarvestHistoryID 6
+    (31, 8, N'kg', 7000.0, 6600.0, 90, 85, 7),  -- HarvestHistoryID 7
+    (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
 GO
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
