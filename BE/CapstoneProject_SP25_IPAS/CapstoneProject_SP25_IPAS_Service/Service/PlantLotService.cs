@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.Cri
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

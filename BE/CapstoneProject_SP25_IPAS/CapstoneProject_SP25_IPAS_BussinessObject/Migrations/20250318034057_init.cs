@@ -567,6 +567,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Migrations
                     isDeleted = table.Column<bool>(type: "bit", nullable: true),
                     IsSample = table.Column<bool>(type: "bit", nullable: true),
                     FarmID = table.Column<int>(type: "int", nullable: true),
+                    PlanTargetInProcess = table.Column<int>(type: "int", nullable: true),
                     GrowthStageID = table.Column<int>(type: "int", nullable: true),
                     MasterTypeID = table.Column<int>(type: "int", nullable: true),
                     Order = table.Column<int>(type: "int", nullable: true)

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="RequestModel\PlantCriteriaRequest\**" />
+    <EmbeddedResource Remove="RequestModel\PlantCriteriaRequest\**" />
+    <None Remove="RequestModel\PlantCriteriaRequest\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
@@ -24,10 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CapstoneProject_SP25_IPAS_Common\CapstoneProject_SP25_IPAS_Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="RequestModel\PlantCriteriaRequest\" />
   </ItemGroup>
 
 </Project>

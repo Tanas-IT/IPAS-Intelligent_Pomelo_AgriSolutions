@@ -2,6 +2,8 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;

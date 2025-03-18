@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.IService
 {
