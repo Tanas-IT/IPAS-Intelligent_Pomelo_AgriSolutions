@@ -7,7 +7,6 @@ using CapstoneProject_SP25_IPAS_Repository.Repository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
-using CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -143,7 +142,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IGraftedPlantNoteService, GraftedPlantNoteService>();
             services.AddScoped<IAIService, AIService>();
             services.AddScoped<CapstoneProject_SP25_IPAS_Service.IService.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentService>();
-            services.AddScoped<CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod.PaymentService>();
+            services.AddScoped<CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod.PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();

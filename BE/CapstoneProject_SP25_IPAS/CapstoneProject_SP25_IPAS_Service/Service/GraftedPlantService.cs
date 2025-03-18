@@ -856,10 +856,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     //  4️ Tạo mới một Plant từ GraftedPlant
+                    string code = CodeHelper.GenerateCode();
+
                     var newPlant = new Plant
                     {
-                        PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(motherPlant.PlantCode!).First()}",
-                        PlantName = graftedPlant.GraftedPlantName,
+                        PlantCode = $"{CodeAliasEntityConst.PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(motherPlant.PlantCode!).First()}",
+                        PlantName = $"{graftedPlant.GraftedPlantName} + {code}",
                         PlantingDate = DateTime.Now,
                         CreateDate = DateTime.Now,
                         HealthStatus = graftedPlant.Status,
