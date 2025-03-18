@@ -19,10 +19,16 @@ import { MASTER_TYPE } from "@/constants";
 import { harvestService } from "@/services";
 import { GetHarvestStatisticOfPlant } from "@/payloads";
 import { usePlantStore } from "@/stores";
+import { Icons } from "@/assets";
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
-function PlantOverview() {
+interface PlantOverviewProps {
+  productType?: number;
+  timeline?: [dayjs.Dayjs, dayjs.Dayjs];
+}
+
+function PlantOverview({ productType, timeline }: PlantOverviewProps) {
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const [yearRange, setYearRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>(() => {
     const currentYear = dayjs().year();
@@ -30,20 +36,26 @@ function PlantOverview() {
   });
   const [selectedProduct, setSelectedProduct] = useState<number | string>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticOfPlant | null>(null);
-  const { plant } = usePlantStore();
+  const { plant, plantId } = usePlantStore();
 
   useEffect(() => {
-    if (productOptions.length > 0) {
+    if (productType !== undefined && timeline?.length === 2) {
+      setYearRange([dayjs(timeline[0]), dayjs(timeline[1])] as [dayjs.Dayjs, dayjs.Dayjs]);
+      setSelectedProduct(Number(productType));
+    } else if (productOptions.length > 0) {
       setSelectedProduct(productOptions[0].value);
     }
-  }, [productOptions]);
+  }, [productType, timeline, productOptions]);
 
   const fetchData = async () => {
-    if (!selectedProduct || !yearRange || !plant) return;
+    if (!selectedProduct || !yearRange || (!plant && !plantId)) return;
+
+    const resolvedPlantId = plant?.plantId ?? plantId; // ✅ Lấy ID từ plant hoặc plantId
+    if (resolvedPlantId === null) return;
 
     const [fromYear, toYear] = [yearRange[0].year(), yearRange[1].year()];
     const res = await harvestService.getHarvestStatisticOfPlant({
-      plantId: plant.plantId,
+      plantId: resolvedPlantId,
       yearFrom: fromYear,
       yearTo: toYear,
       productId: Number(selectedProduct),
@@ -81,12 +93,12 @@ function PlantOverview() {
       <PlantSectionHeader isCriteria={false} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
-        {/* <Text strong style={{ fontSize: 18, textAlign: "center", marginBottom: 10 }}>
-          Yield Growth Chart
-        </Text> */}
         {/* Bộ lọc */}
         <Flex gap={20} className={style.filterSection}>
-          <Text strong>Timeline:</Text>
+          <Flex justify="center" align="center" gap={4}>
+            <Icons.calendar className={style.icon} />
+            <Text strong>Timeline:</Text>
+          </Flex>
           <RangePicker picker="year" value={yearRange} onChange={handleYearChange} allowClear />
           <Select
             placeholder="Select product type"
