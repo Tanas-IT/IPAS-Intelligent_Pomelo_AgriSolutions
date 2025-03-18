@@ -47,9 +47,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             query = query.Include(x => x.Plant)
-                .ThenInclude(x => x.LandRow)
-                .ThenInclude(x => x.LandPlot).
-                Include(x => x.HarvestHistory); ;
+                .ThenInclude(x => x!.LandRow)
+                .ThenInclude(x => x!.LandPlot)
+                .Include(x => x.Plant!.MasterType)
+                .Include(x => x.Plant!.GrowthStage)
+                .Include(x => x.HarvestHistory); ;
 
             return await query.AsNoTracking().ToListAsync();
 

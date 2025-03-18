@@ -4,10 +4,10 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CropRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -150,13 +150,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllCropOfFarmForSelected(int plotId, string? searchValue)
+        public async Task<BusinessResult> getAllCropOfPlotForSelected(int plotId, string? searchValue)
         {
             try
             {
                 if (plotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId && x.Crop.EndDate >= DateTime.Now && x.Crop.Status.ToLower().Equals(FarmStatus.Active.ToString().ToLower());
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId ;
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.Crop.CropName!.ToLower().Contains(searchValue.ToLower()));
@@ -237,11 +237,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetCropInCurrentTime()
+        public async Task<BusinessResult> GetCropInCurrentTime(int farmId)
         {
             try
             {
-                var getCropInCurrentTime = await _unitOfWork.CropRepository.GetCropsInCurrentTime();
+                var getCropInCurrentTime = await _unitOfWork.CropRepository.GetCropsInCurrentTime(farmId: farmId);
                 if (getCropInCurrentTime != null && getCropInCurrentTime.Any())
                 {
                     return new BusinessResult(200, "Get crop in current time success", getCropInCurrentTime);
@@ -449,6 +449,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await transaction.CommitAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
+            }
+        }
+
+        public async Task<BusinessResult> GetCropsOfFarmForSelected(int farmId)
+        {
+            try
+            {
+                if (farmId <= 0)
+                    return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlot.FarmId == farmId;
+                string includeProperties = "Crop,LandPlot";
+
+                var landPlotCrops = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(
+                    filter: filter,
+                    includeProperties: includeProperties
+                );
+
+                if (!landPlotCrops.Any())
+                    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
+
+                // 🔹 Sắp xếp theo ngày gần nhất với hiện tại (ưu tiên EndDate, nếu không có thì lấy StartDate)
+                var sortedCrops = landPlotCrops
+                    .Select(x => x.Crop)
+                    .OrderBy(crop => Math.Abs((crop.EndDate ?? crop.StartDate ?? DateTime.MaxValue).Subtract(DateTime.Now).TotalDays))
+                    .ToList();
+
+                var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(sortedCrops);
+
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, "Get all crop of farm success", mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
