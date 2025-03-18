@@ -14,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Net.payOS.Types;
 
 
-namespace CapstoneProject_SP25_IPAS_Service.PaymentMethod.PayOSMethod
+namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
 {
     public class PaymentService : IPaymentService
     {

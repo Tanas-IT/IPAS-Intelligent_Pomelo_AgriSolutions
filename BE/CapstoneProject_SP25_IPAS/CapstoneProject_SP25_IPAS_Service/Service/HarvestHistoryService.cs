@@ -695,7 +695,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(400, "Year From larger than Year To ");
                 //  1. Lấy danh sách thu hoạch theo loại sản phẩm
                 request.yearFrom = request.yearFrom ?? DateTime.Now.Year;
-                request.yearTo = request.yearFrom ?? DateTime.Now.Year;
+                request.yearTo = request.yearTo ?? DateTime.Now.Year;
                 var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
                     .getToTopStatistic(
                         x => x.MasterTypeId == request.productId &&
@@ -716,10 +716,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 //  2. Nhóm theo cây và tính tổng sản lượng + số lần thu hoạch
                 var topPlants = harvestData
-           .GroupBy(x => x.Plant)
+           .GroupBy(x => x.Plant!.PlantId)
            .Select(group => new
            {
-               Plant = _mapper.Map<PlantModel>(group.Key),  // Lấy object Plant đầy đủ
+               Plant = _mapper.Map<PlantModel>(group.First().Plant),  // Lấy object Plant đầy đủ
+               //Plant = group.Key,
                TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
                HarvestCount = group.Count() // Số lần thu hoạch
            })

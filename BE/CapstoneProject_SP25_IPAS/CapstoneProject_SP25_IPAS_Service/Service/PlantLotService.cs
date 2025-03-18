@@ -60,9 +60,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     for (int i = 0; i < quantity; i++)
                     {
+                        string code = CodeHelper.GenerateCode();
                         var newPlant = new Plant()
                         {
-                            PlantCode = $"{CodeAliasEntityConst.PLANT}-{DateTime.Now.ToString("ddmmyyyy")}-",
+                            PlantCode = $"{CodeAliasEntityConst.PLANT}-{DateTime.Now.ToString("ddmmyyyy")}",
+                            PlantName = $"Plant {code}",
                             CreateDate = DateTime.Now,
                             HealthStatus = "Good",
                             GrowthStageID = 2,
@@ -687,11 +689,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             .ToList();
 
                         int plantsToAdd = Math.Min(remainingPlants, availableIndexes.Count);
+                        var listPlantInsert = new List<Plant>();
                         for (int i = 0; i < plantsToAdd; i++)
                         {
+                            string code = CodeHelper.GenerateCode();
+
                             var newPlant = new Plant
                             {
-                                PlantName = plantLot.PlantLotName,
+                                PlantName = $"Plant {code}",
                                 PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{Util.SplitByDash(plantLot.PlantLotCode).First()}",
                                 PlantingDate = DateTime.UtcNow,
                                 HealthStatus = HealthStatusConst.HEALTHY,
@@ -703,10 +708,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlantIndex = availableIndexes[i], // Gán vị trí trống hợp lệ
                                 IsDead = false,
                             };
-                            await _unitOfWork.PlantRepository.Insert(newPlant);
+                            listPlantInsert.Add(newPlant);
                         }
-
-                        remainingPlants -= plantsToAdd;
+                        if (listPlantInsert.Any())
+                        {
+                            await _unitOfWork.PlantRepository.InsertRangeAsync(listPlantInsert);
+                            remainingPlants -= plantsToAdd;
+                        }
                     }
 
                     // Cập nhật số lượng cây còn lại trong PlantLot
