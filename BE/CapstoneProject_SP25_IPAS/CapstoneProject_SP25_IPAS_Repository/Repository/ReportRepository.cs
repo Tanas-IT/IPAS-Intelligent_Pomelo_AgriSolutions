@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public ReportRepository(IpasContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<Report> GetReportByImageURL(string imageURL)
+        {
+            var getReportOfImageURL = await _context.Reports.FirstOrDefaultAsync(x => x.ImageURL.Equals(imageURL));
+            return getReportOfImageURL;
         }
     }
 }

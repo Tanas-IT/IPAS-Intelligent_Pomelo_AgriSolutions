@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
@@ -24,12 +24,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IAIService _aIService;
 
-        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IAIService aIService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _aIService = aIService;
         }
 
         public async Task<BusinessResult> CreateReportOfCustomer(CreateReportOfUserModel createReportOfUserModel)
@@ -48,7 +50,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     ReportCode = "RPT-" + DateTime.Now.Date,
                     CreatedDate = DateTime.Now,
-                    AnswererID = createReportOfUserModel.AnswererID,
                     QuestionerID = createReportOfUserModel.QuestionerID,
                     Description = createReportOfUserModel.Description,
                     IsTrainned = false,
@@ -143,11 +144,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var result = _mapper.Map<IEnumerable<ReportOfUserModel>>(entities).ToList();
             if (result.Any())
             {
-                return new BusinessResult(Const.SUCCESS_GET_ALL_PROCESS_CODE, Const.SUCCESS_GET_ALL_PROCESS_MESSAGE, result);
+                return new BusinessResult(200, "Get all report of user success", result);
             }
             else
             {
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ReportOfUserModel>());
+                return new BusinessResult(404, "Do not have any report of user");
             }
         }
 
@@ -172,8 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ReportOfUserModel>());
-
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
@@ -223,8 +223,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ReportOfUserModel>());
-
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
@@ -239,9 +238,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
         }
 
-        public Task<BusinessResult> AssignTagToImage(string tagId, string imageURL)
+        public async Task<BusinessResult> AssignTagToImage(string tagId, string imageURL, int? answerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var getReportOfUserByImageURL = await _unitOfWork.ReportRepository.GetReportByImageURL(imageURL);
+                var uploadImageModel = new UploadImageModel()
+                {
+                    ImageUrls = new List<string> { imageURL },
+                    TagIds = new List<string> { tagId }
+                };
+                if(getReportOfUserByImageURL != null)
+                {
+                   var uploadImage =  await _aIService.UploadImageByURLToCustomVision(uploadImageModel);
+                    if(uploadImage.StatusCode == 200)
+                    {
+                        var getProfessional = await _unitOfWork.UserRepository.GetByID(answerId.Value);
+                        if(getProfessional != null)
+                        {
+                            getReportOfUserByImageURL.AnswererID = answerId;
+                        }
+                        getReportOfUserByImageURL.IsTrainned = true;
+                        _unitOfWork.ReportRepository.Update(getReportOfUserByImageURL);
+                        var result = await _unitOfWork.SaveAsync();
+                        if(result > 0)
+                        {
+                            return new BusinessResult(200, "Assign tag to image success");
+                        }
+                        else
+                        {
+                            return new BusinessResult(400, "Assign tag to image failed");
+                        }
+                    }
+                    return new BusinessResult(400, "Assign tag to image failed");
+                }
+                return new BusinessResult(400, "Can not find any report");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }

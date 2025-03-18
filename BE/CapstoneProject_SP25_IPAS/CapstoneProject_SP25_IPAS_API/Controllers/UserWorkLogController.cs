@@ -1,6 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserWorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserWorkLogModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -55,12 +55,11 @@ public class WorkLogStatusUpdaterService : BackgroundService
         {
             foreach (var workLog in workLogsToUpdate)
             {
-                if (workLog.Status != WorkLogStatusConst.IN_PROGRESS && workLog.ActualStartTime <= now.TimeOfDay)
+                if (workLog.ActualStartTime <= now.TimeOfDay && now.TimeOfDay < workLog.ActualEndTime)
                 {
                     workLog.Status = WorkLogStatusConst.IN_PROGRESS;
                 }
-
-                if (workLog.ActualEndTime < now.TimeOfDay)
+                else if (workLog.ActualEndTime < now.TimeOfDay)
                 {
                     workLog.Status = WorkLogStatusConst.OVERDUE;
                 }

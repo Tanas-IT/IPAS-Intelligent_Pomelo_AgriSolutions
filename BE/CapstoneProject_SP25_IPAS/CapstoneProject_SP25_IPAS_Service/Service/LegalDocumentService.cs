@@ -5,7 +5,6 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LegalDocumentRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

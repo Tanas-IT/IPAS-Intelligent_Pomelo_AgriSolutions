@@ -1,6 +1,6 @@
-﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ReportOfUserModels;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetAllReportOfCustomer(GetAllReportOfUserModel getAllReportOfUserModel);
         public Task<BusinessResult> UpdateReportOfCustomer(UpdateReportOfUserModel updateReportOfUserModel);
         public Task<BusinessResult> PermantlyDeleteReportOfCustomer(DeleteReportOfUserModel PermentlyDeleteReportOfUserModel);
-        public Task<BusinessResult> AssignTagToImage(string tagId, string imageURL);
+        public Task<BusinessResult> AssignTagToImage(string tagId, string imageURL, int? answerId);
     }
 }
