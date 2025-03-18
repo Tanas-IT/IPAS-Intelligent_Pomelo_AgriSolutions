@@ -265,7 +265,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/plan";
             public const string createPlan = prefix + "";
+            public const string createManyPlan = prefix + "/create-many";
             public const string getPlanWithPagination = prefix + "";
+            public const string getPlanByProcessId = prefix + "get-plan-by-process-id/{id}";
             public const string deletePlan = prefix + "/{id}";
             public const string deleteManyPlan = prefix + "";
             public const string updatePlanInfo = prefix + "";
