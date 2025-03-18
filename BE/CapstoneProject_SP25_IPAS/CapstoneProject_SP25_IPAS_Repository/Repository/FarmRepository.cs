@@ -93,5 +93,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return userFarms;
         }
+
+        public async Task<List<Farm>> GetAllFarmOfSystem()
+        {
+            var farm = await _context.Farms
+                .Where(x => x.IsDeleted == false &&
+                            x.Status.ToLower().Equals(FarmStatusEnum.Inactive.ToString().ToLower()))
+                .Include(x => x.GrowthStages.Where(x => x.isDeleted == false))
+                .AsNoTracking().ToListAsync();
+            return farm;
+        }
     }
 }

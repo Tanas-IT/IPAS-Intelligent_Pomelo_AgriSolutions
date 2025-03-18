@@ -6,8 +6,6 @@ using CapstoneProject_SP25_IPAS_Common.Mail;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.AuthensModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CloudinaryDotNet.Actions;
@@ -34,8 +32,9 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using Google.Apis.Auth;
 using System.Security.Cryptography;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AuthensModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -124,7 +123,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Email = createAccountModel.Email,
                         UserCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.USER),
                         FullName = createAccountModel.FullName,
-                        Status = nameof(UserStatus.Active),
+                        Status = nameof(UserStatusEnum.Active),
                         RoleId = (int)createAccountModel.Role,
                         IsDelete = false,
                         CreateDate = DateTime.Now,
@@ -1051,7 +1050,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Email = userInfo.Email,
                                 UserCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.USER),
                                 FullName = userInfo.Name,
-                                Status = nameof(UserStatus.Active),
+                                Status = nameof(UserStatusEnum.Active),
                                 IsDelete = false,
                                 CreateDate = DateTime.Now,
                                 UpdateDate = DateTime.Now,
@@ -1098,7 +1097,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             });
                         }
                         // nếu người dùng bị ban
-                        if (existUser.Status!.ToLower().Equals(nameof(UserStatus.Banned).ToLower()) || existUser.IsDelete == true)
+                        if (existUser.Status!.ToLower().Equals(nameof(UserStatusEnum.Banned).ToLower()) || existUser.IsDelete == true)
                         {
                             return new BusinessResult(Const.WARNING_ACCOUNT_BANNED_CODE, Const.WARNING_ACCOUNT_BANNED_MSG);
                         }

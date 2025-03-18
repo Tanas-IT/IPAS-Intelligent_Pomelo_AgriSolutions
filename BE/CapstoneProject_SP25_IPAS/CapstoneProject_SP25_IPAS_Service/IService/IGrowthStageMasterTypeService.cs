@@ -1,5 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageMasterTypeModels;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.GrowthStageMasterTypeModels;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;

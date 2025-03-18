@@ -11,7 +11,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
         public int? farmId { get; set; }
         public int productId { get; set; }
         public int? topN {  get; set; }
-        public int yearFrom { get; set; }
-        public int yearTo { get; set; }
+        public int? yearFrom { get; set; }
+        public int? yearTo { get; set; }
     }
 }

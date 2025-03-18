@@ -5,18 +5,18 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Common.Enum;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

@@ -315,6 +315,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllCropOfLandPlotForSelect = prefix + "/get-crop-of-landplot-selected";
             public const string getCropInCurrentTime = prefix + "/get-crop-in-current-time";
             public const string getLandPlotOfCrop = prefix + "/get-landPlot-of-crop/{cropId}";
+            public const string getAllCropOfFarmSelected = prefix + "/for-selected/crop-of-farm";
         }
 
         public static class Harvest
