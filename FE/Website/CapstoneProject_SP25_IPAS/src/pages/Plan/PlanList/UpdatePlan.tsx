@@ -124,6 +124,10 @@ const UpdatePlan = () => {
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
     const { options: cropOptions } = useCropCurrentOption();
     const { options: plantLotOptions } = usePlantLotOptions();
+    console.log("selectedLandPlot ở đay là j", selectedLandPlot);
+    
+    console.log("landRowOptions in UpdatePlan", landRowOptions);
+    
 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
@@ -507,6 +511,21 @@ const UpdatePlan = () => {
         }
     }, [selectedGrowthStage]);
 
+    const determineTargetType = (planTargetModels: any[]) => {
+        for (const target of planTargetModels) {
+            if (target.graftedPlants && target.graftedPlants.length > 0) {
+                return "graftedPlant";
+            }
+            if (target.plantLots && target.plantLots.length > 0) {
+                return "plantLot";
+            }
+            if (target.rows && target.rows.length > 0 && target.rows.some((row: any) => row.plants && row.plants.length > 0)) {
+                return "regular";
+            }
+        }
+        // return "regular";
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -521,6 +540,12 @@ const UpdatePlan = () => {
 
                     if (result) {
                         setPlanData(result);
+                        const target = determineTargetType(result.planTargetModels);
+                        form.setFieldValue("planTarget", target)
+                        if(target === "regular") {
+                            setIsTargetDisabled(false);
+                        }
+                        setTargetType(target);
                         const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
                         const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
                         const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;

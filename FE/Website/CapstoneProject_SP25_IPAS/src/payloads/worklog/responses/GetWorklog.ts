@@ -31,13 +31,31 @@ export interface User {
   avatar: string;
 }
 
+interface PlantModel {
+  plantId: number;
+  plantName: string;
+}
+
+interface RowModel {
+  landRowId: number;
+  rowIndex: number;
+  plants: PlantModel[]
+}
+
 export interface PlanTargetModel {
-  rowIndex: number[];
+  // rowIndex: number[];
+  // landPlotName: string;
+  // graftedPlantName: string[];
+  // plantLotName: string[];
+  // plantName: string[];
+  // plantTargetId: number;
+  unit?: string;
+  landPlotId?: number;
+  rows: RowModel[];
   landPlotName: string;
-  graftedPlantName: string[];
-  plantLotName: string[];
-  plantName: string[];
-  plantTargetId: number;
+  graftedPlants: any[];
+  plantLots: any[];
+  plants: PlantModel[];
 }
 
 export interface TaskFeedback {
@@ -81,6 +99,9 @@ export interface GetWorklogDetail {
   listGrowthStageName: string[];
   listTaskFeedback: TaskFeedback[];
   listNoteOfWorkLog: NoteOfWorkLog[];
+  processName: string;
+  masterTypeName: string;
+  cropName: string;
 }
 
 export interface GetWorklogNote {

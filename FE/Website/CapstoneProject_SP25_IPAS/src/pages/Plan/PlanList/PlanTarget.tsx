@@ -285,6 +285,8 @@ const PlanTarget = ({
     const selectedTarget = selectedTargets[index];
     const selectedLandPlot = selectedLandPlots[index];
     const selectedLandRow = selectedLandRows[index];
+    console.log("selectedTarget in addplan", selectedTarget);
+    
 
     const isUnitDisabled = (unit === "graftedplant" || unit === "plantlot") &&
       selectedUnits.some((u, i) => i !== index && u === unit);

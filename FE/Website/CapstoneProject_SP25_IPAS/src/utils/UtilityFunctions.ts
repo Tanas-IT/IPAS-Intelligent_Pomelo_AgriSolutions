@@ -12,7 +12,7 @@ import {
   processService,
   userService,
 } from "@/services";
-import { landRowSimulate, SelectedTarget } from "@/payloads";
+import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
 import { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
@@ -582,6 +582,8 @@ export const fetchTargetsByUnit = async (
       selectedGrowthStage,
       Number(getFarmId()),
     );
+    console.log("res trong fetchTargetsByUnit", response);
+    
 
     const formattedData = response.map((item) => ({
       unit,
@@ -620,12 +622,18 @@ export const fetchTargetsByUnit = async (
             }))
           : [],
     }));
+    console.log("formattedData trong fetchTargetsByUnit", formattedData);
+    
 
     setSelectedTargets((prev) => {
       const newSelectedTargets = [...prev];
       newSelectedTargets[index] = formattedData;
+      console.log("sau khi setSelectedTargets", newSelectedTargets);
       return newSelectedTargets;
     });
+    console.log("hình như k chạy đến đây");
+    
+    
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;
@@ -678,3 +686,70 @@ export const determineUnit = (target: any): string => {
   }
   return "";
 };
+
+export const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
+        return planTargetModels.flatMap((model) => {
+            const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+            const unit = determineUnit(model);
+            const data: PlanTarget[] = [];
+    
+            switch (unit) {
+                case "Row":
+                    if (rows && rows.length > 0) {
+                        const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+                        const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+                        data.push({
+                            type: "Row",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            rowNames: rowNames.length > 0 ? rowNames : undefined,
+                            plantNames: plantNames.length > 0 ? plantNames : undefined,
+                        });
+                    }
+                    break;
+    
+                case "Plant":
+                    if (plants && plants.length > 0) {
+                        data.push({
+                            type: "Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantNames: plants.map((plant) => plant.plantName),
+                        });
+                    }
+                    break;
+    
+                case "Grafted Plant":
+                    if (graftedPlants && graftedPlants.length > 0) {
+                        data.push({
+                            type: "Grafted Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                        });
+                    }
+                    break;
+    
+                case "Plant Lot":
+                    if (plantLots && plantLots.length > 0) {
+                        data.push({
+                            type: "Plant Lot",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantLotNames: plantLots.map((lot) => lot.name),
+                        });
+                    }
+                    break;
+    
+                case "Plot":
+                    if (landPlotName) {
+                        data.push({
+                            type: "Plot",
+                            plotNames: [landPlotName],
+                        });
+                    }
+                    break;
+    
+                default:
+                    break;
+            }
+    
+            return data;
+        });
+    };

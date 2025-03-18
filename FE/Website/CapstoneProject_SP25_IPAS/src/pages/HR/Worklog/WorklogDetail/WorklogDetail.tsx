@@ -11,11 +11,12 @@ import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
-import { GetWorklogDetail, TaskFeedback } from "@/payloads/worklog";
+import { GetWorklogDetail, PlanTargetModel, TaskFeedback } from "@/payloads/worklog";
 import { formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
-import { GetUser } from "@/payloads";
+import { GetUser, PlanTarget } from "@/payloads";
 import { ConfirmModal } from "@/components";
+import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 
 const InfoField = ({
     icon: Icon,
@@ -70,11 +71,8 @@ function WorklogDetail() {
         if (!selectedFeedbackToDelete) return;
 
         try {
-            // Gọi API để xóa feedback
-            await feedbackService.deleteFeedback(selectedFeedbackToDelete.taskFeedbackId); // Thay thế bằng API thực tế của bạn
-            // Cập nhật danh sách feedback sau khi xóa
+            await feedbackService.deleteFeedback(selectedFeedbackToDelete.taskFeedbackId);
             setFeedbackList(feedbackList.filter(fb => fb.taskFeedbackId !== selectedFeedbackToDelete.taskFeedbackId));
-            // Ẩn modal
             setIsDeleteModalVisible(false);
         } catch (error) {
             console.error("Error deleting feedback:", error);
@@ -86,12 +84,10 @@ function WorklogDetail() {
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
     ]);
 
-
-    const infoFieldsRight = [
+    const [infoFieldsRight, setInfoFieldsRight] = useState([
         { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
         { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
-        { label: "Plant Lot", value: "#001", icon: Icons.lot },
-    ];
+    ]);
     const addModal = useModal<CreateFeedbackRequest>();
 
     const handleFeedback = () => {
@@ -102,18 +98,115 @@ function WorklogDetail() {
         // Handle add feedback
     }
 
+    const determineUnit = (planTargetModels: PlanTargetModel) => {
+            const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
+          
+            if (rows && rows.length > 0) {
+              return "Row";
+            }
+            if (plants && plants.length > 0) {
+              return "Plant";
+            }
+            if (graftedPlants && graftedPlants.length > 0) {
+              return "Grafted Plant";
+            }
+            if (plantLots && plantLots.length > 0) {
+              return "Plant Lot";
+            }
+            if (landPlotName) {
+              return "Plot";
+            }
+            return "Unknown";
+          };
+
+    const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
+        console.log("planTargetModels in worklog", planTargetModels);
+        
+            return planTargetModels.flatMap((model) => {
+                const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+                const unit = determineUnit(model);
+                const data: PlanTarget[] = [];
+        
+                switch (unit) {
+                    case "Row":
+                        if (rows && rows.length > 0) {
+                            const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+                            const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+                            data.push({
+                                type: "Row",
+                                plotNames: landPlotName ? [landPlotName] : undefined,
+                                rowNames: rowNames.length > 0 ? rowNames : undefined,
+                                plantNames: plantNames.length > 0 ? plantNames : undefined,
+                            });
+                        }
+                        break;
+        
+                    case "Plant":
+                        if (plants && plants.length > 0) {
+                            data.push({
+                                type: "Plant",
+                                plotNames: landPlotName ? [landPlotName] : undefined,
+                                plantNames: plants.map((plant) => plant.plantName),
+                            });
+                        }
+                        break;
+        
+                    case "Grafted Plant":
+                        if (graftedPlants && graftedPlants.length > 0) {
+                            data.push({
+                                type: "Grafted Plant",
+                                plotNames: landPlotName ? [landPlotName] : undefined,
+                                graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                            });
+                        }
+                        break;
+        
+                    case "Plant Lot":
+                        if (plantLots && plantLots.length > 0) {
+                            data.push({
+                                type: "Plant Lot",
+                                plotNames: landPlotName ? [landPlotName] : undefined,
+                                plantLotNames: plantLots.map((lot) => lot.name),
+                            });
+                        }
+                        break;
+        
+                    case "Plot":
+                        if (landPlotName) {
+                            data.push({
+                                type: "Plot",
+                                plotNames: [landPlotName],
+                            });
+                        }
+                        break;
+        
+                    default:
+                        break;
+                }
+        
+                return data;
+            });
+        };
+
     const fetchPlanDetail = async () => {
         try {
             const res = await worklogService.getWorklogDetail(Number(id));
             console.log("res", res);
+            const imsotired = transformPlanTargetData(res.planTargetModels);
+    console.log("imsotired", imsotired);
 
             setWorklogDetail(res);
             setFeedbackList(res.listTaskFeedback || []);
 
             setInfoFieldsLeft([
-                { label: "Crop", value: res.listGrowthStageName.join(", ") || "None", icon: Icons.growth },
+                { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
                 { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
                 { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
+            ]);
+
+            setInfoFieldsRight([
+                { label: "Process Name", value: res.processName || "None", icon: Icons.process },
+                { label: "Type", value: res.masterTypeName || "Watering", icon: Icons.category, isTag: true },
             ]);
 
             infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
@@ -175,7 +268,7 @@ function WorklogDetail() {
             <Divider className={style.divider} />
 
             {/* Plan Details */}
-            <Flex className={style.contentSectionBody}>
+            <Flex className={style.contentSectionBody} gap={20}>
                 <Flex className={style.col}>
                     {infoFieldsLeft.map((field, index) => (
                         <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
@@ -197,6 +290,12 @@ function WorklogDetail() {
             <Divider className={style.divider} />
 
             <TimelineNotes notes={worklogDetail?.listNoteOfWorkLog || []} />
+
+            <Divider className={style.divider} />
+
+            <PlanTargetTable
+                data={worklogDetail?.planTargetModels ? transformPlanTargetData(worklogDetail.planTargetModels) : []}
+            />
 
             <Divider className={style.divider} />
 

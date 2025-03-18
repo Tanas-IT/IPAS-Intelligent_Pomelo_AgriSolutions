@@ -98,3 +98,12 @@ export interface PlanTargetModel {
   plantLots: any[];
   plants: PlantModel[];
 }
+
+export interface PlanTarget {
+  type: "Plot" | "Row" | "Plant" | "Plant Lot" | "Grafted Plant";
+  plotNames?: string[];
+  rowNames?: string[];
+  plantNames?: string[];
+  plantLotNames?: string[];
+  graftedPlantNames?: string[];
+}
