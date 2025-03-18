@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using System;
 using System.Collections.Generic;
