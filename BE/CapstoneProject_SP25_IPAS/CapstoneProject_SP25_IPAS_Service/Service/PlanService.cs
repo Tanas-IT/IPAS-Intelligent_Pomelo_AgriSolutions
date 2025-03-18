@@ -6,13 +6,6 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.GraftedModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.GrowthStageModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlanModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.PlantLotModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
@@ -30,9 +23,12 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.UserBsModels;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.WorkLogModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
+using GenerativeAI.Types;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -978,6 +974,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
+
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -1000,6 +997,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.IsDelete = updatePlanModel.IsDelete;
                         }
+                        if (updatePlanModel.Frequency != null)
+                        {
+                            checkExistPlan.Frequency = updatePlanModel.Frequency;
+                        }
+
                         if (updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop != null && updatePlanModel.PlanTargetModel == null)
                         {
                             var getCropToCheck = await _unitOfWork.CropRepository.GetByID(updatePlanModel.CropId.Value);
@@ -1181,6 +1183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             checkExistPlan.StartDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.StartTime));
                             checkExistPlan.EndDate = updatePlanModel.CustomDates.First().Add(TimeSpan.Parse(updatePlanModel.EndTime));
                         }
+
                         if (updatePlanModel.PlanTargetModel != null && updatePlanModel.PlanTargetModel.Count > 0 && !updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop == null)
                         {
                             checkExistPlan.CropId = null;
@@ -1378,7 +1381,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
-                                _unitOfWork.PlanRepository.Update(checkExistPlan);
                                 var addNotification = new Notification()
                                 {
                                     Content = "Plan " + updatePlanModel.PlanName + " has just been created",

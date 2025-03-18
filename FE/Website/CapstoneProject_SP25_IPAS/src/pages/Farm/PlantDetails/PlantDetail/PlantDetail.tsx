@@ -170,6 +170,7 @@ function PlantDetail() {
   return (
     <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader
+        isDetail={true}
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
         markAsDeadModal={markAsDeadModal}

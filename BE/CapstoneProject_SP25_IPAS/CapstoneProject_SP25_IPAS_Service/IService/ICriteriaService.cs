@@ -1,8 +1,8 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

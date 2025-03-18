@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
@@ -8,8 +10,6 @@ using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
@@ -99,9 +99,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
                             return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
                         if (landrowExist.Plants.Any(x => x.PlantIndex == plantCreateRequest.PlantIndex && x.IsDead == false && x.IsDeleted == false))
-                            return new BusinessResult(400, $"Index {plantCreateRequest.PlantIndex} in row has exist plant");
+                            return new BusinessResult(400, $"Index {plantCreateRequest.PlantIndex} in row {landrowExist.RowIndex} has exist plant");
                         //plantCreateEntity.PlantCode += $"{Util.SplitByDash(landrowExist.LandRowCode!).First()}{CodeAliasEntityConst.LANDROW}{landrowExist.RowIndex}-";
-                        plantCreateEntity.PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
+                        //plantCreateEntity.PlantName = $"Plant {plantCreateRequest.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
                     }
                     else
                     {

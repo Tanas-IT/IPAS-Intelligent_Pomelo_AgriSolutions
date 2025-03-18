@@ -96,6 +96,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [],
       category: "Main",
       isView: !isDefault,
+      subMenuItems: [
+        {
+          key: "Season Management",
+          label: "Season Management",
+          icon: Images.radius,
+          to: "",
+          activePaths: [],
+        },
+        {
+          key: "Harvest Management",
+          label: "Harvest Management",
+          icon: Images.radius,
+          to: "",
+          activePaths: [],
+        },
+        {
+          key: "Plant Yield Performance",
+          label: "Plant Yield Performance",
+          icon: Images.radius,
+          to: PATHS.CROP.PLANT_YIELD,
+          activePaths: [PATHS.CROP.PLANT_YIELD],
+        },
+      ],
     },
     {
       key: "Process Management",

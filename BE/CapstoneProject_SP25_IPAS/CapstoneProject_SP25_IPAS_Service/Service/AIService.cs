@@ -20,11 +20,9 @@ using GenerativeAI.Methods;
 using GenerativeAI.Models;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common.Utils;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.AIModel;
 using Google.Apis.Logging;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System.IO;
@@ -32,6 +30,8 @@ using MimeKit.Cryptography;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using static System.Net.Mime.MediaTypeNames;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -288,7 +288,7 @@ const generationConfig = {
             new InputContent
             {
                 Role = "user",
-                Parts = "You may only answer questions related to grapefruit trees. If a user asks about another topic, decline to answer."
+                Parts = "You may only answer questions related to pomelo trees. If a user asks about another topic, decline to answer."
             }
         };
                 var startChatParams = new StartChatParams

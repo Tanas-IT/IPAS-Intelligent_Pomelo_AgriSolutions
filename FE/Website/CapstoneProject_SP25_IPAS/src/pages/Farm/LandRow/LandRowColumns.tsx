@@ -8,13 +8,13 @@ export const LandRowColumns: TableColumn<GetLandRow>[] = [
     header: "Code",
     field: "landRowCode",
     accessor: (item) => <TableCell value={item.landRowCode} isCopyable={true} />,
-    width: 250,
+    width: 220,
   },
   {
     header: "Row Identifier",
     field: "landRowCode",
     accessor: (item) => <TableCell value={`${item.landPlotname} (Row ${item.rowIndex})`} />,
-    width: 250,
+    width: 220,
   },
   {
     header: "Plants Per Row",

@@ -1,5 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_Common.ObjectStatus;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -95,7 +95,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.Users
                                         .Where(x => x.Email!.ToLower().StartsWith(searchEmail.ToLower())
                                         && x.IsDelete != true
-                                        && x.Status!.ToLower().Equals(UserStatus.Active.ToString().ToLower()))
+                                        && x.Status!.ToLower().Equals(UserStatusEnum.Active.ToString().ToLower()))
                                         .Take(5)
                                         .OrderByDescending(x => x.UserId)
                                         .ToListAsync();

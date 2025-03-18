@@ -57,7 +57,7 @@ const TableTitle = ({
         {/* {extraContent && <Flex className={style.extraContent}>{extraContent}</Flex>} */}
         {extraContent && <> {extraContent}</>}
       </Flex>
-      <Flex className={`${style.sectionRight} ${style[sectionRightSize]}`}>
+      <Flex className={`${style.sectionRight} ${style[sectionRightSize]}`} gap={20}>
         {!noImport && (
           <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
         )}

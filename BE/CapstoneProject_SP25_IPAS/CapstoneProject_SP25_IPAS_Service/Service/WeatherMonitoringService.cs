@@ -3,7 +3,6 @@ using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.NotificationRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
-using CapstoneProject_SP25_IPAS_Service.BusinessModel.FarmBsModels.NotifcationModels;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
