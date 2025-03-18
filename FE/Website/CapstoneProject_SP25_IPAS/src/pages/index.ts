@@ -6,6 +6,7 @@ export { default as OTP } from "@/pages/Auth/OTP/OTP";
 export { default as FarmPicker } from "@/pages/FarmPicker/FarmPicker";
 export { default as Dashboard } from "@/pages/Dashboard/Dashboard";
 export { default as User } from "@/pages/User/User";
+export { default as PlantYield } from "@/pages/Crop/PlantYield/PlantYield";
 export { default as MasterType } from "@/pages/Classification/MasterType/MasterType";
 export { default as GrowthStage } from "@/pages/Classification/GrowthStage/GrowthStage";
 export { default as CreateFarm } from "@/pages/Farm/CreateFarm/CreateFarm";

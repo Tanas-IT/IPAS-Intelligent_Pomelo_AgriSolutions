@@ -9,11 +9,13 @@ import { usePlantStore } from "@/stores";
 
 const PlantSectionHeader = ({
   isCriteria = false,
+  isDetail = false,
   formModal,
   deleteConfirmModal,
   markAsDeadModal,
 }: {
   isCriteria?: boolean;
+  isDetail?: boolean;
   formModal?: ReturnType<typeof useModal<GetPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
   markAsDeadModal?: ReturnType<typeof useModal<{ id: number }>>;
@@ -45,7 +47,7 @@ const PlantSectionHeader = ({
             />
           </Flex>
         )}
-        {!isCriteria && (
+        {!isCriteria && isDetail && (
           <Flex>
             <ActionMenuPlant
               isPlantDead={plant.isDead}

@@ -22,6 +22,10 @@ export const PATHS = {
     USER_DETAIL: "/users/:id",
   },
 
+  CROP: {
+    PLANT_YIELD: "/crop/plant-yield",
+  },
+
   CLASSIFICATION: {
     MASTER_TYPE: "/classification/master-types",
     GROWTH_STAGE: "/classification/growth-stages",
