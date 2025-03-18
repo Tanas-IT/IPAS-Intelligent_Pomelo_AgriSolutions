@@ -349,7 +349,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpPost(APIRoutes.Plan.getPlanByProcessId, Name = "getPlanByProcessId")]
+        [HttpGet(APIRoutes.Plan.getPlanByProcessId, Name = "getPlanByProcessId")]
         public async Task<IActionResult> getPlanByProcessId([FromRoute] int id)
         {
             try

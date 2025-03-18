@@ -452,7 +452,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<Plan, bool>> filter = x =>
-                           x.IsDelete == false && // Chỉ lấy các bản ghi chưa bị xóa
+                           x.IsDelete == false && x.Process.IsSample == true && // Chỉ lấy các bản ghi chưa bị xóa
                            (
                                (x.PlanTargets != null && x.PlanTargets.Any(pt =>
                                    (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
