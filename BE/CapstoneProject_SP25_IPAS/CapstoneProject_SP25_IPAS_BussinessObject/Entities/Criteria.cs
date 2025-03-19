@@ -12,7 +12,9 @@ public partial class Criteria
     public string? CriteriaName { get; set; }
 
     public string? CriteriaDescription { get; set; }
-
+    public double? MinValue { get; set; }
+    public double? MaxValue { get; set; }
+    public string? Unit {  get; set; }
     public int? Priority { get; set; }
     public int? FrequencyDate { get; set; }
 

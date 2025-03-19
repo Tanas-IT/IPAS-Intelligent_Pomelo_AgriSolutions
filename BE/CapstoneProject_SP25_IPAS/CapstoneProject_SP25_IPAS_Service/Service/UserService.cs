@@ -686,22 +686,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var authClaims = new List<Claim>();
             if (role != null)
             {
-                authClaims.Add(new Claim("email", email));
+                //authClaims.Add(new Claim("email", email));
+                authClaims.Add(new Claim(TokenClaimKeyConst.EMAIL_KEY, email));
                 //authClaims.Add(new Claim("role", role.RoleName));
                 if (getRoleInFarm == null)
                 {
-                    authClaims.Add(new Claim("roleId", role.RoleId.ToString()));
+                    //authClaims.Add(new Claim("roleId", role.RoleId.ToString()));
+                    authClaims.Add(new Claim(TokenClaimKeyConst.ROLEID_KEY, role.RoleId.ToString()));
                     authClaims.Add(new Claim(ClaimTypes.Role, role.RoleName!));
                 }
                 else
                 {
-                    authClaims.Add(new Claim("roleId", getRoleInFarm.RoleId.ToString()));
+                    //authClaims.Add(new Claim("roleId", getRoleInFarm.RoleId.ToString()));
+                    authClaims.Add(new Claim(TokenClaimKeyConst.ROLEID_KEY, getRoleInFarm.RoleId.ToString()));
                     authClaims.Add(new Claim(ClaimTypes.Role, getRoleInFarm.RoleName!));
-                    authClaims.Add(new Claim("farmId", farmId.ToString()));
+                    //authClaims.Add(new Claim("farmId", farmId.ToString()));
+                    authClaims.Add(new Claim(TokenClaimKeyConst.FARMID_KEY, farmId.ToString()));
 
                 }
-                authClaims.Add(new Claim("UserId", user.UserId.ToString()));
-                authClaims.Add(new Claim("Status", user.Status!.ToString()));
+                //authClaims.Add(new Claim("UserId", user.UserId.ToString()));
+                authClaims.Add(new Claim(TokenClaimKeyConst.USERID_KEY, user.UserId.ToString()));
+                //authClaims.Add(new Claim("Status", user.Status!.ToString()));
+                authClaims.Add(new Claim(TokenClaimKeyConst.STATUS, user.Status!.ToString()));
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
             }

@@ -3,6 +3,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Middleware
 {
@@ -30,13 +32,15 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-                    _ = int.TryParse(jwtToken?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value, out userIdClaim);
+                    //_ = int.TryParse(jwtToken?.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value, out userIdClaim);
+                    _ = int.TryParse(jwtToken?.Claims.FirstOrDefault(c => c.Type == TokenClaimKeyConst.USERID_KEY)?.Value, out userIdClaim);
                 }
 
                 if (userIdClaim > 0)
                 {
                     var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userIdClaim && u.IsDelete != true);
-                    if (user != null && user.Status.ToLower().Equals("banned"))
+                    //if (user != null && user.Status.ToLower().Equals("banned"))
+                    if (user != null && user.Status.ToLower().Equals(UserStatusEnum.Banned.ToString().ToLower()))
                     {
                         var response = new BaseResponse
                         {

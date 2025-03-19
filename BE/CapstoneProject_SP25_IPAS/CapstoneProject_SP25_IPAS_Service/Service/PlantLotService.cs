@@ -557,7 +557,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(400, "Last Quantity larger than input quantity");
                             checkExistPlantLot.LastQuantity = updatePlantLotRequestModel.LastQuantity;
                         }
-                        if (updatePlantLotRequestModel.UsedQuantity.HasValue /*&& updatePlantLotRequestModel.UsedQuantity != 0*/)
+                        if (updatePlantLotRequestModel.UsedQuantity.HasValue && updatePlantLotRequestModel.UsedQuantity != 0)
                         {
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
@@ -907,7 +907,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!appliedCriteriaTargets.Any())
             {
-                return new BusinessResult(400, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
+                return new BusinessResult(200, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
