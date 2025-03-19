@@ -18,6 +18,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? Status { get; set; }
         public string? WorkLogName { get; set; }
         public string? PlanName { get; set; }
+        public string? ProcessName { get; set; }
+        public string? MasterTypeName { get; set; }
 
 
         public string? ReasonDelay { get; set; }
@@ -32,7 +34,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public List<ReporterModel>? ListEmployee { get; set; }
         public List<ReporterModel>? Reporter { get; set; }
         public string? CropName { get; set; }
-        public string? ProcessName { get; set; }
         public List<PlanTargetDisplayModel>? PlanTargetModels { get; set; }
         public string? TypeWork { get; set; }
         public List<string>? ListGrowthStageName { get; set; }
