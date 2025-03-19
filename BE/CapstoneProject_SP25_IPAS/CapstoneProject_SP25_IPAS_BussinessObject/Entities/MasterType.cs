@@ -25,8 +25,6 @@ public partial class MasterType
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
-    public DateTime? MinTime { get; set; }
-    public DateTime? MaxTime { get; set; }
 
     public string? CreateBy { get; set; }
 

@@ -8,8 +8,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest
 {
     public class UpdateStatusWorkLogModel
     {
-        public int? WorkLogId { get; set; }
+        public int WorkLogId { get; set; }
         public string? Status { get; set; }
-        public int? UserId { get; set; }
+        public int UserId { get; set; }
     }
 }
