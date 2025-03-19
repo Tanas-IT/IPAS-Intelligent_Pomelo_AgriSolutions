@@ -98,6 +98,8 @@ CREATE TABLE ipas.dbo.MasterType (
 	isActive bit NULL  DEFAULT 0,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	MinTime datetime NULL,
+	MaxTime datetime NULL,
 	CreateBy nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	TypeName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isDelete bit NULL DEFAULT 0,
