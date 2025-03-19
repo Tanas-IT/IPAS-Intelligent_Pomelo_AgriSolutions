@@ -32,6 +32,7 @@ public class WorkLogStatusUpdaterService : BackgroundService
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<IpasContext>();
                     await UpdateWorkLogStatuses(dbContext);
+                    Console.WriteLine("Test");
                 }
             }
             catch (Exception ex)
@@ -39,7 +40,7 @@ public class WorkLogStatusUpdaterService : BackgroundService
                 _logger.LogError(ex, "An error occurred while updating WorkLog statuses.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken); // Kiểm tra mỗi phút
+            await Task.Delay(TimeSpan.FromMinutes(20), stoppingToken); // Kiểm tra mỗi phút
         }
     }
 

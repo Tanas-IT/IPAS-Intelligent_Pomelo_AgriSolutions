@@ -13,33 +13,38 @@ public partial class MasterType
 
     public string? MasterTypeDescription { get; set; }
 
+    public string? Target { get; set; }
     public bool? IsActive { get; set; }
     public bool? IsConflict { get; set; }
+    public string? TypeName { get; set; }
+    public int? MinTime { get; set; }
+
+    public int? MaxTime { get; set; }
+    public int? FarmID { get; set; }
 
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
+    public DateTime? MinTime { get; set; }
+    public DateTime? MaxTime { get; set; }
 
     public string? CreateBy { get; set; }
 
-    public string? TypeName { get; set; }
 
     public bool? IsDelete { get; set; }
 
     public bool? IsDefault { get; set; }
 
-    public int? FarmID { get; set; }
 
     public string? BackgroundColor { get; set; }
 
     public string? TextColor { get; set; }
-    public string? Target { get; set; }
 
-    public string? Characteristic {  get; set; }
+    public string? Characteristic { get; set; }
 
     public virtual Farm? Farm { get; set; }
 
-   public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
+    public virtual ICollection<Criteria> Criterias { get; set; } = new List<Criteria>();
 
 
     public virtual ICollection<ProductHarvestHistory> HarvestTypeHistories { get; set; } = new List<ProductHarvestHistory>();

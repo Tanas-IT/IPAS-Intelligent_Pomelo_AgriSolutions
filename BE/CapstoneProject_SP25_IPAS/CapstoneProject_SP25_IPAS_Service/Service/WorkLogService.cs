@@ -16,6 +16,7 @@ using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +116,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var newSchedule = new CarePlanSchedule()
                 {
-                    CustomDates = addNewTaskModel.DateWork.Value.Date.ToString("dd/MM/yyyy"),
+                    CustomDates = JsonConvert.SerializeObject(addNewTaskModel.DateWork.Value.ToString("yyyy/MM/dd")),
                     StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
                     EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                     FarmID = farmId,
@@ -982,7 +983,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Lấy WorkLog và include các bảng liên quan
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(
                     x => x.WorkLogId == workLogId,
-                    "UserWorkLogs,TaskFeedbacks,Schedule"
+                    "UserWorkLogs,TaskFeedbacks"
                 );
 
                 if (getWorkLog == null)
@@ -1012,14 +1013,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     _unitOfWork.TaskFeedbackRepository.RemoveRange(getWorkLog.TaskFeedbacks);
                 }
 
-                if (getWorkLog.ScheduleId != null)
-                {
-                    var getScheduleDelete = await _unitOfWork.CarePlanScheduleRepository.GetByID(getWorkLog.ScheduleId.Value);
-                    if (getScheduleDelete != null)
-                    {
-                        _unitOfWork.CarePlanScheduleRepository.Delete(getScheduleDelete);
-                    }
-                }
 
                 // Xóa chính WorkLog
                 _unitOfWork.WorkLogRepository.Delete(getWorkLog);
@@ -1042,5 +1035,67 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> AddNewWorkLog(AddWorkLogModel addNewTaskModel, int? farmId)
+        {
+            try
+            {
+                var parseStartTime = TimeSpan.TryParse(addNewTaskModel.StartTime, out var startTime);
+                var parseEndTime = TimeSpan.TryParse(addNewTaskModel.EndTime, out var endTime);
+
+                
+                var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == addNewTaskModel.PlanId && x.FarmID == farmId);
+                
+                if(getExistPlan == null)
+                {
+                    return new BusinessResult(400, "Plan does not exist");
+                }
+
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                      startTime,
+                                                                       endTime,
+                                                                       addNewTaskModel.DateWork,
+                                                                       getExistPlan.MasterTypeId,
+                                                                        addNewTaskModel.listEmployee.Select(x => x.UserId).ToList()
+                                                                   );
+                var newSchedule = new CarePlanSchedule()
+                {
+                    CarePlanId = addNewTaskModel.PlanId,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    CustomDates = JsonConvert.SerializeObject(addNewTaskModel.DateWork.ToString("yyyy/MM/dd")),
+                };
+                getExistPlan.CarePlanSchedule = newSchedule;
+                await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
+                await _unitOfWork.SaveAsync();
+
+                var addNewWorkLog = new WorkLog()
+                {
+                    WorkLogCode = $"WL-{DateTime.UtcNow.Ticks}",
+                    Date = addNewTaskModel.DateWork,
+                    ActualStartTime = startTime,
+                    ActualEndTime = endTime,
+                    Status = WorkLogStatusConst.NOT_STARTED,
+                    ScheduleId = newSchedule.ScheduleId
+                };
+                newSchedule.WorkLogs.Add(addNewWorkLog);
+                await _unitOfWork.WorkLogRepository.Insert(addNewWorkLog);
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Add WorkLog Success", result);
+                }
+                return new BusinessResult(400, "Add WorkLog Failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public Task<BusinessResult> UpdateStatusWorkLog(AddWorkLogModel addNewTaskModel, int? farmId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

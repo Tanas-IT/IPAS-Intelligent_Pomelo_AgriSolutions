@@ -267,7 +267,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createPlan = prefix + "";
             public const string createManyPlan = prefix + "/create-many";
             public const string getPlanWithPagination = prefix + "";
-            public const string getPlanByProcessId = prefix + "get-plan-by-process-id/{id}";
+            public const string getPlanByProcessId = prefix + "/get-plan-by-process-id/{id}";
             public const string deletePlan = prefix + "/{id}";
             public const string deleteManyPlan = prefix + "";
             public const string updatePlanInfo = prefix + "";
@@ -351,6 +351,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string createWorkLog = prefix + "";
             public const string getWorkLogWithPagination = prefix + "";
             public const string deleteWorkLog = prefix + "/{id}";
+            public const string addNewWorkLog = prefix + "/add-new-worklog";
             public const string updateWorkLogInfo = prefix + "";
             public const string getWorkLogById = prefix + "/get-work-log-by-id/{id}";
             public const string getWorkLogByName = prefix + "/get-work-log-by-name/{name}";
