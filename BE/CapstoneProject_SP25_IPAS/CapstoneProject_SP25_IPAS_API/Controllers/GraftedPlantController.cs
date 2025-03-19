@@ -124,7 +124,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        [HttpPost(APIRoutes.GraftedPlant.GroupGraftedPlantsIntoPlantLot, Name = "GroupGraftedPlantsIntoPlantLot")]
+        [HttpPut(APIRoutes.GraftedPlant.GroupGraftedPlantsIntoPlantLot, Name = "GroupGraftedPlantsIntoPlantLot")]
         public async Task<IActionResult> GroupGraftedPlantsIntoPlantLot([FromBody] GroupingGraftedRequest createRequest)
         {
             var result = await _graftedPlantService.GroupGraftedPlantsIntoPlantLot(createRequest);
