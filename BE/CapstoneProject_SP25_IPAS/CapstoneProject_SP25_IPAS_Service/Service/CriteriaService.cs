@@ -86,6 +86,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             existingCriteria.CriteriaDescription = request.CriteriaDescription;
                             existingCriteria.Priority = request.Priority;
                             existingCriteria.FrequencyDate = request.FrequencyDate;
+                            existingCriteria.IsActive = request.IsActive;
+                            existingCriteria.MinValue = request.MinValue;
+                            existingCriteria.MaxValue = request.MaxValue;
+                            existingCriteria.Unit = request.Unit;
                             criteriaToUpdate.Add(existingCriteria);
                             receivedCriteriaIds.Add(request.CriteriaId.Value);
 
@@ -167,11 +171,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var criteria = await _unitOfWork.CriteriaRepository.GetByCondition(x => x.CriteriaId == criteriaUpdateRequests.CriteriaId && x.IsDeleted == false);
                     if (criteria == null) return new BusinessResult(Const.FAIL_GET_CRITERIA_BY_ID_CODE, Const.FAIL_GET_CRITERIA_BY_ID_MSG);
-                    criteria.CriteriaName = criteriaUpdateRequests.CriteriaName;
-                    criteria.CriteriaDescription = criteriaUpdateRequests.CriteriaDescription;
+                    if (!string.IsNullOrEmpty(criteriaUpdateRequests.CriteriaName))
+                        criteria.CriteriaName = criteriaUpdateRequests.CriteriaName;
+                    if (!string.IsNullOrEmpty(criteriaUpdateRequests.CriteriaDescription))
+                        criteria.CriteriaDescription = criteriaUpdateRequests.CriteriaDescription;
+                    if (criteriaUpdateRequests.Priority.HasValue)
                     criteria.Priority = criteriaUpdateRequests.Priority;
-                    criteria.IsActive = criteriaUpdateRequests.IsActive;
-
+                    if (criteriaUpdateRequests.IsActive.HasValue)
+                        criteria.IsActive = criteriaUpdateRequests.IsActive;
+                    if (!string.IsNullOrEmpty(criteriaUpdateRequests.Unit))
+                        criteria.Unit = criteriaUpdateRequests.Unit;
+                    if (criteriaUpdateRequests.MinValue.HasValue)
+                        criteria.MinValue = criteriaUpdateRequests.MinValue;
+                    if (criteriaUpdateRequests.MaxValue.HasValue)
+                        criteria.MaxValue = criteriaUpdateRequests.MaxValue;
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -422,9 +435,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var criteria = new Criteria()
                             {
                                 CriteriaName = item.CriteriaName,
-                                IsActive = item.IsActive,
+                                IsActive = true,
                                 CriteriaDescription = item.CriteriaDescription,
                                 Priority = item.Priority,
+                                MinValue = item.MinValue,
+                                MaxValue = item.MaxValue,
+                                Unit = item.Unit,
                                 IsDeleted = false,
                                 CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
                                 MasterType = newMasterType,
