@@ -14,37 +14,37 @@ export const planColumns: TableColumn<GetPlan>[] = [
     {
       header: "Plan Name",
       field: "planName",
-      accessor: (plan) => <div className={style.tableText}>{plan.planName}</div>,
+      accessor: (plan) => <TableCell value={plan.planName}/>,
       width: 150,
     },
     {
       header: "Plan Detail",
       field: "planDetail",
-      accessor: (plan) => <div className={style.tableText}>{plan.planDetail}</div>,
+      accessor: (plan) => <TableCell value={plan.planDetail}/>,
       width: 300,
     },
     {
       header: "Growth Stage",
       field: "growthStages",
-      accessor: (plan) => <div className={style.tableText}>{plan.growthStages.map((p) => p.name)}</div>,
+      accessor: (plan) => <TableCell value={plan.growthStages.map((p) => p.name).join(", ")}/>,
       width: 300,
     },
     {
       header: "Created Date",
       field: "createDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.createDate).toLocaleDateString() : "N/A"}</div>,
+      accessor: (plan) => <TableCell value={plan.createDate ? new Date(plan.createDate).toLocaleDateString() : "N/A"}/>,
       width: 150,
     },
     {
       header: "Start Date",
       field: "startDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.startDate).toLocaleDateString() : "N/A"}</div>,
+      accessor: (plan) => <TableCell value={plan.createDate ? new Date(plan.startDate).toLocaleDateString() : "N/A"}/>,
       width: 150,
     },
     {
       header: "End Date",
       field: "endDate",
-      accessor: (plan) => <div className={style.tableText}>{plan.createDate ? new Date(plan.endDate).toLocaleDateString() : "N/A"}</div>,
+      accessor: (plan) => <TableCell value={plan.createDate ? new Date(plan.endDate).toLocaleDateString() : "N/A"}/>,
       width: 150,
     },
     {
@@ -60,7 +60,7 @@ export const planColumns: TableColumn<GetPlan>[] = [
     {
       header: "Frequency",
       field: "frequency",
-      accessor: (plan) => <div className={style.tableText}>{plan.frequency}</div>,
+      accessor: (plan) => <TableCell value={plan.frequency}/>,
       width: 150,
     },
   ];

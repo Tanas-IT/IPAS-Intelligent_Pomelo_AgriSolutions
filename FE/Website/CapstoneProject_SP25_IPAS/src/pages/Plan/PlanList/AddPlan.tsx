@@ -36,6 +36,7 @@ import {
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
 import {
   cropService,
+  masterTypeService,
   planService,
   plantLotService,
   processService,
@@ -87,6 +88,7 @@ const AddPlan = () => {
   const [checked, setChecked] = useState<boolean>(false);
   const [targetType, setTargetType] = useState<string>();
   const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
+  const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
 
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
@@ -134,7 +136,16 @@ const AddPlan = () => {
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
       if (targetType === "graftedPlant") {
-        setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+        const masterTypeGrafting = await masterTypeService.getProcessTypeSelect("Grafting");
+        console.log("masterTypeGrafting", masterTypeGrafting.data.map((m) => m.id));
+        
+        if(masterTypeGrafting.statusCode === 200) {
+          console.log("thanh cong");
+          
+          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(masterTypeGrafting.data.map((m) => m.id)));
+        } else {
+          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
+        }
       } else {
         setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       }
@@ -157,6 +168,8 @@ const AddPlan = () => {
       setIsTargetDisabled(true);
       setSelectedGrowthStage([]);
     } else if (target === "plantLot") {
+      form.setFieldValue("cropId", undefined);
+      setIsCropDisabled(true);
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(true);
       // form.setFieldValue("processId", undefined);
@@ -711,7 +724,7 @@ const AddPlan = () => {
                   name={addPlanFormFields.cropId}
                   // rules={RulesManager.getCropRules()}
                   options={cropOptions}
-                  isEditing={(targetType === "graftedPlant" || targetType === "plantLot") ? false : true}
+                  isEditing={!isCropDisabled}
                   type="select"
                   hasFeedback={false}
                   onChange={(value) => {

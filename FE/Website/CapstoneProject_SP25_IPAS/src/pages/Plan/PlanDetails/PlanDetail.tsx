@@ -54,7 +54,6 @@ function PlanDetail() {
     const selectedDaysOfMonth = [10, 31];
     const selectedDaysOfWeek = [1, 3, 5];
     const selectedDaysOfNoneType = ["06/02/2025", "16/02/2025"];
-    const [frequencyType, setFrequencyType] = useState<string>("none");
     const [planDetail, setPlanDetail] = useState<GetPlan>();
     const numOfCompleted = planDetail?.listWorkLog.filter((p) => p.status === "Done").length ?? 0;
     const total = planDetail?.listWorkLog.length;
@@ -80,6 +79,14 @@ function PlanDetail() {
         const fetchPlanDetail = async () => {
             try {
                 const res = await planService.getPlanDetail(id);
+                setInfoFieldsLeft([
+                    { label: "Crop", value: planDetail?.cropName || "None", icon: Icons.growth },
+                    { label: "Growth Stage", value: planDetail?.growthStages.map((g) => g.name).join(",") || "None", icon: Icons.plant }
+                ]);
+                setInfoFieldsRight([
+                    { label: "Process Name", value: planDetail?.processName || "None", icon: Icons.process },
+                    { label: "Type", value: planDetail?.masterTypeName || "None", icon: Icons.category, isTag: true },
+                ])
                 console.log("res", res);
 
                 setPlanDetail(res);
@@ -92,15 +99,15 @@ function PlanDetail() {
         fetchPlanDetail();
     }, [id]);
 
-    const infoFieldsLeft = [
+    const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: planDetail?.cropName || "No data", icon: Icons.growth },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
-    ];
+    ]);
 
-    const infoFieldsRight = [
+    const [infoFieldsRight, setInfoFieldsRight] = useState([
         { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
         { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
-    ];
+    ]);
 
     const workLogs = [
         { id: 1, task: "Watering in plot 123", type: "Watering", status: "completed", date: "2nd Dec 2024" },
@@ -111,31 +118,31 @@ function PlanDetail() {
 
     const determineUnit = (planTargetModels: PlanTargetModel) => {
         const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
-      
+
         if (rows && rows.length > 0) {
-          return "Row";
+            return "Row";
         }
         if (plants && plants.length > 0) {
-          return "Plant";
+            return "Plant";
         }
         if (graftedPlants && graftedPlants.length > 0) {
-          return "Grafted Plant";
+            return "Grafted Plant";
         }
         if (plantLots && plantLots.length > 0) {
-          return "Plant Lot";
+            return "Plant Lot";
         }
         if (landPlotName) {
-          return "Plot";
+            return "Plot";
         }
         return "Unknown";
-      };
+    };
 
-      const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
+    const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
         return planTargetModels.flatMap((model) => {
             const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
             const unit = determineUnit(model);
             const data: PlanTarget[] = [];
-    
+
             switch (unit) {
                 case "Row":
                     if (rows && rows.length > 0) {
@@ -149,7 +156,7 @@ function PlanDetail() {
                         });
                     }
                     break;
-    
+
                 case "Plant":
                     if (plants && plants.length > 0) {
                         data.push({
@@ -159,27 +166,27 @@ function PlanDetail() {
                         });
                     }
                     break;
-    
+
                 case "Grafted Plant":
                     if (graftedPlants && graftedPlants.length > 0) {
                         data.push({
                             type: "Grafted Plant",
                             plotNames: landPlotName ? [landPlotName] : undefined,
-                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                            graftedPlantNames: graftedPlants.map((plant) => plant.graftedPlantName),
                         });
                     }
                     break;
-    
+
                 case "Plant Lot":
                     if (plantLots && plantLots.length > 0) {
                         data.push({
                             type: "Plant Lot",
                             plotNames: landPlotName ? [landPlotName] : undefined,
-                            plantLotNames: plantLots.map((lot) => lot.name),
+                            plantLotNames: plantLots.map((lot) => lot.plantLotName),
                         });
                     }
                     break;
-    
+
                 case "Plot":
                     if (landPlotName) {
                         data.push({
@@ -188,15 +195,15 @@ function PlanDetail() {
                         });
                     }
                     break;
-    
+
                 default:
                     break;
             }
-    
+
             return data;
         });
     };
-    
+
 
 
     return (
@@ -323,11 +330,13 @@ function PlanDetail() {
                     <Flex className={style.col}>
                         <div className={style.frequencyInfoFields}>
                             <h3 className={style.smallTitle}>Frequency</h3>
+                            <Flex vertical gap={20}>
                             <p><strong>Date:</strong> {planDetail?.startDate ? formatDate(planDetail?.startDate) : ""} - {planDetail?.endDate ? formatDate(planDetail?.endDate) : ""}</p>
                             <p><strong>Time:</strong> {planDetail?.startTime} - {planDetail?.endTime}</p>
                             <p><strong>Type:</strong> <span className={style.valueType}>{planDetail?.frequency}</span></p>
+                            </Flex>
 
-                            {frequencyType === "none" && (
+                            {planDetail?.frequency === "None" && (
                                 <ul className={style.dateList}>
                                     {JSON.parse(planDetail?.customDates || "[]").map((day: string, index: number) => (
                                         <li key={index}>{day}</li>
@@ -336,7 +345,7 @@ function PlanDetail() {
                             )}
 
 
-                            {frequencyType === "weekly" && (
+                            {planDetail?.frequency === "Weekly" && (
                                 <Flex className={style.weekDays}>
                                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
                                         <span
@@ -349,7 +358,7 @@ function PlanDetail() {
                                 </Flex>
                             )}
 
-                            {frequencyType === "monthly" && (
+                            {planDetail?.frequency === "Monthly" && (
                                 <div className={style.monthGrid}>
                                     {[...Array(31)].map((_, index) => {
                                         const day = index + 1;
@@ -383,7 +392,7 @@ function PlanDetail() {
                             </Flex>
                             <Flex align="center" justify="space-between" className={style.underSection}>
                                 <p className={style.workLogDate}>{formatDateW(log.dateWork)}</p>
-                                <Link to={PATHS.HR.WORKLOG_DETAIL} className={style.link}>View Details</Link>
+                                <Link to={`/hr-management/worklogs/${log.workLogID}`} className={style.link}>View Details</Link>
                             </Flex>
                         </Card>
                     ))}

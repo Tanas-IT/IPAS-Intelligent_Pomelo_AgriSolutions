@@ -439,6 +439,7 @@ const UpdatePlan = () => {
         // }
         console.log("planTargetModel", planTargetModel);
         console.log("listLandPlotOfCrop", values.listLandPlotOfCrop);
+        console.log("dayOfWeek", typeof(dayOfWeek));
 
 
         const planData: UpdatePlanRequest = {
@@ -463,7 +464,7 @@ const UpdatePlan = () => {
                 userId: employee.userId,
                 isReporter: employee.userId === selectedReporter,
             })),
-            dayOfWeek,
+            dayOfWeek: Array.isArray(dayOfWeek) ? dayOfWeek : [],
             dayOfMonth,
             customDates: customDates.map((date) => date.toISOString()),
             startDate: adjustedStartDate.toISOString(),

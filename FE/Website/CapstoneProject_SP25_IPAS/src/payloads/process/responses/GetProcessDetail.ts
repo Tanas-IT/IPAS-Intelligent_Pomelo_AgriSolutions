@@ -46,4 +46,5 @@ export interface GetProcessDetail {
   listProcessData: any[];
   listPlan: PlanType[];
   isSample: boolean;
+  planTargetInProcess: number;
 }

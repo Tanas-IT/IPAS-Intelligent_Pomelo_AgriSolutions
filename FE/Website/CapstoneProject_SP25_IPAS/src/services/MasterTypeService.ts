@@ -92,3 +92,13 @@ export const getCriteriaTypeSelect = async (
   const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
   return apiResponse;
 };
+
+export const getProcessTypeSelect = async (
+  target: string,
+): Promise<ApiResponse<GetMasterTypeSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `masterTypes/get-for-selected?typeName=Process&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
+  return apiResponse;
+};

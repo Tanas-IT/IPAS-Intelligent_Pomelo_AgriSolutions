@@ -71,7 +71,8 @@ export const getProcessDetail = async (processId: string | number) => {
     listProcessData: apiResponse.data.listProcessData,
     order: apiResponse.data.order,
     listPlan: apiResponse.data.listPlan,
-    isSample: apiResponse.data.isSample
+    isSample: apiResponse.data.isSample,
+    planTargetInProcess: apiResponse.data.planTargetInProcess
   };
 };
 

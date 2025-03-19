@@ -132,3 +132,9 @@ export const updatePlan = async (payload: UpdatePlanRequest): Promise<ApiRespons
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
+
+export const createManyPlans = async (plan: PlanRequest[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/create-many`, plan);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
