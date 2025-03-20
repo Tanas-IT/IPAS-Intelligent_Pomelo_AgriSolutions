@@ -25,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
         //[HybridAuthorize("Admin,User", "Manager")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpGet(APIRoutes.Farm.getFarmWithPagination, Name = "getAllFarmPaginationAsync")]
         public async Task<IActionResult> GetAllFarmWithPaginationAsync(PaginationParameter paginationParameter)
         {
@@ -46,7 +46,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Farm.getFarmById + "/{farm-id}", Name = "getFarmByIdAsync")]
         public async Task<IActionResult> GetFarmByIdAsync([FromRoute(Name = "farm-id")] int? farmId)
         {
@@ -74,7 +74,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HybridAuthorize($"{nameof(RoleEnum.USER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.USER)}")]
         [HttpGet(APIRoutes.Farm.getAllFarmOfUser + "/{user-id?}", Name = "getAllFarmOfUserAsync")]
         public async Task<IActionResult> GetAllFarmOfUserAsync([FromRoute(Name = "user-id")] int? userId)
         {
@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HybridAuthorize($"{nameof(RoleEnum.USER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.USER)}")]
         [HttpPost(APIRoutes.Farm.createFarm, Name = "createFarmAsync")]
         public async Task<IActionResult> CreateFarmAsync([FromForm] FarmCreateRequest farmCreateModel)
         {
@@ -131,7 +131,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.Farm.updateFarmInfo, Name = "updateFarmInfoAsync")]
         public async Task<IActionResult> UpdateFarmInfoAsync([FromBody] FarmUpdateInfoRequest farmUpdateRequest)
         {
@@ -184,7 +184,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //    }
         //}
 
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpPatch(APIRoutes.Farm.softedDeleteFarm + "/{farm-id}", Name = "softedDeleteFarmAsync")]
         public async Task<IActionResult> SoftDeleteFarmAsync([FromRoute(Name = "farm-id")] int farmId)
         {
@@ -203,7 +203,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpDelete(APIRoutes.Farm.permanenlyDelete + "/{farm-id}", Name = "permananlyDeleteFarmAsync")]
         public async Task<IActionResult> DeleteFarm([FromRoute(Name = "farm-id")] int farmId)
         {
@@ -223,7 +223,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpPatch(APIRoutes.Farm.updateFarmLogo, Name = "updateFarmLogoAsync")]
         public async Task<IActionResult> UpdateFarmLogoAsync([FromForm] FarmLogoUpdateRequest farmLogo)
         {
@@ -254,7 +254,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy NV của 1 trang trại theo RoleID --> selected
         /// </summary>
-         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Farm.getUserOfFarmByRole, Name = "GetAllUserOfFarmByRoleAsync")]
         public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, [FromQuery]List<int> listRole)
         {
@@ -285,7 +285,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy tất cả employee của 1 trang trại có pagin --> quản lí employee
         /// </summary>
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Farm.getUsersOfFarm, Name = "getUserOfFarmAsync")]
         public async Task<IActionResult> getUserOfFarmAsync([FromQuery]GetUserFarmRequest userFarmRequest, [FromQuery]PaginationParameter paginationParameter)
         {
@@ -319,7 +319,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Lấy 1 NV trong 1 trang trại 
         /// </summary>
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.Farm.getUsersOfFarmById , Name = "GetUsersOfFarmByIdAsync")]
         public async Task<IActionResult> GetUsersOfFarmByIdAsync([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")] int userId)
         {
@@ -346,7 +346,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Xoá VV 1 NV
         /// </summary>
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Farm.deleteUserFarm , Name = "deleteUserFarmAsync")]
         public async Task<IActionResult> DeleteUserFarm([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")]int userId)
         {
@@ -374,7 +374,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Thêm 1 employee vào trang trại
         /// </summary>
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Farm.addUserToFarm, Name = "AddUserToFarmAsync")]
         public async Task<IActionResult> AddUserToFarmAsync([FromBody] UserFarmRequest userFarmCreate)
         {
@@ -403,7 +403,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// Cập nhật TT nhân viên (Role, IsActive)
         /// </summary>
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [HttpPut(APIRoutes.Farm.updateUserOfFarm, Name = "UpdateRoleOfEmployeeAsync")]
         public async Task<IActionResult> UpdateRoleOfEmployeeAsync([FromBody] UserFarmRequest userFarmUpdateRequest)
         {
