@@ -290,7 +290,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 .Select(criteria => new CriteriaData
                                 {
                                     CriteriaId = criteria.CriteriaID!.Value,
-                                    IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
+                                    //IsChecked = false, // Mới áp dụng nên chưa được kiểm tra
+                                    ValueChecked = null,
                                     Priority = criteria.Priority ?? 1
                                 }).ToList();
 
@@ -878,7 +879,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Kiểm tra xem tất cả các tiêu chí đánh giá đã được hoàn thành chưa
             bool hasCompletedEvaluation = appliedCriterias
                 .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
-                .All(x => x.IsChecked == true);
+                //.All(x => x.IsChecked == true);
+                .All(x => x.IsPassed == true);
 
             if (!hasCompletedEvaluation)
             {
@@ -911,7 +913,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
-            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsChecked == true);
+            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true);
 
             if (!hasCompletedCriteria)
             {

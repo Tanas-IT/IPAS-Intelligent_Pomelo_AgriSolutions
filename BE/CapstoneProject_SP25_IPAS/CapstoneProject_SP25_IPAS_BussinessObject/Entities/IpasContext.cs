@@ -1435,7 +1435,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GraftedPlantID).HasColumnName("GraftedPlantID");
             entity.Property(e => e.CriteriaID).HasColumnName("CriteriaID");
             entity.Property(e => e.PlantLotID).HasColumnName("PlantLotID");
-            entity.Property(e => e.IsChecked).HasColumnName("isChecked");
+            //entity.Property(e => e.IsChecked).HasColumnName("isChecked");
             entity.Property(e => e.Priority).HasColumnName("Priority");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.CriteriaTargets)
