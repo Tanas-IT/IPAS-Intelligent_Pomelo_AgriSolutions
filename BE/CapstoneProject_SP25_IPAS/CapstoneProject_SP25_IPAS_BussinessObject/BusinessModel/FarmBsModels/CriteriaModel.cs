@@ -18,7 +18,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         public string? CriteriaDescription { get; set; }
 
         public int? Priority { get; set; }
-
+        public double? MinValue { get; set; }
+        public double? MaxValue { get; set; }
+        public string? Unit { get; set; }
         public bool? IsActive { get; set; }
         public bool? CreateDate { get; set; }
         public bool? IsChecked { get; set; }

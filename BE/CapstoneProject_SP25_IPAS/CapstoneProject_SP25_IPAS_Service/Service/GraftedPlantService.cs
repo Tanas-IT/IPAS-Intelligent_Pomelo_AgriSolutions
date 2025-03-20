@@ -73,11 +73,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
-
+                    var code = CodeHelper.GenerateCode();
                     var graftedCreateEntity = new GraftedPlant()
                     {
-                        GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
-                        GraftedPlantName = createRequest.GraftedPlantName,
+                        GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
+                        GraftedPlantName = createRequest.GraftedPlantName ?? $"GraftPlant {code}",
                         //GrowthStage = createRequest.GrowthStage,
                         Status = GraftedPlantStatusConst.HEALTHY,
                         GraftedDate = createRequest.GraftedDate,
@@ -453,7 +453,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantId && x.IsDeleted!.Value == false);
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantId && x.IsDeleted!.Value == false, "Plant");
                     if (checkGraftedExist == null)
                         return new BusinessResult(400, "Grafted Plant Not exist");
                     //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
@@ -470,10 +470,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
                         if (checkPlantLotExist == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                        if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant.MasterTypeId)
+                            return new BusinessResult(400, "This Plantlot not same cultivar with this plant");
                         checkPlantLotExist.InputQuantity += 1;
                         _unitOfWork.PlantLotRepository.Update(checkPlantLotExist);
                         checkGraftedExist.PlantLotId = request.PlantLotId.Value;
-                        checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
+                        //checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
                     }
                     checkGraftedExist.IsCompleted = true;
                     checkGraftedExist.SeparatedDate = DateTime.Now;
@@ -745,7 +747,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (grafted.IsCompleted == false)
                             errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is not completed yet.");
 
-                        if (grafted.Status!.Equals(GraftedPlantStatusConst.GROUPED, StringComparison.OrdinalIgnoreCase) || grafted.Status.Equals(GraftedPlantStatusConst.IS_USED, StringComparison.OrdinalIgnoreCase))
+                        if (grafted.PlantLotId.HasValue || grafted.Status.Equals(GraftedPlantStatusConst.IS_USED, StringComparison.OrdinalIgnoreCase))
                             errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is already used.");
                     }
                     var distinctMasterTypes = graftedPlants
@@ -761,7 +763,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     int? selectedMasterTypeId = distinctMasterTypes.FirstOrDefault();
 
-                    // 🔹 6️⃣ Kiểm tra MasterType của PlantLot
+                    //  6️ Kiểm tra MasterType của PlantLot
                     if (plantLot.MasterTypeId == null)
                     {
                         // Nếu PlantLot chưa có giống, gán MasterType của GraftedPlant vào
@@ -780,7 +782,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
 
                         grafted.PlantLotId = plantLot.PlantLotId;   // Đánh dấu đã gán vào lô
-                        grafted.Status = GraftedPlantStatusConst.GROUPED;
+                        //grafted.Status = GraftedPlantStatusConst.GROUPED;
                         grafted.Plant = null;
                     }
 
@@ -843,14 +845,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (landrowExist.Plants.Any(x => x.PlantIndex == request.PlantIndex && x.IsDead == false && x.IsDeleted == false))
                         return new BusinessResult(400, $"Index {request.PlantIndex} in row {landrowExist.RowIndex} has exist plant");
 
-                    if (graftedPlant.Status.Equals(GraftedPlantStatusConst.GROUPED, StringComparison.OrdinalIgnoreCase))
+                    if (graftedPlant.PlantLotId.HasValue)
                     {
                         var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == graftedPlant.PlantLotId);
                         if (plantLotExist.UsedQuantity.HasValue && plantLotExist.UsedQuantity.Value == plantLotExist.LastQuantity.Value)
                             return new BusinessResult(400, "Plant lot of this grafted plant has used completed.");
                         plantLotExist.PreviousQuantity -= 1;
-                        plantLotExist.LastQuantity = plantLotExist.LastQuantity.Value > 0 ? plantLotExist.LastQuantity - 1 : null;
-                        plantLotExist.InputQuantity = plantLotExist.InputQuantity.Value > 0 ? plantLotExist.InputQuantity - 1 : null;
+                        plantLotExist.LastQuantity = plantLotExist.LastQuantity!.Value > 0 ? plantLotExist.LastQuantity - 1 : null;
+                        plantLotExist.InputQuantity = plantLotExist.InputQuantity!.Value > 0 ? plantLotExist.InputQuantity - 1 : null;
                         // cap nhat lai plantlot
                         _unitOfWork.PlantLotRepository.Update(plantLotExist);
                     }

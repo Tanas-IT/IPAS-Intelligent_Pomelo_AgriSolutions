@@ -96,18 +96,20 @@ CREATE TABLE ipas.dbo.MasterType (
 	MasterTypeName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MasterTypeDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isActive bit NULL  DEFAULT 0,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CreateBy nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	TypeName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isDelete bit NULL DEFAULT 0,
 	isDefault bit NULL,
 	FarmID int NULL,
         Target nvarchar(MAX) NULL,
         IsConflict bit NULL,
+	MinTime int NULL,
+	MaxTime int NULL, 
 	BackGroundColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	TextColor nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
 	Characteristic nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	CreateBy nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT MasterType_PK PRIMARY KEY (MasterTypeID),
 	CONSTRAINT MasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),	
 );
@@ -179,6 +181,9 @@ CREATE TABLE ipas.dbo.Criteria (
 	CriteriaName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CriteriaDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Priority int NULL,
+	MinValue float NULL,
+	MaxValue float NULL,
+	Unit nvarchar(50) NULL,
 	isActive bit NULL  DEFAULT 1,
 	isDeleted bit NULL default 0,
         FrequencyDate int NULL,
@@ -548,6 +553,7 @@ CREATE TABLE ipas.dbo.Process (
 	UpdateDate datetime NULL,
 	StartDate datetime NULL,
 	EndDate datetime NULL,
+        PlanTargetInProcess int NULL,
 	isDeleted bit DEFAULT 0 NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
@@ -1211,7 +1217,11 @@ VALUES
     ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
 
 GO
-
+GO
+UPDATE [ipas].[dbo].[MasterType]
+SET MinTime = 0, MaxTime = 24
+WHERE TypeName = 'Work';
+GO
 GO
 INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [isDeleted],[MasterTypeID])
@@ -1243,7 +1253,40 @@ VALUES
     ('C033', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance to determine fruit sweetness', 2, 1, 0, 29),
     ('C034', 'External Quality & Appearance', 'Check fruit skin texture, color, and any physical defects', 3, 1, 0, 29);
 GO
-
+UPDATE [dbo].[Criteria]
+SET 
+    MinValue = CASE 
+        WHEN CriteriaCode = 'CR011' THEN 400
+        WHEN CriteriaCode = 'CR012' THEN 2
+        WHEN CriteriaCode = 'CR013' THEN 1.2
+        WHEN CriteriaCode = 'CR014' THEN 0
+        WHEN CriteriaCode = 'CR015' THEN 50
+        WHEN CriteriaCode = 'CR017' THEN 80
+        WHEN CriteriaCode = 'CR018' THEN 5.5
+        WHEN CriteriaCode = 'CR019' THEN 10
+        ELSE MinValue
+    END,
+    MaxValue = CASE 
+        WHEN CriteriaCode = 'CR011' THEN 500
+        WHEN CriteriaCode = 'CR013' THEN 2.5
+        WHEN CriteriaCode = 'CR014' THEN 5
+        WHEN CriteriaCode = 'CR015' THEN 70
+        WHEN CriteriaCode = 'CR018' THEN 6.5
+        WHEN CriteriaCode = 'CR019' THEN 13
+        ELSE MaxValue
+    END,
+    Unit = CASE 
+        WHEN CriteriaCode = 'CR011' THEN 'trees/hectare'
+        WHEN CriteriaCode = 'CR012' THEN 'm'
+        WHEN CriteriaCode = 'CR013' THEN 'kg'
+        WHEN CriteriaCode = 'CR014' THEN '%'
+        WHEN CriteriaCode = 'CR015' THEN '%'
+        WHEN CriteriaCode = 'CR018' THEN 'pH'
+        WHEN CriteriaCode = 'CR019' THEN 'Brix'
+        ELSE Unit
+    END
+WHERE CriteriaCode IN ('CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR017', 'CR018', 'CR019');
+GO
 INSERT INTO ipas.dbo.LandPlot (
     LandPlotCode, LandPlotName, Area, [Length], Width, RowperLine, RowSpacing, SoilType, 
     CreateDate, UpdateDate, Status, Description, FarmID, isDeleted, IsRowHorizontal, 
