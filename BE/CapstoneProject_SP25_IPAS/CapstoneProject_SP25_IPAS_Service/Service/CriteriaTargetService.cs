@@ -245,24 +245,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Lấy danh sách CriteriaTarget phù hợp với danh sách đầu vào
-                    var plantCriteriaList = new List<CriteriaTarget>();
+                    var CriteriaTargetList = new List<CriteriaTarget>();
                     if (request.PlantID!.Any())
                     {
-                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => request.PlantID.Contains(x.PlantID!.Value))).ToList();
+                        CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(filter: x => request.PlantID.Contains(x.PlantID!.Value), includeProperties: "Criteria")).ToList();
                     }
                     if (request.PlantLotID!.Any())
                     {
-                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()))).ToList();
+                        CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(filter: x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
                     }
                     if (request.GraftedPlantID!.Any())
                     {
-                        plantCriteriaList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x => request.GraftedPlantID!.Contains(x.GraftedPlantID.GetValueOrDefault()))).ToList();
+                        CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetAllNoPaging(filter: x => request.GraftedPlantID!.Contains(x.GraftedPlantID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
                     }
 
-                    if (!plantCriteriaList.Any())
+                    if (!CriteriaTargetList.Any())
                     {
                         return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, "Don't have criteria to complete task");
                     }
@@ -279,26 +279,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //}
                     var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId);
 
-                    foreach (var plantCriteria in plantCriteriaList)
+                    foreach (var plantCriteria in CriteriaTargetList)
                     {
                         if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var criteriaData))
                         {
                             // Cập nhật trạng thái `IsChecked`
-                            if (criteriaData.IsChecked.HasValue)
+                            //if (criteriaData.IsChecked.HasValue)
+                            if (criteriaData.ValueChecked.HasValue)
                             {
-                                plantCriteria.IsChecked = criteriaData.IsChecked;
+                                //plantCriteria.IsChecked = criteriaData.IsChecked;
+                                plantCriteria.ValueChecked = criteriaData.ValueChecked;
                                 plantCriteria.CheckedDate = DateTime.Now;
                             }
 
                             // Cập nhật trạng thái `IsPassed`
-                            if (criteriaData.IsPassed.HasValue && plantCriteria.IsChecked == true)
+                            //if (criteriaData.IsPassed.HasValue && plantCriteria.IsChecked == true)
+                            if (plantCriteria.Criteria!.MinValue.HasValue && plantCriteria.Criteria.MaxValue.HasValue)
+                            {
+                                if (criteriaData.ValueChecked >= plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked <= plantCriteria.Criteria.MaxValue)
+                                {
+                                    plantCriteria.IsPassed = true;
+                                }
+                            } else
                             {
                                 plantCriteria.IsPassed = criteriaData.IsPassed;
                             }
                         }
+                        plantCriteria.Criteria = null;
                     }
                     // Cập nhật danh sách CriteriaTarget 
-                    _unitOfWork.CriteriaTargetRepository.UpdateRange(plantCriteriaList);
+                    _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
 
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -389,10 +399,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (existing != null)
                 {
-                    if (!allowOverride && existing.IsChecked.HasValue)
+                    if (!allowOverride && /*existing.IsChecked.HasValue*/ existing.ValueChecked.HasValue)
                         continue;
 
-                    existing.IsChecked = criteria.IsChecked;
+                    //existing.IsChecked = criteria.IsChecked;
+                    existing.ValueChecked = criteria.ValueChecked;
                     existing.Priority = criteria.Priority;
                     _unitOfWork.CriteriaTargetRepository.Update(existing);
                 }
@@ -401,7 +412,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     criteriaToAdd.Add(new CriteriaTarget
                     {
                         CriteriaID = criteria.CriteriaId,
-                        IsChecked = criteria.IsChecked,
+                        //IsChecked = criteria.IsChecked,
+                        ValueChecked = criteria.ValueChecked,
                         Priority = criteria.Priority,
                         PlantID = plantId,
                         GraftedPlantID = graftedPlantId,
@@ -615,7 +627,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 GraftedPlantID = graftedPlantId,
                 PlantLotID = plantLotId,
                 CriteriaID = criteria.CriteriaId,
-                IsChecked = false,
+                //IsChecked = false,
+                ValueChecked = null,
                 Priority = criteria.Priority,
                 CreateDate = DateTime.Now,
                 IsPassed = false,

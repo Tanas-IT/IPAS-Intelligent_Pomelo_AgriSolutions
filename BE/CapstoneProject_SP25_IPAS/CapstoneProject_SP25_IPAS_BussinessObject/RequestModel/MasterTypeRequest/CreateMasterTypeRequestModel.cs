@@ -21,7 +21,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeReque
         public string? CreateBy { get; set; }
 
         public string? TypeName { get; set; }
-
+        public int? MaxTime { get; set; }
+        public int?  MinTime { get; set; }
         public string? BackgroundColor { get; set; }
 
         public string? TextColor { get; set; }
