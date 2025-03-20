@@ -125,6 +125,8 @@ var webSocketOptions = new WebSocketOptions()
 {
     KeepAliveInterval = TimeSpan.FromMinutes(5),
 };
+// filter check farm expired
+builder.Services.AddScoped<FarmExpiredFilter>();
 
 var app = builder.Build();
 
@@ -139,7 +141,7 @@ app.UseWebSockets(webSocketOptions);
 app.UseMiddleware<WebSocketMiddleware>();
 
 //app.UseMiddleware<AuthorizeMiddleware>();
-//app.UseMiddleware<FarmExpiredMiddleware>();
+//app.UseMiddleware<FarmExpiredMiddlewfare>();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
