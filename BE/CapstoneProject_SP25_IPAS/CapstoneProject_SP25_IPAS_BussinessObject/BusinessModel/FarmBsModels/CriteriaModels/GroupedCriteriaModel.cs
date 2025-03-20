@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.C
         public double? ValueChecked { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? CheckedDate { get; set; }
+        public string? Unit { get; set; }
         public double? MinValue { get; set; }
         public double? MaxValue { get; set; }
         public int? Priority { get; set; }
