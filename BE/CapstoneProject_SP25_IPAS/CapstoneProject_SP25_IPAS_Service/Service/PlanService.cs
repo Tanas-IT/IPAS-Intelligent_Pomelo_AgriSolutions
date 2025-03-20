@@ -99,13 +99,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
                     };
-                    if(checkExistProcess != null)
-                    {
-                        if(checkExistProcess.MasterTypeId != null)
-                        {
-                            newPlan.MasterTypeId = checkExistProcess.MasterTypeId;
-                        }
-                    }
                     if (createPlanModel.StartDate == createPlanModel.EndDate)
                     {
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
