@@ -533,7 +533,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                  targetType.Any(t => t.Equals(x.Criteria.MasterType.Target, StringComparison.OrdinalIgnoreCase)));
 
             // Kiểm tra xem có tiêu chí nào chưa hoàn thành không
-            var uncompletedCriterias = graftedConditions.Where(x => !x.IsChecked!.Value).ToList();
+            //var uncompletedCriterias = graftedConditions.Where(x => !x.IsChecked!.Value).ToList();
+            var uncompletedCriterias = graftedConditions.Where(x => !x.IsPassed!.Value).ToList();
 
             if (uncompletedCriterias.Any())
             {

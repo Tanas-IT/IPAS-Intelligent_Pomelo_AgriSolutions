@@ -892,7 +892,7 @@ CREATE TABLE ipas.dbo.ChatMessage (
 
 CREATE TABLE ipas.dbo.CriteriaTarget (
 	CriteriaTargetID int IDENTITY(1,1) NOT NULL,
-	IsChecked bit NULL,
+	--IsChecked bit NULL,
 	Priority int NULL,
 	PlantID int NULL,
 	CriteriaID int NULL,
@@ -900,6 +900,7 @@ CREATE TABLE ipas.dbo.CriteriaTarget (
 	PlantLotID int NULL,
         CreateDate datetime NULL,
 	CheckedDate datetime NULL,
+	ValueChecked float NULL,
         IsPassed bit NULL,
 	Note nvarchar(MAX) NULL,
         CONSTRAINT CriteriaTarget_PK PRIMARY KEY (CriteriaTargetID),
