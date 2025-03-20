@@ -101,14 +101,19 @@ const MasterTypeModel = ({
       isUpdate={isUpdate}
       isLoading={isLoadingAction}
       title={isUpdate ? "Update Type" : "Add New Type"}
+      size="large"
     >
       <Form form={form} layout="vertical">
-        <FormFieldModal
-          label="Type Name"
-          name={masterTypeFormFields.masterTypeName}
-          rules={RulesManager.getTypeNameRules()}
-          placeholder="Enter the type name"
-        />
+        <Flex gap={20}>
+          <FormFieldModal
+            label="Type Name"
+            name={masterTypeFormFields.masterTypeName}
+            rules={RulesManager.getTypeNameRules()}
+            placeholder="Enter the type name"
+          />
+          <FormFieldModal label="Type" readonly={true} name={masterTypeFormFields.typeName} />
+        </Flex>
+
         <FormFieldModal
           label="Description"
           type="textarea"
@@ -116,8 +121,6 @@ const MasterTypeModel = ({
           rules={RulesManager.getFarmDescriptionRules()}
           placeholder="Enter the description"
         />
-
-        <FormFieldModal label="Type" readonly={true} name={masterTypeFormFields.typeName} />
 
         {typeCurrent === MASTER_TYPE_SHOW_TABLE.WORK && (
           <>

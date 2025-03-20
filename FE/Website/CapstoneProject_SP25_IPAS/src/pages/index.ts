@@ -14,6 +14,7 @@ export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as LandPlot } from "@/pages/Farm/LandPlot/LandPlot";
 export { default as LandRow } from "@/pages/Farm/LandRow/LandRow";
 export { default as Criteria } from "@/pages/Farm/Criteria/Criteria";
+export { default as GraftedPlant } from "@/pages/Farm/GraftedPlant/GraftedPlant";
 export { default as AddNewPlotDrawer } from "@/pages/Farm/LandPlot/LandPlotManagement/AddNewPlotDrawer/AddNewPlotDrawer";
 export { default as LandPlotCreate } from "@/pages/Farm/LandPlot/LandPlotManagement/LandPlotCreate/LandPlotCreate";
 export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManagement/RowConfiguration/RowConfiguration";

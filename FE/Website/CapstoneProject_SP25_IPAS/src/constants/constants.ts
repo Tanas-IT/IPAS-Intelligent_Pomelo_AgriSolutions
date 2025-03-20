@@ -30,7 +30,7 @@ export const healthStatusColors: Record<string, string> = {
   Healthy: "green",
   "Minor Issues": "orange",
   "Serious Issues": "red",
-  Dead: "#444",
+  Dead: "gray",
 };
 
 export const GROWTH_ACTIONS = {
@@ -72,11 +72,12 @@ export const WORK_TARGETS = {
 };
 
 export const CRITERIA_TARGETS = {
-  Harvest: "Harvest",
+  Product: "Product",
   "Grafted Condition": "Grafted Condition",
   "Grafted Evaluation": "Grafted Evaluation",
   "Plantlot Condition": "Plantlot Condition",
   "Plantlot Evaluation": "Plantlot Evaluation",
+  Others: "Others",
 } as const;
 
 export const ROUTES = {

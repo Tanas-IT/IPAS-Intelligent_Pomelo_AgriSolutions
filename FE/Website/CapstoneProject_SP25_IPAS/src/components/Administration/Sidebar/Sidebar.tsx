@@ -198,8 +198,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Manage Grafted Plants",
           label: "Manage Grafted Plants",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.FARM.GRAFTED_PLANT_LIST,
+          activePaths: [PATHS.FARM.GRAFTED_PLANT_LIST],
         },
         {
           key: "Manage Criteria",

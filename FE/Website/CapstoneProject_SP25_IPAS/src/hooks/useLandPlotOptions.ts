@@ -13,7 +13,7 @@ const useLandPlotOptions = () => {
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((plot) => ({
           value: plot.id,
-          label: `${plot.code} - ${plot.name}`,
+          label: `${plot.name} - ${plot.code}`,
         }));
         setOptions(mappedOptions);
       }

@@ -38,6 +38,7 @@ import {
   PlantLotDetails,
   Criteria,
   PlantYield,
+  GraftedPlant,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -113,6 +114,7 @@ export const publicRoutes: RouteItem[] = [
   },
   { path: PATHS.FARM.CRITERIA_LIST, component: Criteria, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
+  { path: PATHS.FARM.GRAFTED_PLANT_LIST, component: GraftedPlant, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
