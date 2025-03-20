@@ -15,6 +15,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeReque
 
         public string? MasterTypeDescription { get; set; }
 
+        public int? MaxTime { get; set; }
+
+        public int? MinTime { get; set; }
+
         public bool? IsActive { get; set; }
 
         public string? Target { get; set; }
