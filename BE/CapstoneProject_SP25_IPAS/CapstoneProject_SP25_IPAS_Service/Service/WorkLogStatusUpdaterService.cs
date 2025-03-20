@@ -40,7 +40,7 @@ public class WorkLogStatusUpdaterService : BackgroundService
                 _logger.LogError(ex, "An error occurred while updating WorkLog statuses.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(20), stoppingToken); // Kiểm tra mỗi phút
+            await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // Kiểm tra mỗi phút
         }
     }
 

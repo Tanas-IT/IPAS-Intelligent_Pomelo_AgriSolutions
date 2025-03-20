@@ -646,5 +646,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> CheckMasterTypeWithTarget(int masterTypeId, string target)
+        {
+            try
+            {
+                var checkGetMastterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == masterTypeId);
+                if(checkGetMastterType != null)
+                {
+                    if(checkGetMastterType.Target != null && checkGetMastterType.Target.ToLower().Equals(target.ToLower()))
+                    {
+                        return new BusinessResult(200, "Valid", true);
+                    }
+                    return new BusinessResult(200, "Invalid", false);
+                }
+                return new BusinessResult(404, "Does not find any masterType");
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
