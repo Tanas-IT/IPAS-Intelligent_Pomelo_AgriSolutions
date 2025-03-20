@@ -47,7 +47,6 @@ const PlanTarget = ({
   const [form] = Form.useForm();
   const [selectedTargets, setSelectedTargets] = useState<SelectedTarget[][]>([]);
   const warningModal = useModal();
-  console.log("selectedTargets in add", selectedTargets);
   useEffect(() => {
     if (hasSelectedCrop) {
       onClearTargets(); // Gọi callback để xóa dữ liệu trong form
@@ -118,8 +117,6 @@ const PlanTarget = ({
         title: "Warning",
         description: "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
         onConfirm: () => {
-          console.log("Before reset - landPlotID:", form.getFieldValue(['planTargetModel', index, 'landPlotID']));
-          console.log("Before reset - selectedLandPlots:", selectedLandPlots);
           remove(index);
           setSelectedLandPlots((prev) => {
             const newSelectedLandPlots = [...prev];
@@ -133,8 +130,6 @@ const PlanTarget = ({
               },
             },
           });
-          console.log("After reset - landPlotID:", form.getFieldValue(['planTargetModel', index, 'landPlotID']));
-          console.log("After reset - selectedLandPlots:", selectedLandPlots);
           forceUpdate({});
           warningModal.hideModal(); // Đóng modal sau khi xử lý
         },
@@ -185,7 +180,6 @@ const PlanTarget = ({
             newSelectedLandRows[index] = [];
             return newSelectedLandRows;
           });
-          console.log("Before reset - landRowID:", form.getFieldValue(['planTargetModel', index, 'landRowID']));
 
           form.setFieldsValue({
             planTargetModel: {
@@ -194,7 +188,6 @@ const PlanTarget = ({
               },
             },
           });
-          console.log("After reset - landRowID:", form.getFieldValue(['planTargetModel', index, 'landRowID']));
 
           forceUpdate({});
           warningModal.hideModal(); // Đóng modal sau khi xử lý
@@ -278,15 +271,11 @@ const PlanTarget = ({
       return newSelectedPlants;
     });
   };
-  console.log("selectedTargets", selectedTargets);
-
 
   const renderFields = (unit: string, index: number, remove: (index: number) => void) => {
     const selectedTarget = selectedTargets[index];
     const selectedLandPlot = selectedLandPlots[index];
     const selectedLandRow = selectedLandRows[index];
-    console.log("selectedTarget in addplan", selectedTarget);
-    
 
     const isUnitDisabled = (unit === "graftedplant" || unit === "plantlot") &&
       selectedUnits.some((u, i) => i !== index && u === unit);
@@ -313,8 +302,6 @@ const PlanTarget = ({
           <Select
             placeholder="Select Land Plot"
             onChange={(value) => {
-              console.log("log index", index);
-
               handleLandPlotChange(value, index, remove)
             }}
           >

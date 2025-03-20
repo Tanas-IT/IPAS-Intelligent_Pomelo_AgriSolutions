@@ -89,6 +89,7 @@ const AddPlan = () => {
   const [targetType, setTargetType] = useState<string>();
   const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
   const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
+  const [masterTypeGrafting, setMasterTypeGrafting] = useState<number[]>([]);
 
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
@@ -136,13 +137,12 @@ const AddPlan = () => {
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
       if (targetType === "graftedPlant") {
-        const masterTypeGrafting = await masterTypeService.getProcessTypeSelect("Grafting");
-        console.log("masterTypeGrafting", masterTypeGrafting.data.map((m) => m.id));
+        const result = await masterTypeService.getProcessTypeSelect("Grafting");
         
-        if(masterTypeGrafting.statusCode === 200) {
+        if(result.statusCode === 200) {
           console.log("thanh cong");
-          
-          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(masterTypeGrafting.data.map((m) => m.id)));
+          setMasterTypeGrafting(result.data.map((m) => m.id));
+          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
         } else {
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
         }
@@ -161,7 +161,9 @@ const AddPlan = () => {
     });
   
     if (target === "graftedPlant") {
-      setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+      console.log("masterTypeGrafting", masterTypeGrafting);
+      
+      setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(masterTypeGrafting));
       form.setFieldValue("growthStageId", undefined);
       form.setFieldValue("processId", undefined);
       setIsLockedGrowthStage(false);
@@ -240,7 +242,6 @@ const AddPlan = () => {
       });
     }
   };
-  console.log(form.getFieldsValue());
 
   const handleDateChange = (dates: Dayjs[]) => {
     if (!dateRange) {
@@ -574,8 +575,6 @@ const AddPlan = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  console.log("s k log duoc employee", employee);
-  
 
   return (
     <div className={style.contentSectionBody}>
