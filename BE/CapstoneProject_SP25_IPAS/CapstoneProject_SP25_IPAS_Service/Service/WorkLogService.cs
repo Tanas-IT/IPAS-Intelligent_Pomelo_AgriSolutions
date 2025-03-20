@@ -1082,6 +1082,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);
                 await _unitOfWork.WorkLogRepository.Insert(addNewWorkLog);
+
+                var addNotification = new Notification()
+                {
+                    Content = "Work " + addNewTaskModel.WorkLogName + " has just been created",
+                    Title = "Plan",
+                    IsRead = false,
+                    MasterTypeId = 36,
+                    CreateDate = DateTime.Now,
+                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                };
+                await _unitOfWork.NotificationRepository.Insert(addNotification);
+                await _unitOfWork.SaveAsync();
+                foreach (var employee in addNewTaskModel.listEmployee)
+                {
+                    var addPlanNotification = new PlanNotification()
+                    {
+                        NotificationID = addNotification.NotificationId,
+                        CreatedDate = DateTime.Now,
+                        UserID = employee.UserId,
+                        isRead = false,
+                    };
+
+                    await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                }
+                foreach (var employeeModel in addNewTaskModel.listEmployee)
+                {
+                    await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                }
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
@@ -1100,34 +1129,74 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkUser = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == updateStatusWorkLogModel.UserId && x.UserFarms.Any(x => x.FarmId == farmId), "Role,UserFarms");
                 var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(updateStatusWorkLogModel.WorkLogId);
                 if (getWorkLogToUpdate == null)
                 {
                     return new BusinessResult(404, "WorkLog does not exist");
 
                 }
-                if (checkUser.Role.RoleName.ToLower().Equals("manager"))
-                {
 
-                    var validStatuses = typeof(WorkLogStatusConst)
-                        .GetFields(BindingFlags.Public | BindingFlags.Static)
-                        .Select(f => f.GetValue(null)?.ToString().ToLower()) // Chuyển tất cả về chữ thường
-                        .ToList();
-                    if (!validStatuses.Contains(updateStatusWorkLogModel.Status))
-                    {
-                        return new BusinessResult(400, "Status does not valid. It must be Not Started, In Progress, Overdue, Review or Done");
-                    }
-                    getWorkLogToUpdate.Status = updateStatusWorkLogModel.Status;
-                }
-                else
+                var validStatuses = typeof(WorkLogStatusConst)
+                    .GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Select(f => f.GetValue(null)?.ToString().ToLower()) // Chuyển tất cả về chữ thường
+                    .ToList();
+                if (!validStatuses.Contains(updateStatusWorkLogModel.Status))
                 {
-                    getWorkLogToUpdate.Status = "Reviewing";
+                    return new BusinessResult(400, "Status does not valid");
                 }
+                getWorkLogToUpdate.Status = updateStatusWorkLogModel.Status;
+
+
+                var parseStartTime = TimeSpan.TryParse(updateStatusWorkLogModel.StartTime, out var startTime);
+                var parseEndTime = TimeSpan.TryParse(updateStatusWorkLogModel.EndTime, out var endTime);
+
+                if(parseStartTime)
+                {
+                    getWorkLogToUpdate.ActualStartTime = startTime;
+                }
+                if(parseEndTime)
+                {
+                    getWorkLogToUpdate.ActualEndTime = endTime;
+                }
+                if(updateStatusWorkLogModel.DateWork != null)
+                {
+                    getWorkLogToUpdate.Date = updateStatusWorkLogModel.DateWork;
+                }
+
+
                 _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
+
+                    var addNotification = new Notification()
+                    {
+                        Content = "Work " + getWorkLogToUpdate.WorkLogName + " has adjusted. Please check schedule",
+                        Title = "Plan",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    foreach (var employee in getWorkLogToUpdate.UserWorkLogs)
+                    {
+                        var addPlanNotification = new PlanNotification()
+                        {
+                            NotificationID = addNotification.NotificationId,
+                            CreatedDate = DateTime.Now,
+                            UserID = employee.UserId,
+                            isRead = false,
+                        };
+
+                        await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                    }
+                    foreach (var employeeModel in getWorkLogToUpdate.UserWorkLogs)
+                    {
+                        await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                    }
                     return new BusinessResult(200, "Update Status of WorkLog Success");
                 }
                 else
