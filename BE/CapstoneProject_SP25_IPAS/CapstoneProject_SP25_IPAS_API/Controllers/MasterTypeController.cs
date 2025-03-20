@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -203,6 +204,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue || string.IsNullOrEmpty(typeName))
                     return BadRequest();
                 var result = await _masterTypeService.GetMasterTypeForSelected(MasterTypeName: typeName, farmId:farmId!.Value, target: target);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.MasterType.checkMasterTypeByTarget, Name = "checkMasterTypeByTarget")]
+        public async Task<IActionResult> CheckMasterTypeByTarget([FromBody] CheckByTargetModel checkByTargetModel)
+        {
+            try
+            {
+                var result = await _masterTypeService.CheckMasterTypeWithTarget(checkByTargetModel.MasterTypeId, checkByTargetModel.Target);
                 return Ok(result);
             }
             catch (Exception ex)

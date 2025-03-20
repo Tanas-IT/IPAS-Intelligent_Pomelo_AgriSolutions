@@ -101,6 +101,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getMasterTypeByName = Base + "/masterTypes/get-masterType-by-name";
             public const string softedDelete = Base + "/masterTypes/delete-softed";
             public const string getForSelected = Base + "/masterTypes/get-for-selected";
+            public const string checkMasterTypeByTarget = Base + "/masterTypes/check-by-target";
 
         }
 
