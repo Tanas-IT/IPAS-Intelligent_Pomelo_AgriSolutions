@@ -27,6 +27,25 @@ const columns = [
     dataIndex: "criteriaDescription",
     key: "criteriaDescription",
     align: "center" as const,
+    render: (text: string) => (text?.trim() ? text : "N/A"),
+  },
+  {
+    title: "Min Value",
+    dataIndex: "minValue",
+    key: "minValue",
+    align: "center" as const,
+  },
+  {
+    title: "Max Value",
+    dataIndex: "maxValue",
+    key: "maxValue",
+    align: "center" as const,
+  },
+  {
+    title: "Unit",
+    dataIndex: "unit",
+    key: "unit",
+    align: "center" as const,
   },
   {
     title: "Priority",

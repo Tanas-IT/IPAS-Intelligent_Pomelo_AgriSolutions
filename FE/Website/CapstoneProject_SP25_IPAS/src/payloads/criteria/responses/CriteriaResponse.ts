@@ -3,6 +3,9 @@ export interface GetCriteria {
   criteriaCode: string;
   criteriaName: string;
   criteriaDescription: string;
+  minValue: number;
+  maxValue: number;
+  unit: string;
   priority: number;
 }
 

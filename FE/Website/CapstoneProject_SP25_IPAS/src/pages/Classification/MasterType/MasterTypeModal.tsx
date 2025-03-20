@@ -2,12 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import {
-  CRITERIA_TARGETS,
-  MASTER_TYPE_SHOW_TABLE,
-  masterTypeFormFields,
-  WORK_TARGETS,
-} from "@/constants";
+import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, WORK_TARGETS } from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
@@ -34,14 +29,8 @@ const MasterTypeModel = ({
     value: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
     label: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
   }));
-  const criteriaTargetOptions = Object.keys(CRITERIA_TARGETS).map((key) => ({
-    value: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-    label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-  }));
 
-  const handleSwitchChange = (newChecked: boolean) => {
-    setChecked(newChecked);
-  };
+  const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);
 
   const resetForm = () => {
     form.resetFields();
@@ -65,6 +54,8 @@ const MasterTypeModel = ({
     masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
     masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
     typeName: form.getFieldValue(masterTypeFormFields.typeName),
+    minTime: form.getFieldValue(masterTypeFormFields.minTime),
+    maxTime: form.getFieldValue(masterTypeFormFields.maxTime),
     isActive: checked,
     isConflict: form.getFieldValue(masterTypeFormFields.isConflict),
     target: form.getFieldValue(masterTypeFormFields.target),
@@ -167,6 +158,7 @@ const MasterTypeModel = ({
                     },
                   },
                 ]}
+                dependencies={[masterTypeFormFields.minTime]}
               />
             </Flex>
 

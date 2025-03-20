@@ -50,6 +50,9 @@ export const createCriteria = async (
       criteriaName: item.criteriaName,
       criteriaDescription: item.criteriaDescription,
       priority: item.priority,
+      minValue: item.minValue,
+      maxValue: item.maxValue,
+      unit: item.unit,
       isActive: true,
     })),
   };
@@ -74,12 +77,14 @@ export const updateCriteria = async (
       criteriaId: item.criteriaId,
       criteriaName: item.criteriaName,
       criteriaDescription: item.criteriaDescription,
+      minValue: item.minValue,
+      maxValue: item.maxValue,
+      unit: item.unit,
       priority: item.priority,
       isActive: true,
     })),
   };
-  console.log(formatUpdateData);
-  
+
   const res = await axiosAuth.axiosJsonRequest.put(
     `criterias/update-list-criteria`,
     formatUpdateData,
