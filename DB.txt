@@ -1214,7 +1214,8 @@ VALUES
     ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
     ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
     ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL);
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
+    ('MT040', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'PlantLot');
 
 GO
 GO
