@@ -471,6 +471,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+
+                    var checkExistUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(model.Email);
+                    if (checkExistUser != null)
+                    {
+                        return new BusinessResult(Const.WARNING_ACCOUNT_IS_EXISTED_CODE, Const.WARNING_ACCOUNT_IS_EXISTED_MSG);
+                    }
                     var newUser = new User()
                     {
                         Email = model.Email,
@@ -484,15 +490,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = "Active",
                         IsDelete = false,
                     };
-
-                    var checkExistUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(model.Email);
-                    if (checkExistUser != null)
-                    {
-                        return new BusinessResult(Const.WARNING_ACCOUNT_IS_EXISTED_CODE, Const.WARNING_ACCOUNT_IS_EXISTED_MSG);
-                    }
                     if (model.Password != null)
                     {
-                        newUser.Password = PasswordHelper.HashPassword(model.Password);
+                        model.Password = PasswordHelper.HashPassword(model.Password);
                     }
                     var role = await _unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.USER);
                     if (role != null)
