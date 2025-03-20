@@ -19,6 +19,12 @@
     .select {
       min-width: 10rem;
     }
+    .filterField {
+      // flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
   }
   .chartTableContainer {
     width: 100%;
@@ -28,6 +34,10 @@
     .chartContainer {
       width: 100%;
       height: 300px;
+      .chartTitle {
+        font-weight: bold;
+        color: rgba(0, 0, 0, 0.88);
+      }
     }
   }
 

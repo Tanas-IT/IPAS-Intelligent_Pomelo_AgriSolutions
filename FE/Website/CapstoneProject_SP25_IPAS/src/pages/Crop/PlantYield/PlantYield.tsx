@@ -25,146 +25,22 @@ import {
 } from "recharts";
 import style from "./PlantYield.module.scss";
 import { useMasterTypeOptions } from "@/hooks";
-import { healthStatusColors, MASTER_TYPE } from "@/constants";
+import { healthStatusColors, MASTER_TYPE, ROUTES } from "@/constants";
 import dayjs from "dayjs";
 import { harvestService } from "@/services";
 import { GetHarvestStatisticPlants } from "@/payloads";
+import { useNavigate } from "react-router-dom";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
-
-const seasonOptions = ["Spring", "Summer", "Autumn", "Winter", "Rainy", "Dry"];
-
-// Dữ liệu giả lập
-// const fakeData = [
-//   {
-//     id: 1,
-//     name: "Tree A",
-//     yield: 50,
-//     productType: "Type 1",
-//     healthStatus: "Good",
-//     plantingDate: "2023-05-10",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 1",
-//     rowIndex: 1,
-//     isDead: false,
-//   },
-//   {
-//     id: 2,
-//     name: "Tree B",
-//     yield: 30,
-//     productType: "Type 1",
-//     healthStatus: "Average",
-//     plantingDate: "2023-06-15",
-//     growthStageName: "Young",
-//     landPlotName: "Plot 1",
-//     rowIndex: 2,
-//     isDead: false,
-//   },
-//   {
-//     id: 3,
-//     name: "Tree C",
-//     yield: 70,
-//     productType: "Type 1",
-//     healthStatus: "Good",
-//     plantingDate: "2022-12-20",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 2",
-//     rowIndex: 1,
-//     isDead: false,
-//   },
-//   {
-//     id: 4,
-//     name: "Tree D",
-//     yield: 90,
-//     productType: "Type 1",
-//     healthStatus: "Poor",
-//     plantingDate: "2024-01-05",
-//     growthStageName: "Seedling",
-//     landPlotName: "Plot 2",
-//     rowIndex: 2,
-//     isDead: false,
-//   },
-//   {
-//     id: 5,
-//     name: "Tree E",
-//     yield: 20,
-//     productType: "Type 1",
-//     healthStatus: "Good",
-//     plantingDate: "2023-08-30",
-//     growthStageName: "Young",
-//     landPlotName: "Plot 3",
-//     rowIndex: 3,
-//     isDead: false,
-//   },
-//   {
-//     id: 6,
-//     name: "Tree F",
-//     yield: 80,
-//     productType: "Type 3",
-//     healthStatus: "Excellent",
-//     plantingDate: "2022-10-12",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 3",
-//     rowIndex: 1,
-//     isDead: false,
-//   },
-//   {
-//     id: 7,
-//     name: "Tree G",
-//     yield: 40,
-//     productType: "Type 1",
-//     healthStatus: "Average",
-//     plantingDate: "2023-09-05",
-//     growthStageName: "Young",
-//     landPlotName: "Plot 4",
-//     rowIndex: 2,
-//     isDead: false,
-//   },
-//   {
-//     id: 8,
-//     name: "Tree H",
-//     yield: 60,
-//     productType: "Type 2",
-//     healthStatus: "Good",
-//     plantingDate: "2023-07-25",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 4",
-//     rowIndex: 3,
-//     isDead: false,
-//   },
-//   {
-//     id: 9,
-//     name: "Tree I",
-//     yield: 100,
-//     productType: "Type 3",
-//     healthStatus: "Excellent",
-//     plantingDate: "2022-11-11",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 5",
-//     rowIndex: 1,
-//     isDead: false,
-//   },
-//   {
-//     id: 10,
-//     name: "Tree J",
-//     yield: 110,
-//     productType: "Type 1",
-//     healthStatus: "Good",
-//     plantingDate: "2023-04-20",
-//     growthStageName: "Mature",
-//     landPlotName: "Plot 5",
-//     rowIndex: 2,
-//     isDead: false,
-//   },
-// ];
 
 const COLORS = ["#4CAF50", "#FFC107", "#FF5733"]; // Xanh lá, vàng, đỏ
 
 const PlantYield = () => {
+  const navigate = useNavigate();
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const [yearRange, setYearRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
-  const [topX, setTopX] = useState<number>(10);
+  const [topX, setTopX] = useState<number | null>(null);
   const [productType, setProductType] = useState<number>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticPlants[]>([]);
 
@@ -178,9 +54,8 @@ const PlantYield = () => {
       yearTo: toYear,
       productId: Number(productType),
     });
-    console.log(res.data);
 
-    setHarvestData(res.data);
+    setHarvestData(res.data ?? []);
   };
 
   useEffect(() => {
@@ -211,6 +86,12 @@ const PlantYield = () => {
     { name: "Low Yield Trees", value: lowYieldCount },
   ];
 
+  const handleClick = (plantId: number) => {
+    navigate(ROUTES.FARM_PLANT_DETAIL(plantId), {
+      state: { productType, yearRange: yearRange?.map((t) => t.toISOString()) },
+    });
+  };
+
   return (
     <div className={style.container}>
       {/* Header */}
@@ -221,17 +102,21 @@ const PlantYield = () => {
 
       {/* Bộ lọc */}
       <Flex className={style.filterContainer}>
-        <RangePicker picker="year" value={yearRange} onChange={handleYearChange} allowClear />
+        <Flex className={style.filterField}>
+          <Text strong>Timeline:</Text>
+          <RangePicker picker="year" value={yearRange} onChange={handleYearChange} />
+        </Flex>
 
         <Select
           className={style.select}
           placeholder="Top X"
           onChange={(value) => setTopX(Number(value))}
           value={topX}
-          allowClear
         >
           <Select.Option value={5}>Top 5</Select.Option>
           <Select.Option value={10}>Top 10</Select.Option>
+          <Select.Option value={15}>Top 15</Select.Option>
+          <Select.Option value={20}>Top 20</Select.Option>
         </Select>
 
         <Select
@@ -240,8 +125,7 @@ const PlantYield = () => {
           onChange={setProductType}
           value={productType}
           options={productOptions}
-          allowClear
-        ></Select>
+        />
       </Flex>
 
       <Divider className={style.divider} />
@@ -254,16 +138,23 @@ const PlantYield = () => {
             {harvestData.length > 0 ? (
               <>
                 <div className={style.chartContainer} style={{ flex: 2 }}>
+                  <Flex style={{ width: "100%" }} justify="center" align="center">
+                    <label className={style.chartTitle}>🌱 Top 10 Highest-Yielding Plants</label>
+                  </Flex>
                   <ResponsiveContainer>
-                    <BarChart data={harvestData} barSize={40}>
+                    <BarChart data={harvestData.slice(0, 10)} barSize={40}>
                       <XAxis dataKey="plant.plantName" />
                       <YAxis />
-                      <Tooltip />
+                      <Tooltip formatter={(value) => [`${value} kg`, "Yield"]} />
                       <Bar
                         dataKey="totalQuantity"
                         name="Yield"
                         fill="#4CAF50"
                         radius={[8, 8, 0, 0]}
+                        style={{ cursor: "pointer" }}
+                        onClick={(data: GetHarvestStatisticPlants) =>
+                          handleClick(data.plant.plantId)
+                        }
                       />
                     </BarChart>
                   </ResponsiveContainer>
@@ -342,7 +233,7 @@ const PlantYield = () => {
                   title: "Action",
                   key: "action",
                   render: (_, record) => (
-                    <Button type="dashed" onClick={() => {}}>
+                    <Button type="dashed" onClick={() => handleClick(record.plant.plantId)}>
                       View Details
                     </Button>
                   ),

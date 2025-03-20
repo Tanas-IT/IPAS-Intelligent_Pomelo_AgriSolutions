@@ -32,6 +32,7 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using static System.Net.Mime.MediaTypeNames;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {

@@ -31,5 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds);
         public Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName);
+        public Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId);
+        public Task<BusinessResult> GetPlanByProcessID(int processId);
     }
 }

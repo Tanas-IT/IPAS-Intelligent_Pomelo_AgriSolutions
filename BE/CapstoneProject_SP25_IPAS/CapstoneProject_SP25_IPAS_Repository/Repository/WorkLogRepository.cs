@@ -251,7 +251,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<WorkLog> GetWorkLogIncludeById(int workLogId)
         {
-            var result = await _context.WorkLogs.Include(x => x.Schedule)
+            var result = await _context.WorkLogs
+                        .Include(x => x.Schedule)
+                        .Include(x => x.Schedule.CarePlan.Crop)
+                        .Include(x => x.Schedule.CarePlan.MasterType)
+                        .Include(x => x.Schedule.CarePlan.Process)
                         .Include(x => x.TaskFeedbacks)
                         .ThenInclude(x => x.Manager)
                         .Include(x => x.Schedule.CarePlan.GrowthStagePlans)
@@ -321,7 +325,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         var wl2 = workLogsForUser[j];
                         if (wl1.Schedule?.StartTime < wl2.Schedule?.EndTime && wl1.Schedule?.EndTime > wl2.Schedule?.StartTime)
                         {
-                            throw new Exception($"User {userId} has overlapping WorkLogs {wl1.WorkLogId} and {wl2.WorkLogId}.");
+                            throw new Exception($"User {userId} has overlapping WorkLogs {wl1.WorkLogName} and {wl2.WorkLogName}.");
                         }
                     }
                 }

@@ -21,6 +21,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.GrowthStageMasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GrowthStageRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -254,6 +255,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                             src.PlanTargets.Where(pt => pt.GraftedPlant != null).Select(pt => pt.GraftedPlant.GraftedPlantName).Distinct().ToList()))
                .ForMember(dest => dest.GrowthStages, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => new ForSelectedModels() { Id = pt.GrowthStage.GrowthStageID, Name = pt.GrowthStage.GrowthStageName }).Distinct().ToList()))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : (string?)null))
+               .ForMember(dest => dest.MinTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MinTime : (int?)null))
+               .ForMember(dest => dest.MaxTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MaxTime : (int?)null))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : (string?)null))
                .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
@@ -432,6 +435,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
+            .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
             .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
             .ForMember(dest => dest.TypeWork, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))

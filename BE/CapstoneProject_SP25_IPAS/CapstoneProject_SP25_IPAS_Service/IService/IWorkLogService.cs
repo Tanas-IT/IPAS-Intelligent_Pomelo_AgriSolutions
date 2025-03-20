@@ -17,6 +17,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId);
         public Task<BusinessResult> GetScheduleWithFilters(ScheduleFilter scheduleFilter, int? farmId);
         public Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId);
+        public Task<BusinessResult> AddNewWorkLog(AddWorkLogModel addNewTaskModel, int? farmId);
+        public Task<BusinessResult> UpdateStatusWorkLog(UpdateStatusWorkLogModel updateStatusWorkLogModel, int? farmId);
         public Task<BusinessResult> GetDetailWorkLog(int workLogId);
         public Task<BusinessResult> UpdateWorkLog(UpdateWorkLogModel updateWorkLogModel, int? farmId);
         public Task<BusinessResult> NoteForWorkLog(CreateNoteModel createNoteModel);

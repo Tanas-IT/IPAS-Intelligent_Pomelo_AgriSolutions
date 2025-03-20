@@ -171,5 +171,52 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
+        public async Task<List<Plan>> GetPlanIncludeByProcessId(int processId)
+        {
+            var result = await _context.Plans
+                                     .Include(x => x.MasterType)
+                                     .Include(x => x.Process)
+                                     .Include(x => x.User)
+                                     .Include(x => x.Crop)
+                                     .ThenInclude(x => x.LandPlotCrops)
+                                     .ThenInclude(x => x.LandPlot)
+                                     .Include(x => x.CarePlanSchedule)
+                                     .Include(x => x.GrowthStagePlans)
+                                     .Where(x => x.ProcessId == processId && x.IsDelete == false).ToListAsync();
+            return result;
+        }
+
+        public async Task<bool> UpdatePlan(Plan plan)
+        {
+            var getPlanToUpdate = await _context.Plans.FirstOrDefaultAsync(x => x.PlanId == plan.PlanId);
+            if (getPlanToUpdate != null)
+            {
+                 
+                getPlanToUpdate.PlanDetail = plan.PlanDetail;
+                getPlanToUpdate.Frequency = plan.Frequency;
+                getPlanToUpdate.PlanName = plan.PlanName;
+                getPlanToUpdate.Status = plan.Status;
+                getPlanToUpdate.StartDate = plan.StartDate;
+                getPlanToUpdate.EndDate = plan.EndDate;
+                getPlanToUpdate.AssignorId = plan.AssignorId;
+                getPlanToUpdate.PesticideName = plan.PesticideName;
+                getPlanToUpdate.MaxVolume = plan.MaxVolume;
+                getPlanToUpdate.MinVolume = plan.MinVolume;
+                getPlanToUpdate.ProcessId = plan.ProcessId;
+                getPlanToUpdate.SubProcessId = plan.SubProcessId;
+                getPlanToUpdate.CropId = plan.CropId;
+                getPlanToUpdate.IsDelete = plan.IsDelete;
+                getPlanToUpdate.MasterTypeId = plan.MasterTypeId;
+                getPlanToUpdate.ResponsibleBy = plan.ResponsibleBy;
+                getPlanToUpdate.Notes = plan.Notes;
+                getPlanToUpdate.UpdateDate = DateTime.Now;
+                getPlanToUpdate.IsDelete = plan.IsDelete;
+                _context.Plans.Update(getPlanToUpdate);
+                var result = await _context.SaveChangesAsync();
+                return result > 0;
+            }
+            return false;
+        }
+
     }
 }

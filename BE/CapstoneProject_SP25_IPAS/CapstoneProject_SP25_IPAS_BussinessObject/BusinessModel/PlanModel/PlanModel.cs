@@ -65,6 +65,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
 
 
         public string? MasterTypeName { get; set; }
+        public DateTime? MinTime { get; set; }
+        public DateTime? MaxTime { get; set; }
         public int? MasterTypeId { get; set; }
         public string? AssignedTo { get; set; }
         public string? AvatarOfAssignor { get; set; }
