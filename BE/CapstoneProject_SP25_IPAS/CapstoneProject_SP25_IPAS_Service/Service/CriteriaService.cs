@@ -88,6 +88,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             existingCriteria.Priority = request.Priority;
                             existingCriteria.FrequencyDate = request.FrequencyDate;
                             existingCriteria.IsActive = request.IsActive;
+                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue > request.MaxValue)
+                                return new BusinessResult(400, "Min value must smaller than max value");
                             existingCriteria.MinValue = request.MinValue;
                             existingCriteria.MaxValue = request.MaxValue;
                             existingCriteria.Unit = request.Unit;
@@ -97,6 +99,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         else
                         {
+                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue > request.MaxValue)
+                                return new BusinessResult(400, "Min value must smaller than max value");
                             // Thêm mới
                             var newCriteria = new Criteria
                             {
@@ -106,6 +110,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsActive = true,
                                 IsDeleted = false,
                                 IsDefault = false,
+                                MinValue = request.MinValue,
+                                MaxValue = request.MaxValue,
                                 FrequencyDate = request.FrequencyDate,
                                 MasterTypeID = masterType.MasterTypeId,
                                 CriteriaCode = $"{CodeAliasEntityConst.CRITERIA}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
@@ -177,7 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (!string.IsNullOrEmpty(criteriaUpdateRequests.CriteriaDescription))
                         criteria.CriteriaDescription = criteriaUpdateRequests.CriteriaDescription;
                     if (criteriaUpdateRequests.Priority.HasValue)
-                    criteria.Priority = criteriaUpdateRequests.Priority;
+                        criteria.Priority = criteriaUpdateRequests.Priority;
                     if (criteriaUpdateRequests.IsActive.HasValue)
                         criteria.IsActive = criteriaUpdateRequests.IsActive;
                     if (!string.IsNullOrEmpty(criteriaUpdateRequests.Unit))
@@ -235,7 +241,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             CriteriaId = pc.Criteria!.CriteriaId,
                             CriteriaName = pc.Criteria!.CriteriaName!,
                             Description = pc.Criteria!.CriteriaDescription!,
-                            IsChecked = pc.IsChecked,
+                            //IsChecked = pc.IsChecked,
+                            MinValue = pc.Criteria.MinValue,
+                            MaxValue = pc.Criteria.MaxValue,
+                            ValueChecked = pc.ValueChecked,
                             CreateDate = pc.CreateDate,
                             CheckedDate = pc.CheckedDate,
                             IsPassed = pc.IsPassed,

@@ -58,7 +58,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Characteristic = createMasterTypeModel.Characteristic,
                         IsConflict = createMasterTypeModel.IsConflict,
                         Target = createMasterTypeModel.Target,
+
                     };
+                    if ((createMasterTypeModel.MaxTime.HasValue && !createMasterTypeModel.MinTime.HasValue) || (!createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue))
+                    {
+                        return new BusinessResult(400, "You must input both Min Time and Max Time to use Time");
+                    }
+                    else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime >= createMasterTypeModel.MaxTime)
+                    {
+                        return new BusinessResult(400, "Min time must smaller than max time");
+                    }
+                    else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime < createMasterTypeModel.MaxTime)
+                    {
+                        newMasterType.MinTime = createMasterTypeModel.MinTime;
+                        newMasterType.MaxTime = createMasterTypeModel.MaxTime;
+                    }
+
                     //if (createMasterTypeModel.createMasterTypeDetail?.Any() == true)
                     //{
                     //    foreach (var item in createMasterTypeModel.createMasterTypeDetail)
@@ -476,6 +491,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updateMasterTypeModel.IsConflict.HasValue)
                         {
                             checkExistMasterType.IsConflict = updateMasterTypeModel.IsConflict.Value;
+                        }
+                        if (updateMasterTypeModel.MaxTime.HasValue)
+                        {
+                            checkExistMasterType.MaxTime = updateMasterTypeModel.MaxTime.Value;
+                        }
+                        if (updateMasterTypeModel.MinTime.HasValue)
+                        {
+                            checkExistMasterType.MinTime = updateMasterTypeModel.MinTime.Value;
                         }
                         //var existingResources = update.Resources.ToList();
                         // Xóa tài nguyên cũ không có trong request
