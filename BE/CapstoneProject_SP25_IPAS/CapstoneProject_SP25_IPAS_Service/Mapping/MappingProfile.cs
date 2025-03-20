@@ -255,8 +255,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                             src.PlanTargets.Where(pt => pt.GraftedPlant != null).Select(pt => pt.GraftedPlant.GraftedPlantName).Distinct().ToList()))
                .ForMember(dest => dest.GrowthStages, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => new ForSelectedModels() { Id = pt.GrowthStage.GrowthStageID, Name = pt.GrowthStage.GrowthStageName }).Distinct().ToList()))
                .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MasterTypeName : (string?)null))
-               .ForMember(dest => dest.MinTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MinTime : (DateTime?)null))
-               .ForMember(dest => dest.MaxTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MaxTime : (DateTime?)null))
+               .ForMember(dest => dest.MinTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MinTime : (int?)null))
+               .ForMember(dest => dest.MaxTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MaxTime : (int?)null))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : (string?)null))
                .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
