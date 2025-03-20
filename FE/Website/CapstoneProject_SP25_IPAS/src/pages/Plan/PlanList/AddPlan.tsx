@@ -90,6 +90,7 @@ const AddPlan = () => {
   const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
   const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
   const [masterTypeGrafting, setMasterTypeGrafting] = useState<number[]>([]);
+  const [masterTypePlantLot, setMasterTypePlantLot] = useState<number[]>([]);
 
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: landPlots } = useLandPlotOptions();
@@ -146,6 +147,15 @@ const AddPlan = () => {
         } else {
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
         }
+      } else if (targetType === "plantLot") {
+        const result = await masterTypeService.getProcessTypeSelect("PlantLot");
+        
+        if(result.statusCode === 200) {
+          setMasterTypePlantLot(result.data.map((m) => m.id));
+          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+        } else {
+          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
+        }
       } else {
         setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       }
@@ -191,16 +201,17 @@ const AddPlan = () => {
       const masterTypeId = await getTypeOfProcess(processId);
       form.setFieldValue("masterTypeId", Number(masterTypeId));
       setIsLockedGrowthStage(true);
-      // neu process co type la grafting
+      // neu process co target la grafting
       if (masterTypeId === 14) {
         setTargetType("graftedPlant");
         form.setFieldValue("planTarget", "graftedPlant");
         form.setFieldValue("growthStageId", undefined);
         setIsLockedGrowthStage(true);
       } else if (targetType === "plantLot") {
-        // const growthStageId = await getGrowthStageOfProcess(processId);
-        form.setFieldValue("growthStageId", [growthStageId]);
-        setSelectedGrowthStage([growthStageId]);
+        setTargetType("plantLot");
+        form.setFieldValue("planTarget", "plantLot");
+        form.setFieldValue("growthStageId", undefined);
+        setIsLockedGrowthStage(true);
       } else {
         form.setFieldValue("growthStageId", [growthStageId]);
         setSelectedGrowthStage([growthStageId]);

@@ -73,6 +73,10 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
         }
     };
 
+    const handleProcessTypeChange = (masterTypeId: number) => {
+        // đợi api 
+    }
+
 
 
     useEffect(() => {

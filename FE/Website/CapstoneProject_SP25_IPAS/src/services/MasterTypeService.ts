@@ -102,3 +102,10 @@ export const getProcessTypeSelect = async (
   const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
   return apiResponse;
 };
+
+export const IsMasterTypeHasTarget =  async (masterTypeId: number, target: string) => {
+  const res = await axiosAuth.axiosJsonRequest.get(``, {
+    masterTypeId,
+    target
+  })
+}
