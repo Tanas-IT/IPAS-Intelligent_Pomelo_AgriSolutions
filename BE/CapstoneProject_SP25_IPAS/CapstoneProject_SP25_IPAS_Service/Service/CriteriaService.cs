@@ -88,7 +88,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             existingCriteria.Priority = request.Priority;
                             existingCriteria.FrequencyDate = request.FrequencyDate;
                             existingCriteria.IsActive = request.IsActive;
-                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue < request.MaxValue)
+                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue > request.MaxValue)
                                 return new BusinessResult(400, "Min value must smaller than max value");
                             existingCriteria.MinValue = request.MinValue;
                             existingCriteria.MaxValue = request.MaxValue;
@@ -99,7 +99,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         else
                         {
-                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue < request.MaxValue)
+                            if (request.MinValue.HasValue && request.MaxValue.HasValue && request.MinValue > request.MaxValue)
                                 return new BusinessResult(400, "Min value must smaller than max value");
                             // Thêm mới
                             var newCriteria = new Criteria
