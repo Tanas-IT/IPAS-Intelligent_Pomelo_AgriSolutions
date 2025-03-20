@@ -35,24 +35,27 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
 
                     _ = int.TryParse(jwtToken?.Claims.FirstOrDefault(c => c.Type == TokenClaimKeyConst.FARMID_KEY).Value, out farmId);
                 }
-
-                var expiredDate = await _context.Orders.Where(o =>
-                                o.FarmId == farmId && o.Farm.IsDeleted == false)
-                    .MaxAsync(o => o.ExpiredDate);
-                    
-                if (expiredDate.HasValue && expiredDate <= DateTime.Now)
+                if (farmId != 0)
                 {
-                    var response = new BaseResponse
+
+                    var expiredDate = await _context.Orders.Where(o =>
+                                    o.FarmId == farmId && o.Farm.IsDeleted == false)
+                        .MaxAsync(o => o.ExpiredDate);
+
+                    if (expiredDate.HasValue && expiredDate <= DateTime.Now)
                     {
-                        StatusCode = StatusCodes.Status402PaymentRequired,
-                        Message = "Your farm has been expired. Contact support for further details",
-                        Data = null,
-                        IsSuccess = false
-                    };
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-                    return;
+                        var response = new BaseResponse
+                        {
+                            StatusCode = StatusCodes.Status402PaymentRequired,
+                            Message = "Your farm has been expired. Contact support for further details",
+                            Data = null,
+                            IsSuccess = false
+                        };
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                        return;
+                    }
                 }
 
                 // Nếu farm hợp lệ, tiếp tục xử lý request

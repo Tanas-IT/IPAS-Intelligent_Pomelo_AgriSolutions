@@ -139,7 +139,7 @@ app.UseWebSockets(webSocketOptions);
 app.UseMiddleware<WebSocketMiddleware>();
 
 //app.UseMiddleware<AuthorizeMiddleware>();
-app.UseMiddleware<FarmExpiredMiddleware>();
+//app.UseMiddleware<FarmExpiredMiddleware>();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
