@@ -249,6 +249,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             CreateDate = pc.CreateDate,
                             CheckedDate = pc.CheckedDate,
                             IsPassed = pc.IsPassed,
+                            FrequencyDate = pc.Criteria.FrequencyDate
                         }).ToList()
                     })
                     .OrderBy(x => x.Target)
