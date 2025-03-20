@@ -5,7 +5,10 @@ export class RulesManager {
   static getNumberRules(fieldName: string) {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
-      { pattern: /^(0|[1-9][0-9]*)(\.[0-9]+)?$/, message: `${fieldName} must be a valid number!` },
+      {
+        pattern: /^(?!0$)(\d+(\.\d+)?$)/,
+        message: `${fieldName} must be a valid number greater than 0!`,
+      },
     ];
   }
   static getTextRules(fieldName: string, min = 2, max = 50, regex = /^[a-zA-ZÀ-ỹ\s]+$/) {
@@ -99,6 +102,7 @@ export class RulesManager {
   static getTypeNameRules = () => this.getRequiredRules("Type Name");
   static getTargetRules = () => this.getRequiredRules("Target");
   static getIsConflictRules = () => this.getRequiredRules("Can Overlap");
+  static getTimeRangeRules = () => this.getNumberRules("Time");
   static getTypeRules = () => this.getRequiredRules("Type");
   static getCriteriaRules = () => this.getRequiredRules("Criteria");
   static getPriorityRules = () => this.getRequiredRules("Priority");

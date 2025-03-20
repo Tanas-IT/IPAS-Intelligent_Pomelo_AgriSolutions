@@ -65,6 +65,8 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   target: "target",
   isConflict: "isConflict",
   createDate: "createDate",
+  minTime: "minTime",
+  maxTime: "maxTime",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
 };

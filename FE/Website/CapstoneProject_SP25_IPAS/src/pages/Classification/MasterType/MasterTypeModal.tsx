@@ -142,6 +142,36 @@ const MasterTypeModel = ({
 
             <Flex justify="space-between" gap={40}>
               <FormFieldModal
+                label="Min Time (Minutes)"
+                name={masterTypeFormFields.minTime}
+                placeholder="Enter min time"
+                rules={RulesManager.getTimeRangeRules()}
+              />
+              <FormFieldModal
+                label="Max Time (Minutes)"
+                name={masterTypeFormFields.maxTime}
+                placeholder="Enter max time"
+                rules={[
+                  ...RulesManager.getTimeRangeRules(),
+                  {
+                    validator: async (_: any, value: number | string) => {
+                      const minValue = form.getFieldValue(masterTypeFormFields.minTime);
+                      if (
+                        minValue !== undefined &&
+                        value !== undefined &&
+                        Number(value) <= Number(minValue)
+                      ) {
+                        return Promise.reject(new Error("Max Time must be greater than Min Time"));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              />
+            </Flex>
+
+            <Flex justify="space-between" gap={40}>
+              <FormFieldModal
                 type="colorPicker"
                 label="Background Color"
                 name={masterTypeFormFields.backgroundColor}
