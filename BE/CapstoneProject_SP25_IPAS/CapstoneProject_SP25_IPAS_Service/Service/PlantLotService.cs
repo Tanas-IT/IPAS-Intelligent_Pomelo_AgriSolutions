@@ -566,17 +566,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             // chi check dieu kien can de nhap
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
-                            if (checkCondition.StatusCode != 200)
+                            // neu khong pass thi input quantity là 0 luôn
+                            if (checkCondition.StatusCode == 400)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
-                            if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
-                                return new BusinessResult(400, "Last Quantity larger than previous quantity");
-                            if (updatePlantLotRequestModel.InputQuantity == 0)
+                            if (checkCondition.StatusCode == 300)
                             {
                                 checkExistPlantLot.InputQuantity = 0;
                                 checkExistPlantLot.LastQuantity = 0;
                             }
                             else
                             {
+                                if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
+                                    return new BusinessResult(400, "Last Quantity larger than previous quantity");
                                 checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
                             }
                         }
@@ -626,6 +627,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (!checkExistPlantLot.LastQuantity.HasValue)
                                 return new BusinessResult(400, "You must enter last quantity before Completed to use");
+                            if (checkExistPlantLot.LastQuantity == 0)
+                                return new BusinessResult(400, "This plant lot no have any seeding to use");
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -955,7 +958,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(400, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+                return new BusinessResult(300, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
 
             return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
