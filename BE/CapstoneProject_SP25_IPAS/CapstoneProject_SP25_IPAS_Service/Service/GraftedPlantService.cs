@@ -499,7 +499,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
 
                     var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredCondition);
-                    if (checkCriteriaBefore.enable != false)
+                    if (checkCriteriaBefore.enable == false)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);
 
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
