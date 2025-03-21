@@ -48,9 +48,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _webSocketService = webSocketService;
         }
 
-        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId)
+        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
         {
-            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            using (var transaction = useTransaction ? await _unitOfWork.BeginTransactionAsync() : null)
             {
                 try
                 {
@@ -81,6 +81,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
+                        IsSample = false,
                         AssignorId = createPlanModel.AssignorId,
                         CropId = createPlanModel.CropId,
                         EndDate = createPlanModel?.EndDate,
@@ -408,7 +409,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);
                     if (result)
                     {
-                        await transaction.CommitAsync();
+                        if (useTransaction) await transaction.CommitAsync();
                         if (createPlanModel.ListEmployee != null)
                         {
                             foreach (var employeeModel in createPlanModel.ListEmployee)
@@ -427,14 +428,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else
                     {
-                        await transaction.RollbackAsync();
+                        if (useTransaction) await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_PLAN_CODE, Const.FAIL_CREATE_PLAN_MESSAGE, false);
                     }
                 }
                 catch (Exception ex)
                 {
 
-                    await transaction.RollbackAsync();
+                    if (useTransaction) await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
             }
@@ -445,7 +446,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<Plan, bool>> filter = x =>
-                           x.IsDelete == false && x.Process.IsSample == true && // Chỉ lấy các bản ghi chưa bị xóa
+                           x.IsDelete == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
                                (x.PlanTargets != null && x.PlanTargets.Any(pt =>
                                    (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
@@ -2609,24 +2610,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
-            int count = 0;
-            foreach (var createPlan in createPlanModel)
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
-                var result = await CreatePlan(createPlan, farmId);
-                if(result.StatusCode == 200)
+                try
                 {
-                    count++;
+                    int count = 0;
+                    foreach (var createPlan in createPlanModel)
+                    {
+                        var result = await CreatePlan(createPlan, farmId, false);
+                        if (result.StatusCode == 200)
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            await transaction.RollbackAsync();
+                            return new BusinessResult(400, $"{result.Message}");
+                        }
+                    }
+                    if (count == createPlanModel.Count)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(200, "Create Many Plan Sucess");
+                    }
+                    return new BusinessResult(400, "Create Many Plan Failed");
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new BusinessResult(400, $"{result.Message}");
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(400, ex.Message);
                 }
             }
-            if(count == createPlanModel.Count)
-            {
-                return new BusinessResult(200, "Create Many Plan Sucess");
-            }
-            return new BusinessResult(400, "Create Many Plan Failed");
         }
 
         public async Task<BusinessResult> GetPlanByProcessID(int processId)

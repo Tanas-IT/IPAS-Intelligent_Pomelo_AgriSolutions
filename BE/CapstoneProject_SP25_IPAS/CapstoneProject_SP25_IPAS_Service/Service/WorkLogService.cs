@@ -104,6 +104,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     PlanName = addNewTaskModel.TaskName,
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
+                    IsSample = false,
                     StartDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
                     EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
                     Frequency = "None",
