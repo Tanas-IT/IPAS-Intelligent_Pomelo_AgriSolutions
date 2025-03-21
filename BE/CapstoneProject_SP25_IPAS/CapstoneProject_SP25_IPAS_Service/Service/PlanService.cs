@@ -1450,10 +1450,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     Status = "Active",
                     DayOfWeek = null,
+                    IsDeleted = false,
                     DayOfMonth = null,
                     CustomDates = JsonConvert.SerializeObject(createPlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime),
+                    FarmID = plan.FarmID,
                     CarePlanId = plan.PlanId
                 };
                 plan.CarePlanSchedule = schedule;
@@ -1501,9 +1503,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
+                    IsDeleted = false,
                     DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
+                    FarmID = plan.FarmID,
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
                     EndTime = TimeSpan.Parse(createPlanModel.EndTime)
                 };
@@ -1515,6 +1519,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     CarePlanId = plan.PlanId,
                     Status = "Active",
                     DayOfWeek = null,
+                    IsDeleted = false,
+                    FarmID = plan.FarmID,
                     DayOfMonth = JsonConvert.SerializeObject(createPlanModel.DayOfMonth),
                     CustomDates = null,
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
@@ -1527,6 +1533,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
+                    IsDeleted = false,
+                    FarmID = plan.FarmID,
                     DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -1717,6 +1725,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     DayOfWeek = null,
                     DayOfMonth = null,
+                    FarmID = plan.FarmID,
+                    IsDeleted = false,
                     CustomDates = JsonConvert.SerializeObject(updatePlanModel.CustomDates.Select(x => x.ToString("yyyy/MM/dd"))),
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
                     EndTime = TimeSpan.Parse(updatePlanModel.EndTime),
@@ -1770,6 +1780,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
+                    FarmID = plan.FarmID,
+                    IsDeleted = false,
                     DayOfWeek = JsonConvert.SerializeObject(updatePlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -1783,7 +1795,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
+                    FarmID = plan.FarmID,
                     DayOfWeek = null,
+                    IsDeleted = false,
                     DayOfMonth = JsonConvert.SerializeObject(updatePlanModel.DayOfMonth),
                     CustomDates = null,
                     StartTime = TimeSpan.Parse(updatePlanModel.StartTime),
@@ -1796,6 +1810,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     CarePlanId = plan.PlanId,
                     Status = "Active",
+                    IsDeleted = false,
+                    FarmID = plan.FarmID,
                     DayOfWeek = JsonConvert.SerializeObject(updatePlanModel.DayOfWeek),
                     DayOfMonth = null,
                     CustomDates = null,
@@ -2063,6 +2079,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
                 Status = "Not Started",
+                IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
@@ -2167,6 +2184,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
                 Status = "Not Started",
+                IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
                 WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
@@ -2220,7 +2238,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
-                        IsReporter = user.isReporter
+                        IsReporter = user.isReporter,
+                        IsDeleted = false,
                     });
                 }
             }
