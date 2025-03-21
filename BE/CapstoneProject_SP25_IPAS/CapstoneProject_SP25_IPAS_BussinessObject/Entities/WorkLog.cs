@@ -20,6 +20,7 @@ public partial class WorkLog
     public TimeSpan? ActualEndTime { get; set; }
 
     public bool? IsConfirm { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? ScheduleId { get; set; }
 

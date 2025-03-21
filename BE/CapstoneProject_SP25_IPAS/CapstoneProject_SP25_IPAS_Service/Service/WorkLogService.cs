@@ -122,6 +122,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
                     EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                     FarmID = farmId,
+                    IsDeleted = false,
                     Status = "Active",
                     HarvestHistoryID = addNewTaskModel.HarvestHistoryId
                 };
@@ -141,6 +142,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ActualStartTime = newSchedule.StartTime,
                     ActualEndTime = newSchedule.EndTime,
                     Date = addNewTaskModel.DateWork,
+                    IsDeleted = false,
                     WorkLogName = addNewTaskModel.TaskName,
                     IsConfirm = false,
                 };
@@ -177,7 +179,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 WorkLogId = workLog.WorkLogId,
                                 UserId = user.UserId,
-                                IsReporter = user.isReporter
+                                IsReporter = user.isReporter,
+                                IsDeleted = false
                             });
 
                         }
@@ -385,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -906,6 +909,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 WorkLogId = findWorkLog.WorkLogId,
                                 UserId = employee.UserId,
                                 IsReporter = employee.isReporter,
+                                IsDeleted = false
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
@@ -1065,6 +1069,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     CarePlanId = addNewTaskModel.PlanId,
                     StartTime = startTime,
                     EndTime = endTime,
+                    IsDeleted = false,
                     CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.DateWork.ToString("yyyy/MM/dd")) + "]",
                     FarmID = farmId,
                 };
@@ -1078,6 +1083,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Date = addNewTaskModel.DateWork,
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
+                    IsDeleted = false,
                     Status = WorkLogStatusConst.NOT_STARTED,
                     ScheduleId = newSchedule.ScheduleId
                 };
@@ -1115,7 +1121,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 WorkLogId = workLog.WorkLogId,
                                 UserId = user.UserId,
-                                IsReporter = user.isReporter
+                                IsReporter = user.isReporter,
+                                IsDeleted = false
                             });
 
                         }
@@ -1335,7 +1342,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     WorkLogId = workLog.WorkLogId,
                                     UserId = user.UserId,
-                                    IsReporter = user.isReporter
+                                    IsReporter = user.isReporter,
+                                    IsDeleted = false
                                 });
 
                             }
