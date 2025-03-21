@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import style from "./PlanList.module.scss";
+import style from "./DaySelector.module.scss";
 import { Button } from "antd";
 
 interface DaySelectorProps {

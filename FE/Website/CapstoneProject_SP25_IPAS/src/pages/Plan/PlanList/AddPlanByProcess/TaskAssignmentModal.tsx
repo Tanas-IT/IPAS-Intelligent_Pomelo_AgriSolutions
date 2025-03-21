@@ -45,13 +45,13 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
             .filter((emp) => selectedIds.includes(emp.userId))
             .map((emp) => ({
                 userId: emp.userId,
-                isReporter: emp.userId === reporterId, // Đánh dấu người là Reporter
+                isReporter: emp.userId === reporterId,
             }));
 
         if (selectedPlanId) {
-            onSave(selectedEmployees, selectedPlanId, reporterId); // Gọi hàm onSave từ component cha
+            onSave(selectedEmployees, selectedPlanId, reporterId);
         }
-        onCancel(); // Đóng modal
+        onCancel();
     };
 
     return (

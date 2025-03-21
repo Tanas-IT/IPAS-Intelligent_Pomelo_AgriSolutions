@@ -68,7 +68,8 @@ export const getProcessDetail = async (processId: string | number) => {
     subProcesses: apiResponse.data.subProcesses,
     listProcessData: apiResponse.data.listProcessData,
     order: apiResponse.data.order,
-    listPlan: apiResponse.data.listPlan,
+    listPlanIsSampleTrue: apiResponse.data.listPlanIsSampleTrue,
+    listPlanIsSampleFalse: apiResponse.data.listPlanIsSampleFalse,
     isSample: apiResponse.data.isSample,
     planTargetInProcess: apiResponse.data.planTargetInProcess
   };

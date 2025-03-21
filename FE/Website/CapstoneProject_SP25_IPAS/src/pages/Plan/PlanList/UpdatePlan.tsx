@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
     Form,
-    Input,
     DatePicker,
-    TimePicker,
     Select,
     Row,
     Col,
     Divider,
-    Checkbox,
     Modal,
     Flex,
-    Button,
-    Spin,
 } from "antd";
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
@@ -23,11 +18,9 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
+import { useCropCurrentOption, useGrowthStageOptions, useLandRowOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
 import {
-    fetchGrowthStageOptions,
     fetchProcessesOfFarm,
-    fetchTypeOptionsByName,
     fetchUserInfoByRole,
     getFarmId,
     getGrowthStageOfProcess,
@@ -37,49 +30,23 @@ import {
     planTargetOptions,
     RulesManager,
 } from "@/utils";
-import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
+import { addPlanFormFields, frequencyOptions } from "@/constants";
 import {
     cropService,
-    landPlotService,
-    landRowService,
     masterTypeService,
     planService,
-    plantService,
     processService,
 } from "@/services";
 import { toast } from "react-toastify";
-import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
-import PlanTarget from "./PlanTarget";
-import useLandRowOptions from "@/hooks/useLandRowOptions";
-import useLandPlotOptions from "@/hooks/useLandPlotOptions";
-import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
-import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
+import {useLandPlotOptions, useGraftedPlantOptions, usePlantOfRowOptions, usePlantLotOptions} from "@/hooks";
 import isBetween from "dayjs/plugin/isBetween";
-import { GetPlan } from "@/payloads/plan";
 import { SelectOption } from "@/types";
 import UpdatePlanTarget from "./UpdatePlanTarget";
-import usePlantLotOptions from "@/hooks/usePlantLotOptions";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { GetPlan, UpdatePlanRequest } from "@/payloads";
 
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
-
-const { RangePicker } = DatePicker;
-
-interface CarePlanForm {
-    name: string;
-    detail?: string;
-    startDate: moment.Moment;
-    endDate: moment.Moment;
-    startTime?: moment.Moment;
-    endTime?: moment.Moment;
-    frequency: string;
-    typeOfWork: string;
-    crop: string;
-    process: string;
-    growthStage: string;
-    active: boolean;
-}
 
 type OptionType<T = string | number> = { value: T; label: string };
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
@@ -133,11 +100,6 @@ const UpdatePlan = () => {
 
     const dateFormat = 'YYYY/MM/DD';
     const timeFormat = 'HH:mm:ss';
-    console.log("selectedGrowthStage", selectedGrowthStage);
-    console.log("isTargetDisabled", isTargetDisabled);
-    console.log("processFarmOptions", processFarmOptions);
-
-
 
     useEffect(() => {
         if (selectedCrop !== null && selectedCrop !== undefined) {
@@ -727,7 +689,7 @@ const UpdatePlan = () => {
                                         validateTrigger: 'onSubmit',
                                         validator: (_: any, value: any) => {
                                             const processId = form.getFieldValue(addPlanFormFields.processId);
-                                            // Nếu không có Process được chọn và Growth Stage cũng không được chọn
+                                            // k chọn process && k chọn growth stage
                                             if (!processId && (!value || value.length === 0)) {
                                                 return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
                                             }

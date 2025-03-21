@@ -118,29 +118,29 @@ const AddPlan = () => {
       setLandPlotOfCropOptions([]);
     }
   }, [selectedCrop]);
-  
+
   useEffect(() => {
-          form.setFieldValue("masterTypeId", undefined);
-          if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-              planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
-                  setProcessTypeOptions(
-                      data.map((item) => ({
-                          value: item.masterTypeId,
-                          label: item.masterTypeName,
-                      }))
-                  );
-              });
-          } else {
-              setProcessTypeOptions([]);
-          }
-      }, [selectedGrowthStage]);
-  
+    form.setFieldValue("masterTypeId", undefined);
+    if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+      planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+        setProcessTypeOptions(
+          data.map((item) => ({
+            value: item.masterTypeId,
+            label: item.masterTypeName,
+          }))
+        );
+      });
+    } else {
+      setProcessTypeOptions([]);
+    }
+  }, [selectedGrowthStage]);
+
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
       if (targetType === "graftedPlant") {
         const result = await masterTypeService.getProcessTypeSelect("Grafting");
-        
-        if(result.statusCode === 200) {
+
+        if (result.statusCode === 200) {
           console.log("thanh cong");
           setMasterTypeGrafting(result.data.map((m) => m.id));
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
@@ -149,8 +149,8 @@ const AddPlan = () => {
         }
       } else if (targetType === "plantLot") {
         const result = await masterTypeService.getProcessTypeSelect("PlantLot");
-        
-        if(result.statusCode === 200) {
+
+        if (result.statusCode === 200) {
           setMasterTypePlantLot(result.data.map((m) => m.id));
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
         } else {
@@ -160,16 +160,16 @@ const AddPlan = () => {
         setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       }
     };
-  
+
     updateProcessFarmOptions();
   }, [targetType]);
-  
+
   const handlePlanTargetChange = async (target: string) => {
     setTargetType(target);
     form.setFieldsValue({
       planTargetModel: [],
     });
-  
+
     if (target === "graftedPlant") {
       setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(masterTypeGrafting));
       form.setFieldValue("growthStageId", undefined);
@@ -192,12 +192,12 @@ const AddPlan = () => {
       setIsTargetDisabled(false);
     }
   };
-  
+
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
       console.log("growthStageId", growthStageId);
-      
+
       form.setFieldValue("processId", processId);
       const masterTypeId = await getTypeOfProcess(processId);
       form.setFieldValue("masterTypeId", Number(masterTypeId));
@@ -216,7 +216,7 @@ const AddPlan = () => {
         setTargetType("plantLot");
         form.setFieldValue("planTarget", "plantLot");
         form.setFieldValue("growthStageId", undefined);
-        
+
         setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
           value: pt.id,
           label: pt.name
@@ -224,7 +224,7 @@ const AddPlan = () => {
         setIsLockedGrowthStage(true);
       } else {
         form.setFieldValue("growthStageId", [growthStageId]);
-        if(growthStageId) {
+        if (growthStageId) {
 
           setSelectedGrowthStage([growthStageId]);
         }
@@ -457,91 +457,46 @@ const AddPlan = () => {
       toast.error("Please select at least one plan target.");
       return;
     }
-    console.log("planTargetModel", planTargetModel);
-    console.log("graftedPlant", graftedPlant);
-    console.log("plantLot", plantLot);
-    
-
     const graftedPlantIDs = graftedPlant || [];
-  const plantLotIDs = plantLot || [];
-  console.log("graftedPlantIDs", graftedPlantIDs);
-    console.log("plantLotIDs", plantLotIDs);
-    console.log("targetType", targetType);
+    const plantLotIDs = plantLot || [];
 
     let formattedPlanTargetModel;
-  // Format planTargetModel
-  if (targetType === "regular") {
-    formattedPlanTargetModel = planTargetModel.map((target: any) => {
-      return {
-        landPlotID: target.landPlotID ?? 0,
-        // landRowID: target.landRowID ?? [],
-        // landRowID: (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) ?? [],
-        landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
-        plantID: target.plantID ?? [],
-        graftedPlantID: [], // Không có graftedPlant trong planTargetModel
-        plantLotID: [], // Không có plantLot trong planTargetModel
-        unit: target.unit,
-      };
-    });
-  } else if (targetType === "plantLot") {
-    console.log("vô plantLot");
-    formattedPlanTargetModel = [{
-      landPlotID: undefined,
+    // Format planTargetModel
+    if (targetType === "regular") {
+      formattedPlanTargetModel = planTargetModel.map((target: any) => {
+        return {
+          landPlotID: target.landPlotID ?? 0,
+          landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
+          plantID: target.plantID ?? [],
+          graftedPlantID: [],
+          plantLotID: [],
+          unit: target.unit,
+        };
+      });
+    } else if (targetType === "plantLot") {
+      console.log("vô plantLot");
+      formattedPlanTargetModel = [{
+        landPlotID: undefined,
         landRowID: [],
         plantID: [],
-        graftedPlantID: [], // Không có graftedPlant trong planTargetModel
-        plantLotID: plantLotIDs, // Lấy từ form
+        graftedPlantID: [],
+        plantLotID: plantLotIDs,
         unit: targetType,
-    }];
-  } else if (targetType === "graftedPlant") {
-    console.log("vô grafted");
-    
-    formattedPlanTargetModel = [{
-      landPlotID: undefined,
-        landRowID: [],
-        plantID: [],
-        graftedPlantID: graftedPlantIDs, // Không có graftedPlant trong planTargetModel
-        plantLotID: [], // Lấy từ form
-        unit: targetType,
-    }];
-  }
-  //  formattedPlanTargetModel = planTargetModel.map((target: any) => {
-  //   console.log("ủa kì v tr");
-    
-  //   if (targetType === "regular") {
-  //     return {
-  //       landPlotID: target.landPlotID ?? 0,
-  //       landRowID: target.landRowID ?? [],
-  //       plantID: target.plantID ?? [],
-  //       graftedPlantID: [], // Không có graftedPlant trong planTargetModel
-  //       plantLotID: [], // Không có plantLot trong planTargetModel
-  //       unit: target.unit,
-  //     };
-  //   } else if (targetType === "plantLot") {
-  //     return {
-  //       landPlotID: 0,
-  //       landRowID: [],
-  //       plantID: [],
-  //       graftedPlantID: [], // Không có graftedPlant trong planTargetModel
-  //       plantLotID: plantLotIDs, // Lấy từ form
-  //       unit: target.unit,
-  //     };
-  //   } else if (targetType === "graftedPlant") {
-  //     console.log("hummmm");
-      
-  //     return {
-  //       landPlotID: 0,
-  //       landRowID: [],
-  //       plantID: [],
-  //       graftedPlantID: [1,2,3], // Lấy từ form
-  //       plantLotID: [], // Không có plantLot trong planTargetModel
-  //       unit: target.unit,
-  //     };
-  //   }
-  // });
+      }];
+    } else if (targetType === "graftedPlant") {
+      console.log("vô grafted");
 
-  console.log("formattedPlanTargetModel", formattedPlanTargetModel);
-    
+      formattedPlanTargetModel = [{
+        landPlotID: undefined,
+        landRowID: [],
+        plantID: [],
+        graftedPlantID: graftedPlantIDs,
+        plantLotID: [],
+        unit: targetType,
+      }];
+    }
+
+    console.log("formattedPlanTargetModel", formattedPlanTargetModel);
 
     const planData: PlanRequest = {
       planName: values.planName,
@@ -650,7 +605,7 @@ const AddPlan = () => {
                 />
                 <div
                   style={{ marginTop: "-20px", textAlign: "right" }}
-                  onClick={ async() => {
+                  onClick={async () => {
                     const masterTypeId = await getTypeOfProcess(form.getFieldValue("processId"));
                     if (masterTypeId === 14) {
                       form.setFieldValue("planTarget", undefined);
@@ -686,7 +641,7 @@ const AddPlan = () => {
                 isEditing={!isLockedGrowthStage}
                 onChange={(value) => {
                   setSelectedGrowthStage(value);
-                  if(targetType === "regular") {
+                  if (targetType === "regular") {
                     form.setFieldsValue({ planTargetModel: [] });
                   }
                 }}
@@ -752,10 +707,10 @@ const AddPlan = () => {
                   hasFeedback={false}
                   onChange={(value) => {
                     setSelectedCrop(value);
-                    if(targetType === "regular") {
-                    form.setFieldValue("planTarget", "regular");
+                    if (targetType === "regular") {
+                      form.setFieldValue("planTarget", "regular");
                     }
-                    
+
                     setIsTargetDisabled(true);
                     form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
                     form.setFieldsValue({ planTargetModel: [] });

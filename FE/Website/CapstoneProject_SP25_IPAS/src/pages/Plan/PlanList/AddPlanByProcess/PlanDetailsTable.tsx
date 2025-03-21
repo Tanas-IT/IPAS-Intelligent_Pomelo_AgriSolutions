@@ -57,7 +57,6 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
         console.log("Changed Values:", changedValues);
         console.log("All Values in Form:", allValues);
 
-        // Cập nhật dataSource khi giá trị form thay đổi
         const updatedDataSource = dataSource.map((plan) => {
             const planValues = allValues[plan.planId];
             if (planValues) {

@@ -66,17 +66,8 @@ const UpdatePlanTarget = ({
                     const unit = determineUnit(target);
                     try {
                         await fetchTargetsByUnit(unit, selectedGrowthStage, index, setSelectedTargets);
-                        
-                        // setSelectedTargets((prev) => {
-                        //     const newSelectedTargets = [...prev];
-                        //     newSelectedTargets[index] = response.data;
-                        //     return newSelectedTargets;
-                        // });
-                        console.log("jjsaedc", selectedTargets);
-                        
                     } catch (error) {
                         console.error("Error fetching initial data:", error);
-                        message.error("Failed to fetch initial data. Please try again.");
                     }
                 });
 
@@ -103,10 +94,8 @@ const UpdatePlanTarget = ({
             });
             console.log("formattedValues", formattedValues);
 
-
             setSelectedTargets([formattedValues]);
 
-            // Khởi tạo form values
             form.setFieldsValue({
                 planTargetModel: formattedValues.map((target) => ({
                     unit: target.unit,
@@ -118,7 +107,6 @@ const UpdatePlanTarget = ({
                 })),
             });
 
-            // Khởi tạo các state khác
             setSelectedUnits(formattedValues.map((target) => target.unit));
             setSelectedLandPlots(formattedValues.map((target) => target.landPlotId));
             setSelectedLandRows(formattedValues.map((target) => target.rows.map((row) => row.landRowId)));
@@ -157,7 +145,6 @@ const UpdatePlanTarget = ({
 
         try {
             const res = await fetchTargetsByUnit(value, selectedGrowthStage, index, setSelectedTargets);
-            console.log("resss", res);
 
             setSelectedUnits((prev) => {
                 const newSelectedUnits = [...prev];
@@ -313,9 +300,6 @@ const UpdatePlanTarget = ({
         const selectedLandPlot = selectedLandPlots[index];
         const selectedLandRow = selectedLandRows[index];
         const selectedPlant = selectedPlants[index];
-        console.log("selectedTarget", selectedTarget);
-        console.log("selectedTargetssss", selectedTargets);
-
 
         const isUnitDisabled = (unit === "graftedplant" || unit === "plantlot") &&
             selectedUnits.some((u, i) => i !== index && u === unit);

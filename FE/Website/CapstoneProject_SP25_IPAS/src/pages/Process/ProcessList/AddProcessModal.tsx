@@ -77,8 +77,6 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
         // đợi api 
     }
 
-
-
     useEffect(() => {
         const fetchData = async () => {
             setGrowthStageOptions(await fetchGrowthStageOptions(farmId));

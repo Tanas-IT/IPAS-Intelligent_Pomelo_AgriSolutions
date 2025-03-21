@@ -16,6 +16,7 @@ import {
   fetchGrowthStageOptions,
   fetchTypeOptionsByName,
   formatDateAndTime,
+  formatDateW,
   generatePlanId,
   getFarmId,
   planTargetOptions2,
@@ -32,7 +33,8 @@ interface SubProcess {
   subProcessName: string;
   parentSubProcessId?: number;
   listSubProcessData?: SubProcess[];
-  listPlan?: PlanType[];
+  // listPlan?: PlanType[];
+  listPlanIsSampleTrue: PlanType[];
 }
 
 type OptionType<T = string | number> = {
@@ -57,7 +59,7 @@ const mapSubProcessesToTree = (
     .map((sp) => ({
       title: sp.subProcessName,
       key: sp.subProcessId.toString(),
-      listPlan: sp.listPlan || [],
+      listPlan: sp.listPlanIsSampleTrue || [],
       children: mapSubProcessesToTree(subProcesses, sp.subProcessId),
     }));
 };
@@ -123,8 +125,8 @@ function ProcessDetails() {
         setTreeData([]);
       }
   
-      if (data.listPlan && Array.isArray(data.listPlan)) {
-        setPlans(data.listPlan);
+      if (data.listPlanIsSampleTrue && Array.isArray(data.listPlanIsSampleTrue)) {
+        setPlans(data.listPlanIsSampleTrue);
       } else {
         setPlans([]);
       }
@@ -316,6 +318,13 @@ function ProcessDetails() {
 
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
+      const isNewSubProcess = node.status === "add";
+      const status = isNewSubProcess
+      ? "add"
+      : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
+      ? "update"
+      : node.status || "no_change";
+
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
       );
@@ -329,7 +338,8 @@ function ProcessDetails() {
         IsActive: true,
         MasterTypeId: Number(node.masterTypeId) || null,
         GrowthStageId: node.growthStageId || null,
-        Status: hasChangedPlan ? "update" : node.status || "no_change",
+        // Status: hasChangedPlan ? "update" : node.status || "no_change",
+        Status: status,
         Order: node.order || index + 1,
         ListPlan:
           node.listPlan?.map((plan) => ({
@@ -346,46 +356,6 @@ function ProcessDetails() {
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
-
-  // const handleSaveProcess = async () => {
-  //   const ListPlan: ListPlan[] = plans.map((plan) => ({
-  //     PlanId: plan.planId || 0,
-  //     PlanName: plan.planName,
-  //     PlanDetail: plan.planDetail,
-  //     PlanNote: plan.planNote,
-  //     GrowthStageId: plan.growthStageId,
-  //     MasterTypeId: Number(plan.masterTypeId),
-  //     PlanStatus: plan.planStatus || "no_change",
-  //   }));
-  //   let ListUpdateSubProcess = [
-  //     ...convertTreeToList(treeData),
-  //     ...convertDeletedNodesToList(deletedNodes),
-  //   ]
-  //     .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
-  //     .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
-  //   const payload: UpdateProcessRequest = {
-  //     ProcessId: Number(id) || 0,
-  //     ProcessName: processDetail?.processName || "New Process",
-  //     IsActive: processDetail?.isActive ?? true,
-  //     IsDefault: processDetail?.isDefault ?? false,
-  //     IsDeleted: processDetail?.isDeleted ?? false,
-  //     MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
-  //     GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
-  //     ListUpdateSubProcess: ListUpdateSubProcess,
-  //     ListPlan: ListPlan,
-  //   };
-
-  //   console.log("Saving Payload without stringyfy:", payload);
-  //   const res = await processService.updateFProcess(payload);
-  //   if (res.statusCode === 200) {
-  //     toast.success(res.message);
-  //     setIsEditing(false);
-  //     await fetchProcessDetails();
-  //   } else {
-  //     toast.error(res.message);
-  //   }
-  //   console.log("res update", res);
-  // };
 
   const handleSaveProcess = async () => {
     console.log("Plans before mapping:", plans);
@@ -566,6 +536,8 @@ function ProcessDetails() {
   return nodes
     .filter((node) => node.status !== "delete")
     .map((node) => {
+      console.log("sắp xong r", node);
+      
       const filteredPlans = node.listPlan?.filter(
         (plan: PlanType) => plan.planStatus !== "delete"
       );
@@ -799,7 +771,7 @@ function ProcessDetails() {
               <Icons.calendar />
               <label>Create Date:</label>
             </Flex>
-            {processDetail?.createDate}
+            {formatDateW(processDetail?.createDate ?? "2")}
           </Flex>
           <Flex gap={20} className={style.infoDetail}>
             <InfoField

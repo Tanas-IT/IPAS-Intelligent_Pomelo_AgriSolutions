@@ -57,6 +57,7 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
       isOpen={isOpen}
       onSave={handleSave}
       onClose={onClose}
+      isUpdate={initialValues ? true : false}
     >
       <Form form={form} layout="vertical">
         <InfoField
@@ -67,13 +68,13 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
           isEditing
           placeholder="Enter process name"
         />
-        <Flex gap={26}>
+        {/* <Flex gap={26}>
           <InfoField
             label="Growth Stage"
             name={processFormFields.growthStageId}
             options={growthStageOptions}
             isEditing
-            rules={RulesManager.getGrowthStageRules()}
+            // rules={RulesManager.getGrowthStageRules()}
             type="select"
           />
           <InfoField
@@ -81,10 +82,10 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
             name={processFormFields.masterTypeId}
             options={processTypeOptions}
             isEditing
-            rules={RulesManager.getProcessTypeRules()}
+            // rules={RulesManager.getProcessTypeRules()}
             type="select"
           />
-        </Flex>
+        </Flex> */}
         <InfoField label="Status" name={processFormFields.isActive} isEditing type="switch" />
       </Form>
     </ModalForm>

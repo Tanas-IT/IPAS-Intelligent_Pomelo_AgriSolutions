@@ -1,12 +1,10 @@
-import { Button, Form, Modal, Flex } from "antd";
+import { Form, Modal, Flex } from "antd";
 import { useEffect } from "react";
 import { CustomButton, InfoField } from "@/components";
 import { addPlanFormFields, processFormFields } from "@/constants";
 import { RulesManager } from "@/utils";
 import { PlanType } from "@/payloads/process";
 import { SelectOption } from "@/types";
-
-// type PlanType = { planId: number; planName: string; planDetail: string; growthStageId: number; masterTypeId: number, planNote: string };
 
 type AddPlanModalProps = {
   isOpen: boolean;
@@ -24,8 +22,6 @@ const AddPlanModal = ({
   onClose,
   onSave,
   editPlan,
-  growthStageOptions,
-  processTypeOptions,
   subProcessId,
 }: AddPlanModalProps) => {
   const [form] = Form.useForm();
@@ -39,11 +35,7 @@ const AddPlanModal = ({
   }, [editPlan, form]);
 
   const handleFinish = (values: PlanType) => {
-    console.log("values", values);
-    console.log("editPlan", editPlan);
     const updatedPlan = editPlan ? { ...editPlan, ...values } : values;
-    console.log("updatedPlan", updatedPlan);
-    // onSave(values);
     onSave(updatedPlan, subProcessId ? subProcessId.toString() : null);
     form.resetFields();
     onClose();
@@ -74,21 +66,7 @@ const AddPlanModal = ({
           type="textarea"
           placeholder="Enter care plan notes"
         />
-        <InfoField
-          label="Growth Stage"
-          name={processFormFields.growthStageId}
-          options={growthStageOptions}
-          isEditing
-          type="select"
-        />
-        <InfoField
-          label="Process Type"
-          name={processFormFields.masterTypeId}
-          options={processTypeOptions}
-          isEditing
-          type="select"
-        />
-        <Flex justify="end">
+        <Flex justify="end" gap={15}>
           <CustomButton label="Cancel" isCancel handleOnClick={onClose} />
           <CustomButton label={editPlan ? "Update Plan" : "Add Plan"} htmlType="submit" />
         </Flex>
