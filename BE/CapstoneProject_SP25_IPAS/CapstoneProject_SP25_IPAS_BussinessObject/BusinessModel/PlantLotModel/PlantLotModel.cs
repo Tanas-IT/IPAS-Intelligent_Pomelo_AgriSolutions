@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel
 
         public int? MasterTypeId { get; set; }
 
-        public int? GrowthStageID { get; set; }
+        //public int? GrowthStageID { get; set; }
 
         public string? PartnerName { get; set; }
 

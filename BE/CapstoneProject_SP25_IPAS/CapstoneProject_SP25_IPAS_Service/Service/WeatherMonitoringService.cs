@@ -57,7 +57,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var forecastData = await GetWeatherForecastAsync(farm.Latitude.Value, farm.Longitude.Value);
                     if (forecastData == null || forecastData.List.Count == 0) continue;
 
-                    var now = DateTime.UtcNow;
+                    //var now = DateTime.UtcNow;
                     var workLogs = await unitOfWork.WorkLogRepository.GetWorkLogsByFarm(farm.FarmId);
                     //var workLogsToCheck = workLogs.Where(wl => wl.ActualStartTime.HasValue &&
                     //                                            wl.ActualStartTime.Value >= now &&
@@ -196,21 +196,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var _webSocketService = scope.ServiceProvider.GetRequiredService<IWebSocketService>();
                 var _unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                 var users = await _unitOfWork.UserFarmRepository.GetUserOfFarm(workLog.Schedule!.FarmID!.Value);
-
+                users = users.Where(x =>
+                x.Role.RoleName!.Equals(RoleEnum.MANAGER.ToString(), StringComparison.OrdinalIgnoreCase) ||
+                 x.Role.RoleName.Equals(RoleEnum.OWNER.ToString(), StringComparison.OrdinalIgnoreCase) ||
+                 workLog.UserWorkLogs.Select(x => x.UserId).Contains(x.UserId)).ToList();
+                List<CreateNotificationRequest> notis = new List<CreateNotificationRequest>();
                 foreach (var user in users)
                 {
                     var notification = new CreateNotificationRequest
                     {
                         UserId = user.UserId,
                         Title = "Weather Warning",
-                        Content = user.Role!.RoleName!.Equals(RoleEnum.EMPLOYEE.ToString(), StringComparison.OrdinalIgnoreCase) ?
-                            $"Công việc {workLog.WorkLogName} của bạn có thể bị ảnh hưởng." : warningMessage
+                        Content = $"Worklog {workLog.WorkLogCode} can be affect: {warningMessage}"
                     };
-
-                    await _notificationService.NotificationWeather(new List<CreateNotificationRequest> { notification });
+                    notis.Add(notification);
                     await _webSocketService.SendToUser(user.UserId, $"⚠ {notification.Content}");
                     Console.WriteLine(warningMessage);
                 }
+                await _notificationService.NotificationWeather(notis);
             }
         }
     }
