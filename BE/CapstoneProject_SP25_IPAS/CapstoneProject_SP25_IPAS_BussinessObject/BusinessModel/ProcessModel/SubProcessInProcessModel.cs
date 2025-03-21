@@ -33,7 +33,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
 
         public int? Order { get; set; }
 
-        public List<UpdatePlanInProcessModel>? ListPlan { get; set; } = new List<UpdatePlanInProcessModel>();
+        public List<UpdatePlanInProcessModel>? listPlanIsSampleTrue { get; set; } = new List<UpdatePlanInProcessModel>();
+        public List<UpdatePlanInProcessModel>? listPlanIsSampleFalse { get; set; } = new List<UpdatePlanInProcessModel>();
         //public List<ProcessDataInProcessModel>? ListSubProcessData { get; set; } = new List<ProcessDataInProcessModel>();
     }
 }
