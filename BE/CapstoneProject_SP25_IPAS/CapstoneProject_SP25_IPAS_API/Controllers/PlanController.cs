@@ -119,7 +119,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "Farm Id is Requried"
                     };
                 }
-                var result = await _planService.CreatePlan(createPlanModel, farmId);
+                var result = await _planService.CreatePlan(createPlanModel, farmId, true);
 
                 return Ok(result);
             }
