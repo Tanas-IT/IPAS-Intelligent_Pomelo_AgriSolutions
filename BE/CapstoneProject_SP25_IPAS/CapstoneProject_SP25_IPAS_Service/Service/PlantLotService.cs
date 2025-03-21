@@ -570,7 +570,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
                                 return new BusinessResult(400, "Last Quantity larger than previous quantity");
-                            checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
+                            if (updatePlantLotRequestModel.InputQuantity == 0)
+                            {
+                                checkExistPlantLot.InputQuantity = 0;
+                                checkExistPlantLot.LastQuantity = 0;
+                            }
+                            else
+                            {
+                                checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
+                            }
                         }
                         if (updatePlantLotRequestModel.LastQuantity.HasValue /*&& updatePlantLotRequestModel.LastQuantity != 0*/)
                         {
@@ -741,7 +749,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (listPlantInsert.Any())
                         {
                             await _unitOfWork.PlantRepository.InsertRangeAsync(listPlantInsert);
-                            if(plantLot.IsFromGrafted == true)
+                            if (plantLot.IsFromGrafted == true)
                             {
                                 await updateUsedGraftedPlantInLot(plantLotId: plantLot.PlantLotId, listPlantInsert.Count());
                             }
@@ -996,7 +1004,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task updateUsedGraftedPlantInLot(int plantLotId, int numberOfGraftedPlant)
         {
             // chi lay nhung cay khoe manh trong lo thoi
-            Expression<Func<GraftedPlant, bool>> filter = x => x.PlantLotId == plantLotId && 
+            Expression<Func<GraftedPlant, bool>> filter = x => x.PlantLotId == plantLotId &&
                                         x.Status.ToLower().Equals(GraftedPlantStatusConst.HEALTHY.ToString().ToLower());
 
             var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, pageIndex: 1, pageSize: numberOfGraftedPlant);
