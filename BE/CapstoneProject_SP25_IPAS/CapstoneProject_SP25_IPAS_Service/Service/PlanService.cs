@@ -2610,7 +2610,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
             int count = 0;
-            List<string> errors = new List<string>();
             foreach (var createPlan in createPlanModel)
             {
                 var result = await CreatePlan(createPlan, farmId);
