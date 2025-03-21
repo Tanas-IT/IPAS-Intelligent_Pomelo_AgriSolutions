@@ -109,6 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
                                         PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
                                         PlanName = plan.PlanName,
+                                        IsSample = true,
                                         PlanDetail = plan.PlanDetail,
                                         Notes = plan.PlanNote,
                                         FarmID = farmId,
@@ -139,6 +140,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlanName = plan.PlanName,
                                 PlanDetail = plan.PlanDetail,
                                 Notes = plan.PlanNote,
+                                IsSample = true,
                                 FarmID = farmId,
                                 MasterTypeId = plan.MasterTypeId,
                                 IsDelete = false
@@ -578,6 +580,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             PlanName = plan.PlanName,
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
+                                                            IsSample = true,
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
                                                             SubProcessId = newSubProcess.SubProcessID,
@@ -692,6 +695,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 PlanDetail = plan.PlanDetail,
                                                                 Notes = plan.PlanNote,
                                                                 FarmID = checkExistProcess.FarmId,
+                                                                IsSample = true,
                                                                 MasterTypeId = plan.MasterTypeId,
                                                                 SubProcessId = subProcess.SubProcessId,
                                                                 IsDelete = false
@@ -784,6 +788,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
                                                             FarmID = checkExistProcess.FarmId,
+                                                            IsSample = true,
                                                             MasterTypeId = plan.MasterTypeId,
                                                             SubProcessId = subProcessUpdate.SubProcessID,
                                                             IsDelete = false
@@ -862,6 +867,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 PlanName = updatePlan.PlanName,
                                                 PlanDetail = updatePlan.PlanDetail,
                                                 Notes = updatePlan.PlanNote,
+                                                IsSample = true,
                                                 FarmID = checkExistProcess.FarmId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
                                                 ProcessId = checkExistProcess.ProcessId,

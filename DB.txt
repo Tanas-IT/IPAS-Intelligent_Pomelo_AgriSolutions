@@ -797,6 +797,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	ProcessID int NULL,
 	CropID int NULL,
 	IsDelete bit DEFAULT 0 NULL,
+        IsSample bit NULL,
 	MasterTypeID int NULL,
 	SubProcessID int NULL,
 	FarmID int NULL,

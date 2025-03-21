@@ -81,6 +81,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
+                        IsSample = false,
                         AssignorId = createPlanModel.AssignorId,
                         CropId = createPlanModel.CropId,
                         EndDate = createPlanModel?.EndDate,
@@ -445,7 +446,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<Plan, bool>> filter = x =>
-                           x.IsDelete == false && x.Process.IsSample == true && // Chỉ lấy các bản ghi chưa bị xóa
+                           x.IsDelete == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
                                (x.PlanTargets != null && x.PlanTargets.Any(pt =>
                                    (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
