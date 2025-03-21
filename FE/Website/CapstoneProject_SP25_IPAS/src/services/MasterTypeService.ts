@@ -92,3 +92,32 @@ export const getCriteriaTypeSelect = async (
   const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
   return apiResponse;
 };
+
+export const getProcessTypeSelect = async (
+  target: string,
+): Promise<ApiResponse<GetMasterTypeSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `masterTypes/get-for-selected?typeName=Process&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
+  return apiResponse;
+};
+
+export const getWorkTypeSelect = async (
+  target: string,
+): Promise<ApiResponse<GetMasterTypeSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `masterTypes/get-for-selected?typeName=Work&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetMasterTypeSelected[]>;
+  return apiResponse;
+};
+
+export const IsMasterTypeHasTarget =  async (masterTypeId: number, target: string) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`masterTypes/check-by-target`, {
+    masterTypeId,
+    target
+  });
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+}

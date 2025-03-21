@@ -17,13 +17,14 @@ type TreeNode = {
 
 type FormFieldFilterProps = {
   label: string;
-  fieldType: "date" | "select" | "radio" | "treeSelect" | "numberRange";
+  fieldType: "date" | "select" | "radio" | "treeSelect" | "numberRange" | "selectCustom";
   value: any;
   options?: { value: string | number | boolean; label: string }[];
   treeData?: TreeNode[];
   onChange: (value: any) => void;
   loadData?: (node: any) => Promise<void>;
   direction?: "row" | "column";
+  optionCustom?: { value: string | number | boolean; label: string; avatarURL: string }[];
 };
 
 const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
@@ -35,6 +36,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
   onChange,
   loadData,
   direction = "column",
+  optionCustom
 }) => {
   const { styles } = useStyle();
 
@@ -113,6 +115,33 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
               />
             </Flex>
           </Flex>
+        );
+      case "selectCustom":
+        return (
+          <Select
+            className={`${styles.customSelect}`}
+            mode="multiple"
+            placeholder="Please select"
+            tagRender={TagRender}
+            options={optionCustom}
+            value={value}
+            onChange={onChange}
+            optionRender={(option) => {
+
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {option.data.avatarURL && (
+                    <img
+                      src={option.data.avatarURL}
+                      style={{ width: 24, height: 24, borderRadius: "50%" }}
+                      crossOrigin="anonymous"
+                    />
+                  )}
+                  <span>{option.data.label}</span>
+                </div>
+              );
+            }}
+          />
         );
       default:
         return null;

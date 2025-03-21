@@ -11,7 +11,7 @@ interface CustomTreeDataNode extends TreeDataNode {
     masterTypeId?: number;
 }
 
-const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: CustomTreeDataNode[]) => void) => {
+const usePlanManager = (nodes?: CustomTreeDataNode[], setNodes?: (newNodes: CustomTreeDataNode[]) => void) => {
     const [plans, setPlans] = useState<PlanType[]>([]);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [editPlan, setEditPlan] = useState<PlanType | null>(null);
@@ -53,7 +53,7 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
 
         const newPlanId = generatePlanId(existingPlanIds);
 
-        if (editPlan) {
+        if (editPlan && nodes) {
             subProcessKeyToUse = findSubProcessKeyByPlanId(nodes, editPlan.planId);
         }
 
@@ -69,7 +69,7 @@ const usePlanManager = (nodes: CustomTreeDataNode[], setNodes: (newNodes: Custom
                 planStatus: "add"
             };
 
-        if (subProcessKeyToUse) {
+        if (subProcessKeyToUse && nodes && setNodes) {
             setNodes(updatePlanInSubProcess(nodes, subProcessKeyToUse, updatedPlan));
         } else {
             setPlans((prevList) => {
