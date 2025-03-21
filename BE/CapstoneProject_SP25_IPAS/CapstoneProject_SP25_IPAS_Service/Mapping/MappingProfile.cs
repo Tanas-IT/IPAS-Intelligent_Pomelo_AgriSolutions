@@ -409,9 +409,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<GraftedPlant, GraftedPlantModels>()
-               .ForMember(dest => dest.PlandCode, opt => opt.MapFrom(src => src.Plant.PlantCode))
+               .ForMember(dest => dest.PlantCode, opt => opt.MapFrom(src => src.Plant!.PlantCode))
                .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot!.PlantLotName))
                .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot!.PlantLotCode))
+               .ForMember(dest => dest.CultivarId, opt => opt.MapFrom(src => src.Plant!.MasterTypeId))
+               .ForMember(dest => dest.CultivarName, opt => opt.MapFrom(src => src.Plant!.MasterType!.MasterTypeName))
                .ReverseMap();
 
             CreateMap<ChatMessage, ChatMessageModel>()

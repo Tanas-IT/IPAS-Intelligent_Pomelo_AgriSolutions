@@ -260,7 +260,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lấy cây từ database
             var plant = await _context.Plants
                 .Where( p => p.PlantId == plantId && p.IsDeleted == false && p.IsDead == false)
-                //.Include(p => p.GrowthStage)
+                .Include(p => p.GrowthStage)
                 .FirstOrDefaultAsync();
 
             // Kiểm tra cây có tồn tại không
