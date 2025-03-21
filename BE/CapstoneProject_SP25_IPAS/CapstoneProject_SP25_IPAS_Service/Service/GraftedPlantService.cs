@@ -255,10 +255,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.GraftedDate >= getRequest.GraftedDateFrom && x.GraftedDate <= getRequest.GraftedDateTo);
                 }
 
-                if (!string.IsNullOrEmpty(getRequest.PlantLotId))
+                if (!string.IsNullOrEmpty(getRequest.PlantLotIds))
                 {
-                    List<string> filterList = Util.SplitByComma(getRequest.PlantLotId);
+                    List<string> filterList = Util.SplitByComma(getRequest.PlantLotIds);
                     filter = filter.And(x => filterList.Contains(x.PlantLotId.ToString()!));
+                }
+
+                if (getRequest.IsCompleted.HasValue)
+                    filter = filter.And(x => x.IsCompleted == getRequest.IsCompleted);
+
+                if (!string.IsNullOrEmpty(getRequest.CultivarIds))
+                {
+                    List<string> filterList = Util.SplitByComma(getRequest.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.Plant!.MasterTypeId.ToString()!));
                 }
 
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
@@ -271,6 +280,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
                                 ? x => x.OrderByDescending(x => x.GraftedPlantId)
                                 : x => x.OrderBy(x => x.GraftedPlantId);
+                            break;
+                        case "graftedplantcode":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.GraftedDate)
+                                : x => x.OrderBy(x => x.GraftedDate);
                             break;
                         case "grafteddate":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
@@ -292,14 +306,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ? x => x.OrderByDescending(x => x.PlantLotId)
                                 : x => x.OrderBy(x => x.PlantLotId);
                             break;
+                        case "iscompleted":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        case "plantid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        case "cultivarid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        case "cultivarname":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
                         default:
                             orderBy = x => x.OrderBy(x => x.GraftedPlantId);
                             break;
                     }
                 }
-                string includeProperties = "PlantLot,Plant";
+                //string includeProperties = "PlantLot,Plant";
                 var entities = await _unitOfWork.GraftedPlantRepository.Get(
-                    filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                    filter, orderBy, /*includeProperties,*/ paginationParameter.PageIndex, paginationParameter.PageSize);
 
                 var pagin = new PageEntity<GraftedPlantModels>
                 {
@@ -458,10 +492,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Grafted Plant Not exist");
                     //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
                     // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
+                    if (checkGraftedExist.SeparatedDate.HasValue)
+                        return new BusinessResult(400, "This grafted has seperate before. Please check again");
+                    if (checkGraftedExist.PlantLotId.HasValue)
+                        return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
                     var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
 
                     var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredCondition);
-                    if (checkCriteriaBefore.enable == true)
+                    if (checkCriteriaBefore.enable == false)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);
 
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
@@ -470,9 +508,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
                         if (checkPlantLotExist == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
-                        if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant.MasterTypeId)
+                        if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant!.MasterTypeId)
                             return new BusinessResult(400, "This Plantlot not same cultivar with this plant");
-                        checkPlantLotExist.InputQuantity += 1;
+                        checkPlantLotExist.PreviousQuantity = checkPlantLotExist.PreviousQuantity.Value + 1;
                         _unitOfWork.PlantLotRepository.Update(checkPlantLotExist);
                         checkGraftedExist.PlantLotId = request.PlantLotId.Value;
                         //checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
@@ -746,11 +784,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is deleted.");
 
                         if (grafted.IsCompleted == false)
-                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is not completed yet.");
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is not COMPLETED yet.");
 
                         if (grafted.PlantLotId.HasValue || grafted.Status.Equals(GraftedPlantStatusConst.IS_USED, StringComparison.OrdinalIgnoreCase))
-                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is already used.");
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} is already in another plantlot.");
                     }
+
+                    //  4️ Nếu có lỗi, trả về danh sách lỗi
+                    if (errorMessages.Any())
+                        return new BusinessResult(400, string.Join("/n", errorMessages));
+
                     var distinctMasterTypes = graftedPlants
                         .Where(gp => gp.Plant != null)
                         .Select(gp => gp.Plant!.MasterTypeId)
@@ -774,10 +817,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, "The PlantLot has a different seeding. Cannot group these Grafted Plants.");
                     }
-                    //  4️ Nếu có lỗi, trả về danh sách lỗi
-                    if (errorMessages.Any())
-                        return new BusinessResult(400, "Some thing wrong.", new { Errors = errorMessages });
-
                     //  5️ Cập nhật GraftedPlant & số lượng PlantLot
                     foreach (var grafted in graftedPlants)
                     {
@@ -907,6 +946,77 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(500, ex.Message);
                 }
             }
+        }
+
+        public async Task<BusinessResult> UngroupGraftedPlants(List<int> graftedPlantIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 1️ Lấy danh sách các GraftedPlant cần ungroup
+                    var graftedPlants = await _unitOfWork.GraftedPlantRepository
+                        .GetAllNoPaging(filter: x => graftedPlantIds.Contains(x.GraftedPlantId) && x.PlantLotId.HasValue/*, includeProperties: "PlantLot"*/);
+
+                    if (!graftedPlants.Any())
+                        return new BusinessResult(400, "No valid GraftedPlants found.");
+
+                    List<string> errorMessages = new();
+
+                    // 2️ Kiểm tra điều kiện của từng GraftedPlant
+                    foreach (var grafted in graftedPlants)
+                    {
+                        if (grafted.Status == GraftedPlantStatusConst.IS_USED)
+                            errorMessages.Add($"GraftedPlant {grafted.GraftedPlantCode} has already been used and cannot be ungrouped.");
+                    }
+
+                    if (errorMessages.Any())
+                        return new BusinessResult(400, string.Join("\n", errorMessages));
+
+                    // 3️ Gom nhóm GraftedPlant theo PlantLotId để biết số lượng cần giảm ở mỗi PlantLot
+                    var plantLotQuantityReduction = graftedPlants
+                        .GroupBy(gp => gp.PlantLotId)
+                        .ToDictionary(g => g.Key!.Value, g => g.Count()); // Key là PlantLotId, Value là số lượng GraftedPlant bị bỏ
+
+                    // 4️ Cập nhật GraftedPlant để bỏ liên kết với PlantLot
+                    foreach (var grafted in graftedPlants)
+                    {
+                        grafted.PlantLotId = null;
+                    }
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);
+
+                    // 5️ Lấy tất cả các PlantLot bị ảnh hưởng chỉ 1 lần duy nhất
+                    var affectedPlantLots = await _unitOfWork.PlantLotRepository
+                        .GetAllNoPaging(x => plantLotQuantityReduction.Keys.Contains(x.PlantLotId));
+
+                    // 6️ Giảm số lượng PreviousQuantity của từng PlantLot
+                    foreach (var plantLot in affectedPlantLots)
+                    {
+                        int reduceAmount = plantLotQuantityReduction[plantLot.PlantLotId];
+                        plantLot.PreviousQuantity = Math.Max(0, plantLot.PreviousQuantity.GetValueOrDefault() - reduceAmount);
+                        _unitOfWork.PlantLotRepository.Update(plantLot);
+                    }
+
+                    // 7️ Lưu thay đổi vào DB
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(200, $"Successfully ungrouped {graftedPlants.Count()} GraftedPlants.", true);
+                    }
+                    else
+                    {
+                        return new BusinessResult(500, "Failed to save changes.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(500, ex.Message);
+                }
+            }
+
         }
     }
 }
