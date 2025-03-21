@@ -68,6 +68,7 @@ const CriteriaModel = ({
             maxValue: criteria.maxValue,
             unit: criteria.unit,
             priority: criteria.priority,
+            frequencyDate: criteria.frequencyDate,
           })),
         });
         setChecked(criteriaData.isActive);
@@ -86,6 +87,7 @@ const CriteriaModel = ({
       criteriaName: "",
       criteriaDescription: "",
       priority: maxPriority + 1,
+      frequencyDate: "",
     };
 
     const updatedCriteriaList = [...currentList, newCriteria];
@@ -142,7 +144,8 @@ const CriteriaModel = ({
       newItem.minValue !== oldItem.minValue ||
       newItem.maxValue !== oldItem.maxValue ||
       newItem.unit !== oldItem.unit ||
-      newItem.priority !== oldItem.priority
+      newItem.priority !== oldItem.priority ||
+      newItem.frequencyDate !== oldItem.frequencyDate
     );
   };
 
@@ -324,6 +327,27 @@ const CriteriaModel = ({
             min={1}
             value={record.priority}
             onChange={handleInputChange}
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Check Interval Days ",
+      dataIndex: "frequencyDate",
+      align: "center" as const,
+      // width: 70,
+      render: (_: any, record: CriteriaRequest, index: number) => (
+        <Form.Item
+          className={style.noMargin}
+          name={["criteriaList", index, "frequencyDate"]}
+          rules={RulesManager.getCheckIntervalDaysRules()}
+        >
+          <InputNumber
+            className={style.inputNumberField}
+            min={1}
+            value={record.frequencyDate}
+            onChange={handleInputChange}
+            placeholder="Value..."
           />
         </Form.Item>
       ),

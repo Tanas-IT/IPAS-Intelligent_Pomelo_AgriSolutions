@@ -12,6 +12,8 @@ import { useDirtyStore } from "@/stores";
 
 type ApplyCriteriaModalProps = {
   lotId?: number;
+  hasInputQuantity: boolean;
+  hasLastQuantity: boolean;
   isOpen: boolean;
   onClose: () => void;
   onSave: (criteria: CriteriaApplyRequest) => void;
@@ -20,6 +22,8 @@ type ApplyCriteriaModalProps = {
 
 const ApplyCriteriaModal = ({
   lotId,
+  hasInputQuantity,
+  hasLastQuantity,
   isOpen,
   onClose,
   onSave,
@@ -60,6 +64,7 @@ const ApplyCriteriaModal = ({
       criteriaData: dataSource.map((item) => ({
         criteriaId: item.criteriaId,
         priority: item.priority,
+        frequencyDate: item.frequencyDate,
       })),
     };
 
@@ -99,11 +104,16 @@ const ApplyCriteriaModal = ({
             name={"criteriaType"}
             rules={RulesManager.getTypeRules()}
             options={Object.values(CRITERIA_TARGETS)
-              .filter(
-                (value) =>
+              .filter((value) => {
+                if (hasInputQuantity && value === CRITERIA_TARGETS["Plantlot Condition"])
+                  return false;
+                if (hasLastQuantity && value === CRITERIA_TARGETS["Plantlot Evaluation"])
+                  return false;
+                return (
                   value === CRITERIA_TARGETS["Plantlot Condition"] ||
-                  value === CRITERIA_TARGETS["Plantlot Evaluation"],
-              )
+                  value === CRITERIA_TARGETS["Plantlot Evaluation"]
+                );
+              })
               .map((value) => ({ label: value, value }))}
             onChange={handleCriteriaTypeChange}
           />

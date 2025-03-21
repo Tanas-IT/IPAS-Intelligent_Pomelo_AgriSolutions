@@ -47,7 +47,7 @@ const LotSectionHeader = ({
           <Tooltip title="Hello">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
-          <Flex className={style.actionButtons}>
+          <Flex className={style.actionButtons} gap={20}>
             {!lot.isPassed ? (
               <Button type="primary" onClick={updateConfirmModal.showModal} ghost>
                 <Icons.check /> Mark as Completed

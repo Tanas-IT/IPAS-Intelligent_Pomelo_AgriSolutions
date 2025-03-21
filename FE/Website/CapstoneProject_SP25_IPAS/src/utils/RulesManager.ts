@@ -11,6 +11,15 @@ export class RulesManager {
       },
     ];
   }
+  static getNumberRulesAllowZero(fieldName: string) {
+    return [
+      { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
+      {
+        pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/, // Chấp nhận số >= 0
+        message: `${fieldName} must be a valid number!`,
+      },
+    ];
+  }
   static getTextRules(fieldName: string, min = 2, max = 50, regex = /^[a-zA-ZÀ-ỹ\s]+$/) {
     return [
       { required: true, message: `Please input your ${fieldName.toLowerCase()}!` },
@@ -106,12 +115,13 @@ export class RulesManager {
   static getTypeRules = () => this.getRequiredRules("Type");
   static getCriteriaRules = () => this.getRequiredRules("Criteria");
   static getPriorityRules = () => this.getRequiredRules("Priority");
+  static getCheckIntervalDaysRules = () => this.getRequiredRules("Interval Days");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
   static getCharacteristicRules = () => this.getRequiredRules("Characteristic");
 
   static getLotNameRules = () => this.getRequiredRules("Lot Name");
   static getPartnerRules = () => this.getRequiredRules("Partner");
-  static getQuantityRules = () => this.getNumberRules("Quantity");
+  static getQuantityRules = () => this.getNumberRulesAllowZero("Quantity");
   static getUnitRules = () => this.getRequiredRules("Unit");
   static getSelectRoleRules = () => this.getRequiredRules("Select Role");
 

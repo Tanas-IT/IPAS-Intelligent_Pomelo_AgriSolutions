@@ -34,7 +34,11 @@ import { toast } from "react-toastify";
 function PlantLot() {
   const navigate = useNavigate();
   const formModal = useModal<GetPlantLot2>();
-  const criteriaModal = useModal<{ id: number }>();
+  const criteriaModal = useModal<{
+    id: number;
+    hasInputQuantity?: boolean;
+    hasLastQuantity?: boolean;
+  }>();
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
@@ -194,7 +198,13 @@ function PlantLot() {
               isCompleted={lot.isPassed}
               onEdit={() => formModal.showModal(lot)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [lot.plantLotId] })}
-              onApplyCriteria={() => criteriaModal.showModal({ id: lot.plantLotId })}
+              onApplyCriteria={() =>
+                criteriaModal.showModal({
+                  id: lot.plantLotId,
+                  hasInputQuantity: !!lot.inputQuantity,
+                  hasLastQuantity: !!lot.lastQuantity,
+                })
+              }
             />
           )}
         />
@@ -216,6 +226,8 @@ function PlantLot() {
         />
         <ApplyCriteriaModal
           lotId={criteriaModal.modalState.data?.id}
+          hasInputQuantity={criteriaModal.modalState.data?.hasInputQuantity ?? false}
+          hasLastQuantity={criteriaModal.modalState.data?.hasLastQuantity ?? false}
           isOpen={criteriaModal.modalState.visible}
           onClose={handleCloseCriteria}
           onSave={applyCriteria}

@@ -11,13 +11,13 @@ const columns = [
     render: (_: any, __: any, rowIndex: number) => rowIndex + 1,
   },
   {
-    title: "Criteria Code",
+    title: "Code",
     dataIndex: "criteriaCode",
     key: "criteriaCode",
     align: "center" as const,
   },
   {
-    title: "Criteria Name",
+    title: "Name",
     dataIndex: "criteriaName",
     key: "criteriaName",
     align: "center" as const,
@@ -51,6 +51,12 @@ const columns = [
     title: "Priority",
     dataIndex: "priority",
     key: "priority",
+    align: "center" as const,
+  },
+  {
+    title: "Check Interval Days ",
+    dataIndex: "frequencyDate",
+    key: "frequencyDate",
     align: "center" as const,
   },
 ];

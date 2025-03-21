@@ -351,7 +351,7 @@
 @mixin criteriaCollapse {
   .headerWrapper {
     width: 100%;
-    min-width: 50rem;
+    min-width: 70rem;
     align-items: center;
     .panelTitle {
       align-items: center;
@@ -370,6 +370,9 @@
         font-size: 14px;
         font-weight: bold;
         color: vars.$color_primary !important;
+      }
+      .statusTag {
+        margin-left: 12px;
       }
     }
   }

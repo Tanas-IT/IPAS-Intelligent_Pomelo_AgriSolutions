@@ -7,6 +7,7 @@ export interface GetCriteria {
   maxValue: number;
   unit: string;
   priority: number;
+  frequencyDate: number;
 }
 
 export interface GetCriteriaByMasterType {
@@ -25,8 +26,13 @@ export interface GetCriteriaCheck {
   criteriaName: string;
   description: string;
   createDate: Date;
+  checkedDate: Date;
   priority: number;
-  isChecked?: boolean;
+  minValue: number;
+  maxValue: number;
+  unit: string;
+  valueChecked: number;
+  // isChecked?: boolean;
   isPassed?: boolean;
 }
 

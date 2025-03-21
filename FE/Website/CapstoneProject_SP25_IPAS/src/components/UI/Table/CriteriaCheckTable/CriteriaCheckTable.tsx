@@ -1,24 +1,27 @@
 import { useStyle } from "@/hooks";
-import { Table, Checkbox } from "antd";
+import { Table, Checkbox, Form, InputNumber } from "antd";
 import style from "./CriteriaCheckTable.module.scss";
 import { GetCriteriaCheck } from "@/payloads";
+import { Icons } from "@/assets";
+import { formatDateAndTime } from "@/utils";
+import { usePlantLotStore } from "@/stores";
+import { CRITERIA_TARGETS } from "@/constants";
 
 interface CriteriaCheckTableProps {
   data: GetCriteriaCheck[];
-  isConditionCompleted: boolean;
-  hasCompleteCheck?: boolean;
-  hasPassCheck?: boolean;
-  handleCompletedChange: (criteriaId: number, checked: boolean) => void;
+  target: string;
+  handleValueCheckChange: (criteriaId: number, valueCheck: number) => void;
 }
 
 const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
   data,
-  isConditionCompleted,
-  hasCompleteCheck = false,
-  hasPassCheck = false,
-  handleCompletedChange,
+  target,
+  handleValueCheckChange,
 }) => {
   const { styles } = useStyle();
+  const isCondition = target === CRITERIA_TARGETS["Plantlot Condition"] ? true : false;
+  const { lot } = usePlantLotStore();
+  if (!lot) return;
 
   const columns = [
     {
@@ -38,6 +41,7 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
       dataIndex: "description",
       key: "description",
       align: "center" as const,
+      // width: 350,
     },
     {
       title: "Priority",
@@ -45,51 +49,65 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
       key: "priority",
       align: "center" as const,
     },
-    hasCompleteCheck
-      ? {
-          title: "Is Completed",
-          key: "isChecked",
-          align: "center" as const,
-          render: (_: any, record: GetCriteriaCheck) => (
-            <Checkbox
-              className={styles.customCheckbox}
-              checked={record.isChecked}
-              disabled={isConditionCompleted}
-              onChange={(e) => handleCompletedChange(record.criteriaId, e.target.checked)}
-            />
-          ),
-        }
-      : null,
-    hasPassCheck
-      ? {
-          title: "Pass",
-          key: "isPass",
-          align: "center" as const,
-          render: (_: any, record: GetCriteriaCheck) => (
-            <Checkbox
-              className={styles.customCheckbox}
-              checked={record.isPassed}
-              disabled={isConditionCompleted}
-              onChange={() => handleCompletedChange(record.criteriaId, true)}
-            />
-          ),
-        }
-      : null,
-    hasPassCheck
-      ? {
-          title: "Not Pass",
-          key: "notPass",
-          align: "center" as const,
-          render: (_: any, record: GetCriteriaCheck) => (
-            <Checkbox
-              className={styles.customCheckbox}
-              checked={!record.isPassed}
-              disabled={isConditionCompleted}
-              onChange={() => handleCompletedChange(record.criteriaId, false)}
-            />
-          ),
-        }
-      : null,
+    {
+      title: "Min Value",
+      dataIndex: "minValue",
+      key: "minValue",
+      align: "center" as const,
+      width: 100,
+    },
+    {
+      title: "Max Value",
+      dataIndex: "maxValue",
+      key: "maxValue",
+      align: "center" as const,
+      width: 100,
+    },
+    {
+      title: "Unit",
+      dataIndex: "unit",
+      key: "unit",
+      align: "center" as const,
+    },
+    {
+      title: "Value Check",
+      dataIndex: "valueChecked",
+      key: "valueChecked",
+      align: "center" as const,
+      render: (_: any, record: GetCriteriaCheck, index: number) => (
+        <InputNumber
+          placeholder="Enter number..."
+          value={record.valueChecked ?? null}
+          readOnly={(isCondition && !!lot.inputQuantity) || (!isCondition && !!lot.lastQuantity)}
+          onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
+          min={0}
+        />
+      ),
+      width: 100,
+    },
+    {
+      title: "Check Date",
+      dataIndex: "checkedDate",
+      key: "checkedDate",
+      align: "center" as const,
+      render: (_: any, record: GetCriteriaCheck) =>
+        record.checkedDate ? formatDateAndTime(record.checkedDate) : "-",
+    },
+    {
+      title: "Check Interval Days ",
+      dataIndex: "frequencyDate",
+      key: "frequencyDate",
+      align: "center" as const,
+    },
+    {
+      title: "Is Passed",
+      key: "isPassed",
+      align: "center" as const,
+      width: 100,
+      render: (_: any, record: GetCriteriaCheck) => (
+        <Checkbox className={styles.customCheckbox} checked={record.isPassed} disabled />
+      ),
+    },
   ].filter((col): col is Exclude<typeof col, null> => col !== null);
 
   return (

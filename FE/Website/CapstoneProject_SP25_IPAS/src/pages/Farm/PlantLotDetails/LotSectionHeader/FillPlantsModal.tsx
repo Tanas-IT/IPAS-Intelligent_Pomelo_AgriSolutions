@@ -16,12 +16,6 @@ type FillPlantsModalProps = {
   isLoadingAction?: boolean;
 };
 
-const fakeLots = Array.from({ length: 5 }, (_, index) => ({
-  plantLotCode: `LOT-00${index + 1}`,
-  plantLotName: `Plant Lot ${index + 1}`,
-  lastQuantity: Math.floor(Math.random() * 50) + 10, // Random từ 10-60
-}));
-
 const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlantsModalProps) => {
   const [plotList, setPlotList] = useState<GetLandPlotHaveEmptyPlant[]>();
   const { lot, setLot, markForRefetch } = usePlantLotStore();
@@ -88,7 +82,9 @@ const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlant
 
               <Flex className={style.lotStats}>
                 <Text>
-                  ✅ Remaining: <strong>{lot?.lastQuantity}</strong> {lot?.unit}
+                  ✅ Remaining:{" "}
+                  <strong>{(lot?.lastQuantity ?? 0) - (lot?.usedQuantity ?? 0)}</strong>{" "}
+                  {lot?.unit ?? ""}
                 </Text>
                 <Text>
                   🌱 Used: <strong>{lot?.usedQuantity ?? 0}</strong> {lot?.unit}
@@ -143,7 +139,7 @@ const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlant
         </Flex>
 
         <div className={style.instructions}>
-          <Text strong>⚠️ Planting Instructions:</Text>
+          <Text strong>⚠️ Planting Instructions: </Text>
           <Text type="secondary">
             You can fill plants into the available plots until the <strong>Used</strong> quantity
             matches the <strong>Remaining</strong> quantity in this lot. If there are still

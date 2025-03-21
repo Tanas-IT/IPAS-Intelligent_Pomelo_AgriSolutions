@@ -16,16 +16,18 @@ export interface CriteriaRequest {
   maxValue: number;
   unit: string;
   priority: number;
+  frequencyDate: number;
 }
 
 interface CriteriaApplyData {
   criteriaId: number;
   priority: number;
+  frequencyDate: number;
 }
 
 export interface CriteriaCheckData {
   criteriaId: number;
-  isChecked: boolean;
+  valueChecked: number;
 }
 
 export interface CriteriaApplyRequest {

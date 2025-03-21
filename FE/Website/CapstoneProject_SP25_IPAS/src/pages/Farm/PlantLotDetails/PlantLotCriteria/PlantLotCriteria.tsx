@@ -24,15 +24,15 @@ function PlantLotCriteria() {
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true); // 👈 Thêm state mới
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
-  const [initialCriteria, setInitialGroups] = useState<Record<number, boolean>>({});
-  const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, boolean>>({});
+  const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
+  const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
   const { lot, setLot, markForRefetch } = usePlantLotStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
-  const quantityModal = useModal<{ target: string }>();
+  const quantityModal = useModal<{ target: string; isAllPass: boolean }>();
   if (!lot) return;
 
   const fetchCriteriaPlantLot = async () => {
@@ -40,15 +40,17 @@ function PlantLotCriteria() {
     if (isFirstLoad) await new Promise((resolve) => setTimeout(resolve, 500));
     try {
       const res = await criteriaService.getCriteriaOfLandPlot(Number(lot.plantLotId));
-      if (res.statusCode === 200 && res.data) {
+      if (res.statusCode === 200) {
         setCriteriaGroups(res.data ?? []);
         setInitialCriteriaGroups(res.data ?? []);
-        const initialState = res.data.reduce((acc, group) => {
-          group.criteriaList.forEach((item) => {
-            acc[item.criteriaId] = item.isChecked ?? false;
-          });
-          return acc;
-        }, {} as Record<number, boolean>);
+        const initialState =
+          res.data &&
+          res.data.reduce((acc, group) => {
+            group.criteriaList.forEach((item) => {
+              acc[item.criteriaId] = item.valueChecked ?? 0;
+            });
+            return acc;
+          }, {} as Record<number, number>);
 
         setInitialGroups(initialState);
       }
@@ -88,11 +90,12 @@ function PlantLotCriteria() {
     }
   };
 
-  const handleCompletedChange = (criteriaId: number, checked: boolean) => {
+  const handleValueCheckChange = (criteriaId: number, value: number) => {
+    if (value === 0) return;
     setUpdatedCriteria((prev) => {
       const initialValue = initialCriteria[criteriaId];
 
-      if (checked === initialValue) {
+      if (value === initialValue) {
         // Nếu giá trị mới bằng giá trị ban đầu, loại bỏ nó khỏi updatedCriteria
         const { [criteriaId]: _, ...rest } = prev;
         return rest;
@@ -101,43 +104,87 @@ function PlantLotCriteria() {
       // Nếu có thay đổi thực sự, lưu lại
       return {
         ...prev,
-        [criteriaId]: checked,
+        [criteriaId]: value,
       };
     });
     setCriteriaGroups((prevGroups) =>
       prevGroups.map((group) => ({
         ...group,
         criteriaList: group.criteriaList.map((item) =>
-          item.criteriaId === criteriaId ? { ...item, isChecked: checked } : item,
+          item.criteriaId === criteriaId ? { ...item, valueChecked: value } : item,
         ),
       })),
     );
   };
 
-  const handleSave = async (
+  const handleUpdateQuantity = async (
     target?: string,
     isAllCompletedCheckUpdate?: boolean,
-    isAllConditionChecked?: boolean,
     quantity?: number,
     supplementQuantity?: number,
   ) => {
+    if (!target && !isAllCompletedCheckUpdate && !quantity) return;
     if (!target) return;
+
+    if (!lot.inputQuantity && target === CRITERIA_TARGETS["Plantlot Evaluation"]) {
+      toast.error("Please update check quantity before proceeding.");
+      return;
+    }
+
+    if (
+      (target === CRITERIA_TARGETS["Plantlot Evaluation"] && quantity === lot.lastQuantity) ||
+      (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
+    ) {
+      // Không gọi API nếu số lượng không thay đổi
+    } else if (quantity && isAllCompletedCheckUpdate) {
+      var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
+      if (resUpdate.statusCode !== 200) {
+        toast.error(resUpdate.message);
+        return;
+      } else {
+        quantityModal.hideModal();
+        toast.success(resUpdate.message);
+      }
+
+      setLot({
+        ...lot,
+        lastQuantity:
+          target === CRITERIA_TARGETS["Plantlot Evaluation"] ? quantity : lot.lastQuantity,
+        inputQuantity:
+          target === CRITERIA_TARGETS["Plantlot Condition"] ? quantity : lot.inputQuantity,
+      });
+    }
+
+    if (
+      target === CRITERIA_TARGETS["Plantlot Condition"] &&
+      supplementQuantity !== undefined &&
+      !isNaN(supplementQuantity) &&
+      supplementQuantity > 0
+    ) {
+      const resAdditional = await plantLotService.createAdditionalLot(
+        lot.plantLotReferenceId ?? lot.plantLotId,
+        supplementQuantity,
+      );
+      if (resAdditional.statusCode !== 200) {
+        toast.error(resAdditional.message);
+        return;
+      } else {
+        markForRefetch();
+      }
+    }
+  };
+
+  const handleSave = async (isAllConditionChecked: boolean, target: string) => {
     if (!isAllConditionChecked && target === CRITERIA_TARGETS["Plantlot Evaluation"]) {
-      toast.error("Please complete all 'Plant Lot Condition' criteria before proceeding.");
+      toast.error("Please pass 'Plantlot Condition' before updating 'Plantlot Evaluation'.");
       return;
     }
-
-    if (target && isAllCompletedCheckUpdate && !quantity) {
-      quantityModal.showModal({ target });
-      return;
-    }
-
-    const criteriaDatas: CriteriaCheckData[] = Object.entries(updatedCriteria).map(
-      ([criteriaId, isChecked]) => ({
+    const criteriaDatas: CriteriaCheckData[] = Object.entries(updatedCriteria)
+      .filter(([, valueChecked]) => valueChecked !== 0) // Lọc ra giá trị khác 0
+      .map(([criteriaId, valueChecked]) => ({
         criteriaId: Number(criteriaId),
-        isChecked,
-      }),
-    );
+        valueChecked,
+      }));
 
     const payload: CriteriaCheckRequest = {
       plantLotID: lot?.plantLotId ? [lot.plantLotId] : undefined,
@@ -146,55 +193,13 @@ function PlantLotCriteria() {
 
     try {
       setIsLoading(true);
+
       var res = await criteriaService.checkCriteria(payload);
-      if (res.statusCode !== 200) {
-        toast.error(res.message);
-        return;
-      }
-
-      if (
-        (target === CRITERIA_TARGETS["Plantlot Evaluation"] && quantity === lot.lastQuantity) ||
-        (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
-      ) {
-        // Không gọi API nếu số lượng không thay đổi
-      } else if (quantity && isAllCompletedCheckUpdate) {
-        var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
-        if (resUpdate.statusCode !== 200) {
-          toast.error(resUpdate.message);
-          return;
-        }
-
-        setLot({
-          ...lot,
-          lastQuantity:
-            target === CRITERIA_TARGETS["Plantlot Evaluation"] ? quantity : lot.lastQuantity,
-          inputQuantity:
-            target === CRITERIA_TARGETS["Plantlot Condition"] ? quantity : lot.inputQuantity,
-        });
-      }
-
-      if (
-        target === CRITERIA_TARGETS["Plantlot Condition"] &&
-        supplementQuantity !== undefined &&
-        !isNaN(supplementQuantity) &&
-        supplementQuantity > 0
-      ) {
-        const resAdditional = await plantLotService.createAdditionalLot(
-          lot.plantLotReferenceId ?? lot.plantLotId,
-          supplementQuantity,
-        );
-        if (resAdditional.statusCode !== 200) {
-          toast.error(resAdditional.message);
-          return;
-        } else {
-          markForRefetch();
-        }
-      }
-
       if (res.statusCode === 200) {
         toast.success(res.message);
-        quantityModal.hideModal();
         await fetchCriteriaPlantLot();
+      } else {
+        toast.error(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -206,9 +211,8 @@ function PlantLotCriteria() {
     setCriteriaGroups(initialCriteriaGroups);
   };
 
-  const handleDeleteConfirm = async (criteriaSetId: number) => {
+  const handleDeleteConfirm = async (criteriaSetId: number) =>
     deleteConfirmModal.showModal({ id: criteriaSetId });
-  };
 
   const handleDelete = async (criteriaSetId?: number) => {
     if (!criteriaSetId) return;
@@ -244,37 +248,6 @@ function PlantLotCriteria() {
             ghost
           >
             {criteriaGroups.map((group) => {
-              const isConditionCompleted = group.criteriaList.every(
-                (item) => initialCriteria[item.criteriaId],
-              ); // ✅ Kiểm tra dựa trên dữ liệu đã load
-
-              const isAllCompletedCheckUpdate = (
-                ["Plantlot Condition", "Plantlot Evaluation"] as const
-              ).some((target) => {
-                // Lọc ra các nhóm thuộc target đang xét
-                const filteredGroups = criteriaGroups.filter(
-                  (group) => group.target === CRITERIA_TARGETS[target],
-                );
-
-                // Nếu target có nhóm nhưng chưa được tick hết -> false
-                if (filteredGroups.length === 0) return false;
-
-                return filteredGroups.some((group) => {
-                  // Trạng thái ban đầu của nhóm: nhóm đã được tick hết từ đầu chưa?
-                  const initialGroupCompleted = group.criteriaList.every(
-                    (item) => initialCriteria[item.criteriaId] ?? item.isChecked,
-                  );
-
-                  // Trạng thái sau khi cập nhật: nhóm có được tick hết không?
-                  const updatedGroupCompleted = group.criteriaList.every(
-                    (item) => updatedCriteria[item.criteriaId] ?? item.isChecked,
-                  );
-
-                  return !initialGroupCompleted && updatedGroupCompleted;
-                  // ✅ Chỉ trả về true nếu nhóm trước đó chưa hoàn thành nhưng giờ đã hoàn thành
-                });
-              });
-
               const isAllConditionChecked = (() => {
                 const conditionGroups = criteriaGroups.filter(
                   (group) => group.target === CRITERIA_TARGETS["Plantlot Condition"],
@@ -283,9 +256,43 @@ function PlantLotCriteria() {
                 if (conditionGroups.length === 0) return false; // Không có tiêu chí "Condition" nào
 
                 return conditionGroups.every((group) =>
-                  group.criteriaList.every(
-                    (item) => updatedCriteria[item.criteriaId] ?? item.isChecked,
-                  ),
+                  group.criteriaList.every((item) => initialCriteria[item.criteriaId]),
+                );
+              })();
+
+              const isAllConditionPassed = (() => {
+                const conditionGroups = criteriaGroups.filter(
+                  (group) => group.target === CRITERIA_TARGETS["Plantlot Condition"],
+                );
+
+                if (conditionGroups.length === 0) return false; // Không có tiêu chí "Condition" nào
+
+                return conditionGroups.every((group) =>
+                  group.criteriaList.every((item) => item.isPassed === true),
+                );
+              })();
+
+              const isAllEvaluationChecked = (() => {
+                const evaluationGroups = criteriaGroups.filter(
+                  (group) => group.target === CRITERIA_TARGETS["Plantlot Evaluation"],
+                );
+
+                if (evaluationGroups.length === 0) return false; // Không có tiêu chí "Evaluation" nào
+
+                return evaluationGroups.every((group) =>
+                  group.criteriaList.every((item) => initialCriteria[item.criteriaId]),
+                );
+              })();
+
+              const isAllEvaluationPassed = (() => {
+                const conditionGroups = criteriaGroups.filter(
+                  (group) => group.target === CRITERIA_TARGETS["Plantlot Evaluation"],
+                );
+
+                if (conditionGroups.length === 0) return false;
+
+                return conditionGroups.every((group) =>
+                  group.criteriaList.every((item) => item.isPassed === true),
                 );
               })();
 
@@ -297,13 +304,18 @@ function PlantLotCriteria() {
                       target={group.target}
                       criteriaSetId={group.masterTypeId}
                       data={group.criteriaList}
-                      isAllCompletedCheckUpdate={isAllCompletedCheckUpdate}
                       isAllConditionChecked={isAllConditionChecked}
+                      isAllConditionPassed={isAllConditionPassed}
+                      isAllEvaluationChecked={isAllEvaluationChecked}
+                      isAllEvaluationPassed={isAllEvaluationPassed}
                       updatedCriteria={updatedCriteria}
                       initialCriteria={initialCriteria}
                       handleCancel={handleCancel}
                       handleSave={handleSave}
                       handleDelete={handleDeleteConfirm}
+                      onUpdateQuantity={(target, isAllPass) =>
+                        quantityModal.showModal({ target, isAllPass })
+                      }
                       isCompleted={lot.isPassed}
                     />
                   }
@@ -311,9 +323,8 @@ function PlantLotCriteria() {
                 >
                   <CriteriaCheckTable
                     data={group.criteriaList}
-                    hasCompleteCheck
-                    isConditionCompleted={isConditionCompleted}
-                    handleCompletedChange={handleCompletedChange}
+                    target={group.target}
+                    handleValueCheckChange={handleValueCheckChange}
                   />
                 </Collapse.Panel>
               );
@@ -327,6 +338,8 @@ function PlantLotCriteria() {
       )}
       <ApplyCriteriaModal
         lotId={criteriaModal.modalState.data?.id}
+        hasInputQuantity={!!lot.inputQuantity}
+        hasLastQuantity={!!lot.lastQuantity}
         isOpen={criteriaModal.modalState.visible}
         onClose={handleCloseCriteria}
         onSave={applyCriteria}
@@ -335,10 +348,11 @@ function PlantLotCriteria() {
       <UpdateQuantityModal
         isOpen={quantityModal.modalState.visible}
         onClose={quantityModal.hideModal}
+        isAllConditionPassed={quantityModal.modalState.data?.isAllPass}
+        // isAllConditionPassed={quantityModal.modalState.data?.isAllPass}
         onSave={(quantity, supplementQuantity) =>
-          handleSave(
+          handleUpdateQuantity(
             quantityModal.modalState.data?.target,
-            true,
             true,
             quantity,
             supplementQuantity,

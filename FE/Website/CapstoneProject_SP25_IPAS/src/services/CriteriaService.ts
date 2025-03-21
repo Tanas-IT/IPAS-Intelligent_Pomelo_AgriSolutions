@@ -50,6 +50,7 @@ export const createCriteria = async (
       criteriaName: item.criteriaName,
       criteriaDescription: item.criteriaDescription,
       priority: item.priority,
+      frequencyDate: item.frequencyDate,
       minValue: item.minValue,
       maxValue: item.maxValue,
       unit: item.unit,
@@ -81,6 +82,7 @@ export const updateCriteria = async (
       maxValue: item.maxValue,
       unit: item.unit,
       priority: item.priority,
+      frequencyDate: item.frequencyDate,
       isActive: true,
     })),
   };
@@ -115,6 +117,8 @@ export const getCriteriaByMasterType = async (
 export const applyCriteria = async (
   criteria: CriteriaApplyRequest,
 ): Promise<ApiResponse<GetCriteriaByMasterType>> => {
+  console.log(criteria);
+
   const res = await axiosAuth.axiosJsonRequest.post(`criterias/target/apply-criteria`, criteria);
   const apiResponse = res.data as ApiResponse<GetCriteriaByMasterType>;
   return apiResponse;
@@ -142,8 +146,6 @@ export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiRes
 export const deleteCriteriaObject = async (
   criteria: CriteriaDeleteRequest,
 ): Promise<ApiResponse<object>> => {
-  console.log(criteria);
-
   const res = await axiosAuth.axiosJsonRequest.delete(
     `criterias/target/delete-for-multiple-target`,
     { data: criteria },

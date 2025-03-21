@@ -183,6 +183,20 @@ export const formatDayMonth = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY");
 };
 
+export const formatDateRange = (startDate: string | Date, endDate?: string | Date): string => {
+  const start = moment(startDate);
+  const end = endDate ? moment(endDate) : null;
+
+  if (!end) {
+    return `(${start.format("DD/MM/YYYY HH:mm:ss")})`;
+  }
+
+  if (start.isSame(end, "day")) {
+    return `(${start.format("DD/MM/YYYY HH:mm:ss")} - ${end.format("HH:mm:ss")})`;
+  }
+
+  return `(${start.format("DD/MM/YYYY HH:mm:ss")} - ${end.format("DD/MM/YYYY HH:mm:ss")})`;
+};
 export const getRoleId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   if (!accessToken) return "";
