@@ -42,6 +42,7 @@ import {
     cropService,
     landPlotService,
     landRowService,
+    masterTypeService,
     planService,
     plantService,
     processService,
@@ -113,6 +114,7 @@ const UpdatePlan = () => {
     const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
     const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
     const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
+    const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
     const [targetType, setTargetType] = useState<string>();
     const [checked, setChecked] = useState<boolean>(false);
 
@@ -124,10 +126,6 @@ const UpdatePlan = () => {
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
     const { options: cropOptions } = useCropCurrentOption();
     const { options: plantLotOptions } = usePlantLotOptions();
-    console.log("selectedLandPlot ở đay là j", selectedLandPlot);
-    
-    console.log("landRowOptions in UpdatePlan", landRowOptions);
-    
 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
@@ -144,7 +142,6 @@ const UpdatePlan = () => {
     useEffect(() => {
         if (selectedCrop !== null && selectedCrop !== undefined) {
             form.setFieldValue("listLandPlotOfCrop", []);
-            console.log("v la goi vao day r");
 
             cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
                 const landPlotOptions = data.data.map((item) => ({
@@ -153,7 +150,6 @@ const UpdatePlan = () => {
                 }));
                 setLandPlotOfCropOptions(landPlotOptions);
 
-                // Set lại giá trị trong form nếu có dữ liệu ban đầu
                 if (planData?.listLandPlotOfCrop) {
                     form.setFieldValue(
                         "listLandPlotOfCrop",
@@ -184,15 +180,29 @@ const UpdatePlan = () => {
 
     useEffect(() => {
         const updateProcessFarmOptions = async () => {
-            if (targetType === "graftedPlant") {
-                setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+          if (targetType === "graftedPlant") {
+            const result = await masterTypeService.getProcessTypeSelect("Grafting");
+            
+            if(result.statusCode === 200) {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
             } else {
-                setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
             }
+          } else if (targetType === "plantLot") {
+            const result = await masterTypeService.getProcessTypeSelect("PlantLot");
+            
+            if(result.statusCode === 200) {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+            } else {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
+            }
+          } else {
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+          }
         };
-
+      
         updateProcessFarmOptions();
-    }, [targetType]);
+      }, [targetType]);
 
     const handleWeeklyDaySelection = (days: number[]) => {
         setDayOfWeek(days);
@@ -376,15 +386,16 @@ const UpdatePlan = () => {
             form.setFieldValue("processId", undefined);
             setIsLockedGrowthStage(false);
             setIsTargetDisabled(true);
-            setSelectedGrowthStage([]); // Reset selectedGrowthStage
+            setSelectedGrowthStage([]);
         } else if (target === "plantLot") {
             setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
             setIsTargetDisabled(true);
             form.setFieldValue("processId", undefined);
-            setIsLockedGrowthStage(false);
+            // setIsLockedGrowthStage(false);
         } else {
-            form.setFieldValue("processId", undefined);
-            setIsLockedGrowthStage(false);
+            // form.setFieldValue("processId", undefined);
+            // setIsLockedGrowthStage(false);
+            setIsCropDisabled(false);
             setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
             setIsTargetDisabled(false);
         }
@@ -392,24 +403,49 @@ const UpdatePlan = () => {
 
     const handleChangeProcess = async (processId: number | undefined) => {
         if (processId) {
-            const growthStageId = await getGrowthStageOfProcess(processId);
-            const masterTypeId = await getTypeOfProcess(processId);
-            form.setFieldValue("growthStageId", [growthStageId]);
-            form.setFieldValue("masterTypeId", Number(masterTypeId));
-            setIsLockedGrowthStage(true);
-
-            const processType = await planService.filterTypeWorkByGrowthStage([growthStageId]).then((data) => {
-                setProcessTypeOptions(data.map((item) => ({
-                    value: item.masterTypeId,
-                    label: item.masterTypeName
-                })));
-            });
-        } else {
+          const growthStageId = await getGrowthStageOfProcess(processId);
+          console.log("growthStageId", growthStageId);
+          
+          form.setFieldValue("processId", processId);
+          const masterTypeId = await getTypeOfProcess(processId);
+          form.setFieldValue("masterTypeId", Number(masterTypeId));
+          setIsLockedGrowthStage(true);
+          // neu process co target la grafting
+          if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "Grafting")).data) {
+            setTargetType("graftedPlant");
+            form.setFieldValue("planTarget", "graftedPlant");
             form.setFieldValue("growthStageId", undefined);
-            setIsLockedGrowthStage(false);
-            setProcessTypeOptions([]);
+            setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("Grafting")).data.map((pt) => ({
+              value: pt.id,
+              label: pt.name
+            })))
+            setIsLockedGrowthStage(true);
+          } else if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "PlantLot")).data) {
+            setTargetType("plantLot");
+            form.setFieldValue("planTarget", "plantLot");
+            form.setFieldValue("growthStageId", undefined);
+            
+            setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
+              value: pt.id,
+              label: pt.name
+            })))
+            setIsLockedGrowthStage(true);
+          } else {
+            form.setFieldValue("growthStageId", [growthStageId]);
+            if(growthStageId) {
+    
+              setSelectedGrowthStage([growthStageId]);
+            }
+            form.setFieldsValue({ planTargetModel: [] });
+          }
+        } else {
+          form.setFieldValue("processId", undefined);
+          form.setFieldValue("growthStageId", undefined);
+          form.setFieldValue("masterTypeId", undefined);
+          setIsLockedGrowthStage(false);
+          setProcessTypeOptions([]);
         }
-    };
+      };
 
     const handleConfirmAssign = () => {
         setAssignorId(userId);
@@ -548,6 +584,8 @@ const UpdatePlan = () => {
                         form.setFieldValue("planTarget", target)
                         if(target === "regular") {
                             setIsTargetDisabled(false);
+                        } else if (target === "plantLot" || target === "graftedPlant") {
+                            setIsCropDisabled(true);
                         }
                         setTargetType(target);
                         const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
@@ -768,8 +806,7 @@ const UpdatePlan = () => {
                                     onChange={(value) => {
                                         setSelectedCrop(value);
                                         if (targetType === "regular") {
-                                            setTargetType(undefined);
-                                            form.setFieldValue("planTarget", undefined);
+                                            form.setFieldValue("planTarget", "regular");
                                         }
 
                                         setIsTargetDisabled(true);

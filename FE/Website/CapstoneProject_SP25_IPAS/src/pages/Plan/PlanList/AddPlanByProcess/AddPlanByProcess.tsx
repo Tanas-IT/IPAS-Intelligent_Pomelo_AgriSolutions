@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Form, Select, Row, Col, Button, Table, message, Input, Modal, DatePicker, Flex, Divider, Image } from "antd";
-import { planService, processService } from "@/services";
+import { planService, plantLotService, processService } from "@/services";
 import { CustomButton, FormFieldModal, InfoField, Loading, Section } from "@/components";
-import { fetchProcessesOfFarm, fetchUserInfoByRole, getFarmId, getUserId, isDayInRange, RulesManager } from "@/utils";
+import { fetchProcessesOfFarm, fetchUserInfoByRole, getFarmId, getUserId, isDayInRange, planTargetOptions2, RulesManager } from "@/utils";
 import { GetProcessDetail } from "@/payloads/process";
 import AssignEmployee from "../AssignEmployee";
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
@@ -11,12 +11,16 @@ import DaySelector from "../DaySelector";
 import moment from "moment";
 import PlanTarget from "../PlanTarget";
 import style from "./AddPlanByProcess.module.scss"
-import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
+import { useGrowthStageOptions, useLandPlotOptions, useLandRowOptions, useMasterTypeOptions } from "@/hooks";
 import Title from "antd/es/skeleton/Title";
 import { Images } from "@/assets";
 import { PlanRequest } from "@/payloads";
 import TaskAssignmentModal from "./TaskAssignmentModal";
 import PlanDetailsTable from "./PlanDetailsTable";
+import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
+import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
+import usePlantLotOptions from "@/hooks/usePlantLotOptions";
+import { toast } from "react-toastify";
 
 type OptionType<T = string | number> = { value: T; label: string };
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
@@ -47,10 +51,24 @@ const AddPlanByProcess = () => {
     const [growthStage, setGrowthStage] = useState<number[]>([]);
     const [planTargetType, setPlanTargetType] = useState<number>();
     const [isProcessSelected, setIsProcessSelected] = useState(false);
+    const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
+    const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
     const { options: growthStageOptions } = useGrowthStageOptions(false);
     const { options: workTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
+    const { options: landPlots } = useLandPlotOptions();
+    const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
+    const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
+    const { options: plantLotsOptions } = usePlantLotOptions();
+    const { options: graftedPlantsOptions } = useGraftedPlantOptions(Number(getFarmId()));
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null); // Lưu planId được chọn
     const [dataSource, setDataSource] = useState<any[]>([]);
+    const taskAssignmentFormRef = useRef<any>(null);
+    const [initialValues, setInitialValues] = useState<{
+        employees: number[];
+        reporter: number; // reporter không thể là null
+    } | null>(null);
+
+
     const handleReporterChange = (userId: number) => {
         setSelectedReporter(userId);
     };
@@ -88,8 +106,15 @@ const AddPlanByProcess = () => {
                 processId: selectedProcess.processId,
                 processName: selectedProcess.processName,
                 processType: selectedProcess.processMasterTypeModel.masterTypeName,
+                planTarget: selectedProcess.planTargetInProcess
             });
-            setDataSource(selectedProcess.listPlan || []);
+            const mainListPlan = selectedProcess.listPlan || [];
+
+            const subProcessesListPlan = selectedProcess.subProcesses?.flatMap(subProcess => subProcess.listPlan || []) || [];
+
+            const combinedListPlan = [...mainListPlan, ...subProcessesListPlan];
+
+            setDataSource(combinedListPlan);
         }
     }, [selectedProcess, form]);
 
@@ -110,7 +135,7 @@ const AddPlanByProcess = () => {
         }
     }, [dataSource, planDetailsForm]);
     console.log("planDetailsForm", planDetailsForm.getFieldsValue);
-    
+
 
     const handleProcessChange = async (value: number) => {
         try {
@@ -302,11 +327,57 @@ const AddPlanByProcess = () => {
     const handleScheduleClick = (record: any) => {
         setIsScheduleModalOpen(true);
         setSelectedPlanId(record.planId);
+        console.log("1111111", dataSource);
+
+
+        const selectedPlan = dataSource.find((plan) => plan.planId === record.planId);
+        if (selectedPlan) {
+            const schedule = selectedPlan.schedule || {};
+
+            const dateRange = schedule.startDate && schedule.endDate
+                ? [moment(schedule.startDate), moment(schedule.endDate)]
+                : null;
+
+            const timeRange = schedule.startTime && schedule.endTime
+                ? [moment(schedule.startTime, "HH:mm"), moment(schedule.endTime, "HH:mm")]
+                : null;
+
+            setFrequency(schedule.frequency || null);
+            setCustomDates(schedule.customDates || []);
+            setDayOfWeek(schedule.dayOfWeek || []);
+            setDayOfMonth(schedule.dayOfMonth || []);
+
+            scheduleForm.setFieldsValue({
+                dateRange,
+                timeRange,
+                frequency: schedule.frequency || null,
+                dayOfWeek: schedule.dayOfWeek || [],
+                dayOfMonth: schedule.dayOfMonth || [],
+                customDates: schedule.customDates || [],
+            });
+        }
     };
 
     const handleTaskAssignmentClick = (record: any) => {
         setIsTaskModalOpen(true);
         setSelectedPlanId(record.planId);
+
+        const selectedPlan = dataSource.find((plan) => plan.planId === record.planId);
+        console.log("selectedPlan của task", selectedPlan);
+
+
+        if (selectedPlan) {
+            const employees = selectedPlan.listEmployee.map((emp: any) => emp.userId);
+
+            const reporter = selectedPlan.listEmployee.find((emp: any) => emp.isReporter)?.userId || null;
+
+            setInitialValues({
+                employees: employees,
+                reporter: reporter,
+            });
+        } else {
+            setInitialValues(null);
+        }
     };
     const handleSaveSchedule = (values: any, planId: number) => {
         const { dateRange, timeRange, frequency, dayOfWeek, dayOfMonth, customDates } = values;
@@ -351,7 +422,7 @@ const AddPlanByProcess = () => {
             if (plan.planId === planId) {
                 return {
                     ...plan,
-                    listEmployee: employees, 
+                    listEmployee: employees,
                 };
             }
             return plan;
@@ -361,6 +432,9 @@ const AddPlanByProcess = () => {
         console.log("Updated dataSource after assigning employees:", updatedDataSource);
     };
     console.log("dataaa source", dataSource);
+    console.log("gr stttttt", form.getFieldValue("growthStageID"));
+    console.log("gr stttttt ảo tr", growthStage);
+    
 
 
     const handleSubmit = async () => {
@@ -369,35 +443,112 @@ const AddPlanByProcess = () => {
                 message.error("No plans to submit. Please add at least one plan.");
                 return;
             }
-    
-            const payload = dataSource.map((plan) => ({
-                startDate: plan.schedule.startDate,
-                endDate: plan.schedule.endDate,
-                isActive: true,
-                planName: plan.planName,
-                notes: plan.planNote,
-                planDetail: plan.planDetail,
-                frequency: plan.schedule.frequency,
-                assignorId: 0,
-                processId: 0,
-                cropId: 0,
-                growthStageId: [],
-                listLandPlotOfCrop: [],
-                masterTypeId: plan.masterTypeId,
-                dayOfWeek: plan.schedule.dayOfWeek,
-                dayOfMonth: plan.schedule.dayOfMonth,
-                customDates: plan.schedule.customDates,
-                listEmployee: plan.listEmployee,
-                startTime: plan.schedule.startTime,
-                endTime: plan.schedule.endTime,
-                planTargetModel: plan.planTargetModel || [],
-            }));
-    
+            console.log("dataaa source in submit", dataSource);
+            const a = form.getFieldValue("planTargetModel");
+            console.log("há há", a);
+
+
+            const payload: PlanRequest[] = dataSource.map((plan) => {
+                const startDate = new Date(plan.schedule.startDate);
+                const endDate = new Date(plan.schedule.endDate);
+
+                // Điều chỉnh timezone và chuyển đổi sang ISO string
+                const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000).toISOString();
+                const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString();
+                const planTargetModel = [];
+
+
+                if (planTargetType === 1) {
+                    // Lấy mảng planTargetModel từ form
+                    const planTargetModels = form.getFieldValue("planTargetModel");
+                    console.log("planTargetModels:", planTargetModels);
+
+                    // Lặp qua từng đối tượng trong mảng
+                    planTargetModels.forEach((target: any) => {
+                        const landPlotID = target.landPlotID || undefined;
+                        const landRowID = target.landRowID || [];
+                        const plantID = target.plantID || [];
+                        const unit = target.unit;
+
+                        console.log("landPlotID:", landPlotID);
+                        console.log("landRowID:", landRowID);
+                        console.log("plantID:", plantID);
+                        console.log("unit:", unit);
+
+                        planTargetModel.push({
+                            landPlotID,
+                            landRowID,
+                            plantID,
+                            unit,
+                            graftedPlantID: [],
+                            plantLotID: [],
+                        });
+                    });
+                } else if (planTargetType === 2) {
+                    // Xử lý cho trường hợp planTargetType === 2
+                    const plantLotID = form.getFieldValue("plantLot") || [];
+                    const unit = "plantLot";
+
+                    planTargetModel.push({
+                        landPlotID: undefined,
+                        landRowID: [],
+                        plantID: [],
+                        graftedPlantID: [],
+                        plantLotID,
+                        unit,
+                    });
+                } else if (planTargetType === 3) {
+                    // Xử lý cho trường hợp planTargetType === 3
+                    const graftedPlantID = form.getFieldValue("graftedPlant") || [];
+                    const unit = "graftedPlant";
+
+                    planTargetModel.push({
+                        landPlotID: undefined,
+                        landRowID: [],
+                        plantID: [],
+                        graftedPlantID,
+                        plantLotID: [],
+                        unit,
+                    });
+                }
+                console.log("planTargetModel:", planTargetModel);
+
+                return {
+                    startDate: adjustedStartDate,
+                    endDate: adjustedEndDate,
+                    // startDate: "",
+                    // endDate: "",
+                    isActive: true,
+                    planName: plan.planName,
+                    notes: plan.planNote,
+                    planDetail: plan.planDetail,
+                    frequency: plan.schedule.frequency,
+                    assignorId: Number(getUserId()),
+                    processId: selectedProcess?.processId || 0,
+                    cropId: undefined,
+                    growthStageId: growthStage,
+                    listLandPlotOfCrop: [],
+                    masterTypeId: plan.masterTypeId,
+                    dayOfWeek: plan.schedule.dayOfWeek,
+                    dayOfMonth: plan.schedule.dayOfMonth,
+                    customDates: plan.schedule.customDates,
+                    listEmployee: plan.listEmployee,
+                    startTime: `${plan.schedule.startTime}:00`,
+                    endTime: `${plan.schedule.endTime}:00`,
+                    // startTime: "",
+                    // endTime: "",
+                    planTargetModel: planTargetModel
+                }
+            });
+
             console.log("Payload to submit:", payload);
-    
-            const response = await planService.createManyPlans(payload);
-            console.log("Plans created successfully:", response);
-            message.success("Plans created successfully!");
+
+            const response = await planService.createManyPlans(payload, Number(getFarmId()));
+            if (response.statusCode === 200) {
+                toast.success(response.message);
+            } else {
+                toast.error(response.message);
+            }
         } catch (error) {
             console.error("Failed to create plans:", error);
             message.error("Failed to create plans. Please try again later.");
@@ -462,6 +613,16 @@ const AddPlanByProcess = () => {
                                     <Col span={8}>
                                         <InfoField label="Process Type" value={selectedProcess.processMasterTypeModel.masterTypeName} name="processType" />
                                     </Col>
+                                    <Col span={8}>
+                                        <InfoField
+                                            label="Plan Target"
+                                            name="planTarget"
+                                            rules={RulesManager.getPlanTargetRules()}
+                                            options={planTargetOptions2}
+                                            value={selectedProcess.planTargetInProcess}
+                                            type="select"
+                                        />
+                                    </Col>
                                 </Row>
                             </Section>
                             <Divider className={style.divider} />
@@ -471,29 +632,68 @@ const AddPlanByProcess = () => {
 
                     {/* Plan Target */}
                     <Flex vertical>
-                        <div style={{ width: "30%", marginLeft: "23%" }}>
+                        <div style={{ width: "70%", marginLeft: "23%" }}>
                             <InfoField
                                 label="Growth Stage Name"
                                 name={addPlanFormFields.growthStageID}
                                 rules={RulesManager.getStageNameRules()}
                                 placeholder="Enter the growth stage name"
-                                onChange={(value) => setGrowthStage(value)}
+                                onChange={(value) => {
+                                    // form.setFieldValue("growthStageID")
+                                    setGrowthStage(value)
+                                }}
                                 type="select"
                                 options={growthStageOptions}
                                 multiple
-                                isEditing={isProcessSelected}
+                                isEditing={isProcessSelected && planTargetType === 1}
                             />
                         </div>
                         {
-                            (growthStage && isProcessSelected) && (
+                            (planTargetType === 2) && (
+                                <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
+                                    <Row gutter={16} style={{ display: "flex", justifyContent: "center" }}>
+                                        <InfoField
+                                            name="plantLot"
+                                            label="Select Plant Lot"
+                                            rules={RulesManager.getProcessNameRules()}
+                                            placeholder="Select plant lot"
+                                            options={plantLotsOptions}
+                                            type="select"
+                                            multiple
+                                            hasFeedback
+                                        />
+                                    </Row>
+                                </Section>
+                            )
+                        }
+                        {
+                            (planTargetType === 3) && (
+                                <Section title="Plan Targets" subtitle="Define the targets for the care plan.">
+                                    <Row gutter={16} style={{ display: "flex", justifyContent: "center" }}>
+                                        <InfoField
+                                            name="graftedPlant"
+                                            label="Select Grafted Plant"
+                                            rules={RulesManager.getProcessNameRules()}
+                                            placeholder="Select Grafted Plant"
+                                            options={graftedPlantsOptions}
+                                            type="select"
+                                            hasFeedback
+                                            multiple
+                                        />
+                                    </Row>
+                                </Section>
+                            )
+                        }
+                        {
+                            (planTargetType === 1 && growthStage && isProcessSelected) && (
                                 <PlanTarget
-                                    landPlotOptions={[]}
-                                    landRows={[]}
-                                    plants={[]}
+                                    landPlotOptions={landPlots}
+                                    landRows={landRowOptions}
+                                    plants={plantsOptions}
                                     plantLots={[]}
                                     graftedPlants={[]}
                                     selectedGrowthStage={growthStage}
-                                    hasSelectedCrop={(planTargetType === 2 || planTargetType === 3) ? true : false}
+                                    hasSelectedCrop={growthStage ? false : true}
                                     onClearTargets={() => { }}
                                 />
                             )
@@ -517,6 +717,7 @@ const AddPlanByProcess = () => {
 
                     {/* Schedule Modal */}
                     <Modal
+                        key={selectedPlanId}
                         title="Set Schedule"
                         visible={isScheduleModalOpen}
                         onOk={() => setIsScheduleModalOpen(false)}
@@ -622,62 +823,14 @@ const AddPlanByProcess = () => {
 
                     {/* Task Assignment Modal */}
                     <TaskAssignmentModal
+                        key={selectedPlanId}
                         visible={isTaskModalOpen}
                         onCancel={() => setIsTaskModalOpen(false)}
                         onSave={handleSaveEmployees} // Truyền hàm xử lý khi nhấn "Save"
                         employees={employee} // Danh sách nhân viên
                         selectedPlanId={selectedPlanId} // PlanId được chọn
+                        initialValues={initialValues}
                     />
-                    {/* <Modal
-                        title="Assign Task"
-                        visible={isTaskModalOpen}
-                        onOk={() => setIsTaskModalOpen(false)}
-                        onCancel={() => setIsTaskModalOpen(false)}
-                    >
-                        <Form
-                            form={employeeForm}
-                            onFinish={(values) => {
-                                handleSaveSchedule(values, selectedPlanId ?? 1);
-                                setIsScheduleModalOpen(false);
-                            }}
-                        >
-                        <AssignEmployee
-                            members={selectedEmployees}
-                            onAssign={handleAssignMember}
-                            onReporterChange={handleReporterChange}
-                            selectedReporter={selectedReporter}
-                        />
-                        <Modal
-                            title="Assign Members"
-                            open={isModalOpen}
-                            onOk={handleConfirmAssign}
-                            onCancel={() => setIsModalOpen(false)}
-                        >
-                            <Select
-                                mode="multiple"
-                                style={{ width: "100%" }}
-                                placeholder="Select employees"
-                                value={selectedIds}
-                                onChange={setSelectedIds}
-                                optionLabelProp="label"
-                            >
-                                {employee.map((emp) => (
-                                    <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <img
-                                                src={emp.avatarURL}
-                                                alt={emp.fullName}
-                                                style={{ width: 24, height: 24, borderRadius: "50%" }}
-                                                crossOrigin="anonymous"
-                                            />
-                                            <span>{emp.fullName}</span>
-                                        </div>
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Modal>
-                        </Form>
-                    </Modal> */}
                     <Flex justify="flex-end">
                         <CustomButton label="Add" handleOnClick={handleSubmit} />
                     </Flex>

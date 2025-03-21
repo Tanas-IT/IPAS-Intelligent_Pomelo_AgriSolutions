@@ -115,6 +115,7 @@ function ProcessDetails() {
         ...data,
         masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
         growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
+        planTarget: data.planTargetInProcess
       });
       if (data.subProcesses && Array.isArray(data.subProcesses)) {
         setTreeData(mapSubProcessesToTree(data.subProcesses));
@@ -423,7 +424,7 @@ function ProcessDetails() {
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
-        toast.success(res.message);
+        await toast.success(res.message);
         setIsEditing(false);
         await fetchProcessDetails();
       } else {

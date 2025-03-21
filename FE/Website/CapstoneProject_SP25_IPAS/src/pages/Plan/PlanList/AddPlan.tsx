@@ -171,8 +171,6 @@ const AddPlan = () => {
     });
   
     if (target === "graftedPlant") {
-      console.log("masterTypeGrafting", masterTypeGrafting);
-      
       setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(masterTypeGrafting));
       form.setFieldValue("growthStageId", undefined);
       form.setFieldValue("processId", undefined);
@@ -184,11 +182,12 @@ const AddPlan = () => {
       setIsCropDisabled(true);
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(true);
-      // form.setFieldValue("processId", undefined);
+      form.setFieldValue("processId", undefined);
       // setIsLockedGrowthStage(false);
     } else {
       // form.setFieldValue("processId", undefined);
       // setIsLockedGrowthStage(false);
+      setIsCropDisabled(false);
       setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
       setIsTargetDisabled(false);
     }
@@ -197,24 +196,38 @@ const AddPlan = () => {
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
+      console.log("growthStageId", growthStageId);
+      
       form.setFieldValue("processId", processId);
       const masterTypeId = await getTypeOfProcess(processId);
       form.setFieldValue("masterTypeId", Number(masterTypeId));
       setIsLockedGrowthStage(true);
       // neu process co target la grafting
-      if (masterTypeId === 14) {
+      if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "Grafting")).data) {
         setTargetType("graftedPlant");
         form.setFieldValue("planTarget", "graftedPlant");
         form.setFieldValue("growthStageId", undefined);
+        setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("Grafting")).data.map((pt) => ({
+          value: pt.id,
+          label: pt.name
+        })))
         setIsLockedGrowthStage(true);
-      } else if (targetType === "plantLot") {
+      } else if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "PlantLot")).data) {
         setTargetType("plantLot");
         form.setFieldValue("planTarget", "plantLot");
         form.setFieldValue("growthStageId", undefined);
+        
+        setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
+          value: pt.id,
+          label: pt.name
+        })))
         setIsLockedGrowthStage(true);
       } else {
         form.setFieldValue("growthStageId", [growthStageId]);
-        setSelectedGrowthStage([growthStageId]);
+        if(growthStageId) {
+
+          setSelectedGrowthStage([growthStageId]);
+        }
         form.setFieldsValue({ planTargetModel: [] });
       }
     } else {
@@ -661,7 +674,7 @@ const AddPlan = () => {
                     validateTrigger: 'onSubmit',
                     validator: (_: any, value: any) => {
                       const processId = form.getFieldValue(addPlanFormFields.processId);
-                      // Nếu không có Process được chọn và Growth Stage cũng không được chọn
+                      // k chọn process && k chọn growth stage
                       if (!processId && (!value || value.length === 0)) {
                         return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
                       }
@@ -740,8 +753,7 @@ const AddPlan = () => {
                   onChange={(value) => {
                     setSelectedCrop(value);
                     if(targetType === "regular") {
-                      setTargetType(undefined);
-                    form.setFieldValue("planTarget", undefined);
+                    form.setFieldValue("planTarget", "regular");
                     }
                     
                     setIsTargetDisabled(true);

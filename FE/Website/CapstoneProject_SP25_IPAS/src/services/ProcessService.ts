@@ -37,10 +37,8 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
   }
   const url = `proceesses/get-for-select${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
-  console.log("process res", res);
 
   const apiResponse = res.data as ApiResponse<GetProcess[]>;
-  console.log("process listttt", apiResponse);
 
   return apiResponse.data.map(({ processId, processName }) => ({
     processId,

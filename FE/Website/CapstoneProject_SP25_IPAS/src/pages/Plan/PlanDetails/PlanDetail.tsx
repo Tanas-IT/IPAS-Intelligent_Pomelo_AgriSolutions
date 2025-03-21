@@ -3,7 +3,7 @@ import style from "./PlanDetail.module.scss";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Divider, Flex, Image, Tag, Tooltip, Progress, Card } from "antd";
 import { Icons, Images } from "@/assets";
-import { CustomButton } from "@/components";
+import { CustomButton, Loading } from "@/components";
 import { ToastContainer } from "react-toastify";
 import StatusTag from "@/components/UI/StatusTag/StatusTag";
 import { useEffect, useState } from "react";
@@ -49,6 +49,7 @@ const InfoField = ({
 
 function PlanDetail() {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const { id } = useParams<{ id: string }>();
 
     const selectedDaysOfMonth = [10, 31];
@@ -70,35 +71,6 @@ function PlanDetail() {
         };
         return colors[taskType] || colors.Default;
     };
-
-    useEffect(() => {
-        if (!id) {
-            navigate("/404");
-            return;
-        }
-        const fetchPlanDetail = async () => {
-            try {
-                const res = await planService.getPlanDetail(id);
-                setInfoFieldsLeft([
-                    { label: "Crop", value: planDetail?.cropName || "None", icon: Icons.growth },
-                    { label: "Growth Stage", value: planDetail?.growthStages.map((g) => g.name).join(",") || "None", icon: Icons.plant }
-                ]);
-                setInfoFieldsRight([
-                    { label: "Process Name", value: planDetail?.processName || "None", icon: Icons.process },
-                    { label: "Type", value: planDetail?.masterTypeName || "None", icon: Icons.category, isTag: true },
-                ])
-                console.log("res", res);
-
-                setPlanDetail(res);
-            } catch (error) {
-                console.error("error", error);
-                navigate("/error");
-            }
-        };
-
-        fetchPlanDetail();
-    }, [id]);
-
     const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: planDetail?.cropName || "No data", icon: Icons.growth },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
@@ -108,6 +80,39 @@ function PlanDetail() {
         { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
         { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
     ]);
+
+    useEffect(() => {
+        if (!id) {
+            navigate("/404");
+            return;
+        }
+        const fetchPlanDetail = async () => {
+            try {
+                setIsLoading(true);
+                const res = await planService.getPlanDetail(id);
+                setInfoFieldsLeft([
+                    { label: "Crop", value: res?.cropName || "None", icon: Icons.growth },
+                    { label: "Growth Stage", value: planDetail?.growthStages.map((g) => g.name).join(",") || "None", icon: Icons.plant }
+                ]);
+                setInfoFieldsRight([
+                    { label: "Process Name", value: res?.processName || "None", icon: Icons.process },
+                    { label: "Type", value: res?.masterTypeName || "None", icon: Icons.category, isTag: true },
+                ])
+                console.log("res", res);
+
+                setPlanDetail(res);
+            } catch (error) {
+                console.error("error", error);
+                navigate("/error");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchPlanDetail();
+    }, [id]);
+
+    
 
     const workLogs = [
         { id: 1, task: "Watering in plot 123", type: "Watering", status: "completed", date: "2nd Dec 2024" },
@@ -204,7 +209,12 @@ function PlanDetail() {
         });
     };
 
-
+    if (isLoading)
+        return (
+            <Flex justify="center" align="center" style={{ width: "100%" }}>
+                <Loading />
+            </Flex>
+        );
 
     return (
         <div className={style.container}>
@@ -331,9 +341,9 @@ function PlanDetail() {
                         <div className={style.frequencyInfoFields}>
                             <h3 className={style.smallTitle}>Frequency</h3>
                             <Flex vertical gap={20}>
-                            <p><strong>Date:</strong> {planDetail?.startDate ? formatDate(planDetail?.startDate) : ""} - {planDetail?.endDate ? formatDate(planDetail?.endDate) : ""}</p>
-                            <p><strong>Time:</strong> {planDetail?.startTime} - {planDetail?.endTime}</p>
-                            <p><strong>Type:</strong> <span className={style.valueType}>{planDetail?.frequency}</span></p>
+                                <p><strong>Date:</strong> {planDetail?.startDate ? formatDate(planDetail?.startDate) : ""} - {planDetail?.endDate ? formatDate(planDetail?.endDate) : ""}</p>
+                                <p><strong>Time:</strong> {planDetail?.startTime} - {planDetail?.endTime}</p>
+                                <p><strong>Type:</strong> <span className={style.valueType}>{planDetail?.frequency}</span></p>
                             </Flex>
 
                             {planDetail?.frequency === "None" && (
@@ -350,7 +360,7 @@ function PlanDetail() {
                                     {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
                                         <span
                                             key={index}
-                                            className={`${style.weekDay} ${selectedDaysOfWeek.includes(index) ? style.active : ""}`}
+                                            className={`${style.weekDay} ${planDetail.dayOfWeek.includes(index) ? style.active : ""}`}
                                         >
                                             {day}
                                         </span>
@@ -365,7 +375,7 @@ function PlanDetail() {
                                         return (
                                             <span
                                                 key={day}
-                                                className={`${style.monthDay} ${selectedDaysOfMonth.includes(day) ? style.active : ""}`}
+                                                className={`${style.monthDay} ${JSON.parse(planDetail.dayOfMonth).includes(day) ? style.active : ""}`}
                                             >
                                                 {day}
                                             </span>

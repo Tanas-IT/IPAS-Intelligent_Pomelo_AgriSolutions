@@ -252,10 +252,6 @@ export const fetchUserByRole = async (role: string) => {
 
 export const fetchUserInfoByRole = async (role: string) => {
   const users = await userService.getUsersByRole(role);
-  console.log("khong goi toi day");
-  
-  console.log("users", users);
-
   return users.map((user) => ({
     fullName: user.fullName,
     avatarURL: user.avatarURL,
@@ -339,8 +335,6 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
 
 export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
   const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
-  console.log("process farm", processFarms);
-
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,
     label: processFarm.processName,
@@ -443,9 +437,10 @@ export const isDayInRange = (
   return false;
 };
 
-export const getGrowthStageOfProcess = async (processId: number): Promise<number> => {
+export const getGrowthStageOfProcess = async (processId: number): Promise<number | undefined> => {
   const res = await getProcessDetail(processId);
-  return res.processGrowthStageModel.growthStageId;
+  
+  return res.processGrowthStageModel?.growthStageId;
 };
 
 export const getTypeOfProcess = async (processId: number): Promise<number> => {

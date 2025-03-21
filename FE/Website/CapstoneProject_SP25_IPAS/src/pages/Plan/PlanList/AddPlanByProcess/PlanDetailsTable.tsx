@@ -158,7 +158,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
 
     return (
         <div>
-            <h3 className={style.planTargetTitle}>Plan Target</h3>
+            <h3 className={style.planTargetTitle}>Plan Detail</h3>
             <Form form={form} component={false} onValuesChange={handleValuesChange}>
                 <Table
                     className={`${style.tbl} ${styles.customeTable2}`}

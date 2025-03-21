@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Select, Button, Form, Radio, Avatar, Tooltip, Flex } from "antd";
 
 const { Option } = Select;
@@ -9,6 +9,10 @@ interface TaskAssignmentModalProps {
     onSave: (employees: any[], planId: number, reporterId: number | null) => void;
     employees: any[];
     selectedPlanId: number | null;
+    initialValues?: {
+        employees: number[];
+        reporter: number;
+    } | null;
 }
 
 const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
@@ -17,9 +21,24 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     onSave,
     employees,
     selectedPlanId,
+    initialValues,
 }) => {
+    const [form] = Form.useForm();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [reporterId, setReporterId] = useState<number | null>(null);
+    console.log("ids", selectedIds);
+    console.log("initialValues", initialValues);
+    
+    useEffect(() => {
+        if (visible && initialValues) {
+            form.setFieldsValue({
+                employees: initialValues.employees,
+                reporter: initialValues.reporter,
+            });
+            setSelectedIds(initialValues.employees);
+            setReporterId(initialValues.reporter);
+        }
+    }, [visible, initialValues, form]);
 
     const handleSave = () => {
         const selectedEmployees = employees
@@ -75,7 +94,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                         ))}
                     </Select>
                 </Form.Item>
-                {selectedIds.length > 0 && (
+                {selectedIds?.length > 0 && (
                     <Form.Item label="Select Reporter">
                         <Flex vertical gap={10}>
                             {employees

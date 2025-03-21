@@ -16,7 +16,7 @@ export interface PlanRequest {
     maxVolume?: number;
     minVolume?: number;
     processId: number;
-    cropId: number;
+    cropId?: number;
     growthStageId: number[];
     isDelete?: boolean;
     masterTypeId: number;
@@ -27,12 +27,20 @@ export interface PlanRequest {
         userId: number;
         isReporter: boolean;
     }[];
+    // planTargetModel?: {
+    //     landRowID: number[];
+    //     landPlotID: number[];
+    //     graftedPlantID: number[];
+    //     plantLotID: number[];
+    //     plantID: number[];
+    // }[];
     planTargetModel?: {
         landRowID: number[];
-        landPlotID: number[];
+        landPlotID?: number;
         graftedPlantID: number[];
         plantLotID: number[];
         plantID: number[];
+        unit: string;
     }[];
     listLandPlotOfCrop: number[];
 }

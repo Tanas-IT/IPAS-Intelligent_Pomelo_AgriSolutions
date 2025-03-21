@@ -69,7 +69,7 @@ const AddPlanModal = ({
         />
         <InfoField
           label="Notes"
-          name={addPlanFormFields.notes}
+          name="planNote"
           isEditing={true}
           type="textarea"
           placeholder="Enter care plan notes"

@@ -106,11 +106,14 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 GrowthStageId: values.growthStageId,
                 IsActive: values.isActive,
                 ListPlan: formattedPlans,
-                IsSample: values.isSample,
+                IsSample: isSample,
                 PlanTargetInProcess: values.planTarget
             };
+            console.log("payload", payload);
+            
 
             onSave(payload);
+            planForm.resetFields();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong!");
             console.error("Error creating process:", error);

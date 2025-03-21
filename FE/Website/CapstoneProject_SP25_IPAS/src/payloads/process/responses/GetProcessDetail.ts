@@ -11,6 +11,7 @@ export interface SubProcess {
   isDeleted: boolean;
   processId: number;
   listSubProcessData: SubProcess[];
+  listPlan: PlanType[];
 }
 
 export interface PlanType {
