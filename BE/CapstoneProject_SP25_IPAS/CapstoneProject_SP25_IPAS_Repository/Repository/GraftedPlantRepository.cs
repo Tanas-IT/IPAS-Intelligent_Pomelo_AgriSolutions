@@ -29,13 +29,47 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 query = query.Where(filter);
             }
-                query =  query.OrderBy(x => x.GraftedPlantId);
+            query = query.OrderBy(x => x.GraftedPlantId);
             //query.Include(x => x.Resources)
-                query.Include(x => x.PlanTargets)
-                .Include(x => x.CriteriaTargets)
-                .Include(x => x.GraftedPlantNotes);
+            query.Include(x => x.PlanTargets)
+            .Include(x => x.CriteriaTargets)
+            .Include(x => x.GraftedPlantNotes);
             return await query.AsNoTracking().ToListAsync();
 
+        }
+
+        public virtual async Task<IEnumerable<GraftedPlant>> Get(
+           Expression<Func<GraftedPlant, bool>> filter = null!,
+           Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = null!,
+           int? pageIndex = null,
+           int? pageSize = null)
+        {
+            IQueryable<GraftedPlant> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(x => x.Plant)
+                .ThenInclude(x => x.MasterType)
+                .Include(x => x.PlantLot);
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }

@@ -20,6 +20,7 @@ public partial class Plan
     public DateTime? UpdateDate { get; set; }
 
     public bool? IsActive { get; set; }
+    public bool? IsSample { get; set; }
 
     public string? Notes { get; set; }
 

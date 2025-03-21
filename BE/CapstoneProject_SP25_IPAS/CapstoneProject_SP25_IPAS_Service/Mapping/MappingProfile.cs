@@ -100,7 +100,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ReverseMap();
 
             CreateMap<SubProcess, SubProcessInProcessModel>()
-                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false)))
+                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false && x.IsSample == true)))
+                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false && x.IsSample == false)))
+                 .ForMember(dest => dest.Order, opt => opt.MapFrom(x => x.Order))
                 .ReverseMap();
 
             CreateMap<GrowthStage, ProcessGrowthStageModel>()
@@ -119,7 +121,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
                  .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
-                 .ForMember(dest => dest.ListPlan, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false)))
+                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false && x.IsSample == true)))
+                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false && x.IsSample == false)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
                 .ReverseMap();
 
@@ -406,9 +409,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ReverseMap();
 
             CreateMap<GraftedPlant, GraftedPlantModels>()
-               .ForMember(dest => dest.PlandCode, opt => opt.MapFrom(src => src.Plant.PlantCode))
+               .ForMember(dest => dest.PlantCode, opt => opt.MapFrom(src => src.Plant!.PlantCode))
                .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot!.PlantLotName))
                .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot!.PlantLotCode))
+               .ForMember(dest => dest.CultivarId, opt => opt.MapFrom(src => src.Plant!.MasterTypeId))
+               .ForMember(dest => dest.CultivarName, opt => opt.MapFrom(src => src.Plant!.MasterType!.MasterTypeName))
                .ReverseMap();
 
             CreateMap<ChatMessage, ChatMessageModel>()

@@ -31,6 +31,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.C
         public int? Priority { get; set; }
         public bool? IsPassed { get; set; }
         public string? Description { get; set; }
+        public int? FrequencyDate { get; set; }
+
 
     }
 }

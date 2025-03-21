@@ -53,6 +53,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
 
             // Background service config
             //services.AddHostedService<WeatherMonitoringService>();
+            //services.AddHostedService<WorkLogStatusUpdaterService>();
+            //services.AddHostedService<PlantGrowthUpdateService>();
+
 
             // Register repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -146,8 +149,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
-            //services.AddHostedService<WorkLogStatusUpdaterService>();
-            //services.AddHostedService<PlantGrowthUpdateService>();
+            
 
 
 
