@@ -587,11 +587,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
 
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
-                            var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
-                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
-                            if (checkCondition.StatusCode != 200)
-                                return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
-
+                            //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
+                            //var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
+                            //if (checkCondition.StatusCode != 200)
+                            //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
+                            if (!checkExistPlantLot.LastQuantity.HasValue)
+                                return new BusinessResult(400, "You must enter input before Completed to use");
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -909,7 +910,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!appliedCriteriaTargets.Any())
             {
-                return new BusinessResult(200, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
+                return new BusinessResult(400, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
