@@ -1,7 +1,9 @@
-import React from "react";
-import { Table, Button, Form, Input, Select, Flex } from "antd";
+import React, { useEffect } from "react";
+import { Table, Button, Form, Input, Select, Flex, Avatar } from "antd";
 import style from "./PlanDetailsTable.module.scss";
 import { useStyle } from "@/hooks";
+import { GetUser } from "@/payloads";
+import { getUserInfoById } from "@/utils";
 
 const { Option } = Select;
 
@@ -24,6 +26,32 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
 }) => {
     const { styles } = useStyle();
     const [form] = Form.useForm();
+    const [employeeMap, setEmployeeMap] = React.useState<Map<number, GetUser>>(new Map());
+
+    const fetchEmployeesInfo = async (userIds: number[]) => {
+        const userMap = new Map<number, GetUser>();
+    
+        for (const userId of userIds) {
+            try {
+                const userInfo = await getUserInfoById(userId);
+                userMap.set(userId, userInfo);
+            } catch (error) {
+                console.error(`Failed to fetch user info for userId: ${userId}`, error);
+            }
+        }
+    
+        return userMap;
+    };
+
+    useEffect(() => {
+        const userIds = dataSource
+            .flatMap((plan) => plan.listEmployee?.map((emp: any) => emp.userId) || [])
+            .filter((userId, index, self) => self.indexOf(userId) === index); // Loại bỏ các userId trùng lặp
+    
+        fetchEmployeesInfo(userIds).then((userMap) => {
+            setEmployeeMap(userMap);
+        });
+    }, [dataSource]);
 
     const handleValuesChange = (changedValues: any, allValues: any) => {
         console.log("Changed Values:", changedValues);
@@ -49,16 +77,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
         onDataSourceChange(updatedDataSource);
     };
     console.log("data source", dataSource);
-
-    const handleTaskAssignmentClick = (record: any) => {
-        const selectedEmployees = [
-            { userId: 1, fullName: "John Doe", isReporter: true },
-            { userId: 2, fullName: "Jane Doe", isReporter: false },
-        ];
-        onSaveEmployees(selectedEmployees, record.planId);
-    };
     
-
     const columns = [
         {
             title: "Plan Name",
@@ -123,19 +142,33 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
             title: "Employees",
             dataIndex: "listEmployee",
             key: "listEmployee",
-            render: (text: string, record: any) => (
-                <Flex align="center" gap={8}>
-                    <span>
-                        {record.listEmployee
-                            ? record.listEmployee.map((emp: any) => emp.userId).join(", ")
-                            : "No employees assigned"}
-                    </span>
-                    <Button type="link" onClick={() => onTaskAssignmentClick(record)}>
-                        Edit
-                    </Button>
-                </Flex>
-            ),
-        },
+            render: (text: string, record: any) => {
+                const { listEmployee } = record;
+        
+                return (
+                    <Flex align="center" gap={8}>
+                        {listEmployee && listEmployee.length > 0 ? (
+                            <Flex align="center" gap={8}>
+                                {listEmployee.map((emp: any) => {
+                                    const userInfo = employeeMap.get(emp.userId);
+                                    return (
+                                        <Flex align="center" gap={4} key={emp.userId}>
+                                            <Avatar src={userInfo?.avatarURL} size="small" crossOrigin="anonymous"/>
+                                            <span>{userInfo?.fullName || `User ${emp.userId}`}</span>
+                                        </Flex>
+                                    );
+                                })}
+                            </Flex>
+                        ) : (
+                            <span>No employees assigned</span>
+                        )}
+                        <Button type="link" onClick={() => onTaskAssignmentClick(record)}>
+                            Edit
+                        </Button>
+                    </Flex>
+                );
+            },
+        }
     ];
 
     React.useEffect(() => {

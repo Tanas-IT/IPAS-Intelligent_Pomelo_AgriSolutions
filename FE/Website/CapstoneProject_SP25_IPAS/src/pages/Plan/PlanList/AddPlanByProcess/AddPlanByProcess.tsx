@@ -6,7 +6,7 @@ import { fetchProcessesOfFarm, fetchUserInfoByRole, getFarmId, getUserId, isDayI
 import { GetProcessDetail } from "@/payloads/process";
 import AssignEmployee from "../AssignEmployee";
 import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import DaySelector from "../DaySelector";
 import moment from "moment";
 import PlanTarget from "../PlanTarget";
@@ -62,29 +62,13 @@ const AddPlanByProcess = () => {
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(Number(getFarmId()));
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null); // Lưu planId được chọn
     const [dataSource, setDataSource] = useState<any[]>([]);
-    const taskAssignmentFormRef = useRef<any>(null);
     const [initialValues, setInitialValues] = useState<{
         employees: number[];
-        reporter: number; // reporter không thể là null
+        reporter: number;
     } | null>(null);
-
-
-    const handleReporterChange = (userId: number) => {
-        setSelectedReporter(userId);
-    };
-    const handleConfirmAssign = () => {
-        setAssignorId(userId);
-        // if (selectedIds.length === 0) {
-        //   setErrorMessage("Please select at least one employee.");
-        //   return;
-        // }
-
-        setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
-        setIsModalOpen(false);
-    };
-
-    const handleAssignMember = () => setIsModalOpen(true);
     const [form] = Form.useForm();
+    const dateFormat = 'YYYY/MM/DD';
+    const timeFormat = 'HH:mm:ss';
 
     useEffect(() => {
         const fetchProcesses = async () => {
@@ -328,33 +312,34 @@ const AddPlanByProcess = () => {
         setIsScheduleModalOpen(true);
         setSelectedPlanId(record.planId);
         console.log("1111111", dataSource);
-
-
+    
         const selectedPlan = dataSource.find((plan) => plan.planId === record.planId);
         if (selectedPlan) {
             const schedule = selectedPlan.schedule || {};
-
+    
             const dateRange = schedule.startDate && schedule.endDate
-                ? [moment(schedule.startDate), moment(schedule.endDate)]
+                ? [dayjs(schedule.startDate), dayjs(schedule.endDate)]
                 : null;
-
+    
             const timeRange = schedule.startTime && schedule.endTime
-                ? [moment(schedule.startTime, "HH:mm"), moment(schedule.endTime, "HH:mm")]
+                ? [dayjs(schedule.startTime, "HH:mm"), dayjs(schedule.endTime, "HH:mm")]
                 : null;
-
+    
             setFrequency(schedule.frequency || null);
             setCustomDates(schedule.customDates || []);
             setDayOfWeek(schedule.dayOfWeek || []);
             setDayOfMonth(schedule.dayOfMonth || []);
-
-            scheduleForm.setFieldsValue({
-                dateRange,
-                timeRange,
+    
+            const formValues = {
+                dateRange: dateRange,
+                timeRange: timeRange,
                 frequency: schedule.frequency || null,
                 dayOfWeek: schedule.dayOfWeek || [],
                 dayOfMonth: schedule.dayOfMonth || [],
                 customDates: schedule.customDates || [],
-            });
+            };
+    
+            scheduleForm.setFieldsValue(formValues);
         }
     };
 
@@ -434,7 +419,7 @@ const AddPlanByProcess = () => {
     console.log("dataaa source", dataSource);
     console.log("gr stttttt", form.getFieldValue("growthStageID"));
     console.log("gr stttttt ảo tr", growthStage);
-    
+
 
 
     const handleSubmit = async () => {
@@ -535,8 +520,6 @@ const AddPlanByProcess = () => {
                     listEmployee: plan.listEmployee,
                     startTime: `${plan.schedule.startTime}:00`,
                     endTime: `${plan.schedule.endTime}:00`,
-                    // startTime: "",
-                    // endTime: "",
                     planTargetModel: planTargetModel
                 }
             });
@@ -546,6 +529,15 @@ const AddPlanByProcess = () => {
             const response = await planService.createManyPlans(payload, Number(getFarmId()));
             if (response.statusCode === 200) {
                 toast.success(response.message);
+                form.resetFields();
+
+                // Xóa dữ liệu trong dataSource (nếu cần)
+                setDataSource([]);
+
+                // Xóa các state khác (nếu cần)
+                setSelectedProcess(undefined);
+                setGrowthStage([]);
+                setPlanTargetType(undefined);
             } else {
                 toast.error(response.message);
             }
