@@ -315,6 +315,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+
                 var result = await _planService.FilterMasterTypeByGrowthStageIds(listFilterGrowthStageModel.ListGrowthStage, listFilterGrowthStageModel.TypeName);
                 return Ok(result);
             }
@@ -335,6 +336,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!farmId.HasValue)
+                {
+                    farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
                 var result = await _planService.CreateManyPlan(createPlanModel, farmId);
                 return Ok(result);
             }

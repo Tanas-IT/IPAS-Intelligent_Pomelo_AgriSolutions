@@ -99,13 +99,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
                     };
-                    if(checkExistProcess != null)
-                    {
-                        if(checkExistProcess.MasterTypeId != null)
-                        {
-                            newPlan.MasterTypeId = checkExistProcess.MasterTypeId;
-                        }
-                    }
                     if (createPlanModel.StartDate == createPlanModel.EndDate)
                     {
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
@@ -2617,12 +2610,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
             int count = 0;
-            foreach(var createPlan in createPlanModel)
+            foreach (var createPlan in createPlanModel)
             {
                 var result = await CreatePlan(createPlan, farmId);
                 if(result.StatusCode == 200)
                 {
                     count++;
+                }
+                else
+                {
+                    return new BusinessResult(400, $"{result.Message}");
                 }
             }
             if(count == createPlanModel.Count)

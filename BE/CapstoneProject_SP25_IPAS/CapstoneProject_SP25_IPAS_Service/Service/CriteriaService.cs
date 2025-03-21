@@ -244,10 +244,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //IsChecked = pc.IsChecked,
                             MinValue = pc.Criteria.MinValue,
                             MaxValue = pc.Criteria.MaxValue,
+                            Unit = pc.Criteria.Unit,
                             ValueChecked = pc.ValueChecked,
                             CreateDate = pc.CreateDate,
                             CheckedDate = pc.CheckedDate,
                             IsPassed = pc.IsPassed,
+                            FrequencyDate = pc.Criteria.FrequencyDate
                         }).ToList()
                     })
                     .OrderBy(x => x.Target)
