@@ -13,6 +13,7 @@ public partial class UserWorkLog
     public DateTime? CreateDate { get; set; }
 
     public bool? IsReporter { get; set; }
+    public bool? IsDeleted  { get; set; }
 
     public virtual User User { get; set; } = null!;
 

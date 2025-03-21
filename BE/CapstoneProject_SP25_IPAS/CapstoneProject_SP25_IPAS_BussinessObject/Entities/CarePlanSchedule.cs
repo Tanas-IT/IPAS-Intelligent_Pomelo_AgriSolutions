@@ -15,6 +15,7 @@ public partial class CarePlanSchedule
     public TimeSpan? StartTime { get; set; }
 
     public TimeSpan? EndTime { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? CarePlanId { get; set; }
     public int? FarmID { get; set; }
