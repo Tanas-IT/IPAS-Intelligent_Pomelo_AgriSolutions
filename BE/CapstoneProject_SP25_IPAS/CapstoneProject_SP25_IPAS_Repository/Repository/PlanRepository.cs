@@ -167,7 +167,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                                  .ThenInclude(uwl => uwl.User)
                                      .Include(x => x.GrowthStagePlans)
                                          .ThenInclude(gsp => gsp.GrowthStage)
-                                     .FirstOrDefaultAsync(x => x.PlanId == planId && x.IsDelete == false);
+                                     .FirstOrDefaultAsync(x => x.PlanId == planId && x.IsDeleted == false);
             return result;
         }
 
@@ -182,7 +182,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                      .ThenInclude(x => x.LandPlot)
                                      .Include(x => x.CarePlanSchedule)
                                      .Include(x => x.GrowthStagePlans)
-                                     .Where(x => x.ProcessId == processId && x.IsDelete == false).ToListAsync();
+                                     .Where(x => x.ProcessId == processId && x.IsDeleted == false).ToListAsync();
             return result;
         }
 
@@ -205,12 +205,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 getPlanToUpdate.ProcessId = plan.ProcessId;
                 getPlanToUpdate.SubProcessId = plan.SubProcessId;
                 getPlanToUpdate.CropId = plan.CropId;
-                getPlanToUpdate.IsDelete = plan.IsDelete;
+                getPlanToUpdate.IsDeleted = plan.IsDeleted;
                 getPlanToUpdate.MasterTypeId = plan.MasterTypeId;
                 getPlanToUpdate.ResponsibleBy = plan.ResponsibleBy;
                 getPlanToUpdate.Notes = plan.Notes;
                 getPlanToUpdate.UpdateDate = DateTime.Now;
-                getPlanToUpdate.IsDelete = plan.IsDelete;
+                getPlanToUpdate.IsDeleted = plan.IsDeleted;
                 _context.Plans.Update(getPlanToUpdate);
                 var result = await _context.SaveChangesAsync();
                 return result > 0;

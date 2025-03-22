@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
                     Frequency = "None",
                     IsActive = true,
-                    IsDelete = false,
+                    IsDeleted = false,
                     Status = "Active",
                     FarmID = farmId,
                 };
@@ -388,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 

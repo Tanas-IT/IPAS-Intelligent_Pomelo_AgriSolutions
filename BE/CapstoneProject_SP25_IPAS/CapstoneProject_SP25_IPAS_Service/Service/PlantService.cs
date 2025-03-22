@@ -54,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
                     }
                     var masterType = await _unitOfWork.MasterTypeRepository
-                        .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDelete == false && x.IsActive == true);
+                        .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDeleted == false && x.IsActive == true);
                     if (masterType == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
@@ -510,7 +510,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // check Growstage eixst
                     if (plantUpdateRequest.GrowthStageId.HasValue && plantUpdateRequest.GrowthStageId != 0)
                     {
-                        var checkGrowStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == plantUpdateRequest.GrowthStageId && x.isDeleted != true);
+                        var checkGrowStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == plantUpdateRequest.GrowthStageId && x.IsDeleted != true);
                         if (checkGrowStageExist == null)
                             return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.GrowthStageID = checkGrowStageExist.GrowthStageID;
@@ -531,7 +531,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
                     {
-                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != true);
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDeleted != true);
                         if (checkMasterTypeExist == null)
                             return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;

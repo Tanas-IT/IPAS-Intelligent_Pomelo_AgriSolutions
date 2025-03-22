@@ -34,7 +34,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkProductExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => productId.Equals(x.MasterTypeId)
                                                                     && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower())
                                                                     && x.IsActive == true
-                                                                    && x.IsDelete == false);
+                                                                    && x.IsDeleted == false);
                 if (checkProductExist == null)
                     return new BusinessResult(400, "No Product was found");
                 // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
@@ -65,7 +65,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var criteriaSetId in criteriaSetIds)
                     {
                         var checkCriteriaSet = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Criteria.ToString().ToLower())
-                                                                                                && x.IsDelete == false, "Criterias");
+                                                                                                && x.IsDeleted == false, "Criterias");
                         if (checkCriteriaSet == null)
                             return new BusinessResult(400, "Criteria set not exist");
                         if (!checkCriteriaSet.Criterias.Any())
@@ -177,7 +177,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // 1. Kiểm tra PlantLot tồn tại
                 var productExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == productId 
-                                                                                && x.IsDelete == false
+                                                                                && x.IsDeleted == false
                                                                                 && x.IsActive == true 
                                                                                 && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower()));
                 if (productExist == null)

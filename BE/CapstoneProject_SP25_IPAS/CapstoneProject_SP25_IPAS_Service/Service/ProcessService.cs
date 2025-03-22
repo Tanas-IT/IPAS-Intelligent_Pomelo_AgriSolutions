@@ -114,7 +114,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         Notes = plan.PlanNote,
                                         FarmID = farmId,
                                         MasterTypeId = plan.MasterTypeId,
-                                        IsDelete = false,
+                                        IsDeleted = false,
                                     };
 
                                     var growthStagePlan = new GrowthStagePlan()
@@ -143,7 +143,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsSample = true,
                                 FarmID = farmId,
                                 MasterTypeId = plan.MasterTypeId,
-                                IsDelete = false
+                                IsDeleted = false
                             };
 
                             var newGrowthStagePlan = new GrowthStagePlan()
@@ -584,7 +584,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             FarmID = checkExistProcess.FarmId,
                                                             MasterTypeId = plan.MasterTypeId,
                                                             SubProcessId = newSubProcess.SubProcessID,
-                                                            IsDelete = false
+                                                            IsDeleted = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         var addNewGrowthStages = new GrowthStagePlan()
@@ -634,7 +634,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
-                                                        getPlanInDB.IsDelete = true;
+                                                        getPlanInDB.IsDeleted = true;
                                                         _unitOfWork.PlanRepository.Update(getPlanInDB);
                                                     }
                                                 }
@@ -698,7 +698,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                 IsSample = true,
                                                                 MasterTypeId = plan.MasterTypeId,
                                                                 SubProcessId = subProcess.SubProcessId,
-                                                                IsDelete = false
+                                                                IsDeleted = false
                                                             };
                                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                                             if (plan.GrowthStageId.HasValue) // Kiểm tra xem có giá trị không
@@ -751,7 +751,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                         {
                                                             if(getUpdatePlanInDB != null)
                                                             {
-                                                                getUpdatePlanInDB.IsDelete = true;
+                                                                getUpdatePlanInDB.IsDeleted = true;
                                                                 _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                             }
                                                         }
@@ -791,7 +791,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             IsSample = true,
                                                             MasterTypeId = plan.MasterTypeId,
                                                             SubProcessId = subProcessUpdate.SubProcessID,
-                                                            IsDelete = false
+                                                            IsDeleted = false
                                                         };
                                                         await _unitOfWork.PlanRepository.Insert(newPlan);
                                                         if (plan.GrowthStageId != null)
@@ -841,7 +841,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     }
                                                     else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                     {
-                                                        getUpdatePlanInDB.IsDelete = true;
+                                                        getUpdatePlanInDB.IsDeleted = true;
                                                         _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                     }
                                                 }
@@ -871,7 +871,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 FarmID = checkExistProcess.FarmId,
                                                 MasterTypeId = updatePlan.MasterTypeId,
                                                 ProcessId = checkExistProcess.ProcessId,
-                                                IsDelete = false
+                                                IsDeleted = false
                                             };
                                             await _unitOfWork.PlanRepository.Insert(newPlan);
                                             if (updatePlan.GrowthStageId != null)
@@ -923,7 +923,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
                                         {
-                                            getUpdatePlanInDB.IsDelete = true;
+                                            getUpdatePlanInDB.IsDeleted = true;
                                              _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                         }
                                     }

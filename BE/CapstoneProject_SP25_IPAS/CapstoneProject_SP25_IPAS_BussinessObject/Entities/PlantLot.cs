@@ -27,7 +27,7 @@ public partial class PlantLot
 
     public int? PartnerId { get; set; }
     public int? FarmID { get; set; }
-    public bool? isDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
     public bool? IsPassed { get; set; }
     public DateTime? PassedDate { get; set; }
     public int? PlantLotReferenceId { get; set; }
