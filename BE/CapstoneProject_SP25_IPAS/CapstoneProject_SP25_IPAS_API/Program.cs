@@ -14,16 +14,11 @@ using Microsoft.AspNetCore.Http.Features;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
-using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureServices(builder.Configuration);
-builder.Services.AddScoped<SoftDeleteInterceptor>();
-builder.Services.AddDbContext<IpasContext>((serviceProvider, options) =>
+builder.Services.AddDbContext<IpasContext>(options =>
 {
-    var interceptorFactory = () => serviceProvider.GetRequiredService<SoftDeleteInterceptor>();
-    options.AddInterceptors(interceptorFactory());
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 });
