@@ -103,6 +103,7 @@ public partial class IpasContext : DbContext
     public virtual DbSet<GrowthStagePlan> GrowthStagePlans { get; set; }
     public virtual DbSet<GrowthStageMasterType> GrowthStageMasterTypes { get; set; }
     public virtual DbSet<Report> Reports { get; set; }
+    public virtual DbSet<SystemConfiguration> SystemConfigurations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -1516,6 +1517,38 @@ public partial class IpasContext : DbContext
 
            
         });
+
+        modelBuilder.Entity<SystemConfiguration>(entity =>
+        {
+            entity.ToTable("SystemConfiguration");
+
+            entity.HasKey(e => e.ConfigId);
+
+            entity.Property(e => e.ConfigKey)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.ConfigValue)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.ValueType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.IsDeleteable)
+                .HasDefaultValue(false);
+
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(e => e.UpdateDate)
+                .IsRequired(false);
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 

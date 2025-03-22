@@ -1055,9 +1055,22 @@ CREATE TABLE ipas.dbo.Report (
 	CONSTRAINT Report_User_FK FOREIGN KEY (AnswererID) REFERENCES ipas.dbo.[User](UserID),
 	CONSTRAINT Report_User_FK_1 FOREIGN KEY (QuestionerID) REFERENCES ipas.dbo.[User](UserID)
 );
-
 GO
-
+CREATE TABLE SystemConfiguration (
+    ConfigID INT IDENTITY(1,1) PRIMARY KEY,
+   -- ConfigGroup NVARCHAR(100) NOT NULL,  
+    ConfigKey NVARCHAR(100) NOT NULL,      
+    ConfigValue NVARCHAR(500) NOT NULL,    
+    ValueType NVARCHAR(50) NOT NULL,       
+    IsActive BIT DEFAULT 1,               
+    IsDeleteable BIT DEFAULT 0,               
+    EffectedDateFrom DATETIME NULL,       
+    EffectedDateTo DATETIME NULL,          
+    Description NVARCHAR(500) NULL,        
+    CreateDate DATETIME DEFAULT GETDATE(), 
+    UpdateDate DATETIME NULL               
+);
+GO
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
@@ -1710,3 +1723,76 @@ VALUES
     (5, 19, 1),
     (NULL, 14, 1);
 Go
+
+-- Cấu hình hệ thống
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+( 'Growth Exponent', '1.4', 'int', 'Số mũ tăng trưởng'),
+( 'Initial Branching Coefficient', '5', 'int', 'Hệ số phân nhánh ban đầu'),
+( 'Maximum Grafting Limit', '100', 'int', 'Giới hạn chiết cành tối đa');
+
+
+-- Danh sách WorkTargets
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Work Type', 'Watering', 'string', 'Tưới nước'),
+('Work Type', 'Fertilizer', 'string', 'Bón phân'),
+('Work Type', 'Pruning-Shaping', 'string', 'Cắt tỉa - tạo táng'),
+('Work Type', 'Grafted', 'string', 'Chiết cành'),
+('Work Type', 'Pest Control', 'string', 'Kiểm soát sâu bệnh'),
+('Work Type', 'Others', 'string', 'Các loại công việc khác');
+GO
+-- Danh sách Criteria
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Criteria Type', 'Grafted Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
+('Criteria Type', 'Grafted Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('Criteria Type', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá lô giống nhập vào'),
+('Criteria Type', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Criteria Type', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
+('Criteria Type', 'Others', 'string', 'Các loại tiêu chí khác');
+GO
+-- Danh sách Criteria
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Grafted Condition Apply', 'Grafted Condition', 'string', 'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('Grafted Evaluation Apply', 'Grafted Evaluation', 'string', 'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
+
+('PlantLot Condition Apply', 'PlantLot Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
+('PlantLot Evaluation Apply', 'PlantLot Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+
+('Grafted Criteria', 'Grafted Evaluation', 'string', 'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Grafted Criteria', 'Others', 'string', 'Bộ tiêu chí khác'),
+
+('PlantLot Criteria', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
+('PlantLot Criteria', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
+('PlantLot Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+
+('Plant Criteria', 'Grafted Condition', 'string', 'Bộ tiêu chí đánh giá cây mẹ'),
+('Plant Criteria', 'Plant Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho cây'),
+('Plant Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+
+('Product Criteria', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
+('Product Criteria', 'Orther', 'string', 'Tiêu chí đánh giá sản phẩm');
+GO
+-- Danh sách Config trong farm
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Min Lenght', '1', 'double', 'Độ dài tối thiểu'),
+('Min Width', '1', 'double', 'Độ dài tối đa'),
+('Min Area', '1', 'double', 'Diện tích tối thiểu'),
+('Min Row Of LandPlot', '1', 'int', 'Số hàng tối thiểu của 1 LandPlot'),
+('Coordiantion Point Required ', '3', 'int', 'Số điểm tối đa của plantLot'),
+('Min Distance Plant', '2.5', 'double', 'Khoảng cách tối thiểu giữa các cây'),
+('Min Plant Of LandRow', '1', 'int', 'Số cây tối thiểu của 1 Hàng');
+GO
+-- Danh sách TypeNames
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+( 'TypeName', 'Document', 'string', 'Quy trình'),
+( 'TypeName', 'Criteria', 'string', 'Tiêu chí'),
+( 'TypeName', 'Product', 'string', 'Sản phẩm'),
+( 'TypeName', 'Cultivar', 'string', 'Giống cây'),
+( 'TypeName', 'Document', 'string', 'Các loại tài liệu'),
+( 'TypeName', 'Work', 'string', 'Công việc');
+

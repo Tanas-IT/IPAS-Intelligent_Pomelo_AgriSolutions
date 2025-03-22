@@ -61,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public ChatMessageRepository _chatMessageRepo;
         public GrowthStageMasterTypeRepository _growthStageMasterTypeRepository;
         public ReportRepository _reportRepository;
+        public SystemConfigRepository _systemConfigRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -107,6 +108,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _paymentRepo = new PaymentRepository(context);
             _growthStageMasterTypeRepository = new GrowthStageMasterTypeRepository(context);
             _reportRepository = new ReportRepository(context);
+            _systemConfigRepo = new SystemConfigRepository(context);
         }
 
         private bool disposed = false;
@@ -679,6 +681,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._reportRepository = new ReportRepository(_context);
                 }
                 return _reportRepository;
+            }
+        }
+
+        public SystemConfigRepository SystemConfigRepository
+        {
+            get
+            {
+                if (_systemConfigRepo == null)
+                {
+                    this._systemConfigRepo = new SystemConfigRepository(_context);
+                }
+                return _systemConfigRepo;
             }
         }
     }
