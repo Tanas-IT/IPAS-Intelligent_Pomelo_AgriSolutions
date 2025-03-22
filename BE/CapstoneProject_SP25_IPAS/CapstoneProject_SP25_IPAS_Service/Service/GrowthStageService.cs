@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     // Lấy danh sách GrowthStage của farm, sắp xếp theo MonthAgeStart
                     var existingGrowthStages = (await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
-                        filter: gs => gs.FarmID == farmId && gs.isDeleted == false
+                        filter: gs => gs.FarmID == farmId && gs.IsDeleted == false
                     )).OrderBy(gs => gs.MonthAgeStart).ToList();
 
                     // Xác định MonthAgeStart từ giai đoạn trước đó
@@ -143,7 +143,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = farmId,
                         ActiveFunction = createGrowthStageModel.ActiveFunction,
                         isDefault = false,
-                        isDeleted = false,
+                        IsDeleted = false,
                     };
 
                     await _unitOfWork.GrowthStageRepository.Insert(createGrowthStage);
@@ -169,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GrowthStage, bool>> filter = x => x.FarmID == farmId! && x.isDeleted == false;
+                Expression<Func<GrowthStage, bool>> filter = x => x.FarmID == farmId! && x.IsDeleted == false;
                 Func<IQueryable<GrowthStage>, IOrderedQueryable<GrowthStage>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -414,7 +414,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     // Lấy toàn bộ GrowthStage chưa bị xóa để kiểm tra logic
                     var allGrowthStages = await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
-                        filter: x => x.isDeleted != true && x.FarmID == farmId,
+                        filter: x => x.IsDeleted != true && x.FarmID == farmId,
                         orderBy: q => q.OrderBy(x => x.MonthAgeStart));
 
                     // Kiểm tra nếu người dùng định xóa hết GrowthStage thì từ chối
@@ -461,7 +461,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
 
                         // Đánh dấu GrowthStage đã bị xóa
-                        stageToDelete.isDeleted = true;
+                        stageToDelete.IsDeleted = true;
                         deletedNames.Add(stageToDelete.GrowthStageName!);
                         _unitOfWork.GrowthStageRepository.Update(stageToDelete);
                     }
@@ -560,7 +560,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Lấy danh sách GrowthStage khác của cùng Farm để kiểm tra conflict
                 var allStages = (await _unitOfWork.GrowthStageRepository.GetAllNoPaging(
-                    filter: gs => gs.FarmID == existingStage.FarmID && gs.GrowthStageID != existingStage.GrowthStageID && gs.isDeleted == false
+                    filter: gs => gs.FarmID == existingStage.FarmID && gs.GrowthStageID != existingStage.GrowthStageID && gs.IsDeleted == false
                 )).OrderBy(gs => gs.MonthAgeStart).ToList();
 
                 // Kiểm tra conflict với các GrowthStage khác
@@ -634,7 +634,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Truy vấn trực tiếp từ database
             var matchedStage = await _unitOfWork.GrowthStageRepository
                 .GetByCondition(x => x.FarmID == farmId
-                               && x.isDeleted == false
+                               && x.IsDeleted == false
                                && x.MonthAgeStart <= monthAge
                                && x.MonthAgeEnd >= monthAge);
             if (matchedStage != null)

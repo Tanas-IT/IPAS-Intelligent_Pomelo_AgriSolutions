@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -206,7 +207,6 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Criterias)
@@ -244,7 +244,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.FarmId).HasColumnName("FarmID");
 
             entity.HasOne(d => d.Farm).WithMany(p => p.Crops)
@@ -277,7 +276,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.FarmName)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             //entity.Property(e => e.LandLeaseAgreement).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             //entity.Property(e => e.LandOwnershipCertificate).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             //entity.Property(e => e.OperatingLicense).UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -416,7 +414,6 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.HarvestHistoryId).HasColumnName("HarvestHistoryID");
             entity.Property(e => e.CropId).HasColumnName("CropID");
-            entity.Property(e => e.isDelete).HasColumnName("isDelete");
             entity.Property(e => e.DateHarvest).HasColumnType("datetime");
             entity.Property(e => e.HarvestHistoryCode)
                 .HasMaxLength(50)
@@ -569,7 +566,6 @@ public partial class IpasContext : DbContext
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.IsDelete).HasColumnName("isDelete");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
             entity.Property(e => e.MasterTypeCode)
                 .HasMaxLength(200)
@@ -1039,7 +1035,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.GrowthStageId).HasColumnName("GrowthStageID");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.ProcessCode)
                 .HasMaxLength(200)
@@ -1110,7 +1106,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.IsDefault).HasColumnName("isDefault");
-            entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
+            entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.ParentSubProcessId).HasColumnName("ParentSubProcessID");
             entity.Property(e => e.ProcessId).HasColumnName("ProcessID");

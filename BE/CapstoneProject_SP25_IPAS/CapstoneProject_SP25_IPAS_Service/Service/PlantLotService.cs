@@ -164,7 +164,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = createPlantLotModel.FarmId,
                         MasterTypeId = createPlantLotModel.MasterTypeId,
                         PlantLotReferenceId = null,
-                        isDeleted = false,
+                        IsDeleted = false,
                         IsPassed = false,
                         IsFromGrafted = createPlantLotModel.IsFromGrafted,
                         //InputQuantity = 0
@@ -219,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     // Kiểm tra lô hàng chính có tồn tại không
                     var mainPlantLot = await _unitOfWork.PlantLotRepository.GetByCondition(x =>
-                        x.PlantLotId == createModel.MainPlantLotId && x.isDeleted == false, includeProperties: "InversePlantLotReference");
+                        x.PlantLotId == createModel.MainPlantLotId && x.IsDeleted == false, includeProperties: "InversePlantLotReference");
 
                     if (mainPlantLot == null)
                     {
@@ -271,7 +271,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmID = mainPlantLot.FarmID,
                         MasterTypeId = mainPlantLot.MasterTypeId,
                         PlantLotReferenceId = mainPlantLot.PlantLotId, // Gán ID của lô chính
-                        isDeleted = false,
+                        IsDeleted = false,
                         IsPassed = false
                     };
 
@@ -349,7 +349,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (checkParam.Success == false)
                     return new BusinessResult(400, checkParam.ErorrMessage);
                 // chi lay nhung plot chinh, ko lay plot nhap phu
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == filterRequest.FarmId && x.PlantLotReferenceId == null && x.isDeleted == false;
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == filterRequest.FarmId && x.PlantLotReferenceId == null && x.IsDeleted == false;
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -746,7 +746,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.isDeleted == false;
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.IsDeleted == false;
                 if (isFromGrafted.HasValue)
                     filter = filter.And(x => x.IsFromGrafted == isFromGrafted);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
@@ -781,12 +781,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //List<string> plantIdList = Util.SplitByComma(plantIds);
                     //foreach (var MasterTypeId in plantIdList)
                     //{
-                    Expression<Func<PlantLot, bool>> filter = x => plantLotIds.Contains(x.PlantLotId) && x.isDeleted == false;
+                    Expression<Func<PlantLot, bool>> filter = x => plantLotIds.Contains(x.PlantLotId) && x.IsDeleted == false;
                     var plantsExistGet = await _unitOfWork.PlantLotRepository.GetAllNoPaging(filter: filter);
                     foreach (var item in plantsExistGet)
                     {
 
-                        item.isDeleted = true;
+                        item.IsDeleted = true;
                         _unitOfWork.PlantLotRepository.Update(item);
                     }
                     //}
@@ -875,7 +875,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
 
             // Kiểm tra lô cây có tồn tại không
-            var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.MasterTypeId == plantLotId && x.isDeleted == false);
+            var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.MasterTypeId == plantLotId && x.IsDeleted == false);
 
             // Kiểm tra xem tất cả các tiêu chí đánh giá đã được hoàn thành chưa
             bool hasCompletedEvaluation = appliedCriterias

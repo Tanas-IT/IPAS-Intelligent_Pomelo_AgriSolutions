@@ -54,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var checkUser = await GetUserByIdAsync(userId);
             if (checkUser != null)
             {
-                checkUser.IsDelete = true;
+                checkUser.IsDeleted = true;
                 checkUser.DeleteDate = DateTime.Now;
                 var result = await _context.SaveChangesAsync();
                 return result;
@@ -94,7 +94,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.Users
                                         .Where(x => x.Email!.ToLower().StartsWith(searchEmail.ToLower())
-                                        && x.IsDelete != true
+                                        && x.IsDeleted != true
                                         && x.Status!.ToLower().Equals(UserStatusEnum.Active.ToString().ToLower()))
                                         .Take(5)
                                         .OrderByDescending(x => x.UserId)

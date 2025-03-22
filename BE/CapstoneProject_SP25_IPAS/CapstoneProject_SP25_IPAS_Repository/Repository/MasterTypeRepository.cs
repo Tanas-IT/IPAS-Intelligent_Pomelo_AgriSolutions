@@ -167,7 +167,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             //                .ThenInclude(cs => cs.Criterias)
             //     .FirstOrDefaultAsync();
             var masterType = await _context.MasterTypes
-                .Where(x => x.MasterTypeId == masterTypeId && x.IsDelete == false)
+                .Where(x => x.MasterTypeId == masterTypeId && x.IsDeleted == false)
                 .Select(x => new MasterType
                 {
                     MasterTypeId = x.MasterTypeId,

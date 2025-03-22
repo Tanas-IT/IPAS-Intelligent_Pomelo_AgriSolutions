@@ -16,7 +16,7 @@ public partial class HarvestHistory
     public double? TotalPrice { get; set; }
 
     public string? HarvestStatus { get; set; }
-    public bool? isDelete { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? CropId { get; set; }
 

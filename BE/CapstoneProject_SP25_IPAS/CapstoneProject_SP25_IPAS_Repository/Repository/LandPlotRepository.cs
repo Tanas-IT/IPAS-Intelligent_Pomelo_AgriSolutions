@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
                 //    .FirstOrDefaultAsync();
                 var landPlot = await _context.LandPlots
-            .Where(lp => lp.LandPlotId == landplotId && lp.isDeleted == false)
+            .Where(lp => lp.LandPlotId == landplotId && lp.IsDeleted == false)
             .Include (lp => lp.LandRows)
             .ThenInclude(x => x.Plants)
             .Select(lp => new LandPlot
@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 Status = lp.Status,
                 Description = lp.Description,
                 FarmId = lp.FarmId,
-                isDeleted = lp.isDeleted,
+                IsDeleted = lp.IsDeleted,
                 IsRowHorizontal = lp.IsRowHorizontal,
                 TargetMarket = lp.TargetMarket,
                 RowPerLine = lp.RowPerLine,
@@ -83,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     UpdateDate = lr.UpdateDate,
                     Status = lr.Status,
                     Description = lr.Description,
-                    isDeleted = lr.isDeleted,
+                    IsDeleted = lr.IsDeleted,
                     LandPlotId = lr.LandPlotId,
                     FarmId = lr.FarmId,
                     Plants = lr.Plants.Where(x => x.IsDeleted == false ).Select(p => new Plant
@@ -117,7 +117,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<LandPlot>> GetLandPlotIncludeByFarmId(int farmId)
         {
             var landPlots = await _context.LandPlots
-                   .Where(lp => lp.FarmId == farmId && lp.isDeleted == false)
+                   .Where(lp => lp.FarmId == farmId && lp.IsDeleted == false)
                    .Include(lp => lp.LandRows)  // Bao gồm các Rows của LandPlot
                        .ThenInclude(r => r.Plants) // Bao gồm cả cây trồng trong Rows
                    .ToListAsync();
