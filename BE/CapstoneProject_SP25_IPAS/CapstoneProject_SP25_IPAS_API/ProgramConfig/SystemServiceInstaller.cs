@@ -102,6 +102,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
             services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
             services.AddScoped<IReportRepository, ReportRepository>();
+            services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
 
 
             // Register servicies
@@ -133,6 +134,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             //services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
             services.AddScoped<IWebSocketService, WebSocketService>();
             services.AddScoped<ITypeTypeService, TypeTypeService>();
+            services.AddScoped<ISystemConfigService, SystemConfigService>();
 
 
 

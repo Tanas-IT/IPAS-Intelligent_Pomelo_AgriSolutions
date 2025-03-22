@@ -494,5 +494,18 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string UpdateReportOfUser = prefix + "/update";
             public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
         }
+
+        public static class SystemConfig
+        {
+            private const string prefix = Base + "/system-config";
+            public const string createSystemConfig = prefix ;
+            public const string getSystemConfigById = prefix ;
+            public const string getSystemConfigPagination = prefix;
+            public const string permanenlyDelete = prefix ;
+            public const string updateSystemConfig = prefix;
+            public const string getSystemConfigForSelected = prefix + "/for-selected";
+            public const string getSystemConfigAddable = prefix + "/addable";
+
+        }
     }
 }

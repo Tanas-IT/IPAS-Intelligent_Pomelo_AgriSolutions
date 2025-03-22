@@ -48,6 +48,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     if (landplot.Length < createRequest.Length || landplot.Width < landplot.Width)
                         return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG);
+                    
+                    var minLenght = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
+                    if (createRequest.Length < minLenght)
+                        return new BusinessResult(400, $"Lenght of Row must > {minLenght}.");
+                    var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
+                    if (createRequest.Width < minLenght)
+                        return new BusinessResult(400, $"Width of Row must > {minWidth}.");
+                    var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                    if (createRequest.TreeAmount < minPlant)
+                        return new BusinessResult(400, $"Plant of Row must > {minPlant}.");
                     //double areaUsed = 0;
                     //foreach (var row in landplot.LandRows)
                     //{
@@ -201,15 +211,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (landRow == null)
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (updateLandRowRequest.TreeAmount.HasValue)
+                    {
+                        var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                        if (updateLandRowRequest.TreeAmount < minPlant)
+                            return new BusinessResult(400, $"Plant of Row must >= {minPlant}.");
                         landRow.TreeAmount = updateLandRowRequest.TreeAmount!.Value;
-                    if (updateLandRowRequest.TreeAmount.HasValue)
-                        landRow.TreeAmount = updateLandRowRequest.TreeAmount.Value;
+                    }
                     if (updateLandRowRequest.Distance.HasValue)
+                    {
+                        var minDistance = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_DISTANCE_OF_PLANT.Trim(), (double)2.0);
+                        if (updateLandRowRequest.Distance < minDistance)
+                            return new BusinessResult(400, $"Distance beetween must >= {minDistance}.");
                         landRow.Distance = updateLandRowRequest.Distance.Value;
+                    }
                     if (updateLandRowRequest.Length.HasValue)
+                    {
+                        var minLenght = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH.Trim(), (double)1);
+                        if (updateLandRowRequest.Length < minLenght)
+                            return new BusinessResult(400, $"Leght must be >={minLenght}.");
                         landRow.Length = updateLandRowRequest.Length.Value;
+                    }
                     if (updateLandRowRequest.Width.HasValue)
+                    {
+                        var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                        if (updateLandRowRequest.Width < minWidth)
+                            return new BusinessResult(400, $"Width must be >={minWidth}.");
                         landRow.Width = updateLandRowRequest.Width.Value;
+                    }
                     if (!string.IsNullOrEmpty(updateLandRowRequest.Direction))
                         landRow.Direction = updateLandRowRequest.Direction;
                     if (!string.IsNullOrEmpty(updateLandRowRequest.Status))

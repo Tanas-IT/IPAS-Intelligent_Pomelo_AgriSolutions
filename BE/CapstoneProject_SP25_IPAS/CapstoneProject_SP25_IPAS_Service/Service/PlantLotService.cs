@@ -564,8 +564,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlantLotRequestModel.InputQuantity.HasValue /*&& updatePlantLotRequestModel.InputQuantity != 0*/)
                         {
                             // chi check dieu kien can de nhap
-                            var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
-                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
+                            //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                            var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+
+                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
                             // neu khong pass thi input quantity là 0 luôn
                             if (checkCondition.StatusCode == 400)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
@@ -584,8 +587,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlantLotRequestModel.LastQuantity.HasValue /*&& updatePlantLotRequestModel.LastQuantity != 0*/)
                         {
                             // chi check dieu kien can de danh gia
-                            var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation ?? new List<string>();
-                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
+                            //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation ?? new List<string>();
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY));
+                            var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
                             if (checkCondition.StatusCode != 200)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.InputQuantity)
@@ -595,8 +600,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlantLotRequestModel.UsedQuantity.HasValue && updatePlantLotRequestModel.UsedQuantity != 0)
                         {
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
-                            var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
-                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
+                            //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => 
+                                                x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY) ||
+                                                x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                            var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+
+                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
                             if (checkCondition.StatusCode != 200)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (checkExistPlantLot.IsPassed == false)
