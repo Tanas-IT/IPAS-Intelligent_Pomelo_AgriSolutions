@@ -47,8 +47,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkExistFarm == null)
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     // Kiểm tra dữ liệu đầu vào
-                    var validationResult = ValidateLandPlot(createRequest);
-                    if (validationResult != null) return validationResult;
+                    var validationResult = await ValidateLandPlot(createRequest);
+                    if (validationResult.StatusCode != 200) return validationResult;
                     string LandPlotCode = CodeHelper.GenerateCode();
                     var landplotCreateEntity = new LandPlot()
                     {
@@ -532,15 +532,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private BusinessResult? ValidateLandPlot(LandPlotCreateRequest createRequest)
+        private async Task<BusinessResult> ValidateLandPlot(LandPlotCreateRequest createRequest)
         {
             if (createRequest.LandRows == null || !createRequest.LandRows.Any())
                 return new BusinessResult(Const.WARNING_EMPTY_LAND_ROWS_CODE, Const.WARNING_EMPTY_LAND_ROWS_MSG);
-
-            if (createRequest.LandPlotCoordinations.Count < 3)
+            var pointRequired = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.COORDINATION_POINT_REQUIRED.Trim(), 3 );
+            if (createRequest.LandPlotCoordinations.Count < pointRequired)
                 return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
-
-            return null;
+            var minLenght = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH.Trim(), (double)1);
+            if (createRequest.PlotLength < minLenght)
+                return new BusinessResult(400, $"Lenght of plot must > {minLenght}.");
+            var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
+            if (createRequest.PlotLength < minWidth)
+                return new BusinessResult(400, $"Width of plot must > {minWidth}.");
+            var minArea = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_AREA.Trim(), (double)1);
+            if (createRequest.Area < minArea)
+                return new BusinessResult(400, $"Width of plot must > {minArea}.");
+            return new BusinessResult(200, "No error found");
         }
 
     }

@@ -23,6 +23,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackModels
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GrowthStageRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -528,6 +529,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ProcessId))
                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ProcessCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProcessName))
+                .ReverseMap();
+
+            CreateMap<SystemConfiguration, SystemConfigModel>()
+                .ReverseMap();
+
+            CreateMap<SystemConfiguration, ForSelectedModels>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ConfigId))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ConfigValue))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ValueType))
                 .ReverseMap();
         }
     }
