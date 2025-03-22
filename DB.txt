@@ -977,6 +977,8 @@ CREATE TABLE ipas.dbo.UserWorkLog (
         IsDeleted bit NULL DEFAULT 0,
         CreateDate datetime NULL,
         Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        StatusOfUserWorkLog nvarchar(MAX) NULL,
+	ReplaceUserId int NULL,
         Issue nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (UserWorkLogID),
 	CONSTRAINT FK__UserWorkL__UserI__43A1090D FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,

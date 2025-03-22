@@ -272,6 +272,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(x => x.LandRow)
                         .ThenInclude(x => x.LandPlot)
                         .ThenInclude(x => x.Farm)
+                        .Include(x => x.UserWorkLogs)
                         .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return result;
         }
