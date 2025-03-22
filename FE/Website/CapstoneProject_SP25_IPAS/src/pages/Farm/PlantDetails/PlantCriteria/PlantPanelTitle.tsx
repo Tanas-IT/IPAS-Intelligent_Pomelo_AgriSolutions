@@ -22,7 +22,7 @@ export const PlantPanelTitle = ({
   handleDelete,
   isCompleted = false,
 }: PlantPanelTitleProps) => {
-  const completedCount = data.filter((item) => item.isChecked).length;
+  const completedCount = data.filter((item) => item.isPassed).length;
   const date = data[0].createDate;
   return (
     <Flex className={style.headerWrapper} gap={24}>

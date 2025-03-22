@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
     Form,
-    Input,
     DatePicker,
-    TimePicker,
     Select,
     Row,
     Col,
     Divider,
-    Checkbox,
     Modal,
     Flex,
-    Button,
 } from "antd";
 import moment, { Moment } from "moment";
-import { CustomButton, InfoField, Section, Tooltip } from "@/components";
+import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import dayjs, { Dayjs } from "dayjs";
 import DaySelector from "./DaySelector";
@@ -22,58 +18,41 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
+import { useCropCurrentOption, useGrowthStageOptions, useLandRowOptions, useLocalStorage, useMasterTypeOptions, useUnsavedChangesWarning } from "@/hooks";
 import {
-    fetchGrowthStageOptions,
     fetchProcessesOfFarm,
-    fetchTypeOptionsByName,
     fetchUserInfoByRole,
     getFarmId,
+    getGrowthStageOfProcess,
+    getTypeOfProcess,
     getUserId,
     isDayInRange,
+    planTargetOptions,
     RulesManager,
 } from "@/utils";
-import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
+import { addPlanFormFields, frequencyOptions } from "@/constants";
 import {
     cropService,
-    landPlotService,
-    landRowService,
+    masterTypeService,
     planService,
-    plantService,
+    processService,
 } from "@/services";
 import { toast } from "react-toastify";
-import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
-import PlanTarget from "./PlanTarget";
-import useLandRowOptions from "@/hooks/useLandRowOptions";
-import useLandPlotOptions from "@/hooks/useLandPlotOptions";
-import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
-import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
+import {useLandPlotOptions, useGraftedPlantOptions, usePlantOfRowOptions, usePlantLotOptions} from "@/hooks";
 import isBetween from "dayjs/plugin/isBetween";
-import { GetPlan } from "@/payloads/plan";
+import { SelectOption } from "@/types";
+import UpdatePlanTarget from "./UpdatePlanTarget";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { GetPlan, UpdatePlanRequest } from "@/payloads";
 
 dayjs.extend(isBetween);
-
-const { RangePicker } = DatePicker;
-
-interface CarePlanForm {
-    name: string;
-    detail?: string;
-    startDate: moment.Moment;
-    endDate: moment.Moment;
-    startTime?: moment.Moment;
-    endTime?: moment.Moment;
-    frequency: string;
-    typeOfWork: string;
-    crop: string;
-    process: string;
-    growthStage: string;
-    active: boolean;
-}
+dayjs.extend(customParseFormat);
 
 type OptionType<T = string | number> = { value: T; label: string };
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 const UpdatePlan = () => {
+    const { id } = useParams();
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const userId = Number(getUserId());
@@ -81,80 +60,196 @@ const UpdatePlan = () => {
     const authData = getAuthData();
     const farmId = Number(getFarmId());
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isFormDirty, setIsFormDirty] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
     const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
     const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
-    const [cropOptions, setCropOptions] = useState<OptionType<string>[]>([]);
-    // const [landPlotOptions, setLandPlotOptions] = useState<OptionType<number>[]>([]);
     const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
-    // const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number | string>[]>([]);
     const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
     const [employee, setEmployee] = useState<EmployeeType[]>([]);
     const [assignorId, setAssignorId] = useState<number>();
     const [frequency, setFrequency] = useState<string>("none");
-    const [customDates, setCustomDates] = useState<Dayjs[]>([]); // Frequency: none
-    const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
-    const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
+    const [customDates, setCustomDates] = useState<Dayjs[]>([]);
+    const [dayOfWeek, setDayOfWeek] = useState<number[]>([]);
+    const [dayOfMonth, setDayOfMonth] = useState<number[]>([]);
     const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
     const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
-    console.log("các id", selectedGrowthStage);
+    const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
+    const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
+    const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
+    const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
+    const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
+    const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
+    const [targetType, setTargetType] = useState<string>();
+    const [checked, setChecked] = useState<boolean>(false);
 
-
-    const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
+    // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
     const { options: growthStageOptions } = useGrowthStageOptions(false);
     const { options: landPlots } = useLandPlotOptions();
     const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
     const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
+    const { options: cropOptions } = useCropCurrentOption();
+    const { options: plantLotOptions } = usePlantLotOptions();
 
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
-    console.log("dateRange", dateRange);
-    const { id } = useParams();
     const [planData, setPlanData] = useState<GetPlan>();
 
+    const dateFormat = 'YYYY/MM/DD';
+    const timeFormat = 'HH:mm:ss';
 
+    useEffect(() => {
+        if (selectedCrop !== null && selectedCrop !== undefined) {
+            form.setFieldValue("listLandPlotOfCrop", []);
 
-    const [planTargets, setPlanTargets] = useState<
-        {
-            landPlotID?: number;
-            landRowID?: number;
-            plantID?: number;
-        }[]
-    >([]);
+            cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
+                const landPlotOptions = data.data.map((item) => ({
+                    value: item.landPlotId,
+                    label: item.landPlotName,
+                }));
+                setLandPlotOfCropOptions(landPlotOptions);
 
-    const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
-        if (!dates || dates.some(date => date === null)) {
-            setDateRange(null);
-            setDateError("Please select a valid date range!");
-            form.setFieldsValue({ dateRange: null });
-            return;
-        }
-
-
-        const [startDate, endDate] = dates as [Dayjs, Dayjs];
-        setDateRange([startDate, endDate]);
-        setDateError(null);
-        form.setFieldsValue({ dateRange: [startDate, endDate] });
-
-        if (frequency === "None" && customDates.length === 1) {
-            Modal.confirm({
-                title: "Adjust Date Range",
-                content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
-                onOk: () => {
-                    const newDateRange = [customDates[0], customDates[0]] as [Dayjs, Dayjs];
-                    setDateRange(newDateRange);
-                    form.setFieldsValue({ dateRange: newDateRange });
-                },
-                onCancel: () => {
-                    setCustomDates([]);
-                },
+                if (planData?.listLandPlotOfCrop) {
+                    form.setFieldValue(
+                        "listLandPlotOfCrop",
+                        planData.listLandPlotOfCrop.map((l) => l.id)
+                    );
+                }
             });
+        } else {
+            setLandPlotOfCropOptions([]);
         }
+    }, [selectedCrop]);
+
+    useEffect(() => {
+        form.setFieldValue("masterTypeId", undefined);
+        if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+            planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+                setProcessTypeOptions(
+                    data.map((item) => ({
+                        value: item.masterTypeId,
+                        label: item.masterTypeName,
+                    }))
+                );
+            });
+        } else {
+            setProcessTypeOptions([]);
+        }
+    }, [selectedGrowthStage]);
+
+    useEffect(() => {
+        const updateProcessFarmOptions = async () => {
+          if (targetType === "graftedPlant") {
+            const result = await masterTypeService.getProcessTypeSelect("Grafting");
+            
+            if(result.statusCode === 200) {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+            } else {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
+            }
+          } else if (targetType === "plantLot") {
+            const result = await masterTypeService.getProcessTypeSelect("PlantLot");
+            
+            if(result.statusCode === 200) {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+            } else {
+              setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
+            }
+          } else {
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+          }
+        };
+      
+        updateProcessFarmOptions();
+      }, [targetType]);
+
+    const handleWeeklyDaySelection = (days: number[]) => {
+        setDayOfWeek(days);
     };
-    console.log(form.getFieldsValue());
+
+    const handleMonthlyDaySelection = (days: number[]) => {
+        setDayOfMonth(days);
+    };
+
+    const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
+        if (!dateRange) {
+            setDateError("Please select the date range first!");
+            return false;
+        }
+        const [startDate, endDate] = dateRange;
+
+        const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
+
+        if (validDays.length === 0) {
+            setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+            return false;
+        }
+
+        // Có ngày không hợp lệ
+        if (validDays.length < days.length) {
+            setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+            if (type === "weekly") {
+                setDayOfWeek(validDays);
+            } else if (type === "monthly") {
+                setDayOfMonth(validDays);
+            }
+        } else {
+            setDateError(null);
+        }
+
+        if (validDays.length === 1) {
+            const selectedDay = validDays[0];
+            let targetDate = startDate.clone();
+            if (type === "weekly") {
+                while (targetDate.day() !== selectedDay) {
+                    targetDate = targetDate.add(1, "day");
+                }
+            } else if (type === "monthly") {
+                targetDate = startDate.date(selectedDay);
+            }
+            const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
+
+            if (!isDateRangeAdjusted) {
+                return new Promise((resolve) => {
+                    Modal.confirm({
+                        title: "Adjust Date Range",
+                        content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+                        onOk: () => {
+                            const selectedDay = validDays[0];
+                            let targetDate = startDate.clone();
+
+                            if (type === "weekly") {
+                                while (targetDate.day() !== selectedDay) {
+                                    targetDate = targetDate.add(1, "day");
+                                }
+                            } else if (type === "monthly") {
+                                targetDate = startDate.date(selectedDay);
+                            }
+
+                            const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+                            setDateRange(newDateRange);
+                            form.setFieldsValue({ dateRange: newDateRange });
+                            resolve(true);
+                        },
+                        onCancel: () => {
+                            if (type === "weekly") {
+                                setDayOfWeek([]);
+                                resolve(false);
+                            } else if (type === "monthly") {
+                                setDayOfMonth([]);
+                                resolve(false);
+                            }
+                        },
+                    });
+                });
+            }
+        }
+
+        return true;
+    };
 
     const handleDateChange = (dates: Dayjs[]) => {
         if (!dateRange) {
@@ -189,6 +284,38 @@ const UpdatePlan = () => {
         }
     };
 
+    const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
+        if (!dates || dates.some(date => date === null)) {
+            setDateRange(null);
+            setDateError("Please select a valid date range!");
+            form.setFieldsValue({ dateRange: null });
+            return;
+        }
+
+        const [startDate, endDate] = dates as [Dayjs, Dayjs];
+        setDateRange([startDate, endDate]);
+        setDateError(null);
+        form.setFieldsValue({ dateRange: [startDate, endDate] });
+
+        if (frequency === "None" && customDates.length === 1) {
+            Modal.confirm({
+                title: "Adjust Date Range",
+                content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+                onOk: () => {
+                    const newDateRange = [customDates[0], customDates[0]] as [Dayjs, Dayjs];
+                    setDateRange(newDateRange);
+                    form.setFieldsValue({ dateRange: newDateRange });
+                },
+                onCancel: () => {
+                    setCustomDates([]);
+                },
+            });
+        }
+    };
+
+    const { isModalVisible, handleCancelNavigation, handleConfirmNavigation } =
+        useUnsavedChangesWarning(isFormDirty);
+
     const handleFrequencyChange = (value: string) => {
         setFrequency(value);
 
@@ -209,113 +336,94 @@ const UpdatePlan = () => {
         }
     };
 
-    const handleRemovePlanTarget = (index: number) => {
-        setPlanTargets((prev) => prev.filter((_, i) => i !== index));
+    const handlePlanTargetChange = async (target: string) => {
+        setTargetType(target);
+        form.setFieldsValue({
+            planTargetModel: [],
+        });
+
+        if (target === "graftedPlant") {
+            setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([14]));
+            form.setFieldValue("growthStageId", undefined);
+            form.setFieldValue("processId", undefined);
+            setIsLockedGrowthStage(false);
+            setIsTargetDisabled(true);
+            setSelectedGrowthStage([]);
+        } else if (target === "plantLot") {
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+            setIsTargetDisabled(true);
+            form.setFieldValue("processId", undefined);
+            // setIsLockedGrowthStage(false);
+        } else {
+            // form.setFieldValue("processId", undefined);
+            // setIsLockedGrowthStage(false);
+            setIsCropDisabled(false);
+            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+            setIsTargetDisabled(false);
+        }
     };
-    // const [landRows, setLandRows] = useState<OptionType<number>[]>([]);
-    const [selectedOptions, setSelectedOptions] = useState<OptionType[]>([]);
 
-    const [plants, setPlants] = useState<OptionType<number>[]>([]);
-
-    const { isModalVisible, handleCancelNavigation, handleConfirmNavigation } =
-        useUnsavedChangesWarning(isFormDirty);
-
-    const handleLandPlotChange = (landPlotId: number) => {
-        setSelectedLandPlot(landPlotId);
-    };
-
-
-    const handleLandRowChange = (landRowId: number) => {
-        setSelectedLandRow(landRowId);
-    };
-
-    const handleReporterChange = (userId: number) => {
-        setSelectedReporter(userId);
-    };
-
-    const handleAssignMember = () => setIsModalOpen(true);
+    const handleChangeProcess = async (processId: number | undefined) => {
+        if (processId) {
+          const growthStageId = await getGrowthStageOfProcess(processId);
+          console.log("growthStageId", growthStageId);
+          
+          form.setFieldValue("processId", processId);
+          const masterTypeId = await getTypeOfProcess(processId);
+          form.setFieldValue("masterTypeId", Number(masterTypeId));
+          setIsLockedGrowthStage(true);
+          // neu process co target la grafting
+          if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "Grafting")).data) {
+            setTargetType("graftedPlant");
+            form.setFieldValue("planTarget", "graftedPlant");
+            form.setFieldValue("growthStageId", undefined);
+            setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("Grafting")).data.map((pt) => ({
+              value: pt.id,
+              label: pt.name
+            })))
+            setIsLockedGrowthStage(true);
+          } else if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "PlantLot")).data) {
+            setTargetType("plantLot");
+            form.setFieldValue("planTarget", "plantLot");
+            form.setFieldValue("growthStageId", undefined);
+            
+            setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
+              value: pt.id,
+              label: pt.name
+            })))
+            setIsLockedGrowthStage(true);
+          } else {
+            form.setFieldValue("growthStageId", [growthStageId]);
+            if(growthStageId) {
+    
+              setSelectedGrowthStage([growthStageId]);
+            }
+            form.setFieldsValue({ planTargetModel: [] });
+          }
+        } else {
+          form.setFieldValue("processId", undefined);
+          form.setFieldValue("growthStageId", undefined);
+          form.setFieldValue("masterTypeId", undefined);
+          setIsLockedGrowthStage(false);
+          setProcessTypeOptions([]);
+        }
+      };
 
     const handleConfirmAssign = () => {
         setAssignorId(userId);
+        // if (selectedIds.length === 0) {
+        //   setErrorMessage("Please select at least one employee.");
+        //   return;
+        // }
+
         setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
         setIsModalOpen(false);
     };
 
-    const handleWeeklyDaySelection = (days: number[]) => {
-        setDayOfWeek(days);
-    };
-
-    const handleMonthlyDaySelection = (days: number[]) => {
-        setDayOfMonth(days);
-    };
-
-    const handleSaveDays = (days: number[], type: "weekly" | "monthly") => {
-        if (!dateRange) {
-            setDateError("Please select the date range first!");
-            return;
-        }
-
-        const [startDate, endDate] = dateRange;
-
-        // filter ra các ngày hợp lệ
-        const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
-
-        // không có ngày nào hợp lệ
-        if (validDays.length === 0) {
-            setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-            return;
-        }
-
-        // có ngày không hợp lệ
-        if (validDays.length < days.length) {
-            setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
-            // chỉ giữ lại ngày hợp lệ
-            if (type === "weekly") {
-                setDayOfWeek(validDays);
-            } else if (type === "monthly") {
-                setDayOfMonth(validDays);
-            }
-        } else {
-            setDateError(null);
-        }
-
-        if (validDays.length === 1) {
-            Modal.confirm({
-                title: "Adjust Date Range",
-                content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
-                onOk: () => {
-                    const selectedDay = validDays[0];
-                    let targetDate = startDate.clone();
-
-                    if (type === "weekly") {
-                        while (targetDate.day() !== selectedDay) {
-                            targetDate = targetDate.add(1, "day");
-                        }
-                    } else if (type === "monthly") {
-                        targetDate = startDate.date(selectedDay);
-                    }
-
-                    const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
-                    setDateRange(newDateRange);
-                    form.setFieldsValue({ dateRange: newDateRange });
-                },
-                onCancel: () => {
-                    // Không làm gì
-                },
-            });
-        }
-    };
-
-
-
     const handleSubmit = async (values: any) => {
-        console.log("bấm add");
-
         const { dateRange, timeRange, planTargetModel } = values;
         const startDate = new Date(dateRange?.[0]);
         const endDate = new Date(dateRange?.[1]);
-        console.log("planTargetModel", planTargetModel);
-
 
         const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
         const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
@@ -323,12 +431,18 @@ const UpdatePlan = () => {
         const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
         const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
 
-        if (assignorId === undefined) {
-            toast.error("Assignor ID is required.");
-            return;
-        }
+        // if (assignorId === undefined) {
+        //     toast.error("Assignor ID is required.");
+        //     return;
+        // }
+        console.log("planTargetModel", planTargetModel);
+        console.log("listLandPlotOfCrop", values.listLandPlotOfCrop);
+        console.log("dayOfWeek", typeof(dayOfWeek));
 
-        const planData: PlanRequest = {
+
+        const planData: UpdatePlanRequest = {
+            planId: Number(id) ?? 0,
+            status: "Not Started",
             planName: values.planName,
             planDetail: values.planDetail,
             notes: values.notes || "",
@@ -338,7 +452,7 @@ const UpdatePlan = () => {
             frequency: values.frequency,
             isActive: values.isActive,
             masterTypeId: values.masterTypeId,
-            assignorId,
+            // assignorId,
             responsibleBy: values.responsibleBy || "",
             pesticideName: values.pesticideName || "",
             maxVolume: values.maxVolume || 0,
@@ -348,7 +462,7 @@ const UpdatePlan = () => {
                 userId: employee.userId,
                 isReporter: employee.userId === selectedReporter,
             })),
-            dayOfWeek,
+            dayOfWeek: Array.isArray(dayOfWeek) ? dayOfWeek : [],
             dayOfMonth,
             customDates: customDates.map((date) => date.toISOString()),
             startDate: adjustedStartDate.toISOString(),
@@ -362,103 +476,146 @@ const UpdatePlan = () => {
                 graftedPlantID: target.graftedPlantID ?? [],
                 plantLotID: target.plantLotID ?? [],
             })),
+            listLandPlotOfCrop: values.listLandPlotOfCrop
         };
-        console.log("planData", planData);
+        console.log("plandata for updating", planData);
 
 
-        const result = await planService.addPlan(planData);
-
-        if (result.statusCode === 200) {
-            toast.success(result.message);
-            form.resetFields();
+        if (id) {
+            const result = await planService.updatePlan(planData);
+            if (result.statusCode === 200) {
+                toast.success(result.message);
+                navigate(PATHS.PLAN.PLAN_LIST);
+            } else {
+                toast.error(result.message);
+            }
         } else {
-            toast.error(result.message);
+            toast.error("Plan ID is required for updating.");
         }
-
-        setIsFormDirty(false);
     };
-    console.log("id", id);
+    console.log("mêt qua", selectedCrop);
+    useEffect(() => {
+        form.setFieldValue("masterTypeId", undefined);
+        if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+            planService.filterMasterTypeByGrowthStage(selectedGrowthStage, "Work").then((data) => {
+                setProcessTypeOptions(
+                    data.map((item) => ({
+                        value: item.masterTypeId,
+                        label: item.masterTypeName,
+                    }))
+                );
+            });
+        } else {
+            setProcessTypeOptions([]);
+        }
+    }, [selectedGrowthStage]);
+
+    const determineTargetType = (planTargetModels: any[]) => {
+        console.log("lay ra planTargetModels", planTargetModels);
+        
+        for (const target of planTargetModels) {
+            if (target.graftedPlants && target.graftedPlants.length > 0) {
+                return "graftedPlant";
+            }
+            if (target.plantLots && target.plantLots.length > 0) {
+                return "plantLot";
+            } else {
+                return "regular";
+            }
+        }
+        // return "regular";
+    };
 
 
     useEffect(() => {
         const fetchData = async () => {
-            setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-            setEmployee(await fetchUserInfoByRole("User"));
+            setIsLoading(true);
+            try {
+                setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+                setEmployee(await fetchUserInfoByRole("User"));
 
-            if (id) {
-                const result = await planService.getPlanDetail(id);
-                if (result) {
-                    setPlanData(result);
-                    const startDate = result.startDate ? moment(result.startDate) : null;
-                    const endDate = result.endDate ? moment(result.endDate) : null;
-                    const dateRange = [result.startDate, result.endDate];
+                if (id) {
+                    const result = await planService.getPlanDetail(id);
+                    console.log("plan detail ne", result);
 
-                    setFrequency(result.frequency || "None");
+                    if (result) {
+                        setPlanData(result);
+                        const target = determineTargetType(result.planTargetModels);
+                        console.log("=======================================================", target);
+                        
+                        form.setFieldValue("planTarget", target)
+                        if(target === "regular") {
+                            setIsTargetDisabled(false);
+                        } else if (target === "plantLot" || target === "graftedPlant") {
+                            setIsCropDisabled(true);
+                        }
+                        setTargetType(target);
+                        const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
+                        const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
+                        const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
+                        const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
+                        const mergedEmployees = [...result.listReporter, ...result.listEmployee];
+                        form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
+                        if (result.processId) {
+                            setIsLockedGrowthStage(true);
+                        }
+                        if (result.cropId) {
+                            setSelectedCrop(result.cropId);
+                            setIsTargetDisabled(true); // Enable nếu có cropId
+                        }
+                        setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
+                        setSelectedGrowthStage(result.growthStages.map((g) => g.id));
+                        setSelectedEmployees(mergedEmployees);
+                        await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
+                            setProcessTypeOptions(data.map((item) => ({
+                                value: item.masterTypeId,
+                                label: item.masterTypeName
+                            })))
+                        });
+                        setSelectedReporter(result.listReporter?.[0]?.userId || null);
+                        setFrequency(result.frequency || "None");
+                        const parsedCustomDates = result.customDates
+                            ? JSON.parse(result.customDates).map((date: string) => moment(date))
+                            : [];
 
-                    const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
-                    setDayOfMonth(parsedDayOfMonth);
+                        const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
+                        setDayOfMonth(parsedDayOfMonth);
 
-                    setSelectedIds(result.listEmployee?.map((emp) => emp.userId) || []);
+                        setDayOfWeek(result.dayOfWeek || []);
 
-                    // const parsedCustomDates = result.customDates
-                    //     ? result.customDates.map((date: string) => moment(date))
-                    //     : [];
-                    // setCustomDates(parsedCustomDates);
+                        setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
 
-                    console.log("dateRange:", dateRange);
-
-
-
-                    form.setFieldsValue({
-                        planId: result.planId,
-                        status: result.status,
-                        planName: result.planName,
-                        planCode: result.planCode,
-                        createDate: result.createDate,
-                        dateRange: startDate && endDate ? [startDate, endDate] : [],
-                        isActive: result.isActive,
-                        notes: result.notes,
-                        planDetail: result.planDetail,
-                        frequency: result.frequency,
-                        pesticideName: result.pesticideName,
-                        progress: result.progress,
-                        maxVolume: result.maxVolume,
-                        minVolume: result.minVolume,
-                        isDelete: result.isDelete,
-                        plantNames: result.plantNames || [],
-                        landPlotNames: result.landPlotNames || [],
-                        assignorName: result.assignorName,
-                        processName: result.processName,
-                        cropName: result.cropName,
-                        graftedPlantName: result.graftedPlantName || [],
-                        growthStageName: result.growthStageName || [],
-                        plantLotNames: result.plantLotNames || [],
-                        rowIndexs: result.rowIndexs || [],
-                        masterTypeName: result.masterTypeName,
-                        avatarOfAssignor: result.avatarOfAssignor,
-                        listReporter: result.listReporter || [],
-                        listEmployee: result.listEmployee || [],
-                        dayOfMonth: result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [],
-                        startTime: moment(result.startTime, "HH:mm:ss"),
-                        endTime: moment(result.endTime, "HH:mm:ss"),
-                        listWorkLog: result.listWorkLog || [],
-                        planTargetModels: result.planTargetModels || [],
-                        date: [moment(result.startDate), moment(result.endDate)],
-                        timeRange: [moment(result.startTime, "HH:mm:ss"), moment(result.endTime, "HH:mm:ss")],
-                        customDates: result.customDates ? result.customDates.map((date: string) => moment(date)) : [],
-                    });
-
-                    console.log("result", result);
+                        form.setFieldsValue({
+                            planId: result.planId,
+                            planName: result.planName,
+                            planDetail: result.planDetail,
+                            notes: result.notes,
+                            frequency: result.frequency,
+                            processId: result.processId,
+                            growthStageId: result.growthStages.map((g) => g.id),
+                            cropId: result.cropId,
+                            listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
+                            isActive: result.isActive,
+                            customDates: parsedCustomDates,
+                            masterTypeId: result.masterTypeId,
+                            dateRange: [startDate, endDate],
+                            timeRange: [startTime, endTime],
+                        });
+                    }
                 }
-            } else {
-                console.log("ko co id");
+            } catch (error) {
+                console.error("Lỗi khi fetch dữ liệu:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchData();
     }, [id, form]);
 
-
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <div className={style.contentSectionBody}>
@@ -470,8 +627,8 @@ const UpdatePlan = () => {
                         onClick={() => {
                             if (isFormDirty) {
                                 Modal.confirm({
-                                    title: "Bạn có chắc chắn muốn rời đi?",
-                                    content: "Tất cả thay đổi chưa lưu sẽ bị mất.",
+                                    title: "Are you sure you want to leave?",
+                                    content: "All unsaved changes will be lost.",
                                     onOk: () => navigate(PATHS.PLAN.PLAN_LIST),
                                 });
                             } else {
@@ -488,12 +645,10 @@ const UpdatePlan = () => {
                 layout="vertical"
                 className={style.form}
                 onFinish={handleSubmit}
-                // onValuesChange={() => setIsFormDirty(true)}
-                initialValues={{ isActive: true }}
-                onValuesChange={(changedValues, allValues) => {
-                    // console.log("Changed:", changedValues);
-                    // console.log("All Values:", allValues);
+                initialValues={{
+                    isActive: true,
                 }}
+                onValuesChange={() => setIsFormDirty(true)}
             >
                 {/* BASIC INFORMATION */}
                 <Section
@@ -502,22 +657,153 @@ const UpdatePlan = () => {
                 >
                     <Row gutter={16}>
                         <Col span={12}>
-                            <InfoField
-                                label="Process Name"
-                                name={addPlanFormFields.processId}
-                                options={processFarmOptions}
-                                isEditing={true}
-                                type="select"
-                                hasFeedback={false}
-                            />
+                            <Flex vertical>
+                                <InfoField
+                                    label="Process Name"
+                                    name={addPlanFormFields.processId}
+                                    options={processFarmOptions}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                    onChange={(value) => handleChangeProcess(value)}
+                                />
+                                <div
+                                    style={{ marginTop: "-20px", textAlign: "right" }}
+                                    onClick={() => {
+                                        form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                                        form.setFieldValue("masterTypeId", undefined);
+                                        handleChangeProcess(undefined);
+                                    }}>
+                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                </div>
+                            </Flex>
                         </Col>
                         <Col span={12}>
                             <InfoField
                                 label="Growth Stage"
                                 name={addPlanFormFields.growthStageID}
+                                // rules={RulesManager.getGrowthStageRules()}
+                                rules={[
+                                    {
+                                        // Chỉ validate khi submit form
+                                        validateTrigger: 'onSubmit',
+                                        validator: (_: any, value: any) => {
+                                            const processId = form.getFieldValue(addPlanFormFields.processId);
+                                            // k chọn process && k chọn growth stage
+                                            if (!processId && (!value || value.length === 0)) {
+                                                return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
+                                            }
+                                            return Promise.resolve();
+                                        },
+                                    },
+                                ]}
                                 options={growthStageOptions}
+                                isEditing={!isLockedGrowthStage}
+                                onChange={(value) => {
+                                    setSelectedGrowthStage(value);
+                                    if (targetType === "regular") {
+                                        form.setFieldsValue({ planTargetModel: [] });
+                                    }
+                                }}
+                                type="select"
+                                multiple
+                                hasFeedback={false}
+                            />
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <InfoField
+                                label="Select Plan Target"
+                                name={addPlanFormFields.planTarget}
+                                options={planTargetOptions}
+                                rules={RulesManager.getPlanTargetRules()}
                                 isEditing={true}
-                                onChange={(value) => setSelectedGrowthStage(value)}
+                                type="select"
+                                hasFeedback={false}
+                                onChange={(value) => handlePlanTargetChange(value)}
+                            />
+                        </Col>
+                        {targetType === "plantLot" && (
+                            <Col span={12}>
+                                <InfoField
+                                    label="Select Plant Lot"
+                                    name={addPlanFormFields.plantLot}
+                                    options={plantLotOptions}
+                                    multiple
+                                    // rules={RulesManager.getPlantLotRules()}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                />
+                            </Col>
+                        )}
+
+                        {targetType === "graftedPlant" && (
+                            <Col span={12}>
+                                <InfoField
+                                    label="Select Grafted Plant"
+                                    name={addPlanFormFields.graftedPlant}
+                                    options={graftedPlantsOptions}
+                                    // rules={RulesManager.getGraftedPlantRules()}
+                                    isEditing={true}
+                                    type="select"
+                                    multiple
+                                    hasFeedback={false}
+                                />
+                            </Col>
+                        )}
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Flex vertical>
+                                <InfoField
+                                    label="Crop Name"
+                                    name={addPlanFormFields.cropId}
+                                    // rules={RulesManager.getCropRules()}
+                                    options={cropOptions}
+                                    isEditing={true}
+                                    type="select"
+                                    hasFeedback={false}
+                                    onChange={(value) => {
+                                        setSelectedCrop(value);
+                                        if (targetType === "regular") {
+                                            form.setFieldValue("planTarget", "regular");
+                                        }
+
+                                        setIsTargetDisabled(true);
+                                        form.setFieldsValue({ [addPlanFormFields.listLandPlotOfCrop]: undefined });
+                                        form.setFieldsValue({ planTargetModel: [] });
+                                    }}
+                                />
+                                <div
+                                    style={{ marginTop: "-20px", textAlign: "right" }}
+                                    onClick={() => {
+                                        setSelectedCrop(null);
+                                        form.setFieldValue("cropId", undefined);
+                                        form.setFieldValue("listLandPlotOfCrop", []);
+                                        setIsTargetDisabled(false)
+                                    }}>
+                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                </div>
+                            </Flex>
+                        </Col>
+                        <Col span={12}>
+                            <InfoField
+                                label="Land Plot"
+                                name={addPlanFormFields.listLandPlotOfCrop}
+                                rules={[
+                                    {
+                                        validator: (_: any, value: any) => {
+                                            if (selectedCrop && (!value || value.length === 0)) {
+                                                return Promise.reject(new Error("Please select at least one Land Plot for the Crop!"));
+                                            }
+                                            return Promise.resolve();
+                                        },
+                                    },
+                                ]}
+                                options={landPlotOfCropOptions}
+                                isEditing={selectedCrop ? true : false}
                                 type="select"
                                 multiple
                                 hasFeedback={false}
@@ -542,7 +828,7 @@ const UpdatePlan = () => {
                     />
                     <InfoField
                         label="Note"
-                        name={addPlanFormFields.planNote}
+                        name={addPlanFormFields.notes}
                         isEditing={true}
                         hasFeedback={false}
                         type="textarea"
@@ -554,7 +840,9 @@ const UpdatePlan = () => {
                         name={addPlanFormFields.isActive}
                         isEditing={true}
                         type="switch"
+                        value={checked}
                         hasFeedback={false}
+                        onChange={(value) => setChecked(value)}
                     />
                 </Section>
 
@@ -562,20 +850,22 @@ const UpdatePlan = () => {
 
                 {/* SCHEDULE */}
                 <Section title="Schedule" subtitle="Define the schedule for the care plan.">
-                    <Form.Item
+                    <InfoField
                         label="Date Range"
                         name="dateRange"
+                        type="dateRange"
                         rules={[{ required: true, message: "Please select the date range!" }]}
-                    >
-                        <RangePicker style={{ width: "100%" }} onChange={handleDateRangeChange} />
-                    </Form.Item>
-                    <Form.Item
+                        isEditing
+                        onChange={handleDateRangeChange}
+                    />
+
+                    <InfoField
                         label="Time Range"
                         name="timeRange"
+                        type="timeRange"
                         rules={[{ required: true, message: "Please select the time range!" }]}
-                    >
-                        <TimePicker.RangePicker style={{ width: "100%" }} />
-                    </Form.Item>
+                        isEditing
+                    />
                     <InfoField
                         label="Frequency"
                         name={addPlanFormFields.frequency}
@@ -596,7 +886,10 @@ const UpdatePlan = () => {
                         >
                             <DaySelector
                                 onSelectDays={handleWeeklyDaySelection}
-                                onSave={(days) => handleSaveDays(days, "weekly")}
+                                onSave={async (days) => {
+                                    const isSuccess = await handleSaveDays(days, "weekly");
+                                    return isSuccess;
+                                }}
                                 selectedDays={dayOfWeek}
                                 type="weekly"
                             />
@@ -612,8 +905,11 @@ const UpdatePlan = () => {
                         >
                             <DaySelector
                                 onSelectDays={handleMonthlyDaySelection}
-                                onSave={(days) => handleSaveDays(days, "monthly")}
-                                selectedDays={form.getFieldValue("dayOfMonth")}
+                                onSave={async (days) => {
+                                    const isSuccess = await handleSaveDays(days, "monthly");
+                                    return isSuccess;
+                                }}
+                                selectedDays={dayOfMonth}
                                 type="monthly"
                             />
                         </Form.Item>
@@ -638,15 +934,17 @@ const UpdatePlan = () => {
                 </Section>
 
                 <Divider className={style.divider} />
-                <PlanTarget
+                <UpdatePlanTarget
+                    form={form}
                     landPlotOptions={landPlots}
                     landRows={landRowOptions}
                     plants={plantsOptions}
-                    plantLots={[]}
+                    plantLots={plantLotOptions}
                     graftedPlants={graftedPlantsOptions}
-                    onLandPlotChange={handleLandPlotChange}
-                    onLandRowChange={handleLandRowChange}
                     selectedGrowthStage={selectedGrowthStage}
+                    initialValues={planData?.planTargetModels}
+                    hasSelectedCrop={isTargetDisabled}
+                    onClearTargets={() => form.setFieldsValue({ planTargetModel: [] })}
                 />
 
                 <Divider className={style.divider} />
@@ -664,8 +962,8 @@ const UpdatePlan = () => {
                     />
                     <AssignEmployee
                         members={selectedEmployees}
-                        onAssign={handleAssignMember}
-                        onReporterChange={handleReporterChange}
+                        onAssign={() => setIsModalOpen(true)}
+                        onReporterChange={(userId) => setSelectedReporter(userId)}
                         selectedReporter={selectedReporter}
                     />
                     <Modal
@@ -700,24 +998,24 @@ const UpdatePlan = () => {
                     <label className={style.createdBy}>
                         {" "}
                         <span>Created by: </span>
-                        {authData.fullName}
+                        {planData?.assignorName}
                     </label>
                 </Section>
 
                 {/* FORM ACTIONS */}
                 <Flex gap={10} justify="end" className={style.btnGroup}>
                     <CustomButton label="Clear" isCancel handleOnClick={() => form.resetFields()} />
-                    <CustomButton label="Add Plan" htmlType="submit" />
+                    <CustomButton label="Update Plan" htmlType="submit" />
                 </Flex>
             </Form>
             {isModalVisible && (
                 <Modal
-                    title="Bạn có chắc chắn muốn rời đi?"
+                    title="Are you sure you want to leave this page?"
                     visible={isModalVisible}
                     onOk={handleConfirmNavigation}
                     onCancel={handleCancelNavigation}
                 >
-                    <p>Tất cả thay đổi chưa lưu sẽ bị mất.</p>
+                    <p>Every changes will be lost.</p>
                 </Modal>
             )}
         </div>

@@ -95,12 +95,23 @@ export const updateCriteria = async (
   return res.data as ApiResponse<GetCriteriaByMasterType>;
 };
 
-export const getCriteriaTypeSelect = async (
+export const getPlantLotCriteriaTypeSelect = async (
   lotId: number,
   target: string,
 ): Promise<ApiResponse<GetCriteriaSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `criterias/plantlot/get-for-selected/except?plantLotId=${lotId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
+
+export const getPlantCriteriaTypeSelect = async (
+  plantId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/plant/get-for-selected/except?plantId=${plantId}&target=${target}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
   return apiResponse;
@@ -129,6 +140,16 @@ export const getCriteriaOfLandPlot = async (
 ): Promise<ApiResponse<GetCriteriaObject[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `criterias/get-criteria-of-object?PlantLotID=${lotId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
+  return apiResponse;
+};
+
+export const getCriteriaOfPlant = async (
+  plantId: number,
+): Promise<ApiResponse<GetCriteriaObject[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/get-criteria-of-object?PlantID=${plantId}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
   return apiResponse;

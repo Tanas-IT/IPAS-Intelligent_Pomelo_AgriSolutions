@@ -180,8 +180,11 @@ export const addPlanFormFields = {
   frequency: "frequency",
   status: "status",
   assignor: "assignor",
-  planNote: "planNote",
+  notes: "notes",
   listLandPlotOfCrop: "listLandPlotOfCrop",
+  planTarget: "planTarget",
+  plantLot: "plantLot",
+  graftedPlant: "graftedPlant"
 };
 
 export const packageFormFields = {
@@ -200,4 +203,7 @@ export const processFormFields = {
   growthStageId: "growthStageId",
   listPlan: "listPlan",
   isSample: "isSample",
+  planTarget: "planTarget",
+  plantLot: "plantLot",
+  graftedPlant: "graftedPlant"
 };

@@ -39,6 +39,7 @@ import {
   Criteria,
   PlantYield,
   GraftedPlant,
+  AddPlanByProcess,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -121,6 +122,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PLAN.PLAN_LIST, component: PlanList, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_DETAIL, component: PlanDetail, layout: ManagementLayout },
   { path: PATHS.PLAN.ADD_PLAN, component: AddPlan, layout: ManagementLayout },
+  { path: PATHS.PLAN.ADD_PLAN_BY_PROCESS, component: AddPlanByProcess, layout: ManagementLayout },
   { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },

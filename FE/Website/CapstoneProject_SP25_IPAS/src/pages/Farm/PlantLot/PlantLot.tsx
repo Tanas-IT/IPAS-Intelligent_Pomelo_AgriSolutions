@@ -2,6 +2,7 @@ import { Flex } from "antd";
 import style from "./PlantLot.module.scss";
 import {
   ActionMenuLot,
+  ApplyLotCriteriaModal,
   ConfirmModal,
   NavigationDot,
   SectionTitle,
@@ -23,7 +24,6 @@ import { DEFAULT_LOT_FILTERS, getOptions } from "@/utils";
 import { criteriaService, plantLotService } from "@/services";
 import { PlantLotColumns } from "./PlantLotColumns";
 import LotModel from "./LotModal";
-import ApplyCriteriaModal from "./ApplyCriteriaModal";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { FilterPlantLotState } from "@/types";
@@ -224,7 +224,7 @@ function PlantLot() {
           isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
           lotData={formModal.modalState.data}
         />
-        <ApplyCriteriaModal
+        <ApplyLotCriteriaModal
           lotId={criteriaModal.modalState.data?.id}
           hasInputQuantity={criteriaModal.modalState.data?.hasInputQuantity ?? false}
           hasLastQuantity={criteriaModal.modalState.data?.hasLastQuantity ?? false}

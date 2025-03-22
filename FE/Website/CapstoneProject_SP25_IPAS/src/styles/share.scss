@@ -239,9 +239,10 @@
   }
 
   .contentSectionBody {
-    width: 90%;
+    width: 100%;
     justify-content: space-between;
     .col {
+      min-width: 32rem;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;

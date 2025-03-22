@@ -32,7 +32,6 @@ export interface GetCriteriaCheck {
   maxValue: number;
   unit: string;
   valueChecked: number;
-  // isChecked?: boolean;
   isPassed?: boolean;
 }
 

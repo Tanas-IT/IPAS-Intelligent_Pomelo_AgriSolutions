@@ -49,6 +49,8 @@ interface FormFieldModalProps {
   dependencies?: string[];
   checkedChildren?: string;
   unCheckedChildren?: string;
+  disable?: boolean;
+  multiple?: boolean;
 }
 
 const FormFieldModal: React.FC<FormFieldModalProps> = ({
@@ -71,6 +73,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   dependencies,
   checkedChildren,
   unCheckedChildren,
+  disable = false,
+  multiple = false
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -175,6 +179,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             loading={isLoading}
             allowClear
             onChange={onChange}
+            disabled={disable}
+            mode={multiple ? "multiple" : undefined}
           />
         );
       case "switch":

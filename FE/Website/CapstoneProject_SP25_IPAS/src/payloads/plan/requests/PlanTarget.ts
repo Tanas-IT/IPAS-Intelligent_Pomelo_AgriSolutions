@@ -29,7 +29,7 @@ interface RowOption {
 
 export interface SelectedTarget {
     unit: string;
-    landPlotId: number;
+    landPlotId: number | undefined;
     landPlotName: string;
     rows: RowOption[];
     plants: PlantOption[];

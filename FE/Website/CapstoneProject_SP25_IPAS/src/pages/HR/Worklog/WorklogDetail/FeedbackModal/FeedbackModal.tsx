@@ -2,11 +2,12 @@ import { Form } from "antd";
 import { FormFieldModal, InfoField, ModalForm } from "@/components";
 import { feedbackFormFields, worklogFormFields } from "@/constants";
 import { Flex } from "antd";
-import { useState } from "react";
-import { RulesManager } from "@/utils";
-import { CreateFeedbackRequest } from "@/payloads";
+import { useEffect, useState } from "react";
+import { getUserId, RulesManager } from "@/utils";
+import { CreateFeedbackRequest, GetFeedback } from "@/payloads";
 import { feedbackService } from "@/services";
 import { toast } from "react-toastify";
+import { TaskFeedback } from "@/payloads/worklog";
 
 type FeedbackModalProps = {
   isOpen: boolean;
@@ -14,36 +15,71 @@ type FeedbackModalProps = {
   onSave: (values: { feedback: string; status: string }) => void;
   worklogId: number;
   managerId: number;
+  onSuccess: () => void;
+  feedbackData?: TaskFeedback
 };
 
-const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: FeedbackModalProps) => {
+const FeedbackModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  worklogId,
+  managerId,
+  onSuccess,
+  feedbackData,
+}: FeedbackModalProps) => {
   const [form] = Form.useForm();
-  const [status, setStatus] = useState<string>("done");
+  const [status, setStatus] = useState<string>("Done");
+  const isUpdate = feedbackData !== undefined && Object.keys(feedbackData).length > 0;
+console.log("jjj");
 
-  const handleCancel = () => {
-    onClose();
-  };
+  useEffect(() => {
+    if (isOpen) {
+      if (isUpdate && feedbackData) {
+        form.setFieldsValue({
+          content: feedbackData.content,
+          status: "Redo",
+          reason: feedbackData.reason,
+        });
+      } else {
+        form.resetFields();
+      }
+    }
+  }, [isOpen, feedbackData]);
 
   const handleSave = async () => {
     const values = await form.validateFields();
-    console.log("Feedback Form Values:", values);
-    const payload: CreateFeedbackRequest = {
-      content: values.content,
-      managerId,
-      worklogId,
-      status: values.status,
-      reason: values.reason,
+    let result;
+    if (isUpdate) {
+      const payloadUpdate: CreateFeedbackRequest = {
+        taskFeedbackId: feedbackData.taskFeedbackId,
+        content: values.content,
+        managerId: Number(getUserId()),
+        worklogId: feedbackData.workLogId,
+        status: values.status,
+        reason: values.reason,
+      };
+      console.log("payloadUpdate", payloadUpdate);
+      
+      result = await feedbackService.updateFeedback(payloadUpdate);
+    } else {
+      const payload: CreateFeedbackRequest = {
+        content: values.content,
+        managerId,
+        worklogId,
+        status: values.status,
+        reason: values.reason,
+      };
+      result = await feedbackService.createFeedback(payload);
     }
-    console.log(payload);
-    
-    const result = await feedbackService.createFeedback(payload);
+
     if (result.statusCode === 200) {
       toast.success(result.message);
       form.resetFields();
+      onSuccess();
     } else {
       toast.error(result.message);
     }
-    // onSave(values);
     onClose();
   };
 
@@ -55,9 +91,9 @@ const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: Feedba
   return (
     <ModalForm
       isOpen={isOpen}
-      onClose={handleCancel}
-      isUpdate={false}
-      title="Feedback Worklog"
+      onClose={onClose}
+      isUpdate={isUpdate}
+      title={isUpdate ? "Update Feedback" : "Add New Feedback"}
       onSave={handleSave}
     >
       <Form form={form} layout="vertical">

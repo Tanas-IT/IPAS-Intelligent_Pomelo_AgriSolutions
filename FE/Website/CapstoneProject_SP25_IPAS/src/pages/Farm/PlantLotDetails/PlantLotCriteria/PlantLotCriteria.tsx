@@ -1,6 +1,11 @@
 import style from "./PlantLotCriteria.module.scss";
 import { Collapse, Divider, Empty, Flex } from "antd";
-import { ConfirmModal, CriteriaCheckTable, LoadingSkeleton } from "@/components";
+import {
+  ApplyLotCriteriaModal,
+  ConfirmModal,
+  CriteriaCheckTable,
+  LoadingSkeleton,
+} from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantLotStore } from "@/stores";
 import LotSectionHeader from "../LotSectionHeader/LotSectionHeader";
@@ -13,7 +18,6 @@ import {
   CriteriaDeleteRequest,
   GetCriteriaObject,
 } from "@/payloads";
-import ApplyCriteriaModal from "../../PlantLot/ApplyCriteriaModal";
 import { toast } from "react-toastify";
 import UpdateQuantityModal from "./UpdateQuantityModal";
 import { CRITERIA_TARGETS } from "@/constants";
@@ -21,7 +25,7 @@ import { PanelTitle } from "./PanelTitle";
 
 function PlantLotCriteria() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true); // 👈 Thêm state mới
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
@@ -136,8 +140,9 @@ function PlantLotCriteria() {
       (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
     ) {
       // Không gọi API nếu số lượng không thay đổi
-    } else if (quantity && isAllCompletedCheckUpdate) {
+    } else if (quantity !== null && quantity !== undefined && isAllCompletedCheckUpdate) {
       var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
+
       if (resUpdate.statusCode !== 200) {
         toast.error(resUpdate.message);
         return;
@@ -336,7 +341,7 @@ function PlantLotCriteria() {
           <Empty description="No criteria available" />
         </Flex>
       )}
-      <ApplyCriteriaModal
+      <ApplyLotCriteriaModal
         lotId={criteriaModal.modalState.data?.id}
         hasInputQuantity={!!lot.inputQuantity}
         hasLastQuantity={!!lot.lastQuantity}

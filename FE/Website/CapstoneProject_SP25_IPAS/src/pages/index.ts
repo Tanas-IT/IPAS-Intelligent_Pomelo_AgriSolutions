@@ -29,6 +29,7 @@ export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/Proces
 export { default as PlanList } from "@/pages/Plan/PlanList/PlanList";
 export { default as PlanDetail } from "@/pages/Plan/PlanDetails/PlanDetail";
 export { default as AddPlan } from "@/pages/Plan/PlanList/AddPlan";
+export { default as AddPlanByProcess } from "@/pages/Plan/PlanList/AddPlanByProcess/AddPlanByProcess";
 export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";

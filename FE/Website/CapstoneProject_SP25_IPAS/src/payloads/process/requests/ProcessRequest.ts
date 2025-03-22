@@ -18,6 +18,7 @@ export interface ProcessRequest {
     IsActive: boolean;
     ListPlan: ListPlan[]
     IsSample: boolean;
+    PlanTargetInProcess: number;
 }
 
 export interface SubProcess {

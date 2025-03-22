@@ -4,7 +4,7 @@ import CustomButton from "../../Button/CustomButton";
 import { Icons } from "@/assets";
 
 interface SectionProps {
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   children: React.ReactNode;
   actionButton?: React.ReactNode;

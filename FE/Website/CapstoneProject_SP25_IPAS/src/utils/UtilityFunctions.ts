@@ -12,7 +12,7 @@ import {
   processService,
   userService,
 } from "@/services";
-import { landRowSimulate, SelectedTarget } from "@/payloads";
+import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
 import { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
@@ -209,6 +209,11 @@ export const getUserId = (): string => {
   return jwtDecode<DecodedToken>(accessToken).UserId;
 };
 
+export const getUserInfoById = (userId: number) => {
+  const user = userService.getUserById(userId);
+  return user;
+}
+
 export const getFarmId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   if (!accessToken) return "";
@@ -261,8 +266,6 @@ export const fetchUserByRole = async (role: string) => {
 
 export const fetchUserInfoByRole = async (role: string) => {
   const users = await userService.getUsersByRole(role);
-  console.log("users", users);
-
   return users.map((user) => ({
     fullName: user.fullName,
     avatarURL: user.avatarURL,
@@ -309,8 +312,30 @@ export const unitOptions = [
   { label: "Land Plot", value: "landplot" },
   { label: "Row", value: "row" },
   { label: "Plant", value: "plant" },
-  { label: "Plant Lot", value: "plantlot" },
-  { label: "Grafted Plant", value: "graftedplant" },
+  // { label: "Plant Lot", value: "plantlot" },
+  // { label: "Grafted Plant", value: "graftedplant" },
+];
+
+export const worklogStatusOptions = [
+  { label: "Not Started", value: "Not Started" },
+  { label: "In Progress", value: "In Progress" },
+  { label: "Overdue", value: "Overdue" },
+  { label: "Reviewing", value: "Reviewing" },
+  { label: "Redo", value: "Redo" },
+  { label: "Done", value: "Done" },
+  { label: "On Redo", value: "On Redo" },
+];
+
+export const planTargetOptions = [
+  { label: "Land Plot/ Land Row/ Plant", value: "regular" },
+  { label: "Plant Lot", value: "plantLot" },
+  { label: "Grafted Plant", value: "graftedPlant" }
+];
+
+export const planTargetOptions2 = [
+  { label: "Land Plot/ Land Row/ Plant", value: 1 },
+  { label: "Plant Lot", value: 2 },
+  { label: "Grafted Plant", value: 3 }
 ];
 
 export const fetchTypeOptionsByName = async (typeName: string) => {
@@ -324,8 +349,6 @@ export const fetchTypeOptionsByName = async (typeName: string) => {
 
 export const fetchProcessesOfFarm = async (farmId: number, isSample?: boolean) => {
   const processFarms = await processService.getProcessesOfFarmForSelect(farmId, isSample);
-  console.log("process farm", processFarms);
-
   return processFarms.map((processFarm) => ({
     value: processFarm.processId,
     label: processFarm.processName,
@@ -428,10 +451,62 @@ export const isDayInRange = (
   return false;
 };
 
-export const getGrowthStageOfProcess = async (processId: number): Promise<number> => {
+export const getGrowthStageOfProcess = async (processId: number): Promise<number | undefined> => {
   const res = await getProcessDetail(processId);
-  return res.processGrowthStageModel.growthStageId;
+  
+  return res.processGrowthStageModel?.growthStageId;
 };
+
+export const getTypeOfProcess = async (processId: number): Promise<number> => {
+  const res = await getProcessDetail(processId);
+  return res.processMasterTypeModel.masterTypeId;
+}
+
+// export const isTargetOverlapping = (
+//   index: number,
+//   newLandPlotId: number | undefined,
+//   newLandRows: number | number[],
+//   newPlants: number[],
+//   newUnit: string | undefined,
+//   selectedUnits: (string | undefined)[],
+//   selectedLandPlots: (number | undefined)[],
+//   selectedLandRows: number[][],
+//   selectedPlants: number[][],
+// ) => {
+//   const newLandRowsArray = Array.isArray(newLandRows) ? newLandRows : [newLandRows];
+
+//   for (let i = 0; i < selectedLandPlots.length; i++) {
+//     if (i === index) continue;
+
+//     const existingUnit = selectedUnits[i];
+//     const existingLandPlot = selectedLandPlots[i];
+//     const existingLandRows = selectedLandRows[i];
+//     const existingPlants = selectedPlants[i];
+
+//     if (
+//       newUnit === existingUnit ||
+//       (newUnit === "row" && existingUnit === "landplot") ||
+//       (newUnit === "plant" && existingUnit === "row")
+//     ) {
+//       if (newLandPlotId === existingLandPlot) {
+//         if (newLandRowsArray.length > 0 && existingLandRows.length > 0) {
+//           const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+//           if (isRowOverlapping) {
+//             if (newPlants.length > 0 && existingPlants.length > 0) {
+//               const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
+//               if (isPlantOverlapping) {
+//                 return true;
+//               }
+//             }
+//             return true;
+//           }
+//         }
+//         return true;
+//       }
+//     }
+//   }
+//   return false;
+// };
 
 export const isTargetOverlapping = (
   index: number,
@@ -454,31 +529,62 @@ export const isTargetOverlapping = (
     const existingLandRows = selectedLandRows[i];
     const existingPlants = selectedPlants[i];
 
-    if (
-      newUnit === existingUnit ||
-      (newUnit === "row" && existingUnit === "landplot") ||
-      (newUnit === "plant" && existingUnit === "row")
-    ) {
+    // Kiểm tra trùng lặp khi newUnit và existingUnit là plot
+    if (newUnit === "landplot" && existingUnit === "landplot") {
       if (newLandPlotId === existingLandPlot) {
-        if (newLandRowsArray.length > 0 && existingLandRows.length > 0) {
-          const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
-          if (isRowOverlapping) {
-            if (newPlants.length > 0 && existingPlants.length > 0) {
-              const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
-              if (isPlantOverlapping) {
-                return true;
-              }
-            }
-            return true;
+        return true; // Trùng lặp vì cùng landplot
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là row và existingUnit là landplot
+    if (newUnit === "row" && existingUnit === "landplot") {
+      if (newLandPlotId === existingLandPlot) {
+        return true; // Trùng lặp vì row nằm trong landplot
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là landplot
+    if (newUnit === "plant" && existingUnit === "landplot") {
+      if (newLandPlotId === existingLandPlot) {
+        return true; // Trùng lặp vì plant nằm trong landplot
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là row và existingUnit là row
+    if (newUnit === "row" && existingUnit === "row") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          return true; // Trùng lặp vì cùng landplot và landrow
+        }
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là row
+    if (newUnit === "plant" && existingUnit === "row") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          return true; // Trùng lặp vì plant nằm trong row
+        }
+      }
+    }
+
+    // Kiểm tra trùng lặp khi newUnit là plant và existingUnit là plant
+    if (newUnit === "plant" && existingUnit === "plant") {
+      if (newLandPlotId === existingLandPlot) {
+        const isRowOverlapping = newLandRowsArray.some((row) => existingLandRows.includes(row));
+        if (isRowOverlapping) {
+          const isPlantOverlapping = newPlants.some((plant) => existingPlants.includes(plant));
+          if (isPlantOverlapping) {
+            return true; // Trùng lặp vì cùng landplot, landrow, và plant
           }
         }
-        return true;
       }
     }
   }
   return false;
 };
-
 export const fetchTargetsByUnit = async (
   unit: string,
   selectedGrowthStage: number[],
@@ -491,6 +597,8 @@ export const fetchTargetsByUnit = async (
       selectedGrowthStage,
       Number(getFarmId()),
     );
+    console.log("res trong fetchTargetsByUnit", response);
+    
 
     const formattedData = response.map((item) => ({
       unit,
@@ -529,14 +637,134 @@ export const fetchTargetsByUnit = async (
             }))
           : [],
     }));
+    console.log("formattedData trong fetchTargetsByUnit", formattedData);
+    
 
     setSelectedTargets((prev) => {
       const newSelectedTargets = [...prev];
       newSelectedTargets[index] = formattedData;
+      console.log("sau khi setSelectedTargets", newSelectedTargets);
       return newSelectedTargets;
     });
+    console.log("hình như k chạy đến đây");
+    
+    
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;
   }
 };
+
+export const fetchPlantLotsByUnitAndGrowthStage = async (
+  unit: string,
+  selectedGrowthStage: number[],
+  farmId: number,
+) => {
+  try {
+    const response = await planService.filterTargetByUnitGrowthStage(
+      unit,
+      selectedGrowthStage,
+      farmId,
+    );
+    console.log("filter lot", response);
+    
+
+    const formattedData = response.flatMap((item) =>
+      item.plantLots.map((lot) => ({
+        value: lot.plantLotId,
+        label: `${item.landPlotName} - ${lot.plantLotName}`,
+      }))
+    );
+
+    return formattedData;
+  } catch (error) {
+    console.error("Error fetching plant lots:", error);
+    throw error;
+  }
+};
+
+export const determineUnit = (target: any): string => {
+  if (target.graftedPlants && target.graftedPlants.length > 0) {
+      return "graftedplant";
+  }
+  if (target.plantLots && target.plantLots.length > 0) {
+      return "plantlot";
+  }
+  if (target.plants && target.plants.length > 0) {
+      return "plant";
+  }
+  if (target.rows && target.rows.length > 0) {
+      return "row";
+  }
+  if (target.landPlotId) {
+      return "landplot";
+  }
+  return "";
+};
+
+export const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
+        return planTargetModels.flatMap((model) => {
+            const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+            const unit = determineUnit(model);
+            const data: PlanTarget[] = [];
+    
+            switch (unit) {
+                case "Row":
+                    if (rows && rows.length > 0) {
+                        const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+                        const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+                        data.push({
+                            type: "Row",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            rowNames: rowNames.length > 0 ? rowNames : undefined,
+                            plantNames: plantNames.length > 0 ? plantNames : undefined,
+                        });
+                    }
+                    break;
+    
+                case "Plant":
+                    if (plants && plants.length > 0) {
+                        data.push({
+                            type: "Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantNames: plants.map((plant) => plant.plantName),
+                        });
+                    }
+                    break;
+    
+                case "Grafted Plant":
+                    if (graftedPlants && graftedPlants.length > 0) {
+                        data.push({
+                            type: "Grafted Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                        });
+                    }
+                    break;
+    
+                case "Plant Lot":
+                    if (plantLots && plantLots.length > 0) {
+                        data.push({
+                            type: "Plant Lot",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantLotNames: plantLots.map((lot) => lot.name),
+                        });
+                    }
+                    break;
+    
+                case "Plot":
+                    if (landPlotName) {
+                        data.push({
+                            type: "Plot",
+                            plotNames: [landPlotName],
+                        });
+                    }
+                    break;
+    
+                default:
+                    break;
+            }
+    
+            return data;
+        });
+    };

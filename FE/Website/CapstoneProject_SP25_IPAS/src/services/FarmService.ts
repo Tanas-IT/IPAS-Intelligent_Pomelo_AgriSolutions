@@ -6,6 +6,7 @@ import {
   GetFarmDocuments,
   GetFarmInfo,
   GetFarmPicker,
+  GetUser,
 } from "@/payloads";
 import { getUserId } from "@/utils";
 
@@ -111,5 +112,19 @@ export const updateFarmDocuments = async (
   }
   const res = await axiosAuth.axiosMultipartForm.put(`legal-documents`, formData);
   const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const getUserInFarmByRole = async (
+  farmId: string,
+  listRole: number[]
+): Promise<ApiResponse<GetUser[]>> => {
+  const queryParams = listRole.map((role) => `listRole=${role}`).join('&');
+
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `farms/get-users-farm-by-role?farmId=${farmId}&${queryParams}`
+  );
+
+  const apiResponse = res.data as ApiResponse<GetUser[]>;
   return apiResponse;
 };

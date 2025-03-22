@@ -119,7 +119,7 @@ function ProcessList() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
-          isLoading={false}
+          isLoading={isLoading}
           caption="Process Management Table"
           notifyNoData="No data to display"
           renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} onDelete={() => deleteConfirmModal.showModal({ ids: [process.processId] })} />}

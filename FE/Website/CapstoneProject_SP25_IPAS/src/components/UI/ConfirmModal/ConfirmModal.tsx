@@ -2,13 +2,14 @@ import React from "react";
 import { Modal, Button } from "antd";
 import style from "./ConfirmModal.module.scss";
 import { Icons } from "@/assets";
+import { warning } from "@/assets/icons/icons";
 
 interface ConfirmModalProps {
   visible: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   itemName?: string;
-  actionType?: "delete" | "update" | "unsaved" | "error";
+  actionType?: "delete" | "update" | "unsaved" | "error" | "warning";
   title?: string;
   description?: string;
   confirmText?: string;
@@ -16,10 +17,11 @@ interface ConfirmModalProps {
   isDanger?: boolean;
   errorMessages?: string[];
   noCancel?: boolean;
+  maskClosable?: boolean;
 }
 
 const generateMessages = (
-  actionType: "delete" | "update" | "unsaved" | "error",
+  actionType: "delete" | "update" | "unsaved" | "error" | "warning",
   itemName?: string,
 ) => {
   if (actionType === "unsaved") {
@@ -33,6 +35,13 @@ const generateMessages = (
     return {
       title: "An Error Occurred",
       description: "Something went wrong. Please review the errors below.",
+    };
+  }
+
+  if (actionType === "warning") {
+    return {
+      title: "Warning",
+      description: "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
     };
   }
 
@@ -56,7 +65,7 @@ const generateMessages = (
   };
 };
 
-const generateButtonTexts = (actionType: "delete" | "update" | "unsaved" | "error") => {
+const generateButtonTexts = (actionType: "delete" | "update" | "unsaved" | "error" | "warning") => {
   const buttonTexts = {
     delete: {
       confirmText: "Delete",
@@ -74,6 +83,10 @@ const generateButtonTexts = (actionType: "delete" | "update" | "unsaved" | "erro
       confirmText: "Close",
       cancelText: "Retry",
     },
+    warning: {
+      confirmText: "Ok",
+      cancelText: "Cancel",
+    }
   };
 
   return buttonTexts[actionType] || buttonTexts.update;
@@ -92,6 +105,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isDanger,
   errorMessages,
   noCancel = false,
+  maskClosable
 }) => {
   const { title: generatedTitle, description: generatedDescription } = generateMessages(
     actionType,
@@ -105,6 +119,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <Modal
+      maskClosable={maskClosable}
       open={visible}
       onOk={onConfirm}
       onCancel={onCancel}

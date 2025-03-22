@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { growthStageService, landRowService, plantLotService, plantService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected, GetLandRow, GetPlantLot, GetPlantOfRowSelect, GetPlantSelect } from "@/payloads";
-import { getFarmId } from "@/utils";
+import { plantLotService } from "@/services";
+import { ApiResponse, GetPlantLot } from "@/payloads";
 
 interface SelectOption {
   value: number | string;
@@ -12,18 +11,20 @@ const usePlantLotOptions = () => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
-
     const fetchOptions = async () => {
-      const result: ApiResponse<GetPlantLot[]> =
-        await plantLotService.getPlantLotSelected();
-      console.log("apiResponse plantlot", result);
+      try {
+        const result = await plantLotService.getPlantLotSelected();
+        console.log("apiResponse plantlot", result);
 
-      if (result.statusCode === 200) {
-        const mappedOptions = result.data.map((item) => ({
-          value: item.id,
-          label: item.code,
-        }));
-        setOptions(mappedOptions);
+        if (result && Array.isArray(result)) {
+          const mappedOptions = result.map((item) => ({
+            value: item.value,
+            label: item.label,
+          }));
+          setOptions(mappedOptions);
+        }
+      } catch (error) {
+        console.error("Failed to fetch plant lot options:", error);
       }
     };
 
