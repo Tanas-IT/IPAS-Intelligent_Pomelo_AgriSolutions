@@ -392,11 +392,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var timeAfter3Hours = DateTime.Now.AddHours(3).TimeOfDay;
 
             var result = await _context.WorkLogs
+                .Include(x => x.UserWorkLogs)
                 .Include(x => x.Schedule)
                 .ThenInclude(x => x.CarePlan)
                 .ThenInclude(x => x.MasterType)
                 .Where(x => x.Schedule.FarmID == farmId &&
-                            x.ActualStartTime.HasValue &&
+                            x.ActualStartTime.HasValue && 
+                            x.Date.Value.Date == DateTime.Now.Date &&
                             x.ActualStartTime.Value >= nowTimeSpan &&
                             x.ActualStartTime.Value <= timeAfter3Hours)
                 .ToListAsync();

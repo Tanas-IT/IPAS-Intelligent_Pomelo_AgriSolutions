@@ -19,3 +19,5 @@ export { default as plant2 } from "@/assets/images/resources/plantSvg.svg";
 export { default as empty } from "@/assets/images/resources/empty.png";
 export { default as emptyNote } from "@/assets/images/resources/emptyNote.png";
 export { default as worklog } from "@/assets/images/resources/worklog.png";
+export { default as info } from "@/assets/images/resources/info.png";
+export { default as process } from "@/assets/images/resources/process.png";

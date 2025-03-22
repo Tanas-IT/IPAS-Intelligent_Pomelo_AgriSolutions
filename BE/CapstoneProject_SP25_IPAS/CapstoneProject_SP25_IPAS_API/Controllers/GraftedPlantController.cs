@@ -131,6 +131,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpPut(APIRoutes.GraftedPlant.UnGroupGraftedPlantsIntoPlantLot, Name = "UnGroupGraftedPlantsIntoPlantLot")]
+        public async Task<IActionResult> UnGroupGraftedPlantsIntoPlantLot(List<int> graftPlantsId)
+        {
+            var result = await _graftedPlantService.UngroupGraftedPlants(graftPlantsId);
+            return Ok(result);
+        }
+
         // Xóa mềm cây ghép (chuyển trạng thái đã xóa)
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.GraftedPlant.deleteSoftedGrafted, Name = "softDeleteGraftedPlant")]

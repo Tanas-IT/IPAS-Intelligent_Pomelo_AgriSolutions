@@ -2,36 +2,37 @@ import { TableColumn } from "@/types";
 import style from "./ProcessList.module.scss";
 import { GetProcess, GetProcessList } from "@/payloads/process";
 import { Tag } from "antd";
+import { TableCell } from "@/components";
 
 export const processColumns: TableColumn<GetProcessList>[] = [
   {
     header: "Process Code",
     field: "processCode",
-    accessor: (process) => process.processCode,
+    accessor: (process) => <TableCell value={process.processCode} isCopyable={true}/>,
     width: 150,
   },
   {
     header: "Process Name",
     field: "processName",
-    accessor: (process) => <div className={style.tableText}>{process.processName}</div>,
+    accessor: (process) => <TableCell value={process.processName}/>,
     width: 300,
   },
   {
     header: "Created Date",
     field: "createDate",
-    accessor: (process) =>  <div className={style.tableText}>{process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}</div>,
+    accessor: (process) =>  <TableCell value={process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}/>,
     width: 150,
   },
   {
     header: "Growth Stage",
     field: "processGrowthStageModel",
-    accessor: (process) => <div className={style.tableText}>{process?.processGrowthStageModel?.growthStageName}</div>,
+    accessor: (process) => <TableCell value={process?.processGrowthStageModel?.growthStageName}/>,
     width: 150,
   },
   {
     header: "Type",
     field: "processMasterTypeModel",
-    accessor: (process) =>  <div className={style.tableText}>{process?.processMasterTypeModel?.masterTypeName}</div>,
+    accessor: (process) =>  <TableCell value={process?.processMasterTypeModel?.masterTypeName}/>,
     width: 150,
   },
   {

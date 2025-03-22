@@ -18,6 +18,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -67,7 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             PlantCode = $"{CodeAliasEntityConst.PLANT}-{DateTime.Now.ToString("ddmmyyyy")}",
                             PlantName = $"Plant {code}",
                             CreateDate = DateTime.Now,
-                            HealthStatus = "Good",
+                            HealthStatus = HealthStatusConst.HEALTHY,
                             GrowthStageID = 2,
                             UpdateDate = DateTime.Now,
                             IsDeleted = false,
@@ -160,13 +161,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotName = createPlantLotModel.Name,
                         Unit = createPlantLotModel.Unit,
                         Note = createPlantLotModel.Note,
-                        Status = createPlantLotModel.Status ?? "Active",
+                        Status = PlantLotStatusConst.PENDING,
                         FarmID = createPlantLotModel.FarmId,
                         MasterTypeId = createPlantLotModel.MasterTypeId,
                         PlantLotReferenceId = null,
                         IsDeleted = false,
                         IsPassed = false,
-                        IsFromGrafted = createPlantLotModel.IsFromGrafted,
+                        IsFromGrafted = createPlantLotModel.IsFromGrafted ?? false,
                         //InputQuantity = 0
                     };
 
@@ -267,7 +268,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantLotName = $"{mainPlantLot.PlantLotName} - Additional {mainPlantLot.InversePlantLotReference.Count() + 1}",
                         Unit = mainPlantLot.Unit,
                         Note = createModel.Note,
-                        Status = "Active",
+                        Status = PlantLotStatusConst.PENDING,
                         FarmID = mainPlantLot.FarmID,
                         MasterTypeId = mainPlantLot.MasterTypeId,
                         PlantLotReferenceId = mainPlantLot.PlantLotId, // Gán ID của lô chính
@@ -446,17 +447,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                      ? x => x.OrderByDescending(x => x.PreviousQuantity)
                                    : x => x.OrderBy(x => x.PreviousQuantity)) : x => x.OrderBy(x => x.PreviousQuantity);
                         break;
+                    case "inputquantity":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.InputQuantity)
+                                   : x => x.OrderBy(x => x.InputQuantity)) : x => x.OrderBy(x => x.InputQuantity);
+                        break;
                     case "lastquantity":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.LastQuantity)
                                    : x => x.OrderBy(x => x.LastQuantity)) : x => x.OrderBy(x => x.LastQuantity);
                         break;
+                    case "usedquantity":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.UsedQuantity)
+                                   : x => x.OrderBy(x => x.UsedQuantity)) : x => x.OrderBy(x => x.UsedQuantity);
+                        break;
                     case "importeddate":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                      ? x => x.OrderByDescending(x => x.ImportedDate)
                                    : x => x.OrderBy(x => x.ImportedDate)) : x => x.OrderBy(x => x.ImportedDate);
+                        break;
+                    case "seedingname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.MasterType!.MasterTypeName)
+                                   : x => x.OrderBy(x => x.MasterType.MasterTypeName)) : x => x.OrderBy(x => x.MasterType.MasterTypeName);
+                        break;
+                    case "mastertypeid":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.MasterTypeId)
+                                   : x => x.OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.MasterTypeId);
                         break;
                     default:
                         orderBy = x => x.OrderByDescending(x => x.PlantLotId);
@@ -541,11 +566,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             // chi check dieu kien can de nhap
                             var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
-                            if (checkCondition.StatusCode != 200)
+                            // neu khong pass thi input quantity là 0 luôn
+                            if (checkCondition.StatusCode == 400)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
-                            if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
-                                return new BusinessResult(400, "Last Quantity larger than previous quantity");
-                            checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
+                            if (checkCondition.StatusCode == 300)
+                            {
+                                checkExistPlantLot.InputQuantity = 0;
+                                checkExistPlantLot.LastQuantity = 0;
+                            }
+                            else
+                            {
+                                if (updatePlantLotRequestModel.InputQuantity > checkExistPlantLot.PreviousQuantity)
+                                    return new BusinessResult(400, "Last Quantity larger than previous quantity");
+                                checkExistPlantLot.InputQuantity = updatePlantLotRequestModel.InputQuantity;
+                            }
                         }
                         if (updatePlantLotRequestModel.LastQuantity.HasValue /*&& updatePlantLotRequestModel.LastQuantity != 0*/)
                         {
@@ -592,7 +626,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //if (checkCondition.StatusCode != 200)
                             //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (!checkExistPlantLot.LastQuantity.HasValue)
-                                return new BusinessResult(400, "You must enter input before Completed to use");
+                                return new BusinessResult(400, "You must enter last quantity before Completed to use");
+                            if (checkExistPlantLot.LastQuantity == 0)
+                                return new BusinessResult(400, "This plant lot no have any seeding to use");
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -716,6 +752,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (listPlantInsert.Any())
                         {
                             await _unitOfWork.PlantRepository.InsertRangeAsync(listPlantInsert);
+                            if (plantLot.IsFromGrafted == true)
+                            {
+                                await updateUsedGraftedPlantInLot(plantLotId: plantLot.PlantLotId, listPlantInsert.Count());
+                            }
                             remainingPlants -= plantsToAdd;
                         }
                     }
@@ -746,9 +786,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.IsDeleted == false;
-                if (isFromGrafted.HasValue)
-                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted);
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.isDeleted == false;
+                if (isFromGrafted.HasValue && isFromGrafted == true)
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.COMPLETED.ToLower()));
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
@@ -910,7 +950,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!appliedCriteriaTargets.Any())
             {
-                return new BusinessResult(400, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
+                return new BusinessResult(200, $"The plant lot has not been applied any required criteria: {string.Join(",", criteriaRequireCheck)}");
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
@@ -918,7 +958,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(400, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+                return new BusinessResult(300, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
 
             return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
@@ -962,6 +1002,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (emptyCriteriaSet.Any())
                 return new BusinessResult(400, $"The following Criteria Sets are empty and must have at least one Criteria: {string.Join(", ", emptyCriteriaSet)}");
             return new BusinessResult(200, "Get criteria set success", criteriaSetForPlantLot);
+        }
+
+        private async Task updateUsedGraftedPlantInLot(int plantLotId, int numberOfGraftedPlant)
+        {
+            // chi lay nhung cay khoe manh trong lo thoi
+            Expression<Func<GraftedPlant, bool>> filter = x => x.PlantLotId == plantLotId &&
+                                        x.Status.ToLower().Equals(GraftedPlantStatusConst.HEALTHY.ToString().ToLower());
+
+            var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, pageIndex: 1, pageSize: numberOfGraftedPlant);
+            foreach (var grafted in graftedPlant)
+            {
+                // dnah dau used cac cay do
+                grafted.Status = GraftedPlantStatusConst.IS_USED.ToString().ToLower();
+            }
+            _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlant);
+            return;
         }
     }
 }

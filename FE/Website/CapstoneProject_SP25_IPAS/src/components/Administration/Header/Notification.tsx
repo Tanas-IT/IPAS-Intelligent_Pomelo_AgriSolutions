@@ -11,7 +11,6 @@ const { Text } = Typography;
 
 const Notification = () => {
   const { notifications, unreadCount, markAsRead, fetchNotifications } = useNotifications();
-  console.log("noti in bell", notifications);
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"All" | "Unread">("All");
