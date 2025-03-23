@@ -100,12 +100,16 @@ export interface GetWorklogDetail {
   processName: string;
   masterTypeName: string;
   cropName: string;
-  replacementEmployees: ReplacementEmployee[];
+  replacementEmployee: ReplacementEmployee[];
 }
 
 export interface ReplacementEmployee {
   userId: number; //nhân viên được thay thế
-  replacedUserId: number; //người thay thế
+  replaceUserId: number; //người thay thế
+  fullName?: string;
+  avatar?: string;
+  replaceUserFullName?: string;
+  replaceUserAvatar?: string;
 }
 
 export interface GetWorklogNote {

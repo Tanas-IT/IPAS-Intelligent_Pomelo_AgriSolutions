@@ -6,6 +6,7 @@ interface AttendanceModalProps {
   visible: boolean;
   onClose: () => void;
   employees: GetUser[];
+  reporter: GetUser[];
   attendanceStatus: { [key: number]: "Received" | "Rejected" };
   onAttendanceChange: (userId: number, status: "Received" | "Rejected") => void;
   onSave: () => void;
@@ -15,10 +16,23 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   visible,
   onClose,
   employees,
+  reporter,
   attendanceStatus,
   onAttendanceChange,
   onSave,
 }) => {
+  const combinedEmployees = [
+    ...reporter.map((rep) => ({
+      ...rep,
+      isReporter: true,
+      statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
+    })),
+    ...employees.map((emp) => ({
+      ...emp,
+      isReporter: false,
+      statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
+    })),
+  ];
   return (
     <Modal
       title="Take Attendance"
@@ -34,7 +48,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
       ]}
     >
       <List
-        dataSource={employees}
+        dataSource={combinedEmployees}
         renderItem={(employee) => (
           <List.Item>
             <Flex align="center" justify="space-between" style={{ width: "100%" }}>
