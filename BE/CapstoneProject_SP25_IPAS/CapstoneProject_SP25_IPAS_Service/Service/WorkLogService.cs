@@ -1468,7 +1468,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
-                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserWorkLogID == changeEmployee.OldUserId);
+                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.OldUserId);
                     if (changeEmployee.OldUserId == changeEmployee.NewUserId)
                     {
                         return new BusinessResult(400, "Old UserId must be different New UserId");
@@ -1518,7 +1518,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
-                    return new BusinessResult(400, "Change Employee Success");
+                    return new BusinessResult(200, "Change Employee Success");
                 }
                 else
                 {
