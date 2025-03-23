@@ -109,6 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
                     EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
                     Frequency = "None",
+                    MasterTypeId = getMasterType.MasterTypeId,
                     IsActive = true,
                     IsDeleted = false,
                     Status = "Active",
@@ -639,6 +640,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception("Start time must be less than End Time");
                         }
                     }
+                    if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null)
+                    {
+                        var parseStartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
+                        var parseEndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                            .GetByCondition(x => x.MasterTypeId == updateWorkLogModel.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                            }
+                        }
+                    }
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateWorkLogModel.ProcessId);
                     if (updateWorkLogModel.DateWork != null)
                     {
@@ -1067,6 +1088,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getExistPlan == null)
                 {
                     return new BusinessResult(400, "Plan does not exist");
+                }
+                if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
+                {
+                    var checkTime = (int)(endTime - startTime).TotalHours; // Chuyển TimeSpan sang số phút
+
+                    var masterType = await _unitOfWork.MasterTypeRepository
+                        .GetByCondition(x => x.MasterTypeId == getExistPlan.MasterTypeId);
+
+                    if (masterType != null)
+                    {
+                        var minTime = masterType.MinTime;
+                        var maxTime = masterType.MaxTime;
+
+                        if (checkTime < minTime || checkTime > maxTime)
+                        {
+                            throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                        }
+                    }
                 }
 
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
