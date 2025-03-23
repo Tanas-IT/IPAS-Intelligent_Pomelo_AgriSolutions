@@ -1466,10 +1466,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
 
-                foreach(var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
+                foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
                     var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserWorkLogID == changeEmployee.OldUserId);
-
+                    if (changeEmployee.OldUserId == changeEmployee.NewUserId)
+                    {
+                        return new BusinessResult(400, "Old UserId must be different New UserId");
+                    }
                     if (changeEmployee.Status != null)
                     {
                         if (changeEmployee.Status.ToLower().Equals("add"))
@@ -1477,65 +1480,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
                             getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
-                            var rejectedUser = await _unitOfWork.SaveAsync();
-                            if (rejectedUser > 0)
+                            await _unitOfWork.SaveAsync();
+                            var newUserWorkLog = new UserWorkLog()
                             {
-                                var newUserWorkLog = new UserWorkLog()
-                                {
-                                    CreateDate = DateTime.Now,
-                                    UserId = changeEmployee.NewUserId,
-                                    IsReporter = changeEmployee.IsReporter,
-                                    WorkLogId = getUserToUpdate.WorkLogId,
-                                    IsDeleted = false,
-                                    StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
-                                };
-                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
-                                var result = await _unitOfWork.SaveAsync();
-                                if (result > 0)
-                                {
-                                    return new BusinessResult(400, "Change Employee Success");
-                                }
-                                else
-                                {
-                                    return new BusinessResult(400, "Change Employee Failed");
-                                }
-                            }
-                            else
-                            {
-                                return new BusinessResult(400, "Change Employee Failed");
-                            }
+                                CreateDate = DateTime.Now,
+                                UserId = changeEmployee.NewUserId,
+                                IsReporter = changeEmployee.IsReporter,
+                                WorkLogId = getUserToUpdate.WorkLogId,
+                                IsDeleted = false,
+                                StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
+                            };
+                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+
                         }
                         else if (changeEmployee.Status.ToLower().Equals("update"))
                         {
 
                             _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
-                            var deleteUser = await _unitOfWork.SaveAsync();
-                            if (deleteUser > 0)
+                            await _unitOfWork.SaveAsync();
+                            var newUserWorkLog = new UserWorkLog()
                             {
-                                var newUserWorkLog = new UserWorkLog()
-                                {
-                                    CreateDate = DateTime.Now,
-                                    UserId = changeEmployee.NewUserId,
-                                    IsReporter = changeEmployee.IsReporter,
-                                    WorkLogId = getUserToUpdate.WorkLogId,
-                                    IsDeleted = false,
-                                    StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
-                                };
-                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
-                                var result = await _unitOfWork.SaveAsync();
-                                if (result > 0)
-                                {
-                                    return new BusinessResult(400, "Change Employee Success");
-                                }
-                                else
-                                {
-                                    return new BusinessResult(400, "Change Employee Failed");
-                                }
-                            }
-                            else
-                            {
-                                return new BusinessResult(400, "Change Employee Failed");
-                            }
+                                CreateDate = DateTime.Now,
+                                UserId = changeEmployee.NewUserId,
+                                IsReporter = changeEmployee.IsReporter,
+                                WorkLogId = getUserToUpdate.WorkLogId,
+                                IsDeleted = false,
+                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
+                            };
+                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
                     }
                     else
@@ -1543,7 +1515,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Status can not be empty");
                     }
                 }
-                return new BusinessResult(400, "Change Employee Failed");
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(400, "Change Employee Success");
+                }
+                else
+                {
+                    return new BusinessResult(400, "Change Employee Failed");
+                }
             }
             catch (Exception ex)
             {
