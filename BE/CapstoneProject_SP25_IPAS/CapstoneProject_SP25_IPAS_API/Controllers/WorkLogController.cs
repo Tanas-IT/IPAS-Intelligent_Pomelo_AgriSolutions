@@ -279,11 +279,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.WorkLog.ChangeEmployeeOfWorkLog, Name = "ChangeEmployeeOfWorkLog")]
-        public async Task<IActionResult> ChangeEmployeeOfWorkLog([FromBody] List<ChangeEmployeeOfWorkLog> listChangeEmployeeOfWorkLogs)
+        public async Task<IActionResult> ChangeEmployeeOfWorkLog([FromBody] ChangeEmployeeOfWorkLog changeEmployeeOfWorkLogs)
         {
             try
             {
-                var result = await _workLogService.ChangeEmployeeOfWorkLog(listChangeEmployeeOfWorkLogs);
+                var result = await _workLogService.ChangeEmployeeOfWorkLog(changeEmployeeOfWorkLogs);
                 return Ok(result);
             }
             catch (Exception ex)

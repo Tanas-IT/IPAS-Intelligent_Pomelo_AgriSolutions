@@ -263,15 +263,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 if (getDetailWorkLog.Schedule != null)
                 {
-                    if(getDetailWorkLog.Schedule.CarePlan != null)
+                    if (getDetailWorkLog.Schedule.CarePlan != null)
                     {
-                        if(getDetailWorkLog.Schedule.CarePlan.PlanTargets != null) {
+                        if (getDetailWorkLog.Schedule.CarePlan.PlanTargets != null)
+                        {
                             var mappedPlanTargets = MapPlanTargets(getDetailWorkLog.Schedule.CarePlan.PlanTargets.ToList());
                             result.PlanTargetModels = mappedPlanTargets;
                         }
                     }
                 }
-               
+
                 if (result != null)
                 {
                     return new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
@@ -1441,39 +1442,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> ChangeEmployeeOfWorkLog(List<ChangeEmployeeOfWorkLog> listChangeEmployeeOfWorkLog)
+        public async Task<BusinessResult> ChangeEmployeeOfWorkLog(ChangeEmployeeOfWorkLog changeEmployeeOfWorkLog)
         {
             try
             {
-                foreach (var changeEmployeeOfWorkLog in listChangeEmployeeOfWorkLog)
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId);
+                if (getWorkLog == null)
                 {
-                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId);
-                    if (getWorkLog == null)
-                    {
-                        return new BusinessResult(404, "Can not find any worklog");
-                    }
-                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserWorkLogID == changeEmployeeOfWorkLog.OldUserId);
+                    return new BusinessResult(404, "Can not find any worklog");
+                }
 
-                    if (changeEmployeeOfWorkLog.StartTime != null)
-                    {
-                        getWorkLog.ActualStartTime = TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime);
-                    }
-                    if(changeEmployeeOfWorkLog.EndTime != null)
-                    {
-                        getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
-                    }
-                    if(changeEmployeeOfWorkLog.DateWork != null)
-                    {
-                        getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
+                if (changeEmployeeOfWorkLog.StartTime != null)
+                {
+                    getWorkLog.ActualStartTime = TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime);
+                }
+                if (changeEmployeeOfWorkLog.EndTime != null)
+                {
+                    getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
+                }
+                if (changeEmployeeOfWorkLog.DateWork != null)
+                {
+                    getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
 
-                    }
+                }
 
-                    if (changeEmployeeOfWorkLog.Status != null)
+                foreach(var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
+                {
+                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserWorkLogID == changeEmployee.OldUserId);
+
+                    if (changeEmployee.Status != null)
                     {
-                        if (changeEmployeeOfWorkLog.Status.ToLower().Equals("add"))
+                        if (changeEmployee.Status.ToLower().Equals("add"))
                         {
                             getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
-                            getUserToUpdate.ReplaceUserId = changeEmployeeOfWorkLog.NewUserId;
+                            getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
                             var rejectedUser = await _unitOfWork.SaveAsync();
                             if (rejectedUser > 0)
@@ -1481,8 +1483,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var newUserWorkLog = new UserWorkLog()
                                 {
                                     CreateDate = DateTime.Now,
-                                    UserId = changeEmployeeOfWorkLog.NewUserId,
-                                    IsReporter = changeEmployeeOfWorkLog.IsReporter,
+                                    UserId = changeEmployee.NewUserId,
+                                    IsReporter = changeEmployee.IsReporter,
                                     WorkLogId = getUserToUpdate.WorkLogId,
                                     IsDeleted = false,
                                     StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
@@ -1503,7 +1505,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 return new BusinessResult(400, "Change Employee Failed");
                             }
                         }
-                        else if (changeEmployeeOfWorkLog.Status.ToLower().Equals("update"))
+                        else if (changeEmployee.Status.ToLower().Equals("update"))
                         {
 
                             _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
@@ -1513,8 +1515,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var newUserWorkLog = new UserWorkLog()
                                 {
                                     CreateDate = DateTime.Now,
-                                    UserId = changeEmployeeOfWorkLog.NewUserId,
-                                    IsReporter = changeEmployeeOfWorkLog.IsReporter,
+                                    UserId = changeEmployee.NewUserId,
+                                    IsReporter = changeEmployee.IsReporter,
                                     WorkLogId = getUserToUpdate.WorkLogId,
                                     IsDeleted = false,
                                     StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
@@ -1581,14 +1583,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var employeeModel in checkAttendanceModel.ListEmployeeCheckAttendance)
                 {
                     var getUserWorkLogToCheckAttendance = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId && x.UserWorkLogID == employeeModel.UserId);
-                    if(getUserWorkLogToCheckAttendance != null)
+                    if (getUserWorkLogToCheckAttendance != null)
                     {
                         getUserWorkLogToCheckAttendance.StatusOfUserWorkLog = employeeModel.Status;
                         _unitOfWork.UserWorkLogRepository.Update(getUserWorkLogToCheckAttendance);
                         result += await _unitOfWork.SaveAsync();
                     }
                 }
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Check Attendance Success", result > 0);
                 }
