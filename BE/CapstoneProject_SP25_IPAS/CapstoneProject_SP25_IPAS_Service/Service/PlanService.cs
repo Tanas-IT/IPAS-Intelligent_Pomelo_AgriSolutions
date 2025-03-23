@@ -88,7 +88,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = createPlanModel?.StartDate,
                         Frequency = createPlanModel?.Frequency,
                         IsActive = createPlanModel?.IsActive,
-                        IsDelete = false,
+                        IsDeleted = false,
                         MasterTypeId = createPlanModel?.MasterTypeId,
                         MaxVolume = createPlanModel?.MaxVolume,
                         MinVolume = createPlanModel?.MinVolume,
@@ -446,7 +446,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<Plan, bool>> filter = x =>
-                           x.IsDelete == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
+                           x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
                                (x.PlanTargets != null && x.PlanTargets.Any(pt =>
                                    (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
@@ -514,7 +514,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
                 if (planFilter.isDelete != null)
-                    filter = filter.And(x => x.IsDelete == planFilter.isDelete);
+                    filter = filter.And(x => x.IsDeleted == planFilter.isDelete);
                 if (planFilter.ResponsibleBy != null)
                 {
                     List<string> filterList = planFilter.ResponsibleBy.Split(',', StringSplitOptions.TrimEntries)
@@ -646,8 +646,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     case "isdelete":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.IsDelete)
-                                   : x => x.OrderBy(x => x.IsDelete)) : x => x.OrderBy(x => x.IsDelete);
+                                   ? x => x.OrderByDescending(x => x.IsDeleted)
+                                   : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
                         break;
                     case "pesticidename":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -799,7 +799,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
 
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination();
-                var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()) && x.FarmID == farmId && x.IsDelete == false);
+                var getPlan = entities.FirstOrDefault(x => x.PlanName.ToLower().Contains(planName.ToLower()) && x.FarmID == farmId && x.IsDeleted == false);
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
@@ -990,7 +990,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (updatePlanModel.IsDelete != null)
                         {
-                            checkExistPlan.IsDelete = updatePlanModel.IsDelete;
+                            checkExistPlan.IsDeleted = updatePlanModel.IsDelete;
                         }
                         if (updatePlanModel.Frequency != null)
                         {
@@ -2318,7 +2318,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
                     }
-                    getPlanById.IsDelete = true;
+                    getPlanById.IsDeleted = true;
                     getPlanById.Status = "Stopped";
                     var schedule = getPlanById.CarePlanSchedule;
                     if (schedule != null)
@@ -2358,7 +2358,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
                 }
-                getPlanById.IsDelete = false;
+                getPlanById.IsDeleted = false;
                 getPlanById.Status = "Active";
                 var schedule = getPlanById.CarePlanSchedule;
                 if (schedule != null)
@@ -2397,7 +2397,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (planTarget.PlanID != null)
                     {
                         var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
-                        if (getPlan != null && getPlan.IsDelete == false)
+                        if (getPlan != null && getPlan.IsDeleted == false)
                         {
                             getListPlan.Add(getPlan);
                         }

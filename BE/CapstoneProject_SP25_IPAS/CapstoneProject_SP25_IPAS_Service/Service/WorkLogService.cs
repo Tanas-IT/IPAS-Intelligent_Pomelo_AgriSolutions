@@ -14,6 +14,7 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using MimeKit;
 using Newtonsoft.Json;
@@ -109,7 +110,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
                     Frequency = "None",
                     IsActive = true,
-                    IsDelete = false,
+                    IsDeleted = false,
                     Status = "Active",
                     FarmID = farmId,
                 };
@@ -259,8 +260,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
-                var mappedPlanTargets = MapPlanTargets(getDetailWorkLog.Schedule.CarePlan.PlanTargets.ToList());
-                result.PlanTargetModels = mappedPlanTargets;
+                if (getDetailWorkLog.Schedule != null)
+                {
+                    if(getDetailWorkLog.Schedule.CarePlan != null)
+                    {
+                        if(getDetailWorkLog.Schedule.CarePlan.PlanTargets != null) {
+                            var mappedPlanTargets = MapPlanTargets(getDetailWorkLog.Schedule.CarePlan.PlanTargets.ToList());
+                            result.PlanTargetModels = mappedPlanTargets;
+                        }
+                    }
+                }
+               
                 if (result != null)
                 {
                     return new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
@@ -388,7 +398,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDelete == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -1271,7 +1281,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                     }
 
-                   
+
                     return new BusinessResult(200, "Update Status of WorkLog Success");
                 }
                 else
@@ -1419,6 +1429,165 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(404, "Can not find any workLog");
                 }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> ChangeEmployeeOfWorkLog(List<ChangeEmployeeOfWorkLog> listChangeEmployeeOfWorkLog)
+        {
+            try
+            {
+                foreach (var changeEmployeeOfWorkLog in listChangeEmployeeOfWorkLog)
+                {
+                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId);
+                    if (getWorkLog == null)
+                    {
+                        return new BusinessResult(404, "Can not find any worklog");
+                    }
+                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserWorkLogID == changeEmployeeOfWorkLog.OldUserId);
+
+                    if (changeEmployeeOfWorkLog.StartTime != null)
+                    {
+                        getWorkLog.ActualStartTime = TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime);
+                    }
+                    if(changeEmployeeOfWorkLog.EndTime != null)
+                    {
+                        getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
+                    }
+                    if(changeEmployeeOfWorkLog.DateWork != null)
+                    {
+                        getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
+
+                    }
+
+                    if (changeEmployeeOfWorkLog.Status != null)
+                    {
+                        if (changeEmployeeOfWorkLog.Status.ToLower().Equals("add"))
+                        {
+                            getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                            _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                            var rejectedUser = await _unitOfWork.SaveAsync();
+                            if (rejectedUser > 0)
+                            {
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    CreateDate = DateTime.Now,
+                                    UserId = changeEmployeeOfWorkLog.NewUserId,
+                                    IsReporter = changeEmployeeOfWorkLog.IsReporter,
+                                    WorkLogId = getUserToUpdate.WorkLogId,
+                                    IsDeleted = false,
+                                    StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
+                                };
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                                var result = await _unitOfWork.SaveAsync();
+                                if (result > 0)
+                                {
+                                    return new BusinessResult(400, "Change Employee Success");
+                                }
+                                else
+                                {
+                                    return new BusinessResult(400, "Change Employee Failed");
+                                }
+                            }
+                            else
+                            {
+                                return new BusinessResult(400, "Change Employee Failed");
+                            }
+                        }
+                        else if (changeEmployeeOfWorkLog.Status.ToLower().Equals("update"))
+                        {
+
+                            _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
+                            var deleteUser = await _unitOfWork.SaveAsync();
+                            if (deleteUser > 0)
+                            {
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    CreateDate = DateTime.Now,
+                                    UserId = changeEmployeeOfWorkLog.NewUserId,
+                                    IsReporter = changeEmployeeOfWorkLog.IsReporter,
+                                    WorkLogId = getUserToUpdate.WorkLogId,
+                                    IsDeleted = false,
+                                    StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
+                                };
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                                var result = await _unitOfWork.SaveAsync();
+                                if (result > 0)
+                                {
+                                    return new BusinessResult(400, "Change Employee Success");
+                                }
+                                else
+                                {
+                                    return new BusinessResult(400, "Change Employee Failed");
+                                }
+                            }
+                            else
+                            {
+                                return new BusinessResult(400, "Change Employee Failed");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Status can not be empty");
+                    }
+                }
+                return new BusinessResult(400, "Change Employee Failed");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> CanceledWorkLogByEmployee(int workLogId, int userId)
+        {
+            try
+            {
+                var getWorkLogToCancelled = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId && x.UserId == userId);
+                if (getWorkLogToCancelled != null)
+                {
+                    getWorkLogToCancelled.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    _unitOfWork.UserWorkLogRepository.Update(getWorkLogToCancelled);
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(200, "Rejected WorkLog Success", result > 0);
+                }
+                return new BusinessResult(400, "Rejected WorkLog Failed", false);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> CheckAttendance(CheckAttendanceModel checkAttendanceModel)
+        {
+            try
+            {
+                var result = 0;
+                foreach (var employeeModel in checkAttendanceModel.ListEmployeeCheckAttendance)
+                {
+                    var getUserWorkLogToCheckAttendance = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId && x.UserWorkLogID == employeeModel.UserId);
+                    if(getUserWorkLogToCheckAttendance != null)
+                    {
+                        getUserWorkLogToCheckAttendance.StatusOfUserWorkLog = employeeModel.Status;
+                        _unitOfWork.UserWorkLogRepository.Update(getUserWorkLogToCheckAttendance);
+                        result += await _unitOfWork.SaveAsync();
+                    }
+                }
+                if(result == checkAttendanceModel.ListEmployeeCheckAttendance.Count)
+                {
+                    return new BusinessResult(200, "Check Attendance Success", result > 0);
+                }
+                return new BusinessResult(400, "Check Attendance Failed", false);
             }
             catch (Exception ex)
             {

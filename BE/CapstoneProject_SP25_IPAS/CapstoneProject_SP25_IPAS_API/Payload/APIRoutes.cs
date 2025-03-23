@@ -364,6 +364,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getDetailTask = prefix + "/detail/{workLogId}";
             public const string NoteForWorkLog = prefix + "/take-note";
             public const string ReAssignTask = prefix + "/re-assign";
+            public const string ChangeEmployeeOfWorkLog = prefix + "/change-employee";
+            public const string CanceledWorkLogByEmployee = prefix + "/cancelled-workLog";
+            public const string CheckAttendance = prefix + "/check-attendance";
         }
 
         public static class Report
@@ -493,6 +496,19 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string DeleteReportOfUser = prefix + "/delete";
             public const string UpdateReportOfUser = prefix + "/update";
             public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
+        }
+
+        public static class SystemConfig
+        {
+            private const string prefix = Base + "/system-config";
+            public const string createSystemConfig = prefix ;
+            public const string getSystemConfigById = prefix ;
+            public const string getSystemConfigPagination = prefix;
+            public const string permanenlyDelete = prefix ;
+            public const string updateSystemConfig = prefix;
+            public const string getSystemConfigForSelected = prefix + "/for-selected";
+            public const string getSystemConfigAddable = prefix + "/addable";
+
         }
     }
 }

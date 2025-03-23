@@ -29,7 +29,7 @@ public partial class MasterType
     public string? CreateBy { get; set; }
 
 
-    public bool? IsDelete { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public bool? IsDefault { get; set; }
 

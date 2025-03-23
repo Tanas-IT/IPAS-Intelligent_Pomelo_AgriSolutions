@@ -18,7 +18,7 @@ public partial class GrowthStage
     public DateTime? CreateDate { get; set; }
     public string? Description { get; set; }
     public int? FarmID { get; set; }
-    public bool? isDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
     public string? ActiveFunction { get; set; }
     public virtual Farm? Farm { get; set; }
 
