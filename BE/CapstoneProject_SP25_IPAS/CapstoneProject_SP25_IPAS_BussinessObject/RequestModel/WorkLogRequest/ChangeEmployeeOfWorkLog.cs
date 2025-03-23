@@ -10,9 +10,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest
     public class ChangeEmployeeOfWorkLog
     {
         public int WorkLogId { get; set; }
-        public int OldUserId { get; set; }
-        public int NewUserId { get; set; }
-        public bool? IsReporter { get; set; }
         public DateTime? DateWork { get; set; }
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
@@ -20,6 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest
         [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
            ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
         public string? EndTime { get; set; }
-        public string? Status { get; set; }
+        public List<ChangeEmployeeModel> ListEmployeeUpdate { get; set; } = new List<ChangeEmployeeModel>();
+      
     }
 }
