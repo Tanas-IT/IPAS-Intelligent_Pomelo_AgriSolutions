@@ -75,6 +75,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             
                         }
                     }
+                    if(createPlanModel.StartTime != null && createPlanModel.EndTime != null)
+                    {
+                        var parseStartTime = TimeSpan.Parse(createPlanModel.StartTime);
+                        var parseEndTime = TimeSpan.Parse(createPlanModel.EndTime);
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                            .GetByCondition(x => x.MasterTypeId == createPlanModel.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                            }
+                        }
+                    }
                     var newPlan = new Plan()
                     {
                         PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{createPlanModel.MasterTypeId}",
@@ -110,6 +130,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
+
 
                     await _unitOfWork.PlanRepository.Insert(newPlan);
 

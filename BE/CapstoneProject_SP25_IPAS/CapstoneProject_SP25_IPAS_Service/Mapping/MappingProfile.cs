@@ -474,7 +474,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                             .FirstOrDefault()
                                                                     })
                                                                     .ToList()))
-            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false)
+            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REJECTED)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
