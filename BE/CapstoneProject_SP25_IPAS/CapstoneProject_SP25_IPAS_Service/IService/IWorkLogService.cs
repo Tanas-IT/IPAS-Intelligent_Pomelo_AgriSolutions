@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> NoteForWorkLog(CreateNoteModel createNoteModel);
         public Task<BusinessResult> DeleteWorkLog(int workLogId);
         public Task<BusinessResult> ReAssignEmployeeForWorkLog(int workLogId, List<EmployeeModel> employeeModels, int? farmId);
-        public Task<BusinessResult> ChangeEmployeeOfWorkLog(List<ChangeEmployeeOfWorkLog> listChangeEmployeeOfWorkLog);
+        public Task<BusinessResult> ChangeEmployeeOfWorkLog(ChangeEmployeeOfWorkLog changeEmployeeOfWorkLog);
         public Task<BusinessResult> CanceledWorkLogByEmployee(int workLogId, int userId);
         public Task<BusinessResult> CheckAttendance(CheckAttendanceModel checkAttendanceModel);
 
