@@ -1,13 +1,16 @@
 import { GetUser } from "@/payloads";
-import { Modal, Flex, DatePicker, Button } from "antd";
+import { Modal, Flex, DatePicker, Button, Tag, Image } from "antd";
 import EmployeeTable from "./EmployeeTable";
 import EditableTimeRangeField from "./EditableTimeField";
 import dayjs from "dayjs";
+import { Images } from "@/assets";
+import { ReplacementEmployee } from "@/payloads/worklog";
 
 interface EditWorklogModalProps {
   visible: boolean;
   onClose: () => void;
   employees: GetUser[];
+  reporter: GetUser[];
   attendanceStatus: { [key: number]: "Received" | "Rejected" };
   onReplaceEmployee: (replacedUserId: number, replacementUserId: number) => void;
   selectedTimeRange: [string, string];
@@ -15,12 +18,15 @@ interface EditWorklogModalProps {
   selectedDate: string;
   onDateChange: (date: string) => void;
   onSave: () => void;
+  onUpdateReporter: (userId: number, isReporter: boolean) => void;
+  replacementEmployees: ReplacementEmployee[]; // Thêm prop này
 }
 
 const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   visible,
   onClose,
   employees,
+  reporter,
   attendanceStatus,
   onReplaceEmployee,
   selectedTimeRange,
@@ -28,11 +34,23 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   selectedDate,
   onDateChange,
   onSave,
+  onUpdateReporter,
+  replacementEmployees,
 }) => {
-    console.log("selectedTimeRange", selectedTimeRange);
-    console.log("selectedDate", selectedDate);
-    console.log("employees", employees);
-    
+  // Kết hợp danh sách nhân viên hiện tại, reporter và nhân viên đã bị thay thế
+  const combinedEmployees = [
+    // ...reporter.map((rep) => ({
+    //   ...rep,
+    //   isReporter: true,
+    //   statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
+    // })),
+    ...employees.map((emp) => ({
+      ...emp,
+      isReporter: false,
+      statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
+    })),
+  ];
+
   return (
     <Modal
       title="Edit Worklog"
@@ -48,12 +66,16 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
       ]}
       width={800}
     >
+      {/* Bảng hiển thị nhân viên */}
       <EmployeeTable
-        employees={employees}
+        employees={combinedEmployees}
+        reporter={reporter}
         attendanceStatus={attendanceStatus}
         onReplaceEmployee={onReplaceEmployee}
+        onUpdateReporter={onUpdateReporter}
       />
 
+      {/* Phần chỉnh sửa thời gian và ngày */}
       <Flex vertical gap={16} style={{ marginTop: 16 }}>
         <label>Working Time:</label>
         <EditableTimeRangeField
@@ -64,7 +86,9 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         <DatePicker
           value={selectedDate ? dayjs(selectedDate) : null}
           onChange={(date, dateString) => {
-            const selectedDateString = Array.isArray(dateString) ? dateString[0] : dateString;
+            const selectedDateString = Array.isArray(dateString)
+              ? dateString[0]
+              : dateString;
             onDateChange(selectedDateString);
           }}
         />

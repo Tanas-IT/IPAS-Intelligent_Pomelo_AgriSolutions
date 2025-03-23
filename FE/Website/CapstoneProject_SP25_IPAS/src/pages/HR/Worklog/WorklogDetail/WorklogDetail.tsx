@@ -3,7 +3,7 @@ import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import TimelineNotes from "./TimelineNotes/TimelineNotes";
 import { useModal } from "@/hooks";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
-import { GetWorklogDetail, TaskFeedback } from "@/payloads/worklog";
+import { GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
 import { formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
@@ -61,12 +61,15 @@ function WorklogDetail() {
     const [isAttendanceModalVisible, setIsAttendanceModalVisible] = useState(false);
     const [attendanceData, setAttendanceData] = useState<{ userId: number; isPresent: boolean }[]>([]);
     const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: "Received" | "Rejected" }>({});
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
-    worklogDetail?.actualStartTime || "",
-    worklogDetail?.actualEndTime || "",
-  ]);
-  const [selectedDate, setSelectedDate] = useState<string>(worklogDetail?.date || "");
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
+        worklogDetail?.actualStartTime || "",
+        worklogDetail?.actualEndTime || "",
+    ]);
+    const [selectedDate, setSelectedDate] = useState<string>(worklogDetail?.date || "");
+    const [replacementEmployees, setReplacementEmployees] = useState<
+    { replacedUserId: number; replacementUserId: number }[]
+  >([]);
 
     const handleUpdateFeedback = (feedback: TaskFeedback) => {
         setSelectedFeedback(feedback);
@@ -85,40 +88,91 @@ function WorklogDetail() {
 
     const handleReplaceEmployee = (replacedUserId: number, replacementUserId: number) => {
         if (!worklogDetail) return;
-    
+
         const updatedEmployees = worklogDetail.listEmployee.map((employee) =>
-          employee.userId === replacedUserId
-            ? { ...employee, status: "Replaced" }
-            : employee
+            employee.userId === replacedUserId
+                ? { ...employee, status: "Replaced" }
+                : employee
         );
-    
+
+        const updatedReporter = worklogDetail.reporter.map((rep) =>
+            rep.userId === replacedUserId
+              ? { ...rep, status: "Replaced" }
+              : rep
+          );
+
         const updatedReplacementEmployees = [
-          ...(worklogDetail.replacementEmployees || []),
-          { replacedUserId, userId: replacementUserId },
+            ...(worklogDetail.replacementEmployees || []),
+            { replacedUserId, userId: replacementUserId },
         ];
-    
+
         setWorklogDetail({
-          ...worklogDetail,
-          listEmployee: updatedEmployees,
-          replacementEmployees: updatedReplacementEmployees,
+            ...worklogDetail,
+            listEmployee: updatedEmployees,
+            // reporter: updatedReporter,
+            replacementEmployees: updatedReplacementEmployees,
         });
-      };
-    
-      // Xử lý lưu thay đổi
-      const handleSaveEdit = async () => {
+    };
+
+    const handleSaveEdit = async () => {
+        if (!worklogDetail || !id) return;
+
         try {
-        //   await worklogService.updateWorklog(Number(id), {
-        //     ...worklogDetail!,
-        //     actualStartTime: selectedTimeRange[0],
-        //     actualEndTime: selectedTimeRange[1],
-        //     date: selectedDate,
-        //   });
-        //   await fetchPlanDetail();
-          setIsEditModalVisible(false);
+            const listEmployeeUpdate: ListEmployeeUpdate[] = [];
+
+            worklogDetail.replacementEmployees?.forEach((replacement) => {
+                const replacedEmployee = worklogDetail.listEmployee.find(
+                    (emp) => emp.userId === replacement.replacedUserId
+                );
+                console.log("replacedEmployee", replacedEmployee);
+                
+
+                if (replacedEmployee) {
+                    listEmployeeUpdate.push({
+                        oldUserId: replacedEmployee.userId,
+                        newUserId: replacement.userId,
+                        isReporter: replacedEmployee.userId === worklogDetail.reporter[0].userId ? true : false,
+                        status: replacedEmployee.userId === worklogDetail.reporter[0].userId ? "update" : "add",
+                    });
+                }
+            });
+
+            const replacedReporter = worklogDetail.replacementEmployees?.find(
+                (replacement) => replacement.replacedUserId === worklogDetail.reporter[0].userId
+            );
+    
+            if (replacedReporter) {
+                listEmployeeUpdate.push({
+                    oldUserId: replacedReporter.replacedUserId,
+                    newUserId: replacedReporter.userId,
+                    isReporter: true,
+                    status: "update",
+                });
+            }
+
+            const payload: UpdateWorklogReq = {
+                workLogId: Number(id),
+                listEmployeeUpdate: listEmployeeUpdate,
+                dateWork: selectedDate,
+                startTime: selectedTimeRange[0],
+                endTime: selectedTimeRange[1],
+            };
+            console.log("8888888", payload);
+
+            // const response = await worklogService.updateWorklog(payload);
+
+            // if (response && response.statusCode === 200) {
+            //     toast.success("Worklog updated successfully!");
+            //     await fetchPlanDetail();
+            //     setIsEditModalVisible(false);
+            // } else {
+            //     toast.error("Failed to update worklog.");
+            // }
         } catch (error) {
-          console.error("Error updating worklog:", error);
+            console.error("Error updating worklog:", error);
+            toast.error("An error occurred while updating the worklog.");
         }
-      };
+    };
 
     const handleDeleteFeedback = async () => {
         if (!selectedFeedbackToDelete) return;
@@ -249,11 +303,23 @@ function WorklogDetail() {
             console.log("imsotired", imsotired);
 
             setWorklogDetail(res);
-            const initialAttendanceStatus = res.listEmployee.reduce((acc, employee) => {
-                acc[employee.userId] = employee.status === "Received" ? "Received" : "Rejected";
-                return acc;
-              }, {} as { [key: number]: "Received" | "Rejected" });
-              setAttendanceStatus(initialAttendanceStatus);
+            // const initialAttendanceStatus = res.listEmployee.reduce((acc, employee) => {
+            //     acc[employee.userId] = employee.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
+            //     return acc;
+            // }, {} as { [key: number]: "Received" | "Rejected" });
+            const initialAttendanceStatus = {
+                ...res?.listEmployee.reduce((acc, employee) => {
+                  acc[employee.userId] = employee.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
+                  return acc;
+                }, {} as { [key: number]: "Received" | "Rejected" }),
+                ...res?.reporter.reduce((acc, reporter) => {
+                  acc[reporter.userId] = reporter.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
+                  return acc;
+                }, {} as { [key: number]: "Received" | "Rejected" }),
+              };
+              console.log("initialAttendanceStatus", initialAttendanceStatus);
+              
+            setAttendanceStatus(initialAttendanceStatus);
             setFeedbackList(res.listTaskFeedback || []);
             setSelectedTimeRange([res.actualStartTime, res.actualEndTime]);
             const date = new Date(res.date);
@@ -309,8 +375,14 @@ function WorklogDetail() {
         })) || [];
 
         try {
-            await worklogService.saveAttendance(Number(id), listEmployee);
-            await fetchPlanDetail(); // Cập nhật lại dữ liệu
+            const resultAttendance = await worklogService.saveAttendance(Number(id), listEmployee);
+            if (resultAttendance && resultAttendance.statusCode === 200) {
+                toast.success(resultAttendance.message);
+                await fetchPlanDetail();
+            } else {
+                toast.error(resultAttendance.message);
+            }
+            // Cập nhật lại dữ liệu
             setIsAttendanceModalVisible(false); // Đóng modal
         } catch (error) {
             console.error("Error saving attendance:", error);
@@ -323,6 +395,20 @@ function WorklogDetail() {
             [userId]: status,
         }));
     };
+
+    const handleUpdateReporter = (userId: number, isReporter: boolean) => {
+        // Cập nhật trạng thái reporter trong danh sách nhân viên
+        const updatedEmployees = worklogDetail?.listEmployee.map((employee) => ({
+          ...employee,
+          isReporter: employee.userId === userId ? isReporter : false, // Chỉ có một reporter duy nhất
+        }));
+      
+        // Cập nhật state
+        setWorklogDetail({
+          ...worklogDetail,
+          listEmployee: updatedEmployees,
+        });
+      };
 
     return (
         <div className={style.container}>
@@ -374,13 +460,19 @@ function WorklogDetail() {
                                 />
                             ) : (
                                 <>
-                                    <Image
-                                        src={worklogDetail?.listEmployee[0]?.avatarURL || Images.avatar}
-                                        width={25}
-                                        className={style.avt}
-                                        crossOrigin="anonymous"
-                                    />
-                                    <label className={style.createdBy}>{worklogDetail?.listEmployee[0]?.fullName || "Jane Smith"}</label>
+                                    {worklogDetail?.listEmployee?.map((employee, index) => (
+                                        <>
+                                            <Image
+                                                src={employee.avatarURL || Images.avatar}
+                                                width={25}
+                                                className={style.avt}
+                                                crossOrigin="anonymous"
+                                            />
+                                            <label className={style.createdBy}>
+                                                {employee.fullName || "Unknown"}
+                                            </label>
+                                        </>
+                                    ))}
                                 </>
                             )}
                         </Flex>
@@ -445,26 +537,29 @@ function WorklogDetail() {
             </Flex>
 
             <AttendanceModal
-        visible={isAttendanceModalVisible}
-        onClose={() => setIsAttendanceModalVisible(false)}
-        employees={worklogDetail?.listEmployee || []}
-        attendanceStatus={attendanceStatus}
-        onAttendanceChange={handleAttendanceChange}
-        onSave={handleSaveAttendance}
-      />
+                visible={isAttendanceModalVisible}
+                onClose={() => setIsAttendanceModalVisible(false)}
+                employees={worklogDetail?.listEmployee || []}
+                attendanceStatus={attendanceStatus}
+                onAttendanceChange={handleAttendanceChange}
+                onSave={handleSaveAttendance}
+            />
 
-<EditWorklogModal
-        visible={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
-        employees={worklogDetail?.listEmployee || []}
-        attendanceStatus={attendanceStatus}
-        onReplaceEmployee={handleReplaceEmployee}
-        selectedTimeRange={selectedTimeRange}
-        onTimeRangeChange={setSelectedTimeRange}
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
-        onSave={handleSaveEdit}
-      />
+            <EditWorklogModal
+                visible={isEditModalVisible}
+                onClose={() => setIsEditModalVisible(false)}
+                employees={worklogDetail?.listEmployee || []}
+                reporter={worklogDetail?.reporter || []}
+                attendanceStatus={attendanceStatus}
+                onReplaceEmployee={handleReplaceEmployee}
+                selectedTimeRange={selectedTimeRange}
+                onTimeRangeChange={setSelectedTimeRange}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                onSave={handleSaveEdit}
+                onUpdateReporter={handleUpdateReporter}
+                replacementEmployees={worklogDetail?.replacementEmployees || []}
+            />
 
             <Divider className={style.divider} />
 

@@ -32,7 +32,7 @@ export interface User {
   fullName: string;
   avatarURL: string;
   isReporter: boolean;
-  status: string;
+  statusOfUserWorkLog: string;
 }
 
 interface PlantModel {
