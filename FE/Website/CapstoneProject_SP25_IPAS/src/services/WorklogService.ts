@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { GetWorklog, GetWorklogDetail, GetWorklogNote } from "@/payloads/worklog";
+import { GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance } from "@/payloads/worklog";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -36,6 +36,12 @@ export const getWorklog = async (filters: {
   return apiResponse.data;
 }
 
+export const getWorklogByUserId = async (userId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`work-log/get-schedule?userId=${userId}`);
+  const apiResponse = res.data as ApiResponse<GetWorklog[]>;
+  return apiResponse;
+}
+
 export const getWorklogDetail = async (worklogId: number) => {
     const res = await axiosAuth.axiosJsonRequest.get(`work-log/detail/${worklogId}`);
     const apiResponse = res.data as ApiResponse<GetWorklogDetail>;
@@ -60,4 +66,10 @@ export const addWorklogNote = async (
     const res = await axiosAuth.axiosMultipartForm.post(`work-log/take-note`, formData);
     return res.data as ApiResponse<Object>;
   };
+
+  export const saveAttendance = async (worklogId: number, listEmployee: ListEmployeeAttendance[]): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(``);
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  }
   

@@ -1,4 +1,4 @@
-import { Button, Divider, Flex, Image, Tag, Tooltip } from "antd";
+import { Button, DatePicker, Divider, Flex, Image, Tag, Tooltip } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,12 +11,18 @@ import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
-import { GetWorklogDetail, PlanTargetModel, TaskFeedback } from "@/payloads/worklog";
+import { GetWorklogDetail, TaskFeedback } from "@/payloads/worklog";
 import { formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
-import { GetUser, PlanTarget } from "@/payloads";
+import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
+import EmployeeDropdown from "./EmployeeDropdown";
+import moment from "moment";
+import EditableTimeRangeField from "./EditableTimeField";
+import AttendanceModal from "./AttendanceModal";
+import EditWorklogModal from "./EditWorklogModal";
+import { Dayjs } from "dayjs";
 
 const InfoField = ({
     icon: Icon,
@@ -51,6 +57,16 @@ function WorklogDetail() {
     const [selectedFeedback, setSelectedFeedback] = useState<TaskFeedback>();
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [selectedFeedbackToDelete, setSelectedFeedbackToDelete] = useState<TaskFeedback | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isAttendanceModalVisible, setIsAttendanceModalVisible] = useState(false);
+    const [attendanceData, setAttendanceData] = useState<{ userId: number; isPresent: boolean }[]>([]);
+    const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: "Received" | "Rejected" }>({});
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
+    worklogDetail?.actualStartTime || "",
+    worklogDetail?.actualEndTime || "",
+  ]);
+  const [selectedDate, setSelectedDate] = useState<string>(worklogDetail?.date || "");
 
     const handleUpdateFeedback = (feedback: TaskFeedback) => {
         setSelectedFeedback(feedback);
@@ -66,6 +82,43 @@ function WorklogDetail() {
         setSelectedFeedbackToDelete(feedback);
         setIsDeleteModalVisible(true);
     };
+
+    const handleReplaceEmployee = (replacedUserId: number, replacementUserId: number) => {
+        if (!worklogDetail) return;
+    
+        const updatedEmployees = worklogDetail.listEmployee.map((employee) =>
+          employee.userId === replacedUserId
+            ? { ...employee, status: "Replaced" }
+            : employee
+        );
+    
+        const updatedReplacementEmployees = [
+          ...(worklogDetail.replacementEmployees || []),
+          { replacedUserId, userId: replacementUserId },
+        ];
+    
+        setWorklogDetail({
+          ...worklogDetail,
+          listEmployee: updatedEmployees,
+          replacementEmployees: updatedReplacementEmployees,
+        });
+      };
+    
+      // Xử lý lưu thay đổi
+      const handleSaveEdit = async () => {
+        try {
+        //   await worklogService.updateWorklog(Number(id), {
+        //     ...worklogDetail!,
+        //     actualStartTime: selectedTimeRange[0],
+        //     actualEndTime: selectedTimeRange[1],
+        //     date: selectedDate,
+        //   });
+        //   await fetchPlanDetail();
+          setIsEditModalVisible(false);
+        } catch (error) {
+          console.error("Error updating worklog:", error);
+        }
+      };
 
     const handleDeleteFeedback = async () => {
         if (!selectedFeedbackToDelete) return;
@@ -99,104 +152,112 @@ function WorklogDetail() {
     }
 
     const determineUnit = (planTargetModels: PlanTargetModel) => {
-            const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
-          
-            if (rows && rows.length > 0) {
-              return "Row";
-            }
-            if (plants && plants.length > 0) {
-              return "Plant";
-            }
-            if (graftedPlants && graftedPlants.length > 0) {
-              return "Grafted Plant";
-            }
-            if (plantLots && plantLots.length > 0) {
-              return "Plant Lot";
-            }
-            if (landPlotName) {
-              return "Plot";
-            }
-            return "Unknown";
-          };
+        const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
+
+        if (rows && rows.length > 0) {
+            return "Row";
+        }
+        if (plants && plants.length > 0) {
+            return "Plant";
+        }
+        if (graftedPlants && graftedPlants.length > 0) {
+            return "Grafted Plant";
+        }
+        if (plantLots && plantLots.length > 0) {
+            return "Plant Lot";
+        }
+        if (landPlotName) {
+            return "Plot";
+        }
+        return "Unknown";
+    };
 
     const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
         console.log("planTargetModels in worklog", planTargetModels);
-        
-            return planTargetModels.flatMap((model) => {
-                const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
-                const unit = determineUnit(model);
-                const data: PlanTarget[] = [];
-        
-                switch (unit) {
-                    case "Row":
-                        if (rows && rows.length > 0) {
-                            const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
-                            const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
-                            data.push({
-                                type: "Row",
-                                plotNames: landPlotName ? [landPlotName] : undefined,
-                                rowNames: rowNames.length > 0 ? rowNames : undefined,
-                                plantNames: plantNames.length > 0 ? plantNames : undefined,
-                            });
-                        }
-                        break;
-        
-                    case "Plant":
-                        if (plants && plants.length > 0) {
-                            data.push({
-                                type: "Plant",
-                                plotNames: landPlotName ? [landPlotName] : undefined,
-                                plantNames: plants.map((plant) => plant.plantName),
-                            });
-                        }
-                        break;
-        
-                    case "Grafted Plant":
-                        if (graftedPlants && graftedPlants.length > 0) {
-                            data.push({
-                                type: "Grafted Plant",
-                                plotNames: landPlotName ? [landPlotName] : undefined,
-                                graftedPlantNames: graftedPlants.map((plant) => plant.name),
-                            });
-                        }
-                        break;
-        
-                    case "Plant Lot":
-                        if (plantLots && plantLots.length > 0) {
-                            data.push({
-                                type: "Plant Lot",
-                                plotNames: landPlotName ? [landPlotName] : undefined,
-                                plantLotNames: plantLots.map((lot) => lot.name),
-                            });
-                        }
-                        break;
-        
-                    case "Plot":
-                        if (landPlotName) {
-                            data.push({
-                                type: "Plot",
-                                plotNames: [landPlotName],
-                            });
-                        }
-                        break;
-        
-                    default:
-                        break;
-                }
-        
-                return data;
-            });
-        };
+
+        return planTargetModels.flatMap((model) => {
+            const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+            const unit = determineUnit(model);
+            const data: PlanTarget[] = [];
+
+            switch (unit) {
+                case "Row":
+                    if (rows && rows.length > 0) {
+                        const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+                        const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+                        data.push({
+                            type: "Row",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            rowNames: rowNames.length > 0 ? rowNames : undefined,
+                            plantNames: plantNames.length > 0 ? plantNames : undefined,
+                        });
+                    }
+                    break;
+
+                case "Plant":
+                    if (plants && plants.length > 0) {
+                        data.push({
+                            type: "Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantNames: plants.map((plant) => plant.plantName),
+                        });
+                    }
+                    break;
+
+                case "Grafted Plant":
+                    if (graftedPlants && graftedPlants.length > 0) {
+                        data.push({
+                            type: "Grafted Plant",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+                        });
+                    }
+                    break;
+
+                case "Plant Lot":
+                    if (plantLots && plantLots.length > 0) {
+                        data.push({
+                            type: "Plant Lot",
+                            plotNames: landPlotName ? [landPlotName] : undefined,
+                            plantLotNames: plantLots.map((lot) => lot.name),
+                        });
+                    }
+                    break;
+
+                case "Plot":
+                    if (landPlotName) {
+                        data.push({
+                            type: "Plot",
+                            plotNames: [landPlotName],
+                        });
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            return data;
+        });
+    };
 
     const fetchPlanDetail = async () => {
         try {
             const res = await worklogService.getWorklogDetail(Number(id));
             console.log("res", res);
             const imsotired = transformPlanTargetData(res.planTargetModels);
-    console.log("imsotired", imsotired);
+            console.log("imsotired", imsotired);
 
             setWorklogDetail(res);
+            const initialAttendanceStatus = res.listEmployee.reduce((acc, employee) => {
+                acc[employee.userId] = employee.status === "Received" ? "Received" : "Rejected";
+                return acc;
+              }, {} as { [key: number]: "Received" | "Rejected" });
+              setAttendanceStatus(initialAttendanceStatus);
             setFeedbackList(res.listTaskFeedback || []);
+            setSelectedTimeRange([res.actualStartTime, res.actualEndTime]);
+            const date = new Date(res.date);
+            setSelectedDate(new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString());
 
             setInfoFieldsLeft([
                 { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
@@ -228,6 +289,41 @@ function WorklogDetail() {
         fetchPlanDetail();
     }, [id]);
 
+    const handleSave = async () => {
+        try {
+            //   await worklogService.updateWorklog(Number(id), worklogDetail);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error updating worklog:", error);
+        }
+    };
+
+    const handleTakeAttendance = () => {
+        setIsAttendanceModalVisible(true);
+    };
+
+    const handleSaveAttendance = async () => {
+        const listEmployee = worklogDetail?.listEmployee.map((employee) => ({
+            userId: employee.userId,
+            status: attendanceStatus[employee.userId] || "Rejected", // Mặc định là vắng mặt nếu không chọn
+        })) || [];
+
+        try {
+            await worklogService.saveAttendance(Number(id), listEmployee);
+            await fetchPlanDetail(); // Cập nhật lại dữ liệu
+            setIsAttendanceModalVisible(false); // Đóng modal
+        } catch (error) {
+            console.error("Error saving attendance:", error);
+        }
+    };
+
+    const handleAttendanceChange = (userId: number, status: "Received" | "Rejected") => {
+        setAttendanceStatus((prev) => ({
+            ...prev,
+            [userId]: status,
+        }));
+    };
+
     return (
         <div className={style.container}>
             <Flex className={style.extraContent}>
@@ -242,28 +338,133 @@ function WorklogDetail() {
                     <Icons.tag className={style.iconTag} />
                 </Tooltip>
                 <Tag className={`${style.statusTag} ${style.normal}`}>{worklogDetail?.status || "Pending"}</Tag>
+                <Flex gap={15}>
+                    <Button onClick={handleTakeAttendance}>Take Attendance</Button>
+                </Flex>
             </Flex>
             <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
 
-            {/* Assigned Info */}
             <Flex vertical gap={10} className={style.contentSectionUser}>
-                <Flex vertical={false} gap={15}>
-                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
-                    <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
-                    <label className={style.textCreated}>created this plan</label>
-                    <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
+                <Flex vertical>
+                    <Flex vertical={false} gap={15}>
+                        <Image
+                            src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
+                            width={25}
+                            className={style.avt}
+                            crossOrigin="anonymous"
+                        />
+                        <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
+                        <label className={style.textCreated}>created this plan</label>
+                        <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
+                    </Flex>
+                    <Flex vertical gap={10} className={style.info}>
+                        <Flex gap={15}>
+                            <label className={style.textUpdated}>Assigned To:</label>
+                            {isEditing ? (
+                                <EmployeeDropdown
+                                    employees={worklogDetail?.listEmployee || []}
+                                    selectedEmployee={worklogDetail?.listEmployee[0]}
+                                    onChange={(userId) => {
+                                        const selectedEmployee = worklogDetail?.listEmployee.find((emp) => emp.userId === userId);
+                                        setWorklogDetail({
+                                            ...worklogDetail!,
+                                            listEmployee: selectedEmployee ? [selectedEmployee] : [],
+                                        });
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    <Image
+                                        src={worklogDetail?.listEmployee[0]?.avatarURL || Images.avatar}
+                                        width={25}
+                                        className={style.avt}
+                                        crossOrigin="anonymous"
+                                    />
+                                    <label className={style.createdBy}>{worklogDetail?.listEmployee[0]?.fullName || "Jane Smith"}</label>
+                                </>
+                            )}
+                        </Flex>
+                        <Flex gap={15}>
+                            <label className={style.textUpdated}>Reporter:</label>
+                            <Image
+                                src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
+                                width={25}
+                                className={style.avt}
+                                crossOrigin="anonymous"
+                            />
+                            <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}</label>
+                        </Flex>
+                        <Divider className={style.divider} />
+                        <Flex gap={15}>
+                            <label className={style.textUpdated}>Working Time:</label>
+                            {isEditing ? (
+                                <EditableTimeRangeField
+                                    value={[
+                                        worklogDetail?.actualStartTime || "",
+                                        worklogDetail?.actualEndTime || "",
+                                    ]}
+                                    onChange={(newValue) =>
+                                        setWorklogDetail({
+                                            ...worklogDetail!,
+                                            actualStartTime: newValue[0],
+                                            actualEndTime: newValue[1],
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <label className={style.actualTime}>
+                                    {worklogDetail?.actualStartTime || "N/A"} - {worklogDetail?.actualEndTime || "N/A"}
+                                </label>
+                            )}
+                        </Flex>
+                        <Flex gap={15}>
+                            <label className={style.textUpdated}>Date:</label>
+                            {isEditing ? (
+                                <DatePicker
+                                    value={worklogDetail?.date ? moment(worklogDetail.date) : null}
+                                    onChange={(date, dateString) =>
+                                        setWorklogDetail({ ...worklogDetail!, date: dateString.toString() })
+                                    }
+                                />
+                            ) : (
+                                <label className={style.actualTime}>{worklogDetail?.date || "N/A"}</label>
+                            )}
+                        </Flex>
+                    </Flex>
                 </Flex>
-                <Flex gap={15}>
-                    <label className={style.textUpdated}>Assigned To:</label>
-                    <Image src={worklogDetail?.listEmployee[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
-                    <label className={style.createdBy}>{worklogDetail?.listEmployee[0]?.fullName || "Jane Smith"}</label>
-                </Flex>
-                <Flex gap={15}>
-                    <label className={style.textUpdated}>Reporter:</label>
-                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
-                    <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}</label>
+                <Flex justify="flex-end">
+                    {isEditing ? (
+                        <>
+                            <Button onClick={handleSave}>Save</Button>
+                            <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+                        </>
+                    ) : (
+                        <Button onClick={() => setIsEditModalVisible(true)}>Edit</Button>
+                    )}
                 </Flex>
             </Flex>
+
+            <AttendanceModal
+        visible={isAttendanceModalVisible}
+        onClose={() => setIsAttendanceModalVisible(false)}
+        employees={worklogDetail?.listEmployee || []}
+        attendanceStatus={attendanceStatus}
+        onAttendanceChange={handleAttendanceChange}
+        onSave={handleSaveAttendance}
+      />
+
+<EditWorklogModal
+        visible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        employees={worklogDetail?.listEmployee || []}
+        attendanceStatus={attendanceStatus}
+        onReplaceEmployee={handleReplaceEmployee}
+        selectedTimeRange={selectedTimeRange}
+        onTimeRangeChange={setSelectedTimeRange}
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
+        onSave={handleSaveEdit}
+      />
 
             <Divider className={style.divider} />
 

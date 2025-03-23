@@ -1,0 +1,66 @@
+import { Modal, Radio, List, Flex, Image, Button } from "antd";
+import { GetUser } from "@/payloads";
+import { Images } from "@/assets";
+
+interface AttendanceModalProps {
+  visible: boolean;
+  onClose: () => void;
+  employees: GetUser[];
+  attendanceStatus: { [key: number]: "Received" | "Rejected" };
+  onAttendanceChange: (userId: number, status: "Received" | "Rejected") => void;
+  onSave: () => void;
+}
+
+const AttendanceModal: React.FC<AttendanceModalProps> = ({
+  visible,
+  onClose,
+  employees,
+  attendanceStatus,
+  onAttendanceChange,
+  onSave,
+}) => {
+  return (
+    <Modal
+      title="Take Attendance"
+      visible={visible}
+      onCancel={onClose}
+      footer={[
+        <Button key="cancel" onClick={onClose}>
+          Cancel
+        </Button>,
+        <Button key="save" type="primary" onClick={onSave}>
+          Save
+        </Button>,
+      ]}
+    >
+      <List
+        dataSource={employees}
+        renderItem={(employee) => (
+          <List.Item>
+            <Flex align="center" justify="space-between" style={{ width: "100%" }}>
+              <Flex align="center" gap={8}>
+                <Image
+                  src={employee.avatarURL || Images.avatar}
+                  width={32}
+                  height={32}
+                  style={{ borderRadius: "50%" }}
+                  crossOrigin="anonymous"
+                />
+                <span>{employee.fullName}</span>
+              </Flex>
+              <Radio.Group
+                value={attendanceStatus[employee.userId]}
+                onChange={(e) => onAttendanceChange(employee.userId, e.target.value)}
+              >
+                <Radio value="Received">Present</Radio>
+                <Radio value="Rejected">Absent</Radio>
+              </Radio.Group>
+            </Flex>
+          </List.Item>
+        )}
+      />
+    </Modal>
+  );
+};
+
+export default AttendanceModal;

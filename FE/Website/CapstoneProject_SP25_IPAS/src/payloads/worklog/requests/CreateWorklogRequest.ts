@@ -11,4 +11,13 @@ export interface CreateWorklogRequest {
     responsibleBy: string[];
     assignorId: string;
   }
+
+export interface ListEmployeeAttendance {
+  userId: number;
+  status: "Received" | "Rejected";
+}
   
+export interface AttendanceRequest {
+  worklogId: number;
+  listEmployee: ListEmployeeAttendance[];
+}
