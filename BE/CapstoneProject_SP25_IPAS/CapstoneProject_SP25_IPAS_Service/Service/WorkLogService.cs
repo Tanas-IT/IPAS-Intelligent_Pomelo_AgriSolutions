@@ -1477,10 +1477,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (changeEmployee.Status.ToLower().Equals("add"))
                         {
-                            getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
-                            getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                            // Nếu đã có người thay thế trước đó, cập nhật người mới thay vì insert liên tục
+                            if (getUserToUpdate.ReplaceUserId != null)
+                            {
+                                // Xóa user thay thế trước đó để tránh dư thừa dữ liệu
+                                var existingReplacement = await _unitOfWork.UserWorkLogRepository
+                                    .GetByCondition(x => x.UserId == getUserToUpdate.ReplaceUserId
+                                                         && x.WorkLogId == getUserToUpdate.WorkLogId);
+
+                                if (existingReplacement != null)
+                                {
+                                    _unitOfWork.UserWorkLogRepository.Delete(existingReplacement);
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                                // Cập nhật lại ReplaceUserId thành người mới
+                                getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                            }
+                            else
+                            {
+                                getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                                getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                            }
+
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
                             await _unitOfWork.SaveAsync();
+
+                            // Chỉ tạo mới người cuối cùng
                             var newUserWorkLog = new UserWorkLog()
                             {
                                 CreateDate = DateTime.Now,
@@ -1490,14 +1513,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
                             };
-                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
 
+                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
+
                         else if (changeEmployee.Status.ToLower().Equals("update"))
                         {
+                            // Nếu đổi rồi nhưng cuối cùng chọn lại người cũ thì không cần thay đổi
+                            if (changeEmployee.NewUserId == getUserToUpdate.UserId)
+                            {
+                                continue; // Không làm gì cả
+                            }
 
+                            // Nếu thực sự đổi người mới
                             _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
                             await _unitOfWork.SaveAsync();
+
                             var newUserWorkLog = new UserWorkLog()
                             {
                                 CreateDate = DateTime.Now,
@@ -1509,6 +1540,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
+
                     }
                     else
                     {
