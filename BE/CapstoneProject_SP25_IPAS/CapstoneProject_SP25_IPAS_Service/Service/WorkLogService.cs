@@ -181,6 +181,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 WorkLogId = workLog.WorkLogId,
                                 UserId = user.UserId,
                                 IsReporter = user.isReporter,
+                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                 IsDeleted = false
                             });
 
@@ -919,6 +920,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 WorkLogId = findWorkLog.WorkLogId,
                                 UserId = employee.UserId,
                                 IsReporter = employee.isReporter,
+                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                 IsDeleted = false
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
@@ -1132,6 +1134,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 WorkLogId = workLog.WorkLogId,
                                 UserId = user.UserId,
                                 IsReporter = user.isReporter,
+                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                 IsDeleted = false
                             });
 
@@ -1353,6 +1356,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     WorkLogId = workLog.WorkLogId,
                                     UserId = user.UserId,
                                     IsReporter = user.isReporter,
+                                    StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                     IsDeleted = false
                                 });
 
@@ -1469,6 +1473,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (changeEmployeeOfWorkLog.Status.ToLower().Equals("add"))
                         {
                             getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                            getUserToUpdate.ReplaceUserId = changeEmployeeOfWorkLog.NewUserId;
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
                             var rejectedUser = await _unitOfWork.SaveAsync();
                             if (rejectedUser > 0)
