@@ -1588,7 +1588,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         result += await _unitOfWork.SaveAsync();
                     }
                 }
-                if(result == checkAttendanceModel.ListEmployeeCheckAttendance.Count)
+                if(result > 0)
                 {
                     return new BusinessResult(200, "Check Attendance Success", result > 0);
                 }
