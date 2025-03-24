@@ -48,7 +48,6 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
             searchValue,
             additionalParams,
           );
-
           setData(result.list ?? []);
           setTotalPages(result.totalPage);
           setTotalRecords(result.totalRecord);

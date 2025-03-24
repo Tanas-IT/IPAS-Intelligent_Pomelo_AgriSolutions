@@ -2,7 +2,7 @@ import { Card, Flex, Select, Table, Typography } from "antd";
 import { GetLandPlotHaveEmptyPlant, PlantRequest } from "@/payloads";
 import { ConfirmModal, CustomButton, ModalForm } from "@/components";
 const { Text } = Typography;
-import style from "./LotSectionHeader.module.scss";
+import style from "./Details.module.scss";
 import { useEffect, useState } from "react";
 import { landPlotService, plantLotService } from "@/services";
 import { usePlantLotStore } from "@/stores";

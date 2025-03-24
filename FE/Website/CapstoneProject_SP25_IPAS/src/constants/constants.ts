@@ -85,10 +85,11 @@ export const ROUTES = {
   FARM_PLANT_DETAIL: (id: number) => `/farm/plants/${id}/details`,
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
     `/farm/plant-lots/${parentId}/additional/${id}/details`,
+  FARM_GRAFTED_PLANT_DETAIL: (id: number) => `/farm/grafted-plants/${id}/details`,
 };
 
 export const PLAN_TARGET_TYPE = {
   "Land Plot/ Land Row/ Plant": 1,
   "Plant Lot": 2,
-  "Grafted Plant": 3
-}
+  "Grafted Plant": 3,
+};

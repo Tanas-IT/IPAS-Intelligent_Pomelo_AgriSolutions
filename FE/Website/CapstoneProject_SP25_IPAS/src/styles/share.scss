@@ -126,6 +126,7 @@
 
 @mixin popupContainer {
   width: 100%;
+  min-width: 12rem !important;
 
   .popupNav {
     flex-direction: column;
@@ -241,6 +242,7 @@
   .contentSectionBody {
     width: 100%;
     justify-content: space-between;
+    gap: 40px;
     .col {
       min-width: 32rem;
       flex-direction: column;
@@ -350,6 +352,7 @@
 }
 
 @mixin criteriaCollapse {
+  width: 100%;
   .headerWrapper {
     width: 100%;
     min-width: 70rem;

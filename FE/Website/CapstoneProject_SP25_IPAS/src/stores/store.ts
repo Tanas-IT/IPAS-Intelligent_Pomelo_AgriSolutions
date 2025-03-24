@@ -1,5 +1,5 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { GetPlantDetail, GetPlantLotDetail } from "@/payloads";
+import { GetGraftedPlantDetail, GetPlantDetail, GetPlantLotDetail } from "@/payloads";
 import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
@@ -161,6 +161,20 @@ interface PlantStore {
   shouldRefetch: boolean;
   markForRefetch: () => void;
 }
+
+interface GraftedPlantStore {
+  graftedPlant: GetGraftedPlantDetail | null;
+  setGraftedPlant: (graftedPlant: GetGraftedPlantDetail | null) => void;
+  shouldRefetch: boolean;
+  markForRefetch: () => void;
+}
+
+export const useGraftedPlantStore = create<GraftedPlantStore>((set, get) => ({
+  graftedPlant: null,
+  setGraftedPlant: (graftedPlant) => set({ graftedPlant }),
+  shouldRefetch: false,
+  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+}));
 
 export const usePlantStore = create<PlantStore>((set, get) => ({
   plantId: null,

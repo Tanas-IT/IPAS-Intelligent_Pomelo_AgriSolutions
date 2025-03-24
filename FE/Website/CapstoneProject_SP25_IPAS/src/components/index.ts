@@ -30,6 +30,7 @@ export { default as ActionMenuLot } from "@/components/UI/ActionMenu/ActionMenuL
 export { default as ActionMenuEmployee } from "@/components/UI/ActionMenu/ActionMenuEmployee";
 export { default as ActionMenuPartner } from "@/components/UI/ActionMenu/ActionMenuPartner";
 export { default as ActionMenuCriteria } from "@/components/UI/ActionMenu/ActionMenuCriteria";
+export { default as ActionMenuGraftedPlant } from "@/components/UI/ActionMenu/ActionMenuGraftedPlant";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";
@@ -55,6 +56,7 @@ export { default as MapMarker } from "@/components/UI/Maps/MapMarker/MapMarker";
 export { default as ModalForm } from "@/components/UI/Modal/ModalForm/ModalForm";
 export { default as ApplyLotCriteriaModal } from "@/components/UI/Modal/CriteriaModal/ApplyLotCriteriaModal/ApplyLotCriteriaModal";
 export { default as ApplyPlantCriteriaModal } from "@/components/UI/Modal/CriteriaModal/ApplyPlantCriteriaModal/ApplyPlantCriteriaModal";
+export { default as ApplyGraftedPlantCriteriaModal } from "@/components/UI/Modal/CriteriaModal/ApplyGraftedPlantCriteriaModal/ApplyGraftedPlantCriteriaModal";
 export { default as ConfirmModal } from "@/components/UI/ConfirmModal/ConfirmModal";
 export { default as TimePickerInfo } from "@/components/UI/FormField/TimePicker/TimePicker";
 export { default as RowItemEdit } from "@/components/UI/Row/RowItem/RowItemEdit";
@@ -63,3 +65,12 @@ export { default as RowList } from "@/components/UI/Row/RowList/RowList";
 export { default as UserAvatar } from "@/components/UI/UserAvatar";
 export { default as SidebarEmployee } from "@/components/Employee/SidebarEmployee/SidebarEmployee";
 export { default as InfoFieldDetail } from "@/components/UI/Details/InfoFieldDetail";
+export { default as PlantSectionHeader } from "@/components/UI/Details/PlantSectionHeader";
+export { default as LotSectionHeader } from "@/components/UI/Details/LotSectionHeader";
+export { default as GraftedPlantSectionHeader } from "@/components/UI/Details/GraftedPlantSectionHeader";
+export { default as PlantMarkAsDeadModal } from "@/components/UI/Modal/PlantMarkAsDeadModal/PlantMarkAsDeadModal";
+export { default as PlantModal } from "@/components/UI/Modal/PlantModal/PlantModal";
+export { default as LotModal } from "@/components/UI/Modal/LotModal";
+export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlantModal";
+
+

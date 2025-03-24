@@ -10,7 +10,7 @@ import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
 
 type ApplyPlantCriteriaModalProps = {
-  plantId?: number;
+  plantIds?: number[];
   isOpen: boolean;
   onClose: () => void;
   onSave: (criteria: CriteriaApplyRequest) => void;
@@ -18,7 +18,7 @@ type ApplyPlantCriteriaModalProps = {
 };
 
 const ApplyPlantCriteriaModal = ({
-  plantId,
+  plantIds,
   isOpen,
   onClose,
   onSave,
@@ -51,9 +51,9 @@ const ApplyPlantCriteriaModal = ({
 
   const handleOk = () => {
     if (!isCriteriaListValid()) return;
-    if (!plantId) return;
+    if (!plantIds) return;
     const requestData: CriteriaApplyRequest = {
-      plantId: [plantId],
+      plantId: plantIds,
       criteriaData: dataSource.map((item) => ({
         criteriaId: item.criteriaId,
         priority: item.priority,
@@ -66,8 +66,8 @@ const ApplyPlantCriteriaModal = ({
 
   const handleCriteriaTypeChange = async (value: string) => {
     form.setFieldsValue({ criteriaId: undefined });
-    if (!plantId) return;
-    var res = await criteriaService.getPlantCriteriaTypeSelect(plantId, value);
+    if (!plantIds) return;
+    var res = await criteriaService.getPlantCriteriaTypeSelect(plantIds[0], value);
     if (res.statusCode === 200 && res.data) {
       const formattedOptions = res.data.map((item) => ({
         value: item.id,

@@ -117,6 +117,17 @@ export const getPlantCriteriaTypeSelect = async (
   return apiResponse;
 };
 
+export const getGraftedPlantCriteriaTypeSelect = async (
+  graftedPlantId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/grafted-plant/get-for-selected/except?graftedId=${graftedPlantId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
+
 export const getCriteriaByMasterType = async (
   typeId: number,
 ): Promise<ApiResponse<GetCriteriaByMasterType>> => {
@@ -150,6 +161,16 @@ export const getCriteriaOfPlant = async (
 ): Promise<ApiResponse<GetCriteriaObject[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `criterias/get-criteria-of-object?PlantID=${plantId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
+  return apiResponse;
+};
+
+export const getCriteriaOfGraftedPlant = async (
+  graftedPlantId: number,
+): Promise<ApiResponse<GetCriteriaObject[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/get-criteria-of-object?GraftedPlantID=${graftedPlantId}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
   return apiResponse;

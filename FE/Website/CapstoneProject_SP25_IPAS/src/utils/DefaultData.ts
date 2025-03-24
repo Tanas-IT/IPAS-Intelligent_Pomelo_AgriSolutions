@@ -11,6 +11,7 @@ import {
   CoordsState,
   FilterCriteriaState,
   FilterEmployeeState,
+  FilterGraftedPlantState,
   FilterLandRowState,
   FilterMasterTypeState,
   FilterPartnerState,
@@ -123,6 +124,17 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   healthStatus: [] as string[],
   isLocated: null,
   isDead: null,
+};
+
+export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
+  plantIds: [] as string[],
+  separatedDateFrom: "",
+  separatedDateTo: "",
+  status: [] as string[],
+  cultivarIds: [] as string[],
+  graftedDateFrom: "",
+  graftedDateTo: "",
+  isCompleted: null,
 };
 
 export const DEFAULT_LAND_ROW_FILTERS: FilterLandRowState = {

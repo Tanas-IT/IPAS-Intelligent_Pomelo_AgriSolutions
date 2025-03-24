@@ -5,10 +5,10 @@ import {
   ConfirmModal,
   CriteriaCheckTable,
   LoadingSkeleton,
+  LotSectionHeader,
 } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantLotStore } from "@/stores";
-import LotSectionHeader from "../LotSectionHeader/LotSectionHeader";
 import { useModal, useStyle } from "@/hooks";
 import { criteriaService, plantLotService } from "@/services";
 import {
@@ -21,7 +21,7 @@ import {
 import { toast } from "react-toastify";
 import UpdateQuantityModal from "./UpdateQuantityModal";
 import { CRITERIA_TARGETS } from "@/constants";
-import { PanelTitle } from "./PanelTitle";
+import PanelTitle from "./PanelTitle";
 
 function PlantLotCriteria() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -95,7 +95,6 @@ function PlantLotCriteria() {
   };
 
   const handleValueCheckChange = (criteriaId: number, value: number) => {
-    if (value === 0) return;
     setUpdatedCriteria((prev) => {
       const initialValue = initialCriteria[criteriaId];
 
@@ -134,53 +133,49 @@ function PlantLotCriteria() {
       toast.error("Please update check quantity before proceeding.");
       return;
     }
+    try {
+      if (
+        (target === CRITERIA_TARGETS["Plantlot Evaluation"] && quantity === lot.lastQuantity) ||
+        (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
+      ) {
+        // Không gọi API nếu số lượng không thay đổi
+      } else if (quantity !== null && quantity !== undefined && isAllCompletedCheckUpdate) {
+        var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
 
-    if (
-      (target === CRITERIA_TARGETS["Plantlot Evaluation"] && quantity === lot.lastQuantity) ||
-      (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
-    ) {
-      // Không gọi API nếu số lượng không thay đổi
-    } else if (quantity !== null && quantity !== undefined && isAllCompletedCheckUpdate) {
-      var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
-
-      if (resUpdate.statusCode !== 200) {
-        toast.error(resUpdate.message);
-        return;
-      } else {
-        quantityModal.hideModal();
-        toast.success(resUpdate.message);
+        if (resUpdate.statusCode !== 200) {
+          toast.error(resUpdate.message);
+          return;
+        } else {
+          quantityModal.hideModal();
+          toast.success(resUpdate.message);
+        }
       }
 
-      setLot({
-        ...lot,
-        lastQuantity:
-          target === CRITERIA_TARGETS["Plantlot Evaluation"] ? quantity : lot.lastQuantity,
-        inputQuantity:
-          target === CRITERIA_TARGETS["Plantlot Condition"] ? quantity : lot.inputQuantity,
-      });
-    }
-
-    if (
-      target === CRITERIA_TARGETS["Plantlot Condition"] &&
-      supplementQuantity !== undefined &&
-      !isNaN(supplementQuantity) &&
-      supplementQuantity > 0
-    ) {
-      const resAdditional = await plantLotService.createAdditionalLot(
-        lot.plantLotReferenceId ?? lot.plantLotId,
-        supplementQuantity,
-      );
-      if (resAdditional.statusCode !== 200) {
-        toast.error(resAdditional.message);
-        return;
-      } else {
-        markForRefetch();
+      if (
+        target === CRITERIA_TARGETS["Plantlot Condition"] &&
+        supplementQuantity !== undefined &&
+        !isNaN(supplementQuantity) &&
+        supplementQuantity > 0
+      ) {
+        const resAdditional = await plantLotService.createAdditionalLot(
+          lot.plantLotReferenceId ?? lot.plantLotId,
+          supplementQuantity,
+        );
+        if (resAdditional.statusCode !== 200) {
+          toast.error(resAdditional.message);
+          return;
+        }
       }
+    } finally {
+      markForRefetch();
     }
   };
 
   const handleSave = async (isAllConditionChecked: boolean, target: string) => {
-    if (!isAllConditionChecked && target === CRITERIA_TARGETS["Plantlot Evaluation"]) {
+    if (
+      (!isAllConditionChecked || !lot.inputQuantity) &&
+      target === CRITERIA_TARGETS["Plantlot Evaluation"]
+    ) {
       toast.error("Please pass 'Plantlot Condition' before updating 'Plantlot Evaluation'.");
       return;
     }

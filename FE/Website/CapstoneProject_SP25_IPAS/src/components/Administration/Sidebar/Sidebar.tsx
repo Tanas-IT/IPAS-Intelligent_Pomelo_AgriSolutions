@@ -199,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           label: "Manage Grafted Plants",
           icon: Images.radius,
           to: PATHS.FARM.GRAFTED_PLANT_LIST,
-          activePaths: [PATHS.FARM.GRAFTED_PLANT_LIST],
+          activePaths: [PATHS.FARM.GRAFTED_PLANT_LIST, PATHS.FARM.GRAFTED_PLANT_DETAIL],
         },
         {
           key: "Manage Criteria",
@@ -230,8 +230,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
     },
     {
-      key: "HR Management",
-      label: "HR Management",
+      key: "Staff Management",
+      label: "Staff Management",
       icon: <Icons.people />,
       activePaths: [""],
       subMenuItems: [

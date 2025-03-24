@@ -1,5 +1,5 @@
 import { Button, Flex, Tag, Tooltip } from "antd";
-import style from "./LotSectionHeader.module.scss";
+import style from "./Details.module.scss";
 import { Icons } from "@/assets";
 import { ActionMenuLot, ConfirmModal, CustomButton } from "@/components";
 import { usePlantLotStore } from "@/stores";
@@ -85,6 +85,7 @@ const LotSectionHeader = ({
               id={lot.plantLotId}
               isCompleted={lot.isPassed}
               noView={true}
+              noCriteria
               onEdit={() => formModal?.showModal(lot)}
               onDelete={() => deleteConfirmModal?.showModal({ id: lot.plantLotId })}
             />

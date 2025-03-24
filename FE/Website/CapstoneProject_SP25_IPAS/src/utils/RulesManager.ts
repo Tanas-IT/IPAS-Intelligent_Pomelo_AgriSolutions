@@ -141,6 +141,7 @@ export class RulesManager {
 
   static getCultivarRules = () => this.getRequiredRules("Cultivar");
   static getPlantingDateRules = () => this.getRequiredRules("PlantingDate");
+  static getSelectHealthStatusRules = () => this.getRequiredRules("Select Health Status");
   static getSelectPlotRules = () => this.getRequiredRules("Select Plot");
   static getSelectRowRules = () => this.getRequiredRules("Select Row");
   static getSelectPlantIndexRules = () => this.getRequiredRules("Select Plant Index");

@@ -1,14 +1,10 @@
-import { DatePicker, Flex, Select, Space } from "antd";
+import { DatePicker, Flex, Space } from "antd";
 import { useEffect, useState } from "react";
 import style from "./PlantLot.module.scss";
-import dayjs from "dayjs";
-import { FilterFooter, FormFieldFilter, TagRender } from "@/components";
-import { DATE_FORMAT } from "@/utils";
-import { MASTER_TYPE, PARTNER } from "@/constants";
+import { FilterFooter, FormFieldFilter } from "@/components";
+import { PARTNER } from "@/constants";
 import { FilterPlantLotState, SelectOption } from "@/types";
 import { partnerService } from "@/services";
-
-const { RangePicker } = DatePicker;
 
 type FilterProps = {
   filters: FilterPlantLotState;

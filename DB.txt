@@ -1154,11 +1154,11 @@ GO
 -- Fake data for GrowthStage table with FarmID = 1
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
 VALUES
-('GS101', 'Germination Stage', 0, 3, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
-('GS102', 'Seedling Stage', 4, 8, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
-('GS103', 'Vegetative Growth Stage', 9, 18, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
-('GS104', 'Flowering Stage', 19, 24, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
-('GS105', 'Fruiting & Harvest Stage', 25, 36, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
+('GS101', 'Germination Stage', 0, 6, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
+('GS102', 'Seedling Stage', 7, 24, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
+('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
+('GS104', 'Flowering Stage', 49, 60, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
+('GS105', 'Fruiting & Harvest Stage', 61, 120, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
 GO
 
 -- Fake data for GrowthStage table with FarmID = 2
@@ -1197,9 +1197,9 @@ VALUES
     ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
     ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
     
-    ('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
-    ('MT021', 'Caring', 'Criteria', 'Defines the criteria for plant care during growth stages', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
-    ('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
+	('MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
+    ('MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
+    ('MT022', 'Grafted Branch Market Evaluation', 'Criteria', 'Evaluation of grafted branches to determine their quality for sale or commercial use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
     ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest', NULL, NULL),
 	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
     ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
@@ -1227,46 +1227,64 @@ GO
 INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority],[isActive], [isDeleted],[MasterTypeID], [FrequencyDate])
 VALUES
- ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 20, 365),
-    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 0, 20, 180),
-    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0, 20, 90),
-    ('CR004', 'Return Policy', 'Defines product return conditions', 1, 1, 0, 21, 365),
-    ('CR005', 'Payment Security', 'Ensures safe payment processing', 2, 1, 0, 21, 180),
-    ('CR006', 'Product Warranty', 'Guarantees product durability', 3, 1, 0, 21, 730),
-    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 1, 1, 0, 22, 365),
-    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 2, 1, 0, 22, 365),
-    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 3, 1, 0, 22, 30),
-    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 4, 1, 0, 22, 90),
-    ('CR011', 'Tree Density', 'Ensures optimal tree spacing (400-500 trees per hectare)', 1, 1, 0, 24, 365),
-    ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters (Measured from base to highest point)', 2, 1, 0, 24, 180),
-    ('CR013', 'Fruit Size', 'Measures average fruit size (Weight: 1.2kg - 2.5kg, Diameter: 15-22 cm)', 3, 1, 0, 24, 90),
-    ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage (Less than 5% affected fruits per lot)', 4, 1, 0, 24, 30),
-    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24, 15),
-    ('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing or disease spots', 1, 1, 0, 26, 30),
-    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 0, 26, 180),
-    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26, 90),
-    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 0, 26, 60),
-    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26, 365),
-    ('C029', 'Pest & Disease Inspection', 'Check for common pests and diseases affecting Green Skin Pomelo', 1, 1, 0, 28, 30),
-    ('C030', 'Soil & Nutrient Condition', 'Assess soil fertility and nutrient levels for optimal growth', 2, 1, 0, 28, 90),
-    ('C031', 'Canopy & Root Development', 'Evaluate the development of canopy structure and root health', 3, 1, 0, 28, 180),
-    ('C032', 'Fruit Count & Size', 'Estimate the number of fruits and average size per tree', 1, 1, 0, 29, 60),
-    ('C033', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance to determine fruit sweetness', 2, 1, 0, 29, 90),
-    ('C034', 'External Quality & Appearance', 'Check fruit skin texture, color, and any physical defects', 3, 1, 0, 29, 30);
+ -- MasterTypeID 20: Grafting Suitability (Determining if a tree is suitable for grafting)
+    ('CR001', N'Tree Age', N'Determines if the tree is old enough for grafting', 1, 1, 0, 20, 180),  -- Kiểm tra nửa năm/lần
+    ('CR002', N'Branch Diameter', N'Ensures the branch meets the required size for grafting', 2, 1, 0, 20, 90),  -- Kiểm tra mỗi quý
+    ('CR003', N'Tree Health Status', N'Checks if the tree is healthy and free from pests before grafting', 3, 1, 0, 20, 60), -- Kiểm tra mỗi 2 tháng
+
+    -- MasterTypeID 21: Seedling Selection (Criteria for selecting suitable seedlings)
+    ('CR004', N'Root Development', N'Evaluates root growth to determine seedling viability', 1, 1, 0, 21, 90),  -- Kiểm tra mỗi quý
+    ('CR005', N'Leaf and Stem Condition', N'Checks the health of leaves and stems for strong seedling growth', 2, 1, 0, 21, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR006', N'Pest and Disease Resistance', N'Assesses the seedling’s resistance to common diseases and pests', 3, 1, 0, 21, 180),  -- Kiểm tra nửa năm/lần
+
+    -- MasterTypeID 22: Grafted Branch Market Evaluation (Assessing grafted branches for sale)
+    ('CR007', N'Rooting Success Rate', N'Evaluates the percentage of successful root formation', 1, 1, 0, 22, 90),  -- Kiểm tra mỗi quý
+    ('CR008', N'Root Length', N'Determines if the root length meets the standard for transplanting', 2, 1, 0, 22, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR009', N'Leaf and Stem Quality', N'Ensures leaves and stems are healthy enough for commercial sale', 3, 1, 0, 22, 30),  -- Kiểm tra hàng tháng
+    ('CR010', N'Environmental Adaptability', N'Assesses the grafted branch’s ability to adapt to different conditions', 4, 1, 0, 22, 45),  -- Kiểm tra mỗi 1.5 tháng
+
+    -- MasterTypeID 24: General Tree Growth & Maintenance
+    ('CR011', 'Tree Density', 'Ensures optimal tree spacing (400-500 trees per hectare)', 1, 1, 0, 24, 180), -- Kiểm tra nửa năm/lần
+    ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters', 2, 1, 0, 24, 90), -- Kiểm tra mỗi quý
+    ('CR013', 'Fruit Size', 'Measures average fruit size', 3, 1, 0, 24, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage', 4, 1, 0, 24, 30), -- Kiểm tra hàng tháng
+    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range', 5, 1, 0, 24, 15), -- Kiểm tra nửa tháng/lần
+
+    -- MasterTypeID 26: Fruit & Quality Control
+    ('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing', 1, 1, 0, 26, 30), -- Kiểm tra hàng tháng
+    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 0, 26, 90), -- Kiểm tra mỗi quý
+    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 0, 26, 45), -- Kiểm tra mỗi 1.5 tháng
+    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26, 180), -- Kiểm tra nửa năm/lần
+
+    -- MasterTypeID 28: Farm Condition & Environment
+    ('CR021', 'Pest & Disease Inspection', 'Check for common pests and diseases', 1, 1, 0, 28, 30), -- Kiểm tra hàng tháng
+    ('CR022', 'Soil & Nutrient Condition', 'Assess soil fertility and nutrient levels', 2, 1, 0, 28, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR023', 'Canopy & Root Development', 'Evaluate canopy structure and root health', 3, 1, 0, 28, 90), -- Kiểm tra mỗi quý
+
+    -- MasterTypeID 29: Fruit Assessment Before Harvest
+    ('CR024', 'Fruit Count & Size', 'Estimate the number of fruits and average size per tree', 1, 1, 0, 29, 45), -- Kiểm tra mỗi 1.5 tháng
+    ('CR025', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance for fruit sweetness', 2, 1, 0, 29, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR026', 'External Quality & Appearance', 'Check fruit skin texture, color, and physical defects', 3, 1, 0, 29, 30); -- Kiểm tra hàng tháng
 GO
 UPDATE [dbo].[Criteria]
 SET 
     MinValue = CASE 
-        WHEN CriteriaCode = 'CR001' THEN 80
-        WHEN CriteriaCode = 'CR002' THEN 85
-        WHEN CriteriaCode = 'CR003' THEN 95
-        WHEN CriteriaCode = 'CR004' THEN 1
-        WHEN CriteriaCode = 'CR005' THEN 7
-        WHEN CriteriaCode = 'CR006' THEN 12
-        WHEN CriteriaCode = 'CR007' THEN 3
-        WHEN CriteriaCode = 'CR008' THEN 8
-        WHEN CriteriaCode = 'CR009' THEN 1
-        WHEN CriteriaCode = 'CR010' THEN 1
+        -- Grafting Suitability (MasterTypeID 20)
+        WHEN CriteriaCode = 'CR001' THEN 3   -- Tree Age (years)
+        WHEN CriteriaCode = 'CR002' THEN 1.5 -- Branch Diameter (cm)
+        WHEN CriteriaCode = 'CR003' THEN 80  -- Tree Health Score (%)
+          -- Seedling Selection (MasterTypeID 21)
+        WHEN CriteriaCode = 'CR004' THEN 10  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR005' THEN 7   -- Leaf and Stem Condition (rating)
+        WHEN CriteriaCode = 'CR006' THEN 12  -- Pest and Disease Resistance (months)
+
+        -- Grafted Branch Market Evaluation (MasterTypeID 22)
+        WHEN CriteriaCode = 'CR007' THEN 70  -- Rooting Success Rate (%)
+        WHEN CriteriaCode = 'CR008' THEN 15  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR009' THEN 8   -- Leaf and Stem Quality (rating)
+        WHEN CriteriaCode = 'CR010' THEN 5   -- Environmental Adaptability (rating)
+
         WHEN CriteriaCode = 'CR011' THEN 400
         WHEN CriteriaCode = 'CR012' THEN 2
         WHEN CriteriaCode = 'CR013' THEN 1.5
@@ -1277,25 +1295,30 @@ SET
         WHEN CriteriaCode = 'CR018' THEN 5.5
         WHEN CriteriaCode = 'CR019' THEN 10
         WHEN CriteriaCode = 'CR020' THEN 7
-        WHEN CriteriaCode = 'C029' THEN 7
-        WHEN CriteriaCode = 'C030' THEN 7
-        WHEN CriteriaCode = 'C031' THEN 7
-        WHEN CriteriaCode = 'C032' THEN 80
-        WHEN CriteriaCode = 'C033' THEN 10
-        WHEN CriteriaCode = 'C034' THEN 7
+        WHEN CriteriaCode = 'CR021' THEN 7
+        WHEN CriteriaCode = 'CR022' THEN 7
+        WHEN CriteriaCode = 'CR023' THEN 7
+        WHEN CriteriaCode = 'CR024' THEN 80
+        WHEN CriteriaCode = 'CR025' THEN 10
+        WHEN CriteriaCode = 'CR026' THEN 7
         ELSE MinValue
     END,
     MaxValue = CASE 
-        WHEN CriteriaCode = 'CR001' THEN 100
-        WHEN CriteriaCode = 'CR002' THEN 100
-        WHEN CriteriaCode = 'CR003' THEN 100
-        WHEN CriteriaCode = 'CR004' THEN 7
-        WHEN CriteriaCode = 'CR005' THEN 10
-        WHEN CriteriaCode = 'CR006' THEN 36
-        WHEN CriteriaCode = 'CR007' THEN 10
-        WHEN CriteriaCode = 'CR008' THEN 10
-        WHEN CriteriaCode = 'CR009' THEN 12
-        WHEN CriteriaCode = 'CR010' THEN 500
+          -- Grafting Suitability
+        WHEN CriteriaCode = 'CR001' THEN 10  -- Tree Age (years)
+        WHEN CriteriaCode = 'CR002' THEN 5   -- Branch Diameter (cm)
+        WHEN CriteriaCode = 'CR003' THEN 100 -- Tree Health Score (%)
+
+        -- Seedling Selection
+        WHEN CriteriaCode = 'CR004' THEN 30  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR005' THEN 10  -- Leaf and Stem Condition (rating)
+        WHEN CriteriaCode = 'CR006' THEN 36  -- Pest and Disease Resistance (months)
+
+        -- Grafted Branch Market Evaluation
+        WHEN CriteriaCode = 'CR007' THEN 100 -- Rooting Success Rate (%)
+        WHEN CriteriaCode = 'CR008' THEN 25  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR009' THEN 10  -- Leaf and Stem Quality (rating)
+        WHEN CriteriaCode = 'CR010' THEN 10  -- Environmental Adaptability (rating)
         WHEN CriteriaCode = 'CR011' THEN 500
         WHEN CriteriaCode = 'CR012' THEN 8
         WHEN CriteriaCode = 'CR013' THEN 2.5
@@ -1306,25 +1329,30 @@ SET
         WHEN CriteriaCode = 'CR018' THEN 6.5
         WHEN CriteriaCode = 'CR019' THEN 13
         WHEN CriteriaCode = 'CR020' THEN 10
-        WHEN CriteriaCode = 'C029' THEN 10
-        WHEN CriteriaCode = 'C030' THEN 10
-        WHEN CriteriaCode = 'C031' THEN 10
-        WHEN CriteriaCode = 'C032' THEN 150
-        WHEN CriteriaCode = 'C033' THEN 15
-        WHEN CriteriaCode = 'C034' THEN 10
+        WHEN CriteriaCode = 'CR021' THEN 10
+        WHEN CriteriaCode = 'CR022' THEN 10
+        WHEN CriteriaCode = 'CR023' THEN 10
+        WHEN CriteriaCode = 'CR024' THEN 150
+        WHEN CriteriaCode = 'CR025' THEN 15
+        WHEN CriteriaCode = 'CR026' THEN 10
         ELSE MaxValue
     END,
     Unit = CASE 
-        WHEN CriteriaCode = 'CR001' THEN 'points'
-        WHEN CriteriaCode = 'CR002' THEN '%'
+        -- Grafting Suitability
+        WHEN CriteriaCode = 'CR001' THEN 'years'
+        WHEN CriteriaCode = 'CR002' THEN 'cm'
         WHEN CriteriaCode = 'CR003' THEN '%'
-        WHEN CriteriaCode = 'CR004' THEN 'days'
+
+        -- Seedling Selection
+        WHEN CriteriaCode = 'CR004' THEN 'cm'
         WHEN CriteriaCode = 'CR005' THEN 'rating'
         WHEN CriteriaCode = 'CR006' THEN 'months'
-        WHEN CriteriaCode = 'CR007' THEN 'level'
-        WHEN CriteriaCode = 'CR008' THEN 'rating'
-        WHEN CriteriaCode = 'CR009' THEN 'hours'
-        WHEN CriteriaCode = 'CR010' THEN 'USD'
+
+        -- Grafted Branch Market Evaluation
+        WHEN CriteriaCode = 'CR007' THEN '%'
+        WHEN CriteriaCode = 'CR008' THEN 'cm'
+        WHEN CriteriaCode = 'CR009' THEN 'rating'
+        WHEN CriteriaCode = 'CR010' THEN 'rating'
         WHEN CriteriaCode = 'CR011' THEN 'trees/hectare'
         WHEN CriteriaCode = 'CR012' THEN 'm'
         WHEN CriteriaCode = 'CR013' THEN 'kg'
@@ -1335,18 +1363,17 @@ SET
         WHEN CriteriaCode = 'CR018' THEN 'pH'
         WHEN CriteriaCode = 'CR019' THEN 'Brix'
         WHEN CriteriaCode = 'CR020' THEN 'score'
-        WHEN CriteriaCode = 'C029' THEN 'rating'
-        WHEN CriteriaCode = 'C030' THEN 'rating'
-        WHEN CriteriaCode = 'C031' THEN 'rating'
-        WHEN CriteriaCode = 'C032' THEN 'fruits/tree'
-        WHEN CriteriaCode = 'C033' THEN 'Brix'
-        WHEN CriteriaCode = 'C034' THEN 'rating'
+        WHEN CriteriaCode = 'CR021' THEN 'rating'
+        WHEN CriteriaCode = 'CR022' THEN 'rating'
+        WHEN CriteriaCode = 'CR023' THEN 'rating'
+        WHEN CriteriaCode = 'CR024' THEN 'fruits/tree'
+        WHEN CriteriaCode = 'CR025' THEN 'Brix'
+        WHEN CriteriaCode = 'CR026' THEN 'rating'
         ELSE Unit
     END
 WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR007', 'CR008', 'CR009', 'CR010',
                        'CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR016', 'CR017', 'CR018', 'CR019', 'CR020',
-                       'C029', 'C030', 'C031', 'C032', 'C033', 'C034');
-
+                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026');
 
 GO
 INSERT INTO ipas.dbo.LandPlot (
@@ -1399,16 +1426,22 @@ VALUES
 INSERT INTO [ipas].dbo.Plant 
 (PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
 VALUES
-('P001', 'Green Skin Pomelo A', 1, 'Healthy', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
-('P002', 'Green Skin Pomelo B', 2, 'Moderate', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
+('P001', 'Green Skin Pomelo A', 1, 'Minor Issues', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
+('P002', 'Green Skin Pomelo B', 2, 'Healthy', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
 ('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2024-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
-('P004', 'Green Skin Pomelo D', 4, 'Unhealthy', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
+('P004', 'Green Skin Pomelo D', 4, 'Minor Issues', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
 ('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2024-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
-('P006', 'Green Skin Pomelo F', 6, 'Moderate', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 1, 1, 1),
+('P006', 'Green Skin Pomelo F', 6, 'Minor Issues', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 1, 1, 1),
 ('P007', 'Green Skin Pomelo G', 7, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', 1, 1, 1),
-('P008', 'Green Skin Pomelo H', 8, 'Unhealthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 1, 2, 1),
-('P009', 'Green Skin Pomelo I', 9, 'Moderate', '2024-02-09', '2024-02-13', '2023-3-28', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 1, 3, 1),
-('P010', 'Green Skin Pomelo J', 10, 'Healthy', '2024-02-10', '2024-02-14', '2023-3-25', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 1, 4, 1);
+('P008', 'Green Skin Pomelo H', 8, 'Healthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 1, 2, 1),
+('P009', 'Green Skin Pomelo I', 9, 'Healthy', '2020-2-1', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 1, 3, 1),
+('P010', 'Green Skin Pomelo J', 10, 'Healthy', '2020-2-11', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 1, 4, 1);
+
+UPDATE p
+SET GrowthStageID = gs.GrowthStageID
+FROM ipas.dbo.Plant p
+JOIN ipas.dbo.GrowthStage gs
+ON DATEDIFF(MONTH, p.PlantingDate, GETDATE()) BETWEEN gs.MonthAgeStart AND gs.MonthAgeEnd;
 
 GO
 -- Chèn dữ liệu vào bảng LegalDocument
@@ -1633,11 +1666,11 @@ VALUES
 GO
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
-('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
-('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
-('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
-('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
+('P001', 'Southern Vietnam Plant Seedling JSC', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P002', 'Tien Giang Fruit Seedling Center', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P003', 'Dong Thap Seedling Cooperative', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P004', 'Southern Fruit Research Institute', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P005', 'Ba Ria Pomelo Seedling Farm', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
 ('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
 ('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Customer', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
 ('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam',  'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Customer', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),

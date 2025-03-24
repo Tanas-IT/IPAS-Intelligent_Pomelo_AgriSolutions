@@ -3,7 +3,7 @@ import style from "./PlantLotCriteria.module.scss";
 import { Icons } from "@/assets";
 import { CustomButton, MapControls, Tooltip } from "@/components";
 import { GetCriteriaCheck } from "@/payloads";
-import { formatDate, formatDateAndTime, formatDateRange } from "@/utils";
+import { formatDateRange } from "@/utils";
 import { usePlantLotStore } from "@/stores";
 import { CRITERIA_TARGETS } from "@/constants";
 
@@ -25,7 +25,7 @@ interface PanelTitleProps {
   isCompleted?: boolean;
 }
 
-export const PanelTitle = ({
+const PanelTitle = ({
   title,
   target,
   criteriaSetId,
@@ -51,6 +51,7 @@ export const PanelTitle = ({
       updatedCriteria[item.criteriaId] !== undefined &&
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
+
   const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
 
   const startDate = data[0].createDate;
@@ -107,7 +108,7 @@ export const PanelTitle = ({
           </Tooltip>
         )}
         {isAllConditionChecked &&
-          !lot.inputQuantity &&
+          (lot.inputQuantity === undefined || lot.inputQuantity === null) &&
           target === CRITERIA_TARGETS["Plantlot Condition"] && (
             <MapControls
               icon={<Icons.edit />}
@@ -121,8 +122,10 @@ export const PanelTitle = ({
         {isAllConditionChecked &&
           isAllEvaluationChecked &&
           isAllEvaluationPassed &&
-          lot.inputQuantity &&
-          !lot.lastQuantity &&
+          lot.inputQuantity !== undefined &&
+          lot.inputQuantity !== null &&
+          lot.lastQuantity == undefined &&
+          lot.lastQuantity == null &&
           target === CRITERIA_TARGETS["Plantlot Evaluation"] && (
             <MapControls
               icon={<Icons.edit />}
@@ -160,3 +163,5 @@ export const PanelTitle = ({
     </Flex>
   );
 };
+
+export default PanelTitle;

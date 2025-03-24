@@ -8,10 +8,15 @@ export interface GetGraftedPlant {
   graftedPlantId: number;
   graftedPlantCode: string;
   graftedPlantName: string;
-  separatedDate: Date;
+  separatedDate: string;
   status: string;
-  graftedDate: Date;
+  graftedDate: string;
   note: string;
-  isCompleted: boolean
-  plantLotId: number
+  cultivarId: number;
+  cultivarName: string;
+  isCompleted: boolean;
+  plantLotId: number;
+  plantCode: string;
 }
+
+export interface GetGraftedPlantDetail extends GetGraftedPlant {}

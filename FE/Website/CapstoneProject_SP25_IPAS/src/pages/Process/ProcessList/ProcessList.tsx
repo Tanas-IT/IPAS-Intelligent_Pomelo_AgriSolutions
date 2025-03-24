@@ -16,7 +16,7 @@ import ProcessModal from "./AddProcessModal";
 
 function ProcessList() {
   const formModal = useModal<GetProcessList>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",

@@ -4,6 +4,7 @@ import {
   ActionMenuLot,
   ApplyLotCriteriaModal,
   ConfirmModal,
+  LotModal,
   NavigationDot,
   SectionTitle,
   Table,
@@ -23,7 +24,6 @@ import { useEffect, useState } from "react";
 import { DEFAULT_LOT_FILTERS, getOptions } from "@/utils";
 import { criteriaService, plantLotService } from "@/services";
 import { PlantLotColumns } from "./PlantLotColumns";
-import LotModel from "./LotModal";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { FilterPlantLotState } from "@/types";
@@ -39,7 +39,7 @@ function PlantLot() {
     hasInputQuantity?: boolean;
     hasLastQuantity?: boolean;
   }>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
@@ -217,7 +217,7 @@ function PlantLot() {
           rowsPerPageOptions={getOptions(totalRecords)}
           onRowsPerPageChange={handleRowsPerPageChange}
         />
-        <LotModel
+        <LotModal
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
           onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}

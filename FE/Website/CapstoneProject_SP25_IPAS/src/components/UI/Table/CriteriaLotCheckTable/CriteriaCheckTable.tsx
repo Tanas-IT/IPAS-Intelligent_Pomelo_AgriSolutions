@@ -25,43 +25,38 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
 
   const columns = [
     {
-      title: "#",
-      key: "index",
-      align: "center" as const,
-      render: (_: any, __: any, rowIndex: number) => rowIndex + 1,
-    },
-    {
-      title: "Name",
-      dataIndex: "criteriaName",
-      key: "criteriaName",
-      align: "center" as const,
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      align: "center" as const,
-      // width: 350,
-    },
-    {
       title: "Priority",
       dataIndex: "priority",
       key: "priority",
       align: "center" as const,
     },
     {
+      title: "Name",
+      dataIndex: "criteriaName",
+      key: "criteriaName",
+      align: "center" as const,
+      width: 200,
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      align: "center" as const,
+      width: 300,
+    },
+    {
       title: "Min Value",
       dataIndex: "minValue",
       key: "minValue",
       align: "center" as const,
-      width: 100,
+      width: 120,
     },
     {
       title: "Max Value",
       dataIndex: "maxValue",
       key: "maxValue",
       align: "center" as const,
-      width: 100,
+      width: 120,
     },
     {
       title: "Unit",
@@ -77,8 +72,15 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
       render: (_: any, record: GetCriteriaCheck, index: number) => (
         <InputNumber
           placeholder="Enter number..."
-          value={record.valueChecked ?? null}
-          readOnly={(isCondition && !!lot.inputQuantity) || (!isCondition && !!lot.lastQuantity)}
+          value={
+            record.valueChecked !== undefined && record.valueChecked !== 0
+              ? record.valueChecked
+              : null
+          }
+          readOnly={
+            (isCondition && lot.inputQuantity !== undefined && lot.inputQuantity !== null) ||
+            (!isCondition && lot.lastQuantity !== undefined && lot.lastQuantity !== null)
+          }
           onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
           min={0}
         />
