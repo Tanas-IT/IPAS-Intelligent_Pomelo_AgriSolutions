@@ -71,5 +71,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return await query.AsNoTracking().ToListAsync();
         }
+
+        public async Task<GraftedPlant> GetGraftedPlantById(int graftedPlantId)
+        {
+            var result = await _context.GraftedPlants
+                .Include(x => x.PlantLot)
+                .Include(x => x.Plant)
+                .Include(x => x.Plant.MasterType)
+                .FirstOrDefaultAsync(x => x.GraftedPlantId == graftedPlantId && x.IsDeleted == false);
+            return result;
+        }
     }
 }

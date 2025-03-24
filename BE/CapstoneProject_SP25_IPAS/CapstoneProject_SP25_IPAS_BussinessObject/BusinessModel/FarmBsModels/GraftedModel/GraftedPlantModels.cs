@@ -33,6 +33,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
         public string? CultivarName { get; set; }
         public string? PlantLotName { get; set; }
         public string? PlantLotCode { get; set; }
+        public string? MasterTypeName { get; set; }
 
         //public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
 
