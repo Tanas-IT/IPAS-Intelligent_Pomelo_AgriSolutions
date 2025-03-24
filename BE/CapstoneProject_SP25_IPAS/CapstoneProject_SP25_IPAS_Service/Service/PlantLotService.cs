@@ -1079,28 +1079,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
 
                     #region kiem check dieu kien TRUOC khi duyet lo
-                    bool flag = false;  // để duyệt qua điều kiện 1 khỏi duyệt qua điều kiện 2
-                    // kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
-                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
-                    var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+                    //bool flag = false;  // để duyệt qua điều kiện 1 khỏi duyệt qua điều kiện 2
+                    //// kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
+                    //var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                    //var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
 
-                    var checkCondition = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, ConditionList);
-                    // neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
-                    if (checkCondition.StatusCode == 300)
-                    {
-                        flag = true;
-                        checkExistPlantLot.InputQuantity = 0;
-                        checkExistPlantLot.LastQuantity = 0;
-                        _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
-                    }
+                    //var checkCondition = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, ConditionList);
+                    //// neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
+                    //if (checkCondition.StatusCode == 300)
+                    //{
+                    //    flag = true;
+                    //    checkExistPlantLot.InputQuantity = 0;
+                    //    checkExistPlantLot.LastQuantity = 0;
+                    //    _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
+                    //}
                     #endregion
 
                     #region kiem check dieu kien trc khi SAU duyet lo
-                    if (flag == false)
-                    {
+                    //if (flag == false)
+                    //{
                         // kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
                         var requiredEvaluation = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
-                        var EvaluationList = requiredCondition.Any() ? requiredEvaluation.Select(x => x.ConfigValue).ToList() : new List<string>();
+                        var EvaluationList = requiredEvaluation.Any() ? requiredEvaluation.Select(x => x.ConfigValue).ToList() : new List<string>();
 
                         var checkEvaluation = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, EvaluationList);
                         // neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
@@ -1109,7 +1109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             checkExistPlantLot.LastQuantity = 0;
                             _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
                         }
-                    }
+                    //}
                     #endregion
 
                     int result = await _unitOfWork.SaveAsync();
