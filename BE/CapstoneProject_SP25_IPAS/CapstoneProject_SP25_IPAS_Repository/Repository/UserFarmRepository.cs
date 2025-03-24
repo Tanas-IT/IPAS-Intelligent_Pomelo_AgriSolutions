@@ -43,7 +43,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             IQueryable<UserFarm> query = _context.UserFarms.AsQueryable();
 
-            query = query.Where(x => x.UserId == userId && x.Farm.IsDeleted != true && x.User.IsDelete != true);
+            query = query.Where(x => x.UserId == userId && x.Farm.IsDeleted != true && x.User.IsDeleted != true);
 
             query = query.Include(x => x.User)
                 .Include(x => x.Role)
@@ -57,7 +57,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             IQueryable<UserFarm> query = _context.UserFarms.AsQueryable();
 
-            query = query.Where(x => x.FarmId == farmId && x.Farm.IsDeleted != true && x.User.IsDelete != true);
+            query = query.Where(x => x.FarmId == farmId && x.Farm.IsDeleted != true && x.User.IsDeleted != true);
 
             query = query.Include(x => x.User)
                 .Include(x => x.Role)

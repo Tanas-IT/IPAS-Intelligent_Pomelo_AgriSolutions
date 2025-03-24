@@ -96,7 +96,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Nếu có truyền startDate và endDate, lọc theo khoảng ngày
             if (startDate.HasValue && endDate.HasValue)
             {
-                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value && wl.Schedule.CarePlan.FarmID == farmId && wl.Schedule.CarePlan.IsDelete == false).ToList();
+                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value && wl.Schedule.CarePlan.FarmID == farmId && wl.Schedule.CarePlan.IsDeleted == false).ToList();
             }
 
             return query;
@@ -272,6 +272,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(x => x.LandRow)
                         .ThenInclude(x => x.LandPlot)
                         .ThenInclude(x => x.Farm)
+                        .Include(x => x.UserWorkLogs)
                         .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return result;
         }

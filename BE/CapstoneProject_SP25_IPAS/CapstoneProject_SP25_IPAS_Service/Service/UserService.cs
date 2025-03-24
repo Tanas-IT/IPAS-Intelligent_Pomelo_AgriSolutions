@@ -126,7 +126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FullName = createAccountModel.FullName,
                         Status = nameof(UserStatusEnum.Active),
                         RoleId = (int)createAccountModel.Role,
-                        IsDelete = false,
+                        IsDeleted = false,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         AvatarURL = createAccountModel.AvatarUrl ?? "",
@@ -309,7 +309,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             return new BusinessResult(Const.WARNING_ACCOUNT_BANNED_CODE, Const.WARNING_ACCOUNT_BANNED_MSG);
                         }
-                        if (existUser.IsDelete == true)
+                        if (existUser.IsDeleted == true)
                         {
                             return new BusinessResult(Const.WARNING_ACCOUNT_DELETED_CODE, Const.WARNING_ACCOUNT_DELETED_MSG);
                         }
@@ -489,7 +489,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PhoneNumber = model.Phone,
                         Dob = model.Dob,
                         Status = "Active",
-                        IsDelete = false,
+                        IsDeleted = false,
                     };
                     if (model.Password != null)
                     {
@@ -546,7 +546,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var existUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(email);
             if (existUser != null)
             {
-                if (existUser.Status.ToLower() == "Active".ToLower() && existUser.IsDelete == false)
+                if (existUser.Status.ToLower() == "Active".ToLower() && existUser.IsDeleted == false)
                 {
                     bool checkSendOtp = await CreateOtpAsync(email);
                     return new BusinessResult(Const.SUCCESS_SEND_OTP_RESET_PASSWORD_CODE, Const.SUCCESS_SEND_OTP_RESET_PASSWORD_USER_MSG, true);
@@ -645,9 +645,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG, false);
                         }
                     }
-                    if (existUser.IsDelete != null)
+                    if (existUser.IsDeleted != null)
                     {
-                        existUser.IsDelete = updateUserRequestModel.IsDeleted;
+                        existUser.IsDeleted = updateUserRequestModel.IsDeleted;
                     }
                     existUser.UpdateDate = DateTime.Now;
 
@@ -1058,7 +1058,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 UserCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.USER),
                                 FullName = userInfo.Name,
                                 Status = nameof(UserStatusEnum.Active),
-                                IsDelete = false,
+                                IsDeleted = false,
                                 CreateDate = DateTime.Now,
                                 UpdateDate = DateTime.Now,
                                 AvatarURL = avatarUrl,
@@ -1104,7 +1104,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             });
                         }
                         // nếu người dùng bị ban
-                        if (existUser.Status!.ToLower().Equals(nameof(UserStatusEnum.Banned).ToLower()) || existUser.IsDelete == true)
+                        if (existUser.Status!.ToLower().Equals(nameof(UserStatusEnum.Banned).ToLower()) || existUser.IsDeleted == true)
                         {
                             return new BusinessResult(Const.WARNING_ACCOUNT_BANNED_CODE, Const.WARNING_ACCOUNT_BANNED_MSG);
                         }

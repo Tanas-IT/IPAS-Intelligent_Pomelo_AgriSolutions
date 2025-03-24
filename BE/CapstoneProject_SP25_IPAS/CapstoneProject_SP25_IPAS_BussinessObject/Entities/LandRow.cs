@@ -28,7 +28,7 @@ public partial class LandRow
     public string? Status { get; set; }
 
     public string? Description { get; set; }
-    public bool? isDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public double? MinLength { get; set; }
     public double? MaxLength { get; set; }

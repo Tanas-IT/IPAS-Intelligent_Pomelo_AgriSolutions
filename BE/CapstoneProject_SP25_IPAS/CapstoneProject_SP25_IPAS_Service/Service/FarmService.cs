@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFarmRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -34,12 +35,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IConfiguration _configuration;
-        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IConfiguration configuration)
+        private readonly ISoftDeleteCommon _softDeleteCommon;
+        public FarmService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IConfiguration configuration, ISoftDeleteCommon softDeleteCommon)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _configuration = configuration;
+            _softDeleteCommon = softDeleteCommon;
         }
 
         public async Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateRequest, int userid)
@@ -327,10 +330,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     }
-                    farm.IsDeleted = true;
-                    _unitOfWork.FarmRepository.Update(farm);
-                    int result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
+                    var result = await _softDeleteCommon.SoftDeleteFarm(farmId);
+                    //farm.IsDeleted = true;
+                    //_unitOfWork.FarmRepository.Update(farm);
+                    //int result = await _unitOfWork.SaveAsync();
+                    if (result)
                     {
                         await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_DELETE_SOFTED_FARM_CODE, Const.SUCCESS_DELETE_SOFTED_FARM_MSG, new { success = true });
@@ -568,7 +572,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => (x.User.FullName!.ToLower().Contains(paginationParameter.Search.ToLower())
                                    || x.User.Email!.ToLower().Contains(paginationParameter.Search.ToLower()))
-                                   && x.User.IsDelete != true
+                                   && x.User.IsDeleted != true
                                    && x.Farm.IsDeleted != true);
                 }
 
@@ -718,7 +722,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId!.Value && x.IsDeleted == false);
-                    var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDelete == false);
+                    var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDeleted == false);
                     var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(RoleEnum.EMPLOYEE.ToString().ToLower()) && x.IsSystem == true);
                     if (checkFarmExist == null || checkUserExist == null || checkRoleExist == null)
                         return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);

@@ -76,7 +76,7 @@ CREATE TABLE ipas.dbo.GrowthStage (
 	MonthAgeEnd int NULL,
 	isDefault bit NULL DEFAULT 0,
 	FarmID int NULL,
-        isDeleted bit NULL DEFAULT 0,
+        IsDeleted bit NULL DEFAULT 0,
 	CreateDate datetime NULL,
 	ActiveFunction nvarchar(200),
 	Description nvarchar(MAX) COLLATE Vietnamese_CI_AS NULL,
@@ -97,7 +97,7 @@ CREATE TABLE ipas.dbo.MasterType (
 	MasterTypeDescription nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	isActive bit NULL  DEFAULT 0,
 	TypeName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	isDelete bit NULL DEFAULT 0,
+	IsDeleted bit NULL DEFAULT 0,
 	isDefault bit NULL,
 	FarmID int NULL,
         Target nvarchar(MAX) NULL,
@@ -185,7 +185,7 @@ CREATE TABLE ipas.dbo.Criteria (
 	MaxValue float NULL,
 	Unit nvarchar(50) NULL,
 	isActive bit NULL  DEFAULT 1,
-	isDeleted bit NULL default 0,
+	IsDeleted bit NULL default 0,
         FrequencyDate int NULL,
         isDefault bit NULL,
 	MasterTypeID int NULL,
@@ -226,7 +226,7 @@ CREATE TABLE ipas.dbo.HarvestHistory (
 	TotalPrice float NULL,
 	HarvestStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CropID int NULL,
-        isDelete bit NULL DEFAULT 0,
+        IsDeleted bit NULL DEFAULT 0,
 	CONSTRAINT PK__HarvestH__F15734AD189BFCA2 PRIMARY KEY (HarvestHistoryID),
 	CONSTRAINT HarvestHistory_Crop_FK FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID) ON DELETE SET NULL
 );
@@ -257,7 +257,7 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	FarmID int NULL,
-    isDeleted bit NULL DEFAULT 0,
+    IsDeleted bit NULL DEFAULT 0,
 	IsRowHorizontal bit NULL,
    	LineSpacing float NULL,
   	NumberOfRows int NULL,
@@ -325,7 +325,7 @@ CREATE TABLE ipas.dbo.LandRow (
 	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandPlotID int NULL,
 	FarmID int NULL,
-        isDeleted bit NULL DEFAULT 0,
+        IsDeleted bit NULL DEFAULT 0,
 	CONSTRAINT PK__LandRow__0E72A6FAD7B08F4C PRIMARY KEY (LandRowID),
 	CONSTRAINT FK__LandRow__LandPlo__22751F6C FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID) ON DELETE CASCADE
 );
@@ -522,7 +522,7 @@ CREATE TABLE ipas.dbo.PlantLot (
 	PartnerID int NULL,
 	PlantLotReferenceID int NULL,
 	FarmID int NULL,
-	isDeleted bit NULL,
+	IsDeleted bit NULL,
 	IsPassed bit DEFAULT 0,
 	PassedDate datetime null,
 	MasterTypeId int NULL,
@@ -554,7 +554,7 @@ CREATE TABLE ipas.dbo.Process (
 	StartDate datetime NULL,
 	EndDate datetime NULL,
         PlanTargetInProcess int NULL,
-	isDeleted bit DEFAULT 0 NULL,
+	IsDeleted bit DEFAULT 0 NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
 	[Order] int NULL,
@@ -585,7 +585,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	UpdateDate datetime NULL,
 	StartDate datetime NULL,
 	EndDate datetime NULL,
-	isDeleted bit NULL DEFAULT 0,
+	IsDeleted bit NULL DEFAULT 0,
     [Order] int NULL,
 	ProcessID int NULL,
 	MasterTypeID int NULL,
@@ -613,7 +613,7 @@ CREATE TABLE ipas.dbo.[User] (
 	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
-	IsDelete bit NULL DEFAULT 0,
+	IsDeleted bit NULL DEFAULT 0,
 	DeleteDate datetime NULL,
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	IsDependency int NULL,
@@ -795,7 +795,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	MinVolume float NULL,
 	ProcessID int NULL,
 	CropID int NULL,
-	IsDelete bit DEFAULT 0 NULL,
+	IsDeleted bit DEFAULT 0 NULL,
         IsSample bit NULL,
 	MasterTypeID int NULL,
 	SubProcessID int NULL,
@@ -977,6 +977,8 @@ CREATE TABLE ipas.dbo.UserWorkLog (
         IsDeleted bit NULL DEFAULT 0,
         CreateDate datetime NULL,
         Notes nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        StatusOfUserWorkLog nvarchar(MAX) NULL,
+	ReplaceUserId int NULL,
         Issue nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__UserWork__2F2CA1082A09A834 PRIMARY KEY (UserWorkLogID),
 	CONSTRAINT FK__UserWorkL__UserI__43A1090D FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
@@ -1055,9 +1057,22 @@ CREATE TABLE ipas.dbo.Report (
 	CONSTRAINT Report_User_FK FOREIGN KEY (AnswererID) REFERENCES ipas.dbo.[User](UserID),
 	CONSTRAINT Report_User_FK_1 FOREIGN KEY (QuestionerID) REFERENCES ipas.dbo.[User](UserID)
 );
-
 GO
-
+CREATE TABLE SystemConfiguration (
+    ConfigID INT IDENTITY(1,1) PRIMARY KEY,
+   -- ConfigGroup NVARCHAR(100) NOT NULL,  
+    ConfigKey NVARCHAR(100) NOT NULL,      
+    ConfigValue NVARCHAR(500) NOT NULL,    
+    ValueType NVARCHAR(50) NOT NULL,       
+    IsActive BIT DEFAULT 1,               
+    IsDeleteable BIT DEFAULT 0,               
+    EffectedDateFrom DATETIME NULL,       
+    EffectedDateTo DATETIME NULL,          
+    Description NVARCHAR(500) NULL,        
+    CreateDate DATETIME DEFAULT GETDATE(), 
+    UpdateDate DATETIME NULL               
+);
+GO
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
@@ -1104,7 +1119,7 @@ VALUES
 ('Manager', 4),
 ('Employee', 5);
 GO
-INSERT INTO [ipas].[dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDelete], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
+INSERT INTO [ipas].[dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDeleted], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 2),
@@ -1152,7 +1167,7 @@ VALUES
 (1, 17, 4); -- Daniel Brown (Manager)
 GO
 -- Fake data for GrowthStage table with FarmID = 1
-INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)
 VALUES
 ('GS101', 'Germination Stage', 0, 6, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
 ('GS102', 'Seedling Stage', 7, 24, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
@@ -1162,7 +1177,7 @@ VALUES
 GO
 
 -- Fake data for GrowthStage table with FarmID = 2
-INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, isDeleted, CreateDate, ActiveFunction, Description)
+INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)
 VALUES
 ('GS201', 'Germination Stage', 0, 3, 0, 2, 0, GETDATE(), '', 'Seed starts sprouting and developing initial roots'),
 ('GS202', 'Seedling Stage', 4, 9, 0, 2, 0, GETDATE(), '', 'Early stage of leaf and root development'),
@@ -1172,7 +1187,7 @@ VALUES
 
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDelete], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
 VALUES
       ('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
@@ -1214,13 +1229,14 @@ VALUES
     ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, null, NULL, NULL, NULL),
-    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, null, NULL, NULL, NULL),
-    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, null, NULL, NULL, NULL),
-    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, null, NULL, NULL, NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, null, NULL, NULL, NULL),
-    ('MT040', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL);
-
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT040', 'Grafting', 'Work', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafting', NULL,NULL),
+    ('MT041', 'PlantLot', 'Work', 'Preparing for plantLot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL),
+    ('MT042', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL);
 GO
 
 GO
@@ -1378,7 +1394,7 @@ WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR
 GO
 INSERT INTO ipas.dbo.LandPlot (
     LandPlotCode, LandPlotName, Area, [Length], Width, RowperLine, RowSpacing, SoilType, 
-    CreateDate, UpdateDate, Status, Description, FarmID, isDeleted, IsRowHorizontal, 
+    CreateDate, UpdateDate, Status, Description, FarmID, IsDeleted, IsRowHorizontal, 
     LineSpacing, NumberOfRows, TargetMarket
 ) 
 VALUES 
@@ -1611,7 +1627,7 @@ VALUES
     (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
 GO
 INSERT INTO [ipas].dbo.Process 
-(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, isDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
+(ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
 (N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, 1, 1),
 (N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 1, 2),
@@ -1678,7 +1694,7 @@ VALUES
 ('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 GO
 INSERT INTO ipas.dbo.PlantLot 
-(PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, isDeleted, MasterTypeId, IsPassed) 
+(PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, IsDeleted, MasterTypeId, IsPassed) 
 VALUES
 -- Lô cha
 ('PL001', 'Plant Lot A', 100, 80, 70, 70, 'Plant', 'Active', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1),
@@ -1712,7 +1728,7 @@ GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
-     [CropID], [IsDelete], [MasterTypeID], [SubProcessID], [FarmID])
+     [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID])
 VALUES
     ('Active', 'PLN001', GETDATE(), '2025-04-01', '2025-04-01', GETDATE(), 1, 'Plan for pesticide spraying', 'Detail 1', 
      'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, NULL, 1),
@@ -1798,3 +1814,76 @@ VALUES
     (5, 19, 1),
     (NULL, 14, 1);
 Go
+
+-- Cấu hình hệ thống
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+( 'Growth Exponent', '1.4', 'int', 'Số mũ tăng trưởng'),
+( 'Initial Branching Coefficient', '5', 'int', 'Hệ số phân nhánh ban đầu'),
+( 'Maximum Grafting Limit', '100', 'int', 'Giới hạn chiết cành tối đa');
+
+
+-- Danh sách WorkTargets
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Work Type', 'Watering', 'string', 'Tưới nước'),
+('Work Type', 'Fertilizer', 'string', 'Bón phân'),
+('Work Type', 'Pruning-Shaping', 'string', 'Cắt tỉa - tạo táng'),
+('Work Type', 'Grafted', 'string', 'Chiết cành'),
+('Work Type', 'Pest Control', 'string', 'Kiểm soát sâu bệnh'),
+('Work Type', 'Others', 'string', 'Các loại công việc khác');
+GO
+-- Danh sách Criteria
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Criteria Type', 'Grafted Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
+('Criteria Type', 'Grafted Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('Criteria Type', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá lô giống nhập vào'),
+('Criteria Type', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Criteria Type', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
+('Criteria Type', 'Others', 'string', 'Các loại tiêu chí khác');
+GO
+-- Danh sách Criteria
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Grafted Condition Apply', 'Grafted Condition', 'string', 'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('Grafted Evaluation Apply', 'Grafted Evaluation', 'string', 'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
+
+('PlantLot Condition Apply', 'PlantLot Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
+('PlantLot Evaluation Apply', 'PlantLot Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+
+('Grafted Criteria', 'Grafted Evaluation', 'string', 'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Grafted Criteria', 'Others', 'string', 'Bộ tiêu chí khác'),
+
+('PlantLot Criteria', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
+('PlantLot Criteria', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
+('PlantLot Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+
+('Plant Criteria', 'Grafted Condition', 'string', 'Bộ tiêu chí đánh giá cây mẹ'),
+('Plant Criteria', 'Plant Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho cây'),
+('Plant Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+
+('Product Criteria', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
+('Product Criteria', 'Orther', 'string', 'Tiêu chí đánh giá sản phẩm');
+GO
+-- Danh sách Config trong farm
+INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('Min Lenght', '1', 'double', 'Độ dài tối thiểu'),
+('Min Width', '1', 'double', 'Độ dài tối đa'),
+('Min Area', '1', 'double', 'Diện tích tối thiểu'),
+('Min Row Of LandPlot', '1', 'int', 'Số hàng tối thiểu của 1 LandPlot'),
+('Coordiantion Point Required ', '3', 'int', 'Số điểm tối đa của plantLot'),
+('Min Distance Plant', '2.5', 'double', 'Khoảng cách tối thiểu giữa các cây'),
+('Min Plant Of LandRow', '1', 'int', 'Số cây tối thiểu của 1 Hàng');
+GO
+-- Danh sách TypeNames
+INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+( 'TypeName', 'Document', 'string', 'Quy trình'),
+( 'TypeName', 'Criteria', 'string', 'Tiêu chí'),
+( 'TypeName', 'Product', 'string', 'Sản phẩm'),
+( 'TypeName', 'Cultivar', 'string', 'Giống cây'),
+( 'TypeName', 'Document', 'string', 'Các loại tài liệu'),
+( 'TypeName', 'Work', 'string', 'Công việc');
+

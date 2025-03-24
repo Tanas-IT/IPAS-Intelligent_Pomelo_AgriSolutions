@@ -391,7 +391,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (updateRequest.PlantLotId.HasValue && updateRequest.PlantLotId.Value >= 0)
                 {
-                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.isDeleted != true);
+                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.IsDeleted != true);
                     if (checkPlantLotExist == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     existingGraftedPlant.PlantLotId = updateRequest.PlantLotId.Value;
@@ -496,16 +496,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "This grafted has seperate before. Please check again");
                     if (checkGraftedExist.PlantLotId.HasValue)
                         return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
-                    var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
-
-                    var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredCondition);
+                    //var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
+                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_EVALUATION_APPLY));
+                    var requiredList = requiredCondition.Select(x => x.ConfigValue).ToList() ?? new List<string>(); 
+                    var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredList);
                     if (checkCriteriaBefore.enable == false)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);
 
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
                     {
                         // neu complete xong add vô trong lô thì có thể truyền lotId liền luôn, còn ko thì để đó
-                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
+                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.IsDeleted != true);
                         if (checkPlantLotExist == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                         if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant!.MasterTypeId)
@@ -622,8 +623,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         /// C=min(5×N^1.5,100)
         /// </summary>
         /// <param name="plantingDate"></param>
-        private int CalculateMaxGraftedBranches(DateTime plantingDate)
+        private async Task<int> CalculateMaxGraftedBranches(DateTime plantingDate)
         {
+            double growthExponent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.GROWTH_EXPONENT, (double)1.4);
+            double initialBranchingCoefficient = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.INITIAL_BRANCHING_COEFFICIENT, (double)5.0);
+            int MaximumGraftingLimit = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MAXIMUM_GRAFTING_LIMIT, 100);
             // Lấy ngày hiện tại
             DateTime currentDate = DateTime.Now;
 
@@ -637,7 +641,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (treeAge < 0) return 0;
 
             // Áp dụng công thức C = min(5 × N^1.5, 100)
-            double maxBranches = Math.Min(5 * Math.Pow(treeAge, 1.4), 100);
+            double maxBranches = Math.Min(initialBranchingCoefficient * Math.Pow(treeAge, growthExponent), MaximumGraftingLimit);
 
             // Làm tròn xuống để tránh số lẻ cành chiết
             return (int)Math.Floor(maxBranches);
@@ -664,7 +668,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 && !x.IsDeleted!.Value
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
-            if (countGraftedInYear >= maxGraftedBranches)
+            if (countGraftedInYear >= (await maxGraftedBranches))
                 errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
@@ -763,7 +767,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     //  1️ Kiểm tra lô tồn tại
                     var plantLot = await _unitOfWork.PlantLotRepository
-                        .GetByCondition(x => x.PlantLotId == request.plantLotId && x.isDeleted == false);
+                        .GetByCondition(x => x.PlantLotId == request.plantLotId && x.IsDeleted == false);
 
                     if (plantLot == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, "PlantLot does not exist.");

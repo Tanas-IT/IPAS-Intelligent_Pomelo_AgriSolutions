@@ -277,5 +277,65 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPut(APIRoutes.WorkLog.ChangeEmployeeOfWorkLog, Name = "ChangeEmployeeOfWorkLog")]
+        public async Task<IActionResult> ChangeEmployeeOfWorkLog([FromBody] ChangeEmployeeOfWorkLog changeEmployeeOfWorkLogs)
+        {
+            try
+            {
+                var result = await _workLogService.ChangeEmployeeOfWorkLog(changeEmployeeOfWorkLogs);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.WorkLog.CanceledWorkLogByEmployee, Name = "CanceledWorkLogByEmployee")]
+        public async Task<IActionResult> CanceledWorkLogByEmployee([FromBody] CancelledWorkLogModel cancelledWorkLogModel)
+        {
+            try
+            {
+                var result = await _workLogService.CanceledWorkLogByEmployee(cancelledWorkLogModel.WorkLogId, cancelledWorkLogModel.UserId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.WorkLog.CheckAttendance, Name = "CheckAttendance")]
+        public async Task<IActionResult> CheckAttendance([FromBody] CheckAttendanceModel checkAttendanceModel)
+        {
+            try
+            {
+                var result = await _workLogService.CheckAttendance(checkAttendanceModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

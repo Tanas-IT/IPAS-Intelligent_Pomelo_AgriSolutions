@@ -46,7 +46,7 @@ public partial class Plan
 
     public int? CropId { get; set; }
 
-    public bool? IsDelete { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public int? MasterTypeId { get; set; }
     public int? FarmID { get; set; }

@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 try
                 {
-                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId && x.IsDefault == false && x.IsDelete == false, "Criterias");
+                    var masterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == listUpdate.MasterTypeId && x.IsDefault == false && x.IsDeleted == false, "Criterias");
                     if (masterType == null)
                         return new BusinessResult(Const.FAIL_GET_MASTER_TYPE_CODE, Const.FAIL_GET_MASTER_TYPE_DETAIL_MESSAGE);
                     // update MasterType
@@ -269,9 +269,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 masterTypeFilter.TypeName = TypeNameInMasterEnum.Criteria.ToString();
-                Expression<Func<MasterType, bool>> filter = x => x.IsDelete == false;
+                Expression<Func<MasterType, bool>> filter = x => x.IsDeleted == false;
                 if (farmId > 0)
-                    filter = filter.And(x => (x.FarmID == farmId && x.IsDelete == false) || (x.IsDefault == true && x.FarmID == null));
+                    filter = filter.And(x => (x.FarmID == farmId && x.IsDeleted == false) || (x.IsDefault == true && x.FarmID == null));
                 else
                     filter = filter.And(x => x.IsDefault == true && x.FarmID == null);
                 //return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
@@ -351,8 +351,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         case "isdelete":
                             orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                         ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                       ? x => x.OrderByDescending(x => x.IsDelete).OrderByDescending(x => x.MasterTypeId)
-                                       : x => x.OrderBy(x => x.IsDelete).OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.IsDelete).OrderByDescending(x => x.MasterTypeId);
+                                       ? x => x.OrderByDescending(x => x.IsDeleted).OrderByDescending(x => x.MasterTypeId)
+                                       : x => x.OrderBy(x => x.IsDeleted).OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.IsDeleted).OrderByDescending(x => x.MasterTypeId);
                             break;
                         case "createdate":
                             orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -423,7 +423,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeName = request.CreateMasTypeRequest.MasterTypeName,
                         MasterTypeDescription = request.CreateMasTypeRequest.MasterTypeDescription,
                         IsActive = request.CreateMasTypeRequest.IsActive,
-                        IsDelete = false,
+                        IsDeleted = false,
                         IsDefault = false,
                         CreateBy = request.CreateMasTypeRequest.CreateBy,
                         CreateDate = DateTime.Now,
@@ -522,7 +522,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
 
                 Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == masterTypeId
-                                                                && x.IsDelete != true
+                                                                && x.IsDeleted != true
                                                                 && x.TypeName.ToLower().Contains(TypeNameInMasterEnum.Criteria.ToString().ToLower());
                 string includeProperties = "Criterias";
                 var CriteriaSet = await _unitOfWork.MasterTypeRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
@@ -589,7 +589,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
 
                 //  1. Kiểm tra PlantLot tồn tại
-                var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
+                var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.IsDeleted == false);
                 if (plantLotExist == null)
                     return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
 
@@ -610,7 +610,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
                 var appliedMasterTypeIds = appliedCriteriaTargets
-            .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType.IsDelete == false && x.Criteria.MasterType.IsActive == true)
+            .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType.IsDeleted == false && x.Criteria.MasterType.IsActive == true)
             .Select(x => x.Criteria.MasterTypeID.Value)
             .Distinct() // 🔹 Tránh trùng lặp
             .ToList();
@@ -663,7 +663,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
                 var appliedMasterTypeIds = appliedCriteriaTargets
-                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType!.IsDelete == false && x.Criteria.MasterType.IsActive == true)
+                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType!.IsDeleted == false && x.Criteria.MasterType.IsActive == true)
                     .Select(x => x.Criteria!.MasterTypeID!.Value)
                     .Distinct() //  Tránh trùng lặp
                     .ToList();
@@ -716,7 +716,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
                 var appliedMasterTypeIds = appliedCriteriaTargets
-                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType!.IsDelete == false && x.Criteria.MasterType.IsActive == true)
+                    .Where(x => x.Criteria != null && x.Criteria.MasterTypeID.HasValue && x.Criteria.MasterType!.IsDeleted == false && x.Criteria.MasterType.IsActive == true)
                     .Select(x => x.Criteria!.MasterTypeID!.Value)
                     .Distinct() //  Tránh trùng lặp
                     .ToList();

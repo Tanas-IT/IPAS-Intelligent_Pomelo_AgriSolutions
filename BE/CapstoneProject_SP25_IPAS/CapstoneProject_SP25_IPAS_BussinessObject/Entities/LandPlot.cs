@@ -28,7 +28,7 @@ public partial class LandPlot
     public string? Description { get; set; }
 
     public int? FarmId { get; set; }
-    public bool? isDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
     public bool? IsRowHorizontal { get; set; }
     public string? TargetMarket { get; set; }
     public int? RowPerLine { get; set; }

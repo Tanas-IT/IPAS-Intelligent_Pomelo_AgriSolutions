@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
@@ -102,6 +103,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
             services.AddScoped<IType_TypeRepository, Type_TypeRepository>();
             services.AddScoped<IReportRepository, ReportRepository>();
+            services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
 
 
             // Register servicies
@@ -133,6 +135,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             //services.AddScoped<IWeatherNotificationService, WeatherNotificationService>();
             services.AddScoped<IWebSocketService, WebSocketService>();
             services.AddScoped<ITypeTypeService, TypeTypeService>();
+            services.AddScoped<ISystemConfigService, SystemConfigService>();
 
 
 
@@ -149,6 +152,9 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
+            services.AddScoped<ISoftDeleteCommon, SoftDeleteCommon>();
+            //services.AddHostedService<WorkLogStatusUpdaterService>();
+            //services.AddHostedService<PlantGrowthUpdateService>();
             
 
 
