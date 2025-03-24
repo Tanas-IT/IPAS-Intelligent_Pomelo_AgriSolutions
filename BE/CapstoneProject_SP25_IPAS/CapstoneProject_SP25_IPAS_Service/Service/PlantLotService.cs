@@ -591,7 +591,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
                             var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
-                            if (checkCondition.StatusCode != 200)
+                            if (checkCondition.StatusCode == 300 && updatePlantLotRequestModel.LastQuantity.Value != 0)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.InputQuantity)
                                 return new BusinessResult(400, "Last Quantity larger than input quantity");
@@ -955,13 +955,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
-            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true);
+            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true && x.ValueChecked.HasValue);
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(400, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+                return new BusinessResult(300, $"The plant lot has not PASS all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
-
             return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
         }
 
