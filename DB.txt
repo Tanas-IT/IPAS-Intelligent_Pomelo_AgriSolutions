@@ -1873,7 +1873,7 @@ VALUES
 ('Min Width', '1', 'double', 'Độ dài tối đa'),
 ('Min Area', '1', 'double', 'Diện tích tối thiểu'),
 ('Min Row Of LandPlot', '1', 'int', 'Số hàng tối thiểu của 1 LandPlot'),
-('Coordiantion Point Required ', '3', 'int', 'Số điểm tối đa của plantLot'),
+('Coordiantion Point Required', '3', 'int', 'Số điểm tối đa của plantLot'),
 ('Min Distance Plant', '2.5', 'double', 'Khoảng cách tối thiểu giữa các cây'),
 ('Min Plant Of LandRow', '1', 'int', 'Số cây tối thiểu của 1 Hàng');
 GO

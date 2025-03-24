@@ -46,9 +46,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // kiem tra dien tich cua thua xem neu them hang nay vao co duoc khong - hoac do dai or rong cua hang lon hon do dai thua
                     if (landplot == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                    if (landplot.NumberOfRows <= landplot.LandRows.Count())
+                        return new BusinessResult(400, "This plot is full of row");
                     if (landplot.Length < createRequest.Length || landplot.Width < landplot.Width)
                         return new BusinessResult(Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_CODE, Const.WARNING_LENGHT_OR_WIDTH_OF_ROW_LARGER_THAN_PLOT_MSG);
-                    
                     var minLenght = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
                     if (createRequest.Length < minLenght)
                         return new BusinessResult(400, $"Lenght of Row must > {minLenght}.");

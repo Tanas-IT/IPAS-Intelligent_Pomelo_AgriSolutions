@@ -73,27 +73,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
-                    var code = CodeHelper.GenerateCode();
-                    var graftedCreateEntity = new GraftedPlant()
+                    var motherCode = Util.SplitByDash(plantExist.PlantCode!).First().ToUpper();
+                    List<GraftedPlant> graftedInsert = new List<GraftedPlant>();
+                    for (int i = 0; i < createRequest.TotalNumber; i++)
                     {
-                        GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(plantExist.PlantCode!).First()}",
-                        GraftedPlantName = createRequest.GraftedPlantName ?? $"GraftPlant {code}",
-                        //GrowthStage = createRequest.GrowthStage,
-                        Status = GraftedPlantStatusConst.HEALTHY,
-                        GraftedDate = createRequest.GraftedDate,
-                        Note = createRequest.Note,
-                        MotherPlantId = plantExist.PlantId,
-                        IsDeleted = false,
-                        IsCompleted = false,
-                    };
+                        var code = CodeHelper.GenerateCode();
+                        var graftedCreateEntity = new GraftedPlant()
+                        {
+                            GraftedPlantCode = $"{CodeAliasEntityConst.GRAFTED_PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{motherCode}",
+                            GraftedPlantName = /*createRequest.GraftedPlantName ??*/ $"GraftPlant {code} M.{motherCode} ",
+                            Status = GraftedPlantStatusConst.HEALTHY,
+                            GraftedDate = createRequest.GraftedDate,
+                            Note = createRequest.Note,
+                            MotherPlantId = plantExist.PlantId,
+                            IsDeleted = false,
+                            IsCompleted = false,
+                        };
+                        graftedInsert.Add(graftedCreateEntity);
+                    }
 
                     //// Insert the new grafted entity into the repository
-                    await _unitOfWork.GraftedPlantRepository.Insert(graftedCreateEntity);
+                    await _unitOfWork.GraftedPlantRepository.InsertRangeAsync(graftedInsert);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var mappedResult = _mapper.Map<GraftedPlantModels>(graftedCreateEntity);
+                        var mappedResult = _mapper.Map<List<GraftedPlantModels>>(graftedInsert);
                         return new BusinessResult(Const.SUCCESS_CREATE_GRAFTED_PLANT_CODE, Const.SUCCESS_CREATE_GRAFTED_PLANT_MSG, mappedResult);
                     }
                     return new BusinessResult(Const.FAIL_CREATE_PLANT_CODE, Const.FAIL_CREATE_PLANT_MSG);
@@ -210,7 +215,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
+        public async Task<BusinessResult> getAllGraftedPagin(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -344,6 +349,62 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin);
                 else
                     return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantModels>());
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getAllGraftedByPlantPagin(GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                // Tạo bộ lọc
+                Expression<Func<GraftedPlant, bool>> filter = x =>
+                    !x.IsDeleted!.Value && x.MotherPlantId == getRequest.PlantId;
+
+                if (getRequest.GraftedDateFrom.HasValue && getRequest.GraftedDateTo.HasValue)
+                {
+                    if (getRequest.GraftedDateFrom > getRequest.GraftedDateTo)
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+
+                    filter = filter.And(x => x.GraftedDate >= getRequest.GraftedDateFrom && x.GraftedDate <= getRequest.GraftedDateTo);
+                }
+
+                // Lấy danh sách cành được chiết
+                var graftedPlants = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter);
+
+                // Nhóm dữ liệu theo ngày chiết
+                var groupedData = graftedPlants
+                    .Where(x => x.GraftedDate.HasValue)
+                    .GroupBy(x => x.GraftedDate!.Value.Date)
+                    .Select(group => new GraftedPlantSummaryModel
+                    {
+                        GraftedDate = group.Key,
+                        TotalBranches = group.Count(),
+                        ListGrafted = group.Select(x => new GraftedName { Name = x.GraftedPlantName, IsCompleted = x.IsCompleted , Status = x.Status}).ToList(),
+                        CompletedCount = group.Count(x => x.IsCompleted!.Value),
+                        CompletionRate = group.Count(x => x.IsCompleted!.Value) + "/" + group.Count()
+                    })
+                    .OrderByDescending(x => x.GraftedDate) // Sắp xếp theo ngày chiết
+                    .Skip((paginationParameter.PageIndex - 1) * paginationParameter.PageSize)
+                    .Take(paginationParameter.PageSize)
+                    .ToList();
+
+                var totalRecords = groupedData.Count;
+                var totalPages = PaginHelper.PageCount(totalRecords, paginationParameter.PageSize);
+
+                var pagin = new PageEntity<GraftedPlantSummaryModel>
+                {
+                    List = groupedData,
+                    TotalRecord = totalRecords,
+                    TotalPage = totalPages
+                };
+
+                return pagin.List.Any()
+                    ? new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin)
+                    : new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantSummaryModel>());
             }
             catch (Exception ex)
             {
@@ -496,7 +557,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
                     //var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
                     var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_EVALUATION_APPLY));
-                    var requiredList = requiredCondition.Select(x => x.ConfigValue).ToList() ?? new List<string>(); 
+                    var requiredList = requiredCondition.Select(x => x.ConfigValue).ToList() ?? new List<string>();
                     var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredList);
                     if (checkCriteriaBefore.enable == false)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);

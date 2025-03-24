@@ -7,15 +7,9 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest
 {
-    public class CheckPlantCriteriaRequest
+    public class CheckPlantLotCriteriaRequest
     {
-        //public int PlantId { get; set; }
-
-        public List<int>? PlantID { get; set; } = new List<int>();
-
-        public List<int>? GraftedPlantID { get; set; } = new List<int>();
-
-        //public List<int>? PlantLotID { get; set; } = new List<int>();
+        public int PlantLotID { get; set; }
         [Required]
         public List<CriteriaData> criteriaDatas { get; set; } = new List<CriteriaData>();
     }
