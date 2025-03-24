@@ -2,13 +2,13 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, lotFormFields, MASTER_TYPE, PARTNER } from "@/constants";
+import { lotFormFields, MASTER_TYPE, PARTNER } from "@/constants";
 import { GetPlantLot2, PlantLotRequest } from "@/payloads";
 import { partnerService } from "@/services";
 import { SelectOption } from "@/types";
 import { useMasterTypeOptions } from "@/hooks";
 
-type LotModelProps = {
+type LotModalProps = {
   isOpen: boolean;
   onClose: (values: PlantLotRequest, isUpdate: boolean) => void;
   onSave: (values: PlantLotRequest) => void;
@@ -16,7 +16,7 @@ type LotModelProps = {
   lotData?: GetPlantLot2;
 };
 
-const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModelProps) => {
+const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModalProps) => {
   const [form] = Form.useForm();
   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
   const [partnerOptions, setPartnerOptions] = useState<SelectOption[]>([]);
@@ -25,6 +25,7 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
   useEffect(() => {
     const fetchPartners = async () => {
       const res = await partnerService.getSelectPartner(PARTNER.PROVIDER);
+
       if (res.statusCode === 200) {
         setPartnerOptions(
           res.data.map((partner) => ({
@@ -48,16 +49,10 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
     form.setFieldsValue({ ...lotData, unit: "Plant" });
   }, [isOpen, lotData]);
 
-  const getFormData = (): PlantLotRequest => ({
-    plantLotId: form.getFieldValue(lotFormFields.plantLotId),
-    plantLotName: form.getFieldValue(lotFormFields.plantLotName),
-    partnerId: form.getFieldValue(lotFormFields.partnerId),
-    masterTypeId: form.getFieldValue(lotFormFields.masterTypeId),
-    previousQuantity: form.getFieldValue(lotFormFields.previousQuantity),
-    lastQuantity: form.getFieldValue(lotFormFields.lastQuantity),
-    unit: form.getFieldValue(lotFormFields.unit),
-    note: form.getFieldValue(lotFormFields.note),
-  });
+  const getFormData = (): PlantLotRequest =>
+    Object.fromEntries(
+      Object.values(lotFormFields).map((field) => [field, form.getFieldValue(field)]),
+    ) as PlantLotRequest;
 
   const handleOk = async () => {
     await form.validateFields();
@@ -135,4 +130,4 @@ const LotModel = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotMode
   );
 };
 
-export default LotModel;
+export default LotModal;

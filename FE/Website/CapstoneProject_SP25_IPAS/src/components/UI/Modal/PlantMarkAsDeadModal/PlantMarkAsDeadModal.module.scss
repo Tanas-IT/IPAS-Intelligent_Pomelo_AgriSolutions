@@ -1,0 +1,25 @@
+.effectModal {
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 16px 16px;
+
+  label {
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .effectList li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #333;
+  }
+
+  .effectList li::before {
+    content: "⚠";
+    color: #ff9800;
+    font-weight: bold;
+  }
+}

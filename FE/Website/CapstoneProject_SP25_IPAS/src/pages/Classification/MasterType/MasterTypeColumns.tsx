@@ -47,7 +47,9 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
         (item.textColor && item.textColor.trim() !== "") ||
         (item.characteristic && item.characteristic.trim() !== "") ||
         (item.isConflict !== null && item.isConflict !== undefined) ||
-        (item.target && item.target.trim() !== "");
+        (item.target && item.target.trim() !== "") ||
+        (item.minTime !== null && item.minTime !== undefined) ||
+        (item.maxTime !== null && item.maxTime !== undefined);
 
       return hasDetails ? (
         <Collapse defaultActiveKey={[]} ghost expandIconPosition="right">
@@ -64,6 +66,12 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
               <MasterTypeDetailView name="Is Conflict" value={item.isConflict ? "Yes" : "No"} />
             )}
             {item.target && <MasterTypeDetailView name="Target" value={item.target} />}
+            {item.maxTime !== null && item.maxTime !== undefined && (
+              <MasterTypeDetailView
+                name="Time Range"
+                value={`${item.minTime} - ${item.maxTime} minutes`}
+              />
+            )}
           </Panel>
         </Collapse>
       ) : (

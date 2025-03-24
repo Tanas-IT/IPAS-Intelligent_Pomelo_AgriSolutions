@@ -1,6 +1,6 @@
 import { Modal, Divider } from "antd";
 import style from "./ModalForm.module.scss";
-import CustomButton from "../Button/CustomButton";
+import { CustomButton } from "@/components";
 
 type ModalFormProps = {
   isOpen: boolean;

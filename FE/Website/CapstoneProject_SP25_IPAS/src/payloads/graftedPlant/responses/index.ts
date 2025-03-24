@@ -1,1 +1,1 @@
-export * from "./GraftedPlantResponse";
+export * from "./GraftedPlantResponses";

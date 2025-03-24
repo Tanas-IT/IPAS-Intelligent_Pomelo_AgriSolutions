@@ -74,7 +74,12 @@ export {
   IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
-export { GrOverview as overview, GrMapLocation as location, GrPlan as plan } from "react-icons/gr";
+export {
+  GrOverview as overview,
+  GrMapLocation as location,
+  GrPlan as plan,
+  GrPowerReset as reset,
+} from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
 export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
 export {

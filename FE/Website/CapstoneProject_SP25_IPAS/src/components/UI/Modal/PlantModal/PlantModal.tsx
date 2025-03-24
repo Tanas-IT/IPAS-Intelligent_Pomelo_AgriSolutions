@@ -6,11 +6,11 @@ import { HEALTH_STATUS, MASTER_TYPE, plantFormFields } from "@/constants";
 import { GetPlant, PlantRequest } from "@/payloads";
 import { useMasterTypeOptions } from "@/hooks";
 import dayjs from "dayjs";
-import style from "./PlantList.module.scss";
+import style from "./PlantModal.module.scss";
 import { landPlotService, landRowService, plantService } from "@/services";
 import { SelectOption } from "@/types";
 
-type PlantModelProps = {
+type PlantModalProps = {
   isOpen: boolean;
   onClose: (values: PlantRequest, isUpdate: boolean) => void;
   onSave: (values: PlantRequest) => void;
@@ -18,7 +18,7 @@ type PlantModelProps = {
   isLoadingAction?: boolean;
 };
 
-const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: PlantModelProps) => {
+const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: PlantModalProps) => {
   const [form] = Form.useForm();
   const isUpdate = !!plantData;
   const isPlantDead = plantData && plantData.isDead;
@@ -189,7 +189,6 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       onClose={() => onClose(getFormData(), isUpdate)}
       onSave={async () => {
         await form.validateFields();
-        console.log(getFormData());
         onSave(getFormData());
       }}
       isLoading={isLoadingAction}
@@ -229,13 +228,13 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
                 label="Planting Date"
                 name={plantFormFields.plantingDate}
                 rules={RulesManager.getPlantingDateRules()}
-                placeholder="Enter the type name"
               />
               {isUpdate && (
                 <FormFieldModal
                   type="select"
                   label="Health Status"
                   name={plantFormFields.healthStatus}
+                  rules={RulesManager.getSelectHealthStatusRules()}
                   options={Object.keys(HEALTH_STATUS).map((key) => ({
                     value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
                     label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
@@ -305,4 +304,4 @@ const PlantModel = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
   );
 };
 
-export default PlantModel;
+export default PlantModal;

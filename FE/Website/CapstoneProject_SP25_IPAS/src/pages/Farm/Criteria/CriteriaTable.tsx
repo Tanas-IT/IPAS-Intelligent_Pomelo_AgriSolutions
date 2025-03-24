@@ -11,13 +11,13 @@ const columns = [
     render: (_: any, __: any, rowIndex: number) => rowIndex + 1,
   },
   {
-    title: "Criteria Code",
+    title: "Code",
     dataIndex: "criteriaCode",
     key: "criteriaCode",
     align: "center" as const,
   },
   {
-    title: "Criteria Name",
+    title: "Name",
     dataIndex: "criteriaName",
     key: "criteriaName",
     align: "center" as const,
@@ -27,11 +27,36 @@ const columns = [
     dataIndex: "criteriaDescription",
     key: "criteriaDescription",
     align: "center" as const,
+    render: (text: string) => (text?.trim() ? text : "N/A"),
+  },
+  {
+    title: "Min Value",
+    dataIndex: "minValue",
+    key: "minValue",
+    align: "center" as const,
+  },
+  {
+    title: "Max Value",
+    dataIndex: "maxValue",
+    key: "maxValue",
+    align: "center" as const,
+  },
+  {
+    title: "Unit",
+    dataIndex: "unit",
+    key: "unit",
+    align: "center" as const,
   },
   {
     title: "Priority",
     dataIndex: "priority",
     key: "priority",
+    align: "center" as const,
+  },
+  {
+    title: "Check Interval Days ",
+    dataIndex: "frequencyDate",
+    key: "frequencyDate",
     align: "center" as const,
   },
 ];

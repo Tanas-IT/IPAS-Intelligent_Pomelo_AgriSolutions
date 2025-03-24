@@ -5,26 +5,25 @@ import { RulesManager } from "@/utils";
 import { CRITERIA_TARGETS } from "@/constants";
 import { CriteriaApplyRequest } from "@/payloads";
 import { criteriaService } from "@/services";
-import style from "./PlantLot.module.scss";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
 
-type ApplyCriteriaModalProps = {
-  lotId?: number;
+type ApplyGraftedPlantCriteriaModalProps = {
+  graftedPlantIds?: number[];
   isOpen: boolean;
   onClose: () => void;
   onSave: (criteria: CriteriaApplyRequest) => void;
   isLoadingAction?: boolean;
 };
 
-const ApplyCriteriaModal = ({
-  lotId,
+const ApplyGraftedPlantCriteriaModal = ({
+  graftedPlantIds,
   isOpen,
   onClose,
   onSave,
   isLoadingAction,
-}: ApplyCriteriaModalProps) => {
+}: ApplyGraftedPlantCriteriaModalProps) => {
   const [form] = Form.useForm();
   const {
     dataSource,
@@ -36,8 +35,6 @@ const ApplyCriteriaModal = ({
   } = useCriteriaManagement();
   const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
   const { setIsDirty } = useDirtyStore();
-
-  //   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
 
   const resetForm = () => {
     form.resetFields();
@@ -54,12 +51,13 @@ const ApplyCriteriaModal = ({
 
   const handleOk = () => {
     if (!isCriteriaListValid()) return;
-    if (!lotId) return;
+    if (!graftedPlantIds) return;
     const requestData: CriteriaApplyRequest = {
-      plantLotId: [lotId],
+      graftedPlantId: graftedPlantIds,
       criteriaData: dataSource.map((item) => ({
         criteriaId: item.criteriaId,
         priority: item.priority,
+        frequencyDate: item.frequencyDate,
       })),
     };
 
@@ -68,8 +66,8 @@ const ApplyCriteriaModal = ({
 
   const handleCriteriaTypeChange = async (value: string) => {
     form.setFieldsValue({ criteriaId: undefined });
-    if (!lotId) return;
-    var res = await criteriaService.getCriteriaTypeSelect(lotId, value);
+    if (!graftedPlantIds) return;
+    var res = await criteriaService.getGraftedPlantCriteriaTypeSelect(graftedPlantIds[0], value);
     if (res.statusCode === 200 && res.data) {
       const formattedOptions = res.data.map((item) => ({
         value: item.id,
@@ -98,13 +96,10 @@ const ApplyCriteriaModal = ({
             placeholder="Select criteria type"
             name={"criteriaType"}
             rules={RulesManager.getTypeRules()}
-            options={Object.values(CRITERIA_TARGETS)
-              .filter(
-                (value) =>
-                  value === CRITERIA_TARGETS["Plantlot Condition"] ||
-                  value === CRITERIA_TARGETS["Plantlot Evaluation"],
-              )
-              .map((value) => ({ label: value, value }))}
+            options={[CRITERIA_TARGETS["Grafted Evaluation"]].map((value) => ({
+              label: value,
+              value,
+            }))}
             onChange={handleCriteriaTypeChange}
           />
           <FormFieldModal
@@ -114,13 +109,12 @@ const ApplyCriteriaModal = ({
             name={"criteriaId"}
             rules={RulesManager.getCriteriaRules()}
             options={criteriaOptions}
-            // direction="row"
             onChange={handleCriteriaChange}
           />
         </Flex>
       </Form>
       <Flex vertical gap={10}>
-        <label className={style.formTitle}>Criteria List:</label>
+        <label>Criteria List:</label>
         <TableApplyCriteria
           dataSource={dataSource}
           handleDelete={handleDelete}
@@ -131,4 +125,4 @@ const ApplyCriteriaModal = ({
   );
 };
 
-export default ApplyCriteriaModal;
+export default ApplyGraftedPlantCriteriaModal;

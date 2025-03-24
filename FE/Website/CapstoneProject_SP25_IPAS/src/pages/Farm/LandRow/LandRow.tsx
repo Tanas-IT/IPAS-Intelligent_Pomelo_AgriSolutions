@@ -28,7 +28,7 @@ function LandRow() {
   const { options: plotOptions } = useLandPlotOptions();
   const addPlantsModal = useModal<{ row: GetLandRow }>();
   const viewPlantsModal = useModal<{ id: number }>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const [plotId, setPlotId] = useState<number>(0);
   const [viewMode, setViewMode] = useState<string>(VIEW_MODE.TABLE);
   const viewOptions = [

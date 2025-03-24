@@ -60,6 +60,12 @@ function PlantDetails() {
       label: <label className={style.titleTab}>Growth History</label>,
       children: "Content of Tab Pane 3",
     },
+    {
+      key: "5",
+      icon: <Icons.seedling className={style.iconTab} />,
+      label: <label className={style.titleTab}>Grafted History</label>,
+      children: "Content of Tab Pane 4",
+    },
   ];
 
   const handleBack = () => {
