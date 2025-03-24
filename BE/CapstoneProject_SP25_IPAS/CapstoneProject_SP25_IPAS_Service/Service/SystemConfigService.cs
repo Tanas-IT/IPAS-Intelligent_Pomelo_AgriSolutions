@@ -35,7 +35,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // Kiểm tra ConfigKey có nằm trong danh sách được phép thêm không
-                if (!SystemConfigConst.ADDABLE_CONFIG_KEYS.Contains(request.ConfigKey))
+                if (!SystemConfigConst.ADDABLE_CONFIG_KEYS.Contains(request.ConfigKey, StringComparer.OrdinalIgnoreCase))
                 {
                     return new BusinessResult(400, "This ConfigKey is not allowed to be added.");
                 }

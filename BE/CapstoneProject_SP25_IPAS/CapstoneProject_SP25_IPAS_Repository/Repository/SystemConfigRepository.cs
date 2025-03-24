@@ -20,7 +20,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<SystemConfiguration>> GetAllActiveConfigsAsync(string key)
         {
             return await _context.SystemConfigurations
-                .Where(c => c.ConfigKey == key)
+                .Where(c => c.ConfigKey.Trim().ToLower().Equals(key.Trim().ToLower()))
                 .Where(c => c.IsActive)
                 .ToListAsync();
         }
@@ -37,7 +37,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<T> GetConfigValue<T>(string configKey, T defaultValue)
         {
             var config = await _context.SystemConfigurations
-                .Where(x => x.ConfigKey == configKey && x.IsActive == true)
+                .Where(x => x.ConfigKey.Trim().ToLower() == configKey.Trim().ToLower() && x.IsActive == true)
                 .FirstOrDefaultAsync();
 
             if (config == null || string.IsNullOrEmpty(config.ConfigValue))

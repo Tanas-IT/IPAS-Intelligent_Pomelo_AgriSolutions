@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.IService
 {
@@ -24,5 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> FillPlantToPlot(FillPlanToPlotRequest fillRequest);
         public Task<BusinessResult> GetForSelectedByFarmId(int farmId, bool? isFromGrafted);
         public Task<BusinessResult> softedMultipleDelete(List<int> plantLotIds);
+        public Task<BusinessResult> CheckingCriteriaForLot(CheckPlantLotCriteriaRequest request);
+
     }
 }

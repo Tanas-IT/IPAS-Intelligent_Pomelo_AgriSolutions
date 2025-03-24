@@ -37,7 +37,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
+                    //var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
                     string typename = createMasterTypeModel.TypeName!.ToString().ToUpper();
                     string code = CodeHelper.GenerateCode();
                     var newMasterType = new MasterType()

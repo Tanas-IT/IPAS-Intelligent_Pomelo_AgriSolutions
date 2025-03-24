@@ -10,8 +10,12 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CloudinaryDotNet;
 using Microsoft.Extensions.Configuration;
 using Net.payOS.Types;
+using Org.BouncyCastle.Asn1.Pkcs;
+using System.Security.Cryptography;
+using System.Text;
 
 
 namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
@@ -111,11 +115,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
 
                 ItemData item = new ItemData($"Package: {order.Package!.PackageName} - {order.Package.Duration} Days", 1, (int)order.TotalPrice!);
                 List<ItemData> items = new List<ItemData> { item };
-
                 long expiredTimestamp = new DateTimeOffset(order.ExpiredDate ?? DateTime.UtcNow).ToUnixTimeSeconds();
                 // transactionId for payment
                 //var paymentCode = long.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 long paymentCode = long.Parse(DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+                string signature;
+                string rawData = _payOSKey.ApiKey + paymentCode + order.TotalPrice;
+                using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_payOSKey.ChecksumKey)))
+                {
+                    byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+                    signature = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                }
 
                 PaymentData paymentData = new PaymentData(
                     orderCode: paymentCode,
@@ -125,8 +135,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
                     items: items,
                     buyerPhone: order.Farm.FarmCode,
                     cancelUrl: $"{_payOSKey.Domain}/{_payOSKey.CanclePath}?orderId={createRequest.OrderId}&transactionId={paymentCode}",
-                    returnUrl: $"{_payOSKey.Domain}/{_payOSKey.ReturnPath}?orderId={createRequest.OrderId}&transactionId={paymentCode}"
-                );
+                    returnUrl: $"{_payOSKey.Domain}/{_payOSKey.ReturnPath}?orderId={createRequest.OrderId}&transactionId={paymentCode}",
+                    signature: signature
+                    );
 
                 CreatePaymentResult createPayment = await payOS.createPaymentLink(paymentData);
 
