@@ -15,5 +15,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             _context = context;
         }
+
+        public Task<GraftedPlant> GetGraftedPlantById(int graftedPlantId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

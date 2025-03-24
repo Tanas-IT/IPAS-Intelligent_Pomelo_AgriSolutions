@@ -2437,7 +2437,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (planTarget.PlanID != null)
                     {
                         var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
-                        if (getPlan != null && getPlan.IsDeleted == false)
+                        if (getPlan != null && getPlan.IsDeleted == false && getPlan.IsSample == false)
                         {
                             getListPlan.Add(getPlan);
                         }

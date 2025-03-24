@@ -196,9 +196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == graftedPlantId && x.IsDeleted != true;
-                string includeProperties = "PlantLot,Plant";
-                var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(filter, includeProperties);
+                var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetGraftedPlantById(graftedPlantId);
                 // kiem tra null
                 if (graftedPlant == null)
                     return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);

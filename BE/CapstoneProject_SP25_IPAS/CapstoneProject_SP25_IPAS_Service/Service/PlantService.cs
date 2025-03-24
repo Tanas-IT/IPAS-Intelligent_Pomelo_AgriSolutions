@@ -901,10 +901,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(actFunction))
                 {
                     var actFunctionLower = actFunction.ToLower();
+                    var actFunctions = Util.SplitByComma(actFunctionLower);
                     plantInPlot = plantInPlot
                         .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction)
-                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction!)
-                                        .Any(f => f.Equals(actFunctionLower, StringComparison.OrdinalIgnoreCase)))
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                        .Any(f => actFunctions.Contains(f)))
                         .ToList();
                 }
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
