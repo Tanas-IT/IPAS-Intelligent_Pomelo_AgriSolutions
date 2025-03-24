@@ -1,8 +1,7 @@
 import { Flex } from "antd";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { ModalForm } from "@/components";
-import style from "./PlantList.module.scss";
-import { toast } from "react-toastify";
+import style from "./PlantMarkAsDeadModal.module.scss";
 
 type PlantMarkAsDeadModalProps = {
   isOpen: boolean;

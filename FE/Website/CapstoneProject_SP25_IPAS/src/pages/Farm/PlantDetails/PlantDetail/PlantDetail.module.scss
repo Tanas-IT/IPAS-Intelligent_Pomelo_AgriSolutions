@@ -3,4 +3,7 @@
 
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    width: 95%;
+  }
 }

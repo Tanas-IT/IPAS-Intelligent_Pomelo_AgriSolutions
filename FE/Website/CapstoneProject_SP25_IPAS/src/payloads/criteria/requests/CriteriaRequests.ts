@@ -5,24 +5,29 @@ export interface CriteriaMasterRequest {
   isActive: boolean;
   createBy?: string;
   target: string;
-  criterias: CriteriaRequest[]
+  criterias: CriteriaRequest[];
 }
 
 export interface CriteriaRequest {
   criteriaId: number;
   criteriaName: string;
   criteriaDescription: string;
+  minValue: number;
+  maxValue: number;
+  unit: string;
   priority: number;
+  frequencyDate: number;
 }
 
 interface CriteriaApplyData {
   criteriaId: number;
   priority: number;
+  frequencyDate: number;
 }
 
 export interface CriteriaCheckData {
   criteriaId: number;
-  isChecked: boolean;
+  valueChecked: number;
 }
 
 export interface CriteriaApplyRequest {

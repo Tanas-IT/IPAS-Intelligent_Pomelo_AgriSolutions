@@ -5,10 +5,9 @@ import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import PlantLotDetail from "./PlantLotDetail/PlantLotDetail";
-import PlantLotCriteria from "./PlantLotCriteria/PlantLotCriteria";
-import { usePlantLotStore } from "@/stores";
+
 import { ROUTES } from "@/constants";
+import { PlantLotCriteria, PlantLotDetail } from "@/pages";
 
 function PlantLotDetails() {
   const navigate = useNavigate();

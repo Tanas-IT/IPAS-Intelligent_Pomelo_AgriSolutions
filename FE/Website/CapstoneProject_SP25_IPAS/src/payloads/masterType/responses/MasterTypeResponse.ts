@@ -19,6 +19,8 @@ export interface GetMasterType {
   typeName: string;
   createDate: Date;
   isActive: boolean;
+  minTime: number;
+  maxTime: number;
   masterTypeDetailModels: MasterTypeDetail[];
 }
 

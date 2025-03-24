@@ -14,12 +14,14 @@ export const useCriteriaManagement = () => {
 
     if (res.statusCode === 200) {
       const criteriaList: GetCriteria[] = res.data?.criterias || [];
+
       const formattedCriteria = criteriaList.map((criteria, index) => ({
         ...criteria,
         key: index + 1, // Key phải là unique
         index: index + 1, // Dùng để hiển thị số thứ tự
         priority: index + 1, // Mặc định đặt priority theo thứ tự
       }));
+
       setDataSource(formattedCriteria);
     }
   };

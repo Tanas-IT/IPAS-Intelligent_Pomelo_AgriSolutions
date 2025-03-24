@@ -1,6 +1,6 @@
 import { ActionMenuPlant, CustomButton } from "@/components";
 import { Flex, Tag, Tooltip } from "antd";
-import style from "./PlantSectionHeader.module.scss";
+import style from "./Details.module.scss";
 import { GetPlantDetail } from "@/payloads";
 import { Icons } from "@/assets";
 import { healthStatusColors } from "@/constants";
@@ -13,12 +13,14 @@ const PlantSectionHeader = ({
   formModal,
   deleteConfirmModal,
   markAsDeadModal,
+  onApplyCriteria,
 }: {
   isCriteria?: boolean;
   isDetail?: boolean;
   formModal?: ReturnType<typeof useModal<GetPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
   markAsDeadModal?: ReturnType<typeof useModal<{ id: number }>>;
+  onApplyCriteria?: () => void;
 }) => {
   const { plant, setPlant } = usePlantStore();
   if (!plant) return;
@@ -42,8 +44,7 @@ const PlantSectionHeader = ({
             <CustomButton
               label="Add New Criteria"
               icon={<Icons.plus />}
-              // handleOnClick={onApplyCriteria}
-              // disabled={plant.isPassed}
+              handleOnClick={onApplyCriteria}
             />
           </Flex>
         )}
@@ -52,6 +53,7 @@ const PlantSectionHeader = ({
             <ActionMenuPlant
               isPlantDead={plant.isDead}
               noView={true}
+              noCriteria
               onEdit={() => formModal?.showModal(plant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: plant.plantId })}
               onMarkAsDead={() => markAsDeadModal?.showModal({ id: plant.plantId })}

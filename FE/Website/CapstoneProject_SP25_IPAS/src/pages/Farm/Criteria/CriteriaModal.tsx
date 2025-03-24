@@ -64,7 +64,11 @@ const CriteriaModel = ({
             criteriaId: criteria.criteriaId,
             criteriaName: criteria.criteriaName,
             criteriaDescription: criteria.criteriaDescription,
+            minValue: criteria.minValue,
+            maxValue: criteria.maxValue,
+            unit: criteria.unit,
             priority: criteria.priority,
+            frequencyDate: criteria.frequencyDate,
           })),
         });
         setChecked(criteriaData.isActive);
@@ -83,6 +87,7 @@ const CriteriaModel = ({
       criteriaName: "",
       criteriaDescription: "",
       priority: maxPriority + 1,
+      frequencyDate: "",
     };
 
     const updatedCriteriaList = [...currentList, newCriteria];
@@ -136,7 +141,11 @@ const CriteriaModel = ({
     return (
       newItem.criteriaName !== oldItem.criteriaName ||
       newItem.criteriaDescription !== oldItem.criteriaDescription ||
-      newItem.priority !== oldItem.priority
+      newItem.minValue !== oldItem.minValue ||
+      newItem.maxValue !== oldItem.maxValue ||
+      newItem.unit !== oldItem.unit ||
+      newItem.priority !== oldItem.priority ||
+      newItem.frequencyDate !== oldItem.frequencyDate
     );
   };
 
@@ -198,11 +207,14 @@ const CriteriaModel = ({
       title: "Criteria Name",
       dataIndex: "criteriaName",
       align: "center" as const,
+      width: 200,
+
       render: (_: any, record: CriteriaRequest, index: number) => (
         <Form.Item
           className={style.noMargin}
           name={["criteriaList", index, "criteriaName"]}
           rules={RulesManager.getCriteriaRules()}
+          tooltip
         >
           <Input
             placeholder="Enter criteria name"
@@ -217,11 +229,7 @@ const CriteriaModel = ({
       dataIndex: "criteriaDescription",
       align: "center" as const,
       render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          name={["criteriaList", index, "criteriaDescription"]}
-          className={style.noMargin}
-          rules={RulesManager.getFarmDescriptionRules()}
-        >
+        <Form.Item name={["criteriaList", index, "criteriaDescription"]} className={style.noMargin}>
           <Input.TextArea
             placeholder="Enter description"
             autoSize={{ minRows: 1, maxRows: 3 }}
@@ -232,16 +240,115 @@ const CriteriaModel = ({
       ),
     },
     {
+      title: "Min Value",
+      dataIndex: "priority",
+      align: "center" as const,
+      width: 100,
+      render: (_: any, record: CriteriaRequest, index: number) => (
+        <Form.Item
+          className={style.noMargin}
+          name={["criteriaList", index, "minValue"]}
+          rules={RulesManager.getNumberRules("Min Value")}
+        >
+          <InputNumber
+            min={0.1}
+            className={style.inputNumberField}
+            value={record.minValue}
+            onChange={handleInputChange}
+            placeholder="Value..."
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Max Value",
+      dataIndex: "priority",
+      align: "center" as const,
+      width: 100,
+      render: (_: any, record: CriteriaRequest, index: number) => (
+        <Form.Item
+          className={style.noMargin}
+          name={["criteriaList", index, "maxValue"]}
+          rules={[
+            ...RulesManager.getNumberRules("Max Value"),
+            {
+              validator: async (_, value) => {
+                const minValue = form.getFieldValue(["criteriaList", index, "minValue"]);
+                if (
+                  value !== undefined &&
+                  minValue !== undefined &&
+                  Number(value) <= Number(minValue)
+                ) {
+                  return Promise.reject(new Error("Max Value must be greater than Min Value!"));
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+          dependencies={[["criteriaList", index, "minValue"]]}
+        >
+          <InputNumber
+            className={style.inputNumberField}
+            value={record.maxValue}
+            onChange={handleInputChange}
+            placeholder="Value..."
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Unit",
+      dataIndex: "unit",
+      align: "center" as const,
+      width: 140,
+      render: (_: any, record: CriteriaRequest, index: number) => (
+        <Form.Item
+          className={style.noMargin}
+          name={["criteriaList", index, "unit"]}
+          rules={RulesManager.getUnitRules()}
+        >
+          <Input placeholder="Enter unit" value={record.unit} onChange={handleInputChange} />
+        </Form.Item>
+      ),
+    },
+    {
       title: "Priority",
       dataIndex: "priority",
       align: "center" as const,
+      width: 70,
       render: (_: any, record: CriteriaRequest, index: number) => (
         <Form.Item
           className={style.noMargin}
           name={["criteriaList", index, "priority"]}
           rules={RulesManager.getPriorityRules()}
         >
-          <InputNumber min={1} value={record.priority} onChange={handleInputChange} />
+          <InputNumber
+            className={style.inputNumberField}
+            min={1}
+            value={record.priority}
+            onChange={handleInputChange}
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Check Interval Days ",
+      dataIndex: "frequencyDate",
+      align: "center" as const,
+      // width: 70,
+      render: (_: any, record: CriteriaRequest, index: number) => (
+        <Form.Item
+          className={style.noMargin}
+          name={["criteriaList", index, "frequencyDate"]}
+          rules={RulesManager.getCheckIntervalDaysRules()}
+        >
+          <InputNumber
+            className={style.inputNumberField}
+            min={1}
+            value={record.frequencyDate}
+            onChange={handleInputChange}
+            placeholder="Value..."
+          />
         </Form.Item>
       ),
     },

@@ -30,7 +30,7 @@ export const healthStatusColors: Record<string, string> = {
   Healthy: "green",
   "Minor Issues": "orange",
   "Serious Issues": "red",
-  Dead: "#444",
+  Dead: "gray",
 };
 
 export const GROWTH_ACTIONS = {
@@ -72,11 +72,12 @@ export const WORK_TARGETS = {
 };
 
 export const CRITERIA_TARGETS = {
-  Harvest: "Harvest",
+  Product: "Product",
   "Grafted Condition": "Grafted Condition",
   "Grafted Evaluation": "Grafted Evaluation",
   "Plantlot Condition": "Plantlot Condition",
   "Plantlot Evaluation": "Plantlot Evaluation",
+  Others: "Others",
 } as const;
 
 export const ROUTES = {
@@ -84,10 +85,11 @@ export const ROUTES = {
   FARM_PLANT_DETAIL: (id: number) => `/farm/plants/${id}/details`,
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
     `/farm/plant-lots/${parentId}/additional/${id}/details`,
+  FARM_GRAFTED_PLANT_DETAIL: (id: number) => `/farm/grafted-plants/${id}/details`,
 };
 
 export const PLAN_TARGET_TYPE = {
   "Land Plot/ Land Row/ Plant": 1,
   "Plant Lot": 2,
-  "Grafted Plant": 3
-}
+  "Grafted Plant": 3,
+};

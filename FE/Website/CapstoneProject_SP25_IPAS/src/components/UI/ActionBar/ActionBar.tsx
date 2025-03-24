@@ -8,9 +8,14 @@ import { useModal } from "@/hooks";
 interface ActionBarProps {
   selectedCount: number;
   deleteSelectedItems: () => void;
+  onApplyCriteria?: () => void;
 }
 
-const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItems }) => {
+const ActionBar: React.FC<ActionBarProps> = ({
+  selectedCount,
+  deleteSelectedItems,
+  onApplyCriteria,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const deleteConfirmModal = useModal();
 
@@ -25,17 +30,15 @@ const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItem
     deleteConfirmModal.hideModal();
   };
 
-  const showModal = () => {
-    deleteConfirmModal.showModal();
-  };
+  const showModal = () => deleteConfirmModal.showModal();
+
+  const handleApplyCriteria = () => onApplyCriteria?.();
 
   // const showActionPopup = () => {
   //   setIsActionPopupVisible(true); // Hiển thị popup khi bấm "Actions"
   // };
 
-  const handleCancel = () => {
-    deleteConfirmModal.hideModal();
-  };
+  const handleCancel = () => deleteConfirmModal.hideModal();
 
   const actionContent = (
     <div className={style.popover_content}>
@@ -60,20 +63,25 @@ const ActionBar: React.FC<ActionBarProps> = ({ selectedCount, deleteSelectedItem
           <Flex className={style.divider_container}>
             <Divider className={style.divider} type="vertical" />
           </Flex>
+          <Flex gap={20}>
+            {onApplyCriteria && (
+              <Button
+                className={style.action_bar_btn_apply}
+                icon={<Icons.checkSuccuss />}
+                onClick={handleApplyCriteria}
+              >
+                Apply Criteria
+              </Button>
+            )}
 
-          <Button
-            className={style.action_bar_btn_delete}
-            icon={<Icons.delete />}
-            onClick={showModal}
-          >
-            Delete items
-          </Button>
-
-          {/* <Popover content={actionContent} trigger="click" placement="bottom">
-            <Button className={style.action_bar_btn_actions}>
-              Actions <Icons.arrowDown />
+            <Button
+              className={style.action_bar_btn_delete}
+              icon={<Icons.delete />}
+              onClick={showModal}
+            >
+              Delete items
             </Button>
-          </Popover> */}
+          </Flex>
         </Flex>
       </Flex>
 

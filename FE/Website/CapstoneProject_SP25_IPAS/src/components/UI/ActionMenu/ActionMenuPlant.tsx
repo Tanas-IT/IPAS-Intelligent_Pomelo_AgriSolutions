@@ -9,8 +9,10 @@ interface ActionMenuProps {
   id?: number;
   isPlantDead: boolean;
   noView?: boolean;
+  noCriteria?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onApplyCriteria?: () => void;
   onMarkAsDead: () => void;
 }
 
@@ -18,8 +20,10 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
   id,
   isPlantDead,
   noView = false,
+  noCriteria = false,
   onEdit,
   onDelete,
+  onApplyCriteria,
   onMarkAsDead,
 }) => {
   const navigate = useNavigate();
@@ -29,6 +33,13 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
           icon: <Icons.eye />,
           label: "View Plant Details",
           onClick: () => navigate(ROUTES.FARM_PLANT_DETAIL(id ?? 0)),
+        }
+      : null,
+    !noCriteria
+      ? {
+          icon: <Icons.checkSuccuss />,
+          label: "Apply Criteria",
+          onClick: () => onApplyCriteria?.(),
         }
       : null,
     {

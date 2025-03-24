@@ -3,6 +3,9 @@
 
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
+  // .contentSectionBody {
+  //   width: 100% !important;
+  // }
 }
 
 .criteriaCollapse {

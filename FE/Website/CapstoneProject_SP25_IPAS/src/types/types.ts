@@ -70,6 +70,17 @@ export type FilterPlantState = {
   isDead: boolean | null;
 };
 
+export type FilterGraftedPlantState = {
+  plantIds: string[];
+  separatedDateFrom: string;
+  separatedDateTo: string;
+  status: string[];
+  cultivarIds: string[];
+  graftedDateFrom: string;
+  graftedDateTo: string;
+  isCompleted: boolean | null;
+};
+
 export type FilterLandRowState = {
   rowIndexFrom: number | undefined;
   rowIndexTo: number | undefined;
