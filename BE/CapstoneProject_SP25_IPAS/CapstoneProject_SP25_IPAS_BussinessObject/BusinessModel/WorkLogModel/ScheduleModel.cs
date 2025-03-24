@@ -21,6 +21,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? PlanName { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public bool? IsTakeAttendance { get; set; }
         public List<UserScheduleModel>? Users { get; set; }
     }
 }

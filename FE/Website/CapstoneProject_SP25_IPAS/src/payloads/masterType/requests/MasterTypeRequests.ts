@@ -11,6 +11,8 @@ export interface MasterTypeRequest {
   textColor: string;
   characteristic: string;
   typeName: string;
+  minTime: number;
+  maxTime: number;
   isActive: boolean;
   createBy?: string;
   isConflict: boolean;

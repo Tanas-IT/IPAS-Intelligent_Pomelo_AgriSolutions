@@ -115,10 +115,13 @@ export const createAdditionalLot = async (
   return apiResponse;
 };
 
-export const getPlantLotSelected = async (): Promise<ApiResponse<GetPlantLot[]>> => {
+export const getPlantLotSelected = async () => {
   const res = await axiosAuth.axiosJsonRequest.get(`get-for-selected`);
   const apiResponse = res.data as ApiResponse<GetPlantLot[]>;
-  return apiResponse;
+  return apiResponse.data.map((item) => ({
+    value: item.id,
+    label: item.name
+  }));
 };
 
 export const fillPlantToPlot = async (

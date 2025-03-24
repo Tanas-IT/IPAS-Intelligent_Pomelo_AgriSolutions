@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
-import { GetProcess, GetProcessDetail, GetProcessList } from "@/payloads/process";
+import { GetProcess, GetProcessDetail, GetProcessList, GetProcessSelect } from "@/payloads/process";
 import { ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
@@ -37,10 +37,8 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
   }
   const url = `proceesses/get-for-select${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
-  console.log("process res", res);
 
   const apiResponse = res.data as ApiResponse<GetProcess[]>;
-  console.log("process listttt", apiResponse);
 
   return apiResponse.data.map(({ processId, processName }) => ({
     processId,
@@ -70,8 +68,10 @@ export const getProcessDetail = async (processId: string | number) => {
     subProcesses: apiResponse.data.subProcesses,
     listProcessData: apiResponse.data.listProcessData,
     order: apiResponse.data.order,
-    listPlan: apiResponse.data.listPlan,
-    isSample: apiResponse.data.isSample
+    listPlanIsSampleTrue: apiResponse.data.listPlanIsSampleTrue,
+    listPlanIsSampleFalse: apiResponse.data.listPlanIsSampleFalse,
+    isSample: apiResponse.data.isSample,
+    planTargetInProcess: apiResponse.data.planTargetInProcess
   };
 };
 
@@ -143,4 +143,17 @@ export const deleteProcess = async (ids: number[] | string[]): Promise<ApiRespon
   return apiResponse;
 };
 
+export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
+  const queryParams = processIds.map(id => `id=${id}`).join('&');
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `processes/for-selected-by-master-type?${queryParams}`
+  );
+  const apiResponse = res.data as ApiResponse<GetProcessSelect[]>;
+  console.log("res getProcessOfFarmByMasterType", apiResponse);
+  
+  return apiResponse.data.map(({ id, name }) => ({
+    value: id,
+    label: name
+  }));
+}
 

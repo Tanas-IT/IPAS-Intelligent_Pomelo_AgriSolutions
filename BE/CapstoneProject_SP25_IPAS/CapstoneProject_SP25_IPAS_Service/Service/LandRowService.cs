@@ -80,7 +80,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CreateDate = DateTime.Now,
                         Status = nameof(LandRowStatus.Active),
                         Direction = createRequest.Direction,
-                        isDeleted = false,
+                        IsDeleted = false,
                         LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{landPlotCode}-R{(createRequest.RowIndex)}",
                     };
                     await _unitOfWork.LandRowRepository.Insert(newRow);
@@ -270,7 +270,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = x => (x.LandRowCode!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Description!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  && x.isDeleted != true);
+                                  && x.IsDeleted != true);
                 }
                 if (!string.IsNullOrEmpty(request.Direction))
                 {
@@ -398,12 +398,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //List<string> rowList = Util.SplitByComma(rowIds);
                     //foreach (var MasterTypeId in plantIdList)
                     //{
-                    Expression<Func<LandRow, bool>> filter = x => rowList.Contains(x.LandRowId) && x.isDeleted == false;
+                    Expression<Func<LandRow, bool>> filter = x => rowList.Contains(x.LandRowId) && x.IsDeleted == false;
                     var rowsExistGet = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter);
                     foreach (var item in rowsExistGet)
                     {
 
-                        item.isDeleted = true;
+                        item.IsDeleted = true;
                         _unitOfWork.LandRowRepository.Update(item);
                     }
                     //}

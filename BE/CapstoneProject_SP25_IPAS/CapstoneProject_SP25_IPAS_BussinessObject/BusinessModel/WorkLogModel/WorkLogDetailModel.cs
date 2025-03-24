@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? ProcessName { get; set; }
         public string? MasterTypeName { get; set; }
 
-
+        public bool? IsTakeAttendance { get; set; }
         public string? ReasonDelay { get; set; }
 
         public DateTime? Date { get; set; }
@@ -39,6 +40,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public List<string>? ListGrowthStageName { get; set; }
         public List<TaskFeedbackModel>? ListTaskFeedback { get; set; }
         public List<NoteOfWorkLogModel>? ListNoteOfWorkLog { get; set; } = new List<NoteOfWorkLogModel>();
+        public List<ReplacementEmployeeModel>? ReplacementEmployee { get; set; }
 
     }
 }

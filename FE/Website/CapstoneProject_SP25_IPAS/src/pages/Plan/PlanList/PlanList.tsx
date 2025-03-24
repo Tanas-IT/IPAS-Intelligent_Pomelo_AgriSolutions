@@ -25,7 +25,7 @@ function PlanList() {
     isActive: [] as string[],
     assignor: [] as string[],
   });
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
 
   const {
     data,
@@ -119,7 +119,7 @@ function PlanList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
-          isLoading={false}
+          isLoading={isLoading}
           caption="Plan Management Table"
           notifyNoData="No data to display"
           renderAction={(plan: GetPlan) => (

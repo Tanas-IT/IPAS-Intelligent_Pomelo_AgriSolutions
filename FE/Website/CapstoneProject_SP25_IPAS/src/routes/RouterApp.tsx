@@ -38,6 +38,10 @@ import {
   PlantLotDetails,
   Criteria,
   PlantYield,
+  GraftedPlant,
+  AddPlanByProcess,
+  EmployeeDashboard,
+  GraftedPlantDetails,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -48,7 +52,6 @@ import {
   PaymentLayout,
 } from "@/layouts";
 import { PATHS } from "./Paths";
-import EmployeeDashboard from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
 
 interface RouteItem {
   path: string;
@@ -113,12 +116,15 @@ export const publicRoutes: RouteItem[] = [
   },
   { path: PATHS.FARM.CRITERIA_LIST, component: Criteria, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
+  { path: PATHS.FARM.GRAFTED_PLANT_LIST, component: GraftedPlant, layout: ManagementLayout },
+  { path: PATHS.FARM.GRAFTED_PLANT_DETAIL, component: GraftedPlantDetails, layout: ManagementLayout },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_LIST, component: PlanList, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_DETAIL, component: PlanDetail, layout: ManagementLayout },
   { path: PATHS.PLAN.ADD_PLAN, component: AddPlan, layout: ManagementLayout },
+  { path: PATHS.PLAN.ADD_PLAN_BY_PROCESS, component: AddPlanByProcess, layout: ManagementLayout },
   { path: PATHS.PLAN.UPDATE_PLAN, component: UpdatePlan, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_CALENDAR, component: Worklog, layout: ManagementLayout },
   { path: PATHS.HR.WORKLOG_DETAIL, component: WorklogDetail, layout: ManagementLayout },

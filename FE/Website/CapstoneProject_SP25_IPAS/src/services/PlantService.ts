@@ -44,7 +44,7 @@ export const getPlant = async (plantId: number): Promise<ApiResponse<GetPlantDet
   return apiResponse;
 };
 
-export const deletePlant = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
+export const deletePlants = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.patch(`plants/soft-delete`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;

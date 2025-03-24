@@ -54,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
                     }
                     var masterType = await _unitOfWork.MasterTypeRepository
-                        .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDelete == false && x.IsActive == true);
+                        .GetByCondition(x => x.MasterTypeId == plantCreateRequest.MasterTypeId && x.IsDeleted == false && x.IsActive == true);
                     if (masterType == null)
                     {
                         return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
@@ -510,7 +510,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // check Growstage eixst
                     if (plantUpdateRequest.GrowthStageId.HasValue && plantUpdateRequest.GrowthStageId != 0)
                     {
-                        var checkGrowStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == plantUpdateRequest.GrowthStageId && x.isDeleted != true);
+                        var checkGrowStageExist = await _unitOfWork.GrowthStageRepository.GetByCondition(x => x.GrowthStageID == plantUpdateRequest.GrowthStageId && x.IsDeleted != true);
                         if (checkGrowStageExist == null)
                             return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.GrowthStageID = checkGrowStageExist.GrowthStageID;
@@ -531,7 +531,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantUpdateRequest.MasterTypeId.HasValue && plantUpdateRequest.MasterTypeId != 0)
                     {
-                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDelete != true);
+                        var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == plantUpdateRequest.MasterTypeId && x.IsDeleted != true);
                         if (checkMasterTypeExist == null)
                             return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
                         plantEntityUpdate.MasterTypeId = plantUpdateRequest.MasterTypeId;
@@ -812,14 +812,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-        public async Task<BusinessResult> getPlantByGrowthActiveFunc(int farmId, string activeFunction)
+        public async Task<BusinessResult> getPlantByGrowthActiveFunc(int farmId, string actFunctions)
         {
             try
             {
                 var checkFarmExixt = await _farmService.CheckFarmExist(farmId);
                 if (checkFarmExixt == null)
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-                var invalidFunctions = _growthStageService.ValidateActiveFunction(activeFunction);
+                var invalidFunctions = _growthStageService.ValidateActiveFunction(actFunctions);
                 if (invalidFunctions.Any())
                 {
                     //var invalidFunctions = ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
@@ -828,16 +828,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
                     }
                 }
-                var listFuncRequest = Util.SplitByComma(activeFunction);
+                var listFuncRequest = Util.SplitByComma(actFunctions);
                 Expression<Func<Plant, bool>> filter = x => x.FarmId == farmId
-                    && !x.LandRowId.HasValue
+                    && x.LandRowId.HasValue
                     && x.IsDeleted == false
                     && x.GrowthStage != null
-                    && listFuncRequest.Any(validFunc => x.GrowthStage.ActiveFunction!.Contains(validFunc));
+                && x.GrowthStage.ActiveFunction != null;
+                
 
                 string includeProperties = "GrowthStage";
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                    plantInPlot = plantInPlot.Where(x => !string.IsNullOrEmpty(x.GrowthStage!.ActiveFunction)
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                        .Any(f => listFuncRequest.Contains(f)))
+                        .ToList();
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
@@ -901,10 +906,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(actFunction))
                 {
                     var actFunctionLower = actFunction.ToLower();
+                    var actFunctions = Util.SplitByComma(actFunctionLower);
                     plantInPlot = plantInPlot
                         .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction)
-                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction!)
-                                        .Any(f => f.Equals(actFunctionLower, StringComparison.OrdinalIgnoreCase)))
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                        .Any(f => actFunctions.Contains(f)))
                         .ToList();
                 }
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);

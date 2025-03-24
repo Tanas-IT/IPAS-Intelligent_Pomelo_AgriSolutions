@@ -48,14 +48,10 @@ const GrowthStageModal = ({
     }
   }, [isOpen, growthStageData]);
 
-  const getFormData = (): GrowthStageRequest => ({
-    growthStageId: form.getFieldValue(growthStageFormFields.growthStageId),
-    growthStageName: form.getFieldValue(growthStageFormFields.growthStageName),
-    description: form.getFieldValue(growthStageFormFields.description),
-    monthAgeStart: form.getFieldValue(growthStageFormFields.monthAgeStart),
-    monthAgeEnd: form.getFieldValue(growthStageFormFields.monthAgeEnd),
-    activeFunction: form.getFieldValue(growthStageFormFields.activeFunction),
-  });
+  const getFormData = (): GrowthStageRequest =>
+    Object.fromEntries(
+      Object.values(growthStageFormFields).map((field) => [field, form.getFieldValue(field)]),
+    ) as GrowthStageRequest;
 
   const handleOk = async () => {
     await form.validateFields();

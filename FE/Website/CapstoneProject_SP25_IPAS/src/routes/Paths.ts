@@ -47,6 +47,8 @@ export const PATHS = {
     FARM_PLANT_LOT_DETAIL: "/farm/plant-lots/:id/details",
     FARM_PLANT_LOT_ADDITIONAL: "/farm/plant-lots/:parentId/additional/:id/details",
     CRITERIA_LIST: "/farm/criteria",
+    GRAFTED_PLANT_LIST: "/farm/grafted-plants",
+    GRAFTED_PLANT_DETAIL: "/farm/grafted-plants/:id/details",
   },
 
   // Process Management
@@ -66,6 +68,7 @@ export const PATHS = {
     PLAN_DETAIL: "/plans/:id",
     ADD_PLAN: "/plans/add",
     UPDATE_PLAN: "/plans/update/:id",
+    ADD_PLAN_BY_PROCESS: "/plans/add-plan-by-process"
   },
 
   //Worklog Management

@@ -1,6 +1,6 @@
 import { useStyle } from "@/hooks";
 import { Table } from "antd";
-import style from "./PlanDetail.module.scss";
+import style from "./PlanTargetTable.module.scss";
 
 interface PlanTarget {
     type: "Plot" | "Row" | "Plant" | "Plant Lot" | "Grafted Plant";
@@ -26,10 +26,11 @@ const columns = [
 
 const PlanTargetTable: React.FC<PlanTargetTableProps> = ({ data }) => {
     const {styles} = useStyle();
+    console.log("dataaa", data);
     return (
         <div>
             <h3 className={style.planTargetTitle}>Plan Target</h3>
-            <Table className={`${styles.customTable}`} columns={columns} dataSource={data} rowKey={(record) => record.type} />;
+            <Table className={`${style.tbl} ${styles.customeTable2}`} columns={columns} dataSource={data} rowKey={(record) => record.type} />;
         </div>
     )
 };

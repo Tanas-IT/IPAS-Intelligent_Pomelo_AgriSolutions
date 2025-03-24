@@ -28,7 +28,7 @@ import PartnerModal from "./PartnerModal";
 
 function ThirdParty() {
   const formModal = useModal<GetPartner>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const updateConfirmModal = useModal<{ partner: PartnerRequest }>();
   const cancelConfirmModal = useModal();
 

@@ -3,7 +3,7 @@ import { masterTypeService } from "@/services";
 import { ApiResponse, GetMasterType } from "@/payloads";
 import { SelectOption } from "@/types";
 
-const useMasterTypeOptions = (type: string, isDocument: boolean = false) => {
+const useMasterTypeOptions = (type: string, isUseValueAsName: boolean = false) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const useMasterTypeOptions = (type: string, isDocument: boolean = false) => {
       );
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((item) => ({
-          value: isDocument ? item.masterTypeName : item.masterTypeId,
+          value: isUseValueAsName ? item.masterTypeName : item.masterTypeId,
           label: item.masterTypeName,
         }));
         setOptions(mappedOptions);

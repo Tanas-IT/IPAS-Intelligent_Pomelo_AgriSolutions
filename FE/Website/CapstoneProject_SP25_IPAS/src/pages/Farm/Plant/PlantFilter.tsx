@@ -4,7 +4,7 @@ import style from "./PlantList.module.scss";
 import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterPlantState } from "@/types";
-import { MASTER_TYPE } from "@/constants";
+import { HEALTH_STATUS, MASTER_TYPE } from "@/constants";
 import { landPlotService, landRowService } from "@/services";
 
 type FilterProps = {
@@ -131,6 +131,17 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           loadData={handleLoadData}
         />
 
+        <FormFieldFilter
+          label="Health Status"
+          fieldType="select"
+          value={filters.healthStatus}
+          options={Object.entries(HEALTH_STATUS).map(([key, value]) => ({
+            value: key,
+            label: value,
+          }))}
+          onChange={(value) => updateFilters("healthStatus", value)}
+        />
+
         <Flex className={style.row}>
           <FormFieldFilter
             label="Cultivar"
@@ -150,7 +161,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
         </Flex>
 
         {/* <Flex className={style.row}> */}
-        <FormFieldFilter
+        {/* <FormFieldFilter
           label="Is Assigned"
           fieldType="radio"
           value={filters.isLocated}
@@ -160,7 +171,10 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           ]}
           onChange={(value) => updateFilters("isLocated", value)}
           direction="row"
-        />
+        /> */}
+
+        {/* </Flex> */}
+
         <FormFieldFilter
           label="Life Status"
           fieldType="radio"
@@ -172,7 +186,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           onChange={(value) => updateFilters("isDead", value)}
           direction="row"
         />
-        {/* </Flex> */}
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}

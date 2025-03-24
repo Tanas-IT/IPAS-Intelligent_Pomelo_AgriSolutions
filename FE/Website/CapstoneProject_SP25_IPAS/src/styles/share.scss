@@ -126,6 +126,7 @@
 
 @mixin popupContainer {
   width: 100%;
+  min-width: 12rem !important;
 
   .popupNav {
     flex-direction: column;
@@ -239,9 +240,11 @@
   }
 
   .contentSectionBody {
-    width: 90%;
+    width: 100%;
     justify-content: space-between;
+    gap: 40px;
     .col {
+      min-width: 32rem;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
@@ -349,9 +352,10 @@
 }
 
 @mixin criteriaCollapse {
+  width: 100%;
   .headerWrapper {
     width: 100%;
-    min-width: 50rem;
+    min-width: 70rem;
     align-items: center;
     .panelTitle {
       align-items: center;
@@ -370,6 +374,9 @@
         font-size: 14px;
         font-weight: bold;
         color: vars.$color_primary !important;
+      }
+      .statusTag {
+        margin-left: 12px;
       }
     }
   }

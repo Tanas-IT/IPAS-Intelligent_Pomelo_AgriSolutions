@@ -1,163 +1,133 @@
-import { Button, Checkbox, DatePicker, Flex, Select, Space } from "antd";
-import { useState } from "react";
-import style from "./WorklogFilter.module.scss"
-import dayjs from "dayjs";
-import { useStyle } from "@/hooks";
-import { FilterFooter, TagRender } from "@/components";
-
-const { RangePicker } = DatePicker;
+import { Button, Flex, Select, Space } from "antd";
+import { useEffect, useState } from "react";
+import style from "./WorklogFilter.module.scss";
+import { FilterFooter, FormFieldFilter } from "@/components";
+import { useGrowthStageOptions, useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
+import { MASTER_TYPE } from "@/constants";
+import { worklogStatusOptions } from "@/utils";
 
 type FilterProps = {
   filters: {
-    createDateFrom: string;
-    createDateTo: string;
-    processTypes: string[];
+    workDateFrom: string;
+    workDateTo: string;
+    growthStage: string[];
     status: string[];
-    isConfirm: boolean;
     employees: string[];
-    type: string[];
-    plan: string[];
+    typePlan: string[];
   };
-  updateFilters: (key: string, value: any) => void;
+  updateFilters: (filters: any) => void;
   onClear: () => void;
   onApply: () => void;
 };
 
 const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
-  const [prevFilters, setPrevFilters] = useState(filters);
-  const { styles } = useStyle();
+  const [localFilters, setLocalFilters] = useState(filters);
 
-  const growthStageOptions = [
-    { value: "gold" },
-    { value: "lime" },
-    { value: "green" },
-    { value: "cyan" },
-    { value: "ds" },
-    { value: "as" },
-  ];
-
-  const processTypeOptions = [
-    { value: "type 1" },
-    { value: "type 2" },
-    { value: "type 3" },
-    { value: "type 4" }
-  ];
-
-  const employeeOptions = [
-    { value: "emp1", label: "Employee 1" },
-    { value: "emp2", label: "Employee 2" },
-    { value: "emp3", label: "Employee 3" },
-    { value: "emp4", label: "Employee 4" }
-  ];
-
-  const planOptions = [
-    { value: "plan1", label: "Plan 1" },
-    { value: "plan2", label: "Plan 2" },
-    { value: "plan3", label: "Plan 3" },
-    { value: "plan4", label: "Plan 4" }
-  ];
+  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, true);
+  const { options: growthStageOptions } = useGrowthStageOptions(true);
+  const listRole = [5, 4];
+  const { options } = useUserInFarmByRole(listRole);
 
   const isFilterEmpty = !(
-    filters.createDateFrom ||
-    filters.createDateTo ||
-    filters.status.length > 0 ||
-    filters.employees.length > 0 ||
-    filters.type.length > 0 ||
-    filters.plan.length > 0
+    localFilters.workDateFrom ||
+    localFilters.workDateTo ||
+    localFilters.growthStage.length > 0 ||
+    localFilters.status.length > 0 ||
+    localFilters.employees.length > 0 ||
+    localFilters.typePlan.length > 0
   );
 
-  const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
+  const isFilterChanged = JSON.stringify(localFilters) !== JSON.stringify(filters);
+
   const handleApply = () => {
-    if (isFilterChanged) {
-      onApply();
-      setPrevFilters(filters);
-    }
+    updateFilters(localFilters);
+    // onApply();
+  };
+
+  // Xử lý khi nhấn Clear
+  // const handleClear = () => {
+  //   setLocalFilters({
+  //     workDateFrom: "",
+  //     workDateTo: "",
+  //     growthStage: [],
+  //     status: [],
+  //     employees: [],
+  //     plan: [],
+  //     typePlan: [],
+  //   });
+  //   onClear();
+  // };
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+  const handleClear = () => {
+    const resetFilters = {
+      workDateFrom: "",
+      workDateTo: "",
+      growthStage: [],
+      status: [],
+      employees: [],
+      typePlan: [],
+    };
+    setLocalFilters(resetFilters);
+    updateFilters(resetFilters);
+    onClear();
   };
 
   return (
     <Flex className={style.filterContent}>
-      <Space direction="vertical">
-        <Flex className={style.section}>
-          <label className={style.title}>Date:</label>
-          <RangePicker
-            format="DD/MM/YYYY"
-            value={[ 
-              filters.createDateFrom ? dayjs(filters.createDateFrom) : null, 
-              filters.createDateTo ? dayjs(filters.createDateTo) : null
-            ]}
-            onChange={(dates) => {
-              updateFilters("createDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
-              updateFilters("createDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
-            }}
+      <Space direction="vertical" size={16} style={{ width: "100%" }}>
+        {/* Date Range */}
+        <FormFieldFilter
+          label="Date"
+          fieldType="date"
+          value={[localFilters.workDateFrom, localFilters.workDateTo]}
+          onChange={(dates) => {
+            setLocalFilters((prev) => ({
+              ...prev,
+              workDateFrom: dates?.[0] ? dates[0].format("YYYY-MM-DD") : "",
+              workDateTo: dates?.[1] ? dates[1].format("YYYY-MM-DD") : "",
+            }));
+          }}
+        />
+
+        <Flex gap={20}>
+          <FormFieldFilter
+            label="Growth Stage"
+            fieldType="select"
+            value={localFilters.growthStage}
+            options={growthStageOptions}
+            onChange={(value) => setLocalFilters((prev) => ({ ...prev, growthStage: value }))}
           />
-        </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Process Type:</label>
-          <Select
-            mode="multiple"
-            placeholder="Please select"
-            tagRender={TagRender}
+          <FormFieldFilter
+            label="Process Type"
+            fieldType="select"
+            value={localFilters.typePlan}
             options={processTypeOptions}
-            value={filters.processTypes}
-            onChange={(value) => updateFilters("processTypes", value)}
+            onChange={(value) => setLocalFilters((prev) => ({ ...prev, typePlan: value }))}
           />
         </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Status:</label>
-          <Flex className={style.statusGroup}>
-            {["Active", "Inactive"].map((status) => (
-              <Checkbox
-                className={styles.customCheckbox}
-                key={status}
-                checked={filters.status.includes(status)}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  updateFilters(
-                    "status",
-                    checked
-                      ? [...filters.status, status]
-                      : filters.status.filter((val) => val !== status)
-                  );
-                }}
-              >
-                {status}
-              </Checkbox>
-            ))}
-          </Flex>
-        </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Is Confirmed:</label>
-          <Checkbox
-            checked={filters.isConfirm}
-            onChange={(e) => updateFilters("isConfirm", e.target.checked)}
-          >
-            Confirmed
-          </Checkbox>
-        </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Assigned Employees:</label>
-          <Select
-            mode="multiple"
-            placeholder="Please select"
-            options={employeeOptions}
-            value={filters.employees}
-            onChange={(value) => updateFilters("employees", value)}
-          />
-        </Flex>
-        <Flex className={style.section}>
-          <label className={style.title}>Plan:</label>
-          <Select
-            mode="multiple"
-            placeholder="Please select"
-            options={planOptions}
-            value={filters.plan}
-            onChange={(value) => updateFilters("plan", value)}
-          />
-        </Flex>
+
+        <FormFieldFilter
+          label="Employee"
+          fieldType="selectCustom"
+          value={localFilters.employees}
+          optionCustom={options}
+          onChange={(value) => setLocalFilters((prev) => ({ ...prev, employees: value }))}
+        />
+
+        <FormFieldFilter
+          label="Status"
+          fieldType="select"
+          value={localFilters.status}
+          options={worklogStatusOptions}
+          onChange={(value) => setLocalFilters((prev) => ({ ...prev, status: value }))}
+        />
+
         <FilterFooter
           isFilterEmpty={isFilterEmpty}
           isFilterChanged={isFilterChanged}
-          onClear={onClear}
+          onClear={handleClear}
           handleApply={handleApply}
         />
       </Space>

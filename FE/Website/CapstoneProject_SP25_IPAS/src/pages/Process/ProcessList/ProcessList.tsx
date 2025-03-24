@@ -16,7 +16,7 @@ import ProcessModal from "./AddProcessModal";
 
 function ProcessList() {
   const formModal = useModal<GetProcessList>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -119,7 +119,7 @@ function ProcessList() {
           rotation={rotation}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
-          isLoading={false}
+          isLoading={isLoading}
           caption="Process Management Table"
           notifyNoData="No data to display"
           renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} onDelete={() => deleteConfirmModal.showModal({ ids: [process.processId] })} />}

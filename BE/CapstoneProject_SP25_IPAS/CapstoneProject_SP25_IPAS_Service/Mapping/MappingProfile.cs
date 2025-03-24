@@ -22,6 +22,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.GrowthStageMasterT
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GrowthStageRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
@@ -101,8 +102,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ReverseMap();
 
             CreateMap<SubProcess, SubProcessInProcessModel>()
-                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false && x.IsSample == true)))
-                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDelete == false && x.IsSample == false)))
+                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDeleted == false && x.IsSample == true)))
+                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(x => x.Plans.Where(x => x.IsDeleted == false && x.IsSample == false)))
                  .ForMember(dest => dest.Order, opt => opt.MapFrom(x => x.Order))
                 .ReverseMap();
 
@@ -122,8 +123,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
                  .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
-                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false && x.IsSample == true)))
-                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDelete == false && x.IsSample == false)))
+                 .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == true)))
+                 .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == false)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
                 .ReverseMap();
 
@@ -437,24 +438,66 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 opt => opt.MapFrom(src => src.Resources ?? new List<Resource>()))
               .ReverseMap();
 
+
             CreateMap<WorkLog, WorkLogDetailModel>()
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
+            .ForMember(dest => dest.IsTakeAttendance, opt =>
+                                                    opt.MapFrom(src => src.UserWorkLogs != null
+                                                        && src.UserWorkLogs.Any(x => x.StatusOfUserWorkLog == WorkLogStatusConst.RECEIVED)
+                                                        && !src.UserWorkLogs.Any(x => x.StatusOfUserWorkLog == null)
+                                                    )
+                                                )
             .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
             .ForMember(dest => dest.TypeWork, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
-            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false)
-                                                                    .Select(uwl => uwl.User)
-                                                                    .GroupBy(user => user.UserId)
-                                                                    .Select(group => group.First())
+           .ForMember(dest => dest.ReplacementEmployee, opt => opt.MapFrom(src =>
+                                                                src.UserWorkLogs
+                                                                    .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId)) // Chỉ lấy nhân viên bị thay
+                                                                    .Select(uwl => new ReplacementEmployeeModel
+                                                                    {
+                                                                        ReplaceUserId = uwl.UserId,
+                                                                        ReplaceUserFullName = uwl.User.FullName,
+                                                                        ReplaceUserAvatar = uwl.User.AvatarURL,
+
+                                                                        // Lấy thông tin nhân viên thay thế
+                                                                        UserId = src.UserWorkLogs
+                                                                            .Where(r => r.ReplaceUserId == uwl.UserId)
+                                                                            .Select(r => r.UserId)
+                                                                            .FirstOrDefault(),
+
+                                                                        FullName = src.UserWorkLogs
+                                                                            .Where(r => r.ReplaceUserId == uwl.UserId)
+                                                                            .Select(r => r.User.FullName)
+                                                                            .FirstOrDefault(),
+
+                                                                        Avatar = src.UserWorkLogs
+                                                                            .Where(r => r.ReplaceUserId == uwl.UserId)
+                                                                            .Select(r => r.User.AvatarURL)
+                                                                            .FirstOrDefault()
+                                                                    })
                                                                     .ToList()))
-            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
-                                                                    .Select(uwl => uwl.User)
+            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REJECTED)
                                                                     .GroupBy(user => user.UserId)
-                                                                    .Select(group => group.First())
+                                                                    .Select(group => new ReporterModel
+                                                                    {
+                                                                       UserId = group.First().User.UserId,
+                                                                       FullName = group.First().User.FullName,
+                                                                       avatarURL = group.First().User.AvatarURL,
+                                                                       StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                    }).ToList()))
+            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
+                                                                    .GroupBy(user => user.UserId)
+                                                                    .Select(group => new ReporterModel
+                                                                    {
+                                                                       UserId = group.First().User.UserId,
+                                                                       FullName = group.First().User.FullName,
+                                                                       avatarURL = group.First().User.AvatarURL,
+                                                                       StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                    })
                                                                     .ToList()))
             .ForMember(dest => dest.ListGrowthStageName, opt =>
                                 opt.MapFrom(src =>

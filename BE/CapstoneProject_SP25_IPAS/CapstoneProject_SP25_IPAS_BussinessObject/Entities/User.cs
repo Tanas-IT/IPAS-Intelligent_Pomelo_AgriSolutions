@@ -25,7 +25,7 @@ public partial class User
 
     public DateTime? UpdateDate { get; set; }
 
-    public bool? IsDelete { get; set; }
+    public bool? IsDeleted { get; set; }
 
     public DateTime? DeleteDate { get; set; }
 

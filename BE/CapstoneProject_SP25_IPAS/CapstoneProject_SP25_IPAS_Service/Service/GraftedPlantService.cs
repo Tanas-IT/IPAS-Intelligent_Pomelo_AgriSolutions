@@ -201,9 +201,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == graftedPlantId && x.IsDeleted != true;
-                string includeProperties = "PlantLot,Plant";
-                var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(filter, includeProperties);
+                var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetGraftedPlantById(graftedPlantId);
                 // kiem tra null
                 if (graftedPlant == null)
                     return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
@@ -452,7 +450,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (updateRequest.PlantLotId.HasValue && updateRequest.PlantLotId.Value >= 0)
                 {
-                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.isDeleted != true);
+                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == updateRequest.PlantLotId && x.IsDeleted != true);
                     if (checkPlantLotExist == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     existingGraftedPlant.PlantLotId = updateRequest.PlantLotId.Value;
@@ -567,7 +565,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (request.PlantLotId.HasValue && request.PlantLotId.Value >= 0)
                     {
                         // neu complete xong add vô trong lô thì có thể truyền lotId liền luôn, còn ko thì để đó
-                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.isDeleted != true);
+                        var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotId && x.IsDeleted != true);
                         if (checkPlantLotExist == null)
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                         if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant!.MasterTypeId)
@@ -828,7 +826,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     //  1️ Kiểm tra lô tồn tại
                     var plantLot = await _unitOfWork.PlantLotRepository
-                        .GetByCondition(x => x.PlantLotId == request.plantLotId && x.isDeleted == false);
+                        .GetByCondition(x => x.PlantLotId == request.plantLotId && x.IsDeleted == false);
 
                     if (plantLot == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, "PlantLot does not exist.");

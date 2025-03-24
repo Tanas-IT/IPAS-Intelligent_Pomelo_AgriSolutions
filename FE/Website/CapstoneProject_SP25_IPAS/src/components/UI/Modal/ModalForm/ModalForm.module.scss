@@ -1,0 +1,30 @@
+@use "@/styles/variables.scss" as vars;
+
+.modalContainer {
+  width: 100% !important;
+  &.normal {
+    max-width: 34rem;
+  }
+  &.normalXL {
+    max-width: 36rem;
+  }
+  &.large {
+    max-width: 40rem;
+    top: 50px;
+  }
+  &.largeXL {
+    max-width: 70rem;
+    top: 50px;
+  }
+  .titleModal {
+    color: vars.$color_primary;
+    font-size: 20px;
+    font-weight: lighter;
+  }
+
+  .dividerModal {
+    margin: 6px 0 14px;
+    background: vars.$color_divider_modal;
+    opacity: 0.2;
+  }
+}

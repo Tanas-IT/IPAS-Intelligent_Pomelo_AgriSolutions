@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantTargetResponse } from "@/payloads";
+import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantLot2, GetPlantTargetResponse } from "@/payloads";
 import { GetPlan } from "@/payloads/plan";
-import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
+import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
 
 export const getPlans = async (
@@ -25,20 +25,20 @@ export const getPlans = async (
 
   const res = await axiosAuth.axiosJsonRequest.get("plan", { params });
   console.log('res', res);
-  
+
   const apiResponse = res.data as ApiResponse<Object>;
-  
+
   return apiResponse.data as GetData<GetPlan>;
 };
 
-export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> => {
+export const addPlan = async (plan: PlanRequest): Promise<ApiResponse<Object>> => {
 
   const payload = {
     startDate: new Date(plan.startDate).toISOString(),
     endDate: new Date(plan.endDate).toISOString(),
     isActive: plan.isActive,
     planName: plan.planName,
-    notes: plan.notes|| "",
+    notes: plan.notes || "",
     planDetail: plan.planDetail,
     responsibleBy: plan.responsibleBy || "",
     frequency: plan.frequency,
@@ -55,8 +55,8 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
     dayOfMonth: plan.dayOfMonth || [],
     customDates: plan.customDates?.map(date => new Date(date).toISOString()) || [],
     listEmployee: plan.listEmployee.map(employee => ({
-        userId: employee.userId,
-        isReporter: employee.isReporter
+      userId: employee.userId,
+      isReporter: employee.isReporter
     })),
     startTime: plan.startTime,
     endTime: plan.endTime,
@@ -67,7 +67,7 @@ export const addPlan = async ( plan: PlanRequest): Promise<ApiResponse<Object>> 
       graftedPlantID: Array.isArray(target.graftedPlantID) ? target.graftedPlantID : [],
       plantLotID: Array.isArray(target.plantLotID) ? target.plantLotID : [],
     })) || []
-};
+  };
 
   const res = await axiosAuth.axiosJsonRequest.post(`plan`, payload);
   const apiResponse = res.data as ApiResponse<Object>;
@@ -83,14 +83,28 @@ export const getPlanDetail = async (planId: string) => {
 
 export const filterTargetByUnitGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
-      { listGrowthStage });
+    { listGrowthStage });
   const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
   return apiResponse.data;
 };
 
+export const filterPlantLotsByUnitAndGrowthStage = async (unit: string, listGrowthStage: number[], farmId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
+    { listGrowthStage });
+  const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
+  console.log("log filter lot", apiResponse);
+
+  return apiResponse.data.flatMap((lot) =>
+    lot.plantLots.map((lotItem) => ({
+      value: lotItem.plantLotId,
+      label: lotItem.plantLotName,
+    }))
+  );
+};
+
 export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   console.log("ids", ids);
-  
+
   const res = await axiosAuth.axiosJsonRequest.patch(`plan/soft-delete-plan`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -98,7 +112,31 @@ export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<
 
 export const filterTypeWorkByGrowthStage = async (listGrowthStage: number[]) => {
   const res = await axiosAuth.axiosJsonRequest.post(`plan/type-work/filter-by-growth-stage`,
-      { listGrowthStage });
+    { listGrowthStage });
   const apiResponse = res.data as ApiResponse<GetMasterType[]>;
   return apiResponse.data;
+};
+
+export const filterMasterTypeByGrowthStage = async (listGrowthStage: number[], typeName: string) => {
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/type-name/filter-by-growth-stage`,
+    {
+      listGrowthStage,
+      typeName
+    });
+  const apiResponse = res.data as ApiResponse<GetMasterType[]>;
+  return apiResponse.data;
+};
+
+export const updatePlan = async (payload: UpdatePlanRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`plan`, payload);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const createManyPlans = async (plan: PlanRequest[], farmId: number): Promise<ApiResponse<Object>> => {
+  console.log("lạ z ta", plan);
+  
+  const res = await axiosAuth.axiosJsonRequest.post(`plan/create-many?farmId=${farmId}`, plan);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
 };

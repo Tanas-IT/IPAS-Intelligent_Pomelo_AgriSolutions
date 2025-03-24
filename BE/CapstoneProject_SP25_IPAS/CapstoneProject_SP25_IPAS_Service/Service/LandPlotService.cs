@@ -68,7 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         LineSpacing = createRequest.LineSpacing,
                         NumberOfRows = createRequest.NumberOfRows,
                         IsRowHorizontal = createRequest.IsRowHorizontal,
-                        isDeleted = false,
+                        IsDeleted = false,
                         MinLength = createRequest.MinLength,
                         MaxLength = createRequest.MaxLength,
                         MinWidth = createRequest.MinWidth,
@@ -228,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.IsDeleted != true;
             if (!string.IsNullOrEmpty(searchKey))
             {
                 filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
@@ -284,7 +284,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.isDeleted != true;
+            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.IsDeleted != true;
             Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
 
             var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
@@ -302,7 +302,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
             string includeProperties = "LandPlotCoordinations,Farm";
-            Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId && x.isDeleted != true;
+            Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId && x.IsDeleted != true;
 
             var landplot = await _unitOfWork.LandPlotRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
             // kiem tra null
@@ -333,12 +333,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var checkLandPlotExist = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == updateRequest.LandPlotId && x.isDeleted != true);
+                    var checkLandPlotExist = await _unitOfWork.LandPlotRepository.GetByCondition(x => x.LandPlotId == updateRequest.LandPlotId && x.IsDeleted != true);
                     if (checkLandPlotExist == null)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
 
                     // Lấy các tọa độ hiện tại
-                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.isDeleted != true && x.LandPlot!.Farm!.IsDeleted != true;
+                    Expression<Func<LandPlotCoordination, bool>> condition = x => x.LandPlotId == updateRequest.LandPlotId && x.LandPlot!.IsDeleted != true && x.LandPlot!.Farm!.IsDeleted != true;
                     var existingCoordinationList = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(condition);
 
                     // Chuyển đổi danh sách thành HashSet để so sánh
@@ -461,7 +461,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     }
                     // Lấy danh sách thuộc tính từ model
-                    landplotEntityUpdate.isDeleted = true;
+                    landplotEntityUpdate.IsDeleted = true;
                     _unitOfWork.LandPlotRepository.Update(landplotEntityUpdate);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)

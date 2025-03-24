@@ -29,7 +29,7 @@ const ActionMenuLot: FC<ActionMenuProps> = ({
     !noView
       ? {
           icon: <Icons.eye />,
-          label: "View Details",
+          label: "View Plant Lot Details",
           onClick: () => navigate(ROUTES.FARM_PLANT_LOT_DETAIL(id)),
         }
       : null,
@@ -42,12 +42,12 @@ const ActionMenuLot: FC<ActionMenuProps> = ({
       : null,
     {
       icon: <Icons.edit />,
-      label: "Update Lot",
+      label: "Update Plant Lot",
       onClick: () => onEdit(),
     },
     {
       icon: <Icons.delete />,
-      label: "Delete Lot",
+      label: "Delete Plant Lot",
       onClick: () => onDelete(),
     },
   ].filter(Boolean) as ActionMenuItem[];

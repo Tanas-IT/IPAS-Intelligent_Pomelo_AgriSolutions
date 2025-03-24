@@ -5,7 +5,19 @@ export class RulesManager {
   static getNumberRules(fieldName: string) {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
-      { pattern: /^(0|[1-9][0-9]*)(\.[0-9]+)?$/, message: `${fieldName} must be a valid number!` },
+      {
+        pattern: /^(?!0$)(\d+(\.\d+)?$)/,
+        message: `${fieldName} must be a valid number greater than 0!`,
+      },
+    ];
+  }
+  static getNumberRulesAllowZero(fieldName: string) {
+    return [
+      { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
+      {
+        pattern: /^(?:[1-9]\d*|0)(?:\.\d+)?$/, // Chấp nhận số >= 0
+        message: `${fieldName} must be a valid number!`,
+      },
     ];
   }
   static getTextRules(fieldName: string, min = 2, max = 50, regex = /^[a-zA-ZÀ-ỹ\s]+$/) {
@@ -99,15 +111,17 @@ export class RulesManager {
   static getTypeNameRules = () => this.getRequiredRules("Type Name");
   static getTargetRules = () => this.getRequiredRules("Target");
   static getIsConflictRules = () => this.getRequiredRules("Can Overlap");
+  static getTimeRangeRules = () => this.getNumberRules("Time");
   static getTypeRules = () => this.getRequiredRules("Type");
   static getCriteriaRules = () => this.getRequiredRules("Criteria");
   static getPriorityRules = () => this.getRequiredRules("Priority");
+  static getCheckIntervalDaysRules = () => this.getRequiredRules("Interval Days");
   static getVolumeRequiredRules = () => this.getRequiredRules("Volume Required");
   static getCharacteristicRules = () => this.getRequiredRules("Characteristic");
 
   static getLotNameRules = () => this.getRequiredRules("Lot Name");
   static getPartnerRules = () => this.getRequiredRules("Partner");
-  static getQuantityRules = () => this.getNumberRules("Quantity");
+  static getQuantityRules = () => this.getNumberRulesAllowZero("Quantity");
   static getUnitRules = () => this.getRequiredRules("Unit");
   static getSelectRoleRules = () => this.getRequiredRules("Select Role");
 
@@ -127,6 +141,7 @@ export class RulesManager {
 
   static getCultivarRules = () => this.getRequiredRules("Cultivar");
   static getPlantingDateRules = () => this.getRequiredRules("PlantingDate");
+  static getSelectHealthStatusRules = () => this.getRequiredRules("Select Health Status");
   static getSelectPlotRules = () => this.getRequiredRules("Select Plot");
   static getSelectRowRules = () => this.getRequiredRules("Select Row");
   static getSelectPlantIndexRules = () => this.getRequiredRules("Select Plant Index");
@@ -153,4 +168,5 @@ export class RulesManager {
   static getProcessNameRules = () => this.getRequiredRules("Process Name");
   static getSubProcessNameRules = () => this.getRequiredRules("Sub-Process Name");
   static getProcessTypeRules = () => this.getRequiredRules("Process Type");
+  static getPlanTargetRules = () => this.getRequiredRules("Plan Target");
 }

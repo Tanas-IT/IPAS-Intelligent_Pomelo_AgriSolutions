@@ -2,18 +2,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import style from "./PlantLotDetail.module.scss";
 import { Divider, Flex, Table, Tag } from "antd";
 import { Icons } from "@/assets";
-import { ConfirmModal, InfoFieldDetail, LoadingSkeleton } from "@/components";
+import {
+  ConfirmModal,
+  InfoFieldDetail,
+  LoadingSkeleton,
+  LotModal,
+  LotSectionHeader,
+} from "@/components";
 import { useEffect, useState } from "react";
 import { formatDate, formatDayMonth } from "@/utils";
 import { plantLotService } from "@/services";
 import { GetPlantLotDetail, PlantLotRequest } from "@/payloads";
-import LotSectionHeader from "../LotSectionHeader/LotSectionHeader";
 import { ROUTES } from "@/constants";
 import { usePlantLotStore } from "@/stores";
 import { useModal, useTableUpdate } from "@/hooks";
-import LotModel from "../../PlantLot/LotModal";
 import { toast } from "react-toastify";
 import { PATHS } from "@/routes";
+import SectionLong from "./SectionLong";
 
 function PlantLotDetail() {
   const navigate = useNavigate();
@@ -157,6 +162,7 @@ function PlantLotDetail() {
           ))}
         </Flex>
       </Flex>
+      {/* <SectionLong /> */}
       {/* Danh sách lô bổ sung */}
       {additionalLots.length > 0 && (
         <>
@@ -233,7 +239,7 @@ function PlantLotDetail() {
           </div>
         </>
       )}
-      <LotModel
+      <LotModal
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleUpdateConfirm}

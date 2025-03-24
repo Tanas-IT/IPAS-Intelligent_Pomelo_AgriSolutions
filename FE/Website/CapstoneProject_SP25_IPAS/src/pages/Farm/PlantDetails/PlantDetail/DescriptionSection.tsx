@@ -30,7 +30,7 @@ const DescriptionSection = ({}: {}) => {
   const baseUrl = import.meta.env.VITE_APP_BASE_URL;
   return (
     <Flex className={style.descriptionSection}>
-      <Flex className={`${style.infoField} ${style.infoFieldColumn}`}>
+      <Flex className={`${style.infoField} ${style.infoFieldColumn}`} gap={20}>
         {isShortDescription ? (
           // Nếu mô tả ngắn, hiển thị trong cùng một dòng
           <Flex className={style.infoField}>

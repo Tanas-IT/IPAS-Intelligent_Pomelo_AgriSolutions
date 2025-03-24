@@ -1,0 +1,10 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+}
+
+.criteriaCollapse {
+  @include shared.criteriaCollapse;
+}

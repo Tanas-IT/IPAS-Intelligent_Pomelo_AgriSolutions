@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
 import { Button, Divider, Flex, Form, Tag, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons, Images } from "@/assets";
-import { CustomButton, EditActions, InfoField, Section, Tooltip } from "@/components";
+import { CustomButton, EditActions, InfoField, Loading, Section, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +16,10 @@ import {
   fetchGrowthStageOptions,
   fetchTypeOptionsByName,
   formatDateAndTime,
+  formatDateW,
   generatePlanId,
   getFarmId,
+  planTargetOptions2,
   RulesManager,
 } from "@/utils";
 import { MASTER_TYPE, processFormFields } from "@/constants";
@@ -31,7 +33,8 @@ interface SubProcess {
   subProcessName: string;
   parentSubProcessId?: number;
   listSubProcessData?: SubProcess[];
-  listPlan?: PlanType[];
+  // listPlan?: PlanType[];
+  listPlanIsSampleTrue: PlanType[];
 }
 
 type OptionType<T = string | number> = {
@@ -56,7 +59,7 @@ const mapSubProcessesToTree = (
     .map((sp) => ({
       title: sp.subProcessName,
       key: sp.subProcessId.toString(),
-      listPlan: sp.listPlan || [],
+      listPlan: sp.listPlanIsSampleTrue || [],
       children: mapSubProcessesToTree(subProcesses, sp.subProcessId),
     }));
 };
@@ -76,8 +79,10 @@ function ProcessDetails() {
   const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
   const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // lưu task mới tạo
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
+  
   const {
     plans,
     planForm,
@@ -103,59 +108,33 @@ function ProcessDetails() {
     return;
   }
 
-  // const fetchProcessDetails = async () => {
-  //   try {
-  //     const data = await processService.getProcessDetail(id);
-  //     console.log(data);
-
-  //     setProcessDetail(data);
-
-  //     form.setFieldsValue({
-  //       ...data,
-  //       masterTypeId: String(data.processMasterTypeModel.masterTypeId),
-  //       growthStageId: data.processGrowthStageModel.growthStageId,
-  //     });
-
-  //     setTreeData(mapSubProcessesToTree(data.subProcesses));
-  //     if (data.listPlan) {
-  //       setPlans(data.listPlan);
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to fetch process details", error);
-  //   }
-  // };
-
   const fetchProcessDetails = async () => {
     try {
+      setIsLoading(true);
       const data = await processService.getProcessDetail(id);
-      console.log("Fetched data:", data);
-  
-      // Cập nhật state processDetail
       setProcessDetail(data);
-  
-      // Cập nhật giá trị form
       form.setFieldsValue({
         ...data,
-        masterTypeId: data.processMasterTypeModel ? String(data.processMasterTypeModel.masterTypeId) : "",
+        masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
         growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
+        planTarget: data.planTargetInProcess
       });
-  
-      // Cập nhật treeData
       if (data.subProcesses && Array.isArray(data.subProcesses)) {
         setTreeData(mapSubProcessesToTree(data.subProcesses));
       } else {
         setTreeData([]);
       }
   
-      // Cập nhật plans
-      if (data.listPlan && Array.isArray(data.listPlan)) {
-        setPlans(data.listPlan);
+      if (data.listPlanIsSampleTrue && Array.isArray(data.listPlanIsSampleTrue)) {
+        setPlans(data.listPlanIsSampleTrue);
       } else {
         setPlans([]);
       }
     } catch (error) {
       console.error("Failed to fetch process details", error);
       toast.error("Failed to fetch process details. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -339,6 +318,13 @@ function ProcessDetails() {
 
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
+      const isNewSubProcess = node.status === "add";
+      const status = isNewSubProcess
+      ? "add"
+      : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
+      ? "update"
+      : node.status || "no_change";
+
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
       );
@@ -352,7 +338,8 @@ function ProcessDetails() {
         IsActive: true,
         MasterTypeId: Number(node.masterTypeId) || null,
         GrowthStageId: node.growthStageId || null,
-        Status: hasChangedPlan ? "update" : node.status || "no_change",
+        // Status: hasChangedPlan ? "update" : node.status || "no_change",
+        Status: status,
         Order: node.order || index + 1,
         ListPlan:
           node.listPlan?.map((plan) => ({
@@ -369,46 +356,6 @@ function ProcessDetails() {
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
-
-  // const handleSaveProcess = async () => {
-  //   const ListPlan: ListPlan[] = plans.map((plan) => ({
-  //     PlanId: plan.planId || 0,
-  //     PlanName: plan.planName,
-  //     PlanDetail: plan.planDetail,
-  //     PlanNote: plan.planNote,
-  //     GrowthStageId: plan.growthStageId,
-  //     MasterTypeId: Number(plan.masterTypeId),
-  //     PlanStatus: plan.planStatus || "no_change",
-  //   }));
-  //   let ListUpdateSubProcess = [
-  //     ...convertTreeToList(treeData),
-  //     ...convertDeletedNodesToList(deletedNodes),
-  //   ]
-  //     .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
-  //     .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
-  //   const payload: UpdateProcessRequest = {
-  //     ProcessId: Number(id) || 0,
-  //     ProcessName: processDetail?.processName || "New Process",
-  //     IsActive: processDetail?.isActive ?? true,
-  //     IsDefault: processDetail?.isDefault ?? false,
-  //     IsDeleted: processDetail?.isDeleted ?? false,
-  //     MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
-  //     GrowthStageID: form.getFieldValue(processFormFields.growthStageId),
-  //     ListUpdateSubProcess: ListUpdateSubProcess,
-  //     ListPlan: ListPlan,
-  //   };
-
-  //   console.log("Saving Payload without stringyfy:", payload);
-  //   const res = await processService.updateFProcess(payload);
-  //   if (res.statusCode === 200) {
-  //     toast.success(res.message);
-  //     setIsEditing(false);
-  //     await fetchProcessDetails();
-  //   } else {
-  //     toast.error(res.message);
-  //   }
-  //   console.log("res update", res);
-  // };
 
   const handleSaveProcess = async () => {
     console.log("Plans before mapping:", plans);
@@ -447,7 +394,7 @@ function ProcessDetails() {
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
-        toast.success(res.message);
+        await toast.success(res.message);
         setIsEditing(false);
         await fetchProcessDetails();
       } else {
@@ -589,6 +536,8 @@ function ProcessDetails() {
   return nodes
     .filter((node) => node.status !== "delete")
     .map((node) => {
+      console.log("sắp xong r", node);
+      
       const filteredPlans = node.listPlan?.filter(
         (plan: PlanType) => plan.planStatus !== "delete"
       );
@@ -735,7 +684,6 @@ function ProcessDetails() {
       status: "add",
       growthStageId: values.growthStageId,
       masterTypeId: values.masterTypeId,
-      // Thêm các field khác từ values vào đây
     };
 
     setTreeData((prevTree) => {
@@ -771,6 +719,12 @@ function ProcessDetails() {
   };
   // console.log("tree data", treeData);
   console.log("tplansssss", plans);
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" style={{ width: "100%" }}>
+        <Loading />
+      </Flex>
+    );
 
   return (
     <div className={style.container}>
@@ -817,7 +771,7 @@ function ProcessDetails() {
               <Icons.calendar />
               <label>Create Date:</label>
             </Flex>
-            {processDetail?.createDate}
+            {formatDateW(processDetail?.createDate ?? "2")}
           </Flex>
           <Flex gap={20} className={style.infoDetail}>
             <InfoField
@@ -829,11 +783,11 @@ function ProcessDetails() {
               type="select"
             />
             <InfoField
-              label="Growth Stage"
-              name={processFormFields.growthStageId}
-              rules={RulesManager.getGrowthStageRules()}
+              label="Plan Target"
+              name={processFormFields.planTarget}
+              rules={RulesManager.getPlanTargetRules()}
               isEditing={isEditing}
-              options={growthStageOptions}
+              options={planTargetOptions2}
               type="select"
             />
           </Flex>
