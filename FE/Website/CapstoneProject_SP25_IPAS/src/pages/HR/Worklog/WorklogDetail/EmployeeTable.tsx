@@ -9,7 +9,7 @@ type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 interface EmployeeTableProps {
   employees: GetUser[];
   reporter: GetUser[];
-  attendanceStatus: { [key: number]: "Received" | "Rejected" };
+  attendanceStatus: { [key: number]: string | null };
   onReplaceEmployee: (replacedUserId: number, replacementUserId: number) => void;
   onUpdateReporter: (userId: number, isReporter: boolean) => void;
 }
@@ -39,12 +39,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     ...reporter.map((rep) => ({
       ...rep,
       isReporter: true,
-      statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
+    //   statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
     })),
     ...employees.map((emp) => ({
       ...emp,
       isReporter: false,
-      statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
+    //   statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
     })),
   ];
 
@@ -86,14 +86,18 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       ),
     },
     {
-      title: "Status",
-      dataIndex: "statusOfUserWorkLog",
-      render: (status: string) => (
-        <Tag color={status === "Received" ? "green" : "red"}>
-          {status}
-        </Tag>
-      ),
-    },
+        title: "Status",
+        dataIndex: "statusOfUserWorkLog",
+        render: (status: string) => (
+          <Tag color={
+            status === "Received" ? "green" : 
+            status === "Replaced" ? "orange" : 
+            "red"
+          }>
+            {status}
+          </Tag>
+        ),
+      },
     {
       title: "Role",
       dataIndex: "isReporter",

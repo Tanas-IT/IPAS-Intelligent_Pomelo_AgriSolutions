@@ -1,20 +1,21 @@
 export interface CreateWorklogRequest {
-  worklogName: string;
-  status: "pending";
-  cropId?: string;
-  plantPlotId: string;
-  processId: string;
-  notes?: string;
-  date: Date;
+  workLogName: string;
+  dateWork: string;
   startTime: string;
   endTime: string;
-  responsibleBy: string[];
-  assignorId: string;
+  planId: number;
+  listEmployee: ListEmployee[];
+}
+
+interface ListEmployee {
+  userId: number;
+    isReporter: boolean;
 }
 
 export interface ListEmployeeAttendance {
   userId: number;
-  status: "Received" | "Rejected";
+  // status: "Received" | "Rejected";
+  status: string;
 }
 
 export interface AttendanceRequest {

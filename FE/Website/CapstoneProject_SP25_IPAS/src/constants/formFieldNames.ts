@@ -116,11 +116,12 @@ export const worklogFormFields = {
   landPlotId: "plantPlotId",
   status: "status",
   notes: "notes",
-  date: "date",
+  dateWork: "dateWork",
   time: "time",
   responsibleBy: "responsibleBy",
   assignorId: "assignorId",
   type: "type",
+  planId: "planId",
 };
 
 export const feedbackFormFields = {

@@ -25,10 +25,10 @@ const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent
                 </>
             </Popover>
             <CustomButton
-                label="Add New Plan"
+                label="Add New Worklog"
                 icon={<Icons.plus />}
-                // handleOnClick={() => addModal.showModal()}
-                handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
+                handleOnClick={() => addModal.showModal()}
+                // handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
             />
         </Flex>
     )

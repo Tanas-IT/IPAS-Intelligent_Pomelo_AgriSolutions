@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { worklogService } from '@/services';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
+import { toast } from 'react-toastify';
 
 type Worklog = {
   id: string;
@@ -131,6 +132,17 @@ function Worklog() {
     });
   }, [worklog]);
   console.log("số lần render");
+
+  const hadleAddWorklog = async (worklog: CreateWorklogRequest) => {
+    const res = await worklogService.addWorklog(worklog);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      addModal.hideModal();
+      fetchData();
+    } else {
+      toast.error(res.message);
+    }
+  }
   
 
   useEffect(() => {
@@ -172,7 +184,7 @@ function Worklog() {
       <WorklogModal
         isOpen={addModal.modalState.visible}
         onClose={addModal.hideModal}
-        onSave={() => {}}
+        onSave={hadleAddWorklog}
       />
     </div>
   );

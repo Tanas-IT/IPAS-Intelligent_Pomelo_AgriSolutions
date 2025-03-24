@@ -7,7 +7,7 @@ interface AttendanceModalProps {
   onClose: () => void;
   employees: GetUser[];
   reporter: GetUser[];
-  attendanceStatus: { [key: number]: "Received" | "Rejected" };
+  attendanceStatus: { [key: number]: string | null };
   onAttendanceChange: (userId: number, status: "Received" | "Rejected") => void;
   onSave: () => void;
 }
@@ -21,18 +21,22 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   onAttendanceChange,
   onSave,
 }) => {
+  console.log("attendanceStatus", attendanceStatus);
+  
   const combinedEmployees = [
     ...reporter.map((rep) => ({
       ...rep,
       isReporter: true,
-      statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
+      statusOfUserWorkLog: attendanceStatus[rep.userId] || null,
     })),
     ...employees.map((emp) => ({
       ...emp,
       isReporter: false,
-      statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
+      statusOfUserWorkLog: attendanceStatus[emp.userId] || null,
     })),
   ];
+  console.log("999", combinedEmployees);
+  
   return (
     <Modal
       title="Take Attendance"
@@ -63,7 +67,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
                 <span>{employee.fullName}</span>
               </Flex>
               <Radio.Group
-                value={attendanceStatus[employee.userId]}
+                value={attendanceStatus[employee.userId] || undefined} 
                 onChange={(e) => onAttendanceChange(employee.userId, e.target.value)}
               >
                 <Radio value="Received">Present</Radio>

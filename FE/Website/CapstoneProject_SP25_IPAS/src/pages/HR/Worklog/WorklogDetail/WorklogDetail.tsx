@@ -12,7 +12,7 @@ import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
 import { GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
-import { formatDateW, getUserId } from "@/utils";
+import { formatDate, formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, Tooltip } from "@/components";
@@ -60,7 +60,7 @@ function WorklogDetail() {
     const [isEditing, setIsEditing] = useState(false);
     const [isAttendanceModalVisible, setIsAttendanceModalVisible] = useState(false);
     const [attendanceData, setAttendanceData] = useState<{ userId: number; isPresent: boolean }[]>([]);
-    const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: "Received" | "Rejected" }>({});
+    const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: string | null }>({});
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
         worklogDetail?.actualStartTime || "",
@@ -108,7 +108,7 @@ function WorklogDetail() {
 
         setWorklogDetail({
             ...worklogDetail,
-            listEmployee: updatedEmployees,
+            listEmployee: updatedEmployees || [],
             // reporter: updatedReporter,
             replacementEmployee: updatedReplacementEmployees,
         });
@@ -309,13 +309,13 @@ function WorklogDetail() {
             // }, {} as { [key: number]: "Received" | "Rejected" });
             const initialAttendanceStatus = {
                 ...res?.listEmployee.reduce((acc, employee) => {
-                    acc[employee.userId] = employee.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
+                    acc[employee.userId] = employee.statusOfUserWorkLog;
                     return acc;
-                }, {} as { [key: number]: "Received" | "Rejected" }),
+                }, {} as { [key: number]: string | null }),
                 ...res?.reporter.reduce((acc, reporter) => {
-                    acc[reporter.userId] = reporter.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
+                    acc[reporter.userId] = reporter.statusOfUserWorkLog;
                     return acc;
-                }, {} as { [key: number]: "Received" | "Rejected" }),
+                }, {} as { [key: number]: string | null }),
             };
             console.log("initialAttendanceStatus", initialAttendanceStatus);
 
@@ -389,7 +389,7 @@ function WorklogDetail() {
         }
     };
 
-    const handleAttendanceChange = (userId: number, status: "Received" | "Rejected") => {
+    const handleAttendanceChange = (userId: number, status: "Received" | "Rejected" | null) => {
         setAttendanceStatus((prev) => ({
             ...prev,
             [userId]: status,
@@ -397,13 +397,12 @@ function WorklogDetail() {
     };
 
     const handleUpdateReporter = (userId: number, isReporter: boolean) => {
-        // Cập nhật trạng thái reporter trong danh sách nhân viên
-        const updatedEmployees = worklogDetail?.listEmployee.map((employee) => ({
+        if (!worklogDetail) return;
+        const updatedEmployees = worklogDetail.listEmployee.map((employee) => ({
             ...employee,
             isReporter: employee.userId === userId ? isReporter : false, // Chỉ có một reporter duy nhất
         }));
 
-        // Cập nhật state
         setWorklogDetail({
             ...worklogDetail,
             listEmployee: updatedEmployees,
@@ -537,7 +536,7 @@ function WorklogDetail() {
                                     }
                                 />
                             ) : (
-                                <label className={style.actualTime}>{worklogDetail?.date || "N/A"}</label>
+                                <label className={style.actualTime}>{formatDate(worklogDetail?.date || "") || "N/A"}</label>
                             )}
                         </Flex>
                     </Flex>

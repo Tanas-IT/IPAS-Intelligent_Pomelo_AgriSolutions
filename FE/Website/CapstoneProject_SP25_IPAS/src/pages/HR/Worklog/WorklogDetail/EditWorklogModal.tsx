@@ -11,7 +11,7 @@ interface EditWorklogModalProps {
   onClose: () => void;
   employees: GetUser[];
   reporter: GetUser[];
-  attendanceStatus: { [key: number]: "Received" | "Rejected" };
+  attendanceStatus: { [key: number]: string | null };
   onReplaceEmployee: (replacedUserId: number, replacementUserId: number) => void;
   selectedTimeRange: [string, string];
   onTimeRangeChange: (newValue: [string, string]) => void;
@@ -47,7 +47,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
     ...employees.map((emp) => ({
       ...emp,
       isReporter: false,
-      statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
+    //   statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
     })),
   ];
 
@@ -66,7 +66,6 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
       ]}
       width={800}
     >
-      {/* Bảng hiển thị nhân viên */}
       <EmployeeTable
         employees={combinedEmployees}
         reporter={reporter}
@@ -75,7 +74,6 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         onUpdateReporter={onUpdateReporter}
       />
 
-      {/* Phần chỉnh sửa thời gian và ngày */}
       <Flex vertical gap={16} style={{ marginTop: 16 }}>
         <label>Working Time:</label>
         <EditableTimeRangeField
