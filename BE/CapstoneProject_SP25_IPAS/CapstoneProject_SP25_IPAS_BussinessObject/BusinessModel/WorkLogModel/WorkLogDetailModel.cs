@@ -22,7 +22,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? ProcessName { get; set; }
         public string? MasterTypeName { get; set; }
 
-
+        public bool? IsTakeAttendance { get; set; }
         public string? ReasonDelay { get; set; }
 
         public DateTime? Date { get; set; }

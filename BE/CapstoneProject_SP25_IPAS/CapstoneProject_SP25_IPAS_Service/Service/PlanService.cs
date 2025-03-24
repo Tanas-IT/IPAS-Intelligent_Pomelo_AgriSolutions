@@ -2279,7 +2279,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
                         IsReporter = user.isReporter,
-                        StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                         IsDeleted = false,
                     });
                 }
