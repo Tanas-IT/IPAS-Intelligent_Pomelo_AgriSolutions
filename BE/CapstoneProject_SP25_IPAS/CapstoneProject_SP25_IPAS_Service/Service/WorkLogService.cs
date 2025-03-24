@@ -174,20 +174,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
                             conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
                         }
-
-                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
-                        {
-                            userWorkLogs.Add(new UserWorkLog
-                            {
-                                WorkLogId = workLog.WorkLogId,
-                                UserId = user.UserId,
-                                IsReporter = user.isReporter,
-                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
-                                IsDeleted = false
-                            });
-
-                        }
                     }
+                    foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                    {
+                        userWorkLogs.Add(new UserWorkLog
+                        {
+                            WorkLogId = newWorkLog.WorkLogId,
+                            UserId = user.UserId,
+                            IsReporter = user.isReporter,
+                            StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
+                            IsDeleted = false
+                        });
+
+                    }
+
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
@@ -500,12 +500,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                            Date = wl.Date,
                            Status = wl.Status,
                            ScheduleId = wl.ScheduleId,
-                           StartTime = wl.Schedule.StartTime,
-                           EndTime = wl.Schedule.EndTime,
-                           PlanId = wl.Schedule.CarePlan.PlanId,
-                           PlanName = wl.Schedule.CarePlan.PlanName,
-                           StartDate = wl.Schedule.CarePlan.StartDate,
-                           EndDate = wl.Schedule.CarePlan.EndDate,
+                           StartTime = wl.ActualStartTime,
+                           IsTakeAttendance = wl.UserWorkLogs.Any(uwl => uwl.StatusOfUserWorkLog == WorkLogStatusConst.RECEIVED),
+                           EndTime = wl.ActualEndTime,
+                           PlanId = wl.Schedule?.CarePlan?.PlanId,
+                           PlanName = wl.Schedule?.CarePlan?.PlanName,
+                           StartDate = wl.Schedule?.CarePlan?.StartDate,
+                           EndDate = wl.Schedule?.CarePlan?.EndDate,
                            Users = wl.UserWorkLogs.Select(uwl => new UserScheduleModel()
                            {
                                UserId = uwl.UserId,
@@ -942,7 +943,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 WorkLogId = findWorkLog.WorkLogId,
                                 UserId = employee.UserId,
                                 IsReporter = employee.isReporter,
-                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                 IsDeleted = false
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
@@ -1133,6 +1133,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     WorkLogCode = $"WL-{DateTime.UtcNow.Ticks}",
                     Date = addNewTaskModel.DateWork,
+                    WorkLogName = addNewTaskModel.WorkLogName,
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
                     IsDeleted = false,
@@ -1141,6 +1142,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);
                 await _unitOfWork.WorkLogRepository.Insert(addNewWorkLog);
+                await _unitOfWork.SaveAsync();
 
                 var conflictDetailsSet = new HashSet<string>();
                 if (addNewTaskModel.listEmployee != null)
@@ -1166,20 +1168,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
                             conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
                         }
+                    }
 
+                   
                         foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                         {
                             userWorkLogs.Add(new UserWorkLog
                             {
-                                WorkLogId = workLog.WorkLogId,
+                                WorkLogId = addNewWorkLog.WorkLogId,
                                 UserId = user.UserId,
                                 IsReporter = user.isReporter,
-                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                 IsDeleted = false
                             });
 
                         }
-                    }
+
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
@@ -1215,7 +1218,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
-                        return new BusinessResult(200, "Add WorkLog Success", result);
+                        return new BusinessResult(200, "Add WorkLog Success", result > 0);
                     }
                     return new BusinessResult(400, "Add WorkLog Failed");
                 }
@@ -1396,7 +1399,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     WorkLogId = workLog.WorkLogId,
                                     UserId = user.UserId,
                                     IsReporter = user.isReporter,
-                                    StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                                     IsDeleted = false
                                 });
 
