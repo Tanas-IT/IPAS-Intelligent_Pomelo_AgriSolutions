@@ -11,8 +11,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject
         public bool Enabled { get; set; }
         public string ConnectionString { get; set; }
         public string InstanceName { get; set; }
-        public string Password { get; set; }
-        public string SecondPassword { get; set; }
+        public string Password { get; set; } 
+        //public string SecondPassword { get; set; }
         public int Port { get; set; }
     }
 }

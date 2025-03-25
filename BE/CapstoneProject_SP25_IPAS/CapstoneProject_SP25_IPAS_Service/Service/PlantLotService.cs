@@ -637,8 +637,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (!checkExistPlantLot.LastQuantity.HasValue)
                                 return new BusinessResult(400, "You must enter last quantity before Completed to use");
-                            if (checkExistPlantLot.LastQuantity == 0)
-                                return new BusinessResult(400, "This plant lot no have any seeding to use");
+                            //if (checkExistPlantLot.LastQuantity == 0)
+                            //    return new BusinessResult(400, "This plant lot no have any seeding to use");
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -683,8 +683,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var plantLot = await _unitOfWork.PlantLotRepository.GetByID(fillRequest.plantLotId);
                     if (plantLot == null)
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
-                    if (plantLot.IsPassed == false)
+                    if (plantLot.IsPassed == false )
                         return new BusinessResult(400, "Plant lot not mark as PASS to fill to plot");
+                    if (plantLot.LastQuantity!.HasValue && plantLot.LastQuantity == 0)
+                        return new BusinessResult(400, "Plant lot no have seeding to use");
                     //var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(fillRequest.MasterTypeId, TypeNameInMasterEnum.Cultiva.ToString());
                     //if (masterTypeExist == null)
                     //    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
