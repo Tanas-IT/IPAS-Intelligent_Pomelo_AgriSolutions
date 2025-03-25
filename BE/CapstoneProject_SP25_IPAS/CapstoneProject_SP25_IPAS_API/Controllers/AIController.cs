@@ -24,13 +24,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         private readonly IAIService _aiService;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IDistributedCache _distributedCache;
-        private readonly IConnectionMultiplexer _muxer;
-        public AIController(IAIService aiService, IJwtTokenService jwtTokenService, IConnectionMultiplexer redisDb, IDistributedCache distributedCache, IConnectionMultiplexer muxer)
+        public AIController(IAIService aiService, IJwtTokenService jwtTokenService, IDistributedCache distributedCache)
         {
             _aiService = aiService;
             _jwtTokenService = jwtTokenService;
             _distributedCache = distributedCache;
-            _muxer = muxer;
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
