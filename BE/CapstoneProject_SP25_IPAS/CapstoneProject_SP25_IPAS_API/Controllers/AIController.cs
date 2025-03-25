@@ -347,6 +347,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpPost(APIRoutes.AI.publishIteration, Name = "publishIteration")]
+        public async Task<IActionResult> PublishIterationAsync()
+        {
+            try
+            {
+                var result = await _aiService.PublishIterations();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
         [HttpGet("set")]
         public async Task<IActionResult> SetCache()
         {

@@ -447,6 +447,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getImageTaggedAsync = prefix + "/get-image-tagged";
             public const string updateTag = prefix + "/update-tag";
             public const string trainedProject = prefix + "/trained-project";
+            public const string publishIteration = prefix + "/publish-iteration";
         }
 
 

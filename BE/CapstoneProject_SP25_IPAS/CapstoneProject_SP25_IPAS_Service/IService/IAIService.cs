@@ -30,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetImagesUnTagged(GetImagesWithTagged getImagesUnTagged);
         public Task<BusinessResult> GetImagesTagged(GetImagesWithTagged getImagesTagged);
         public Task<BusinessResult> TrainedProject();
+        public Task<BusinessResult> PublishIterations();
 
     }
 }

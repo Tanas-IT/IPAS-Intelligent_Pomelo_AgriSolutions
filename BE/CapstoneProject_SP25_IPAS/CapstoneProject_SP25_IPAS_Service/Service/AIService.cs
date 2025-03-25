@@ -47,6 +47,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly string predictionKey;
         private readonly string trainingEndPoint;
         private readonly string trainingKey;
+        private readonly string predictionResourceId;
         private readonly Guid projectId;
 
         private readonly CustomVisionTrainingClient trainingClient;
@@ -64,6 +65,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             trainingEndPoint = customVisionConfig["TrainingEndpoint"];
             trainingKey = customVisionConfig["TrainingKey"];
             projectId = Guid.Parse(customVisionConfig["ProjectId"]);
+            predictionResourceId = customVisionConfig["PredictionResourceId"];
 
             trainingClient = new CustomVisionTrainingClient(new Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.ApiKeyServiceClientCredentials(trainingKey))
             {
@@ -139,7 +141,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await image.CopyToAsync(stream);
                     stream.Position = 0;
 
-                    var predict = predictionClient.ClassifyImage(projectId, "AgricutureAIPomelo", stream);
+                    var predict = predictionClient.ClassifyImage(projectId, "AgricultureAIPomelo", stream);
 
                     var result = predict.Predictions.Select(p => new
                     {
@@ -160,7 +162,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         else
                         {
-                            return new BusinessResult(404, "No data found");
+                            return new BusinessResult(404, "Can not detect diseases on that image");
 
                         }
                     }
@@ -183,17 +185,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             try
             {
-
+                if(!IsImageLink(imageURL))
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Pick images with these formats: png, jpg, bmp or gif.");
+                }
                 // Tạo đối tượng ImageUrl từ chuỗi URL
                 var imageUrlObj = new Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models.ImageUrl { Url = imageURL };
 
                 // Gọi API dự đoán từ URL của hình ảnh
-                var result = await predictionClient.ClassifyImageUrlAsync(projectId, "AgricutureAIPomelo", imageUrlObj);
+                var predict = await predictionClient.ClassifyImageUrlAsync(projectId, "AgricultureAIPomelo", imageUrlObj);
+
+                var result = predict.Predictions.Select(p => new
+                {
+                    probability = p.Probability,
+                    tagId = p.TagId,
+                    tagName = p.TagName,
+                    BoundingBox = p.BoundingBox,
+                    TagType = p.TagType,
+                });
+
+                result = result.Where(x => x.probability > 0.75);
 
                 // Trả về kết quả dự đoán
                 if (result != null)
                 {
-                    return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_URL_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_URL_MSG, result.Predictions);
+                    if (result.Count() > 0)
+                    {
+                        return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_URL_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_URL_MSG, result);
+                    }
+                    else
+                    {
+                        return new BusinessResult(404, "Can not detect diseases on that image");
+
+                    }
                 }
                 return new BusinessResult(Const.FAIL_PREDICT_IMAGE_BY_URL_CODE, Const.FAIL_PREDICT_IMAGE_BY_URL_MSG);
             }
@@ -698,6 +722,7 @@ const generationConfig = {
                 {
                     await Task.Delay(3000); // Chờ 3 giây trước khi kiểm tra lại
                     iteration = await trainingClient.GetIterationAsync(projectId, iteration.Id);
+                   
                 }
 
                 if (iteration.Status != "Completed")
@@ -707,6 +732,16 @@ const generationConfig = {
 
                 
                 await trainingClient.UpdateIterationAsync(projectId, iteration.Id, iteration);
+                // Kiểm tra nếu đã có iteration được publish với cùng tên
+                var existingIteration = iterations.FirstOrDefault(i => i.PublishName == "AgricultureAIPomelo");
+
+                if (existingIteration != null)
+                {
+                    // **Hủy publish iteration cũ**
+                    await trainingClient.UnpublishIterationAsync(projectId, existingIteration.Id);
+                }
+                await trainingClient.PublishIterationAsync(projectId, iteration.Id, "AgricultureAIPomelo", predictionResourceId);
+
 
                 return new BusinessResult(200, "Training Project Success");
             }
@@ -716,5 +751,50 @@ const generationConfig = {
             }
         }
 
+        public bool IsImageLink(string url)
+        {
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+            return validImageExtensions.Contains(Path.GetExtension(url).ToLower());
+        }
+
+        public async Task<BusinessResult> PublishIterations()
+        {
+            try
+            {
+                // Lấy danh sách tất cả các iteration của dự án
+                var iterations = await trainingClient.GetIterationsAsync(projectId);
+
+                if (iterations == null || iterations.Count == 0)
+                {
+                    return new BusinessResult(400, "No iterations found.");
+                }
+
+                // Lấy iteration mới nhất (dựa trên Created Date)
+                var latestIteration = iterations.OrderByDescending(i => i.Created).FirstOrDefault();
+
+                if (latestIteration == null)
+                {
+                    return new BusinessResult(400, "No valid iterations available.");
+                }
+
+                // Kiểm tra nếu đã có iteration được publish với cùng tên
+                var existingIteration = iterations.FirstOrDefault(i => i.PublishName == "AgricultureAIPomelo");
+
+                if (existingIteration != null)
+                {
+                    // **Hủy publish iteration cũ**
+                    await trainingClient.UnpublishIterationAsync(projectId, existingIteration.Id);
+                }
+
+                // **Publish iteration mới nhất với tên `publishName`**
+                await trainingClient.PublishIterationAsync(projectId, latestIteration.Id, "AgricultureAIPomelo", predictionResourceId);
+
+                return new BusinessResult(200, $"Published latest iteration: {latestIteration.Name} as AgricultureAIPomelo");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(500, $"Exception: {ex.Message}");
+            }
+        }
     }
 }
