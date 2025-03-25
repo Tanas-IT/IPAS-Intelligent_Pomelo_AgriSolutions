@@ -722,12 +722,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (!plant.HealthStatus!.Equals(HealthStatusConst.HEALTHY.ToString(), StringComparison.OrdinalIgnoreCase))
                 errors.Add("This plant is not healthy enough to be grafted, please check again.");
             // kiểm tra xem cây đã chiết bao nhiêu cành trong năm nay để ko cho chiết nữa
-            var maxGraftedBranches = CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
+            var maxGraftedBranches = await CalculateMaxGraftedBranches(plant.PlantingDate!.Value);
             var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.MotherPlantId == plantId
                 && !x.IsDeleted!.Value
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
-            if (countGraftedInYear >= (await maxGraftedBranches))
+            if (countGraftedInYear >= (maxGraftedBranches))
                 errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 

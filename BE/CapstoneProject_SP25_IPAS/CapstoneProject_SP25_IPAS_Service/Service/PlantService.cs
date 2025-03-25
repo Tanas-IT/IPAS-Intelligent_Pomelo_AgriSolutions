@@ -78,6 +78,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
                         IsDead = false,
+                        IsPassed = false,
                         CreateDate = DateTime.Now,
                     };
 

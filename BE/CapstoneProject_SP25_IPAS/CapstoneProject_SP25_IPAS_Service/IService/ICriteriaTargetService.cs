@@ -14,7 +14,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> UpdateCriteriaMultipleTarget(UpdateCriteriaTargerRequest updateRequest, bool allowOverride);
 
-        public Task<BusinessResult> CheckingCriteriaForTarget(CheckPlantCriteriaRequest checkPlantCriteriaRequest);
+        public Task<BusinessResult> CheckingCriteriaForGrafted(CheckGraftedCriteriaRequest checkPlantCriteriaRequest);
+        public Task<BusinessResult> CheckingCriteriaForPlant(CheckPlantCriteriaRequest request);
 
         public Task<BusinessResult> UpdateCriteriaForSingleTarget(UpdateCriteriaTargetRequest updateRequest, bool allowOverride);
 
@@ -24,5 +25,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> ApplyCriteriasForPlant(ApplyCriteriaForPlantRequest request);
 
         public Task<BusinessResult> ResetPlantCriteria(ResetPlantCriteriaRequest request);
+
     }
 }
