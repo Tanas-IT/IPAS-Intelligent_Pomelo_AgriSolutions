@@ -796,6 +796,5 @@ const generationConfig = {
                 return new BusinessResult(500, $"Exception: {ex.Message}");
             }
         }
-
     }
 }
