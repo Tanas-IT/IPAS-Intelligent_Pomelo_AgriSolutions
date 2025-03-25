@@ -123,9 +123,10 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
             public const string updateCriteriaTarget = prefixCriteriaTarget + "/update-criteria-target";
             public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
-            public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
+            public const string checkCriteriaForGrafted = prefixCriteriaTarget + "/grafted-plant/check-criteria";
+            public const string checkCriteriaForPlant = prefixCriteriaTarget + "/plant/check-criteria";
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
-            public const string applyCriteriaForPlant = prefixCriteriaTarget + "/apply-criteria/plant";
+            public const string applyCriteriaForPlant = prefixCriteriaTarget + "/plant/apply-criteria";
             public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
         }
 
