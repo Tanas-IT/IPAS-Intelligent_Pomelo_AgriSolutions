@@ -697,7 +697,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var criteriaInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
                     if (criteriaInsert.Any())
                     {
-                        var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId));
+                        var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId), includeProperties: null);
                         plants.ToList().ForEach(p => p.IsPassed = false);
                         _unitOfWork.PlantRepository.UpdateRange(plants);
                     }
