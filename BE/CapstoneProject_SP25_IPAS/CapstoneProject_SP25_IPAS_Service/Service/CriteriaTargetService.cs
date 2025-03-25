@@ -3,6 +3,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -237,24 +239,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    }
         //}
 
-        public async Task<BusinessResult> CheckingCriteriaForTarget(CheckPlantCriteriaRequest request)
+        public async Task<BusinessResult> CheckingCriteriaForGrafted(CheckGraftedCriteriaRequest request)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
                 {
-                    if ((!request.PlantID.Any() && !request.GraftedPlantID.Any() /*&& !request.PlantLotID.Any()*/) || !request.criteriaDatas.Any())
+                    if ((/*!request.PlantID.Any() &&*/ !request.GraftedPlantID.Any() /*&& !request.PlantLotID.Any()*/) || !request.criteriaDatas.Any())
                     {
                         return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
 
                     // Lấy danh sách CriteriaTarget phù hợp với danh sách đầu vào
                     var CriteriaTargetList = new List<CriteriaTarget>();
-                    if (request.PlantID!.Any())
-                    {
-                        CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(filter: x => request.PlantID.Contains(x.PlantID!.Value), includeProperties: "Criteria")).ToList();
-                    }
+                    //if (request.PlantID!.Any())
+                    //{
+                    //    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                    //    .GetAllNoPaging(filter: x => request.PlantID.Contains(x.PlantID!.Value), includeProperties: "Criteria")).ToList();
+                    //}
                     //if (request.PlantLotID!.Any())
                     //{
                     //    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
@@ -679,6 +681,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                 }
 
+                #region kiem tra xem neu co cai nao la condition check pass thi update IsPass cua Plant lai
+                // kiem tra xem neu co bat ki critera nao la condition grafted thi Tra ve not pass hết
+                var flag = false;
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                var insertedCriteriaID = request.CriteriaData.Select(x => x.CriteriaId);
+                Expression<Func<Criteria, bool>> filter = x => insertedCriteriaID.Contains(x.CriteriaId) &&
+                                                            ConditionList.Contains(x.MasterType!.Target!.ToLower());
+
+                var criteriaGraftedInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
+                var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId), includeProperties: "GrowthStage");
+                
+                if (criteriaGraftedInsert.Any())
+                {
+                    flag = true; // neu co bat kia tieu chi nao la chiet canh
+                    foreach (var plant in plants)
+                    {
+                        List<string> ActFunction = Util.SplitByComma(plant.GrowthStage!.ActiveFunction!);
+                        if (!ActFunction.Any())
+                        {
+                            return new BusinessResult(400, $"Plant code:{plant.PlantCode} not in stage can Grafted to apply ");
+                        }
+                        bool checkPlantInGrafted = ActFunction.Contains(ActFunctionGrStageEnum.Grafted.ToString().ToLower());
+                        if (!checkPlantInGrafted)
+                            return new BusinessResult(400, $"Plant code: {plant.PlantCode} not in stage can Grafted to apply ");
+                        plant.GrowthStage = null!;
+                    }
+                }
+                #endregion
+
                 var existingCriteriaTargets = await GetExistingCriteriaTargets(request.PlantIds, null!, null!);
 
                 var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, request.PlantIds, null!, null!, existingCriteriaTargets);
@@ -686,22 +718,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(newCriteriaTargets);
 
-                    #region kiem tra xem neu co cai nao la condition check pass thi update IsPass cua Plant lai
-                    // kiem tra xem neu co bat ki critera nao la condition grafted thi Tra ve not pass hết
-                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
-                    var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
-                    var insertedCriteriaID = request.CriteriaData.Select(x => x.CriteriaId);
-                    Expression<Func<Criteria, bool>> filter = x => insertedCriteriaID.Contains(x.CriteriaId) &&
-                                                                ConditionList.Contains(x.MasterType!.Target!.ToLower());
 
-                    var criteriaInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
-                    if (criteriaInsert.Any())
+                    if (criteriaGraftedInsert.Any())
                     {
-                        var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId), includeProperties: null);
                         plants.ToList().ForEach(p => p.IsPassed = false);
                         _unitOfWork.PlantRepository.UpdateRange(plants);
                     }
-                    #endregion
 
                     var resultSave = await _unitOfWork.SaveAsync();
                     if (resultSave > 0)
@@ -770,6 +792,123 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, "Server have some error");
             }
+        }
+
+        public async Task<BusinessResult> CheckingCriteriaForPlant(CheckPlantCriteriaRequest request)
+        {
+            //using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            //{
+            try
+            {
+                if (!request.PlantIds.Any() || !request.criteriaDatas.Any())
+                {
+                    return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                }
+
+                // Lấy danh sách CriteriaTarget phù hợp với danh sách đầu vào
+                var CriteriaTargetList = new List<CriteriaTarget>();
+                var criteriaList = request.criteriaDatas.Select(x => x.CriteriaId).ToList();
+                if (request.PlantIds!.Any())
+                {
+                    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                    .GetAllNoPaging(filter: x => request.PlantIds.Contains(x.PlantID!.Value) && criteriaList.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
+                }
+
+                if (!CriteriaTargetList.Any())
+                {
+                    return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, "Don't have criteria to complete task");
+                }
+
+                var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId);
+
+                foreach (var plantCriteria in CriteriaTargetList)
+                {
+                    if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var criteriaData))
+                    {
+                        if (criteriaData.ValueChecked.HasValue)
+                        {
+                            plantCriteria.ValueChecked = criteriaData.ValueChecked;
+                            plantCriteria.CheckedDate = DateTime.Now;
+                        }
+
+                        if (plantCriteria.Criteria!.MinValue.HasValue && plantCriteria.Criteria.MaxValue.HasValue)
+                        {
+                            if (criteriaData.ValueChecked >= plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked <= plantCriteria.Criteria.MaxValue)
+                            {
+                                plantCriteria.IsPassed = true;
+                            }
+                            if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
+                            {
+                                plantCriteria.IsPassed = true;
+                            }
+                        }
+                    }
+                    plantCriteria.Criteria = null;
+                }
+                // Cập nhật danh sách CriteriaTarget 
+                _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
+                int result = await _unitOfWork.SaveAsync();
+                #region update plant pass
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.Trim().ToLower()));
+                var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+                var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId) && x.IsDead == false, includeProperties: null!);
+                foreach (var pl in plants)
+                {
+                    var checkResult = await CheckPlantHasCheckCriteriaAsync(plantId: pl.PlantId, requiredList);
+                    if (checkResult.StatusCode == 200)
+                    {
+                        pl.IsPassed = true;
+                    }
+                    else if (checkResult.StatusCode == 250)
+                    {
+                        pl.IsPassed = false;
+                    }
+                }
+                _unitOfWork.PlantRepository.UpdateRange(plants);
+                result += await _unitOfWork.SaveAsync();
+                #endregion
+
+                if (result > 0)
+                {
+                    return new BusinessResult(Const.SUCCES_CHECK_PLANT_CRITERIA_CODE, Const.SUCCES_CHECK_PLANT_CRITERIA_MSG, new { success = true });
+                }
+
+                return new BusinessResult(Const.FAIL_CHECK_CRITERIA_TARGET_CODE, Const.FAIL_CHECK_CRITERIA_TARGET_MSG, new { success = false });
+            }
+            catch (Exception ex)
+            {
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+            //}
+        }
+        private async Task<BusinessResult> CheckPlantHasCheckCriteriaAsync(int plantId, List<string> criteriaRequireCheck)
+        {
+            var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId);
+
+            // Kiểm tra xem tất cả các tiêu chí phải được check và pass thì mới trả về true 
+            // vì có chỉ cần bắt trường hợp tất cả được check nhưng có 1 cái nào đó ko pass để handle
+            // có value --> là được check rồi nhưng ko pass
+            bool allChecked = appliedCriterias
+       .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+       .All(x => x.ValueChecked.HasValue);
+
+            if (!allChecked)
+            {
+                return new BusinessResult(250, "The plant lot has not been fully checked.");
+            }
+
+            // Kiểm tra xem tất cả các tiêu chí đã check có pass hết hay không
+            bool hasCompletedEvaluation = appliedCriterias
+                .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+                .All(x => x.IsPassed == true);
+            // neu co cai nao check ma ko pass thi tra loi 300 de handle
+            if (!hasCompletedEvaluation)
+            {
+                return new BusinessResult(300, "The plant lot has not passed all required.");
+            }
+
+            return new BusinessResult(200, "The plant lot has successfully completed all required.");
         }
     }
 }
