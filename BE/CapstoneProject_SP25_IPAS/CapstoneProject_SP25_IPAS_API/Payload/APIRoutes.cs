@@ -126,6 +126,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
             public const string applyCriteriaForPlant = prefixCriteriaTarget + "/apply-criteria/plant";
+            public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
         }
 
         public static class Authentication

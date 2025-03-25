@@ -348,7 +348,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (pagin.List.Any())
                     return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin);
                 else
-                    return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantModels>());
+                    return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantModels>());
             }
             catch (Exception ex)
             {
@@ -404,7 +404,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return pagin.List.Any()
                     ? new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin)
-                    : new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantSummaryModel>());
+                    : new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantSummaryModel>());
             }
             catch (Exception ex)
             {

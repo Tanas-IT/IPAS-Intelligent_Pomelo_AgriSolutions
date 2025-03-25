@@ -283,6 +283,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpPut(APIRoutes.Criteria.resetPlantCriteria, Name = "resetPlantCriteria")]
+        public async Task<IActionResult> resetPlantCriteria(ResetPlantCriteriaRequest resetRequest)
+        {
+            try
+            {
+                var result = await _criteriaTargetService.ResetPlantCriteria(resetRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpDelete(APIRoutes.Criteria.deleteCriteriaMultipleTarger, Name = "deleteCriteriaMultipleTarger")]
         public async Task<IActionResult> deleteCriteriaMultipleTarger([FromBody] DeleteCriteriaTargetRequest request)
         {

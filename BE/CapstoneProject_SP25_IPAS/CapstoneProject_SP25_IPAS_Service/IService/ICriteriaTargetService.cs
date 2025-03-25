@@ -23,5 +23,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<(bool enable, string ErrorMessage)> CheckCriteriaComplete(int? PlantId, int? GraftedId, int? PlantLotId,List<string> TargetsList);
         public Task<BusinessResult> ApplyCriteriasForPlant(ApplyCriteriaForPlantRequest request);
 
+        public Task<BusinessResult> ResetPlantCriteria(ResetPlantCriteriaRequest request);
     }
 }
