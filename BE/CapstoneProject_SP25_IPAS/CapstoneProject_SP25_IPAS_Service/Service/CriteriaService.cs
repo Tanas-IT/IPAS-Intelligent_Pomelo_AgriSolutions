@@ -234,6 +234,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Target = group.First().Criteria!.MasterType!.Target,
                         CriteriaList = group.OrderBy(pc => pc.Priority).Select(pc => new CriteriaInfoModel
                         {
+                            CriteriaTargetId = pc.CriteriaTargetId,
                             PlantId = pc.PlantID,
                             GraftedPlantId = pc.GraftedPlantID,
                             PlantLotId = pc.PlantLotID,

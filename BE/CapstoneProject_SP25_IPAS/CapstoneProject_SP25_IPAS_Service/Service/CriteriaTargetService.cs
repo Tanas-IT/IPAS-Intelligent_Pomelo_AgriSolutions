@@ -454,7 +454,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Can not found any criteria to delete");
                     }
                     var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                               .GetForDelete(x =>
+                               .GetWithMasterType(x =>
                                    (deleteRequest.PlantId!.Contains(x.PlantID) ||
                                     deleteRequest.GraftedPlantId!.Contains(x.GraftedPlantID) ||
                                     deleteRequest.PlantLotId!.Contains(x.PlantLotID))
@@ -692,7 +692,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
                     var insertedCriteriaID = request.CriteriaData.Select(x => x.CriteriaId);
                     Expression<Func<Criteria, bool>> filter = x => insertedCriteriaID.Contains(x.CriteriaId) &&
-                                                                ConditionList.Contains(x.MasterType!.TypeName!.ToLower());
+                                                                ConditionList.Contains(x.MasterType!.Target!.ToLower());
 
                     var criteriaInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
                     if (criteriaInsert.Any())
@@ -723,6 +723,53 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
             //}
+        }
+
+        public async Task<BusinessResult> ResetPlantCriteria(ResetPlantCriteriaRequest request)
+        {
+            try
+            {
+                var checkPlantExist = await _unitOfWork.PlantRepository.GetByID(request.PlantId);
+                if (checkPlantExist == null)
+                    return new BusinessResult(400, "Plant not exist");
+                var checkMsTypeExist = await _unitOfWork.MasterTypeRepository.GetByID(request.MasterTypeId);
+                if (checkMsTypeExist == null)
+                    return new BusinessResult(400, "Criteria set not exist");
+                var criteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetWithMasterType(filter: x => x.Criteria!.MasterTypeID == request.MasterTypeId && x.PlantID == request.PlantId)).ToList();
+
+                if (!criteriaTargetList.Any())
+                    return new BusinessResult(400, "No criteria was found to reset");
+
+                foreach (var criTarget in criteriaTargetList)
+                {
+                    criTarget.CheckedDate = null;
+                    criTarget.ValueChecked = null;
+                    criTarget.IsPassed = false;
+                    criTarget.CreateDate = DateTime.Now;
+                    criTarget.Criteria = null;
+                }
+                _unitOfWork.CriteriaTargetRepository.UpdateRange(criteriaTargetList);
+
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                bool isGraftedConditionReset = ConditionList.Contains(checkMsTypeExist.Target!.ToLower());
+                if (isGraftedConditionReset)
+                {
+                    checkPlantExist.IsPassed = false;
+                    _unitOfWork.PlantRepository.Update(checkPlantExist);
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(200, $"Reset {criteriaTargetList.Count()} criteria success");
+                }
+                return new BusinessResult(400, "Reset Criteria fail");
+            }
+            catch (Exception)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, "Server have some error");
+            }
         }
     }
 }
