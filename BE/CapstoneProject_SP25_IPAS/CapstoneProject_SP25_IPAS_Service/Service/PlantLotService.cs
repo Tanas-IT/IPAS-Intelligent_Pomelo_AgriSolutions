@@ -927,9 +927,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Kiểm tra xem tất cả các tiêu chí phải được check và pass thì mới trả về true 
             // vì có chỉ cần bắt trường hợp tất cả được check nhưng có 1 cái nào đó ko pass để handle
             // có value --> là được check rồi nhưng ko pass
+            //bool hasCompletedEvaluation = appliedCriterias
+            //    .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+            //    .All(x => x.ValueChecked.HasValue && x.IsPassed == true);
+            bool allChecked = appliedCriterias
+       .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+       .All(x => x.ValueChecked.HasValue);
+
+            if (!allChecked)
+            {
+                return new BusinessResult(250, "The plant lot has not been fully checked.");
+            }
+
+            // Kiểm tra xem tất cả các tiêu chí đã check có pass hết hay không
             bool hasCompletedEvaluation = appliedCriterias
                 .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
-                .All(x => x.ValueChecked.HasValue && x.IsPassed == true);
+                .All(x => x.IsPassed == true);
             // neu co cai nao check ma ko pass thi tra loi 300 de handle
             if (!hasCompletedEvaluation)
             {
@@ -1035,8 +1048,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Lấy danh sách CriteriaTarget 
+                    var listCriteriaId = request.criteriaDatas.Select(x => x.CriteriaId).ToList();
                     var CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                       .GetAllNoPaging(filter: x => request.PlantLotID.Equals(x.PlantLotID!.Value), includeProperties: "Criteria")).ToList();
+                       .GetAllNoPaging(filter: x => request.PlantLotID.Equals(x.PlantLotID!.Value) && listCriteriaId.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
 
                     if (!CriteriaTargetList.Any())
                     {
@@ -1097,17 +1111,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     #region kiem check dieu kien trc khi SAU duyet lo
                     //if (flag == false)
                     //{
-                        // kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
-                        var requiredEvaluation = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
-                        var EvaluationList = requiredEvaluation.Any() ? requiredEvaluation.Select(x => x.ConfigValue).ToList() : new List<string>();
+                    // kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
+                    var requiredEvaluation = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
+                    var EvaluationList = requiredEvaluation.Any() ? requiredEvaluation.Select(x => x.ConfigValue).ToList() : new List<string>();
 
-                        var checkEvaluation = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, EvaluationList);
-                        // neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
-                        if (checkEvaluation.StatusCode == 300)
-                        {
-                            checkExistPlantLot.LastQuantity = 0;
-                            _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
-                        }
+                    var checkEvaluation = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, EvaluationList);
+                    // neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
+                    if (checkEvaluation.StatusCode == 250)
+                    {
+                        // Không cập nhật LastQuantity
+                    }
+                    else if (checkEvaluation.StatusCode == 300)
+                    {
+                        checkExistPlantLot.LastQuantity = 0;
+                        _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
+                    }
                     //}
                     #endregion
 
