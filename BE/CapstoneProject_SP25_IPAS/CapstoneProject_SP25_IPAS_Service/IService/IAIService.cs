@@ -23,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreateTag(string tagName);
         public Task<BusinessResult> UploadImageByURLToCustomVision(UploadImageModel uploadImageModel);
         public Task<BusinessResult> UploadImageByFileToCustomVision(UploadImageByFileModel uploadImageByFileModel);
+        public Task<BusinessResult> UpdateTageOfImage(UpdateTagOfImageModel updateTagOfImageModel);
         public Task<BusinessResult> DeleteTag(string tagId);
         public Task<BusinessResult> DeleteImage(DeleteImagesModel deleteImagesModel);
         public Task<BusinessResult> UpdateTag(UpdateTagModel updateTagModel);
@@ -30,6 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetImagesUnTagged(GetImagesWithTagged getImagesUnTagged);
         public Task<BusinessResult> GetImagesTagged(GetImagesWithTagged getImagesTagged);
         public Task<BusinessResult> TrainedProject();
+        public Task<BusinessResult> PublishIterations();
 
     }
 }
