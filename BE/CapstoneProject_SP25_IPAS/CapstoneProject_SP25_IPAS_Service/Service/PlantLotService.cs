@@ -1079,7 +1079,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     lotCriteria.IsPassed = true;
                                 }
-                                if (criteriaData.ValueChecked < lotCriteria.Criteria!.MinValue && criteriaData.ValueChecked > lotCriteria.Criteria.MaxValue)
+                                if (criteriaData.ValueChecked < lotCriteria.Criteria!.MinValue || criteriaData.ValueChecked > lotCriteria.Criteria.MaxValue)
                                 {
                                     lotCriteria.IsPassed = false;
                                 }
