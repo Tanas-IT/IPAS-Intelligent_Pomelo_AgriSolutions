@@ -5,7 +5,6 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig
 {
     public static class CacheInstaller
     {
-        private static IDatabase _redis;
 
         public static void InstallerService(this IServiceCollection services, IConfiguration configuration)
         {
