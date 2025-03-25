@@ -1052,7 +1052,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Lấy danh sách CriteriaTarget 
                 var listCriteriaId = request.criteriaDatas.Select(x => x.CriteriaId).ToList();
                 var CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                   .GetAllNoPaging(filter: x => request.PlantLotID.Equals(x.PlantLotID!.Value) /*&& listCriteriaId.Contains(x.CriteriaID!.Value)*/, includeProperties: "Criteria")).ToList();
+                   .GetAllNoPaging(filter: x => request.PlantLotID.Equals(x.PlantLotID!.Value) && listCriteriaId.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
 
                 if (!CriteriaTargetList.Any())
                 {
@@ -1092,7 +1092,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 // Cập nhật danh sách CriteriaTarget 
                 _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
-                await _unitOfWork.SaveAsync();
+                int result = await _unitOfWork.SaveAsync();
 
                 #region kiem check dieu kien TRUOC khi duyet lo
                 //bool flag = false;  // để duyệt qua điều kiện 1 khỏi duyệt qua điều kiện 2
@@ -1132,7 +1132,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 #endregion
 
-                int result = await _unitOfWork.SaveAsync();
+                 result += await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
                     //await transaction.CommitAsync();
