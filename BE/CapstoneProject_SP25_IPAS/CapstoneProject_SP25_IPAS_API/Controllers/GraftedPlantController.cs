@@ -45,8 +45,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         // Lấy danh sách cây ghép theo phân trang
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getGraftedOfPlantPagin")]
-        public async Task<IActionResult> GetGraftedOfPlantPaginAsync([FromQuery] GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
+        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getAllGraftedPagin")]
+        public async Task<IActionResult> getAllGraftedPagin([FromQuery] GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "Farm Id is required"
                     });
                 }
-                var result = await _graftedPlantService.getGraftedOfPlantPaginAsync(getRequest, paginationParameter);
+                var result = await _graftedPlantService.getAllGraftedPagin(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -75,6 +75,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedByPlantPagin, Name = "getAllGraftedByPlantPagin")]
+        public async Task<IActionResult> getAllGraftedByPlantPagin([FromQuery] GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _graftedPlantService.getAllGraftedByPlantPagin(getRequest, paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
         // Tạo mới cây ghép
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.GraftedPlant.createGrafted, Name = "createGraftedPlant")]

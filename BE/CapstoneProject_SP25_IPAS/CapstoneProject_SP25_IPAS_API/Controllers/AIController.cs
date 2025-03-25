@@ -8,9 +8,12 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Org.BouncyCastle.Asn1.Crmf;
+using StackExchange.Redis;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -20,11 +23,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
         private readonly IAIService _aiService;
         private readonly IJwtTokenService _jwtTokenService;
-
-        public AIController(IAIService aiService, IJwtTokenService jwtTokenService)
+        private readonly IDistributedCache _distributedCache;
+        public AIController(IAIService aiService, IJwtTokenService jwtTokenService, IDistributedCache distributedCache)
         {
             _aiService = aiService;
             _jwtTokenService = jwtTokenService;
+            _distributedCache = distributedCache;
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
@@ -361,6 +365,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+        [HttpGet("set")]
+        public async Task<IActionResult> SetCache()
+        {
+            await _distributedCache.SetStringAsync("test_key", "Hello from Redis!");
+            return Ok("Set cache thành công!");
+        }
+
+        [HttpGet("get")]
+        public async Task<IActionResult> GetCache()
+        {
+            var value = await _distributedCache.GetStringAsync("test_key");
+            return Ok(!string.IsNullOrEmpty(value) ? value.ToString() : "Cache không tồn tại!");
         }
     }
 }

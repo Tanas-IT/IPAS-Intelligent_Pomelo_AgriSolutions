@@ -77,6 +77,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
             public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
+            public const string checkCriteriaForLot = Base + "/plant-lots/criteria/check-criteria";
         }
 
         public static class Resource
@@ -118,13 +119,14 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCriteriaSetGraftedExcept = prefix + "/grafted-plant/get-for-selected/except";
             public const string getCriteriaSetPlantExcept = prefix + "/plant/get-for-selected/except";
             public const string getCriteriaSetPagin = prefix + "/criteria-set";
-
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
             public const string updateCriteriaTarget = prefixCriteriaTarget + "/update-criteria-target";
             public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
             public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
+            public const string applyCriteriaForPlant = prefixCriteriaTarget + "/apply-criteria/plant";
+            public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
         }
 
         public static class Authentication
@@ -411,6 +413,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllGraftedPagin = prefix + "";
             public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
+            public const string getAllGraftedByPlantPagin = prefix + "/get-by-plant";
+
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
             public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
             public const string GroupGraftedPlantsIntoPlantLot = prefix + "/grouping";

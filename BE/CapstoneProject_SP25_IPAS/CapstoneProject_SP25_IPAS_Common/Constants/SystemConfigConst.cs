@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #region GRAFTED
         public const string GRAFTED_CRITERIA = "Grafted Criteria"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
-        public const string GRAFTED_CONDITION_CAPPLY = "Grafted Condition Apply"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
+        public const string GRAFTED_CONDITION_APPLY = "Grafted Condition Apply"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
         public const string GRAFTED_EVALUATION_APPLY = "Grafted Evaluation Apply";
         #endregion
 
@@ -57,10 +57,10 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         #endregion
 
         public static readonly HashSet<string> ADDABLE_CONFIG_KEYS = new HashSet<string>
-    {
-        PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
-        GRAFTED_CRITERIA, GRAFTED_CONDITION_CAPPLY, GRAFTED_EVALUATION_APPLY,
-        PLANT_CRITERIA, PRODUCT_CRITERIA
-    };
+        {
+            PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
+            GRAFTED_CRITERIA, GRAFTED_CONDITION_APPLY, GRAFTED_EVALUATION_APPLY,
+            PLANT_CRITERIA, PRODUCT_CRITERIA
+        };
     }
 }

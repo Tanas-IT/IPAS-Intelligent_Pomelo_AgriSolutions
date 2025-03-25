@@ -10,6 +10,8 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
 using CapstoneProject_SP25_IPAS_API.Middleware;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -239,6 +241,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        [HttpPut(APIRoutes.PlantLot.checkCriteriaForLot, Name = "checkCriteriaForLot")]
+        public async Task<IActionResult> checkCriteriaForLot([FromBody] CheckPlantLotCriteriaRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Data = ModelState.ValidationState.ToString()
+                };
+                return BadRequest(response);
+            }
+            var result = await _plantLotService.CheckingCriteriaForLot(request);
+            return Ok(result);
         }
     }
 }

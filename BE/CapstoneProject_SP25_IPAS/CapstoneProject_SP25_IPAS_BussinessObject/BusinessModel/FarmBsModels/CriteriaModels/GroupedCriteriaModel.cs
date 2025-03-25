@@ -16,11 +16,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.C
 
     public class CriteriaInfoModel
     {
+        public int? CriteriaTargetId { get; set; }
         public int? PlantId { get; set; }
         public int? GraftedPlantId { get; set; }
         public int? PlantLotId { get; set; }
-        public int CriteriaId { get; set; }
-        public string CriteriaName { get; set; }
+        public int? CriteriaId { get; set; }
+        public string? CriteriaName { get; set; }
         //public bool? IsChecked { get; set; }
         public double? ValueChecked { get; set; }
         public DateTime? CreateDate { get; set; }

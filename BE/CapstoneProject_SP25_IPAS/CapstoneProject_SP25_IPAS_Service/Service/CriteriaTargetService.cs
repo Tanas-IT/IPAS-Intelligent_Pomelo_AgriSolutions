@@ -2,9 +2,11 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -96,22 +98,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    }
         //}
 
-        public async Task<BusinessResult> ApplyCriteriasForTarget(CriteriaTargerRequest request)
+        public async Task<BusinessResult> ApplyCriteriasForTarget(ApplyCriteriaForTargetRequest request)
         {
             //using (var transaction = await _unitOfWork.BeginTransactionAsync())
             //{
             try
             {
-                var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
+                //var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
+                var (graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
 
-                if (!plantIds.Any() && !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
+                if (/*!plantIds.Any() &&*/ !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
                 {
                     return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                 }
 
-                var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
+                //var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
+                var existingCriteriaTargets = await GetExistingCriteriaTargets(null, graftedPlantIds, plantLotIds);
 
-                var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, plantIds, graftedPlantIds, plantLotIds, existingCriteriaTargets);
+                var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, null!, graftedPlantIds, plantLotIds, existingCriteriaTargets);
 
                 if (newCriteriaTargets.Any())
                 {
@@ -120,7 +124,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (resultSave > 0)
                     {
                         int numberObjectHasApply = 0;
-                        numberObjectHasApply = request.PlantId!.Any() ? request.PlantId!.Count() : numberObjectHasApply;
+                        //numberObjectHasApply = request.PlantId!.Any() ? request.PlantId!.Count() : numberObjectHasApply;
                         numberObjectHasApply = request.PlantLotId!.Any() ? request.PlantLotId!.Count() : numberObjectHasApply;
                         numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
 
@@ -142,7 +146,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> UpdateCriteriaMultipleTarget(CriteriaTargerRequest updateRequest, bool allowOverride)
+        public async Task<BusinessResult> UpdateCriteriaMultipleTarget(UpdateCriteriaTargerRequest updateRequest, bool allowOverride)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -239,7 +243,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    if ((!request.PlantID.Any() && !request.GraftedPlantID.Any() && !request.PlantLotID.Any()) || !request.criteriaDatas.Any())
+                    if ((!request.PlantID.Any() && !request.GraftedPlantID.Any() /*&& !request.PlantLotID.Any()*/) || !request.criteriaDatas.Any())
                     {
                         return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
                     }
@@ -251,11 +255,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
                         .GetAllNoPaging(filter: x => request.PlantID.Contains(x.PlantID!.Value), includeProperties: "Criteria")).ToList();
                     }
-                    if (request.PlantLotID!.Any())
-                    {
-                        CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(filter: x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
-                    }
+                    //if (request.PlantLotID!.Any())
+                    //{
+                    //    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                    //    .GetAllNoPaging(filter: x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
+                    //}
                     if (request.GraftedPlantID!.Any())
                     {
                         CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
@@ -300,14 +304,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     plantCriteria.IsPassed = true;
                                 }
-                                if(criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
+                                if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
                                 {
                                     plantCriteria.IsPassed = true;
                                 }
-                            } else
-                            {
-                                plantCriteria.IsPassed = criteriaData.IsPassed;
                             }
+                            //else
+                            //{
+                            //    plantCriteria.IsPassed = criteriaData.IsPassed;
+                            //}
                         }
                         plantCriteria.Criteria = null;
                     }
@@ -449,7 +454,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Can not found any criteria to delete");
                     }
                     var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                               .GetForDelete(x =>
+                               .GetWithMasterType(x =>
                                    (deleteRequest.PlantId!.Contains(x.PlantID) ||
                                     deleteRequest.GraftedPlantId!.Contains(x.GraftedPlantID) ||
                                     deleteRequest.PlantLotId!.Contains(x.PlantLotID))
@@ -584,23 +589,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private (List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds) ExtractTargetIds(CriteriaTargerRequest request)
+        private (/*List<int> plantIds,*/ List<int> graftedPlantIds, List<int> plantLotIds) ExtractTargetIds(ApplyCriteriaForTargetRequest request)
         {
             return (
-                request.PlantId ?? new List<int>(),
+                //request.PlantId ?? new List<int>(),
                 request.GraftedPlantId ?? new List<int>(),
                 request.PlantLotId ?? new List<int>()
             );
         }
 
-        private async Task<List<CriteriaTarget>> GetExistingCriteriaTargets(List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds)
+        private async Task<List<CriteriaTarget>> GetExistingCriteriaTargets(List<int>? plantIds, List<int>? graftedPlantIds, List<int>? plantLotIds)
         {
+            plantIds ??= new List<int>();
+            graftedPlantIds ??= new List<int>();
+            plantLotIds ??= new List<int>();
+
             var existingCriteriaTargets = await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(x =>
-                            (x.PlantID != null && plantIds.Contains(x.PlantID!.Value)) ||
-                            (x.GraftedPlantID != null && graftedPlantIds.Contains(x.GraftedPlantID!.Value)) ||
-                            (x.PlantLotID != null && plantLotIds.Contains(x.PlantLotID!.Value))
-                        );
+                .GetAllNoPaging(x =>
+                    (x.PlantID.HasValue && plantIds.Count > 0 && plantIds.Contains(x.PlantID.Value)) ||
+                    (x.GraftedPlantID.HasValue && graftedPlantIds.Count > 0 && graftedPlantIds.Contains(x.GraftedPlantID.Value)) ||
+                    (x.PlantLotID.HasValue && plantLotIds.Count > 0 && plantLotIds.Contains(x.PlantLotID.Value))
+                );
+
             return existingCriteriaTargets.ToList();
         }
         /// <summary>
@@ -614,6 +624,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         /// <returns></returns>
         private List<CriteriaTarget> GenerateNewCriteriaTargets(List<CriteriaData> criteriaData, List<int> plantIds, List<int> graftedPlantIds, List<int> plantLotIds, List<CriteriaTarget> existingCriteriaTargets)
         {
+            plantIds ??= new List<int>();
+            graftedPlantIds ??= new List<int>();
+            plantLotIds ??= new List<int>();
+
             return criteriaData
                 .SelectMany(criteria =>
                     plantIds.Select(targetId => CreateCriteriaTarget(targetId, null, null, criteria))
@@ -651,5 +665,111 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return result;
         }
 
+        /// <summary>
+        /// Apply cho plant neu co cai condition nao trong grafted condition thi phai reset lai cai ispass của chiết cành
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<BusinessResult> ApplyCriteriasForPlant(ApplyCriteriaForPlantRequest request)
+        {
+            try
+            {
+                if (!request.CriteriaData.Any())
+                {
+                    return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                }
+
+                var existingCriteriaTargets = await GetExistingCriteriaTargets(request.PlantIds, null!, null!);
+
+                var newCriteriaTargets = GenerateNewCriteriaTargets(request.CriteriaData, request.PlantIds, null!, null!, existingCriteriaTargets);
+                if (newCriteriaTargets.Any())
+                {
+                    await _unitOfWork.CriteriaTargetRepository.InsertRangeAsync(newCriteriaTargets);
+
+                    #region kiem tra xem neu co cai nao la condition check pass thi update IsPass cua Plant lai
+                    // kiem tra xem neu co bat ki critera nao la condition grafted thi Tra ve not pass hết
+                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                    var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                    var insertedCriteriaID = request.CriteriaData.Select(x => x.CriteriaId);
+                    Expression<Func<Criteria, bool>> filter = x => insertedCriteriaID.Contains(x.CriteriaId) &&
+                                                                ConditionList.Contains(x.MasterType!.Target!.ToLower());
+
+                    var criteriaInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
+                    if (criteriaInsert.Any())
+                    {
+                        var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId), includeProperties: null);
+                        plants.ToList().ForEach(p => p.IsPassed = false);
+                        _unitOfWork.PlantRepository.UpdateRange(plants);
+                    }
+                    #endregion
+
+                    var resultSave = await _unitOfWork.SaveAsync();
+                    if (resultSave > 0)
+                    {
+                        int numberObjectHasApply = 0;
+                        numberObjectHasApply = request.PlantIds!.Count();
+
+                        //await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
+                            $"Apply {request.CriteriaData.Count()} criteria for selected {numberObjectHasApply} plant success", new { success = true });
+                    }
+                }
+
+                return new BusinessResult(Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE, Const.FAIL_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_MSG, new { success = false });
+            }
+            catch (Exception ex)
+            {
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+            //}
+        }
+
+        public async Task<BusinessResult> ResetPlantCriteria(ResetPlantCriteriaRequest request)
+        {
+            try
+            {
+                var checkPlantExist = await _unitOfWork.PlantRepository.GetByID(request.PlantId);
+                if (checkPlantExist == null)
+                    return new BusinessResult(400, "Plant not exist");
+                var checkMsTypeExist = await _unitOfWork.MasterTypeRepository.GetByID(request.MasterTypeId);
+                if (checkMsTypeExist == null)
+                    return new BusinessResult(400, "Criteria set not exist");
+                var criteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                        .GetWithMasterType(filter: x => x.Criteria!.MasterTypeID == request.MasterTypeId && x.PlantID == request.PlantId)).ToList();
+
+                if (!criteriaTargetList.Any())
+                    return new BusinessResult(400, "No criteria was found to reset");
+
+                foreach (var criTarget in criteriaTargetList)
+                {
+                    criTarget.CheckedDate = null;
+                    criTarget.ValueChecked = null;
+                    criTarget.IsPassed = false;
+                    criTarget.CreateDate = DateTime.Now;
+                    criTarget.Criteria = null;
+                }
+                _unitOfWork.CriteriaTargetRepository.UpdateRange(criteriaTargetList);
+
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                bool isGraftedConditionReset = ConditionList.Contains(checkMsTypeExist.Target!.ToLower());
+                if (isGraftedConditionReset)
+                {
+                    checkPlantExist.IsPassed = false;
+                    _unitOfWork.PlantRepository.Update(checkPlantExist);
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(200, $"Reset {criteriaTargetList.Count()} criteria success");
+                }
+                return new BusinessResult(400, "Reset Criteria fail");
+            }
+            catch (Exception)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, "Server have some error");
+            }
+        }
     }
 }
