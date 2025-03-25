@@ -621,11 +621,43 @@ const generationConfig = {
         {
             try
             {
+                // Bước 1: Lấy danh sách tất cả các tag
+                var tags = await trainingClient.GetTagsAsync(projectId);
+
+                // Nếu TagNames có dữ liệu thì tách ra danh sách List<string>
+                List<Guid> tagIds = new List<Guid>();
+                if (!string.IsNullOrEmpty(getImagesModelWithPagination.TagName))
+                {
+                    var tagNamesList = getImagesModelWithPagination.TagName.Split(',')
+                                               .Select(t => t.Trim()) // Xóa khoảng trắng thừa
+                                               .Where(t => !string.IsNullOrEmpty(t))
+                                               .ToList();
+
+                    // Lấy danh sách TagId từ TagName
+                    tagIds = tags.Where(t => tagNamesList.Contains(t.Name, StringComparer.OrdinalIgnoreCase))
+                                 .Select(t => t.Id)
+                                 .ToList();
+
+                    if (tagIds.Count == 0)
+                    {
+                        return new BusinessResult(404, "No matching tags found");
+                    }
+                }
+
                 var calculateTakeIndex = (getImagesModelWithPagination.PageIndex - 1) * getImagesModelWithPagination.PageSize;
-                var getAllImages = await trainingClient.GetImagesAsync(projectId, taggingStatus: getImagesModelWithPagination.TaggingStatus, filter: getImagesModelWithPagination.Filter, orderBy: getImagesModelWithPagination.OrderBy, take: getImagesModelWithPagination.PageSize, skip: calculateTakeIndex);
+                var getAllImages = await trainingClient.GetImagesAsync(
+                                                projectId,
+                                                taggingStatus: getImagesModelWithPagination.TaggingStatus,
+                                                orderBy: getImagesModelWithPagination.OrderBy,
+                                                take: getImagesModelWithPagination.PageSize,
+                                                skip: calculateTakeIndex
+                                            );
+                var filteredImages = getAllImages
+                                .Where(img => img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
+                                .ToList();
                 if (getAllImages != null && getAllImages.Count() > 0)
                 {
-                    return new BusinessResult(200, "Get All Images From Custom Vision Success", getAllImages);
+                    return new BusinessResult(200, "Get All Images From Custom Vision Success", filteredImages);
                 }
                 return new BusinessResult(404, "Do not have any image");
             }
