@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -870,6 +871,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result > 0)
                 {
+                    if (plants.Count() == 1)
+                    {
+                        var mappedResult = _mapper.Map<PlantModel>(plants.FirstOrDefault());
+                        return new BusinessResult(Const.SUCCES_CHECK_PLANT_CRITERIA_CODE, Const.SUCCES_CHECK_PLANT_CRITERIA_MSG, mappedResult);
+                    }
                     return new BusinessResult(Const.SUCCES_CHECK_PLANT_CRITERIA_CODE, Const.SUCCES_CHECK_PLANT_CRITERIA_MSG, new { success = true });
                 }
 
