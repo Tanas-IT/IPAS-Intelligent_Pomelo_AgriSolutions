@@ -30,6 +30,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using GenerativeAI.Types;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -40,12 +42,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IWebSocketService _webSocketService;
         private string warningAddMessage = string.Empty;
         private string warningUpdateMessage = string.Empty;
+        private readonly IResponseCacheService _responseCacheService;
 
-        public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
+        public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _webSocketService = webSocketService;
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
@@ -247,7 +251,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
 
-                            if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID.Count() == 0 && plantTarget.PlantID.Count() == 0)
+                            if (plantTarget.LandPlotID.HasValue)
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                 foreach (var row in rowToPlants)
@@ -431,6 +435,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result)
                     {
                         if (useTransaction) await transaction.CommitAsync();
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{getLastPlan.FarmID}");
                         if (createPlanModel.ListEmployee != null)
                         {
                             foreach (var employeeModel in createPlanModel.ListEmployee)
@@ -466,6 +471,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = $"{CacheKeyConst.PLAN}:{CacheKeyConst.FARM}:{farmId}";
+
+                //await _responseCacheService.RemoveCacheAsync(key);
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<PlanModel>>>(key);
+                if (cachedData != null && cachedData.Data != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 Expression<Func<Plan, bool>> filter = x =>
                            x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
@@ -774,7 +787,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{farmId}";
+                    var result = new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return result;
                 }
                 else
                 {
@@ -792,6 +808,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = CacheKeyConst.PLAN + $"{planId}";
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PlanModel>>(key);
+                if (cachedData != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
                 if (getPlan != null)
                 {
@@ -803,7 +825,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
-                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
+                    if(result != null)
+                    {
+                        string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
+                        var finalResult = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
+                        await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                        return finalResult;
+                    }
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
             }
@@ -944,7 +972,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
 
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "row")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "row")
                 {
                     if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
@@ -952,7 +980,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "plant")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "plant")
                 {
                     if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
@@ -960,7 +988,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "plantlot")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "plantlot")
                 {
                     if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
@@ -968,7 +996,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "graftedplant")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "graftedplant")
                 {
                     if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
@@ -1430,6 +1458,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _unitOfWork.PlanRepository.UpdatePlan(checkExistPlan);
                                 await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
+                                await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{checkExistPlan.FarmID}");
+                                await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + checkExistPlan.PlanId.ToString());
                                 if (updatePlanModel.ListEmployee != null)
                                 {
                                     foreach (var employeeModel in updatePlanModel.ListEmployee)
@@ -1483,7 +1513,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 throw new Exception("Start time must be less than End Time");
             }
-
+            if(plan.Frequency == null)
+            {
+                throw new Exception("Frequency can not be empty. It must be weekly, monthly, daily or none");
+            }
             if (plan.Frequency.ToLower() == "none" && createPlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
@@ -1757,7 +1790,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 throw new Exception("Start Date must be greater than or equal now");
             }
-
+            if (plan.Frequency == null)
+            {
+                throw new Exception("Frequency can not be empty. It must be weekly, monthly, daily or none");
+            }
             if (plan.Frequency.ToLower() == "none" && updatePlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
@@ -2122,7 +2158,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
+                WorkLogName = getTypePlan.MasterTypeName + "_on_" + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId
@@ -2227,7 +2263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
+                WorkLogName = getTypePlan.MasterTypeName + "_on_" + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId
@@ -2374,10 +2410,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                     _unitOfWork.PlanRepository.Update(getPlanById);
+                    await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{getPlanById.FarmID}");
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + getPlanById.PlanId.ToString());
                 }
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
+                   
                     return new BusinessResult(Const.SUCCESS_SOFT_DELETE_PLAN_CODE, Const.SUCCESS_SOFT_DELETE_PLAN_MSG, result > 0);
                 }
                 return new BusinessResult(Const.FAIL_SOFT_DELETE_PLAN_CODE, Const.FAIL_SOFT_DELETE_PLAN_MESSAGE, false);
@@ -2708,8 +2747,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListPlan = await _unitOfWork.PlanRepository.GetPlanIncludeByProcessId(processId);
                 if (getListPlan != null && getListPlan.Count() > 0)
-                {   
-                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
+                {
+                    var result = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
+                    return result;
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
             }
