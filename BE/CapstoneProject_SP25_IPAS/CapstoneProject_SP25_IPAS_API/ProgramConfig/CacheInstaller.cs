@@ -1,4 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using StackExchange.Redis;
 
 namespace CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig
@@ -13,8 +15,8 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig
             configuration.GetSection("RedisConfiguration").Bind(redisConfiguration);
             // Skip Redis setup if it's not enabled
 
-            if (!redisConfiguration.Enabled)
-                return;
+            //if (!redisConfiguration.Enabled)
+            //    return;
 
             services.AddStackExchangeRedisCache(options =>
             {
@@ -29,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig
                 ConnectionMultiplexer.Connect($"{redisConfiguration.ConnectionString}:{redisConfiguration.Port},password={redisConfiguration.Password},ssl=True,abortConnect=False"));
 
             // Register your custom response cache service
-            //services.AddScoped<IResponseCacheService, ResponseCacheService>();
+            services.AddScoped<IResponseCacheService, ResponseCacheService>();
         }
     }
 }
