@@ -33,6 +33,9 @@ using static System.Net.Mime.MediaTypeNames;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
+using CapstoneProject_SP25_IPAS_Common.Constants;
+using System.Numerics;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -52,8 +55,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         private readonly CustomVisionTrainingClient trainingClient;
         private readonly CustomVisionPredictionClient predictionClient;
+        private readonly IResponseCacheService _responseCacheService;
 
-        public AIService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration cofig)
+        public AIService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration cofig, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -76,6 +80,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Endpoint = predictionEndpoint
             };
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> GetAnswerAsync(string question, int? farmId, int? userId)
@@ -106,8 +111,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     UpdateDate = DateTime.Now,
                     IsUser = false,
                     SenderId = userId > 0 ? userId.Value : null,
+                    RoomId = checkRoomExist.RoomId
                 };
-                checkRoomExist.ChatMessages.Add(newChatMessage);
+                await _unitOfWork.ChatMessageRepository.Insert(newChatMessage);
                 await _unitOfWork.SaveAsync();
                 var result = new ChatResponse()
                 {
@@ -116,6 +122,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 if (result != null)
                 {
+                    await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_AI}:{farmId}");
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_AI + checkRoomExist.RoomId.ToString());
                     return new BusinessResult(Const.SUCCESS_ASK_AI_CODE, Const.SUCCESS_ASK_AI_MSG, result);
                 }
                 return new BusinessResult(Const.FAIL_ASK_AI_CODE, Const.FAIL_ASK_AI_MSG);
@@ -342,6 +350,14 @@ const generationConfig = {
         {
             try
             {
+                string key = $"{CacheKeyConst.AI}:{CacheKeyConst.FARM}:{farmId}";
+
+                //await _responseCacheService.RemoveCacheAsync(key);
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<ChatMessageModel>>>(key);
+                if (cachedData != null && cachedData.Data != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 Expression<Func<ChatMessage, bool>> filter = x => x.Room.UserID == userId && x.Room.FarmID == farmId;
                 Func<IQueryable<ChatMessage>, IOrderedQueryable<ChatMessage>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
@@ -435,7 +451,10 @@ const generationConfig = {
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, pagin);
+                    string groupKey = $"{CacheKeyConst.GROUP_FARM_AI}:{farmId}";
+                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, pagin);
+                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return result;
                 }
                 else
                 {
