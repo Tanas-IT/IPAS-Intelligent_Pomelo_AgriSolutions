@@ -101,6 +101,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                //if (!createRequest.FarmId.HasValue)
+                //{
+                //    createRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+                //}
+                //if (!createRequest.FarmId.HasValue)
+                //{
+                //    return BadRequest(new BaseResponse
+                //    {
+                //        StatusCode = StatusCodes.Status400BadRequest,
+                //        Message = "Farm Id is required"
+                //    });
+                //}
                 var result = await _graftedPlantService.createGraftedPlantAsync(createRequest);
                 return Ok(result);
             }

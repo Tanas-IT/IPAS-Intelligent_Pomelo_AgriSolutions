@@ -88,6 +88,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             MotherPlantId = plantExist.PlantId,
                             IsDeleted = false,
                             IsCompleted = false,
+                            FarmId = plantExist.FarmId,
                         };
                         graftedInsert.Add(graftedCreateEntity);
                     }
