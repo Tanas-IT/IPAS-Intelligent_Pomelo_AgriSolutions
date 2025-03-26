@@ -33,7 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Base
     }
     public class BusinessResult<T>
     {
-        public int Status { get; set; }
+        public int StatusCode { get; set; }
         public string Message { get; set; }
         public T Data { get; set; }
     }
