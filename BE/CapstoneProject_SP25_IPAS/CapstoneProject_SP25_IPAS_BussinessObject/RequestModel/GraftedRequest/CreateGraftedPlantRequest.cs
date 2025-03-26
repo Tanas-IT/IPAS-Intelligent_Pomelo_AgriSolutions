@@ -22,5 +22,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest
         public string? Note { get; set; }
         [Required]
         public int PlantId { get; set; }
+        //public int? FarmId { get; set; }
     }
 }
