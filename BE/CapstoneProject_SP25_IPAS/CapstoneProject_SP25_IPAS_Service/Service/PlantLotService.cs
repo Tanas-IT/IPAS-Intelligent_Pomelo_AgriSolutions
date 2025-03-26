@@ -798,9 +798,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.IsDeleted == false;
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId  && x.IsDeleted == false;
                 if (isFromGrafted.HasValue && isFromGrafted == true)
                     filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.COMPLETED.ToLower()));
+                else
+                    filter = filter.And(x => x.LastQuantity < x.UsedQuantity);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);

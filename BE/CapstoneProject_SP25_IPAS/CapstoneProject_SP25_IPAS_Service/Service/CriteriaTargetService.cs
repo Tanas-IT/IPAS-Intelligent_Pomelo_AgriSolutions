@@ -785,7 +785,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
-                    return new BusinessResult(200, $"Reset {criteriaTargetList.Count()} criteria success");
+                    var mappedResult = _mapper.Map<PlantModel>(checkPlantExist);
+                    return new BusinessResult(200, $"Reset {criteriaTargetList.Count()} criteria success", mappedResult);
                 }
                 return new BusinessResult(400, "Reset Criteria fail");
             }
