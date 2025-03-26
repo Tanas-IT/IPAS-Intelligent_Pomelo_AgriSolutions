@@ -412,6 +412,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<GraftedPlant, GraftedPlantModels>()
                .ForMember(dest => dest.PlantCode, opt => opt.MapFrom(src => src.Plant!.PlantCode))
+               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant!.PlantName))
                .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot!.PlantLotName))
                .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot!.PlantLotCode))
                .ForMember(dest => dest.CultivarId, opt => opt.MapFrom(src => src.Plant!.MasterTypeId))

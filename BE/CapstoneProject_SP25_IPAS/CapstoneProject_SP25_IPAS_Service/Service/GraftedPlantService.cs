@@ -310,24 +310,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ? x => x.OrderByDescending(x => x.PlantLotId)
                                 : x => x.OrderBy(x => x.PlantLotId);
                             break;
+                        case "plantlotname":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLot!.PlantLotName)
+                                : x => x.OrderBy(x => x.PlantLot!.PlantLotName);
+                            break;
                         case "iscompleted":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
-                                ? x => x.OrderByDescending(x => x.PlantLotId)
-                                : x => x.OrderBy(x => x.PlantLotId);
+                                ? x => x.OrderByDescending(x => x.IsCompleted)
+                                : x => x.OrderBy(x => x.IsCompleted);
                             break;
                         case "plantid":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
-                                ? x => x.OrderByDescending(x => x.PlantLotId)
-                                : x => x.OrderBy(x => x.PlantLotId);
+                                ? x => x.OrderByDescending(x => x.MotherPlantId)
+                                : x => x.OrderBy(x => x.MotherPlantId);
                             break;
                         case "cultivarid":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
-                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                ? x => x.OrderByDescending(x => x.Plant!.MasterTypeId)
                                 : x => x.OrderBy(x => x.PlantLotId);
                             break;
                         case "cultivarname":
                             orderBy = paginationParameter.Direction!.ToLower() == "desc"
-                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                ? x => x.OrderByDescending(x => x.Plant!.MasterType!.MasterTypeName)
                                 : x => x.OrderBy(x => x.PlantLotId);
                             break;
                         default:
