@@ -1506,9 +1506,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
             var result = 0;
             DateTime currentDate = createPlanModel.StartDate;
-            if (currentDate <= DateTime.Now)
+            if (createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime)) <= DateTime.Now)
             {
-                throw new Exception("Start Date must be greater than or equal now");
+                throw new Exception("Start Time must be greater than or equal now");
             }
             if (TimeSpan.Parse(createPlanModel.StartTime) >= TimeSpan.Parse(createPlanModel.EndTime))
             {
@@ -1787,9 +1787,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
             var result = 0;
             DateTime currentDate = updatePlanModel.StartDate.Value;
-            if (currentDate <= DateTime.Now)
+            if (updatePlanModel.StartDate.Value.Add(TimeSpan.Parse(updatePlanModel.StartTime)) <= DateTime.Now)
             {
-                throw new Exception("Start Date must be greater than or equal now");
+                throw new Exception("Start Time must be greater than or equal now");
             }
             if (plan.Frequency == null)
             {
@@ -2674,40 +2674,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds)
         {
-            try
-            {
-                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
-                if (getMasterType != null && getMasterType.Any())
-                {
-                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
-                }
-                return new BusinessResult(404, "Do not have any type of work");
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            //try
+            //{
+            //    var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+            //    if (getMasterType != null && getMasterType.Any())
+            //    {
+            //        return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+            //    }
+            //    return new BusinessResult(404, "Do not have any type of work");
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            //}
+            var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("work");
+            return new BusinessResult(200, "Filter type of work by growth stage id sucess");
         }
 
 
         public async Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName)
         {
-            try
-            {
-                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesWithTypeNameByGrowthStages(growthStageIds, typeName);
-                if (getMasterType != null && getMasterType.Any())
-                {
-                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
-                }
-                return new BusinessResult(404, "Do not have any type of work");
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("work");
+            return new BusinessResult(200, "Filter type of work by growth stage id sucess");
         }
 
-        public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
+            public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
