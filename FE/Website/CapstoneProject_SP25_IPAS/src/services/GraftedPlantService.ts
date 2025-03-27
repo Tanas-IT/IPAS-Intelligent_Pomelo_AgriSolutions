@@ -1,9 +1,11 @@
 import { axiosAuth } from "@/api";
 import {
   ApiResponse,
+  CreateGraftedPlantsRequest,
   GetData,
   GetGraftedPlant,
   GetGraftedPlantDetail,
+  GetGraftedPlantHistory,
   GetGraftedPlantSelected,
   GraftedPlantRequest,
 } from "@/payloads";
@@ -43,6 +45,32 @@ export const getGraftedPlant = async (id: number): Promise<ApiResponse<GetGrafte
   return apiResponse;
 };
 
+export const getGraftedPlantHistory = async (
+  plantId: number,
+  pageIndex: number,
+  GraftedDateFrom?: string,
+  GraftedDateTo?: string,
+): Promise<ApiResponse<GetData<GetGraftedPlantHistory>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`/grafted-plant/get-by-plant`, {
+    params: {
+      plantId,
+      pageIndex,
+      GraftedDateFrom,
+      GraftedDateTo,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetGraftedPlantHistory>>;
+  return apiResponse;
+};
+
+export const createGraftedPlants = async (
+  req: CreateGraftedPlantsRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`grafted-plant`, req);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
 export const deleteGraftedPlants = async (
   ids: number[] | string[],
 ): Promise<ApiResponse<Object>> => {
@@ -56,5 +84,21 @@ export const updateGraftedPlant = async (
 ): Promise<ApiResponse<GetGraftedPlant>> => {
   const res = await axiosAuth.axiosJsonRequest.put("grafted-plant", graftedPlant);
   const apiResponse = res.data as ApiResponse<GetGraftedPlant>;
+  return apiResponse;
+};
+
+export const updateIsCompletedAndCutting = async (
+  graftedPlantId: number,
+  plantLotId: number,
+): Promise<ApiResponse<GetGraftedPlantDetail>> => {
+  const formatLotData = {
+    graftedPlantId,
+    plantLotId,
+  };
+  const res = await axiosAuth.axiosJsonRequest.put(
+    "grafted-plant/completed-and-cutting",
+    formatLotData,
+  );
+  const apiResponse = res.data as ApiResponse<GetGraftedPlantDetail>;
   return apiResponse;
 };

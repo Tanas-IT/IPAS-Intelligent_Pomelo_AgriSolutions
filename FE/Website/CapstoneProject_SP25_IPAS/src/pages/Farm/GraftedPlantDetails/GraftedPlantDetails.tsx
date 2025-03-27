@@ -25,6 +25,12 @@ function GraftedPlantDetails() {
       label: <label className={style.titleTab}>Criteria</label>,
       children: <GraftedPlantCriteria />,
     },
+    {
+      key: "3",
+      icon: <Icons.history className={style.iconTab} />,
+      label: <label className={style.titleTab}>Growth History</label>,
+      children: "Content of Tab Pane 3",
+    },
   ];
 
   const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);

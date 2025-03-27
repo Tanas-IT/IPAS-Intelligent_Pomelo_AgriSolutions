@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
 import { CRITERIA_TARGETS } from "@/constants";
-import { CriteriaApplyRequest } from "@/payloads";
-import { criteriaService } from "@/services";
+import { PlantCriteriaApplyRequest } from "@/payloads";
+import { criteriaService, masterTypeService } from "@/services";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
@@ -13,7 +13,7 @@ type ApplyPlantCriteriaModalProps = {
   plantIds?: number[];
   isOpen: boolean;
   onClose: () => void;
-  onSave: (criteria: CriteriaApplyRequest) => void;
+  onSave: (criteria: PlantCriteriaApplyRequest) => void;
   isLoadingAction?: boolean;
 };
 
@@ -52,8 +52,8 @@ const ApplyPlantCriteriaModal = ({
   const handleOk = () => {
     if (!isCriteriaListValid()) return;
     if (!plantIds) return;
-    const requestData: CriteriaApplyRequest = {
-      plantId: plantIds,
+    const requestData: PlantCriteriaApplyRequest = {
+      plantIds: plantIds,
       criteriaData: dataSource.map((item) => ({
         criteriaId: item.criteriaId,
         priority: item.priority,
@@ -67,7 +67,12 @@ const ApplyPlantCriteriaModal = ({
   const handleCriteriaTypeChange = async (value: string) => {
     form.setFieldsValue({ criteriaId: undefined });
     if (!plantIds) return;
-    var res = await criteriaService.getPlantCriteriaTypeSelect(plantIds[0], value);
+    let res;
+    if (plantIds.length === 1) {
+      res = await criteriaService.getPlantCriteriaTypeSelect(plantIds[0], value);
+    } else {
+      res = await masterTypeService.getCriteriaTypeSelect(value);
+    }
     if (res.statusCode === 200 && res.data) {
       const formattedOptions = res.data.map((item) => ({
         value: item.id,

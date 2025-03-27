@@ -1,0 +1,26 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    gap: 20px;
+  }
+}
+
+.filterSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.historyTimeline {
+  @include shared.historyTimeline;
+  .historyContainer {
+    max-height: 13rem;
+  }
+}
+
+.loadMoreWrapper {
+  @include shared.loadMoreWrapper;
+}

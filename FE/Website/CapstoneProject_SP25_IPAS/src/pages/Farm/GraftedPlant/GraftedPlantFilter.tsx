@@ -1,10 +1,11 @@
 import { Flex, Space } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FilterFooter, FormFieldFilter } from "@/components";
-import { HEALTH_STATUS, MASTER_TYPE } from "@/constants";
-import { FilterGraftedPlantState } from "@/types";
-import { useMasterTypeOptions } from "@/hooks";
+import { GROWTH_ACTIONS, HEALTH_STATUS, MASTER_TYPE } from "@/constants";
+import { FilterGraftedPlantState, SelectOption } from "@/types";
+import { useMasterTypeOptions, usePlantLotOptions } from "@/hooks";
 import style from "./GraftedPlant.module.scss";
+import { plantService } from "@/services";
 
 type FilterProps = {
   filters: FilterGraftedPlantState;
@@ -15,11 +16,28 @@ type FilterProps = {
 const GraftedPlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
   const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
+  const { options: plantLotOptions } = usePlantLotOptions(true);
+  const [plantOptions, setPlantOptions] = useState<SelectOption[]>([]);
+
+  useEffect(() => {
+    const fetchPlants = async () => {
+      const res = await plantService.getPlantOfStageActive(GROWTH_ACTIONS.GRAFTED);
+      if (res.statusCode === 200) {
+        const options = res.data.map((plant) => ({
+          value: plant.id,
+          label: plant.name,
+        }));
+        setPlantOptions(options);
+      }
+    };
+    fetchPlants();
+  }, []);
 
   const isFilterEmpty = !(
     filters.separatedDateFrom ||
     filters.separatedDateTo ||
     (filters.plantIds && filters.plantIds.length > 0) ||
+    (filters.plantLotIds && filters.plantLotIds.length > 0) ||
     (filters.cultivarIds && filters.cultivarIds.length > 0) ||
     (filters.status && filters.status.length > 0) ||
     filters.graftedDateFrom ||
@@ -57,6 +75,24 @@ const GraftedPlantFilter = ({ filters, updateFilters, onClear, onApply }: Filter
             updateFilters("graftedDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
           }}
         />
+
+        <Flex gap={20}>
+          <FormFieldFilter
+            label="Plants"
+            fieldType="select"
+            value={filters.plantIds}
+            options={plantOptions}
+            onChange={(value) => updateFilters("plantIds", value)}
+          />
+
+          <FormFieldFilter
+            label="Plant Lots"
+            fieldType="select"
+            value={filters.plantLotIds}
+            options={plantLotOptions}
+            onChange={(value) => updateFilters("plantLotIds", value)}
+          />
+        </Flex>
 
         <Flex gap={20}>
           <FormFieldFilter

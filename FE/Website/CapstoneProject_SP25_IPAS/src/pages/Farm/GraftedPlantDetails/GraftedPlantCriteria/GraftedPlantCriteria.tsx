@@ -14,8 +14,8 @@ import { criteriaService } from "@/services";
 import {
   CriteriaApplyRequest,
   CriteriaCheckData,
-  CriteriaCheckRequest,
   CriteriaDeleteRequest,
+  CriteriaGraftedPlantCheckRequest,
   GetCriteriaObject,
 } from "@/payloads";
 import { toast } from "react-toastify";
@@ -106,7 +106,7 @@ function GraftedPlantCriteria() {
         valueChecked,
       }));
 
-    const payload: CriteriaCheckRequest = {
+    const payload: CriteriaGraftedPlantCheckRequest = {
       graftedPlantID: graftedPlant?.graftedPlantId ? [graftedPlant.graftedPlantId] : undefined,
       criteriaDatas,
     };
@@ -114,7 +114,7 @@ function GraftedPlantCriteria() {
     try {
       setIsLoading(true);
 
-      var res = await criteriaService.checkCriteria(payload);
+      var res = await criteriaService.checkGraftedPlantCriteria(payload);
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaGraftedPlant();
@@ -140,6 +140,7 @@ function GraftedPlantCriteria() {
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaGraftedPlant();
+        setUpdatedCriteria([]);
       } else {
         toast.error(res.message);
       }
@@ -202,11 +203,13 @@ function GraftedPlantCriteria() {
                       handleCancel={handleCancel}
                       handleSave={handleSave}
                       handleDelete={handleDeleteConfirm}
+                      isCompleted={graftedPlant.isCompleted}
                     />
                   }
                   key={group.masterTypeId}
                 >
                   <CriteriaPlantCheckTable
+                    isCompleted={graftedPlant.isCompleted}
                     data={group.criteriaList}
                     handleValueCheckChange={handleValueCheckChange}
                   />

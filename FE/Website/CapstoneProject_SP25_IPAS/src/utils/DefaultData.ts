@@ -105,6 +105,7 @@ export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   partnerId: [] as string[],
   previousQuantityFrom: undefined,
   previousQuantityTo: undefined,
+  isFromGrafted: null,
 };
 
 export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {
@@ -128,6 +129,7 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
 
 export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
   plantIds: [] as string[],
+  plantLotIds: [] as string[],
   separatedDateFrom: "",
   separatedDateTo: "",
   status: [] as string[],
@@ -203,6 +205,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   landRowId: 0,
   masterTypeId: 0,
   isDead: false,
+  isPassed: false,
   plantReferenceCode: "",
   plantReferenceId: 0,
 };

@@ -45,6 +45,7 @@ interface FormFieldModalProps {
   isCheck?: boolean;
   hasFeedback?: boolean;
   placeholder?: string;
+  radioLabels?: { yes: string; no: string };
   direction?: "row" | "col";
   dependencies?: string[];
   checkedChildren?: string;
@@ -69,12 +70,13 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   isCheck = false,
   hasFeedback = true,
   placeholder = `Enter ${label.toLowerCase()}`,
+  radioLabels = { yes: "Yes", no: "No" },
   direction = "col",
   dependencies,
   checkedChildren,
   unCheckedChildren,
   disable = false,
-  multiple = false
+  multiple = false,
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -148,8 +150,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "radio":
         return (
           <Radio.Group onChange={(e) => onChange?.(e.target.value)} value={value}>
-            <Radio value={true}>Yes</Radio>
-            <Radio value={false}>No</Radio>
+            <Radio value={true}>{radioLabels.yes}</Radio>
+            <Radio value={false}>{radioLabels.no}</Radio>
           </Radio.Group>
         );
       case "textarea":

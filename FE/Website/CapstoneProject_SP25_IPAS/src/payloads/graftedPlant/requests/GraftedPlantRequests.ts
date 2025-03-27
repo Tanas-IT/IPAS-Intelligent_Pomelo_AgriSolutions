@@ -7,3 +7,10 @@ export interface GraftedPlantRequest {
   note: string;
   plantLotId: number;
 }
+
+export interface CreateGraftedPlantsRequest {
+  plantId: number;
+  totalNumber: number;
+  graftedDate: string;
+  note: string;
+}

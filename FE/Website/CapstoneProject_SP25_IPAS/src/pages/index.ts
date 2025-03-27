@@ -20,8 +20,15 @@ export { default as AddNewPlotDrawer } from "@/pages/Farm/LandPlot/LandPlotManag
 export { default as LandPlotCreate } from "@/pages/Farm/LandPlot/LandPlotManagement/LandPlotCreate/LandPlotCreate";
 export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManagement/RowConfiguration/RowConfiguration";
 export { default as DraggableRow } from "@/pages/Farm/LandPlot/LandPlotManagement/DraggableRow/DraggableRow";
+
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
+export { default as PlantOverview } from "@/pages/Farm/PlantDetails/PlantOverview/PlantOverview";
+export { default as PlantDetail } from "@/pages/Farm/PlantDetails/PlantDetail/PlantDetail";
+export { default as PlantGrowthHistory } from "@/pages/Farm/PlantDetails/PlantGrowthHistory/PlantGrowthHistory";
+export { default as PlantCriteria } from "@/pages/Farm/PlantDetails/PlantCriteria/PlantCriteria";
+export { default as PlantGraftedHistory } from "@/pages/Farm/PlantDetails/PlantGraftedHistory/PlantGraftedHistory";
+export { default as PlantCareHistory } from "@/pages/Farm/PlantDetails/PlantCareHistory/PlantCareHistory";
 
 export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";
 export { default as PlantLotDetails } from "@/pages/Farm/PlantLotDetails/PlantLotDetails";
@@ -50,3 +57,4 @@ export { default as NotFoundPage } from "@/pages/NotFoundPage/NotFoundPage";
 export { default as EmployeeWorklog } from "@/pages/EmployeeView/EmployeeWorklog/EmployeeWorklog";
 export { default as EmployeeWorklogDetail } from "@/pages/EmployeeView/EmployeeWorklog/WorklogDetail/EmployeeWorklogDetail";
 export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
+export { default as CropList } from "@/pages/Crop/CropList/CropList";

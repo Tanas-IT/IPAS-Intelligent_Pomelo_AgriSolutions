@@ -4,7 +4,7 @@ import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
 import { CRITERIA_TARGETS } from "@/constants";
 import { CriteriaApplyRequest } from "@/payloads";
-import { criteriaService } from "@/services";
+import { criteriaService, masterTypeService } from "@/services";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
@@ -67,7 +67,12 @@ const ApplyGraftedPlantCriteriaModal = ({
   const handleCriteriaTypeChange = async (value: string) => {
     form.setFieldsValue({ criteriaId: undefined });
     if (!graftedPlantIds) return;
-    var res = await criteriaService.getGraftedPlantCriteriaTypeSelect(graftedPlantIds[0], value);
+    let res;
+    if (graftedPlantIds.length === 1) {
+      res = await criteriaService.getGraftedPlantCriteriaTypeSelect(graftedPlantIds[0], value);
+    } else {
+      res = await masterTypeService.getCriteriaTypeSelect(value);
+    }
     if (res.statusCode === 200 && res.data) {
       const formattedOptions = res.data.map((item) => ({
         value: item.id,

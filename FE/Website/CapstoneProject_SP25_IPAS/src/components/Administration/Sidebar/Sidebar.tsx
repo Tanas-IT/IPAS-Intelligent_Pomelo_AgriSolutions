@@ -98,15 +98,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
       subMenuItems: [
         {
-          key: "Season Management",
-          label: "Season Management",
+          key: "Manage Crop",
+          label: "Manage Crop",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.CROP.LIST,
+          activePaths: [PATHS.CROP.LIST],
         },
         {
-          key: "Harvest Management",
-          label: "Harvest Management",
+          key: "Manage Harvest",
+          label: "Manage Harvest",
           icon: Images.radius,
           to: "",
           activePaths: [],
@@ -529,6 +529,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         </Flex>
 
         {/* Main Menu */}
+        {/* <div style={{ height: "66vh" }}>{renderMenuSection("Main")}</div> */}
         {renderMenuSection("Main")}
 
         {!isDefault && (

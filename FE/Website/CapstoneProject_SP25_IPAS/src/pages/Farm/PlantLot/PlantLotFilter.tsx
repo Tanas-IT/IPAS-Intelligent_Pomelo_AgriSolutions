@@ -38,7 +38,8 @@ const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
     filters.importedDateTo ||
     (filters.partnerId && filters.partnerId.length > 0) ||
     filters.previousQuantityFrom !== undefined ||
-    filters.previousQuantityTo !== undefined
+    filters.previousQuantityTo !== undefined ||
+    filters.isFromGrafted !== undefined
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -77,6 +78,18 @@ const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
             updateFilters("previousQuantityFrom", val.from);
             updateFilters("previousQuantityTo", val.to);
           }}
+        />
+
+        <FormFieldFilter
+          label="Lot Type"
+          value={filters.isFromGrafted}
+          fieldType="radio"
+          options={[
+            { value: true, label: "Grafted Lot" },
+            { value: false, label: "Imported Lot" },
+          ]}
+          onChange={(value) => updateFilters("isFromGrafted", value)}
+          direction="row"
         />
 
         <FilterFooter

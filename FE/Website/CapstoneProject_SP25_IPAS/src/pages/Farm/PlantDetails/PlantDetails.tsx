@@ -5,12 +5,18 @@ import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
-import PlantDetail from "./PlantDetail/PlantDetail";
-import PlantCriteria from "./PlantCriteria/PlantCriteria";
-import PlantOverview from "./PlantOverview/PlantOverview";
+
 import dayjs from "dayjs";
 import { usePlantStore } from "@/stores";
 import { useEffect } from "react";
+import {
+  PlantCareHistory,
+  PlantCriteria,
+  PlantDetail,
+  PlantGraftedHistory,
+  PlantGrowthHistory,
+  PlantOverview,
+} from "@/pages";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -58,13 +64,19 @@ function PlantDetails() {
       key: "4",
       icon: <Icons.history className={style.iconTab} />,
       label: <label className={style.titleTab}>Growth History</label>,
-      children: "Content of Tab Pane 3",
+      children: <PlantGrowthHistory />,
     },
     {
       key: "5",
+      icon: <Icons.tool className={style.iconTab} />,
+      label: <label className={style.titleTab}>Care History</label>,
+      children: <PlantCareHistory />,
+    },
+    {
+      key: "6",
       icon: <Icons.seedling className={style.iconTab} />,
       label: <label className={style.titleTab}>Grafted History</label>,
-      children: "Content of Tab Pane 4",
+      children: <PlantGraftedHistory />,
     },
   ];
 

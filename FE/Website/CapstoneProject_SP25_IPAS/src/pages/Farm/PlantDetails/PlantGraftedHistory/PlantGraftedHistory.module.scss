@@ -1,0 +1,60 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0px;
+    .filterSection {
+      align-items: center;
+      margin-bottom: 12px;
+
+      .icon {
+        margin-bottom: 4px;
+      }
+    }
+  }
+  .tableWrapper {
+    width: 100%;
+    max-height: 28rem;
+    overflow: auto;
+
+    .table {
+      th {
+        background: vars.$color_second !important;
+        color: vars.$color_primary !important;
+        font-weight: bold;
+        text-align: center;
+      }
+      td {
+        padding: 4px 0;
+      }
+      input {
+        text-align: center;
+      }
+    }
+
+    .graftedList {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ddd; // Viền ngoài giống Table
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .graftedRow {
+      font-size: 14px;
+      padding: 6px 12px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid #ddd; // Viền giữa các dòng
+      }
+    }
+  }
+}

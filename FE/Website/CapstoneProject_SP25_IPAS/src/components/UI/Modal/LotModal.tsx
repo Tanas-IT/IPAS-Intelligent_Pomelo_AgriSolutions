@@ -21,6 +21,7 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
   const [partnerOptions, setPartnerOptions] = useState<SelectOption[]>([]);
   const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
+  const [isFromGrafted, setIsFromGrafted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -46,7 +47,11 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
     if (isOpen && lotData) {
       form.setFieldsValue({ ...lotData });
     }
-    form.setFieldsValue({ ...lotData, unit: "Plant" });
+    form.setFieldsValue({
+      ...lotData,
+      [lotFormFields.unit]: "Plant",
+      [lotFormFields.isFromGrafted]: false,
+    });
   }, [isOpen, lotData]);
 
   const getFormData = (): PlantLotRequest =>
@@ -78,14 +83,30 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
           rules={RulesManager.getLotNameRules()}
         />
 
-        <Flex gap={20}>
+        {!isUpdate && (
           <FormFieldModal
-            type="select"
-            label="Partner"
-            name={lotFormFields.partnerId}
-            rules={RulesManager.getPartnerRules()}
-            options={partnerOptions}
+            type="radio"
+            label="Lot Type"
+            name={lotFormFields.isFromGrafted}
+            radioLabels={{ yes: "Grafted Lot", no: "Imported Lot" }}
+            direction="row"
+            onChange={(value) => {
+              setIsFromGrafted(value);
+            }}
           />
+        )}
+
+        <Flex gap={20}>
+          {!isFromGrafted && (
+            <FormFieldModal
+              type="select"
+              label="Partner"
+              name={lotFormFields.partnerId}
+              rules={RulesManager.getPartnerRules()}
+              options={partnerOptions}
+            />
+          )}
+
           <FormFieldModal
             type="select"
             label="Cultivar"
@@ -96,7 +117,7 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
         </Flex>
 
         <Flex gap={20}>
-          {!isUpdate && (
+          {!isUpdate && !isFromGrafted && (
             <FormFieldModal
               label="Import Quantity"
               name={lotFormFields.previousQuantity}
@@ -117,11 +138,7 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
             />
           ) : null} */}
 
-          <FormFieldModal
-            label="Unit"
-            name={lotFormFields.unit}
-            rules={RulesManager.getUnitRules()}
-          />
+          <FormFieldModal label="Unit" name={lotFormFields.unit} />
         </Flex>
 
         <FormFieldModal type="textarea" label="Note" name={lotFormFields.note} />

@@ -15,7 +15,7 @@ interface GraftedPlantPanelTitleProps {
   handleCancel: () => void;
   handleSave: () => void;
   handleDelete: (criteriaSetId: number) => void;
-  isCompleted?: boolean;
+  isCompleted: boolean;
 }
 
 export const GraftedPlantPanelTitle = ({
@@ -73,15 +73,17 @@ export const GraftedPlantPanelTitle = ({
         </span>
       </span>
       <Flex align="center" gap={20}>
-        <Tooltip title="Delete">
-          <Icons.delete
-            className={style.deleteIcon}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(criteriaSetId);
-            }}
-          />
-        </Tooltip>
+        {!isCompleted && !isAllInitialCriteriaChecked && (
+          <Tooltip title="Delete">
+            <Icons.delete
+              className={style.deleteIcon}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(criteriaSetId);
+              }}
+            />
+          </Tooltip>
+        )}
 
         {hasChanges && (
           <Flex gap={10}>

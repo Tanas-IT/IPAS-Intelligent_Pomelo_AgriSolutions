@@ -49,6 +49,7 @@ export type FilterPlantLotState = {
   partnerId: string[];
   previousQuantityFrom: number | undefined;
   previousQuantityTo: number | undefined;
+  isFromGrafted: boolean | null;
 };
 
 export type FilterCriteriaState = {
@@ -72,6 +73,7 @@ export type FilterPlantState = {
 
 export type FilterGraftedPlantState = {
   plantIds: string[];
+  plantLotIds: string[];
   separatedDateFrom: string;
   separatedDateTo: string;
   status: string[];

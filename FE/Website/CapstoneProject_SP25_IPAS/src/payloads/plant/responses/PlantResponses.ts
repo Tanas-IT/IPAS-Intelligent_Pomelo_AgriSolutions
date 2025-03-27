@@ -18,6 +18,7 @@ export interface GetPlant {
   rowIndex: number;
   landPlotName: string;
   isDead: boolean;
+  isPassed: boolean;
 }
 
 export interface GetPlantDetail extends GetPlant {
@@ -27,6 +28,7 @@ export interface GetPlantDetail extends GetPlant {
 export interface GetPlantSelect {
   id: string;
   code: string;
+  name: string;
 }
 
 export interface plantSimulate {

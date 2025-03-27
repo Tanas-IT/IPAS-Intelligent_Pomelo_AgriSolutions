@@ -9,7 +9,7 @@ import {
   GetPlantSelect,
   PlantRequest,
 } from "@/payloads";
-import { buildParams, getFarmId } from "@/utils";
+import { buildParams } from "@/utils";
 
 export const getPlants = async (landRowId: number): Promise<ApiResponse<GetPlantSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-plant-of-row/${landRowId}`);
@@ -101,9 +101,17 @@ export const getPlantOfRow = async (landRowId: number) => {
 };
 
 export const updatePlantDead = async (plantId: number): Promise<ApiResponse<GetPlant>> => {
-  console.log(plantId);
-  
   const res = await axiosAuth.axiosJsonRequest.patch(`plants/dead-mark/${plantId}`);
   const apiResponse = res.data as ApiResponse<GetPlant>;
+  return apiResponse;
+};
+
+export const getPlantOfStageActive = async (
+  activeFunction: string,
+): Promise<ApiResponse<GetPlantSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `plants/get-for-selected/growth-stage-function?activeFunction=${activeFunction}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantSelect[]>;
   return apiResponse;
 };

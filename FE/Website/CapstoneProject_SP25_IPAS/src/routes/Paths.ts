@@ -23,6 +23,7 @@ export const PATHS = {
   },
 
   CROP: {
+    LIST: "/crop/list",
     PLANT_YIELD: "/crop/plant-yield",
   },
 
@@ -68,7 +69,7 @@ export const PATHS = {
     PLAN_DETAIL: "/plans/:id",
     ADD_PLAN: "/plans/add",
     UPDATE_PLAN: "/plans/update/:id",
-    ADD_PLAN_BY_PROCESS: "/plans/add-plan-by-process"
+    ADD_PLAN_BY_PROCESS: "/plans/add-plan-by-process",
   },
 
   //Worklog Management

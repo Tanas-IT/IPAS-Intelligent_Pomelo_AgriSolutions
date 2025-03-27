@@ -16,7 +16,22 @@ export interface GetGraftedPlant {
   cultivarName: string;
   isCompleted: boolean;
   plantLotId: number;
+  plantLotName: string;
   plantCode: string;
+  plantName: string;
 }
 
 export interface GetGraftedPlantDetail extends GetGraftedPlant {}
+
+export interface GraftedPlant {
+  name: string;
+  isCompleted: boolean;
+  status: string;
+}
+
+export interface GetGraftedPlantHistory {
+  graftedDate: string;
+  totalBranches: number;
+  completedCount: number;
+  listGrafted: GraftedPlant[];
+}

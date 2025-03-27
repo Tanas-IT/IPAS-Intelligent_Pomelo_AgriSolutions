@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import style from "./GraftedPlantDetail.module.scss";
-import { Divider, Flex } from "antd";
+import { Divider, Flex, QRCode } from "antd";
 import { Icons } from "@/assets";
 import {
   ConfirmModal,
+  CustomButton,
   GraftedPlantModal,
   GraftedPlantSectionHeader,
   InfoFieldDetail,
@@ -30,6 +31,26 @@ function GraftedPlantDetail() {
   const deleteConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedGrafted: GraftedPlantRequest }>();
   const cancelConfirmModal = useModal();
+
+  function doDownload(url: string, fileName: string) {
+    const a = document.createElement("a");
+    a.download = fileName;
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // Giải phóng bộ nhớ
+  }
+
+  const downloadSvgQRCode = () => {
+    const svg = document.getElementById("myqrcode")?.querySelector<SVGElement>("svg");
+    const svgData = new XMLSerializer().serializeToString(svg!);
+    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    doDownload(url, `QRCode-${graftedPlant?.graftedPlantCode}.svg`);
+  };
+  const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 
   const fetchPlantLot = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
@@ -122,8 +143,6 @@ function GraftedPlantDetail() {
   });
 
   const infoFieldsLeft = [
-    // { label: "Partner", value: lot?.partnerName, icon: Icons.category },
-    // { label: "Seeding Name", value: lot?.seedingName, icon: Icons.plant },
     {
       label: "Separated Date",
       value: graftedPlant?.separatedDate ? formatDayMonth(graftedPlant.separatedDate) : "N/A",
@@ -138,19 +157,9 @@ function GraftedPlantDetail() {
   ];
 
   const infoFieldsRight = [
-    { label: "Cultivar", value: graftedPlant?.cultivarId, icon: Icons.scale },
-    //   { label: "Initial Quantity", value: graftedPlant?.previousQuantity, icon: Icons.box },
-    //   {
-    //     label: "Checked  Quantity",
-    //     value: graftedPlant?.inputQuantity ?? "Checking...",
-    //     icon: Icons.checkSuccuss,
-    //   },
-    //   {
-    //     label: "Qualified Quantity",
-    //     value: graftedPlant?.lastQuantity ?? "Checking...",
-    //     icon: Icons.star,
-    //   },
-    //   { label: "Assigned Quantity", value: graftedPlant?.usedQuantity ?? 0, icon: Icons.share },
+    { label: "Cultivar", value: graftedPlant?.cultivarName, icon: Icons.plant },
+    { label: "Mother Plant", value: graftedPlant?.plantName, icon: Icons.plant },
+    { label: "Destination Lot", value: graftedPlant?.plantLotName, icon: Icons.box },
   ];
 
   if (isLoading) return <LoadingSkeleton rows={10} />;
@@ -180,6 +189,15 @@ function GraftedPlantDetail() {
             />
           ))}
         </Flex>
+      </Flex>
+      <Flex vertical gap={10} justify="center">
+        <QRCode
+          id="myqrcode"
+          type="svg"
+          value={`${baseUrl}/farm/grafted-plants/${graftedPlant?.graftedPlantId}/details`}
+          size={180}
+        />
+        <CustomButton label="Download" handleOnClick={downloadSvgQRCode} />
       </Flex>
 
       <GraftedPlantModal

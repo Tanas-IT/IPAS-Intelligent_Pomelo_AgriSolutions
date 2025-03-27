@@ -3,13 +3,17 @@ import { LOCAL_STORAGE_KEYS, MASTER_TYPE } from "@/constants";
 import {
   ApiResponse,
   CriteriaApplyRequest,
-  CriteriaCheckRequest,
   CriteriaDeleteRequest,
+  CriteriaGraftedPlantCheckRequest,
   CriteriaMasterRequest,
+  CriteriaPlantCheckRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
   GetCriteriaSelect,
   GetData,
+  GetPlantDetail,
+  PlantCriteriaApplyRequest,
+  ResetCriteriaPlantRequest,
 } from "@/payloads";
 import { buildParams } from "@/utils";
 
@@ -139,10 +143,19 @@ export const getCriteriaByMasterType = async (
 export const applyCriteria = async (
   criteria: CriteriaApplyRequest,
 ): Promise<ApiResponse<GetCriteriaByMasterType>> => {
-  console.log(criteria);
-
   const res = await axiosAuth.axiosJsonRequest.post(`criterias/target/apply-criteria`, criteria);
   const apiResponse = res.data as ApiResponse<GetCriteriaByMasterType>;
+  return apiResponse;
+};
+
+export const applyPlantCriteria = async (
+  criteria: PlantCriteriaApplyRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(
+    `criterias/target/plant/apply-criteria`,
+    criteria,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
   return apiResponse;
 };
 
@@ -176,12 +189,30 @@ export const getCriteriaOfGraftedPlant = async (
   return apiResponse;
 };
 
-export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiResponse<object>> => {
+export const checkGraftedPlantCriteria = async (
+  check: CriteriaGraftedPlantCheckRequest,
+): Promise<ApiResponse<object>> => {
   const res = await axiosAuth.axiosJsonRequest.put(
-    `criterias/target/check-criteria-for-target`,
+    `criterias/target/grafted-plant/check-criteria`,
     check,
   );
   const apiResponse = res.data as ApiResponse<object>;
+  return apiResponse;
+};
+
+export const checkPlantCriteria = async (
+  check: CriteriaPlantCheckRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`criterias/target/plant/check-criteria`, check);
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
+  return apiResponse;
+};
+
+export const resetPlantCriteria = async (
+  reset: ResetCriteriaPlantRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`criterias/target/plant/reset-criteria`, reset);
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
   return apiResponse;
 };
 

@@ -14,9 +14,9 @@ import { criteriaService, plantLotService } from "@/services";
 import {
   CriteriaApplyRequest,
   CriteriaCheckData,
-  CriteriaCheckRequest,
   CriteriaDeleteRequest,
   GetCriteriaObject,
+  PlantLotCheckCriteriaRequest,
 } from "@/payloads";
 import { toast } from "react-toastify";
 import UpdateQuantityModal from "./UpdateQuantityModal";
@@ -30,7 +30,7 @@ function PlantLotCriteria() {
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { lot, setLot, markForRefetch } = usePlantLotStore();
+  const { lot, markForRefetch } = usePlantLotStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
@@ -172,10 +172,8 @@ function PlantLotCriteria() {
   };
 
   const handleSave = async (isAllConditionChecked: boolean, target: string) => {
-    if (
-      (!isAllConditionChecked || !lot.inputQuantity) &&
-      target === CRITERIA_TARGETS["Plantlot Evaluation"]
-    ) {
+    const isEvaluation = target === CRITERIA_TARGETS["Plantlot Evaluation"];
+    if ((!isAllConditionChecked || !lot.inputQuantity) && isEvaluation) {
       toast.error("Please pass 'Plantlot Condition' before updating 'Plantlot Evaluation'.");
       return;
     }
@@ -186,18 +184,20 @@ function PlantLotCriteria() {
         valueChecked,
       }));
 
-    const payload: CriteriaCheckRequest = {
-      plantLotID: lot?.plantLotId ? [lot.plantLotId] : undefined,
+    const payload: PlantLotCheckCriteriaRequest = {
+      plantLotID: lot?.plantLotId ? lot.plantLotId : undefined,
       criteriaDatas,
     };
 
     try {
       setIsLoading(true);
 
-      var res = await criteriaService.checkCriteria(payload);
+      var res = await plantLotService.checkCriteria(payload);
+
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaPlantLot();
+        if (isEvaluation) markForRefetch();
       } else {
         toast.error(res.message);
       }
@@ -206,12 +206,12 @@ function PlantLotCriteria() {
     }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setUpdatedCriteria(initialCriteria);
     setCriteriaGroups(initialCriteriaGroups);
   };
 
-  const handleDeleteConfirm = async (criteriaSetId: number) =>
+  const handleDeleteConfirm = (criteriaSetId: number) =>
     deleteConfirmModal.showModal({ id: criteriaSetId });
 
   const handleDelete = async (criteriaSetId?: number) => {
@@ -225,6 +225,7 @@ function PlantLotCriteria() {
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaPlantLot();
+        setUpdatedCriteria([]);
       } else {
         toast.error(res.message);
       }

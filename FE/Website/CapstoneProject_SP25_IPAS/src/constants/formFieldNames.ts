@@ -85,6 +85,7 @@ export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {
   importedDate: "importedDate",
   note: "note",
   masterTypeId: "masterTypeId",
+  isFromGrafted: "isFromGrafted",
   isPassed: "isPassed",
   seedingName: "seedingName",
   partnerId: "partnerId",
