@@ -32,6 +32,7 @@ using GenerativeAI.Types;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -76,10 +77,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
                                 $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
-                            
+
                         }
                     }
-                    if(createPlanModel.StartTime != null && createPlanModel.EndTime != null)
+                    if (createPlanModel.StartTime != null && createPlanModel.EndTime != null)
                     {
                         var parseStartTime = TimeSpan.Parse(createPlanModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(createPlanModel.EndTime);
@@ -429,7 +430,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     await _unitOfWork.SaveAsync();
-                    
+
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);
                     if (result)
@@ -443,7 +444,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                             }
                         }
-                        if(!string.IsNullOrEmpty(warningAddMessage))
+                        if (!string.IsNullOrEmpty(warningAddMessage))
                         {
                             return new BusinessResult(Const.SUCCESS_CREATE_PLAN_CODE, warningAddMessage, result);
                         }
@@ -825,7 +826,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
-                    if(result != null)
+                    if (result != null)
                     {
                         string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
                         var finalResult = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
@@ -964,7 +965,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 // HashSet để tránh trùng lặp
-                
+
                 var rowIds = new HashSet<int>(displayModel.Rows.Select(r => r.LandRowId != null ? r.LandRowId.Value : 0));
                 var plantIds = new HashSet<int>(displayModel.Plants.Select(p => p.PlantId != null ? p.PlantId.Value : 0));
                 var plantLotIds = new HashSet<int>(displayModel.PlantLots.Select(p => p.PlantLotId != null ? p.PlantLotId.Value : 0));
@@ -1087,8 +1088,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                     {
-                                         _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
-                                         await _unitOfWork.SaveAsync();
+                                        _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                        await _unitOfWork.SaveAsync();
                                     }
                                 }
                                 foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
@@ -1152,7 +1153,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.MasterTypeId != null)
                         {
                             checkExistPlan.MasterTypeId = updatePlanModel.MasterTypeId;
-                            if(updatePlanModel.ProcessId != null)
+                            if (updatePlanModel.ProcessId != null)
                             {
                                 var getCheckExistProcess = await _unitOfWork.ProcessRepository.GetByID(updatePlanModel.ProcessId.Value);
                                 if (getCheckExistProcess != null)
@@ -1255,8 +1256,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                 {
-                                     _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
-                                      await _unitOfWork.SaveAsync();
+                                    _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                    await _unitOfWork.SaveAsync();
                                 }
                             }
                             // HashSet để lưu các cặp (PlantID, LandPlotID, LandRowID) đã thêm vào tránh trùng lặp
@@ -1513,7 +1514,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 throw new Exception("Start time must be less than End Time");
             }
-            if(plan.Frequency == null)
+            if (plan.Frequency == null)
             {
                 throw new Exception("Frequency can not be empty. It must be weekly, monthly, daily or none");
             }
@@ -1547,7 +1548,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
-                
+
                 if (conflictCustomDates.Count > 5)
                 {
                     throw new Exception("Schedule is conflicted");
@@ -1717,7 +1718,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //        }
                     //    }
                     //}
-                    
+
                     //if (conflictDatesInMonthly.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -1753,7 +1754,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //{
                     //    conflictDatesInDaily.Add(currentDate);
                     //}
-                   
+
                     //if (conflictDatesInDaily.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -1825,7 +1826,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    }
 
                 //}
-               
+
 
                 //if (conflictCustomDates.Count > 5)
                 //{
@@ -1954,7 +1955,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //        }
                     //    }
                     //}
-                   
+
                     //if (conflictDatesInWeekly.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -2036,7 +2037,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //{
                     //    conflictDatesDaily.Add(currentDate);
                     //}
-                   
+
                     //if (conflictDatesDaily.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -2091,7 +2092,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
             }
-            if(createPlanModel.PlanTargetModel != null)
+            if (createPlanModel.PlanTargetModel != null)
             {
                 foreach (var plantTarget in createPlanModel.PlanTargetModel)
                 {
@@ -2149,7 +2150,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     count++;
                 }
             }
-           
+
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
@@ -2416,7 +2417,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
-                   
+
                     return new BusinessResult(Const.SUCCESS_SOFT_DELETE_PLAN_CODE, Const.SUCCESS_SOFT_DELETE_PLAN_MSG, result > 0);
                 }
                 return new BusinessResult(Const.FAIL_SOFT_DELETE_PLAN_CODE, Const.FAIL_SOFT_DELETE_PLAN_MESSAGE, false);
@@ -2615,7 +2616,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 });
                                 return result;
                             }
-                            
+
                         //case "graftedplant":
                         //    var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
                         //    var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
