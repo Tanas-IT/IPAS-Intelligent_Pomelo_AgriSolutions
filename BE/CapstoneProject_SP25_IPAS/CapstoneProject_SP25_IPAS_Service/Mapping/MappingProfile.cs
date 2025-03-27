@@ -527,14 +527,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Payment, PaymentModel>()
                 .ReverseMap();
 
-            CreateMap<GrowthStageMasterType, GrowthStageMasterTypeModel>()
-                 .ForMember(dest => dest.GrowthStageMasterTypeID, opt => opt.MapFrom(src => src.GrowthStageMasterTypeID))
-                 .ForMember(dest => dest.GrowthStageID, opt => opt.MapFrom(src => src.GrowthStageID))
-                 .ForMember(dest => dest.MasterTypeID, opt => opt.MapFrom(src => src.MasterTypeID))
-                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
-                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
-                 .ReverseMap();
-
             CreateMap<Process, ForSelectedModels>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ProcessId))
                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ProcessCode))

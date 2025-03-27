@@ -111,51 +111,51 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return listMasterType.Any() ? listMasterType : new List<MasterType>();
         }
 
-        public async Task<List<MasterType>> GetMasterTypesByGrowthStages(List<int?> growthStageIds)
-        {
-            if (growthStageIds == null || growthStageIds.Count == 0)
-                return new List<MasterType>();
+        //public async Task<List<MasterType>> GetMasterTypesByGrowthStages(List<int?> growthStageIds)
+        //{
+        //    if (growthStageIds == null || growthStageIds.Count == 0)
+        //        return new List<MasterType>();
 
-            var masterTypeIds = await _context.GrowthStageMasterTypes
-                .Where(gmt => gmt.GrowthStageID.HasValue
-                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
-                              && gmt.MasterType != null
-                              && gmt.MasterType.TypeName != null
-                              && gmt.MasterType.TypeName.ToLower() == "work")
-                .GroupBy(gmt => gmt.MasterTypeID)  // Nhóm theo MasterTypeID
-                .Where(group => group.Count() == growthStageIds.Count)  // Chỉ lấy các nhóm có số lần xuất hiện đúng bằng số GrowthStageID
-                .Select(group => group.Key)  // Lấy MasterTypeID
-                .ToListAsync();
+        //    var masterTypeIds = await _context.GrowthStageMasterTypes
+        //        .Where(gmt => gmt.GrowthStageID.HasValue
+        //                      && growthStageIds.Contains(gmt.GrowthStageID.Value)
+        //                      && gmt.MasterType != null
+        //                      && gmt.MasterType.TypeName != null
+        //                      && gmt.MasterType.TypeName.ToLower() == "work")
+        //        .GroupBy(gmt => gmt.MasterTypeID)  // Nhóm theo MasterTypeID
+        //        .Where(group => group.Count() == growthStageIds.Count)  // Chỉ lấy các nhóm có số lần xuất hiện đúng bằng số GrowthStageID
+        //        .Select(group => group.Key)  // Lấy MasterTypeID
+        //        .ToListAsync();
 
-            var result = await _context.MasterTypes
-                .Where(mt => masterTypeIds.Contains(mt.MasterTypeId))
-                .ToListAsync();
+        //    var result = await _context.MasterTypes
+        //        .Where(mt => masterTypeIds.Contains(mt.MasterTypeId))
+        //        .ToListAsync();
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public async Task<List<MasterType>> GetMasterTypesWithTypeNameByGrowthStages(List<int?> growthStageIds, string typeName)
-        {
-            if (growthStageIds == null || growthStageIds.Count == 0)
-                return new List<MasterType>();
+        //public async Task<List<MasterType>> GetMasterTypesWithTypeNameByGrowthStages(List<int?> growthStageIds, string typeName)
+        //{
+        //    if (growthStageIds == null || growthStageIds.Count == 0)
+        //        return new List<MasterType>();
 
-            var masterTypeIds = await _context.GrowthStageMasterTypes
-                .Where(gmt => gmt.GrowthStageID.HasValue
-                              && growthStageIds.Contains(gmt.GrowthStageID.Value)
-                              && gmt.MasterType != null
-                              && gmt.MasterType.TypeName != null
-                              && gmt.MasterType.TypeName.ToLower() == typeName.ToLower())
-                .GroupBy(gmt => gmt.MasterTypeID)  // Nhóm theo MasterTypeID
-                .Where(group => group.Count() == growthStageIds.Count)  // Chỉ lấy các nhóm có số lần xuất hiện đúng bằng số GrowthStageID
-                .Select(group => group.Key)  // Lấy MasterTypeID
-                .ToListAsync();
+        //    var masterTypeIds = await _context.GrowthStageMasterTypes
+        //        .Where(gmt => gmt.GrowthStageID.HasValue
+        //                      && growthStageIds.Contains(gmt.GrowthStageID.Value)
+        //                      && gmt.MasterType != null
+        //                      && gmt.MasterType.TypeName != null
+        //                      && gmt.MasterType.TypeName.ToLower() == typeName.ToLower())
+        //        .GroupBy(gmt => gmt.MasterTypeID)  // Nhóm theo MasterTypeID
+        //        .Where(group => group.Count() == growthStageIds.Count)  // Chỉ lấy các nhóm có số lần xuất hiện đúng bằng số GrowthStageID
+        //        .Select(group => group.Key)  // Lấy MasterTypeID
+        //        .ToListAsync();
 
-            var result = await _context.MasterTypes
-                .Where(mt => masterTypeIds.Contains(mt.MasterTypeId))
-                .ToListAsync();
+        //    var result = await _context.MasterTypes
+        //        .Where(mt => masterTypeIds.Contains(mt.MasterTypeId))
+        //        .ToListAsync();
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public async Task<MasterType> GetByIdIncludeMasterType(int masterTypeId)
         {
