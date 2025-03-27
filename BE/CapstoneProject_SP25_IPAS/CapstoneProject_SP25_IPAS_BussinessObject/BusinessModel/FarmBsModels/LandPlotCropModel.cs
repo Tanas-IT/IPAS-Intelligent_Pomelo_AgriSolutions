@@ -19,9 +19,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
 
         public int? CropYear { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public CropModel Crop { get; set; } = null!;
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public LandPlotModel LandPlot { get; set; } = null!;
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //public CropModel Crop { get; set; } = null!;
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //public LandPlotModel LandPlot { get; set; } = null!;
     }
 }

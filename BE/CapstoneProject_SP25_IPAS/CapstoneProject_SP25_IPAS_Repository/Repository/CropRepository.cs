@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -212,8 +213,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     break;
                 case "startdate":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.Crop.StartDate)
-                        : x => x.OrderBy(c => c.Crop.StartDate);
+                        ? x => x.OrderByDescending(c => c.Crop.StartDate).ThenByDescending(x => x.CropID)
+                        : x => x.OrderBy(c => c.Crop.StartDate).ThenByDescending(x => x.CropID);
+                    break;
+                case "enddate":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
+                        ? x => x.OrderByDescending(c => c.Crop.EndDate).ThenByDescending(x => x.CropID)
+                        : x => x.OrderBy(c => c.Crop.EndDate).ThenByDescending(x => x.CropID);
                     break;
                 case "cropactualtime":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
@@ -227,8 +233,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     break;
                 case "actualyield":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.Crop.ActualYield)
-                        : x => x.OrderBy(c => c.Crop.ActualYield);
+                        ? x => x.OrderByDescending(c => c.Crop.ActualYield).ThenByDescending(x => x.CropID)
+                        : x => x.OrderBy(c => c.Crop.ActualYield).ThenByDescending(x => x.CropID);
                     break;
                 case "marketprice":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
@@ -270,7 +276,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var currentDate = DateTime.Now;
             var result = await _context.Crops
-                        .Where(x => x.StartDate.HasValue && x.EndDate.HasValue &&
+                        .Where(x => x.FarmId == farmId &&
+                                    x.StartDate.HasValue && x.EndDate.HasValue &&
                                     x.StartDate.Value <= currentDate && x.EndDate.Value >= currentDate)
                         .ToListAsync();
             return result;
@@ -285,6 +292,41 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                              .ToListAsync();
 
             return result;
+        }
+
+        public virtual async Task<IEnumerable<Crop>> Get(
+           Expression<Func<Crop, bool>> filter = null!,
+           Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = null!,
+           int? pageIndex = null, // Optional parameter for pagination (page number)
+           int? pageSize = null)  // Optional parameter for pagination (number of records per page)
+        {
+            IQueryable<Crop> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(x => x.LandPlotCrops)
+                .ThenInclude(x => x.LandPlot)
+                .Include(x => x.HarvestHistories);
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }
