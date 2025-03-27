@@ -135,6 +135,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Delete each plant entity
                     //foreach (var plant in plants)
                     //{
+                    foreach(var graftedPlant in grafteds)
+                    {
+                        var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(graftedPlant.GraftedPlantId);
+                        foreach (var graftedPlantNote in getListGraftedPlantNotes)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByGraftedNoteId(graftedPlantNote.GraftedPlantNoteId);
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.GraftedPlantNoteRepository.RemoveRange(getListGraftedPlantNotes);
+                    }
                     _unitOfWork.GraftedPlantRepository.RemoveRange(grafteds);
                     //}
 
@@ -179,8 +189,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         gr.IsDeleted = true;
                     });
-                    _unitOfWork.GraftedPlantRepository.UpdateRange(grafteds);
+                    foreach (var gr in grafteds)
+                    {
+                        var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(gr.GraftedPlantId);
+                        foreach(var graftedPlantNote in getListGraftedPlantNotes)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByGraftedNoteId(graftedPlantNote.GraftedPlantNoteId);
+                             _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.GraftedPlantNoteRepository.RemoveRange(getListGraftedPlantNotes);
+                        await _unitOfWork.SaveAsync();
 
+                    }
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(grafteds);
                     int result = await _unitOfWork.SaveAsync();
 
                     if (result > 0)

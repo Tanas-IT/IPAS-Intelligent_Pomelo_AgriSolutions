@@ -161,6 +161,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Delete the plant entities
                     foreach (var plant in plants)
                     {
+                        var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(plant.PlantId);
+                        foreach (var plantGrowthHistory in getPlantGrowthHistory)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
                         _unitOfWork.PlantRepository.Delete(plant);
                     }
 
@@ -200,6 +207,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(plant.ImageUrl);
                     }
+
+                    var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(plantId);
+                    foreach (var plantGrowthHistory in getPlantGrowthHistory)
+                    {
+                        var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
+                        _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                    }
+                    _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
 
                     // Delete the plant entity
                     _unitOfWork.PlantRepository.Delete(plant);
@@ -772,6 +787,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var item in plantsExistGet)
                     {
                         item.IsDeleted = true;
+                        var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(item.PlantId);
+                        foreach(var plantGrowthHistory in getPlantGrowthHistory)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId); 
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
                         _unitOfWork.PlantRepository.Update(item);
                         //_unitOfWork.PlantRepository.Update(item);
                     }
