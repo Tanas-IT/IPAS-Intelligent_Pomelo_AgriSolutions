@@ -69,6 +69,6 @@ public partial class Farm
     public virtual ICollection<Plan> Plans { get; set; } = new List<Plan>();
     public virtual ICollection<Partner> Partners { get; set; } = new List<Partner>();
     public virtual ICollection<CarePlanSchedule> CarePlanSchedules { get; set; } = new List<CarePlanSchedule>();
-    public virtual ICollection<GrowthStageMasterType> GrowthStageMasterTypes { get; set; } = new List<GrowthStageMasterType>();
+    //public virtual ICollection<GrowthStageMasterType> GrowthStageMasterTypes { get; set; } = new List<GrowthStageMasterType>();
 
 }

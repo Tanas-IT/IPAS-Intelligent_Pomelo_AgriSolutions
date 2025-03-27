@@ -59,7 +59,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public GraftedPlantNoteRepository GraftedPlantNoteRepository { get; }
         public PaymentRepository PaymentRepository { get; }
         public ChatMessageRepository ChatMessageRepository { get; }
-        public GrowthStageMasterTypeRepository GrowthStageMasterTypeRepository { get; }
         public ReportRepository ReportRepository { get; }
         public SystemConfigRepository SystemConfigRepository { get; }
     }
