@@ -53,6 +53,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MIN_PLANT_OF_LAND_ROW = "Min Plant Of LandRow";
         public const string COORDINATION_POINT_REQUIRED = "Coordiantion Point Required";
         public const string MIN_DISTANCE_OF_PLANT = "Min Distance Plant";
+        public const string MIN_TIME = "Min Time";
+        public const string MAX_TIME = "Max Time";
 
         #endregion
 
