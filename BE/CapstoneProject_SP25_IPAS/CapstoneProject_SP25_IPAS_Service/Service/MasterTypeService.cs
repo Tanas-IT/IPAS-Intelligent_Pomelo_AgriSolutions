@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -70,6 +72,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime < createMasterTypeModel.MaxTime)
                     {
+                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MaxTime.Value, createMasterTypeModel.MinTime.Value);
+                        if (validationResult.StatusCode != 200) return validationResult;
                         newMasterType.MinTime = createMasterTypeModel.MinTime;
                         newMasterType.MaxTime = createMasterTypeModel.MaxTime;
                     }
@@ -476,6 +480,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
+                        if (updateMasterTypeModel.MaxTime.HasValue && updateMasterTypeModel.MinTime.HasValue && updateMasterTypeModel.MinTime < updateMasterTypeModel.MaxTime)
+                        {
+                            var validationResult = await ValidateMinTimeAndMaxTime(updateMasterTypeModel.MaxTime.Value, updateMasterTypeModel.MinTime.Value);
+                            if (validationResult.StatusCode != 200) return validationResult;
+                        }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.BackgroundColor))
                         {
                             checkExistMasterType.BackgroundColor = updateMasterTypeModel.BackgroundColor;
@@ -667,6 +676,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+
+        private async Task<BusinessResult> ValidateMinTimeAndMaxTime(int createMinTime, int createMaxTime)
+        {
+           
+            var minTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_TIME.Trim(), (double)1);
+            if (createMinTime < minTime)
+                return new BusinessResult(400, $"Min Time must > {minTime}.");
+            var maxTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MAX_TIME.Trim(), (double)24);
+            if (createMaxTime < maxTime)
+                return new BusinessResult(400, $"Max Time must > {maxTime}.");
+            return new BusinessResult(200, "No error found");
         }
     }
 }

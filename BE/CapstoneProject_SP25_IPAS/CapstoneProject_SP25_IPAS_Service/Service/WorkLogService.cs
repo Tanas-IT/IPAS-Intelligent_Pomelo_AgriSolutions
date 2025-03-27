@@ -36,13 +36,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IWebSocketService _webSocketService;
+        private readonly IResponseCacheService _responseCacheService;
 
-        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IWebSocketService webSocketService)
+        public WorkLogService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IWebSocketService webSocketService, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _webSocketService = webSocketService;
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId)
@@ -225,6 +227,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (result > 0)
                 {
                     //await transaction.CommitAsync();
+                    await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}");
                     return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
                 }
                 return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
@@ -245,6 +248,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = await _unitOfWork.WorkLogRepository.AssignTaskForUser(employeeId, worklogId);
                 if (result)
                 {
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + worklogId.ToString());
                     return new BusinessResult(Const.SUCCESS_ASSIGN_TASK_CODE, Const.SUCCESS_ASSIGN_TASK_MSG, result);
                 }
                 return new BusinessResult(Const.FAIL_ASSIGN_TASK_CODE, Const.FAIL_ASSIGN_TASK_MESSAGE, false);
@@ -260,6 +264,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = CacheKeyConst.WORKLOG + $"{workLogId}";
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<WorkLogDetailModel>>(key);
+                if (cachedData != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 if (getDetailWorkLog.Schedule != null)
@@ -276,7 +286,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result != null)
                 {
-                    return new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
+                    string groupKey = CacheKeyConst.GROUP_WORKLOG + $"{getDetailWorkLog.WorkLogId}";
+                    var finalResult = new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getDetailWorkLog.WorkLogId.ToString());
+                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                    return finalResult;
                 }
                 return new BusinessResult(400, "Get Detail WorkLog Failed");
 
@@ -401,6 +415,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = $"{CacheKeyConst.WORKLOG}:{CacheKeyConst.FARM}:{farmId}";
+
+                //await _responseCacheService.RemoveCacheAsync(key);
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<List<ScheduleModel>>>(key);
+                if (cachedData != null && cachedData.Data != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
@@ -519,7 +541,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_SCHEDULE_CODE, Const.SUCCESS_GET_ALL_SCHEDULE_MSG, result);
+                    string groupKey = $"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}";
+                    var finalResult = new BusinessResult(Const.SUCCESS_GET_ALL_SCHEDULE_CODE, Const.SUCCESS_GET_ALL_SCHEDULE_MSG, result);
+                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                    return finalResult;
                 }
                 else
                 {
@@ -1062,6 +1087,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result > 0)
                 {
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getWorkLog.WorkLogId.ToString());
                     return new BusinessResult(200, "Delete WorkLog Success", result);
                 }
                 else
@@ -1218,6 +1244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}");
                         return new BusinessResult(200, "Add WorkLog Success", result > 0);
                     }
                     return new BusinessResult(400, "Add WorkLog Failed");
@@ -1326,7 +1353,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                     }
-
+                    await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}");
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getWorkLogToUpdate.WorkLogId.ToString());
 
                     return new BusinessResult(200, "Update Status of WorkLog Success");
                 }

@@ -33,6 +33,9 @@ using static System.Net.Mime.MediaTypeNames;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
+using CapstoneProject_SP25_IPAS_Common.Constants;
+using System.Numerics;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -106,8 +109,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     UpdateDate = DateTime.Now,
                     IsUser = false,
                     SenderId = userId > 0 ? userId.Value : null,
+                    RoomId = checkRoomExist.RoomId
                 };
-                checkRoomExist.ChatMessages.Add(newChatMessage);
+                await _unitOfWork.ChatMessageRepository.Insert(newChatMessage);
                 await _unitOfWork.SaveAsync();
                 var result = new ChatResponse()
                 {
@@ -435,7 +439,8 @@ const generationConfig = {
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, pagin);
+                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, pagin);
+                    return result;
                 }
                 else
                 {
