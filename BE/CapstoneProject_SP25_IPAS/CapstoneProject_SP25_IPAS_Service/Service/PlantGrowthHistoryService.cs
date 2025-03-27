@@ -285,7 +285,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             x.CreateDate <= getRequest.CreateTo);
                 }
                 var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
-                //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
                 var pagin = new PageEntity<PlantGrowthHistoryModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantGrowthHistoryModel>>(plantGrowthHistotys).ToList();
                 pagin.TotalRecord = await _unitOfWork.PlantGrowthHistoryRepository.Count(filter);
