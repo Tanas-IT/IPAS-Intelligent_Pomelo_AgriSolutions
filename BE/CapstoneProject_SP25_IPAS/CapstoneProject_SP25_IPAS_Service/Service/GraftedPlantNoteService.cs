@@ -12,6 +12,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.Graf
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.AspNetCore.Mvc.Filters;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -229,7 +231,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string includeProperties = "Resources";
                 var plantGrowthHistotys = await _unitOfWork.GraftedPlantNoteRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!plantGrowthHistotys.Any())
-                    return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG , new List<GraftedPlantNoteModel>());
+                    return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG, new List<GraftedPlantNoteModel>());
                 var mapResult = _mapper.Map<List<GraftedPlantNoteModel>?>(plantGrowthHistotys);
                 return new BusinessResult(Const.SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_CODE, Const.SUCCESS_GET_ALL_GRAFTED_NOTE_OF_GRAFTED_MSG, mapResult!);
             }
@@ -261,16 +263,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest fitlerRequest, PaginationParameter paginationParameter)
+        public async Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                if (fitlerRequest.GraftedPlantId <= 0)
+                if (filterRequest.GraftedPlantId <= 0)
                 {
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, "Grafted not exist");
                 }
-                Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantId == fitlerRequest.GraftedPlantId;
+                Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantId == filterRequest.GraftedPlantId;
                 Func<IQueryable<GraftedPlantNote>, IOrderedQueryable<GraftedPlantNote>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                if (filterRequest.CreateFrom.HasValue && filterRequest.CreateTo.HasValue)
+                {
+                    if (filterRequest.CreateFrom.Value > filterRequest.CreateTo.Value)
+                    {
+                        return new BusinessResult(400, "Create From must before create to");
+                    }
+                    filter = filter.And(x => x.CreateDate >= filterRequest.CreateFrom&&
+                                            x.CreateDate <= filterRequest.CreateTo);
+                }
                 string includeProperties = "Resources";
                 var plantGrowthHistotys = await _unitOfWork.GraftedPlantNoteRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);

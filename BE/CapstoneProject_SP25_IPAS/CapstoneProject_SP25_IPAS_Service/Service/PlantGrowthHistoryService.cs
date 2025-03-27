@@ -18,6 +18,7 @@ using System.Reflection.Metadata;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -274,8 +275,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == getRequest.PlantId;
                 Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 string includeProperties = "Resources";
+                if (getRequest.CreateFrom.HasValue && getRequest.CreateTo.HasValue)
+                {
+                    if (getRequest.CreateFrom.Value > getRequest.CreateTo.Value)
+                    {
+                        return new BusinessResult(400, "Create From must before create to");
+                    }
+                    filter = filter.And(x => x.CreateDate >= getRequest.CreateFrom &&
+                                            x.CreateDate <= getRequest.CreateTo);
+                }
                 var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
-                //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
                 var pagin = new PageEntity<PlantGrowthHistoryModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantGrowthHistoryModel>>(plantGrowthHistotys).ToList();
                 pagin.TotalRecord = await _unitOfWork.PlantGrowthHistoryRepository.Count(filter);
