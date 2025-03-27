@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.GraftedNoteRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -253,6 +254,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG);
                 var mapResult = _mapper.Map<List<GraftedPlantNoteModel>?>(plantGrowthHistoty);
                 return new BusinessResult(Const.SUCCESS_GET_GRAFTED_NOTE_BY_ID_CODE, Const.SUCCESS_GET_GRAFTED_NOTE_BY_ID_MSG, mapResult!);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest fitlerRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                if (fitlerRequest.GraftedPlantId <= 0)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, "Grafted not exist");
+                }
+                Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantId == fitlerRequest.GraftedPlantId;
+                Func<IQueryable<GraftedPlantNote>, IOrderedQueryable<GraftedPlantNote>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                string includeProperties = "Resources";
+                var plantGrowthHistotys = await _unitOfWork.GraftedPlantNoteRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
+                var pagin = new PageEntity<GraftedPlantNoteModel>();
+                pagin.List = _mapper.Map<IEnumerable<GraftedPlantNoteModel>>(plantGrowthHistotys).ToList();
+                pagin.TotalRecord = await _unitOfWork.GraftedPlantNoteRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE, Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG, pagin!);
             }
             catch (Exception ex)
             {

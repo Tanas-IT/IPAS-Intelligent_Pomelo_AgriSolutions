@@ -262,6 +262,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePlantGrowthHistory = prefix + "";
             public const string updatePlantGrowthHistoryInfo = prefix + "";
             public const string getPlantGrowthHistoryById = prefix + "";
+            public const string getAllHistoryOfPlantPagin = prefix + "/pagin";
             public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
         }
 
@@ -283,6 +284,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
             public const string filterTypeWorkByGrowthStage = prefix + "/type-work/filter-by-growth-stage";
             public const string filterTypeNameByGrowthStage = prefix + "/type-name/filter-by-growth-stage";
+            public const string getPlanOfTarget = prefix + "/get-plan-of-target";
+
         }
 
         public static class UserWorkLog
@@ -428,6 +431,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateGraftedNoteInfo = graftedNotePrefix + "";
             public const string getGraftedNoteById = graftedNotePrefix + "";
             public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
+            public const string getAllNoteOfGraftedPagin = graftedNotePrefix + "/pagin";
         }
 
         public static class AI
