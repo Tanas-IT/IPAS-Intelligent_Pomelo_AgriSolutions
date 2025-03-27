@@ -795,7 +795,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_PLAN_EMPTY_CODE, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
+                    return new BusinessResult(200, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
                 }
             }
             catch (Exception ex)
@@ -2753,6 +2753,217 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return result;
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetPlanOfTarget(GetPlanOfTargetRequest filterRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                Expression<Func<Plan, bool>> filter = x =>
+                           x.IsDeleted == false;
+                Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
+                if (filterRequest.PlantId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.PlantID == filterRequest.PlantId.Value));
+                }
+                if (filterRequest.GraftedPlantId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.GraftedPlantID == filterRequest.GraftedPlantId.Value));
+                }
+                if (filterRequest.PlantLotId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.PlantLotID == filterRequest.PlantLotId.Value));
+                }
+
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+
+                    filter = filter.And(x => x.PlanCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PlanDetail.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.ResponsibleBy.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Frequency.ToLower().Contains(paginationParameter.Search.ToLower()));
+
+                }
+
+                if (filterRequest.FromDate.HasValue || filterRequest.ToDate.HasValue)
+                {
+                    if (filterRequest.FromDate.Value > filterRequest.ToDate.Value)
+                    {
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+                    }
+                    filter = filter.And(x => x.StartDate >= filterRequest.FromDate&&
+                                             x.EndDate <= filterRequest.ToDate);
+                }
+
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                {
+                    case "planid":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanId)
+                                   : x => x.OrderBy(x => x.PlanId)) : x => x.OrderBy(x => x.PlanId);
+                        break;
+                    case "plancode":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanCode)
+                                   : x => x.OrderBy(x => x.PlanCode)) : x => x.OrderBy(x => x.PlanCode);
+                        break;
+                    case "plandetail":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanDetail)
+                                   : x => x.OrderBy(x => x.PlanDetail)) : x => x.OrderBy(x => x.PlanDetail);
+                        break;
+                    case "planname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanName)
+                                   : x => x.OrderBy(x => x.PlanName)) : x => x.OrderBy(x => x.PlanName);
+                        break;
+                    case "masterstylename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MasterType.MasterTypeName)
+                                   : x => x.OrderBy(x => x.MasterType.MasterTypeName)) : x => x.OrderBy(x => x.MasterType.MasterTypeName);
+                        break;
+                    case "cropname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Crop.CropName)
+                                   : x => x.OrderBy(x => x.Crop.CropName)) : x => x.OrderBy(x => x.Crop.CropName);
+                        break;
+                    case "isdelete":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.IsDeleted)
+                                   : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
+                        break;
+                    case "pesticidename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PesticideName)
+                                   : x => x.OrderBy(x => x.PesticideName)) : x => x.OrderBy(x => x.PesticideName);
+                        break;
+                    case "isactive":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.IsActive)
+                                   : x => x.OrderBy(x => x.IsActive)) : x => x.OrderBy(x => x.IsActive);
+                        break;
+
+                    case "processname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Process.ProcessName)
+                                   : x => x.OrderBy(x => x.Process.ProcessName)) : x => x.OrderBy(x => x.Process.ProcessName);
+                        break;
+                    case "frequency":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Frequency)
+                                   : x => x.OrderBy(x => x.Frequency)) : x => x.OrderBy(x => x.Frequency);
+                        break;
+                    case "responsibleby":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ResponsibleBy)
+                                   : x => x.OrderBy(x => x.ResponsibleBy)) : x => x.OrderBy(x => x.ResponsibleBy);
+                        break;
+                    case "assignorname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.User.FullName)
+                                   : x => x.OrderBy(x => x.User.FullName)) : x => x.OrderBy(x => x.User.FullName);
+                        break;
+                    case "note":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Notes)
+                                   : x => x.OrderBy(x => x.Notes)) : x => x.OrderBy(x => x.Notes);
+                        break;
+                    case "minVolume":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MinVolume)
+                                   : x => x.OrderBy(x => x.MinVolume)) : x => x.OrderBy(x => x.MinVolume);
+                        break;
+                    case "maxVolume":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MaxVolume)
+                                   : x => x.OrderBy(x => x.MaxVolume)) : x => x.OrderBy(x => x.MaxVolume);
+                        break;
+                    case "status":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Status)
+                                   : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
+                        break;
+                    case "createdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.CreateDate)
+                                   : x => x.OrderBy(x => x.CreateDate)) : x => x.OrderBy(x => x.CreateDate);
+                        break;
+                    case "updatedate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.UpdateDate)
+                                   : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
+                        break;
+                    case "startdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.StartDate)
+                                   : x => x.OrderBy(x => x.StartDate)) : x => x.OrderBy(x => x.StartDate);
+                        break;
+                    case "enddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.EndDate)
+                                   : x => x.OrderBy(x => x.EndDate)) : x => x.OrderBy(x => x.EndDate);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
+                        break;
+                }
+                string includeProperties = "PlanTargets";
+                var entities = await _unitOfWork.PlanRepository.Get(filter: filter, orderBy: orderBy, includeProperties:includeProperties , pageIndex: paginationParameter.PageIndex,pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<PlanModel>();
+
+                var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
+
+                //foreach (var planTemp in listTemp)
+                //{
+                //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                //    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                //}
+                pagin.List = listTemp;
+                pagin.TotalRecord = await _unitOfWork.PlanRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    //string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{listTemp.}";
+                    var result = new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return result;
+                }
+                else
+                {
+                    return new BusinessResult(200, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
+                }
             }
             catch (Exception ex)
             {

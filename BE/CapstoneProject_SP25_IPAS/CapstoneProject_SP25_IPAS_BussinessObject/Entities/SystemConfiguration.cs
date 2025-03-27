@@ -9,7 +9,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
     public class SystemConfiguration
     {
         public int? ConfigId { get; set; } 
-
+        public string? ConfigGroup { get; set; }
         public string ConfigKey { get; set; } = null!; 
 
         public string ConfigValue { get; set; } = null!; 

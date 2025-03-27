@@ -9,9 +9,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.SystemConfigReq
     public class CreateSystemConfigRequest
     {
 
-        public string ConfigKey { get; set; } = null!;
+        public string ConfigKey { get; set; }
+        public string? ConfigGroup { get; set; }
 
-        public string ConfigValue { get; set; } = null!;
+        public string ConfigValue { get; set; } 
 
         //public string ValueType { get; set; } = null!;
 

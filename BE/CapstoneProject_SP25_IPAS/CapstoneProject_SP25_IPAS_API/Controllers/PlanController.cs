@@ -374,5 +374,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        [HttpGet(APIRoutes.Plan.getPlanOfTarget, Name = "getPlanOfTarget")]
+        public async Task<IActionResult> getPlanOfTarget([FromQuery]GetPlanOfTargetRequest filterRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _planService.GetPlanOfTarget(filterRequest, paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

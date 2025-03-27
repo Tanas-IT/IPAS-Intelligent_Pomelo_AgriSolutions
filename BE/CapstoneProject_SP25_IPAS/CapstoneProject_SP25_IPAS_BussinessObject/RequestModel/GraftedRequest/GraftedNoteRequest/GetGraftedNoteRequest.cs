@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.GraftedNoteRequest
 {
-    public class GetGraftedNotePaginRequest
+    public class GetGraftedNoteRequest
     {
-        public int? GraftedPlantId { get; set; }
+        public int GraftedPlantId { get; set; }
 
-        public PaginationParameter PaginationParameter { get; set; } = new PaginationParameter();
-        // filter here
-        public string? NoteTaker { get; set; }
+        public DateTime? CreateFrom { get; set; }
+        public DateTime? CreateTo { get; set; }
 
     }
 }

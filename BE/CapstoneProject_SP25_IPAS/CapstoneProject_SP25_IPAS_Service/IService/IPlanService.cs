@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
@@ -33,5 +34,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName);
         public Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId);
         public Task<BusinessResult> GetPlanByProcessID(int processId);
+        public Task<BusinessResult> GetPlanOfTarget(GetPlanOfTargetRequest getRequest, PaginationParameter paginationParameter);
     }
 }
