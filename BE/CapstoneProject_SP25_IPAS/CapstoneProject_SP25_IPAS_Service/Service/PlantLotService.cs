@@ -145,9 +145,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //    return new BusinessResult(400, $"The following Criteria Sets are empty and must have at least one Criteria: {string.Join(", ", emptyCriteriaSet)}");
 
                     //  6. Kiểm tra đối tác có tồn tại không
-                    var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
-                    if (checkPartnerExist == null)
-                        return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                    if (createPlantLotModel.IsFromGrafted == false)
+                    {
+                        var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
+                        if (checkPartnerExist == null)
+                            return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                    }
 
                     //  7. Tạo lô cây (PlantLot)
                     var plantLot = new PlantLot()
@@ -798,7 +801,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId  && x.IsDeleted == false;
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.IsDeleted == false;
                 if (isFromGrafted.HasValue && isFromGrafted == true)
                     filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.COMPLETED.ToLower()));
                 else
@@ -1134,7 +1137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 #endregion
 
-                 result += await _unitOfWork.SaveAsync();
+                result += await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
                     //await transaction.CommitAsync();

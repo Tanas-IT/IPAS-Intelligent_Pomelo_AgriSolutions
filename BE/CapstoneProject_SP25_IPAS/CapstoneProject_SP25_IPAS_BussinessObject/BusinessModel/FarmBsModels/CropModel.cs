@@ -44,9 +44,11 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         public string? Notes { get; set; }
 
         public double? MarketPrice { get; set; }
+        public int? NumberHarvest { get; set; }
+        public int? NumberPlot { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ICollection<HarvestHistoryModel> HarvestHistories { get; set; } = new List<HarvestHistoryModel>();
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //public ICollection<HarvestHistoryModel> HarvestHistories { get; set; } = new List<HarvestHistoryModel>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public virtual ICollection<LandPlotCropModel> LandPlotCrops { get; set; } = new List<LandPlotCropModel>();

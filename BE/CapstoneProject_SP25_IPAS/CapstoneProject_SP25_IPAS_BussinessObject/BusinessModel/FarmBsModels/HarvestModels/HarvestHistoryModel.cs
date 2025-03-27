@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
 
         public string? CropName { get; set; }
 
-        public double YieldHasRecord { get; set; }
+        public double? YieldHasRecord { get; set; }
 
 
         //public virtual Crop? Crop { get; set; }

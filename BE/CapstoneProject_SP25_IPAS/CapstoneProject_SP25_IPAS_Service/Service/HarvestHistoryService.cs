@@ -46,8 +46,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_CROP_EXPIRED_CODE, Const.WARNING_CROP_EXPIRED_MSG);
                     if (!cropExist.HarvestHistories.Any())
                     {
-                        cropExist.CropActualTime = DateTime.Now;
-                        cropExist.Status = CropStatusEnum.Harvesting.ToString();
+                        cropExist.CropActualTime = createRequest.DateHarvest;
+                        cropExist.Status = CropStatusConst.Harvesting.ToString();
                         // Cập nhật crop neu no la ngay dau tien trong mua
                         _unitOfWork.CropRepository.Update(cropExist);
                     }
