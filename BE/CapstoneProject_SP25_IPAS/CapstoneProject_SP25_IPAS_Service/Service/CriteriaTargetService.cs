@@ -108,11 +108,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 //var (plantIds, graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
-                var (graftedPlantIds, plantLotIds) = ExtractTargetIds(request);
+                var (graftedPlantIds, plantLotIds) = await ExtractTargetIds(request);
 
                 if (/*!plantIds.Any() &&*/ !graftedPlantIds.Any() && !plantLotIds.Any() || !request.CriteriaData.Any())
                 {
-                    return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                    return new BusinessResult(Const.WARING_OBJECT_REQUEST_EMPTY_CODE, "You no select any object or All of them can not apply more criteria");
                 }
 
                 //var existingCriteriaTargets = await GetExistingCriteriaTargets(plantIds, graftedPlantIds, plantLotIds);
@@ -128,8 +128,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         int numberObjectHasApply = 0;
                         //numberObjectHasApply = request.PlantId!.Any() ? request.PlantId!.Count() : numberObjectHasApply;
-                        numberObjectHasApply = request.PlantLotId!.Any() ? request.PlantLotId!.Count() : numberObjectHasApply;
-                        numberObjectHasApply = request.GraftedPlantId!.Any() ? request.GraftedPlantId!.Count() : numberObjectHasApply;
+                        numberObjectHasApply = plantLotIds.Any() ? plantLotIds.Count() : numberObjectHasApply;
+                        numberObjectHasApply = graftedPlantIds.Any() ? graftedPlantIds.Count() : numberObjectHasApply;
 
                         //await transaction.CommitAsync();
                         return new BusinessResult(Const.SUCCESS_APPLY_LIST_CRITERIA_FOR_TARGER_LIST_CODE,
@@ -253,20 +253,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Lấy danh sách CriteriaTarget phù hợp với danh sách đầu vào
                     var CriteriaTargetList = new List<CriteriaTarget>();
-                    //if (request.PlantID!.Any())
-                    //{
-                    //    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                    //    .GetAllNoPaging(filter: x => request.PlantID.Contains(x.PlantID!.Value), includeProperties: "Criteria")).ToList();
-                    //}
-                    //if (request.PlantLotID!.Any())
-                    //{
-                    //    CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                    //    .GetAllNoPaging(filter: x => request.PlantLotID.Contains(x.PlantLotID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
-                    //}
+                    var listCheckId = request.criteriaDatas.Select(x => x.CriteriaId).ToList();
                     if (request.GraftedPlantID!.Any())
                     {
                         CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                        .GetAllNoPaging(filter: x => request.GraftedPlantID!.Contains(x.GraftedPlantID.GetValueOrDefault()), includeProperties: "Criteria")).ToList();
+                        .GetAllNoPaging(filter: x => request.GraftedPlantID!.Contains(x.GraftedPlantID.Value) && listCheckId.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
                     }
 
                     if (!CriteriaTargetList.Any())
@@ -274,16 +265,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, "Don't have criteria to complete task");
                     }
 
-                    // Duyệt qua danh sách request và cập nhật trạng thái isChecked
-                    //var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId, c => c.IsChecked);
-                    //foreach (var plantCriteria in plantCriteriaList)
-                    //{
-                    //    if (plantCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(plantCriteria.CriteriaID.Value, out var isChecked))
-                    //    {
-                    //        plantCriteria.IsChecked = isChecked;
-                    //        if(plantCriteria.IsChecked == true && isChecked == true)
-                    //    }
-                    //}
                     var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId);
 
                     foreach (var plantCriteria in CriteriaTargetList)
@@ -294,22 +275,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //if (criteriaData.IsChecked.HasValue)
                             if (criteriaData.ValueChecked.HasValue)
                             {
-                                //plantCriteria.IsChecked = criteriaData.IsChecked;
                                 plantCriteria.ValueChecked = criteriaData.ValueChecked;
                                 plantCriteria.CheckedDate = DateTime.Now;
                             }
 
-                            // Cập nhật trạng thái `IsPassed`
-                            //if (criteriaData.IsPassed.HasValue && plantCriteria.IsChecked == true)
                             if (plantCriteria.Criteria!.MinValue.HasValue && plantCriteria.Criteria.MaxValue.HasValue)
                             {
                                 if (criteriaData.ValueChecked >= plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked <= plantCriteria.Criteria.MaxValue)
                                 {
                                     plantCriteria.IsPassed = true;
                                 }
-                                if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
+                                if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue || criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
                                 {
-                                    plantCriteria.IsPassed = true;
+                                    plantCriteria.IsPassed = false;
                                 }
                             }
                             //else
@@ -592,13 +570,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private (/*List<int> plantIds,*/ List<int> graftedPlantIds, List<int> plantLotIds) ExtractTargetIds(ApplyCriteriaForTargetRequest request)
+        private async Task<(/*List<int> plantIds,*/ List<int> graftedPlantIds, List<int> plantLotIds)> ExtractTargetIds(ApplyCriteriaForTargetRequest request)
         {
-            return (
-                //request.PlantId ?? new List<int>(),
-                request.GraftedPlantId ?? new List<int>(),
-                request.PlantLotId ?? new List<int>()
-            );
+
+            //return (
+            //    //request.PlantId ?? new List<int>(),
+            //    request.GraftedPlantId ?? new List<int>(),
+            //    request.PlantLotId ?? new List<int>()
+            //);
+            var graftedPlantIds = request.GraftedPlantId ?? new List<int>();
+            var plantLotIds = request.PlantLotId ?? new List<int>();
+            if (graftedPlantIds.Any())
+            {
+                var graftedPlants = await _unitOfWork.GraftedPlantRepository
+                    .GetAllNoPaging(gp => graftedPlantIds.Contains(gp.GraftedPlantId) && (gp.IsCompleted == null || gp.IsCompleted == false));
+                graftedPlantIds = graftedPlants.Select(gp => gp.GraftedPlantId).ToList();
+            }
+            if (plantLotIds.Any())
+            {
+                var plantLots = await _unitOfWork.PlantLotRepository
+                    .GetAllNoPaging(pl => plantLotIds.Contains(pl.PlantLotId) && (pl.IsPassed == null || pl.IsPassed == false));
+                plantLotIds = plantLots.Select(pl => pl.PlantLotId).ToList();
+            }
+
+            return (graftedPlantIds, plantLotIds);
         }
 
         private async Task<List<CriteriaTarget>> GetExistingCriteriaTargets(List<int>? plantIds, List<int>? graftedPlantIds, List<int>? plantLotIds)
@@ -693,7 +688,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var criteriaGraftedInsert = await _unitOfWork.CriteriaRepository.GetAllNoPaging(filter: filter, includeProperties: "MasterType");
                 var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId), includeProperties: "GrowthStage");
-                
+
                 if (criteriaGraftedInsert.Any())
                 {
                     flag = true; // neu co bat kia tieu chi nao la chiet canh

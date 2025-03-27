@@ -302,12 +302,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
 
             CreateMap<Crop, CropModel>()
-               .ForMember(dest => dest.HarvestHistories, opt => opt.MapFrom(src => src.HarvestHistories))
-               .ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
+                //.ForMember(dest => dest.HarvestHistories, opt => opt.MapFrom(src => src.HarvestHistories))
+                //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
+                .ForMember(dest => dest.NumberPlot, opt => opt.MapFrom(src => src.LandPlotCrops.Count()))
+                .ForMember(dest => dest.NumberHarvest, opt => opt.MapFrom(src => src.HarvestHistories.Count()))
                 .ReverseMap();
 
             CreateMap<LandPlotCrop, LandPlotCropModel>()
-               .ForMember(dest => dest.Crop, opt => opt.MapFrom(src => src.Crop))
+               //.ForMember(dest => dest.Crop, opt => opt.MapFrom(src => src.Crop))
                .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandPlot.LandPlotName))
                 .ReverseMap();
 
@@ -327,6 +329,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<HarvestHistory, HarvestHistoryModel>()
                .ForMember(dest => dest.ProductHarvestHistory, opt => opt.MapFrom(src => src.ProductHarvestHistories))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
+               .ForMember(dest => dest.YieldHasRecord, opt => opt.MapFrom(src => src.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)))
                 .ReverseMap();
 
             CreateMap<ProductHarvestHistory, ProductHarvestHistoryModel>()
@@ -348,7 +351,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<PackageDetail, PackageDetailModel>()
                 .ReverseMap();
 
-           
+
 
             CreateMap<Plan, ForSelectedModels>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlanId))
@@ -485,19 +488,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
-                                                                       UserId = group.First().User.UserId,
-                                                                       FullName = group.First().User.FullName,
-                                                                       avatarURL = group.First().User.AvatarURL,
-                                                                       StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        UserId = group.First().User.UserId,
+                                                                        FullName = group.First().User.FullName,
+                                                                        avatarURL = group.First().User.AvatarURL,
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
                                                                     }).ToList()))
             .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
-                                                                       UserId = group.First().User.UserId,
-                                                                       FullName = group.First().User.FullName,
-                                                                       avatarURL = group.First().User.AvatarURL,
-                                                                       StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        UserId = group.First().User.UserId,
+                                                                        FullName = group.First().User.FullName,
+                                                                        avatarURL = group.First().User.AvatarURL,
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
                                                                     })
                                                                     .ToList()))
             .ForMember(dest => dest.ListGrowthStageName, opt =>

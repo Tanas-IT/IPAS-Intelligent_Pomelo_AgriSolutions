@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CropRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -11,6 +12,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -21,6 +23,7 @@ using System.Net.WebSockets;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -45,15 +48,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     if (cropCreateRequest.StartDate >= DateTime.Now)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
-                    if (cropCreateRequest.EndDate > cropCreateRequest.StartDate)
+                    if (cropCreateRequest.EndDate < cropCreateRequest.StartDate)
                         return new BusinessResult(400, "End date of crop must later than start date");
                     if (!cropCreateRequest.LandPlotId.Any())
                         return new BusinessResult(Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_CODE, Const.WARNING_CREATE_CROP_MUST_HAVE_LANDPLOT_MSG);
                     // Tạo đối tượng Crop mới
-                    var lastId = await _unitOfWork.CropRepository.GetLastID();
+                    //var lastId = await _unitOfWork.CropRepository.GetLastID();
                     var crop = new Crop
                     {
-                        CropCode = $"{CodeAliasEntityConst.CROP}{CodeHelper.GenerateCode()}-{cropCreateRequest.StartDate!.Value.ToString("ddmmyy")}-{cropCreateRequest.EndDate!.Value.ToString("ddmmyy")}",
+                        CropCode = $"{CodeAliasEntityConst.CROP}{CodeHelper.GenerateCode()}-{cropCreateRequest.StartDate!.Value.ToString("ddMMyy")}-{cropCreateRequest.EndDate!.Value.ToString("ddMMyy")}",
                         CropName = cropCreateRequest.CropName,
                         //Year = cropCreateRequest.Year,
                         CropExpectedTime = cropCreateRequest.CropExpectedTime,
@@ -71,8 +74,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDeleted = false
                     };
                     if (crop.StartDate > DateTime.Now)
-                        crop.Status = CropStatusEnum.Planned.ToString();
-                    else crop.Status = CropStatusEnum.Active.ToString();
+                        crop.Status = CropStatusConst.Planned;
+                    else crop.Status = CropStatusConst.InCrop;
                     foreach (var landplotId in cropCreateRequest.LandPlotId)
                     {
                         var existLandplot = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
@@ -100,10 +103,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mapResult = _mapper.Map<CropModel>(crop);
-                        foreach (var landPlotCropItem in mapResult.LandPlotCrops)
-                        {
-                            landPlotCropItem.LandPlot = null!;
-                        }
+                        //foreach (var landPlotCropItem in mapResult.LandPlotCrops)
+                        //{
+                        //    landPlotCropItem.LandPlot = null!;
+                        //}
                         return new BusinessResult(Const.SUCCESS_CREATE_CROP_CODE, Const.SUCCESS_CREATE_CROP_MSG, mapResult);
                     }
                     else
@@ -126,23 +129,70 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue && cropFilter.DateTo < cropFilter.DateFrom)
+
+                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId;
+                Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
+                // Lọc theo SearchText
+                if (!string.IsNullOrEmpty(cropFilter.LandPlotIds))
                 {
-                    return new BusinessResult(400, "Year to must larger than year from");
+                    List<int> filterList = Util.ParseCommaSeparatedIntList(cropFilter.LandPlotIds!);
+                    filter = filter.And(x => x.LandPlotCrops.Any(lc => filterList.Contains(lc.LandPlotId)));
                 }
-                if (cropFilter.ActualYieldTo.HasValue && cropFilter.ActualYieldFrom.HasValue && cropFilter.ActualYieldTo < cropFilter.ActualYieldFrom)
+                if (!string.IsNullOrWhiteSpace(paginationParameter.Search))
                 {
-                    return new BusinessResult(400, "Actual yield to must larger than actual yield from");
+                    filter = filter.And(c => c.CropName!.Contains(paginationParameter.Search));
                 }
-                if (cropFilter.MarketPriceTo.HasValue && cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+
+                // Lọc theo Date
+                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue)
                 {
-                    return new BusinessResult(400, "Market price to must larger than market price from");
+                    if (cropFilter.DateTo < cropFilter.DateFrom)
+                    {
+                        return new BusinessResult(400, "Year to must larger than year from");
+                    }
+                    filter = filter.And(c => c.StartDate >= cropFilter.DateFrom.Value && c.EndDate <= cropFilter.DateTo!.Value);
                 }
-                var landPlotCrops = await _unitOfWork.CropRepository.GetAllCropsOfFarm(FarmId: farmId, paginationParameter: paginationParameter, cropFilter: cropFilter);
-                if (!landPlotCrops.Any())
-                    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
-                var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
-                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
+
+                if (!string.IsNullOrEmpty(cropFilter.HarvestSeason))
+                {
+                    filter = filter.And(c => c.HarvestSeason!.Equals(cropFilter.HarvestSeason));
+                }
+                // Lọc theo Actual yiel from
+                if (cropFilter.ActualYieldFrom.HasValue && cropFilter.ActualYieldTo.HasValue)
+                {
+                    if (cropFilter.ActualYieldTo < cropFilter.ActualYieldFrom)
+                    {
+                        return new BusinessResult(400, "Actual yield to must larger than actual yield from");
+                    }
+                    filter = filter.And(c => c.ActualYield >= cropFilter.ActualYieldFrom.Value && c.ActualYield <= cropFilter.ActualYieldTo.Value);
+                }
+                // Lọc theo Actual yiel from
+                if (cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo.HasValue)
+                {
+                    if ( cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+                    {
+                        return new BusinessResult(400, "Market price to must larger than market price from");
+                    }
+                    filter = filter.And(c => c.MarketPrice >= cropFilter.MarketPriceFrom.Value && c.MarketPrice <= cropFilter.MarketPriceTo.Value);
+                }
+                // Lọc theo Status
+                if (!string.IsNullOrEmpty(cropFilter.Status))
+                {
+                    var listStatus = Util.SplitByComma(cropFilter.Status);
+                    foreach (var item in listStatus)
+                    {
+                        filter = filter.And(c => c.Status!.ToLower().Equals(cropFilter.Status.ToLower()));
+                    }
+                }
+                ApplySorting(ref orderBy, paginationParameter.SortBy, paginationParameter.Direction);
+                
+                var landPlotCrops = await _unitOfWork.CropRepository.Get(filter: filter,orderBy: orderBy ,pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<CropModel>();
+                pagin.List = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops).ToList();
+                pagin.TotalRecord = await _unitOfWork.CropRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, pagin);
             }
             catch (Exception ex)
             {
@@ -156,7 +206,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (plotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId ;
+                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlotId == plotId;
                 if (!string.IsNullOrEmpty(searchValue))
                 {
                     filter = filter.And(x => x.Crop.CropName!.ToLower().Contains(searchValue.ToLower()));
@@ -169,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops.Select(x => x.Crop));
                 foreach (var item in mappedResult)
                 {
-                    item.HarvestHistories = null!;
+                    //item.HarvestHistories = null!;
                     item.LandPlotCrops = null!;
                 }
                 mappedResult.OrderBy(x => x.CropId).GroupBy(x => x.CropId);
@@ -187,23 +237,84 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (landPlotId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue && cropFilter.DateTo < cropFilter.DateFrom)
+                //if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue && cropFilter.DateTo < cropFilter.DateFrom)
+                //{
+                //    return new BusinessResult(400, "Year to must larger than year from");
+                //}
+                //if (cropFilter.ActualYieldTo.HasValue && cropFilter.ActualYieldFrom.HasValue && cropFilter.ActualYieldTo < cropFilter.ActualYieldFrom)
+                //{
+                //    return new BusinessResult(400, "Actual yield to must larger than actual yield from");
+                //}
+                //if (cropFilter.MarketPriceTo.HasValue && cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+                //{
+                //    return new BusinessResult(400, "Market price to must larger than market price from");
+                //}
+                //var landPlotCrops = await _unitOfWork.CropRepository.GetAllCropsOfLandPlot(landPlotId: landPlotId, paginationParameter: paginationParameter, cropFilter: cropFilter);
+                Expression<Func<Crop, bool>> filter = x => x.LandPlotCrops.Select(lc => lc.LandPlotId).Contains(landPlotId);
+                Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
+                // Lọc theo SearchText
+                if (!string.IsNullOrEmpty(cropFilter.LandPlotIds))
                 {
-                    return new BusinessResult(400, "Year to must larger than year from");
+                    List<string> filterList = Util.SplitByComma(cropFilter.LandPlotIds!);
+                    filter = filter.And(x => filterList.Contains(x.LandPlotCrops.Select(lc => lc.LandPlotId).ToString()!));
                 }
-                if (cropFilter.ActualYieldTo.HasValue && cropFilter.ActualYieldFrom.HasValue && cropFilter.ActualYieldTo < cropFilter.ActualYieldFrom)
+                if (!string.IsNullOrWhiteSpace(paginationParameter.Search))
                 {
-                    return new BusinessResult(400, "Actual yield to must larger than actual yield from");
+                    filter = filter.And(c => c.CropName!.Contains(paginationParameter.Search));
                 }
-                if (cropFilter.MarketPriceTo.HasValue && cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+
+                // Lọc theo Date
+                if (cropFilter.DateFrom.HasValue && cropFilter.DateFrom.HasValue)
                 {
-                    return new BusinessResult(400, "Market price to must larger than market price from");
+                    if (cropFilter.DateTo < cropFilter.DateFrom)
+                    {
+                        return new BusinessResult(400, "Year to must larger than year from");
+                    }
+                    filter = filter.And(c => c.StartDate >= cropFilter.DateFrom.Value && c.EndDate <= cropFilter.DateTo!.Value);
                 }
-                var landPlotCrops = await _unitOfWork.CropRepository.GetAllCropsOfLandPlot(landPlotId: landPlotId, paginationParameter: paginationParameter, cropFilter: cropFilter);
-                if (!landPlotCrops.Any())
-                    return new BusinessResult(Const.WARNING_CROP_OF_LANDPLOT_EMPTY_CODE, Const.WARNING_CROP_OF_LANDPLOT_EMPTY_MSG);
-                var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
-                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
+
+                if (!string.IsNullOrEmpty(cropFilter.HarvestSeason))
+                {
+                    filter = filter.And(c => c.HarvestSeason!.Equals(cropFilter.HarvestSeason));
+                }
+                // Lọc theo Actual yiel from
+                if (cropFilter.ActualYieldFrom.HasValue && cropFilter.ActualYieldTo.HasValue)
+                {
+                    if (cropFilter.ActualYieldTo < cropFilter.ActualYieldFrom)
+                    {
+                        return new BusinessResult(400, "Actual yield to must larger than actual yield from");
+                    }
+                    filter = filter.And(c => c.ActualYield >= cropFilter.ActualYieldFrom.Value && c.ActualYield <= cropFilter.ActualYieldTo.Value);
+                }
+                // Lọc theo Actual yiel from
+                if (cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo.HasValue)
+                {
+                    if (cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+                    {
+                        return new BusinessResult(400, "Market price to must larger than market price from");
+                    }
+                    filter = filter.And(c => c.MarketPrice >= cropFilter.MarketPriceFrom.Value && c.MarketPrice <= cropFilter.MarketPriceTo.Value);
+                }
+                // Lọc theo Status
+                if (!string.IsNullOrEmpty(cropFilter.Status))
+                {
+                    var listStatus = Util.SplitByComma(cropFilter.Status);
+                    foreach (var item in listStatus)
+                    {
+                        filter = filter.And(c => c.Status!.ToLower().Equals(cropFilter.Status.ToLower()));
+                    }
+                }
+                ApplySorting(ref orderBy, paginationParameter.SortBy, paginationParameter.Direction);
+
+                var landPlotCrops = await _unitOfWork.CropRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<CropModel>();
+                pagin.List = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops).ToList();
+                pagin.TotalRecord = await _unitOfWork.CropRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                //if (!landPlotCrops.Any())
+                //    return new BusinessResult(Const.WARNING_CROP_OF_LANDPLOT_EMPTY_CODE, Const.WARNING_CROP_OF_LANDPLOT_EMPTY_MSG);
+                //var mappedResult = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, pagin);
             }
             catch (Exception ex)
             {
@@ -225,10 +336,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var ProdutRecord = harvest.ProductHarvestHistories.Where(x => x.PlantId.HasValue).Sum(x => x.ActualQuantity) ?? 0;
                     mappedResult.YieldHasRecord += ProdutRecord;
                 }
-                foreach (var cropItem in mappedResult.LandPlotCrops)
-                {
-                    cropItem.LandPlot = null!;
-                }
+                //foreach (var cropItem in mappedResult.LandPlotCrops)
+                //{
+                //    cropItem.LandPlot = null!;
+                //}
                 return new BusinessResult(Const.SUCCESS_GET_CROP_CODE, Const.SUCCESS_GET_CROP_BY_ID_MSG, mappedResult);
             }
             catch (Exception ex)
@@ -436,10 +547,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mapResult = _mapper.Map<CropModel>(cropEntityUpdate);
-                        foreach (var landPlotCropItem in mapResult.LandPlotCrops)
-                        {
-                            landPlotCropItem.LandPlot = null!;
-                        }
+                        //foreach (var landPlotCropItem in mapResult.LandPlotCrops)
+                        //{
+                        //    landPlotCropItem.LandPlot = null!;
+                        //}
                         return new BusinessResult(Const.SUCCESS_UPDATE_CROP_CODE, Const.SUCCESS_UPDATE_CROP_MSG, mapResult);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
@@ -493,31 +604,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //  Nếu chưa có ngày bắt đầu => Mùa vụ chưa được lên kế hoạch
             if (!startDate.HasValue)
             {
-                return CropStatusEnum.Planned.ToString();
+                return CropStatusConst.Planned.ToString();
             }
 
             //  Nếu chưa tới ngày bắt đầu => Đang lên kế hoạch
             if (now < startDate.Value)
             {
-                return CropStatusEnum.Planned.ToString();
+                return CropStatusConst.Planned.ToString();
             }
 
             //  Nếu đã bắt đầu nhưng chưa kết thúc => Đang hoạt động
             if (now >= startDate.Value && (!endDate.HasValue || now < endDate.Value))
             {
-                return CropStatusEnum.Active.ToString();
+                return CropStatusConst.InCrop.ToString();
             }
 
             //  Nếu có ngày thu hoạch dự kiến và đang trong thời gian thu hoạch
             if (!cropActualTime.HasValue || now <= cropActualTime.Value)
             {
-                return CropStatusEnum.Harvesting.ToString();
+                return CropStatusConst.Harvesting.ToString();
             }
 
             //  Nếu có ngày kết thúc hoặc đã thu hoạch xong => Hoàn thành
             if (endDate.HasValue && now >= endDate.Value || (cropActualTime.HasValue && now >= cropActualTime.Value))
             {
-                return CropStatusEnum.Completed.ToString();
+                return CropStatusConst.Completed.ToString();
             }
 
             ////  Nếu có ngày kết thúc nhưng bị hủy bỏ trước đó
@@ -526,8 +637,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //    return CropStatusEnum.Cancelled.ToString();
             //}
 
-            return CropStatusEnum.Planned.ToString(); // Trạng thái mặc định
+            return CropStatusConst.Planned.ToString(); // Trạng thái mặc định
         }
 
+        private void ApplySorting(ref Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy, string? sortBy, string? direction)
+        {
+            bool isDescending = !string.IsNullOrEmpty(direction) && direction.ToLower().Equals("desc");
+            sortBy = sortBy?.ToLower() ?? "cropid"; // Mặc định sắp xếp theo CropId
+
+            orderBy = sortBy switch
+            {
+                "cropid" => isDescending ? x => x.OrderByDescending(c => c.CropId) : x => x.OrderBy(c => c.CropId),
+                "cropcode" => isDescending ? x => x.OrderByDescending(c => c.CropCode) : x => x.OrderBy(c => c.CropCode),
+                "cropname" => isDescending ? x => x.OrderByDescending(c => c.CropName) : x => x.OrderBy(c => c.CropName),
+                "startdate" => isDescending ? x => x.OrderByDescending(c => c.StartDate) : x => x.OrderBy(c => c.StartDate),
+                "enddate" => isDescending ? x => x.OrderByDescending(c => c.EndDate) : x => x.OrderBy(c => c.EndDate),
+                "createdate" => isDescending ? x => x.OrderByDescending(c => c.CreateDate) : x => x.OrderBy(c => c.CreateDate),
+                "updatedate" => isDescending ? x => x.OrderByDescending(c => c.UpdateDate) : x => x.OrderBy(c => c.UpdateDate),
+                "cropexpectedtime" => isDescending ? x => x.OrderByDescending(c => c.CropExpectedTime) : x => x.OrderBy(c => c.CropExpectedTime),
+                "cropactualtime" => isDescending ? x => x.OrderByDescending(c => c.CropActualTime) : x => x.OrderBy(c => c.CropActualTime),
+                "harvestseason" => isDescending ? x => x.OrderByDescending(c => c.HarvestSeason) : x => x.OrderBy(c => c.HarvestSeason),
+                "estimateyield" => isDescending ? x => x.OrderByDescending(c => c.EstimateYield) : x => x.OrderBy(c => c.EstimateYield),
+                "actualyield" => isDescending ? x => x.OrderByDescending(c => c.ActualYield) : x => x.OrderBy(c => c.ActualYield),
+                //"yieldhasrecord" => isDescending ? x => x.OrderByDescending(c => c.YieldHasRecord) : x => x.OrderBy(c => c.YieldHasRecord),
+                "status" => isDescending ? x => x.OrderByDescending(c => c.Status) : x => x.OrderBy(c => c.Status),
+                "marketprice" => isDescending ? x => x.OrderByDescending(c => c.MarketPrice) : x => x.OrderBy(c => c.MarketPrice),
+                //"numberharvest" => isDescending ? x => x.OrderByDescending(c => c.NumberHarvest) : x => x.OrderBy(c => c.NumberHarvest),
+                //"numberplot" => isDescending ? x => x.OrderByDescending(c => c.NumberPlot) : x => x.OrderBy(c => c.NumberPlot),
+                _ => isDescending ? x => x.OrderByDescending(c => c.CropId) : x => x.OrderBy(c => c.CropId),
+            };
+        }
     }
 }

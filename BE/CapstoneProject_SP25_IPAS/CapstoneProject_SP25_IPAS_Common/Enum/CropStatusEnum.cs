@@ -9,7 +9,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Enum
     public enum CropStatusEnum
     {
         Planned,
-        Active,
+        InCrop,
         Harvesting,
         Completed,
         Cancelled

@@ -47,5 +47,17 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
                         .Select(s => s.Trim().ToLower())
                         .ToList();
         }
+
+        public static List<int> ParseCommaSeparatedIntList(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return new List<int>();
+
+            return input.Split(',')
+                        .Select(x => int.TryParse(x.Trim(), out int value) ? value : (int?)null)
+                        .Where(x => x.HasValue)
+                        .Select(x => x!.Value)
+                        .ToList();
+        }
     }
 }
