@@ -9,6 +9,12 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 {
     public class SystemConfigConst
     {
+        #region CONFIG GROUP NAME
+        public const string VALIDATION_VARIABLE = "Validation Variable";
+        public const string MASTER_TYPE = "Master Type";
+        public const string CRITERIA_APPLY = "Criteria Apply";
+        #endregion
+
         #region CONFIG FOR PLANT IN GRAFTED
         public const string GROWTH_EXPONENT = "Growth Exponent";
         public const string INITIAL_BRANCHING_COEFFICIENT = "Initial Branching Coefficient";

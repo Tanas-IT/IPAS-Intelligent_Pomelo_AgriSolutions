@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.GraftedNoteRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId);
         public Task<BusinessResult> updateGraftedNote(UpdateGraftedNoteRequest historyUpdateRequest);
         public Task<BusinessResult> createGraftedNote(CreateGraftedNoteRequest historyCreateRequest);
+        public Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest fitlerRequest, PaginationParameter paginationParameter);
+
 
     }
 }
