@@ -17,6 +17,7 @@ using Org.BouncyCastle.Utilities.Collections;
 using System.Reflection.Metadata;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -59,6 +60,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
                                 var plantResource = new Resource()
                                 {
+                                    ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
                                     ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                     ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
                                     FileFormat = resource.FileFormat,
@@ -254,6 +256,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                 var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistoty);
                 return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE, Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG, mapResult!);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> getAllHistoryOfPlantPagin(GetPlantGrowtRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                if (getRequest.PlantId <= 0)
+                {
+                    return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, "Plant not exist");
+                }
+                Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == getRequest.PlantId;
+                Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
+                string includeProperties = "Resources";
+                var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
+                var pagin = new PageEntity<PlantGrowthHistoryModel>();
+                pagin.List = _mapper.Map<IEnumerable<PlantGrowthHistoryModel>>(plantGrowthHistotys).ToList();
+                pagin.TotalRecord = await _unitOfWork.PlantGrowthHistoryRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_CODE, Const.SUCCESS_GET_ALL_GROWTH_HISTORY_OF_PLANT_MSG, pagin!);
             }
             catch (Exception ex)
             {

@@ -29,6 +29,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         public int? NumberVideos { get; set; }
         //public virtual PlantModel? Plant { get; set; }
 
-        public ICollection<Resource> PlantResources { get; set; } = new List<Resource>();
+        public ICollection<ResourceModel> PlantResources { get; set; } = new List<ResourceModel>();
     }
 }

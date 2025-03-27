@@ -9,6 +9,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels
     public class SystemConfigModel
     {
         public int? ConfigId { get; set; }
+        public string? ConfigGroup { get; set; }
 
         public string ConfigKey { get; set; } = null!;
 
