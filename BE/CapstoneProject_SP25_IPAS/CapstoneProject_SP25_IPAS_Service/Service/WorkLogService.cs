@@ -157,8 +157,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (addNewTaskModel.listEmployee != null)
                 {
                     List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
+                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
 
-                   
+                    foreach (var workLog in savedWorkLogs)
+                    {
+                        var conflictedUsers = new List<string>();
+                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                        {
+                            // Kiểm tra User có bị trùng lịch không?
+                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                            if (conflictedUser != null)
+                            {
+                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
+                            }
+                        }
+
+                        if (conflictedUsers.Any())
+                        {
+                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+                        }
+                    }
+
                     foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                     {
                         userWorkLogs.Add(new UserWorkLog
@@ -1654,7 +1674,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (result > 0)
                 {
-                    return new BusinessResult(200, "Check Attendance Success", result > 0);
+                    return new BusinessResult(200, "Check Attendance Success", true);
                 }
                 return new BusinessResult(400, "Check Attendance Failed", false);
             }
