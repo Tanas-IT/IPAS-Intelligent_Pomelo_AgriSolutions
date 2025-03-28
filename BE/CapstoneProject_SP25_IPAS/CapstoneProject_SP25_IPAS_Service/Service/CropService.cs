@@ -46,7 +46,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (!cropCreateRequest.FarmId.HasValue || cropCreateRequest.FarmId <= 0)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                    if (cropCreateRequest.StartDate >= DateTime.Now)
+                    if (cropCreateRequest.EndDate <= DateTime.Now)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
                     if (cropCreateRequest.EndDate < cropCreateRequest.StartDate)
                         return new BusinessResult(400, "End date of crop must later than start date");
