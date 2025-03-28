@@ -2931,7 +2931,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "PlanTargets";
-                var entities = await _unitOfWork.PlanRepository.Get(filter: filter, orderBy: orderBy, includeProperties:includeProperties , pageIndex: paginationParameter.PageIndex,pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter: filter, orderBy: orderBy, /*includeProperties:includeProperties ,*/ pageIndex: paginationParameter.PageIndex,pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanModel>();
 
                 var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
