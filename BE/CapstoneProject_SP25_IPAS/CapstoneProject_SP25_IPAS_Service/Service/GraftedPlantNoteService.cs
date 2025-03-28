@@ -169,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var mappedResult = _mapper.Map<PlantGrowthHistoryModel>(plantGrowthHistory);
+                        var mappedResult = _mapper.Map<GraftedPlantNoteModel>(plantGrowthHistory);
                         return new BusinessResult(Const.SUCCESS_UPDATE_GRAFTED_NOTE_CODE, Const.SUCCESS_UPDATE_GRAFTED_NOTE_MSG, mappedResult);
                     }
 

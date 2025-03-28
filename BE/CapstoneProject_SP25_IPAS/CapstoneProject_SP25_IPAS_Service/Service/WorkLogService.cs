@@ -1196,18 +1196,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
 
-                   
-                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
-                        {
-                            userWorkLogs.Add(new UserWorkLog
-                            {
-                                WorkLogId = addNewWorkLog.WorkLogId,
-                                UserId = user.UserId,
-                                IsReporter = user.isReporter,
-                                IsDeleted = false
-                            });
 
-                        }
+                    foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                    {
+                        userWorkLogs.Add(new UserWorkLog
+                        {
+                            WorkLogId = addNewWorkLog.WorkLogId,
+                            UserId = user.UserId,
+                            IsReporter = user.isReporter,
+                            IsDeleted = false
+                        });
+
+                    }
 
 
                     // 🔹 Lưu UserWorkLogs vào DB
@@ -1668,9 +1668,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         getUserWorkLogToCheckAttendance.StatusOfUserWorkLog = employeeModel.Status;
                         _unitOfWork.UserWorkLogRepository.Update(getUserWorkLogToCheckAttendance);
-                        result += await _unitOfWork.SaveAsync();
                     }
                 }
+                result += await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
                     return new BusinessResult(200, "Check Attendance Success", result > 0);
