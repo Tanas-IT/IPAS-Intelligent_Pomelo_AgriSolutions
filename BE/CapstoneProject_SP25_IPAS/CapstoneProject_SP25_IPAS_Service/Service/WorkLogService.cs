@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -99,26 +100,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    }
 
                 //}
-                var getMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeName.ToLower().Equals("Harvesting"));
+                var getMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.TypeName.ToLower().Equals(TypeNameInMasterEnum.Work.ToString().ToLower()) && x.MasterTypeName.Equals("Harvesting"));
 
-                var newPlan = new Plan()
-                {
-                    PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{getMasterType.MasterTypeId}",
-                    PlanName = addNewTaskModel.TaskName,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now,
-                    IsSample = false,
-                    StartDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
-                    EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
-                    Frequency = "None",
-                    MasterTypeId = getMasterType.MasterTypeId,
-                    IsActive = true,
-                    IsDeleted = false,
-                    Status = "Active",
-                    FarmID = farmId,
-                };
-                await _unitOfWork.PlanRepository.Insert(newPlan);
-                await _unitOfWork.SaveAsync();
+                //var newPlan = new Plan()
+                //{
+                //    PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{getMasterType.MasterTypeId}",
+                //    PlanName = addNewTaskModel.TaskName,
+                //    CreateDate = DateTime.Now,
+                //    UpdateDate = DateTime.Now,
+                //    IsSample = false,
+                //    StartDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.StartTime)),
+                //    EndDate = addNewTaskModel.DateWork.Value.Add(TimeSpan.Parse(addNewTaskModel.EndTime)),
+                //    Frequency = "None",
+                //    MasterTypeId = getMasterType.MasterTypeId,
+                //    IsActive = true,
+                //    IsDeleted = false,
+                //    Status = "Active",
+                //    FarmID = farmId,
+                //};
+                //await _unitOfWork.PlanRepository.Insert(newPlan);
+                //await _unitOfWork.SaveAsync();
 
                 var newSchedule = new CarePlanSchedule()
                 {
@@ -131,7 +132,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     HarvestHistoryID = addNewTaskModel.HarvestHistoryId
                 };
 
-                newPlan.CarePlanSchedule = newSchedule;
+                //newPlan.CarePlanSchedule = newSchedule;
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
 
@@ -156,27 +157,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (addNewTaskModel.listEmployee != null)
                 {
                     List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
-                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
 
-                    foreach (var workLog in savedWorkLogs)
-                    {
-                        var conflictedUsers = new List<string>();
-                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
-                        {
-                            // Kiểm tra User có bị trùng lịch không?
-                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
-                            if (conflictedUser != null)
-                            {
-                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
-                            }
-                        }
-
-                        if (conflictedUsers.Any())
-                        {
-                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
-                        }
-                    }
+                   
                     foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                     {
                         userWorkLogs.Add(new UserWorkLog
@@ -184,7 +166,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             WorkLogId = newWorkLog.WorkLogId,
                             UserId = user.UserId,
                             IsReporter = user.isReporter,
-                            StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                             IsDeleted = false
                         });
 
