@@ -60,6 +60,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (resource.File != null)
                             {
                                 var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.GRAFTED_PLANT_NOTE);
+                                if (cloudinaryUrl.Data == null) continue;
+                                if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
+                                    resource.FileFormat = FileFormatConst.VIDEO.ToLower();
+                                else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
                                 var plantResource = new Resource()
                                 {
                                     ResourceURL = (string)cloudinaryUrl.Data! ?? null,

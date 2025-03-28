@@ -19,6 +19,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryR
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using Org.BouncyCastle.Ocsp;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -63,10 +64,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (resource.File != null)
                             {
                                 var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                                if (cloudinaryUrl.Data == null) continue;
+                                if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
+                                    resource.FileFormat = FileFormatConst.VIDEO.ToLower();
+                                else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
                                 var plantResource = new Resource()
                                 {
                                     ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
-                                    ResourceURL = (string)cloudinaryUrl.Data! ?? null,
+                                    ResourceURL = (string)cloudinaryUrl.Data,
                                     ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
                                     FileFormat = resource.FileFormat,
                                     CreateDate = DateTime.Now,

@@ -188,8 +188,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                 .ForMember(dest => dest.NoteTakerName, opt => opt.MapFrom(src => src.User!.FullName))
                 .ForMember(dest => dest.NoteTakerAvatar, opt => opt.MapFrom(src => src.User!.AvatarURL))
-                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
-                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
+                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat!.ToLower().Contains(FileFormatConst.IMAGE.ToLower()))))
+                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat!.ToLower().Contains(FileFormatConst.VIDEO.ToLower()))))
                 .ReverseMap();
 
             CreateMap<Resource, ResourceModel>()
@@ -413,8 +413,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Resources, opt => opt.MapFrom(src => src.Resources))
                 .ForMember(dest => dest.NoteTakerName, opt => opt.MapFrom(src => src.User!.FullName))
                 .ForMember(dest => dest.NoteTakerAvatar, opt => opt.MapFrom(src => src.User!.AvatarURL))
-                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.IMAGE)))
-                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat == FileFormatConst.VIDEO)))
+                .ForMember(dest => dest.NumberImage, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat!.ToLower().Contains(FileFormatConst.IMAGE.ToLower()))))
+                .ForMember(dest => dest.NumberVideos, opt => opt.MapFrom(src => src.Resources.Count(x => x.FileFormat!.ToLower().Contains(FileFormatConst.VIDEO.ToLower()))))
                 .ReverseMap();
 
             CreateMap<GraftedPlant, GraftedPlantModels>()
