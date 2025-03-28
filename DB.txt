@@ -1227,10 +1227,7 @@ VALUES
     ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
     ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
     ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT040', 'Grafting', 'Work', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafting', NULL,NULL),
-    ('MT041', 'PlantLot', 'Work', 'Preparing for plantLot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL),
-    ('MT042', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL);
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL);
 GO
 
 GO

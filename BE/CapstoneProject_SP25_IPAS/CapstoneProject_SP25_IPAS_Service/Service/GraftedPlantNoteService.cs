@@ -37,13 +37,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var checkGraftedExist = await _unitOfWork.GraftedPlantNoteRepository.GetByID(historyCreateRequest.GraftedPlantId);
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByID(historyCreateRequest.GraftedPlantId);
                     if (checkGraftedExist == null)
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     // Khởi tạo đối tượng GraftedPlantNote
                     var graftedPlantNoteEntity = new GraftedPlantNote()
                     {
-                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkGraftedExist.GraftedPlantNoteCode!).First().ToUpper()}",
+                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkGraftedExist.GraftedPlantCode!).First().ToUpper()}",
                         Content = historyCreateRequest.Content,
                         //NoteTaker = historyCreateRequest.NoteTaker,
                         GraftedPlantId = historyCreateRequest.GraftedPlantId,
@@ -255,7 +255,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 }
                 Expression<Func<GraftedPlantNote, bool>> filter = x => x.GraftedPlantNoteId == GraftedPlantNoteId;
-                string includeProperties = "Resources";
+                string includeProperties = "Resources,User";
                 var plantGrowthHistoty = await _unitOfWork.GraftedPlantNoteRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (plantGrowthHistoty == null)
                     return new BusinessResult(Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG);
@@ -287,7 +287,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => x.CreateDate >= filterRequest.CreateFrom&&
                                             x.CreateDate <= filterRequest.CreateTo);
                 }
-                string includeProperties = "Resources";
+                string includeProperties = "Resources,User";
                 var plantGrowthHistotys = await _unitOfWork.GraftedPlantNoteRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
                 var pagin = new PageEntity<GraftedPlantNoteModel>();

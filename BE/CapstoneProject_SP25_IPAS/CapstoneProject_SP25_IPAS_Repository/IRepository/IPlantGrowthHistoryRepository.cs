@@ -10,5 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface IPlantGrowthHistoryRepository
     {
         public Task<PlantGrowthHistory> GetGrowthHistoryById(int id);
+        public Task<List<PlantGrowthHistory>> GetGrowthHistoryByPlantId(int id);
     }
 }

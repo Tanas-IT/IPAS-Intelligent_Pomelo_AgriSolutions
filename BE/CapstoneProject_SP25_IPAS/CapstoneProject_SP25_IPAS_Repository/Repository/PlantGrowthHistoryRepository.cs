@@ -27,5 +27,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .FirstOrDefaultAsync(x => x.PlantGrowthHistoryId == id);
             return plantGrowthHistory;
         }
+
+        public async Task<List<PlantGrowthHistory>> GetGrowthHistoryByPlantId(int id)
+        {
+            var result = await _context.PlantGrowthHistories
+                .Include(x => x.Resources)
+                .Where(x => x.PlantId == id).ToListAsync();
+            return result;
+        }
     }
 }
