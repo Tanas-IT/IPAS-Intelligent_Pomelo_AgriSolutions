@@ -341,7 +341,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
          .Include(wl => wl.Schedule)
          .ThenInclude(s => s.CarePlan)
          .ThenInclude(p => p.MasterType)
-         .Where(wl => wl.Date == dayCheck &&
+         .Where(wl => wl.IsDeleted == false &&
+                      wl.Date == dayCheck &&
                       wl.Schedule.StartTime < newEndTime &&
                       wl.Schedule.EndTime > newStartTime)
          .ToListAsync();
@@ -358,7 +359,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             // Kiểm tra nhân viên có bị trùng lịch không
             var userConflicts = await _context.UserWorkLogs
-                .Where(uwl => listEmployeeIds.Contains(uwl.UserId) &&
+                .Include(wl => wl.WorkLog)
+                .ThenInclude(wl => wl.Schedule)
+                .Where(uwl => uwl.WorkLog.IsDeleted == false &&
+                                listEmployeeIds.Contains(uwl.UserId) &&
                               uwl.WorkLog.Date == dayCheck &&
                               uwl.WorkLog.Schedule.StartTime < newEndTime &&
                               uwl.WorkLog.Schedule.EndTime > newStartTime)
