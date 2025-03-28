@@ -37,13 +37,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var checkGraftedExist = await _unitOfWork.GraftedPlantNoteRepository.GetByID(historyCreateRequest.GraftedPlantId);
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByID(historyCreateRequest.GraftedPlantId);
                     if (checkGraftedExist == null)
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     // Khởi tạo đối tượng GraftedPlantNote
                     var graftedPlantNoteEntity = new GraftedPlantNote()
                     {
-                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkGraftedExist.GraftedPlantNoteCode!).First().ToUpper()}",
+                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkGraftedExist.GraftedPlantCode!).First().ToUpper()}",
                         Content = historyCreateRequest.Content,
                         //NoteTaker = historyCreateRequest.NoteTaker,
                         GraftedPlantId = historyCreateRequest.GraftedPlantId,
