@@ -22,13 +22,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        private readonly IGraftedPlantService _graftedPlantService;
-        public GraftedPlantNoteService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IGraftedPlantService graftedPlantService)
+        //private readonly IGraftedPlantService _graftedPlantService;
+        public GraftedPlantNoteService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService/*, IGraftedPlantService graftedPlantService*/)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
-            _graftedPlantService = graftedPlantService;
+            //_graftedPlantService = graftedPlantService;
         }
 
         public async Task<BusinessResult> createGraftedNote(CreateGraftedNoteRequest historyCreateRequest)
@@ -37,18 +37,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
-                    var checkGraftedExist = await _graftedPlantService.getGraftedByIdAsync(historyCreateRequest.GraftedPlantId);
-                    if (checkGraftedExist.StatusCode != 200)
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantNoteRepository.GetByID(historyCreateRequest.GraftedPlantId);
+                    if (checkGraftedExist == null)
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     // Khởi tạo đối tượng GraftedPlantNote
                     var graftedPlantNoteEntity = new GraftedPlantNote()
                     {
-                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.GRAFTED_PLANT}{historyCreateRequest.GraftedPlantId}-{CodeHelper.GenerateCode()}",
+                        GraftedPlantNoteCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkGraftedExist.GraftedPlantNoteCode!).First().ToUpper()}",
                         Content = historyCreateRequest.Content,
-                        NoteTaker = historyCreateRequest.NoteTaker,
+                        //NoteTaker = historyCreateRequest.NoteTaker,
                         GraftedPlantId = historyCreateRequest.GraftedPlantId,
                         IssueName = historyCreateRequest.IssueName,
                         CreateDate = DateTime.Now,
+                        UserId = historyCreateRequest.UserId,
                     };
 
                     // Xử lý tài nguyên (hình ảnh/video) nếu có

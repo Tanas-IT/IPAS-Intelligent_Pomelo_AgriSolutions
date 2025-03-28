@@ -149,6 +149,37 @@ CREATE TABLE ipas.dbo.[Role] (
 );
 
 
+-- ipas.dbo.[User] definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.[User];
+
+CREATE TABLE ipas.dbo.[User] (
+	UserID int IDENTITY(1,1) NOT NULL,
+	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	DOB datetime NULL,
+	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	IsDeleted bit NULL DEFAULT 0,
+	DeleteDate datetime NULL,
+	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IsDependency int NULL,
+	RoleID int NULL,
+	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ExpiredOtpTime datetime NULL,
+	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	RemainDays int NULL,
+	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
+	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
+);
+
 -- ipas.dbo.Warning definition
 
 -- Drop table
@@ -491,12 +522,14 @@ CREATE TABLE ipas.dbo.PlantGrowthHistory (
 	PlantGrowthHistoryID int IDENTITY(1,1) NOT NULL,
 	PlantGrowthHistoryCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	-- NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	PlantID int NULL,
 	IssueName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	UserID int NULL,
 	CONSTRAINT PK__PlantGro__8F26DC48C9286D17 PRIMARY KEY (PlantGrowthHistoryID),
+	CONSTRAINT PlantGro_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__PlantNote__Plant__32AB8735 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
 );
 
@@ -596,36 +629,6 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
 
--- ipas.dbo.[User] definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.[User];
-
-CREATE TABLE ipas.dbo.[User] (
-	UserID int IDENTITY(1,1) NOT NULL,
-	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	DOB datetime NULL,
-	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	IsDeleted bit NULL DEFAULT 0,
-	DeleteDate datetime NULL,
-	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	IsDependency int NULL,
-	RoleID int NULL,
-	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ExpiredOtpTime datetime NULL,
-	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	RemainDays int NULL,
-	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
-	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
-);
 
 
 -- ipas.dbo.UserFarm definition
@@ -707,11 +710,13 @@ CREATE TABLE ipas.dbo.GraftedPlantNote (
 	GraftedPlantNoteCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	IssueName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	--NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedPlantID int NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	UserID int NULL,
 	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
+	CONSTRAINT GraftedPlantNote_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
 );
 
