@@ -175,7 +175,7 @@ export const formatDateAndTime = (date: Date): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };
 
-export const formatDayMonthAndTime = (date: Date): string => {
+export const formatDayMonthAndTime = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY, h:mm A");
 };
 

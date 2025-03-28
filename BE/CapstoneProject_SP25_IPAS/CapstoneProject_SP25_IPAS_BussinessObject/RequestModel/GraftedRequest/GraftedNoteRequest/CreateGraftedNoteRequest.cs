@@ -12,12 +12,13 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.
     {
 
         public string? Content { get; set; }
-        [Required]
-        public string NoteTaker { get; set; }
+        //[Required]
+        //public string NoteTaker { get; set; }
         [Required]
         public string IssueName { get; set; }
         [Required]
         public int GraftedPlantId { get; set; }
+        public int? UserId { get; set; }
 
         public ICollection<ResourceCrUpRequest> PlantResources { get; set; } = new List<ResourceCrUpRequest>();
 

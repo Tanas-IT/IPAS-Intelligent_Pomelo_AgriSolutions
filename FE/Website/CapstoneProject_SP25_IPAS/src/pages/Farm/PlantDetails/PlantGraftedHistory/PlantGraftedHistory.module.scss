@@ -7,17 +7,10 @@
     width: 100%;
     justify-content: space-between;
     gap: 0px;
-    .filterSection {
-      align-items: center;
-      margin-bottom: 12px;
-
-      .icon {
-        margin-bottom: 4px;
-      }
-    }
   }
   .tableWrapper {
     width: 100%;
+    margin-top: 20px;
     max-height: 28rem;
     overflow: auto;
 

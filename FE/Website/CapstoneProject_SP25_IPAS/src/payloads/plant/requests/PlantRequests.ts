@@ -11,3 +11,11 @@ export interface PlantRequest {
   landRowId?: number;
   plantIndex?: number;
 }
+
+export interface PlantGrowthHistoryRequest {
+  plantId: number;
+  issueName: string;
+  noteTaker: string;
+  content: string;
+  plantResources: File[];
+}

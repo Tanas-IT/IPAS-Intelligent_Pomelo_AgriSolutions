@@ -4,6 +4,7 @@ import {
   GetMasterType,
   GetPartner,
   GetPlant,
+  GetPlantGrowthHistory,
   GetPlantLot2,
   MasterTypeDetail,
 } from "@/payloads";
@@ -52,6 +53,7 @@ export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
   rowIndex: "rowIndex",
   landPlotName: "landPlotName",
   isDead: "isDead",
+  isPassed: "isPassed",
 };
 
 export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {
@@ -105,6 +107,8 @@ export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraf
   isCompleted: "isCompleted",
   plantLotId: "plantLotId",
   plantCode: "plantCode",
+  plantLotName: "plantLotName",
+  plantName: "plantName",
 };
 
 export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
@@ -116,6 +120,22 @@ export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowth
   monthAgeEnd: "monthAgeEnd",
   createDate: "createDate",
   activeFunction: "activeFunction",
+};
+
+export const plantGrowthHistoryFormFields: Record<
+  keyof GetPlantGrowthHistory,
+  keyof GetPlantGrowthHistory
+> = {
+  plantId: "plantId",
+  plantGrowthHistoryId: "plantGrowthHistoryId",
+  plantGrowthHistoryCode: "plantGrowthHistoryCode",
+  issueName: "issueName",
+  content: "content",
+  noteTaker: "noteTaker",
+  createDate: "createDate",
+  numberImage: "numberImage",
+  numberVideos: "numberVideos",
+  plantResources: "plantResources",
 };
 
 export const partnerFormFields: Record<keyof GetPartner, keyof GetPartner> = {

@@ -18,6 +18,7 @@ using System.Reflection.Metadata;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -37,17 +38,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                var checkPlantExist = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == historyCreateRequest.PlantId && x.IsDead == false && x.IsDeleted == false);
+                if (checkPlantExist == null)
+                    return new BusinessResult(400, "Plant not exist");
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     // Khởi tạo đối tượng PlantGrowthHistory
                     var plantGrowthHistoryEntity = new PlantGrowthHistory()
                     {
-                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.PLANT}{historyCreateRequest.PlantId}-{CodeHelper.GenerateCode()}",
+                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByComma(checkPlantExist.PlantCode!).First().ToUpper()}",
                         Content = historyCreateRequest.Content,
-                        NoteTaker = historyCreateRequest.NoteTaker,
+                        //NoteTaker = historyCreateRequest.NoteTaker,
                         PlantId = historyCreateRequest.PlantId,
                         IssueName = historyCreateRequest.IssueName,
                         CreateDate = DateTime.Now,
+                        UserId = historyCreateRequest.UserId!.Value,
                     };
 
                     // Xử lý tài nguyên (hình ảnh/video) nếu có
@@ -228,7 +233,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == plantId;
                 Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
-                string includeProperties = "Resources";
+                string includeProperties = "User,Resources";
                 var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!plantGrowthHistotys.Any())
                     return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_MSG);
@@ -250,7 +255,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);
                 }
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantGrowthHistoryId == plantGrowthHistoryId;
-                string includeProperties = "Resources";
+                string includeProperties = "User,Resources";
                 var plantGrowthHistoty = await _unitOfWork.PlantGrowthHistoryRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (plantGrowthHistoty == null)
                     return new BusinessResult(Const.WARNING_GET_PLANT_HISTORY_BY_ID_EMPTY_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
@@ -273,9 +278,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 Expression<Func<PlantGrowthHistory, bool>> filter = x => x.PlantId == getRequest.PlantId;
                 Func<IQueryable<PlantGrowthHistory>, IOrderedQueryable<PlantGrowthHistory>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
-                string includeProperties = "Resources";
+                string includeProperties = "User,Resources";
+                if (getRequest.CreateFrom.HasValue && getRequest.CreateTo.HasValue)
+                {
+                    if (getRequest.CreateFrom.Value > getRequest.CreateTo.Value)
+                    {
+                        return new BusinessResult(400, "Create From must before create to");
+                    }
+                    filter = filter.And(x => x.CreateDate >= getRequest.CreateFrom &&
+                                            x.CreateDate <= getRequest.CreateTo);
+                }
                 var plantGrowthHistotys = await _unitOfWork.PlantGrowthHistoryRepository.Get(filter: filter, includeProperties: includeProperties, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
-                //var mapResult = _mapper.Map<List<PlantGrowthHistoryModel>?>(plantGrowthHistotys);
                 var pagin = new PageEntity<PlantGrowthHistoryModel>();
                 pagin.List = _mapper.Map<IEnumerable<PlantGrowthHistoryModel>>(plantGrowthHistotys).ToList();
                 pagin.TotalRecord = await _unitOfWork.PlantGrowthHistoryRepository.Count(filter);

@@ -149,6 +149,37 @@ CREATE TABLE ipas.dbo.[Role] (
 );
 
 
+-- ipas.dbo.[User] definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.[User];
+
+CREATE TABLE ipas.dbo.[User] (
+	UserID int IDENTITY(1,1) NOT NULL,
+	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	DOB datetime NULL,
+	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	IsDeleted bit NULL DEFAULT 0,
+	DeleteDate datetime NULL,
+	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IsDependency int NULL,
+	RoleID int NULL,
+	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ExpiredOtpTime datetime NULL,
+	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	RemainDays int NULL,
+	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
+	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
+);
+
 -- ipas.dbo.Warning definition
 
 -- Drop table
@@ -491,12 +522,14 @@ CREATE TABLE ipas.dbo.PlantGrowthHistory (
 	PlantGrowthHistoryID int IDENTITY(1,1) NOT NULL,
 	PlantGrowthHistoryCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	-- NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	PlantID int NULL,
 	IssueName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	UserID int NULL,
 	CONSTRAINT PK__PlantGro__8F26DC48C9286D17 PRIMARY KEY (PlantGrowthHistoryID),
+	CONSTRAINT PlantGro_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__PlantNote__Plant__32AB8735 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
 );
 
@@ -596,36 +629,6 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
 
--- ipas.dbo.[User] definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.[User];
-
-CREATE TABLE ipas.dbo.[User] (
-	UserID int IDENTITY(1,1) NOT NULL,
-	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	DOB datetime NULL,
-	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	IsDeleted bit NULL DEFAULT 0,
-	DeleteDate datetime NULL,
-	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	IsDependency int NULL,
-	RoleID int NULL,
-	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ExpiredOtpTime datetime NULL,
-	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	RemainDays int NULL,
-	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
-	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
-);
 
 
 -- ipas.dbo.UserFarm definition
@@ -707,11 +710,13 @@ CREATE TABLE ipas.dbo.GraftedPlantNote (
 	GraftedPlantNoteCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	IssueName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	--NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedPlantID int NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	UserID int NULL,
 	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
+	CONSTRAINT GraftedPlantNote_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
 );
 
@@ -1223,10 +1228,7 @@ VALUES
     ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
     ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
     ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT040', 'Grafting', 'Work', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafting', NULL,NULL),
-    ('MT041', 'PlantLot', 'Work', 'Preparing for plantLot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL),
-    ('MT042', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot', NULL,NULL),
-	('MT043', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL);
+	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL);
 
 GO
 
@@ -1274,10 +1276,10 @@ VALUES
     ('CR025', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance for fruit sweetness', 2, 1, 0, 29, 60), -- Kiểm tra mỗi 2 tháng
     ('CR026', 'External Quality & Appearance', 'Check fruit skin texture, color, and physical defects', 3, 1, 0, 29, 30), -- Kiểm tra hàng tháng
 
-	('CR027', N'Branch Maturity', N'Ensures the grafted branch is mature enough for cutting and transplantation', 1, 1, 0, 43, 90),  -- Kiểm tra mỗi quý
-    ('CR028', N'Branch Strength', N'Checks if the branch is strong enough to survive the transplantation process', 2, 1, 0, 43, 60),  -- Kiểm tra mỗi 2 tháng
-    ('CR029', N'Rooting Potential', N'Evaluates if the branch has developed enough roots for successful growth', 3, 1, 0, 43, 45),  -- Kiểm tra mỗi 1,5 tháng
-    ('CR030', N'Disease Resistance', N'Ensures the grafted branch is free from infections and diseases before transplantation', 4, 1, 0, 43, 30);  -- Kiểm tra mỗi tháng
+	('CR027', N'Branch Maturity', N'Ensures the grafted branch is mature enough for cutting and transplantation', 1, 1, 0, 40, 90),  -- Kiểm tra mỗi quý
+    ('CR028', N'Branch Strength', N'Checks if the branch is strong enough to survive the transplantation process', 2, 1, 0, 40, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR029', N'Rooting Potential', N'Evaluates if the branch has developed enough roots for successful growth', 3, 1, 0, 40, 45),  -- Kiểm tra mỗi 1,5 tháng
+    ('CR030', N'Disease Resistance', N'Ensures the grafted branch is free from infections and diseases before transplantation', 4, 1, 0, 40, 30);  -- Kiểm tra mỗi tháng
 GO
 UPDATE [dbo].[Criteria]
 SET 
@@ -1808,15 +1810,16 @@ INSERT INTO [dbo].[PlanTarget]
 GO
 
 INSERT INTO ipas.dbo.PlantGrowthHistory 
-    (PlantGrowthHistoryCode, Content, NoteTaker, CreateDate, UpdateDate, PlantID, IssueName)
+    (PlantGrowthHistoryCode, Content, CreateDate, UpdateDate, PlantID, IssueName, UserID)
 VALUES
-    ('PGH001', N'Leaves turning yellow at the tips, possibly due to nitrogen deficiency.', N'Ai Giao', '2024-01-15 08:30:00', NULL, 10, N'Yellow Leaves'),
-    ('PGH002', N'Slow growth observed, recommend checking soil pH levels.', N'Ai Giao', '2024-02-20 10:15:00', NULL, 10, N'Slow Growth'),
-    ('PGH003', N'White mold appearing near the base, antifungal treatment needed.', N'Ai Giao', '2024-04-05 14:45:00', NULL, 10, N'Fungal Infection'),
-    ('PGH004', N'Leaves curling with black spots, possible pest infestation detected.', N'Ai Giao', '2024-06-10 09:20:00', NULL, 10, N'Pest Infestation'),
-    ('PGH005', N'New shoots appearing, but growth rate is still below normal.', N'Ai Giao', '2024-07-25 11:50:00', NULL, 10, N'Slow Shoot Growth'),
-    ('PGH006', N'Stem damage observed due to strong winds, recommend support structure.', N'Ai Giao', '2024-09-15 15:10:00', NULL, 10, N'Stem Damage'),
-    ('PGH007', N'Plant is recovering well after treatments, new healthy leaves appearing.', N'Ai Giao', '2024-11-30 08:00:00', NULL, 10, N'Recovery Progress');
+    ('PGH001', N'Leaves turning yellow at the tips, possibly due to nitrogen deficiency.', '2024-01-15 08:30:00', NULL, 10, N'Yellow Leaves', 6),
+    ('PGH002', N'Slow growth observed, recommend checking soil pH levels.', '2024-02-20 10:15:00', NULL, 10, N'Slow Growth', 6),
+    ('PGH003', N'White mold appearing near the base, antifungal treatment needed.', '2024-04-05 14:45:00', NULL, 10, N'Fungal Infection', 6),
+    ('PGH004', N'Leaves curling with black spots, possible pest infestation detected.', '2024-06-10 09:20:00', NULL, 10, N'Pest Infestation', 6),
+    ('PGH005', N'New shoots appearing, but growth rate is still below normal.', '2024-07-25 11:50:00', NULL, 10, N'Slow Shoot Growth', 6),
+    ('PGH006', N'Stem damage observed due to strong winds, recommend support structure.', '2024-09-15 15:10:00', NULL, 10, N'Stem Damage', 6),
+    ('PGH007', N'Plant is recovering well after treatments, new healthy leaves appearing.', '2024-11-30 08:00:00', NULL, 10, N'Recovery Progress', 6);
+
 
 
 -- Cấu hình hệ thống

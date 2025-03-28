@@ -77,10 +77,18 @@ export const createFarmDocuments = async (
 
   if (doc.resources && doc.resources.length > 0) {
     doc.resources.forEach((fileResource, index) => {
-      formData.append(`Resources[${index}].fileFormat`, fileResource.file.type);
-      formData.append(`Resources[${index}].file`, fileResource.file);
+      const format = fileResource.file.type.startsWith("image/")
+        ? "Image"
+        : fileResource.file.type.startsWith("video/")
+        ? "Video"
+        : null;
+      if (format) {
+        formData.append(`Resources[${index}].fileFormat`, format);
+        formData.append(`Resources[${index}].file`, fileResource.file);
+      }
     });
   }
+
   const res = await axiosAuth.axiosMultipartForm.post(`legal-documents`, formData);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -117,12 +125,12 @@ export const updateFarmDocuments = async (
 
 export const getUserInFarmByRole = async (
   farmId: string,
-  listRole: number[]
+  listRole: number[],
 ): Promise<ApiResponse<GetUser[]>> => {
-  const queryParams = listRole.map((role) => `listRole=${role}`).join('&');
+  const queryParams = listRole.map((role) => `listRole=${role}`).join("&");
 
   const res = await axiosAuth.axiosJsonRequest.get(
-    `farms/get-users-farm-by-role?farmId=${farmId}&${queryParams}`
+    `farms/get-users-farm-by-role?farmId=${farmId}&${queryParams}`,
   );
 
   const apiResponse = res.data as ApiResponse<GetUser[]>;

@@ -26,6 +26,7 @@ export {
   MdOutlineScatterPlot as lot,
   MdOutlineTerrain as soil,
   MdAssignmentAdd as addPLan,
+  MdOutlinePermMedia as media,
 } from "react-icons/md";
 export {
   LuUsers as users,

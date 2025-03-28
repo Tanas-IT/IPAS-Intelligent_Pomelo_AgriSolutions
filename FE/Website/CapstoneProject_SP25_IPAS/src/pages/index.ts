@@ -28,6 +28,7 @@ export { default as PlantDetail } from "@/pages/Farm/PlantDetails/PlantDetail/Pl
 export { default as PlantGrowthHistory } from "@/pages/Farm/PlantDetails/PlantGrowthHistory/PlantGrowthHistory";
 export { default as PlantCriteria } from "@/pages/Farm/PlantDetails/PlantCriteria/PlantCriteria";
 export { default as PlantGraftedHistory } from "@/pages/Farm/PlantDetails/PlantGraftedHistory/PlantGraftedHistory";
+export { default as PlantGrowthDetail } from "@/pages/Farm/PlantDetails/PlantGrowthDetail/PlantGrowthDetail";
 export { default as PlantCareHistory } from "@/pages/Farm/PlantDetails/PlantCareHistory/PlantCareHistory";
 
 export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Flex, Table, Collapse, Divider, Typography, Empty, DatePicker } from "antd";
-import { ConfirmModal, LoadingSkeleton, PlantSectionHeader } from "@/components";
+import { ConfirmModal, LoadingSkeleton, PlantSectionHeader, TimelineFilter } from "@/components";
 import style from "./PlantGraftedHistory.module.scss";
 import { ColumnsType } from "antd/es/table";
 import { DATE_FORMAT, formatDate } from "@/utils";
@@ -98,18 +98,8 @@ function PlantGraftedHistory() {
       <PlantSectionHeader onCreateGraftedBranch={() => createGraftedModal.showModal()} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
-        <Flex gap={20} className={style.filterSection}>
-          <Flex justify="center" align="center" gap={4}>
-            <Icons.calendar className={style.icon} />
-            <Text strong>Timeline:</Text>
-          </Flex>
-          <RangePicker
-            format={DATE_FORMAT}
-            value={dateRange}
-            onChange={handleDateChange}
-            allowClear
-          />
-        </Flex>
+        <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
+
         {data.length > 0 ? (
           <div className={style.tableWrapper}>
             <Table
@@ -137,7 +127,7 @@ function PlantGraftedHistory() {
         isOpen={createGraftedModal.modalState.visible}
         onClose={handleClose}
         onSave={onCreateGraftedBranch}
-        isLoadingAction={false}
+        isLoadingAction={isLoading}
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal

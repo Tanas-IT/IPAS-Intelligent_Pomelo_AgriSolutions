@@ -5,8 +5,10 @@ import {
   GetData,
   GetPlant,
   GetPlantDetail,
+  GetPlantGrowthHistory,
   GetPlantOfRowSelect,
   GetPlantSelect,
+  PlantGrowthHistoryRequest,
   PlantRequest,
 } from "@/payloads";
 import { buildParams } from "@/utils";
@@ -113,5 +115,59 @@ export const getPlantOfStageActive = async (
     `plants/get-for-selected/growth-stage-function?activeFunction=${activeFunction}`,
   );
   const apiResponse = res.data as ApiResponse<GetPlantSelect[]>;
+  return apiResponse;
+};
+
+export const getPlantGrowthHistory = async (
+  plantId: number,
+  pageSize: number,
+  pageIndex: number,
+  createFrom?: string,
+  createTo?: string,
+): Promise<ApiResponse<GetData<GetPlantGrowthHistory>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("plant-growth-history/pagin", {
+    params: {
+      plantId,
+      pageSize,
+      pageIndex,
+      createFrom,
+      createTo,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetPlantGrowthHistory>>;
+  return apiResponse;
+};
+
+export const createPlantGrowthHistory = async (
+  req: PlantGrowthHistoryRequest,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("PlantId", req.plantId.toString());
+  formData.append("NoteTaker", req.noteTaker);
+  formData.append("IssueName", req.issueName);
+  formData.append("Content", req.content);
+
+  if (req.plantResources && req.plantResources.length > 0) {
+    req.plantResources.forEach((fileResource, index) => {
+      const format = fileResource.type.startsWith("image/")
+        ? "Image"
+        : fileResource.type.startsWith("video/")
+        ? "Video"
+        : null;
+      if (format) {
+        formData.append(`PlantResources[${index}].fileFormat`, format);
+        formData.append(`PlantResources[${index}].file`, fileResource);
+      }
+    });
+  }
+  console.log([...formData.entries()]);
+  const res = await axiosAuth.axiosMultipartForm.post(`plant-growth-history`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deletePlantGrowthHistory = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`plant-growth-history/${id}`);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

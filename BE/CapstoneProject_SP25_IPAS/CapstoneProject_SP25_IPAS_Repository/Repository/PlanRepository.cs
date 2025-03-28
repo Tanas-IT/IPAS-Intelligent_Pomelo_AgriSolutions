@@ -57,14 +57,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public List<object> GetTreeNotes(int landPlotId)
         {
+            //return _context.PlantGrowthHistories
+            //    .Where(pgh => pgh.Plant.LandRow.LandPlot.LandPlotId == landPlotId)
+            //    .Select(pgh => new {
+            //        creator = pgh.NoteTaker,
+            //        code = pgh.PlantGrowthHistoryCode,
+            //        content = pgh.Content,
+            //        plantId = pgh.PlantId
+            //    }).ToList<object>();
             return _context.PlantGrowthHistories
-                .Where(pgh => pgh.Plant.LandRow.LandPlot.LandPlotId == landPlotId)
-                .Select(pgh => new {
-                    creator = pgh.NoteTaker,
-                    code = pgh.PlantGrowthHistoryCode,
-                    content = pgh.Content,
-                    plantId = pgh.PlantId
-                }).ToList<object>();
+                .Include(x => x.User)
+               .Where(pgh => pgh.Plant.LandRow.LandPlot.LandPlotId == landPlotId)
+               .Select(pgh => new {
+                   creator = pgh.User.FullName,
+                   code = pgh.PlantGrowthHistoryCode,
+                   content = pgh.Content,
+                   plantId = pgh.PlantId
+               }).ToList<object>();
         }
 
         // Updated Get method with pagination

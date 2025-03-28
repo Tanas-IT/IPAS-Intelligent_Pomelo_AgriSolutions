@@ -63,3 +63,16 @@ export interface GetPlantTargetResponse {
   plantLots: any[];
   graftedPlants: any[];
 }
+
+export interface GetPlantGrowthHistory {
+  plantId: number;
+  plantGrowthHistoryId: number;
+  plantGrowthHistoryCode: string;
+  issueName: string;
+  content: string;
+  noteTaker: string;
+  createDate: string;
+  numberImage: number;
+  numberVideos: number;
+  plantResources: File[];
+}

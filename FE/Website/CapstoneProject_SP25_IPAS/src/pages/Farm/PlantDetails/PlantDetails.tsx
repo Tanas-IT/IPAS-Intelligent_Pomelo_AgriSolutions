@@ -8,7 +8,7 @@ import { PATHS } from "@/routes";
 
 import dayjs from "dayjs";
 import { usePlantStore } from "@/stores";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   PlantCareHistory,
   PlantCriteria,
@@ -34,6 +34,7 @@ function PlantDetails() {
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
   const { styles } = useStyle();
+  const [activeTab, setActiveTab] = useState("1");
 
   useEffect(() => {
     if (plantId) {
@@ -64,7 +65,7 @@ function PlantDetails() {
       key: "4",
       icon: <Icons.history className={style.iconTab} />,
       label: <label className={style.titleTab}>Growth History</label>,
-      children: <PlantGrowthHistory />,
+      children: <PlantGrowthHistory activeTab={activeTab} />,
     },
     {
       key: "5",
@@ -96,6 +97,7 @@ function PlantDetails() {
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey={productType && yearRange ? "1" : "2"}
         items={items}
+        onChange={setActiveTab}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>

@@ -8,14 +8,16 @@
   }
 }
 
-.filterSection {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .historyTimeline {
   @include shared.historyTimeline;
+  .iconEdit {
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
 }
 
 .loadMoreWrapper {

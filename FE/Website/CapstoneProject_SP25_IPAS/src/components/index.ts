@@ -67,10 +67,10 @@ export { default as SidebarEmployee } from "@/components/Employee/SidebarEmploye
 export { default as InfoFieldDetail } from "@/components/UI/Details/InfoFieldDetail";
 export { default as PlantSectionHeader } from "@/components/UI/Details/PlantSectionHeader";
 export { default as LotSectionHeader } from "@/components/UI/Details/LotSectionHeader";
+export { default as TimelineFilter } from "@/components/UI/Details/TimelineFilter";
 export { default as GraftedPlantSectionHeader } from "@/components/UI/Details/GraftedPlantSectionHeader";
 export { default as PlantMarkAsDeadModal } from "@/components/UI/Modal/PlantMarkAsDeadModal/PlantMarkAsDeadModal";
 export { default as PlantModal } from "@/components/UI/Modal/PlantModal/PlantModal";
 export { default as LotModal } from "@/components/UI/Modal/LotModal";
 export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlantModal";
-
-
+export { default as NewIssueModal } from "@/components/UI/Modal/NewIssueModal/NewIssueModal";
