@@ -18,14 +18,16 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
 
         public string? Image { get; set; }
 
+        public string? IssueName { get; set; }
 
         public int? GraftedPlantId { get; set; }
 
         public DateTime? CreateDate { get; set; }
 
+        public DateTime? UpdateDate { get; set; }
+
         public string? NoteTakerName { get; set; }
         public string? NoteTakerAvatar { get; set; }
-        public DateTime? UpdateDate { get; set; }
 
         public int? NumberImage { get; set; }
         public int? NumberVideos { get; set; }
