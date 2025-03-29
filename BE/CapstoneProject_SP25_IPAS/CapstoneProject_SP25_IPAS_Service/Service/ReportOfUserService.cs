@@ -301,5 +301,100 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> GetReportOfUser(GetAllReportOfUserModel getAllReportOfUserModel, int questionerId)
+        {
+            try
+            {
+                Expression<Func<Report, bool>> filter = x => x.QuestionerID == questionerId!;
+                Func<IQueryable<Report>, IOrderedQueryable<Report>> orderBy = null!;
+                if (!string.IsNullOrEmpty(getAllReportOfUserModel.Search))
+                {
+                    int validInt = 0;
+                    var checkInt = int.TryParse(getAllReportOfUserModel.Search, out validInt);
+                    DateTime validDate = DateTime.Now;
+                    bool validBool = false;
+                    if (checkInt)
+                    {
+                        filter = filter.And(x => x.ReportID == validInt);
+                    }
+                    else if (DateTime.TryParse(getAllReportOfUserModel.Search, out validDate))
+                    {
+                        filter = filter.And(x => x.CreatedDate == validDate);
+                    }
+                    else if (Boolean.TryParse(getAllReportOfUserModel.Search, out validBool))
+                    {
+                        filter = filter.And(x => x.IsTrainned == validBool);
+                    }
+                    else
+                    {
+                        filter = filter.And(x => x.ReportCode.ToLower().Contains(getAllReportOfUserModel.Search.ToLower())
+                                      || x.ImageURL.ToLower().Contains(getAllReportOfUserModel.Search.ToLower())
+                                      || x.Answerer.FullName.ToLower().Contains(getAllReportOfUserModel.Search.ToLower())
+                                      || x.Questioner.FullName.ToLower().Contains(getAllReportOfUserModel.Search.ToLower()));
+                    }
+                }
+
+                if (getAllReportOfUserModel.IsTrainned != null)
+                {
+                    filter = filter.And(x => x.IsTrainned == getAllReportOfUserModel.IsTrainned);
+                }
+
+
+                switch (getAllReportOfUserModel.SortBy != null ? getAllReportOfUserModel.SortBy.ToLower() : "defaultSortBy")
+                {
+                    case "reportid":
+                        orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
+                                    ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ReportID)
+                                   : x => x.OrderBy(x => x.ReportID)) : x => x.OrderBy(x => x.ReportID);
+                        break;
+                    case "reportcode":
+                        orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
+                                    ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ReportCode)
+                                   : x => x.OrderBy(x => x.ReportCode)) : x => x.OrderBy(x => x.ReportCode);
+                        break;
+
+                    case "istrained":
+                        orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
+                                    ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.IsTrainned)
+                                   : x => x.OrderBy(x => x.IsTrainned)) : x => x.OrderBy(x => x.IsTrainned);
+                        break;
+                    case "createdate":
+                        orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
+                                    ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.CreatedDate)
+                                   : x => x.OrderBy(x => x.CreatedDate)) : x => x.OrderBy(x => x.CreatedDate);
+                        break;
+                    case "answerer":
+                        orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
+                                    ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Answerer.FullName)
+                                   : x => x.OrderBy(x => x.Answerer.FullName)) : x => x.OrderBy(x => x.Answerer.FullName);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.ReportID);
+                        break;
+                }
+                string includeProperties = "Answerer,Questioner";
+                var entities = await _unitOfWork.ReportRepository.Get(filter, orderBy, includeProperties);
+                var result = _mapper.Map<IEnumerable<ReportOfUserModel>>(entities).ToList();
+                if (result.Any())
+                {
+                    return new BusinessResult(200, "Get all report of user success", result);
+                }
+                else
+                {
+                    return new BusinessResult(404, "Do not have any report of user");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

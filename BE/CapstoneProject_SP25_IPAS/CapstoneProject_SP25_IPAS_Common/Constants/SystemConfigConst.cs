@@ -48,6 +48,10 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         #region PRODUCT
         public const string PRODUCT_CRITERIA = "Product Criteria";
         #endregion
+
+        #region AI
+        public const string PREDICT_PERCENT = "Predict Percent";
+        #endregion
         #endregion
 
         #region CONFIG LAND

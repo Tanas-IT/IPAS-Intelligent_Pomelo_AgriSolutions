@@ -156,7 +156,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TagType = p.TagType,
                     });
 
-                    result = result.Where(x => x.probability > 0.75);
+                    var percentToGet = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.PREDICT_PERCENT.Trim(), (double)0.75);
+                    result = result.Where(x => x.probability > percentToGet);
 
                     if (result != null)
                     {
@@ -208,6 +209,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TagType = p.TagType,
                 });
 
+                var percentToGet = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.PREDICT_PERCENT.Trim(), (double)0.75);
+                result = result.Where(x => x.probability > percentToGet);
 
                 // Trả về kết quả dự đoán
                 if (result != null)
