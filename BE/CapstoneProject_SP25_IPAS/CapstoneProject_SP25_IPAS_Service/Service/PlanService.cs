@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{createPlanModel.MasterTypeId}",
+                        PlanCode = $"PLAN{DateTime.Now:ddHHmmss}",
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -2154,7 +2154,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
@@ -2259,7 +2259,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
