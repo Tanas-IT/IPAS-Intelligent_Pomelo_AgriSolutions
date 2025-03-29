@@ -331,8 +331,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/harvests";
             public const string createHarvest = prefix + "";
-            public const string createProductHarvestHistory = prefix + "/create-product-of-harvest";
-            public const string createPlantRecordHarvest = prefix + "/create-plant-record-of-harvest";
+            public const string createProductHarvestHistory = prefix + "/product-harvest";
+            public const string createPlantRecordHarvest = prefix + "/record";
             public const string deletePermanentlyHarvest = prefix + "";
             public const string deleteProductHarvest = prefix + "/delete-product";
             public const string deletePlantRecord = prefix + "/delete-plant-record";

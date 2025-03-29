@@ -20,8 +20,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
 
         public double? SellPrice { get; set; }
 
-        public int? QuantityNeed { get; set; }
-        public int? ActualQuantity { get; set; }
+        public double? QuantityNeed { get; set; }
+        public double? ActualQuantity { get; set; }
 
         public int HarvestHistoryId { get; set; }
 
