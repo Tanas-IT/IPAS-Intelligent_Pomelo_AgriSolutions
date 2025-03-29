@@ -17,8 +17,8 @@ public partial class ProductHarvestHistory
     public double? SellPrice { get; set; }
     public double? CostPrice { get; set; }
 
-    public int? QuantityNeed { get; set; }
-    public int? ActualQuantity { get; set; }
+    public double? QuantityNeed { get; set; }
+    public double? ActualQuantity { get; set; }
 
 
     public virtual HarvestHistory HarvestHistory { get; set; } = null!;

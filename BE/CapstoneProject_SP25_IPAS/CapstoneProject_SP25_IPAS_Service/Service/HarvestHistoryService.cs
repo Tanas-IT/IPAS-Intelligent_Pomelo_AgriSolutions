@@ -18,6 +18,8 @@ using Microsoft.IdentityModel.Tokens;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.HarvestModels;
+using CloudinaryDotNet.Actions;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -435,27 +437,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         }
 
-        public async Task<BusinessResult> getHarvestHistoryByCrop(int cropId, PaginationParameter paginationParameter, HarvestFilter filter)
+        public async Task<BusinessResult> getHarvestHistoryByCrop(int cropId, PaginationParameter paginationParameter, HarvestFilter filterRequest)
         {
             try
             {
                 if (cropId <= 0)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
-                if (filter.DateHarvestFrom.HasValue && filter.DateHarvestTo.HasValue && filter.DateHarvestTo < filter.DateHarvestFrom)
+                //Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.StartDate >= DateTime.Now && x.Crop.EndDate <= DateTime.Now;
+                //Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
+                if (filterRequest.DateHarvestFrom.HasValue && filterRequest.DateHarvestTo.HasValue)
                 {
-                    return new BusinessResult(400, "Date harvest from must before harvest to ");
+                    if (filterRequest.DateHarvestTo < filterRequest.DateHarvestFrom)
+                        return new BusinessResult(400, "Date harvest from must before harvest to ");
+                    //filter = filter.And(x => x.DateHarvest >= filterRequest.DateHarvestFrom &&
+                    //                        x.DateHarvest <= filterRequest.DateHarvestTo);
                 }
-                if (filter.TotalPriceFrom.HasValue && filter.DateHarvestTo.HasValue && filter.TotalPriceTo < filter.TotalPriceFrom)
+                if (filterRequest.TotalPriceFrom.HasValue && filterRequest.DateHarvestTo.HasValue)
                 {
-                    return new BusinessResult(400, "Total price from must less than total price to");
+                    if (filterRequest.TotalPriceTo < filterRequest.TotalPriceFrom)
+                        return new BusinessResult(400, "Total price from must less than total price to");
+                    //filter = filter.And(x => x.TotalPrice >= filterRequest.TotalPriceFrom &&
+                    //                       x.TotalPrice <= filterRequest.TotalPriceTo);
                 }
-                if (!string.IsNullOrEmpty(filter.Status))
+                if (filterRequest.TotalPriceFrom.HasValue && filterRequest.DateHarvestTo.HasValue)
                 {
-                    return new BusinessResult(400, "Market price to must larger than market price from");
+                    if (filterRequest.TotalPriceTo < filterRequest.TotalPriceFrom)
+                        return new BusinessResult(400, "Total price from must less than total price to");
+                    //filter = filter.And(x => x.TotalPrice >= filterRequest.TotalPriceFrom &&
+                    //                       x.TotalPrice <= filterRequest.TotalPriceTo);
                 }
-                var landPlotCrops = await _unitOfWork.HarvestHistoryRepository.GetHarvestPaginFilterAsync(cropId: cropId, paginationParameter: paginationParameter, filter: filter);
-                if (!landPlotCrops.Any())
-                    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
+                //if (!string.IsNullOrEmpty(filterRequest.Status))
+                //{
+                //    return new BusinessResult(400, "Market price to must larger than market price from");
+                //}
+
+                //ApplySorting(ref orderBy, paginationParameter.SortBy, paginationParameter.Direction);
+
+                var landPlotCrops = await _unitOfWork.HarvestHistoryRepository.GetHarvestPaginFilterAsync(cropId: cropId, paginationParameter: paginationParameter, filter: filterRequest);
+                //if (!landPlotCrops.Any())
+                //    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
                 return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, mappedResult);
             }
@@ -790,5 +810,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        private void ApplySorting(ref Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy, string? sortBy, string? direction)
+        {
+            bool isDescending = !string.IsNullOrEmpty(direction) && direction.ToLower().Equals("desc");
+            sortBy = sortBy?.ToLower() ?? "harvesthistoryid"; // Mặc định sắp xếp theo HarvestHistoryId
+
+            switch (sortBy)
+            {
+                case "harvesthistorycode":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "dateharvest":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.DateHarvest).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.DateHarvest).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "harvesthistorynote":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistoryNote).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistoryNote).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "totalprice":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.TotalPrice).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.TotalPrice).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "harveststatus":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestStatus).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.HarvestStatus).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "cropid":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.CropId).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.CropId).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                default:
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistoryId));
+                    break;
+            }
+        }
+
     }
 }

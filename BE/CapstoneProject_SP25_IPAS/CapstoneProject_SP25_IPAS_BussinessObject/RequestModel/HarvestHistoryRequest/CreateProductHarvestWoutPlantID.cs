@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
 
         public double? SellPrice { get; set; }
         [Required]
-        public int? QuantityNeed { get; set; }
+        public double? QuantityNeed { get; set; }
         //public int? ProcessId { get; set; }
     }
 }
