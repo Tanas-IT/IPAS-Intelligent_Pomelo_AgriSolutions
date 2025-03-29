@@ -81,11 +81,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var existLandplot = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
                         var checkLandPlotInCurCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x =>
                                                                         x.LandPlotId == landplotId
-                                                                        && x.Crop.StartDate <= DateTime.Now
-                                                                        && x.Crop.EndDate >= DateTime.Now, "Crop");
+                                                                        && x.CropID != crop.CropId
+                                                                        && x.Crop.StartDate <= cropCreateRequest.StartDate
+                                                                        && x.Crop.EndDate >= cropCreateRequest.EndDate, "Crop");
                         // check thua do co vao mua do chua - khong cho nam trong 2 mua long voi nhau
                         if (checkLandPlotInCurCrop != null)
-                            return new BusinessResult(400, $"Plot {existLandplot.LandPlotName} is in crop {checkLandPlotInCurCrop.Crop.CropName} at this time");
+                            return new BusinessResult(400, $"Plot '{existLandplot.LandPlotName}' is in crop '{checkLandPlotInCurCrop.Crop.CropName}' at time {checkLandPlotInCurCrop.Crop.StartDate.Value.Date.ToString("dd/MM/yyyy")}-{checkLandPlotInCurCrop.Crop.EndDate.Value.Date.ToString("dd/MM/yyyy")}");
 
                         if (existLandplot != null)
                         {
