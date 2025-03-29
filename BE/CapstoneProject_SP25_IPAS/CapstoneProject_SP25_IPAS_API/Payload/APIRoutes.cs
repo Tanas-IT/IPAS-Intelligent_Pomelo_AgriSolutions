@@ -518,6 +518,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateSystemConfig = prefix;
             public const string getSystemConfigForSelected = prefix + "/for-selected";
             public const string getSystemConfigAddable = prefix + "/addable";
+            public const string getSystemConfigGroup = prefix + "/group/for-selected";
+            public const string getSystemConfigNoPagin = prefix + "/no-pagin";
 
         }
     }

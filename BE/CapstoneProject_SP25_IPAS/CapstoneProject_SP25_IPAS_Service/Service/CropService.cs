@@ -140,7 +140,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (!string.IsNullOrWhiteSpace(paginationParameter.Search))
                 {
-                    filter = filter.And(c => c.CropName!.Contains(paginationParameter.Search));
+                    filter = filter.And(c => c.CropName!.ToLower().Contains(paginationParameter.Search.ToLower()) ||
+                                                c.HarvestSeason!.ToLower().Contains(paginationParameter.Search.ToLower()));
                 }
 
                 // Lọc theo Date
@@ -494,6 +495,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(400, "End date cannot be before Start date.");
                         }
                         cropEntityUpdate.EndDate = cropUpdateRequest.EndDate;
+                    }
+
+                    if (cropEntityUpdate.StartDate.HasValue || cropEntityUpdate.EndDate.HasValue)
+                    {
+                        // Chỉ lấy LandPlotId từ LandPlotCrops của mùa hiện tại 
+                        var landPlotIds = (await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(x => x.CropID == cropEntityUpdate.CropId))
+                                                .Select(x => x.LandPlotId)
+                                              .Distinct()
+                                              .ToList();
+                        var overlappingCrops = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(
+                            x => landPlotIds.Contains(x.LandPlotId) &&
+                                 x.CropID != cropEntityUpdate.CropId && //  Không lấy chính nó
+                                 //  Lọc những mùa vụ có khoảng thời gian bị chồng lấn
+                                 ((x.Crop.StartDate >= cropEntityUpdate.StartDate && x.Crop.StartDate <= cropEntityUpdate.EndDate) ||
+                                  (x.Crop.EndDate >= cropEntityUpdate.StartDate && x.Crop.EndDate <= cropEntityUpdate.EndDate) ||
+                                  (x.Crop.StartDate <= cropEntityUpdate.StartDate && x.Crop.EndDate >= cropEntityUpdate.EndDate)),
+
+                            includeProperties:"Crop"
+                        );
+
+                        if (overlappingCrops.Any())
+                        {
+                            var conflictingCrop = overlappingCrops.First().Crop;
+                            return new BusinessResult(400, $"Plot is in crop '{conflictingCrop.CropName}' (from {conflictingCrop.StartDate:dd-MM-yyyy} to {conflictingCrop.EndDate:dd-MM-yyyy}) and cannot overlap.");
+                        }
                     }
 
                     if (cropUpdateRequest.CropExpectedTime.HasValue)
