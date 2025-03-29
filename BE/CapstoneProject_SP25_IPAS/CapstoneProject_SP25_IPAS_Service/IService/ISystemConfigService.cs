@@ -9,10 +9,12 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> createSystemConfig(CreateSystemConfigRequest request);
         public Task<BusinessResult> updateSystemConfig(UpdateSystemConfigRequest historyUpdateRequest);
         public Task<BusinessResult> getSystemConfig(int configId);
-        public Task<BusinessResult> getAllSystemConfig(GetSystemConfigRequest filterRequest, PaginationParameter paginationParameter);
+        public Task<BusinessResult> getSystemConfigPagin(GetSystemConfigRequest filterRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> deleteSystemConfig(int configId);
         public Task<BusinessResult> GetSystemConfigsForSelected(string configKey);
         public Task<BusinessResult> GetSystemConfigsAddable();
+        public Task<BusinessResult> GetSystemConfigGroupsForSelected();
+        public Task<BusinessResult> getAllSystemConfigNoPagin(GetConfigNoPaginRequest filterRequest);
 
 
     }

@@ -21,15 +21,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             _systemConfigService = systemConfigService;
         }
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigPagination, Name = "getSystemConfigPagination")]
         public async Task<IActionResult> getSystemConfigPagination([FromQuery] GetSystemConfigRequest filterRequest, [FromQuery] PaginationParameter paginationParameter)
         {
-            var result = await _systemConfigService.getAllSystemConfig(filterRequest, paginationParameter);
+            var result = await _systemConfigService.getSystemConfigPagin(filterRequest, paginationParameter);
             return Ok(result);
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigById + "/{id}", Name = "getSystemConfigById")]
         public async Task<IActionResult> getSystemConfigById([FromRoute(Name = "id")] int id)
         {
@@ -37,7 +37,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpPost(APIRoutes.SystemConfig.createSystemConfig, Name = "createSystemConfig")]
         public async Task<IActionResult> createSystemConfig([FromBody] CreateSystemConfigRequest createModel)
         {
@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpPut(APIRoutes.SystemConfig.updateSystemConfig, Name = "updateSystemConfig")]
         public async Task<IActionResult> updateSystemConfig([FromBody] UpdateSystemConfigRequest updateModel)
         {
@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpDelete(APIRoutes.SystemConfig.permanenlyDelete + "/{id}", Name = "permanentlyDeleteSystemConfig")]
         public async Task<IActionResult> DeleteSystemConfig([FromRoute(Name = "id")] int id)
         {
@@ -62,7 +62,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigForSelected, Name = "getSystemConfigForSelected")]
         public async Task<IActionResult> getSystemConfigForSelected(string configKey)
         {
@@ -75,6 +75,22 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         public async Task<IActionResult> getSystemConfigAddable()
         {
             var result = await _systemConfigService.GetSystemConfigsAddable();
+            return Ok(result);
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpGet(APIRoutes.SystemConfig.getSystemConfigGroup, Name = "getSystemConfigGroup")]
+        public async Task<IActionResult> getSystemConfigGroup()
+        {
+            var result = await _systemConfigService.GetSystemConfigGroupsForSelected();
+            return Ok(result);
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HttpGet(APIRoutes.SystemConfig.getSystemConfigNoPagin, Name = "getSystemConfigNoPagin")]
+        public async Task<IActionResult> getSystemConfigNoPagin([FromQuery] GetConfigNoPaginRequest filterRequest)
+        {
+            var result = await _systemConfigService.getAllSystemConfigNoPagin(filterRequest);
             return Ok(result);
         }
     }
