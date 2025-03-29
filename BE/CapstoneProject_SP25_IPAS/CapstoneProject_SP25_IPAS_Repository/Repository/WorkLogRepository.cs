@@ -253,6 +253,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.WorkLogs
                         .Include(x => x.Schedule)
+                        .Include(x => x.Schedule.HarvestHistory)
                         .Include(x => x.Schedule.CarePlan.Crop)
                         .Include(x => x.Schedule.CarePlan.MasterType)
                         .Include(x => x.Schedule.CarePlan.Process)
