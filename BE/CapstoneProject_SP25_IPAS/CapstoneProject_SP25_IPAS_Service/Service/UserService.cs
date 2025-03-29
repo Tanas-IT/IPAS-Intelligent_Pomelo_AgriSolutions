@@ -876,7 +876,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<User, bool>> filter = null!;
+                Expression<Func<User, bool>> filter = x => x.IsDeleted == false!;
                 Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {

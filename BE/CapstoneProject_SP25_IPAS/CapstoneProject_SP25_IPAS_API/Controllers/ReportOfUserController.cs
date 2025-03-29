@@ -113,7 +113,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     assignTagToImageModel.AnswererId = _jwtTokenService.GetUserIdFromToken();
                 }
-                var result = await _reportOfUserService.AssignTagToImage(assignTagToImageModel.TagId, assignTagToImageModel.ImageURL, assignTagToImageModel.AnswererId);
+                var result = await _reportOfUserService.AssignTagToImage(answer: assignTagToImageModel.AnswerFromExpert, tagId: assignTagToImageModel.TagId, reportId: assignTagToImageModel.ReportId, answerId: assignTagToImageModel.AnswererId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.ReportOfUser.getReportOfUser, Name = "getReportOfUser")]
+        public async Task<IActionResult> GetReportOfUser([FromQuery] GetAllReportOfUserModel getAllReportOfUserModel, int? answerId)
+        {
+            try
+            {
+                if (answerId == null)
+                {
+                    answerId = _jwtTokenService.GetUserIdFromToken();
+                }
+                var result = await _reportOfUserService.GetReportOfUser(getAllReportOfUserModel, answerId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

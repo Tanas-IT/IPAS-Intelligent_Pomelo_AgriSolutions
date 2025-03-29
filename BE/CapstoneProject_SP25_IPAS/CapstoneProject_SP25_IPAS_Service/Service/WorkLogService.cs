@@ -376,6 +376,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
                 var result = calendar
+                        .Where(x => x.IsDeleted == false)
                         .Select(wl => new ScheduleModel()
                         {
                             WorkLogId = wl.WorkLogId,
