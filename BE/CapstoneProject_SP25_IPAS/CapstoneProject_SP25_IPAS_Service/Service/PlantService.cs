@@ -540,7 +540,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantEntityUpdate.HealthStatus = plantUpdateRequest.HealthStatus;
 
                     if (plantUpdateRequest.PlantingDate.HasValue && plantEntityUpdate.PlantingDate != plantUpdateRequest.PlantingDate)
+                    {
+                        var growthStage = await _growthStageService
+                          .GetGrowthStageIdByPlantingDate(farmId: plantEntityUpdate.FarmId!.Value, plantingDate: plantUpdateRequest.PlantingDate.Value);
+                        if (growthStage == null)
+                        {
+                            return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
+                        }
                         plantEntityUpdate.PlantingDate = plantUpdateRequest.PlantingDate;
+                    }
 
                     if (!string.IsNullOrEmpty(plantUpdateRequest.Description) && plantEntityUpdate.Description != plantUpdateRequest.Description)
                         plantEntityUpdate.Description = plantUpdateRequest.Description;
