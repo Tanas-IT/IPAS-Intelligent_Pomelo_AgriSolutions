@@ -45,7 +45,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lọc theo SearchText
             if (!string.IsNullOrWhiteSpace(paginationParameter.Search))
             {
-                query = query.Where(c => c.HarvestHistoryCode!.ToLower()!.Contains(paginationParameter.Search.ToLower()));
+                query = query.Where(c => c.HarvestHistoryCode!.ToLower()!.Contains(paginationParameter.Search.ToLower()) ||
+                                        c.HarvestHistoryNote!.ToLower()!.Contains(paginationParameter.Search.ToLower()));
             }
 
             // Lọc theo PlantDate
@@ -94,14 +95,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     break;
                 case "status":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.HarvestStatus)
-                        : x => x.OrderBy(c => c.HarvestStatus);
+                        ? x => x.OrderByDescending(c => c.HarvestStatus).ThenByDescending(c => c.HarvestHistoryId)
+                        : x => x.OrderBy(c => c.HarvestStatus).ThenByDescending(c => c.HarvestHistoryId);
                     break;
-                case "cropid":
+                case "yieldhasrecord":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction) && paginationParameter.Direction.ToLower().Equals("desc")
-                        ? x => x.OrderByDescending(c => c.CropId)
-                        : x => x.OrderBy(c => c.CropId);
+                        ? x => x.OrderByDescending(c => c.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)).ThenByDescending(c => c.HarvestHistoryId)
+                        : x => x.OrderBy(c => c.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)).ThenByDescending(c => c.HarvestHistoryId);
                     break;
+
                 default:
                     orderBy = x => x.OrderByDescending(c => c.HarvestHistoryId);
                     break;

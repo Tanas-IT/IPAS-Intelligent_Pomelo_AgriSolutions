@@ -453,6 +453,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
+            .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanCode))
+            .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanId))
+            .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.Schedule.HarvestHistory.HarvestHistoryCode))
+            .ForMember(dest => dest.HarvestHistoryId, opt => opt.MapFrom(src => src.Schedule.HarvestHistory.HarvestHistoryId))
+            .ForMember(dest => dest.IsHarvest, opt => opt.MapFrom(src => src.Schedule.HarvestHistoryID != null ? true : false))
             .ForMember(dest => dest.IsTakeAttendance, opt =>
                                                     opt.MapFrom(src => src.UserWorkLogs != null
                                                         && src.UserWorkLogs.Any(x => x.StatusOfUserWorkLog == WorkLogStatusConst.RECEIVED)

@@ -164,7 +164,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Get list notification success", listNotificationResponse);
                 }
-                return new BusinessResult(404, "Do not have any notification");
+                return new BusinessResult(200, "Do not have any notification");
             }
             catch (Exception ex)
             {
