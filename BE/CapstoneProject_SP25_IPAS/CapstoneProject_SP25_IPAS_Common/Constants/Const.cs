@@ -976,9 +976,9 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region Process
-        public static int WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE = 200;
         public static string WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG = "Does not have any process";
-        public static int WARNING_GET_PROCESS_DATA_OF_PROCESS_NOT_EXIST_CODE = 404;
+        public static int WARNING_GET_PROCESS_DATA_OF_PROCESS_NOT_EXIST_CODE = 200;
         public static string WARNING_GET_PROCESS_DATA_OF_PROCESS_NOT_EXIST_MSG = "Does not have any data of this process";
         public static int WARNING_MISSING_DATE_FILTER_CODE = 400;
         public const string WARNING_MISSING_DATE_FILTER_MSG = "Please enter both values for the date filter (Create Date From and Create Date To).";
