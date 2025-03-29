@@ -11,6 +11,14 @@ export class RulesManager {
       },
     ];
   }
+  static getNumberNotRequiredRules(fieldName: string) {
+    return [
+      {
+        pattern: /^(?!0$)(\d+(\.\d+)?$)/,
+        message: `${fieldName} must be a valid number greater than 0!`,
+      },
+    ];
+  }
   static getNumberRulesAllowZero(fieldName: string) {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },

@@ -1,3 +1,5 @@
+import { FileResource } from "@/types";
+
 export interface GetGraftedPlantSelected {
   id: number;
   code: string;
@@ -34,4 +36,17 @@ export interface GetGraftedPlantHistory {
   totalBranches: number;
   completedCount: number;
   listGrafted: GraftedPlant[];
+}
+
+export interface GetGraftedGrowthHistory {
+  graftedPlantId: number;
+  graftedPlantNoteId: number;
+  issueName: string;
+  content: string;
+  noteTakerName: string;
+  noteTakerAvatar: string;
+  createDate: string;
+  numberImage: number;
+  numberVideos: number;
+  resources: FileResource[];
 }

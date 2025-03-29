@@ -23,7 +23,8 @@ export const PATHS = {
   },
 
   CROP: {
-    LIST: "/crop/list",
+    CROP_LIST: "/crop/list",
+    CROP_DETAIL: "/crop/:id/details",
     PLANT_YIELD: "/crop/plant-yield",
   },
 

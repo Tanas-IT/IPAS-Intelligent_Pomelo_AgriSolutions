@@ -1118,8 +1118,8 @@ VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 2),
 ('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alex Johnson', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
-('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
-('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
+('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U004', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
+('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U005', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
 ('giao@gmail.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Ai Giao', '0911222333', 'Female', '1995-06-25', 'E006', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 ('employee2@example.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Bob Williams', '0922333444', 'Male', '1998-09-12', 'E007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 ('employee3@example.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Charlie Davis', '0933444555', 'Male', '1993-11-30', 'E008', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755864/pw8jyieauzsacwbae9gg.png', NULL, NULL, 2),
@@ -1135,11 +1135,13 @@ VALUES
 ('manager2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Daniel Brown', '0922334455', 'Male', '1985-10-18', 'M002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 -- User not in farm
 ('user1@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Liam Anderson', '0933111222', 'Male', '1992-02-14', 'U006', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
-('user2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
+('user2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U0011', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Mason Wilson', '0955333444', 'Male', '1989-11-10', 'U008', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
-('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2);
-;
+('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
+
+('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2);
+
 GO
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
 VALUES 
@@ -1738,7 +1740,7 @@ VALUES
 ('GP012', 'Grafted Plant L', '2024-12-08', 'Used', '2024-12-01', 'Great potential', 2, 0, 0 ,3, 2),
 ('GP013', 'Grafted Plant M', '2025-01-15', 'Used', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
 ('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
-('GP015', 'Grafted Plant O',  '2025-03-10', 'Used', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
+('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
 GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
@@ -1812,15 +1814,23 @@ GO
 INSERT INTO ipas.dbo.PlantGrowthHistory 
     (PlantGrowthHistoryCode, Content, CreateDate, UpdateDate, PlantID, IssueName, UserID)
 VALUES
-    ('PGH001', N'Leaves turning yellow at the tips, possibly due to nitrogen deficiency.', '2024-01-15 08:30:00', NULL, 10, N'Yellow Leaves', 6),
-    ('PGH002', N'Slow growth observed, recommend checking soil pH levels.', '2024-02-20 10:15:00', NULL, 10, N'Slow Growth', 6),
-    ('PGH003', N'White mold appearing near the base, antifungal treatment needed.', '2024-04-05 14:45:00', NULL, 10, N'Fungal Infection', 6),
-    ('PGH004', N'Leaves curling with black spots, possible pest infestation detected.', '2024-06-10 09:20:00', NULL, 10, N'Pest Infestation', 6),
-    ('PGH005', N'New shoots appearing, but growth rate is still below normal.', '2024-07-25 11:50:00', NULL, 10, N'Slow Shoot Growth', 6),
-    ('PGH006', N'Stem damage observed due to strong winds, recommend support structure.', '2024-09-15 15:10:00', NULL, 10, N'Stem Damage', 6),
-    ('PGH007', N'Plant is recovering well after treatments, new healthy leaves appearing.', '2024-11-30 08:00:00', NULL, 10, N'Recovery Progress', 6);
+    ('PGH001', N'Leaves turning yellow at the tips, possibly due to nitrogen deficiency.', '2024-01-15 08:30:00', NULL, 10, N'Yellow Leaves', 23),
+    ('PGH002', N'Slow growth observed, recommend checking soil pH levels.', '2024-02-20 10:15:00', NULL, 10, N'Slow Growth', 23),
+    ('PGH003', N'White mold appearing near the base, antifungal treatment needed.', '2024-04-05 14:45:00', NULL, 10, N'Fungal Infection', 23),
+    ('PGH004', N'Leaves curling with black spots, possible pest infestation detected.', '2024-06-10 09:20:00', NULL, 10, N'Pest Infestation', 23),
+    ('PGH005', N'New shoots appearing, but growth rate is still below normal.', '2024-07-25 11:50:00', NULL, 10, N'Slow Shoot Growth', 23),
+    ('PGH006', N'Stem damage observed due to strong winds, recommend support structure.', '2024-09-15 15:10:00', NULL, 10, N'Stem Damage', 23),
+    ('PGH007', N'Plant is recovering well after treatments, new healthy leaves appearing.', '2024-11-30 08:00:00', NULL, 10, N'Recovery Progress', 23);
 
-
+	INSERT INTO ipas.dbo.GraftedPlantNote (GraftedPlantNoteCode, IssueName, Content, GraftedPlantID, CreateDate, UpdateDate, UserID)
+VALUES
+('GPN-001', 'Leaf Discoloration', 'Observed yellowing on the lower leaves.', 8, '2024-01-10 08:30:00', '2024-01-10 08:30:00', 23),
+('GPN-002', 'Stem Weakness', 'The grafted stem appears weak and bending.', 8, '2024-04-05 10:15:00', '2024-04-05 10:15:00', 23),
+('GPN-003', 'Slow Growth', 'The plant is growing at a slower rate than expected.', 8, '2024-06-15 14:45:00', '2024-06-15 14:45:00', 23),
+('GPN-004', 'Pest Infestation', 'Small insects are found on new growth areas.', 8, '2024-08-20 09:20:00', '2024-08-20 09:20:00', 23),
+('GPN-005', 'Wilted Leaves', 'Leaves appear wilted despite regular watering.', 8, '2024-11-10 11:50:00', '2024-11-10 11:50:00', 23),
+('GPN-006', 'Graft Union Swelling', 'Swelling observed at the graft union site.', 8, '2025-02-01 15:10:00', '2025-02-01 15:10:00', 23),
+('GPN-007', 'Fungal Spots', 'Dark spots appearing on the leaves, possibly fungal infection.', 8, '2025-03-15 08:00:00', '2025-03-15 08:00:00', 23);
 
 -- Cấu hình hệ thống
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)

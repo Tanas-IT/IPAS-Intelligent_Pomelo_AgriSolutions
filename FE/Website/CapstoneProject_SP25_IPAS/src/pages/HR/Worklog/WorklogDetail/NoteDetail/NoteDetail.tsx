@@ -83,6 +83,7 @@ const NoteDetail: React.FC<NoteDetailProps> = ({ note, onClose }) => {
                         width="200"
                         controls
                         style={{ borderRadius: "5px", marginTop: "10px" }}
+                        crossOrigin="anonymous"
                       >
                         <source src={vid} type="video/mp4" />
                         Your browser does not support the video tag.

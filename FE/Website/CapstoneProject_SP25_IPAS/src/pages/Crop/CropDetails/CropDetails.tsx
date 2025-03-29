@@ -1,40 +1,25 @@
 import { Flex, Tabs, TabsProps } from "antd";
-import style from "./GraftedPlantDetails.module.scss";
+import style from "./CropDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { GraftedGrowthHistory, GraftedPlantCriteria, GraftedPlantDetail } from "@/pages";
-import { useState } from "react";
 
-function GraftedPlantDetails() {
+function CropDetails() {
   const navigate = useNavigate();
   const { styles } = useStyle();
-  const [activeTab, setActiveTab] = useState("1");
 
   const items: TabsProps["items"] = [
     {
       key: "1",
       icon: <Icons.detail className={style.iconTab} />,
       label: <label className={style.titleTab}>Detail</label>,
-      children: <GraftedPlantDetail />,
-    },
-    {
-      key: "2",
-      icon: <Icons.criteria className={style.iconTab} />,
-      label: <label className={style.titleTab}>Criteria</label>,
-      children: <GraftedPlantCriteria />,
-    },
-    {
-      key: "3",
-      icon: <Icons.history className={style.iconTab} />,
-      label: <label className={style.titleTab}>Growth History</label>,
-      children: <GraftedGrowthHistory activeTab={activeTab} />,
+      children: "ds",
     },
   ];
 
-  const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
+  const handleBack = () => navigate(PATHS.CROP.CROP_LIST);
 
   return (
     <Flex className={style.detailContainer}>
@@ -42,7 +27,6 @@ function GraftedPlantDetails() {
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey="1"
         items={items}
-        onChange={setActiveTab}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>
@@ -58,4 +42,4 @@ function GraftedPlantDetails() {
   );
 }
 
-export default GraftedPlantDetails;
+export default CropDetails;

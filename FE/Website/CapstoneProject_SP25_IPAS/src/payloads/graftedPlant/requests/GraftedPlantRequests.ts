@@ -1,3 +1,5 @@
+import { FileResource } from "@/types";
+
 export interface GraftedPlantRequest {
   graftedPlantId: number;
   graftedPlantName: string;
@@ -13,4 +15,11 @@ export interface CreateGraftedPlantsRequest {
   totalNumber: number;
   graftedDate: string;
   note: string;
+}
+
+export interface GraftedGrowthHistoryRequest {
+  graftedPlantId: number;
+  issueName: string;
+  content: string;
+  resources: File[] | FileResource[];
 }

@@ -29,6 +29,7 @@ interface FormFieldModalProps {
     | "text"
     | "textarea"
     | "date"
+    | "dateRange"
     | "select"
     | "switch"
     | "colorPicker"
@@ -169,6 +170,14 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             className={style.date}
             format={DATE_FORMAT}
             onChange={(date) => onChange?.(date)}
+          />
+        );
+      case "dateRange":
+        return (
+          <DatePicker.RangePicker
+            format={DATE_FORMAT}
+            onChange={(dates) => onChange?.(dates)}
+            className={style.date}
           />
         );
       case "select":

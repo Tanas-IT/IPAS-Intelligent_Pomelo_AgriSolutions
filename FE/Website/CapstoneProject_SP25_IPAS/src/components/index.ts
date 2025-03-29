@@ -31,6 +31,7 @@ export { default as ActionMenuEmployee } from "@/components/UI/ActionMenu/Action
 export { default as ActionMenuPartner } from "@/components/UI/ActionMenu/ActionMenuPartner";
 export { default as ActionMenuCriteria } from "@/components/UI/ActionMenu/ActionMenuCriteria";
 export { default as ActionMenuGraftedPlant } from "@/components/UI/ActionMenu/ActionMenuGraftedPlant";
+export { default as ActionMenuCrop } from "@/components/UI/ActionMenu/ActionMenuCrop";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";
@@ -68,9 +69,12 @@ export { default as InfoFieldDetail } from "@/components/UI/Details/InfoFieldDet
 export { default as PlantSectionHeader } from "@/components/UI/Details/PlantSectionHeader";
 export { default as LotSectionHeader } from "@/components/UI/Details/LotSectionHeader";
 export { default as TimelineFilter } from "@/components/UI/Details/TimelineFilter";
+export { default as GrowthTimeline } from "@/components/UI/Details/GrowthTimeline";
+export { default as GrowthDetailContent } from "@/components/UI/Details/GrowthDetailContent";
 export { default as GraftedPlantSectionHeader } from "@/components/UI/Details/GraftedPlantSectionHeader";
 export { default as PlantMarkAsDeadModal } from "@/components/UI/Modal/PlantMarkAsDeadModal/PlantMarkAsDeadModal";
 export { default as PlantModal } from "@/components/UI/Modal/PlantModal/PlantModal";
 export { default as LotModal } from "@/components/UI/Modal/LotModal";
+export { default as CropModal } from "@/components/UI/Modal/CropModal";
 export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlantModal";
 export { default as NewIssueModal } from "@/components/UI/Modal/NewIssueModal/NewIssueModal";

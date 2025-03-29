@@ -3,7 +3,4 @@
 
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
-  .contentSectionBody {
-    gap: 20px;
-  }
 }

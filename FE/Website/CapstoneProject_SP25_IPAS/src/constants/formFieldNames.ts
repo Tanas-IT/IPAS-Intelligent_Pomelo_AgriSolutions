@@ -94,6 +94,23 @@ export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {
   partnerName: "partnerName",
 };
 
+export const cropFormFields = {
+  cropId: "cropId",
+  cropName: "cropName",
+  startDate: "startDate",
+  endDate: "endDate",
+  duration: "duration",
+  cropExpectedTime: "cropExpectedTime",
+  cropActualTime: "cropActualTime",
+  harvestSeason: "harvestSeason",
+  estimateYield: "estimateYield",
+  actualYield: "actualYield",
+  status: "status",
+  notes: "notes",
+  marketPrice: "marketPrice",
+  landPlotCrops: "landPlotCrops",
+};
+
 export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraftedPlant> = {
   graftedPlantId: "graftedPlantId",
   graftedPlantCode: "graftedPlantCode",
@@ -131,11 +148,12 @@ export const plantGrowthHistoryFormFields: Record<
   plantGrowthHistoryCode: "plantGrowthHistoryCode",
   issueName: "issueName",
   content: "content",
-  noteTaker: "noteTaker",
   createDate: "createDate",
   numberImage: "numberImage",
   numberVideos: "numberVideos",
-  plantResources: "plantResources",
+  resources: "resources",
+  noteTakerName: "noteTakerName",
+  noteTakerAvatar: "noteTakerAvatar",
 };
 
 export const partnerFormFields: Record<keyof GetPartner, keyof GetPartner> = {

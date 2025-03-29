@@ -43,6 +43,7 @@ import {
   EmployeeDashboard,
   GraftedPlantDetails,
   CropList,
+  CropDetails,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -95,7 +96,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
-  { path: PATHS.CROP.LIST, component: CropList, layout: ManagementLayout },
+  { path: PATHS.CROP.CROP_LIST, component: CropList, layout: ManagementLayout },
+  { path: PATHS.CROP.CROP_DETAIL, component: CropDetails, layout: ManagementLayout },
   { path: PATHS.CROP.PLANT_YIELD, component: PlantYield, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.GROWTH_STAGE, component: GrowthStage, layout: ManagementLayout },

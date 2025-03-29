@@ -1,7 +1,8 @@
-import style from "./PlantGrowthHistory.module.scss";
+import style from "./GraftedGrowthHistory.module.scss";
 import { Divider, Flex } from "antd";
 import {
   ConfirmModal,
+  GraftedPlantSectionHeader,
   GrowthDetailContent,
   GrowthTimeline,
   LoadingSkeleton,
@@ -11,34 +12,34 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
-import { useDirtyStore, usePlantStore } from "@/stores";
-import { plantService } from "@/services";
-import { GetPlantGrowthHistory, PlantGrowthHistoryRequest } from "@/payloads";
+import { useDirtyStore, useGraftedPlantStore } from "@/stores";
+import { graftedPlantService } from "@/services";
+import { GetGraftedGrowthHistory, GraftedGrowthHistoryRequest } from "@/payloads";
 import { useHasChanges, useModal, useTableAdd } from "@/hooks";
 import { toast } from "react-toastify";
 import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
 
-interface PlantGrowthHistoryProps {
+interface GraftedGrowthHistoryProps {
   activeTab: string;
 }
 
-function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
-  const { plant } = usePlantStore();
+function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
+  const { graftedPlant } = useGraftedPlantStore();
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const visibleCount = DEFAULT_RECORDS_IN_DETAIL;
-  const [data, setData] = useState<GetPlantGrowthHistory[]>([]);
+  const [data, setData] = useState<GetGraftedGrowthHistory[]>([]);
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailView, setIsDetailView] = useState(false);
-  const [selectedHistory, setSelectedHistory] = useState<GetPlantGrowthHistory | null>(null);
-  const addIssueModal = useModal<GetPlantGrowthHistory>();
+  const [selectedHistory, setSelectedHistory] = useState<GetGraftedGrowthHistory | null>(null);
+  const addIssueModal = useModal<GetGraftedGrowthHistory>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
 
-  if (!plant) return;
+  if (!graftedPlant) return;
 
   useEffect(() => {
     setIsDetailView(false);
@@ -47,13 +48,14 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
     try {
-      const res = await plantService.getPlantGrowthHistory(
-        plant.plantId,
+      const res = await graftedPlantService.getGraftedPlantGrowthHistory(
+        graftedPlant.graftedPlantId,
         visibleCount,
         currentPage,
         dateRange?.[0]?.format("YYYY-MM-DD"),
         dateRange?.[1]?.format("YYYY-MM-DD"),
       );
+
       if (res.statusCode === 200) {
         setData((prevData) => (currentPage > 1 ? [...prevData, ...res.data.list] : res.data.list));
         setTotalIssues(res.data.totalRecord);
@@ -83,7 +85,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
     const id = deleteConfirmModal.modalState.data?.id;
     if (!id) return;
     try {
-      var result = await plantService.deletePlantGrowthHistory(id);
+      var result = await graftedPlantService.deleteGraftedPlantGrowthHistory(id);
       if (result.statusCode === 200) {
         toast.success(result.message);
         await handleResetData();
@@ -96,11 +98,11 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
     }
   };
 
-  const hasChanges = useHasChanges<PlantGrowthHistoryRequest>(data);
+  const hasChanges = useHasChanges<GraftedGrowthHistoryRequest>(data);
 
-  const handleCancelConfirm = (req: PlantGrowthHistoryRequest) => {
+  const handleCancelConfirm = (req: GraftedGrowthHistoryRequest) => {
     const hasUnsavedChanges = hasChanges(req, undefined, {
-      plantId: plant.plantId,
+      graftedPlantId: graftedPlant.graftedPlantId,
     });
 
     if (hasUnsavedChanges || isDirty) {
@@ -111,7 +113,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
   };
 
   const { handleAdd: handleAddNewIssue, isAdding } = useTableAdd({
-    addService: plantService.createPlantGrowthHistory,
+    addService: graftedPlantService.createGraftedPlantGrowthHistory,
     fetchData: handleResetData,
     onSuccess: () => {
       addIssueModal.hideModal();
@@ -119,7 +121,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
     },
   });
 
-  const handleViewDetail = (item: GetPlantGrowthHistory) => {
+  const handleViewDetail = (item: GetGraftedGrowthHistory) => {
     setSelectedHistory(item);
     setIsDetailView(true);
   };
@@ -133,12 +135,12 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
+      <GraftedPlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
       <Divider className={style.divider} />
       {isDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
-          idKey="plantGrowthHistoryId"
+          idKey="graftedPlantNoteId"
           onBack={handleBackToList}
           onDelete={(id) => deleteConfirmModal.showModal({ id })}
         />
@@ -148,7 +150,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
             <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
             <GrowthTimeline
               data={data}
-              idKey="plantGrowthHistoryId"
+              idKey="graftedPlantNoteId"
               isLoading={isLoading}
               totalIssues={totalIssues}
               onViewDetail={handleViewDetail}
@@ -160,7 +162,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
       )}
       <NewIssueModal
         data={data[0]}
-        idKey="plantId"
+        idKey="graftedPlantId"
         isOpen={addIssueModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleAddNewIssue}
@@ -188,4 +190,4 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
   );
 }
 
-export default PlantGrowthHistory;
+export default GraftedGrowthHistory;

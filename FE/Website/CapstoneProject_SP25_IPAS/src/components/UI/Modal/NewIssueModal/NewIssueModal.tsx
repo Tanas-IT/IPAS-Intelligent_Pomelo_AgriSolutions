@@ -5,20 +5,29 @@ import style from "./NewIssueModal.module.scss";
 import { getBase64, RulesManager } from "@/utils";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
-import { LOCAL_STORAGE_KEYS, MESSAGES, plantGrowthHistoryFormFields } from "@/constants";
+import { MESSAGES, plantGrowthHistoryFormFields } from "@/constants";
 import { PlantGrowthHistoryRequest } from "@/payloads";
 import { FileType } from "@/types";
 import { useStyle } from "@/hooks";
 import { useDirtyStore, usePlantStore } from "@/stores";
 
-type NewIssueModalProps = {
+type NewIssueModalProps<T extends { [key: string]: any }> = {
+  data: T;
+  idKey: keyof T;
   isOpen: boolean;
-  onClose: (values: PlantGrowthHistoryRequest) => void;
-  onSave: (values: PlantGrowthHistoryRequest) => void;
+  onClose: (values: T) => void;
+  onSave: (values: T) => void;
   isLoading: boolean;
 };
 
-const NewIssueModal = ({ isOpen, onClose, onSave, isLoading }: NewIssueModalProps) => {
+const NewIssueModal = <T extends { [key: string]: any }>({
+  data,
+  idKey,
+  isOpen,
+  onClose,
+  onSave,
+  isLoading,
+}: NewIssueModalProps<T>) => {
   const { styles } = useStyle();
   const { setIsDirty } = useDirtyStore();
   const [form] = Form.useForm();
@@ -26,8 +35,6 @@ const NewIssueModal = ({ isOpen, onClose, onSave, isLoading }: NewIssueModalProp
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewVideo, setPreviewVideo] = useState("");
-  const { plant } = usePlantStore();
-  if (!plant) return;
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
@@ -58,23 +65,18 @@ const NewIssueModal = ({ isOpen, onClose, onSave, isLoading }: NewIssueModalProp
   useEffect(() => {
     if (isOpen) {
       form.resetFields();
-      form.setFieldsValue({
-        [plantGrowthHistoryFormFields.noteTaker]:
-          localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) ?? "",
-      });
     }
   }, [isOpen]);
 
-  const getFormData = (): PlantGrowthHistoryRequest => {
+  const getFormData = (): T => {
     return {
-      plantId: plant.plantId,
-      noteTaker: form.getFieldValue(plantGrowthHistoryFormFields.noteTaker),
+      [idKey]: data[idKey],
       issueName: form.getFieldValue(plantGrowthHistoryFormFields.issueName),
       content: form.getFieldValue(plantGrowthHistoryFormFields.content),
-      plantResources: fileList
+      resources: fileList
         .map((file) => file.originFileObj as File | undefined)
         .filter((file): file is File => Boolean(file)), // Loại bỏ undefined
-    };
+    } as unknown as T;
   };
 
   const handleOk = async () => {
@@ -122,11 +124,6 @@ const NewIssueModal = ({ isOpen, onClose, onSave, isLoading }: NewIssueModalProp
     >
       <Form form={form} layout="vertical" className={style.modalContainer}>
         <Flex gap={20}>
-          <FormFieldModal
-            label="Note Taker:"
-            name={plantGrowthHistoryFormFields.noteTaker}
-            readonly
-          />
           <FormFieldModal
             label="Issue Name:"
             name={plantGrowthHistoryFormFields.issueName}

@@ -1,3 +1,5 @@
+import { plotOfCrop } from "@/types";
+
 export interface CropResponse {
   cropId: number;
   cropCode: string;
@@ -22,7 +24,33 @@ export interface CropResponse {
 }
 
 export interface GetCrop2 extends CropResponse {
+  numberHarvest: number;
+  numberPlot: number;
   yieldHasRecord: number;
+}
+
+export interface GetCropDetail {
+  cropId: number;
+  cropCode: string;
+  cropName: string;
+  startDate: string;
+  endDate: string;
+  createDate: string;
+  updateDate: string;
+  cropExpectedTime: string;
+  cropActualTime: string;
+  harvestSeason: string;
+  estimateYield: number;
+  actualYield: number;
+  status: string;
+  notes: string;
+  isDeleted: false;
+  marketPrice: number;
+  farmId: number;
+  numberHarvest: number;
+  numberPlot: number;
+  yieldHasRecord: number;
+  landPlotCrops: plotOfCrop[];
 }
 
 export interface GetLandPlotOfCrop {

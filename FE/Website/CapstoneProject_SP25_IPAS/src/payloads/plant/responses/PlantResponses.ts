@@ -1,3 +1,5 @@
+import { FileResource } from "@/types";
+
 export interface GetPlant {
   plantId: number;
   plantCode: string;
@@ -70,9 +72,10 @@ export interface GetPlantGrowthHistory {
   plantGrowthHistoryCode: string;
   issueName: string;
   content: string;
-  noteTaker: string;
+  noteTakerName: string;
+  noteTakerAvatar: string;
   createDate: string;
   numberImage: number;
   numberVideos: number;
-  plantResources: File[];
+  resources: FileResource[];
 }

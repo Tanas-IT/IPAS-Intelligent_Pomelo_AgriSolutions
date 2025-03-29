@@ -101,8 +101,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Manage Crop",
           label: "Manage Crop",
           icon: Images.radius,
-          to: PATHS.CROP.LIST,
-          activePaths: [PATHS.CROP.LIST],
+          to: PATHS.CROP.CROP_LIST,
+          activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL],
         },
         {
           key: "Manage Harvest",

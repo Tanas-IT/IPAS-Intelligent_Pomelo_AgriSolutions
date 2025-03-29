@@ -11,7 +11,7 @@ import {
   PlantGrowthHistoryRequest,
   PlantRequest,
 } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, getFileFormat, getUserId } from "@/utils";
 
 export const getPlants = async (landRowId: number): Promise<ApiResponse<GetPlantSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-plant-of-row/${landRowId}`);
@@ -143,24 +143,21 @@ export const createPlantGrowthHistory = async (
 ): Promise<ApiResponse<Object>> => {
   const formData = new FormData();
   formData.append("PlantId", req.plantId.toString());
-  formData.append("NoteTaker", req.noteTaker);
+  formData.append("UserId", getUserId());
   formData.append("IssueName", req.issueName);
   formData.append("Content", req.content);
 
-  if (req.plantResources && req.plantResources.length > 0) {
-    req.plantResources.forEach((fileResource, index) => {
-      const format = fileResource.type.startsWith("image/")
-        ? "Image"
-        : fileResource.type.startsWith("video/")
-        ? "Video"
-        : null;
-      if (format) {
-        formData.append(`PlantResources[${index}].fileFormat`, format);
-        formData.append(`PlantResources[${index}].file`, fileResource);
+  if (req.resources && req.resources.length > 0) {
+    req.resources.forEach((fileResource, index) => {
+      if (fileResource instanceof File) {
+        const format = getFileFormat(fileResource.type);
+        if (format) {
+          formData.append(`PlantResources[${index}].fileFormat`, format);
+          formData.append(`PlantResources[${index}].file`, fileResource);
+        }
       }
     });
   }
-  console.log([...formData.entries()]);
   const res = await axiosAuth.axiosMultipartForm.post(`plant-growth-history`, formData);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;

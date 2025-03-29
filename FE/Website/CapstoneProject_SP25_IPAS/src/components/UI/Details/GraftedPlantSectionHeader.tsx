@@ -12,15 +12,15 @@ import { graftedPlantService } from "@/services";
 import { toast } from "react-toastify";
 
 const GraftedPlantSectionHeader = ({
-  isCriteria = false,
   onApplyCriteria,
   formModal,
   deleteConfirmModal,
+  onAddNewIssue,
 }: {
-  isCriteria?: boolean;
   onApplyCriteria?: () => void;
   formModal?: ReturnType<typeof useModal<GetGraftedPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
+  onAddNewIssue?: () => void;
 }) => {
   const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
   const cuttingGraftedModal = useModal();
@@ -76,7 +76,7 @@ const GraftedPlantSectionHeader = ({
           </Flex>
         </Flex>
 
-        {isCriteria && (
+        {onApplyCriteria && (
           <Flex>
             <CustomButton
               label="Add New Criteria"
@@ -86,7 +86,7 @@ const GraftedPlantSectionHeader = ({
             />
           </Flex>
         )}
-        {!isCriteria && (
+        {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuGraftedPlant
               id={graftedPlant.graftedPlantId}
@@ -95,6 +95,15 @@ const GraftedPlantSectionHeader = ({
               noCriteria
               onEdit={() => formModal?.showModal(graftedPlant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: graftedPlant.graftedPlantId })}
+            />
+          </Flex>
+        )}
+        {onAddNewIssue && (
+          <Flex>
+            <CustomButton
+              label="Add New Issue"
+              icon={<Icons.plus />}
+              handleOnClick={onAddNewIssue}
             />
           </Flex>
         )}

@@ -10,6 +10,7 @@ import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
   FilterCriteriaState,
+  FilterCropState,
   FilterEmployeeState,
   FilterGraftedPlantState,
   FilterLandRowState,
@@ -106,6 +107,17 @@ export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   previousQuantityFrom: undefined,
   previousQuantityTo: undefined,
   isFromGrafted: null,
+};
+
+export const DEFAULT_CROP_FILTERS: FilterCropState = {
+  yearFrom: "",
+  yearTo: "",
+  harvestSeason: [] as string[],
+  actualYieldFrom: undefined,
+  actualYieldTo: undefined,
+  marketPriceFrom: undefined,
+  marketPriceTo: undefined,
+  LandPlotIds: [] as string[],
 };
 
 export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {

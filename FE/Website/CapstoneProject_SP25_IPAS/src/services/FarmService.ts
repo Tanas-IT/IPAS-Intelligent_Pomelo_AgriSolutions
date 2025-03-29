@@ -8,7 +8,7 @@ import {
   GetFarmPicker,
   GetUser,
 } from "@/payloads";
-import { getUserId } from "@/utils";
+import { getFileFormat, getUserId } from "@/utils";
 
 export const getFarmsOfUser = async (): Promise<ApiResponse<GetFarmPicker[]>> => {
   const userId = getUserId();
@@ -77,11 +77,7 @@ export const createFarmDocuments = async (
 
   if (doc.resources && doc.resources.length > 0) {
     doc.resources.forEach((fileResource, index) => {
-      const format = fileResource.file.type.startsWith("image/")
-        ? "Image"
-        : fileResource.file.type.startsWith("video/")
-        ? "Video"
-        : null;
+      const format = getFileFormat(fileResource.file.type);
       if (format) {
         formData.append(`Resources[${index}].fileFormat`, format);
         formData.append(`Resources[${index}].file`, fileResource.file);
