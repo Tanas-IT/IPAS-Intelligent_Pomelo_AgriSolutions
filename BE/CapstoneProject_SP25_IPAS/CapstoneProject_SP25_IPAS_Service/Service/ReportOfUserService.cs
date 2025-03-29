@@ -52,6 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     ReportCode = "RPT-" + DateTime.Now.Date,
                     CreatedDate = DateTime.Now,
+                    QuestionOfUser = createReportOfUserModel.QuestionOfUser,
                     QuestionerID = createReportOfUserModel.QuestionerID,
                     Description = createReportOfUserModel.Description,
                     IsTrainned = false,
@@ -101,6 +102,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                   || x.Answerer.FullName.ToLower().Contains(getAllReportOfUserModel.Search.ToLower())
                                   || x.Questioner.FullName.ToLower().Contains(getAllReportOfUserModel.Search.ToLower()));
                 }
+            }
+
+            if(getAllReportOfUserModel.IsTrainned != null)
+            {
+                filter = filter.And(x => x.IsTrainned == getAllReportOfUserModel.IsTrainned);
             }
 
           
@@ -206,6 +212,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         getUpdateReport.AnswererID = updateReportOfUserModel.AnswererID;
                     }
+                    if (!string.IsNullOrEmpty(updateReportOfUserModel.QuestionOfUser))
+                    {
+                        getUpdateReport.QuestionOfUser = updateReportOfUserModel.QuestionOfUser;
+                    }
+                    if (!string.IsNullOrEmpty(updateReportOfUserModel.AnswerFromExpert))
+                    {
+                        getUpdateReport.AnswerFromExpert = updateReportOfUserModel.AnswerFromExpert;
+                    }
                     if (updateReportOfUserModel.IsTrainned != null)
                     {
                         getUpdateReport.IsTrainned = updateReportOfUserModel.IsTrainned;
@@ -240,25 +254,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
         }
 
-        public async Task<BusinessResult> AssignTagToImage(string tagId, string imageURL, int? answerId)
+        public async Task<BusinessResult> AssignTagToImage(string? answer, string tagId, int reportId, int? answerId)
         {
             try
             {
-                var getReportOfUserByImageURL = await _unitOfWork.ReportRepository.GetReportByImageURL(imageURL);
-                var uploadImageModel = new UploadImageModel()
-                {
-                    ImageUrls = new List<string> { imageURL },
-                    TagIds = new List<string> { tagId }
-                };
+                var getReportOfUserByImageURL = await _unitOfWork.ReportRepository.GetByID(reportId);
+                
                 if(getReportOfUserByImageURL != null)
                 {
-                   var uploadImage =  await _aIService.UploadImageByURLToCustomVision(uploadImageModel);
+                    var uploadImageModel = new UploadImageModel()
+                    {
+                        ImageUrls = new List<string> { getReportOfUserByImageURL.ImageURL! },
+                        TagIds = new List<string> { tagId }
+                    };
+                    var uploadImage =  await _aIService.UploadImageByURLToCustomVision(uploadImageModel);
                     if(uploadImage.StatusCode == 200)
                     {
                         var getProfessional = await _unitOfWork.UserRepository.GetByID(answerId.Value);
                         if(getProfessional != null)
                         {
                             getReportOfUserByImageURL.AnswererID = answerId;
+                            if(answer != null)
+                            {
+                                getReportOfUserByImageURL.AnswerFromExpert = answer;
+                            }
                         }
                         getReportOfUserByImageURL.IsTrainned = true;
                         _unitOfWork.ReportRepository.Update(getReportOfUserByImageURL);

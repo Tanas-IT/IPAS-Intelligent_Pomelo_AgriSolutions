@@ -1043,6 +1043,8 @@ CREATE TABLE ipas.dbo.Report (
 	ReportCode nvarchar(300) NULL,
 	Description nvarchar(MAX) NULL,
 	CreateDate datetime NULL,
+        QuestionOfUser nvarchar(MAX) NULL,
+	AnswerFromExpert nvarchar(MAX) NULL,
         ImageURL nvarchar(MAX),
 	IsTrainned bit NULL,
 	AnswererID int NULL,
@@ -1223,11 +1225,11 @@ VALUES
     ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL);
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', '#E1BEE7', NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(),0, 1, NULL, NULL, NULL,NULL);
 GO
 
 GO

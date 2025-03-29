@@ -1516,7 +1516,8 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.ReportCode).HasColumnName("ReportCode");
             entity.Property(e => e.Description).HasColumnName("Description");
             entity.Property(e => e.AnswererID).HasColumnName("AnswererID");
-            entity.Property(e => e.QuestionerID).HasColumnName("QuesttionerID");
+            entity.Property(e => e.QuestionerID).HasColumnName("QuestionerID");
+            entity.Property(e => e.CreatedDate).HasColumnName("CreateDate");
 
             entity.HasOne(d => d.Answerer).WithMany(p => p.Answerers)
                 .HasForeignKey(d => d.AnswererID)

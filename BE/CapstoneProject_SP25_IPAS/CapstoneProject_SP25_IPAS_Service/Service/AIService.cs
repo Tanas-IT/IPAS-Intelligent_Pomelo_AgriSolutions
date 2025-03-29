@@ -208,7 +208,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TagType = p.TagType,
                 });
 
-                result = result.Where(x => x.probability > 0.75);
 
                 // Trả về kết quả dự đoán
                 if (result != null)

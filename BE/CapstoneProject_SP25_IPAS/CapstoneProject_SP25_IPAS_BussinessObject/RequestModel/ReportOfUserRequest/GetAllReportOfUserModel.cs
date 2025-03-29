@@ -11,5 +11,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserReq
         public string? Search { get; set; }
         public string? SortBy { get; set; }
         public string? Direction { get; set; }
+        public bool? IsTrainned { get; set; }
     }
 }
