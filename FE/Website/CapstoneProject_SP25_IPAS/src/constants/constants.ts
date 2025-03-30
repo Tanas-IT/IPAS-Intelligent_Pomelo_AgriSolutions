@@ -1,4 +1,5 @@
 export const DEFAULT_ROWS_PER_PAGE = 5;
+export const DEFAULT_RECORDS_IN_DETAIL = 3;
 
 export const MASTER_TYPE_SHOW_TABLE = {
   PROCESS: "Process",
@@ -81,6 +82,7 @@ export const CRITERIA_TARGETS = {
 } as const;
 
 export const ROUTES = {
+  CROP_DETAIL: (id: number) => `/crop/${id}/details`,
   FARM_PLANT_LOT_DETAIL: (id: number) => `/farm/plant-lots/${id}/details`,
   FARM_PLANT_DETAIL: (id: number) => `/farm/plants/${id}/details`,
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
@@ -93,3 +95,15 @@ export const PLAN_TARGET_TYPE = {
   "Plant Lot": 2,
   "Grafted Plant": 3,
 };
+
+export const FILE_FORMAT = {
+  IMAGE: "image",
+  VIDEO: "video",
+} as const;
+
+export const HARVEST_SEASON_OPTIONS = {
+  SPRING: "Spring Harvest",
+  SUMMER: "Summer Harvest",
+  AUTUMN: "Autumn Harvest",
+  WINTER: "Winter Harvest",
+} as const;

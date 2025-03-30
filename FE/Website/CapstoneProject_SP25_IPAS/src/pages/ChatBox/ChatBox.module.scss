@@ -1,0 +1,135 @@
+@use "@/styles/variables.scss" as vars;
+
+.chatBoxContainer {
+  max-height: 85vh;
+  gap: 20px;
+
+  .chatBoxSidebar {
+    max-width: 280px;
+    background: #fff;
+    flex-direction: column;
+    padding: 16px;
+    border-right: 1px solid #ddd;
+    border-radius: 8px;
+
+    .chatBoxSidebarHeader {
+      flex-direction: column;
+      gap: 12px;
+
+      h2 {
+        margin: 0;
+      }
+
+      .newChatBtn {
+        width: 100%;
+      }
+    }
+
+    .searchInput {
+      margin-bottom: 16px;
+    }
+
+    .chatBoxSidebarList {
+      flex-direction: column;
+      gap: 30px;
+      .listWrapper {
+        flex-direction: column;
+        gap: 4px;
+        h3 {
+          font-size: 15px;
+          margin-bottom: 8px;
+        }
+        span {
+          // max-width: 15rem;
+        }
+      }
+
+      .chatBoxSidebarListItem {
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover,
+        &.active {
+          background: rgba(vars.$color_second, 0.3);
+        }
+      }
+    }
+  }
+
+  .chatBoxContent {
+    flex: 1;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+
+    .chatBoxContentHeader {
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid #ddd;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+
+    .chatBoxContentMessages {
+      flex: 1;
+      padding: 16px;
+      flex-direction: column;
+      gap: 30px;
+      overflow-y: auto;
+
+      .message {
+        align-items: start;
+        justify-content: start;
+        gap: 10px;
+
+        &.messageReceived {
+          justify-content: flex-start;
+        }
+
+        &.messageSent {
+          justify-content: flex-end;
+        }
+
+        .messageWrapper {
+          max-width: 80%;
+          flex-direction: column;
+          gap: 4px;
+          .messageTimestamp {
+            font-size: 12px;
+            color: #888;
+            margin-left: 8px;
+            &.right {
+              text-align: right;
+              display: block;
+            }
+          }
+
+          .messageBubble {
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(vars.$color_second, 0.3);
+          }
+        }
+      }
+    }
+
+    .chatBoxContentFooter {
+      align-items: center;
+      padding: 16px;
+      border-top: 1px solid #ddd;
+      background: #fafafa;
+      border-radius: 8px;
+
+      .messageInput {
+        flex: 1;
+        margin-right: 10px;
+      }
+    }
+  }
+}

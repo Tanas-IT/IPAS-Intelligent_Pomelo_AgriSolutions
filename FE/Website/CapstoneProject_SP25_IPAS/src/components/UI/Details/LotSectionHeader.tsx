@@ -99,7 +99,7 @@ const LotSectionHeader = ({
         onCancel={updateConfirmModal.hideModal}
         actionType="update"
         title="Mark as Completed"
-        description="Are you sure you want to mark this lot as completed? This action cannot be undone."
+        description="Are you sure you want to mark this Lot as completed? This action cannot be undone."
       />
       <FillPlantsModal
         isOpen={fillPlantsModal.modalState.visible}

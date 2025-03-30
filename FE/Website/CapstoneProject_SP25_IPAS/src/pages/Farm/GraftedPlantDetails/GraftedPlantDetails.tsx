@@ -5,12 +5,13 @@ import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import GraftedPlantDetail from "./GraftedPlantDetail/GraftedPlantDetail";
-import GraftedPlantCriteria from "./GraftedPlantCriteria/GraftedPlantCriteria";
+import { GraftedGrowthHistory, GraftedPlantCriteria, GraftedPlantDetail } from "@/pages";
+import { useState } from "react";
 
 function GraftedPlantDetails() {
   const navigate = useNavigate();
   const { styles } = useStyle();
+  const [activeTab, setActiveTab] = useState("1");
 
   const items: TabsProps["items"] = [
     {
@@ -25,6 +26,12 @@ function GraftedPlantDetails() {
       label: <label className={style.titleTab}>Criteria</label>,
       children: <GraftedPlantCriteria />,
     },
+    {
+      key: "3",
+      icon: <Icons.history className={style.iconTab} />,
+      label: <label className={style.titleTab}>Growth History</label>,
+      children: <GraftedGrowthHistory activeTab={activeTab} />,
+    },
   ];
 
   const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
@@ -35,6 +42,7 @@ function GraftedPlantDetails() {
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey="1"
         items={items}
+        onChange={setActiveTab}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>

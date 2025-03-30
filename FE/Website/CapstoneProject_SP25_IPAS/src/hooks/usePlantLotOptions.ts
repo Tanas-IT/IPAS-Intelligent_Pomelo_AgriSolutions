@@ -7,14 +7,13 @@ interface SelectOption {
   label: string;
 }
 
-const usePlantLotOptions = () => {
+const usePlantLotOptions = (isFromGrafted?: boolean) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const result = await plantLotService.getPlantLotSelected();
-        console.log("apiResponse plantlot", result);
+        const result = await plantLotService.getPlantLotSelected(isFromGrafted);
 
         if (result && Array.isArray(result)) {
           const mappedOptions = result.map((item) => ({

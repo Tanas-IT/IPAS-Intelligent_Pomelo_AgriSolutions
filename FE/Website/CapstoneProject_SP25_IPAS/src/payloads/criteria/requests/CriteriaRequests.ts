@@ -32,14 +32,21 @@ export interface CriteriaCheckData {
 
 export interface CriteriaApplyRequest {
   plantLotId?: number[];
-  plantId?: number[];
   graftedPlantId?: number[];
   criteriaData: CriteriaApplyData[];
 }
 
-export interface CriteriaCheckRequest {
-  plantLotID?: number[];
-  plantID?: number[];
+export interface PlantCriteriaApplyRequest {
+  plantIds?: number[];
+  criteriaData: CriteriaApplyData[];
+}
+
+export interface CriteriaPlantCheckRequest {
+  plantIds?: number[];
+  criteriaDatas: CriteriaCheckData[];
+}
+
+export interface CriteriaGraftedPlantCheckRequest {
   graftedPlantID?: number[];
   criteriaDatas: CriteriaCheckData[];
 }
@@ -49,4 +56,9 @@ export interface CriteriaDeleteRequest {
   plantId?: number[];
   graftedPlantId?: number[];
   criteriaSetId: number[];
+}
+
+export interface ResetCriteriaPlantRequest {
+  plantId: number;
+  masterTypeId: number;
 }

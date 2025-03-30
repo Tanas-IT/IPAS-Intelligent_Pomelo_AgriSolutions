@@ -245,6 +245,7 @@ function GraftedPlant() {
           visible={cancelConfirmModal.modalState.visible}
           actionType="unsaved"
           onConfirm={() => {
+            criteriaModal.hideModal();
             cancelConfirmModal.hideModal();
             formModal.hideModal();
           }}

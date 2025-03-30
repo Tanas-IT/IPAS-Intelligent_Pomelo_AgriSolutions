@@ -20,6 +20,7 @@ export interface GetPlantLot2 {
   partnerName: string;
   masterTypeId: number;
   seedingName: string;
+  isFromGrafted: boolean;
   isPassed: boolean;
 }
 

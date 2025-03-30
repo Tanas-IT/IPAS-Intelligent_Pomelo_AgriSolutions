@@ -68,6 +68,7 @@ function PlantLotDetail() {
       "note",
       "unit",
       "partnerId",
+      "isFromGrafted",
     ];
 
     return fieldsToCompare.some((key) => {

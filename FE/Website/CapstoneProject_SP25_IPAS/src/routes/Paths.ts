@@ -23,6 +23,9 @@ export const PATHS = {
   },
 
   CROP: {
+    CROP_LIST: "/crop/list",
+    CROP_DETAIL: "/crop/:id/details",
+    HARVEST_DAYS: "/crop/harvest-days",
     PLANT_YIELD: "/crop/plant-yield",
   },
 
@@ -68,7 +71,7 @@ export const PATHS = {
     PLAN_DETAIL: "/plans/:id",
     ADD_PLAN: "/plans/add",
     UPDATE_PLAN: "/plans/update/:id",
-    ADD_PLAN_BY_PROCESS: "/plans/add-plan-by-process"
+    ADD_PLAN_BY_PROCESS: "/plans/add-plan-by-process",
   },
 
   //Worklog Management
@@ -81,6 +84,10 @@ export const PATHS = {
   // Partner Management
   PARTNERS: {
     PARTNER_LIST: "/partners",
+  },
+
+  CHATBOX: {
+    AI_CHATBOX: "/ai-chatbox",
   },
 
   //Package Management

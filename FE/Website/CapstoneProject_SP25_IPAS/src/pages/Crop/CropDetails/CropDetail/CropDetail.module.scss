@@ -1,0 +1,51 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+}
+
+.landPlotSection {
+  width: 100%;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  gap: 12px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .landPlotList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .landPlotItem {
+    align-items: center;
+    background: #f4f6f8;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background: #e0f7e9;
+      transform: scale(1.05);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .landPlotIcon {
+      color: #2e7d32;
+      margin-right: 8px;
+    }
+  }
+}

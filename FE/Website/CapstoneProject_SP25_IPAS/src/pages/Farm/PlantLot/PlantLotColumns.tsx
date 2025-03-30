@@ -18,10 +18,21 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 150,
   },
   {
+    header: "Lot Type",
+    field: "isFromGrafted",
+    accessor: (item) => (
+      <Tag color={item.isFromGrafted ? "blue" : "default"}>
+        {item.isFromGrafted ? "Grafted Lot" : "Imported Lot"}
+      </Tag>
+    ),
+    width: 150,
+  },
+  {
     header: "Provider",
     field: "partnerName",
-    accessor: (item) => <TableCell value={item.partnerName} />,
-    width: 150,
+    accessor: (item) =>
+      item.isFromGrafted ? <TableCell value="" /> : <TableCell value={item.partnerName} />,
+    width: 180,
   },
   {
     header: "Unit",
@@ -38,17 +49,23 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Checked  Quantity",
     field: "inputQuantity",
-    // accessor: (item) => <TableCell value={item.inputQuantity} />,
-    accessor: (item) => (
-      <TableCell value={!item.inputQuantity ? "Checking..." : item.inputQuantity} />
-    ),
+    accessor: (item) =>
+      item.isFromGrafted ? (
+        <TableCell value="" />
+      ) : (
+        <TableCell value={item.inputQuantity === undefined ? "Checking..." : item.inputQuantity} />
+      ),
     width: 160,
   },
   {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    // accessor: (item) => <TableCell value={item.lastQuantity} />,
-    accessor: (item) => <TableCell value={!item.lastQuantity ? "Checking..." : item.lastQuantity} />,
+    accessor: (item) =>
+      item.isFromGrafted ? (
+        <TableCell value="" />
+      ) : (
+        <TableCell value={item.lastQuantity === undefined ? "Checking..." : item.lastQuantity} />
+      ),
     width: 160,
   },
   {
@@ -63,6 +80,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     accessor: (item) => <TableCell value={item.seedingName} />,
     width: 180,
   },
+
   {
     header: "Note",
     field: "note",

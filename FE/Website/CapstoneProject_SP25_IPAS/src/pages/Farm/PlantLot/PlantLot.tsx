@@ -39,7 +39,7 @@ function PlantLot() {
     hasInputQuantity?: boolean;
     hasLastQuantity?: boolean;
   }>();
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
@@ -104,7 +104,7 @@ function PlantLot() {
   const handleCancelConfirm = (lot: PlantLotRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(lot, "plantLotId")
-      : hasChanges(lot, undefined, { unit: "Plant" });
+      : hasChanges(lot, undefined, { unit: "Plant", isFromGrafted: false });
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();

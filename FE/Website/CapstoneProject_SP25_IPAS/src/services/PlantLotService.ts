@@ -6,6 +6,7 @@ import {
   GetPlantLot,
   GetPlantLot2,
   GetPlantLotDetail,
+  PlantLotCheckCriteriaRequest,
   PlantLotRequest,
 } from "@/payloads";
 import { buildParams } from "@/utils";
@@ -46,12 +47,9 @@ export const deleteLots = async (ids: number[] | string[]): Promise<ApiResponse<
 export const updateLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPlantLot2>> => {
   const formatLotData = {
     plantLotID: lot.plantLotId,
-    partnerID: lot.partnerId,
     name: lot.plantLotName,
-    lastQuantity: lot.lastQuantity,
-    masterTypeId: lot.masterTypeId,
-    unit: lot.unit,
-    note: lot.note,
+    partnerID: lot.partnerId,
+    ...lot,
   };
 
   const res = await axiosAuth.axiosJsonRequest.put("plant-lots", formatLotData);
@@ -93,12 +91,18 @@ export const createLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPl
     partnerID: lot.partnerId,
     name: lot.plantLotName,
     importedQuantity: lot.previousQuantity,
-    masterTypeId: lot.masterTypeId,
-    unit: lot.unit,
-    note: lot.note,
+    ...lot,
   };
   const res = await axiosAuth.axiosJsonRequest.post(`plant-lots`, formatLotData);
   const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
+export const checkCriteria = async (
+  check: PlantLotCheckCriteriaRequest,
+): Promise<ApiResponse<object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`plant-lots/criteria/check-criteria`, check);
+  const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
 };
 
@@ -115,12 +119,14 @@ export const createAdditionalLot = async (
   return apiResponse;
 };
 
-export const getPlantLotSelected = async () => {
-  const res = await axiosAuth.axiosJsonRequest.get(`get-for-selected`);
+export const getPlantLotSelected = async (isFromGrafted?: boolean) => {
+  const queryParam = isFromGrafted ? `?isFromGrafted=${isFromGrafted}` : "";
+
+  const res = await axiosAuth.axiosJsonRequest.get(`get-for-selected${queryParam}`);
   const apiResponse = res.data as ApiResponse<GetPlantLot[]>;
   return apiResponse.data.map((item) => ({
     value: item.id,
-    label: item.name
+    label: item.name,
   }));
 };
 

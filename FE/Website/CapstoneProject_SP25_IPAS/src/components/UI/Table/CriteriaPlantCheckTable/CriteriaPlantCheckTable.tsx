@@ -5,11 +5,13 @@ import { GetCriteriaCheck } from "@/payloads";
 import { formatDateAndTime } from "@/utils";
 
 interface CriteriaPlantCheckTableProps {
+  isCompleted?: boolean;
   data: GetCriteriaCheck[];
   handleValueCheckChange: (criteriaId: number, valueCheck: number) => void;
 }
 
 const CriteriaPlantCheckTable: React.FC<CriteriaPlantCheckTableProps> = ({
+  isCompleted,
   data,
   handleValueCheckChange,
 }) => {
@@ -69,6 +71,7 @@ const CriteriaPlantCheckTable: React.FC<CriteriaPlantCheckTableProps> = ({
               ? record.valueChecked
               : null
           }
+          readOnly={isCompleted}
           onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
           min={0}
         />

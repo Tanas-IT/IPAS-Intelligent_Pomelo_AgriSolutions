@@ -2,14 +2,28 @@ import { TableColumn } from "@/types";
 import { GetGraftedPlant } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
-import { Tag } from "antd";
+import { Popover, QRCode, Tag } from "antd";
 import { healthStatusColors } from "@/constants";
+const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 
 export const GraftedPlantColumns: TableColumn<GetGraftedPlant>[] = [
   {
     header: "Code",
     field: "graftedPlantCode",
-    accessor: (item) => <TableCell value={item.graftedPlantCode} isCopyable={true} />,
+    accessor: (item) => (
+      <Popover
+        content={
+          <QRCode
+            type="svg"
+            value={`${baseUrl}/farm/grafted-plants/${item.graftedPlantId}/details`}
+          />
+        }
+      >
+        <>
+          <TableCell value={item.graftedPlantCode} isCopyable={true} />
+        </>
+      </Popover>
+    ),
     width: 200,
   },
   {
@@ -33,24 +47,30 @@ export const GraftedPlantColumns: TableColumn<GetGraftedPlant>[] = [
         <Tag color={healthStatusColors[statusText] || "default"}>{statusText || "Unknown"}</Tag>
       );
     },
-    width: 180,
+    width: 150,
   },
   {
     header: "Mother Plant",
-    field: "plantCode",
-    accessor: (item) => <TableCell value={item.plantCode} />,
-    width: 160,
+    field: "plantName",
+    accessor: (item) => <TableCell value={item.plantName} />,
+    width: 180,
   },
   {
-    header: "Separated Date",
-    field: "separatedDate",
-    accessor: (item) => <TableCell value={formatDate(item.separatedDate)} />,
+    header: "Destination Lot",
+    field: "plantLotName",
+    accessor: (item) => <TableCell value={item.plantLotName} />,
     width: 180,
   },
   {
     header: "Grafted Date",
     field: "graftedDate",
     accessor: (item) => <TableCell value={item.graftedDate && formatDate(item.graftedDate)} />,
+    width: 180,
+  },
+  {
+    header: "Separated Date",
+    field: "separatedDate",
+    accessor: (item) => <TableCell value={item.separatedDate && formatDate(item.separatedDate)} />,
     width: 180,
   },
   {

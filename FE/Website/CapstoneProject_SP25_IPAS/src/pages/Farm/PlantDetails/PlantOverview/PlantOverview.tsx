@@ -90,7 +90,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
 
   return (
     <Flex className={style.contentDetailWrapper} vertical>
-      <PlantSectionHeader isCriteria={false} />
+      <PlantSectionHeader />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
         {/* Bộ lọc */}
