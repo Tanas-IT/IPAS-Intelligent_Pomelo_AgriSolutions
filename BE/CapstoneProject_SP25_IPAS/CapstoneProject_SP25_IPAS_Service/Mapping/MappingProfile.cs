@@ -24,6 +24,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlantLotModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GrowthStageRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -440,6 +441,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
               .ForMember(dest => dest.Issue, opt => opt.MapFrom(src => src.Issue))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.UserId))
+              .ForMember(dest => dest.UserWorklogId, opt => opt.MapFrom(src => src.UserWorkLogID))
               .ForMember(dest => dest.CreateDate,
                 opt => opt.MapFrom(src => src.CreateDate))
             .ForMember(dest => dest.ListResources,
@@ -549,6 +551,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ConfigId))
                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ConfigValue))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ValueType))
+                .ReverseMap();
+
+            CreateMap<Report, ReportOfUserModel>()
+                .ForMember(dest => dest.ReportID, opt => opt.MapFrom(src => src.ReportID))
+               .ForMember(dest => dest.ReportCode, opt => opt.MapFrom(src => src.ReportCode))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
+               .ForMember(dest => dest.IsTrainned, opt => opt.MapFrom(src => src.IsTrainned))
+               .ForMember(dest => dest.ImageURL, opt => opt.MapFrom(src => src.ImageURL))
+               .ForMember(dest => dest.AnswererID, opt => opt.MapFrom(src => src.AnswererID))
+               .ForMember(dest => dest.AnswererName, opt => opt.MapFrom(src => src.Answerer.FullName))
+               .ForMember(dest => dest.QuestionerID, opt => opt.MapFrom(src => src.QuestionerID))
+               .ForMember(dest => dest.QuestionerName, opt => opt.MapFrom(src => src.Questioner.FullName))
+               .ForMember(dest => dest.QuestionOfUser, opt => opt.MapFrom(src => src.QuestionOfUser))
+               .ForMember(dest => dest.AnswerFromExpert, opt => opt.MapFrom(src => src.AnswerFromExpert))
                 .ReverseMap();
         }
     }

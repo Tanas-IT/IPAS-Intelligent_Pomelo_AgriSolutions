@@ -1043,6 +1043,8 @@ CREATE TABLE ipas.dbo.Report (
 	ReportCode nvarchar(300) NULL,
 	Description nvarchar(MAX) NULL,
 	CreateDate datetime NULL,
+        QuestionOfUser nvarchar(MAX) NULL,
+	AnswerFromExpert nvarchar(MAX) NULL,
         ImageURL nvarchar(MAX),
 	IsTrainned bit NULL,
 	AnswererID int NULL,
@@ -1904,4 +1906,5 @@ VALUES
 ('Master Type', 'TypeName', 'Product', 'string', N'Sản phẩm'),
 ('Master Type', 'TypeName', 'Cultivar', 'string', N'Giống cây'),
 ('Master Type', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
-('Master Type', 'TypeName', 'Work', 'string', N'Công việc');
+('Master Type', 'TypeName', 'Work', 'string', N'Công việc'),
+('AI', 'Predict Percent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');

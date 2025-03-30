@@ -15,5 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserReq
         public bool? IsTrainned { get; set; }
         public int? AnswererID { get; set; }
         public int? QuestionerID { get; set; }
+        public string? QuestionOfUser { get; set; }
+        public string? AnswerFromExpert { get; set; }
     }
 }

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest
 {
-    public class AssignTagToImageModel
+    public class AnswerReportModel
     {
         public int ReportId { get; set; }
-        public string TagId { get; set; }
-
+        public string? Answer {  get; set; }
     }
 }

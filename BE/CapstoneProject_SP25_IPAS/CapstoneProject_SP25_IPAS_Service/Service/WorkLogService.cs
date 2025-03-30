@@ -141,7 +141,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var newWorkLog = new WorkLog()
                 {
-                    WorkLogCode = $"WL-{newSchedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                     ScheduleId = newSchedule.ScheduleId,
                     Status = "Not Started",
                     ActualStartTime = newSchedule.StartTime,
@@ -376,6 +376,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
                 var result = calendar
+                        .Where(x => x.IsDeleted == false)
                         .Select(wl => new ScheduleModel()
                         {
                             WorkLogId = wl.WorkLogId,
@@ -1158,7 +1159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var addNewWorkLog = new WorkLog()
                 {
-                    WorkLogCode = $"WL-{DateTime.UtcNow.Ticks}",
+                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                     Date = addNewTaskModel.DateWork,
                     WorkLogName = addNewTaskModel.WorkLogName,
                     ActualStartTime = startTime,
