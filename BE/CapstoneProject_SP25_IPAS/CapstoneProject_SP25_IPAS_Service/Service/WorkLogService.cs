@@ -1690,5 +1690,112 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> UpdateNoteForWorkLog(CreateNoteModel updateNoteModel)
+        {
+            try
+            {
+                var findWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == updateNoteModel.WorkLogId && x.UserId == updateNoteModel.UserId);
+                if (findWorkLog != null)
+                {
+                    if(updateNoteModel.Note != null)
+                    {
+                        findWorkLog.Notes = updateNoteModel.Note;
+                    }
+                    if (updateNoteModel.Issue != null)
+                    {
+                        findWorkLog.Issue = updateNoteModel.Issue;
+                    }
+                    if (updateNoteModel.Resources != null)
+                    {
+                        foreach (var fileNote in updateNoteModel.Resources)
+                        {
+                            if(fileNote.ResourceID != null)
+                            {
+                                var findOldResource = await _unitOfWork.ResourceRepository.GetByID(fileNote.ResourceID.Value);
+                                var getLink = "";
+                                if (fileNote.File != null)
+                                {
+                                    if (IsImageFile(fileNote.File))
+                                    {
+                                        getLink = await _cloudinaryService.UploadImageAsync(fileNote.File, "worklog/note");
+                                        findOldResource.ResourceURL = getLink;
+                                        findOldResource.UpdateDate = DateTime.Now;
+
+                                        _unitOfWork.ResourceRepository.Update(findOldResource);
+
+                                    }
+                                    else
+                                    {
+                                        getLink = await _cloudinaryService.UploadVideoAsync(fileNote.File, "worklog/note");
+                                        findOldResource.ResourceURL = getLink;
+                                        findOldResource.UpdateDate = DateTime.Now;
+
+                                        _unitOfWork.ResourceRepository.Update(findOldResource);
+                                    }
+                                }
+                                if (fileNote.ResourceURL != null)
+                                {
+                                    findOldResource.ResourceURL = fileNote.ResourceURL;
+                                    findOldResource.UpdateDate = DateTime.Now;
+                                    _unitOfWork.ResourceRepository.Update(findOldResource);
+                                }
+                            }
+                           
+                            
+                        }
+                    }
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        return new BusinessResult(200, "Update note success", findWorkLog);
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Update note failed");
+                    }
+
+                }
+                else
+                {
+                    return new BusinessResult(404, "Can not find any workLog for take note");
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> TaskStatics(int farmId)
+        {
+            try
+            {
+                var getWorklogByfarmId = await _unitOfWork.WorkLogRepository.GetListWorkLogByFarmId(farmId);
+                var statusCounts = getWorklogByfarmId
+                       .GroupBy(wl => string.IsNullOrEmpty(wl.Status) ? "unknown" : wl.Status.ToLower()) 
+                       .ToDictionary(g => g.Key, g => g.Count());
+
+                statusCounts["total"] = getWorklogByfarmId.Count;
+
+                if(statusCounts != null && getWorklogByfarmId.Count > 0)
+                {
+                    var result = new WorkLogSummaryModel()
+                    {
+                        StatusCounts = statusCounts
+                    };
+                    return new BusinessResult(200, "Get statistic of workLog success", result);
+                }
+                return new BusinessResult(400, "Get statistic of workLog failed");
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
