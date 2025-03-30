@@ -25,6 +25,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GrowthStageRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.CarePlanScheduleModels;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -330,9 +331,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ReverseMap();
 
             CreateMap<HarvestHistory, HarvestHistoryModel>()
-               .ForMember(dest => dest.ProductHarvestHistory, opt => opt.MapFrom(src => src.ProductHarvestHistories))
-               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop.CropName))
+               .ForMember(dest => dest.ProductHarvestHistory, opt => opt.MapFrom(src => src.ProductHarvestHistories.Where(x => x.PlantId == null)))
+               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop!.CropName))
                .ForMember(dest => dest.YieldHasRecord, opt => opt.MapFrom(src => src.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)))
+               .ForMember(dest => dest.YieldHasRecord, opt => opt.MapFrom(src =>
+                                src.ProductHarvestHistories != null
+                                    ? src.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)
+                                    : 0))
+               .ForMember(dest => dest.CarePlanSchedules, opt => opt.MapFrom(src => src.CarePlanSchedules.Where(x => x.IsDeleted != true)))
+               .ReverseMap();
+
+            CreateMap<CarePlanSchedule, CarePlanScheduleModel>()
+               .ForMember(dest => dest.WorkLogs, opt => opt.MapFrom(src => src.WorkLogs))
+        //       .ForMember(dest => dest.WorkLogs, opt => opt.MapFrom(src =>
+        //src.WorkLogs ?? new List<WorkLog>())) // Tránh null
+                .ReverseMap();
+
+            CreateMap<WorkLog, WorkLogHarvestModel>()
+               .ForMember(dest => dest.UserWorkLogs, opt => opt.MapFrom(src => src.UserWorkLogs))
                 .ReverseMap();
 
             CreateMap<ProductHarvestHistory, ProductHarvestHistoryModel>()

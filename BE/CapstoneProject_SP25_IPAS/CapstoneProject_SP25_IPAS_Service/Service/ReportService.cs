@@ -215,7 +215,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task<List<PomeloQualityBreakDown>> GetDataForPomeloQualityBreakDown(int? year, int? farmId)
         {
             if (year == 0 || year == null) year = DateTime.Now.Year;
-            var rawData = await _unitOfWork.HarvestTypeHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
+            var rawData = await _unitOfWork.ProductHarvestHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
 
             // Nhóm dữ liệu theo mùa vụ
             var groupedData = rawData
@@ -252,7 +252,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         private async Task<List<SeasonalYieldModel>> GetDataForSeasonYield(int? year, int? farmId)
         {
-            var rawData = await _unitOfWork.HarvestTypeHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
+            var rawData = await _unitOfWork.ProductHarvestHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
             var groupedData = rawData

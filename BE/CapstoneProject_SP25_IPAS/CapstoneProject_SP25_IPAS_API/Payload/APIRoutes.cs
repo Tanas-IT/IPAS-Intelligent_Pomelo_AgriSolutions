@@ -336,6 +336,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePermanentlyHarvest = prefix + "";
             public const string deleteProductHarvest = prefix + "/delete-product";
             public const string deletePlantRecord = prefix + "/delete-plant-record";
+            public const string SoftedDeletedHarvestHistory = prefix + "/softed-delete";
             public const string updateHarvestInfo = prefix + "";
             public const string updateProductHarvestInfo = prefix + "/update-product-harvest";
             public const string getHarvestById = prefix + "";
