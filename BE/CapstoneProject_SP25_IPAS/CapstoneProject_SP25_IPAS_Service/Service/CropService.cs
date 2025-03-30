@@ -359,7 +359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Get crop in current time success", getCropInCurrentTime);
                 }
-                return new BusinessResult(400, "Get crop in current time failed");
+                return new BusinessResult(200, "No Crop in current time");
             }
             catch (Exception ex)
             {
@@ -377,7 +377,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Get LandPlot of Crop success", getLandPlotOfCrop);
                 }
-                return new BusinessResult(400, "Get LandPlot of Crop failed");
+                return new BusinessResult(200, "Get LandPlot of Crop failed");
             }
             catch (Exception ex)
             {
@@ -598,20 +598,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
 
-                Expression<Func<LandPlotCrop, bool>> filter = x => x.LandPlot.FarmId == farmId;
-                string includeProperties = "Crop,LandPlot";
+                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                //string includeProperties = "Crop,LandPlot";
 
-                var landPlotCrops = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(
-                    filter: filter,
-                    includeProperties: includeProperties
+                var landPlotCrops = await _unitOfWork.CropRepository.GetAllNoPaging(
+                    filter: filter
+                    //includeProperties: includeProperties
                 );
 
                 if (!landPlotCrops.Any())
                     return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
 
-                // 🔹 Sắp xếp theo ngày gần nhất với hiện tại (ưu tiên EndDate, nếu không có thì lấy StartDate)
+                // Sắp xếp theo ngày gần nhất với hiện tại (ưu tiên EndDate, nếu không có thì lấy StartDate)
                 var sortedCrops = landPlotCrops
-                    .Select(x => x.Crop)
+                    //.Select(x => x.Crop)
                     .OrderBy(crop => Math.Abs((crop.EndDate ?? crop.StartDate ?? DateTime.MaxValue).Subtract(DateTime.Now).TotalDays))
                     .ToList();
 
