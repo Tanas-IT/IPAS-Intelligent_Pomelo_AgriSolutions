@@ -8,21 +8,21 @@ import { useModal } from "@/hooks";
 import { usePlantStore } from "@/stores";
 
 const PlantSectionHeader = ({
-  isCriteria = false,
-  isDetail = false,
   formModal,
   deleteConfirmModal,
   markAsDeadModal,
   onApplyCriteria,
+  onCreateGraftedBranch,
+  onAddNewIssue,
 }: {
-  isCriteria?: boolean;
-  isDetail?: boolean;
   formModal?: ReturnType<typeof useModal<GetPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
   markAsDeadModal?: ReturnType<typeof useModal<{ id: number }>>;
   onApplyCriteria?: () => void;
+  onCreateGraftedBranch?: () => void;
+  onAddNewIssue?: () => void;
 }) => {
-  const { plant, setPlant } = usePlantStore();
+  const { plant } = usePlantStore();
   if (!plant) return;
   return (
     <Flex className={style.contentSectionHeader}>
@@ -39,7 +39,7 @@ const PlantSectionHeader = ({
             {plant.healthStatus || "Unknown"}
           </Tag>
         </Flex>
-        {isCriteria && (
+        {onApplyCriteria && (
           <Flex>
             <CustomButton
               label="Add New Criteria"
@@ -48,7 +48,7 @@ const PlantSectionHeader = ({
             />
           </Flex>
         )}
-        {!isCriteria && isDetail && (
+        {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuPlant
               isPlantDead={plant.isDead}
@@ -57,6 +57,25 @@ const PlantSectionHeader = ({
               onEdit={() => formModal?.showModal(plant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: plant.plantId })}
               onMarkAsDead={() => markAsDeadModal?.showModal({ id: plant.plantId })}
+            />
+          </Flex>
+        )}
+        {!onApplyCriteria && !formModal && onCreateGraftedBranch && (
+          <Flex>
+            <CustomButton
+              label="Create Grafted Plants"
+              icon={<Icons.plus />}
+              disabled={!plant.isPassed}
+              handleOnClick={onCreateGraftedBranch}
+            />
+          </Flex>
+        )}
+        {onAddNewIssue && (
+          <Flex>
+            <CustomButton
+              label="Add New Issue"
+              icon={<Icons.plus />}
+              handleOnClick={onAddNewIssue}
             />
           </Flex>
         )}

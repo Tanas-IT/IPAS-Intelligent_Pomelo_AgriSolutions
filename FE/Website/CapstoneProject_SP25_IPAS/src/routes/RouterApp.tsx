@@ -42,6 +42,10 @@ import {
   AddPlanByProcess,
   EmployeeDashboard,
   GraftedPlantDetails,
+  CropList,
+  CropDetails,
+  ChatBox,
+  HarvestDays,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -94,6 +98,9 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.CROP.CROP_LIST, component: CropList, layout: ManagementLayout },
+  { path: PATHS.CROP.CROP_DETAIL, component: CropDetails, layout: ManagementLayout },
+  { path: PATHS.CROP.HARVEST_DAYS, component: HarvestDays, layout: ManagementLayout },
   { path: PATHS.CROP.PLANT_YIELD, component: PlantYield, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.GROWTH_STAGE, component: GrowthStage, layout: ManagementLayout },
@@ -117,7 +124,11 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.FARM.CRITERIA_LIST, component: Criteria, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LOT_LIST, component: PlantLot, layout: ManagementLayout },
   { path: PATHS.FARM.GRAFTED_PLANT_LIST, component: GraftedPlant, layout: ManagementLayout },
-  { path: PATHS.FARM.GRAFTED_PLANT_DETAIL, component: GraftedPlantDetails, layout: ManagementLayout },
+  {
+    path: PATHS.FARM.GRAFTED_PLANT_DETAIL,
+    component: GraftedPlantDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
@@ -131,6 +142,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.HR.EMPLOYEES, component: EmployeeList, layout: ManagementLayout },
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
+  { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

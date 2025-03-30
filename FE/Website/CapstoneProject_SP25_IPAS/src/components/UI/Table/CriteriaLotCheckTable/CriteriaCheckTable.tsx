@@ -1,8 +1,7 @@
 import { useStyle } from "@/hooks";
-import { Table, Checkbox, Form, InputNumber } from "antd";
+import { Table, Checkbox, InputNumber } from "antd";
 import style from "./CriteriaCheckTable.module.scss";
 import { GetCriteriaCheck } from "@/payloads";
-import { Icons } from "@/assets";
 import { formatDateAndTime } from "@/utils";
 import { usePlantLotStore } from "@/stores";
 import { CRITERIA_TARGETS } from "@/constants";
@@ -77,10 +76,7 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
               ? record.valueChecked
               : null
           }
-          readOnly={
-            (isCondition && lot.inputQuantity !== undefined && lot.inputQuantity !== null) ||
-            (!isCondition && lot.lastQuantity !== undefined && lot.lastQuantity !== null)
-          }
+          readOnly={isCondition && lot.inputQuantity !== undefined && lot.inputQuantity !== null}
           onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
           min={0}
         />

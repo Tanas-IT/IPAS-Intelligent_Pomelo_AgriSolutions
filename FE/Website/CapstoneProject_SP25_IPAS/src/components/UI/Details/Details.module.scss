@@ -1,5 +1,4 @@
 @use "@/styles/share.scss" as shared;
-
 @use "@/styles/variables.scss" as vars;
 
 .infoFieldDetail {
@@ -89,4 +88,135 @@
 
 .instructions {
   margin-top: 20px;
+}
+
+.filterSection {
+  align-items: center;
+
+  .icon {
+    margin-bottom: 4px;
+  }
+}
+
+.historyTimeline {
+  @include shared.historyTimeline;
+  .dividerBold {
+    margin: 0;
+    border-block-start: 1px solid #888;
+  }
+  .iconEdit {
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+}
+
+.loadMoreWrapper {
+  @include shared.loadMoreWrapper;
+}
+
+.detailWrapper {
+  width: 100%;
+  min-height: 60vh;
+  .modalHeader {
+    align-items: center;
+    justify-content: space-between;
+
+    .createdDate {
+      color: #888;
+    }
+
+    .userName {
+      font-weight: 700;
+      color: vars.$color_second;
+    }
+  }
+  .modalInfoRow {
+    margin-top: 10px;
+
+    .iconLabelContainer {
+      align-items: center;
+      gap: 6px;
+      min-width: 100px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        color: vars.$color_text_detail;
+        margin-bottom: 4px;
+      }
+
+      .label {
+        font-weight: bold;
+        color: vars.$color_text_detail;
+      }
+    }
+
+    .label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    .noMedia {
+      color: red;
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    .mediaContainer {
+      margin-top: 10px;
+      gap: 20px;
+
+      .imageGrid {
+        gap: 20px;
+      }
+
+      .videoGrid {
+        gap: 20px;
+      }
+    }
+  }
+}
+
+.infoField {
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 3rem;
+
+  &.infoFieldColumn {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .fieldLabelWrapper {
+    min-width: 9rem;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: vars.$color_text_detail;
+
+    .fieldLabel {
+      margin-top: 2px;
+    }
+  }
+
+  .fieldValue {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .imageWrapper {
+    width: max-content;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid vars.$color_divider;
+  }
 }

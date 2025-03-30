@@ -12,11 +12,12 @@ import { useDirtyStore, usePlantStore } from "@/stores";
 import { useModal, useStyle } from "@/hooks";
 import { criteriaService } from "@/services";
 import {
-  CriteriaApplyRequest,
   CriteriaCheckData,
-  CriteriaCheckRequest,
   CriteriaDeleteRequest,
+  CriteriaPlantCheckRequest,
   GetCriteriaObject,
+  PlantCriteriaApplyRequest,
+  ResetCriteriaPlantRequest,
 } from "@/payloads";
 import { toast } from "react-toastify";
 import { PlantPanelTitle } from "./PlantPanelTitle";
@@ -34,6 +35,7 @@ function PlantCriteria() {
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
+  const resetConfirmModal = useModal<{ id: number; isPass: boolean }>();
 
   if (!plant) return;
 
@@ -76,14 +78,15 @@ function PlantCriteria() {
     }
   };
 
-  const applyCriteria = async (criteria: CriteriaApplyRequest) => {
-    var res = await criteriaService.applyCriteria(criteria);
+  const applyCriteria = async (criteria: PlantCriteriaApplyRequest) => {
+    var res = await criteriaService.applyPlantCriteria(criteria);
     try {
       setIsLoading(true);
       if (res.statusCode === 200) {
         criteriaModal.hideModal();
         await fetchCriteriaPlant();
         toast.success(res.message);
+        setPlant({ ...plant, isPassed: res.data.isPassed });
       } else {
         toast.error(res.message);
       }
@@ -105,18 +108,20 @@ function PlantCriteria() {
         valueChecked,
       }));
 
-    const payload: CriteriaCheckRequest = {
-      plantID: plant?.plantId ? [plant.plantId] : undefined,
+    const payload: CriteriaPlantCheckRequest = {
+      plantIds: plant?.plantId ? [plant.plantId] : undefined,
       criteriaDatas,
     };
 
     try {
       setIsLoading(true);
 
-      var res = await criteriaService.checkCriteria(payload);
+      var res = await criteriaService.checkPlantCriteria(payload);
+
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaPlant();
+        if (res.data.isPassed) setPlant({ ...plant, isPassed: res.data.isPassed });
       } else {
         toast.error(res.message);
       }
@@ -139,11 +144,38 @@ function PlantCriteria() {
       if (res.statusCode === 200) {
         toast.success(res.message);
         await fetchCriteriaPlant();
+        setUpdatedCriteria([]);
       } else {
         toast.error(res.message);
       }
     } finally {
       deleteConfirmModal.hideModal();
+    }
+  };
+
+  const handleResetConfirm = async (criteriaSetId: number, isPass: boolean) =>
+    resetConfirmModal.showModal({ id: criteriaSetId, isPass: isPass });
+
+  const handleReset = async (criteriaSetId?: number) => {
+    if (!criteriaSetId) return;
+    setIsLoading(true);
+    try {
+      const req: ResetCriteriaPlantRequest = {
+        plantId: plant.plantId,
+        masterTypeId: criteriaSetId,
+      };
+      const res = await criteriaService.resetPlantCriteria(req);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        resetConfirmModal.hideModal();
+        await fetchCriteriaPlant();
+        setUpdatedCriteria([]);
+        if (res.data.isPassed == false) setPlant({ ...plant, isPassed: res.data.isPassed });
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -175,10 +207,7 @@ function PlantCriteria() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader
-        isCriteria={true}
-        onApplyCriteria={() => criteriaModal.showModal({ id: plant?.plantId })}
-      />
+      <PlantSectionHeader onApplyCriteria={() => criteriaModal.showModal({ id: plant?.plantId })} />
       <Divider className={style.divider} />
       {criteriaGroups.length > 0 ? (
         <Flex className={style.contentSectionBody}>
@@ -201,6 +230,7 @@ function PlantCriteria() {
                       handleCancel={handleCancel}
                       handleSave={handleSave}
                       handleDelete={handleDeleteConfirm}
+                      handleReset={handleResetConfirm}
                     />
                   }
                   key={group.masterTypeId}
@@ -234,6 +264,22 @@ function PlantCriteria() {
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
         onCancel={deleteConfirmModal.hideModal}
         actionType="delete"
+      />
+      {/* Confirm Reset Modal */}
+      <ConfirmModal
+        visible={resetConfirmModal.modalState.visible}
+        onConfirm={() => handleReset(resetConfirmModal.modalState.data?.id)}
+        onCancel={resetConfirmModal.hideModal}
+        title={
+          resetConfirmModal.modalState.data?.isPass
+            ? "Reset Criteria?"
+            : "Reset Incomplete Criteria?"
+        }
+        description={
+          resetConfirmModal.modalState.data?.isPass
+            ? "Are you sure you want to reset it? This action cannot be undone."
+            : "This criterion has not passed yet. Are you sure you want to reset it and clear all input values?"
+        }
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal

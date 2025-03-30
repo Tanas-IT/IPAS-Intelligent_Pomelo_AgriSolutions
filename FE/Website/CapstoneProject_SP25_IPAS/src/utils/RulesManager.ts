@@ -11,6 +11,14 @@ export class RulesManager {
       },
     ];
   }
+  static getNumberNotRequiredRules(fieldName: string) {
+    return [
+      {
+        pattern: /^(?!0$)(\d+(\.\d+)?$)/,
+        message: `${fieldName} must be a valid number greater than 0!`,
+      },
+    ];
+  }
   static getNumberRulesAllowZero(fieldName: string) {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
@@ -141,6 +149,7 @@ export class RulesManager {
 
   static getCultivarRules = () => this.getRequiredRules("Cultivar");
   static getPlantingDateRules = () => this.getRequiredRules("PlantingDate");
+  static getDateRules = () => this.getRequiredRules("Date");
   static getSelectHealthStatusRules = () => this.getRequiredRules("Select Health Status");
   static getSelectPlotRules = () => this.getRequiredRules("Select Plot");
   static getSelectRowRules = () => this.getRequiredRules("Select Row");

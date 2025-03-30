@@ -98,18 +98,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
       subMenuItems: [
         {
-          key: "Season Management",
-          label: "Season Management",
+          key: "Manage Crop",
+          label: "Manage Crop",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.CROP.CROP_LIST,
+          activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL],
         },
         {
-          key: "Harvest Management",
-          label: "Harvest Management",
+          key: "Manage Harvest Days",
+          label: "Manage Harvest Days",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.CROP.HARVEST_DAYS,
+          activePaths: [PATHS.CROP.HARVEST_DAYS],
         },
         {
           key: "Plant Yield Performance",
@@ -225,7 +225,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       key: "AI Chatbox",
       label: "AI Chatbox",
       icon: <Icons.robot />,
-      activePaths: [""],
+      to: PATHS.CHATBOX.AI_CHATBOX,
+      activePaths: [PATHS.CHATBOX.AI_CHATBOX],
       category: "Main",
       isView: !isDefault,
     },
@@ -529,6 +530,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         </Flex>
 
         {/* Main Menu */}
+        {/* <div style={{ height: "66vh" }}>{renderMenuSection("Main")}</div> */}
         {renderMenuSection("Main")}
 
         {!isDefault && (

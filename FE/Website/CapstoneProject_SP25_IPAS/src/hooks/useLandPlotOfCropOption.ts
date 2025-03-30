@@ -9,10 +9,9 @@ const useLandPlotOfCropOption = (cropId: number) => {
   useEffect(() => {
     if (!cropId) return;
     const fetchOptions = async () => {
-      const result: ApiResponse<GetLandPlotOfCrop[]> =
-        await cropService.getLandPlotOfCrop(cropId);
-        console.log("result", result);
-        
+      const result: ApiResponse<GetLandPlotOfCrop[]> = await cropService.getLandPlotOfCrop(cropId);
+      console.log("result", result);
+
       if (result.statusCode === 200) {
         const mappedOptions = result.data.map((plot) => ({
           value: plot.landPlotId,

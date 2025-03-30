@@ -15,7 +15,7 @@ interface PlantPanelTitleProps {
   handleCancel: () => void;
   handleSave: () => void;
   handleDelete: (criteriaSetId: number) => void;
-  isCompleted?: boolean;
+  handleReset: (criteriaSetId: number, isPass: boolean) => void;
 }
 
 export const PlantPanelTitle = ({
@@ -28,7 +28,7 @@ export const PlantPanelTitle = ({
   handleDelete,
   handleCancel,
   handleSave,
-  isCompleted = false,
+  handleReset,
 }: PlantPanelTitleProps) => {
   const completedCount = data.filter((item) => item.isPassed).length;
   const hasChanges = data.some(
@@ -37,6 +37,7 @@ export const PlantPanelTitle = ({
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
   const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
+  const isPass = completedCount === data.length;
 
   const startDate = data[0].createDate;
   const endDate =
@@ -55,20 +56,8 @@ export const PlantPanelTitle = ({
           ({completedCount}/{data.length})
         </span>
         <span className={style.statusTag}>
-          <Tag
-            color={
-              completedCount === data.length
-                ? "green"
-                : isAllInitialCriteriaChecked
-                ? "red"
-                : "orange"
-            }
-          >
-            {completedCount === data.length
-              ? "Pass"
-              : isAllInitialCriteriaChecked
-              ? "Not Pass"
-              : "Checking"}
+          <Tag color={isPass ? "green" : isAllInitialCriteriaChecked ? "red" : "orange"}>
+            {isPass ? "Pass" : isAllInitialCriteriaChecked ? "Not Pass" : "Checking"}
           </Tag>
         </span>
       </span>
@@ -88,6 +77,7 @@ export const PlantPanelTitle = ({
             label="Reset criteria"
             onClick={(e) => {
               e.stopPropagation();
+              handleReset(criteriaSetId, isPass);
             }}
           />
         )}

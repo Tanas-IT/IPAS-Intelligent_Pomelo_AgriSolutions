@@ -138,7 +138,7 @@ function PlantDetail() {
   };
 
   const infoFieldsLeft = [
-    { label: "Growth Status", value: plant?.growthStageName, icon: Icons.growth },
+    { label: "Growth Stage", value: plant?.growthStageName, icon: Icons.growth },
     { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
     { label: "Mother Plant", value: plant?.plantReferenceCode ?? "N/A", icon: Icons.plant },
     {
@@ -174,7 +174,6 @@ function PlantDetail() {
   return (
     <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader
-        isDetail={true}
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
         markAsDeadModal={markAsDeadModal}

@@ -11,7 +11,7 @@ import {
   TableTitle,
   PlantModal,
 } from "@/components";
-import { CriteriaApplyRequest, GetPlant, PlantRequest } from "@/payloads";
+import { GetPlant, PlantCriteriaApplyRequest, PlantRequest } from "@/payloads";
 import {
   useFetchData,
   useFilters,
@@ -184,8 +184,8 @@ function PlantList() {
     }
   };
 
-  const applyCriteria = async (criteria: CriteriaApplyRequest) => {
-    var res = await criteriaService.applyCriteria(criteria);
+  const applyCriteria = async (criteria: PlantCriteriaApplyRequest) => {
+    var res = await criteriaService.applyPlantCriteria(criteria);
     try {
       setIsPlantActionLoading(true);
       if (res.statusCode === 200) {
@@ -327,6 +327,7 @@ function PlantList() {
             cancelConfirmModal.hideModal();
             formModal.hideModal();
             importModal.hideModal();
+            criteriaModal.hideModal();
           }}
           onCancel={cancelConfirmModal.hideModal}
         />

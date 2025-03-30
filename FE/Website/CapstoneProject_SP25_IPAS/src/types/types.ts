@@ -14,6 +14,15 @@ export interface Farm {
   location: string;
 }
 
+export interface FileResource {
+  resourceID: number;
+  resourceCode: string;
+  resourceType: string;
+  resourceURL: string;
+  fileFormat: string;
+  createDate: string;
+}
+
 export interface LogoState {
   logo: File | null;
   logoUrl: string;
@@ -49,6 +58,18 @@ export type FilterPlantLotState = {
   partnerId: string[];
   previousQuantityFrom: number | undefined;
   previousQuantityTo: number | undefined;
+  isFromGrafted: boolean | null;
+};
+
+export type FilterCropState = {
+  yearFrom: string;
+  yearTo: string;
+  harvestSeason: string[];
+  actualYieldFrom: number | undefined;
+  actualYieldTo: number | undefined;
+  marketPriceFrom: number | undefined;
+  marketPriceTo: number | undefined;
+  LandPlotIds: string[];
 };
 
 export type FilterCriteriaState = {
@@ -72,6 +93,7 @@ export type FilterPlantState = {
 
 export type FilterGraftedPlantState = {
   plantIds: string[];
+  plantLotIds: string[];
   separatedDateFrom: string;
   separatedDateTo: string;
   status: string[];
@@ -100,6 +122,11 @@ export interface LandPlotsStateType {
   longitude: number;
   latitude: number;
   landPlots: GetLandPlot[];
+}
+
+export interface plotOfCrop {
+  landPlotID: number;
+  landPlotName: string;
 }
 
 // export interface rowStateType {

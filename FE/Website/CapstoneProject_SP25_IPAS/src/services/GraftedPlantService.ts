@@ -1,13 +1,17 @@
 import { axiosAuth } from "@/api";
 import {
   ApiResponse,
+  CreateGraftedPlantsRequest,
   GetData,
+  GetGraftedGrowthHistory,
   GetGraftedPlant,
   GetGraftedPlantDetail,
+  GetGraftedPlantHistory,
   GetGraftedPlantSelected,
+  GraftedGrowthHistoryRequest,
   GraftedPlantRequest,
 } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, getFileFormat, getUserId } from "@/utils";
 
 export const getGraftedPlantSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`grafted-plant/get-for-selected/${farmId}`);
@@ -43,6 +47,32 @@ export const getGraftedPlant = async (id: number): Promise<ApiResponse<GetGrafte
   return apiResponse;
 };
 
+export const getGraftedPlantHistory = async (
+  plantId: number,
+  pageIndex: number,
+  GraftedDateFrom?: string,
+  GraftedDateTo?: string,
+): Promise<ApiResponse<GetData<GetGraftedPlantHistory>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`/grafted-plant/get-by-plant`, {
+    params: {
+      plantId,
+      pageIndex,
+      GraftedDateFrom,
+      GraftedDateTo,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetGraftedPlantHistory>>;
+  return apiResponse;
+};
+
+export const createGraftedPlants = async (
+  req: CreateGraftedPlantsRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`grafted-plant`, req);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
 export const deleteGraftedPlants = async (
   ids: number[] | string[],
 ): Promise<ApiResponse<Object>> => {
@@ -56,5 +86,72 @@ export const updateGraftedPlant = async (
 ): Promise<ApiResponse<GetGraftedPlant>> => {
   const res = await axiosAuth.axiosJsonRequest.put("grafted-plant", graftedPlant);
   const apiResponse = res.data as ApiResponse<GetGraftedPlant>;
+  return apiResponse;
+};
+
+export const updateIsCompletedAndCutting = async (
+  graftedPlantId: number,
+  plantLotId: number,
+): Promise<ApiResponse<GetGraftedPlantDetail>> => {
+  const formatLotData = {
+    graftedPlantId,
+    plantLotId,
+  };
+  const res = await axiosAuth.axiosJsonRequest.put(
+    "grafted-plant/completed-and-cutting",
+    formatLotData,
+  );
+  const apiResponse = res.data as ApiResponse<GetGraftedPlantDetail>;
+  return apiResponse;
+};
+
+export const getGraftedPlantGrowthHistory = async (
+  graftedPlantId: number,
+  pageSize: number,
+  pageIndex: number,
+  createFrom?: string,
+  createTo?: string,
+): Promise<ApiResponse<GetData<GetGraftedGrowthHistory>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("grafted-plant/note/pagin", {
+    params: {
+      graftedPlantId,
+      pageSize,
+      pageIndex,
+      createFrom,
+      createTo,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetGraftedGrowthHistory>>;
+  return apiResponse;
+};
+
+export const createGraftedPlantGrowthHistory = async (
+  req: GraftedGrowthHistoryRequest,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("GraftedPlantId", req.graftedPlantId.toString());
+  formData.append("UserId", getUserId());
+  formData.append("IssueName", req.issueName);
+  formData.append("Content", req.content);
+
+  if (req.resources && req.resources.length > 0) {
+    req.resources.forEach((fileResource, index) => {
+      if (fileResource instanceof File) {
+        const format = getFileFormat(fileResource.type);
+        if (format) {
+          formData.append(`PlantResources[${index}].fileFormat`, format);
+          formData.append(`PlantResources[${index}].file`, fileResource);
+        }
+      }
+    });
+  }
+  const res = await axiosAuth.axiosMultipartForm.post(`grafted-plant/note`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteGraftedPlantGrowthHistory = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`grafted-plant/note/${id}`);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

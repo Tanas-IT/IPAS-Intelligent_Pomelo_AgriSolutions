@@ -1,3 +1,5 @@
+import { FileResource } from "@/types";
+
 export interface GetPlant {
   plantId: number;
   plantCode: string;
@@ -18,6 +20,7 @@ export interface GetPlant {
   rowIndex: number;
   landPlotName: string;
   isDead: boolean;
+  isPassed: boolean;
 }
 
 export interface GetPlantDetail extends GetPlant {
@@ -27,6 +30,7 @@ export interface GetPlantDetail extends GetPlant {
 export interface GetPlantSelect {
   id: string;
   code: string;
+  name: string;
 }
 
 export interface plantSimulate {
@@ -60,4 +64,18 @@ export interface GetPlantTargetResponse {
   plants: Plant[];
   plantLots: any[];
   graftedPlants: any[];
+}
+
+export interface GetPlantGrowthHistory {
+  plantId: number;
+  plantGrowthHistoryId: number;
+  plantGrowthHistoryCode: string;
+  issueName: string;
+  content: string;
+  noteTakerName: string;
+  noteTakerAvatar: string;
+  createDate: string;
+  numberImage: number;
+  numberVideos: number;
+  resources: FileResource[];
 }

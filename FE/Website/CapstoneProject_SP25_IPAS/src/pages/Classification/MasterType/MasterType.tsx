@@ -29,7 +29,7 @@ import { MASTER_TYPE_SHOW_TABLE } from "@/constants";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
   const typeOptions = Object.keys(MASTER_TYPE_SHOW_TABLE).map((key) => ({

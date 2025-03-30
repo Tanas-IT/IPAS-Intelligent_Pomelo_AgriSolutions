@@ -26,6 +26,8 @@ export {
   MdOutlineScatterPlot as lot,
   MdOutlineTerrain as soil,
   MdAssignmentAdd as addPLan,
+  MdOutlinePermMedia as media,
+  MdBarChart as chart
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -56,6 +58,9 @@ export {
   FaRegEye as eye,
   FaRegStar as star,
   FaTasks as task,
+  FaLeaf as leaf,
+  FaMoneyBillAlt as money,
+  FaClock as clock
 } from "react-icons/fa";
 export {
   PiFarm as farms,
