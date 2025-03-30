@@ -254,7 +254,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
         }
 
-        public async Task<BusinessResult> AssignTagToImage(string? answer, string tagId, int reportId, int? answerId)
+        public async Task<BusinessResult> AssignTagToImage(string tagId, int reportId, int? answerId)
         {
             try
             {
@@ -274,10 +274,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if(getProfessional != null)
                         {
                             getReportOfUserByImageURL.AnswererID = answerId;
-                            if(answer != null)
-                            {
-                                getReportOfUserByImageURL.AnswerFromExpert = answer;
-                            }
                         }
                         getReportOfUserByImageURL.IsTrainned = true;
                         _unitOfWork.ReportRepository.Update(getReportOfUserByImageURL);
@@ -389,6 +385,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(404, "Do not have any report of user");
                 }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> AnswerReport(AnswerReportModel answerReportModel, int? answerId)
+        {
+            try
+            {
+                var getReportToAnswer = await _unitOfWork.ReportRepository.GetByID(answerReportModel.ReportId);
+                if (getReportToAnswer == null)
+                {
+                    return new BusinessResult(200, "Can not find any report");
+                }
+                getReportToAnswer.AnswerFromExpert = answerReportModel.Answer;
+                getReportToAnswer.AnswererID = answerId;
+                 _unitOfWork.ReportRepository.Update(getReportToAnswer);
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Answer Report Success");
+                }
+                return new BusinessResult(400, "Answer Report Failed");
             }
             catch (Exception ex)
             {

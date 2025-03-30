@@ -16,7 +16,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetAllReportOfCustomer(GetAllReportOfUserModel getAllReportOfUserModel);
         public Task<BusinessResult> UpdateReportOfCustomer(UpdateReportOfUserModel updateReportOfUserModel);
         public Task<BusinessResult> PermantlyDeleteReportOfCustomer(DeleteReportOfUserModel PermentlyDeleteReportOfUserModel);
-        public Task<BusinessResult> AssignTagToImage(string? answer, string tagId, int reportId, int? answerId);
+        public Task<BusinessResult> AssignTagToImage(string tagId, int reportId, int? answerId);
         public Task<BusinessResult> GetReportOfUser(GetAllReportOfUserModel getAllReportOfUserModel, int questionerId);
+        public Task<BusinessResult> AnswerReport(AnswerReportModel answerReportModel, int? answerId);
     }
 }

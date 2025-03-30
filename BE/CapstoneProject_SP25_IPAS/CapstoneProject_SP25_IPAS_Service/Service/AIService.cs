@@ -654,17 +654,20 @@ const generationConfig = {
                 var calculateTakeIndex = (getImagesModelWithPagination.PageIndex - 1) * getImagesModelWithPagination.PageSize;
                 var getAllImages = await trainingClient.GetImagesAsync(
                                                 projectId,
-                                                taggingStatus: getImagesModelWithPagination.TaggingStatus,
                                                 orderBy: getImagesModelWithPagination.OrderBy,
                                                 take: getImagesModelWithPagination.PageSize,
                                                 skip: calculateTakeIndex
                                             );
-                var filteredImages = getAllImages
-                                .Where(img => img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
-                                .ToList();
+                if(tagIds.Count > 0)
+                {
+                    getAllImages = getAllImages
+                               .Where(img => img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
+                               .ToList();
+                }
+               
                 if (getAllImages != null && getAllImages.Count() > 0)
                 {
-                    return new BusinessResult(200, "Get All Images From Custom Vision Success", filteredImages);
+                    return new BusinessResult(200, "Get All Images From Custom Vision Success", getAllImages);
                 }
                 return new BusinessResult(404, "Do not have any image");
             }

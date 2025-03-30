@@ -9,8 +9,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel
 {
     public class GetImagesModelWithPagination
     {
-        [FromQuery(Name = "taggingStatus")]
-        public string? TaggingStatus { get; set; }
         [FromQuery(Name = "tagName")]
         public string? TagName { get; set; }
         [FromQuery(Name = "orderBy")]

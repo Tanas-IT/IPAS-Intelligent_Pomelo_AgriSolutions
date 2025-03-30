@@ -104,16 +104,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.ReportOfUser.AssignTagToImageinReportOfUser, Name = "assignTagToImageinReportOfUser")]
-        public async Task<IActionResult> AssignTagToImageinReportOfUser([FromBody] AssignTagToImageModel assignTagToImageModel)
+        [HttpPost(APIRoutes.ReportOfUser.AssignTagToImageinReportOfUser, Name = "assignTagToImageinReportOfUser")]
+        public async Task<IActionResult> AssignTagToImageinReportOfUser([FromBody] AssignTagToImageModel assignTagToImageModel, [FromQuery] int? answererId)
         {
             try
             {
-                if (assignTagToImageModel.AnswererId == null)
+                if (answererId == null)
                 {
-                    assignTagToImageModel.AnswererId = _jwtTokenService.GetUserIdFromToken();
+                    answererId = _jwtTokenService.GetUserIdFromToken();
                 }
-                var result = await _reportOfUserService.AssignTagToImage(answer: assignTagToImageModel.AnswerFromExpert, tagId: assignTagToImageModel.TagId, reportId: assignTagToImageModel.ReportId, answerId: assignTagToImageModel.AnswererId);
+                var result = await _reportOfUserService.AssignTagToImage(tagId: assignTagToImageModel.TagId, reportId: assignTagToImageModel.ReportId, answerId: answererId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -138,6 +138,30 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     userId = _jwtTokenService.GetUserIdFromToken();
                 }
                 var result = await _reportOfUserService.GetReportOfUser(getAllReportOfUserModel, userId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.ReportOfUser.answerReportOfUser, Name = "answerReportOfUser")]
+        public async Task<IActionResult> AnswerReportOfUser([FromBody] AnswerReportModel answerReportModel, [FromQuery] int? answererId)
+        {
+            try
+            {
+                if (answererId == null)
+                {
+                    answererId = _jwtTokenService.GetUserIdFromToken();
+                }
+                var result = await _reportOfUserService.AnswerReport(answerReportModel, answererId);
                 return Ok(result);
             }
             catch (Exception ex)

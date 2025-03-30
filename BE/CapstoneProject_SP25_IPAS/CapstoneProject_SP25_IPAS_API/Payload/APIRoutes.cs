@@ -507,6 +507,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string UpdateReportOfUser = prefix + "/update";
             public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
             public const string getReportOfUser = prefix + "/get-report-of-user";
+            public const string answerReportOfUser = prefix + "/answer-report";
         }
 
         public static class SystemConfig
