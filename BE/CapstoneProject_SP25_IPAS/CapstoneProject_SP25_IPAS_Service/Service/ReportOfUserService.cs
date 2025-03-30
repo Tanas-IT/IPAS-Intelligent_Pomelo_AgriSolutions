@@ -156,7 +156,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             else
             {
-                return new BusinessResult(404, "Do not have any report of user");
+                return new BusinessResult(200, "Do not have any report of user");
             }
         }
 
