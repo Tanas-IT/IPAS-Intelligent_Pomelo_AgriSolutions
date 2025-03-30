@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
-        public async Task<IActionResult> AskQuestion([FromBody] ChatRequest request, int? farmId, int? userId)
+        public async Task<IActionResult> GetAnswerAsync([FromBody] ChatRequest request, int? farmId, int? userId)
         {
             try
             {
