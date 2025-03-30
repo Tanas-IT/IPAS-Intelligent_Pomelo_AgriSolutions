@@ -33,6 +33,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<bool> CheckWorkLogAvailability([FromQuery] int[] workLogIds);
         public Task CheckWorkLogAvailabilityWhenAddPlan(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, int? masterTypeId, List<int> listEmployeeIds);
         public Task<List<WorkLog>> GetWorkLogsByFarm(int farmId);
+        public Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds);
 
 
     }
