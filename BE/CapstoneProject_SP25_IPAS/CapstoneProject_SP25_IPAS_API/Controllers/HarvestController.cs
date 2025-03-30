@@ -189,6 +189,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpPut(APIRoutes.Harvest.SoftedDeletedHarvestHistory, Name = "SoftedDeletedHarvestHistory")]
+        public async Task<IActionResult> SoftedDeletedHarvestHistory([FromQuery] List<int> harvestIds)
+        {
+            var result = await _harvestHistoryService.SoftedDeleted(harvestIds);
+            return Ok(result);
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.Harvest.deleteProductHarvest, Name = "deleteProductHarvest")]
         public async Task<IActionResult> deleteProductHarvestAsync([FromQuery] int harvestId, int masterTypeId)
