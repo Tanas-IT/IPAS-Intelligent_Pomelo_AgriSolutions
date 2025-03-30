@@ -375,6 +375,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string CheckAttendance = prefix + "/check-attendance";
             public const string UpdateNoteForWorkLog = prefix + "/update-note";
             public const string StatisticWorkLog = prefix + "/employee/task-stats";
+            public const string GetWorkLogByStatusAndUserId = prefix + "/get-by-status-and-userId";
         }
 
         public static class Report

@@ -36,5 +36,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds);
 
         public Task<List<WorkLog>> GetListWorkLogByFarmId(int farmId);
+        public Task<List<WorkLog>> GetWorkLogByStatusAndUserId (string status, int userId);
     }
 }

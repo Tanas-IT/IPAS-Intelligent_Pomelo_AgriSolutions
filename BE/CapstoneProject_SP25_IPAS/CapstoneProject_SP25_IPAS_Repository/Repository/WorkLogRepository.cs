@@ -447,5 +447,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                             .Where(x => x.Schedule.FarmID == farmId).ToListAsync();
             return getAllWorkLog;
         }
+
+        public async Task<List<WorkLog>> GetWorkLogByStatusAndUserId(string status, int userId)
+        {
+            var getListWorkLog = await _context.WorkLogs
+                                    .Include(x => x.UserWorkLogs)
+                                    .ThenInclude(uwl => uwl.User) // Giả sử User có Avatar
+                                    .Where(x =>
+                                        (string.IsNullOrEmpty(status) || (x.Status ?? "").ToLower() == status.ToLower()) // Nếu status là null thì lấy tất cả
+                                        && x.UserWorkLogs.Any(uwl => uwl.UserId == userId))
+                                    .ToListAsync();
+            return getListWorkLog;
+        }
     }
 }

@@ -30,6 +30,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CanceledWorkLogByEmployee(int workLogId, int userId);
         public Task<BusinessResult> CheckAttendance(CheckAttendanceModel checkAttendanceModel);
         public Task<BusinessResult> TaskStatics(int farmId);
-
+        public Task<BusinessResult> GetWorkLogbyStatus(GetWorkLogByStatusParam getWorkLogByStatusModel);
     }
 }

@@ -1797,5 +1797,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> GetWorkLogbyStatus(GetWorkLogByStatusParam getWorkLogByStatusModel)
+        {
+            try
+            {
+                if(getWorkLogByStatusModel.UserId == 0)
+                {
+                    return new BusinessResult(400, "UserId can not be empty");
+                }
+                var getWorkLogByStatusAndUser = await _unitOfWork.WorkLogRepository.GetWorkLogByStatusAndUserId(getWorkLogByStatusModel.Status, getWorkLogByStatusModel.UserId);
+                var result = getWorkLogByStatusAndUser.Select(wl => new GetWorkLogByStatusModel
+                {
+                    WorkLogId = wl.WorkLogId,
+                    WorkLogName = wl.WorkLogName,
+                    Date = wl.Date,
+                    Time = wl.ActualStartTime + " - " + wl.ActualEndTime,
+                    Status = wl.Status ?? "unknown", // Nếu null thì hiển thị "unknown"
+                    avatarEmployees = wl.UserWorkLogs.Select(uwl => uwl.User.AvatarURL ?? "").ToList()
+                }).ToList();
+                if(result.Count > 0 )
+                {
+                    return new BusinessResult(200, "Get workLog by status success", result);
+                }
+                return new BusinessResult(404, "Do not have any workLog");
+            }
+            catch (Exception ex)
+            {
+               return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
