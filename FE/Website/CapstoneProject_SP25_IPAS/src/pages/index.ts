@@ -21,6 +21,7 @@ export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManag
 export { default as DraggableRow } from "@/pages/Farm/LandPlot/LandPlotManagement/DraggableRow/DraggableRow";
 
 export { default as CropDetails } from "@/pages/Crop/CropDetails/CropDetails";
+export { default as CropDetail } from "@/pages/Crop/CropDetails/CropDetail/CropDetail";
 
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
@@ -64,3 +65,5 @@ export { default as EmployeeWorklog } from "@/pages/EmployeeView/EmployeeWorklog
 export { default as EmployeeWorklogDetail } from "@/pages/EmployeeView/EmployeeWorklog/WorklogDetail/EmployeeWorklogDetail";
 export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
 export { default as CropList } from "@/pages/Crop/CropList/CropList";
+export { default as HarvestDays } from "@/pages/Crop/HarvestDays/HarvestDays";
+export { default as ChatBox } from "@/pages/ChatBox/ChatBox";

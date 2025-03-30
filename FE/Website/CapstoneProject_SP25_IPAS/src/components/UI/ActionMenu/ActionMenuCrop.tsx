@@ -6,16 +6,15 @@ import { ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
-  id: number;
-  noView?: boolean;
+  id?: number;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-const ActionMenuCrop: FC<ActionMenuProps> = ({ id, noView = false, onEdit, onDelete }) => {
+const ActionMenuCrop: FC<ActionMenuProps> = ({ id, onEdit, onDelete }) => {
   const navigate = useNavigate();
   const actionItems = [
-    !noView
+    id !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View  Crop Details",

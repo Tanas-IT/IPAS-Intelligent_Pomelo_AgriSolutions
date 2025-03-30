@@ -1160,7 +1160,8 @@ VALUES
 (1, 14, 5), 
 (1, 15, 5), 
 (1, 16, 4), -- Olivia Martinez (Manager)
-(1, 17, 4); -- Daniel Brown (Manager)
+(1, 17, 4), -- Daniel Brown (Manager)
+(1, 23, 5);
 GO
 -- Fake data for GrowthStage table with FarmID = 1
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)

@@ -41,7 +41,12 @@ const GrowthTimeline = <T extends { [key: string]: any }>({
               </Flex>
               <div className={style.timelineDetail}>
                 <Flex gap={10} align="center">
-                  <UserAvatar avatarURL={item.noteTakerAvatar || undefined} size={30} />
+                  {/* <UserAvatar avatarURL={item.noteTakerAvatar || undefined} size={30} /> */}
+                  <UserAvatar
+                    avatarURL={item?.noteTakerAvatar}
+                    fallbackText={item.noteTakerName && item.noteTakerName.charAt(0).toUpperCase()}
+                    size={30}
+                  />
                   <span className={style.userName}>{item.noteTakerName}</span>
                   <span>created this note</span>
                   <span className={style.createdDate}>

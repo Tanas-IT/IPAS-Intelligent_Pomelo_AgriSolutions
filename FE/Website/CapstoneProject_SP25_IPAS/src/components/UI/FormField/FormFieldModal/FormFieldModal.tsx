@@ -161,7 +161,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             placeholder={placeholder}
             onChange={onChange}
             readOnly={readonly}
-            maxLength={500}
+            maxLength={255}
           />
         );
       case "date":

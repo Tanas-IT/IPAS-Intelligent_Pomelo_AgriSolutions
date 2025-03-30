@@ -25,6 +25,7 @@ export const PATHS = {
   CROP: {
     CROP_LIST: "/crop/list",
     CROP_DETAIL: "/crop/:id/details",
+    HARVEST_DAYS: "/crop/harvest-days",
     PLANT_YIELD: "/crop/plant-yield",
   },
 
@@ -83,6 +84,10 @@ export const PATHS = {
   // Partner Management
   PARTNERS: {
     PARTNER_LIST: "/partners",
+  },
+
+  CHATBOX: {
+    AI_CHATBOX: "/ai-chatbox",
   },
 
   //Package Management

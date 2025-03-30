@@ -1,5 +1,12 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, CropRequest, GetCrop2, GetCropDetail, GetData } from "@/payloads";
+import {
+  ApiResponse,
+  CropRequest,
+  GetCrop2,
+  GetCropDetail,
+  GetCropSelect,
+  GetData,
+} from "@/payloads";
 import { CropResponse, GetCrop, GetLandPlotOfCrop } from "@/payloads";
 import { buildParams } from "@/utils";
 
@@ -51,6 +58,12 @@ export const getCropOfFarm = async (cropId: number): Promise<ApiResponse<GetCrop
   return apiResponse;
 };
 
+export const getCropsOfFarmSelect = async () => {
+  const res = await axiosAuth.axiosJsonRequest.get(`crops/for-selected/crop-of-farm`);
+  const apiResponse = res.data as ApiResponse<GetCropSelect[]>;
+  return apiResponse;
+};
+
 export const deleteCrop = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.patch(`crops/delete-softed/${ids}`);
   const apiResponse = res.data as ApiResponse<Object>;
@@ -72,7 +85,6 @@ export const updateCrop = async (crop: CropRequest): Promise<ApiResponse<GetCrop
     status: crop.status,
     notes: crop.notes,
   };
-  console.log(payload);
 
   const res = await axiosAuth.axiosJsonRequest.put("crops", payload);
   const apiResponse = res.data as ApiResponse<GetCrop2>;
