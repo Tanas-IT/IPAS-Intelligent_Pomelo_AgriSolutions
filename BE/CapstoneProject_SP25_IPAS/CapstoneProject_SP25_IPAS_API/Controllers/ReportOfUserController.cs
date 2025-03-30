@@ -129,15 +129,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.ReportOfUser.getReportOfUser, Name = "getReportOfUser")]
-        public async Task<IActionResult> GetReportOfUser([FromQuery] GetAllReportOfUserModel getAllReportOfUserModel, int? answerId)
+        public async Task<IActionResult> GetReportOfUser([FromQuery] GetAllReportOfUserModel getAllReportOfUserModel, int? userId)
         {
             try
             {
-                if (answerId == null)
+                if (userId == null)
                 {
-                    answerId = _jwtTokenService.GetUserIdFromToken();
+                    userId = _jwtTokenService.GetUserIdFromToken();
                 }
-                var result = await _reportOfUserService.GetReportOfUser(getAllReportOfUserModel, answerId.Value);
+                var result = await _reportOfUserService.GetReportOfUser(getAllReportOfUserModel, userId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
