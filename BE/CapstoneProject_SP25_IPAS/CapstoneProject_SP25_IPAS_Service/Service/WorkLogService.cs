@@ -672,7 +672,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var parseStartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
-                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeId == updateWorkLogModel.MasterTypeId);
@@ -684,9 +684,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
+                        if(findWorkLog.Schedule.CarePlan != null)
+                        {
+                            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(parseStartTime, parseEndTime, updateWorkLogModel.DateWork.Value, findWorkLog.Schedule.CarePlan.MasterTypeId, updateWorkLogModel.listEmployee.Select(x => x.UserId).ToList());
+                        }
+
                     }
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == updateWorkLogModel.ProcessId);
                     if (updateWorkLogModel.DateWork != null)
@@ -940,13 +945,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             findWorkLog.Schedule.CustomDates = updateWorkLogModel.DateWork.Value.Date.ToString("dd/MM/yyyy");
                         }
-                        if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null)
+                        if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null && updateWorkLogModel.DateWork != null)
                         {
-                            var checkConflict = await _unitOfWork.CarePlanScheduleRepository.IsScheduleConflictedForWorkLog(farmId, updateWorkLogModel.DateWork.Value, updateWorkLogModel.DateWork.Value, TimeSpan.Parse(updateWorkLogModel.StartTime), TimeSpan.Parse(updateWorkLogModel.EndTime));
-                            if (checkConflict)
-                            {
-                                throw new Exception($"The date {updateWorkLogModel?.DateWork?.Date.ToString("dd/MM/yyyy")} with StartTime: {updateWorkLogModel.StartTime} and EndTime: {updateWorkLogModel.EndTime} is conflicted. Please try another");
-                            }
+                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(TimeSpan.Parse(updateWorkLogModel.StartTime), TimeSpan.Parse(updateWorkLogModel.EndTime), updateWorkLogModel.DateWork.Value, updateWorkLogModel.listEmployee.Select(x => x.UserId).ToList());
                         }
 
                     }
@@ -1533,6 +1534,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (changeEmployeeOfWorkLog.DateWork != null)
                 {
+                    if(changeEmployeeOfWorkLog.DateWork < DateTime.Now)
+                    {
+                        return new BusinessResult(400, "Date of Work must be greater than now");
+                    }
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
 
                 }

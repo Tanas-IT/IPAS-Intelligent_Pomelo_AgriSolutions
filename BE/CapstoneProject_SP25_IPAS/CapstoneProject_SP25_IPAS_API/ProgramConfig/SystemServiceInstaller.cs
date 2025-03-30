@@ -153,6 +153,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             //services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
             services.AddScoped<ISoftDeleteCommon, SoftDeleteCommon>();
+            services.AddScoped<IScheduleService, ScheduleService>();
             //services.AddHostedService<WorkLogStatusUpdaterService>();
             //services.AddHostedService<PlantGrowthUpdateService>();
             

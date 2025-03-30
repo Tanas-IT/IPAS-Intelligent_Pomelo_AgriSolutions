@@ -513,16 +513,22 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class SystemConfig
         {
             private const string prefix = Base + "/system-config";
-            public const string createSystemConfig = prefix ;
-            public const string getSystemConfigById = prefix ;
+            public const string createSystemConfig = prefix;
+            public const string getSystemConfigById = prefix;
             public const string getSystemConfigPagination = prefix;
-            public const string permanenlyDelete = prefix ;
+            public const string permanenlyDelete = prefix;
             public const string updateSystemConfig = prefix;
             public const string getSystemConfigForSelected = prefix + "/for-selected";
             public const string getSystemConfigAddable = prefix + "/addable";
             public const string getSystemConfigGroup = prefix + "/group/for-selected";
             public const string getSystemConfigNoPagin = prefix + "/no-pagin";
 
+        }
+        public static class Schedule
+        {
+            private const string prefix = Base + "/schedule";
+            public const string updateTimeAndEmployee = prefix + "/update-time-and-employee";
+            public const string changeTimeOfSchedule = prefix + "/change-time-of-schedule";
         }
     }
 }
