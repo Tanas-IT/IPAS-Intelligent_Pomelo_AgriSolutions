@@ -23,6 +23,7 @@ using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using MailKit.Search;
 using System.Linq;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -32,12 +33,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         private readonly IWorkLogService _workLogService;
-        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService)
+        private readonly IScheduleService _scheduleService;
+        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService, IScheduleService scheduleService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = config;
             _workLogService = workLogService;
+            _scheduleService = scheduleService;
         }
 
         public async Task<BusinessResult> createHarvestHistory(CreateHarvestHistoryRequest createRequest)
@@ -455,7 +458,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (cropId <= 0)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
-                Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
+                Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
                 Expression<Func<HarvestHistory, bool>> filter = c => c.CropId == cropId && c.Crop!.IsDeleted == false;
                 //Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.StartDate >= DateTime.Now && x.Crop.EndDate <= DateTime.Now;
                 //Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
@@ -534,10 +537,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
-                    harvestHistory.DateHarvest = updateRequest.DateHarvest;
-                    harvestHistory.HarvestHistoryNote = updateRequest.HarvestHistoryNote;
-                    harvestHistory.TotalPrice = updateRequest.TotalPrice;
-                    harvestHistory.HarvestStatus = updateRequest.HarvestStatus;
+                    if (!string.IsNullOrEmpty(updateRequest.HarvestHistoryNote))
+                    {
+                        harvestHistory.HarvestHistoryNote = updateRequest.HarvestHistoryNote;
+                    }
+                    if (updateRequest.TotalPrice.HasValue)
+                        harvestHistory.TotalPrice = updateRequest.TotalPrice;
+                    if (!string.IsNullOrEmpty(updateRequest.HarvestStatus))
+                    {
+                        if (!HarvestStatusConst.ValidStatuses.Contains(updateRequest.HarvestStatus.ToLower()))
+                        {
+                            return new BusinessResult(400, $"Invalid harvest status '{updateRequest.HarvestStatus}'");
+                        }
+                        harvestHistory.HarvestStatus = updateRequest.HarvestStatus;
+                    }
+                    if (updateRequest.DateHarvest.HasValue)
+                    {
+                        var scheduleExist = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.HarvestHistoryID == harvestHistory.HarvestHistoryId && x.IsDeleted == false);
+                        harvestHistory.DateHarvest = updateRequest.DateHarvest;
+                        var updateSheduleRequest = new ChangeTimeOfScheduleModel
+                        {
+                            StartTime = updateRequest.StartTime,
+                            EndTime = updateRequest.EndTime,
+                            CustomeDates = new List<DateTime> { updateRequest.DateHarvest.Value, DateTime.Now.AddDays(10), DateTime.Now.AddDays(15) },
+                            ScheduleId = scheduleExist.ScheduleId
+                        };
+                        var updateWorkLog = await _scheduleService.ChangeTimeOfSchedule(updateSheduleRequest);
+                        if (updateWorkLog.StatusCode != 200)
+                            return updateWorkLog;
+                    }
 
                     _unitOfWork.HarvestHistoryRepository.Update(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
@@ -765,7 +793,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
            .Select(group => new
            {
                Plant = _mapper.Map<PlantModel>(group.First().Plant),  // Lấy object Plant đầy đủ
-               //Plant = group.Key,
+                                                                      //Plant = group.Key,
                TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
                HarvestCount = group.Count() // Số lần thu hoạch
            })
@@ -909,7 +937,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     _unitOfWork.CarePlanScheduleRepository.UpdateRange(carePlanSchedules);
                     // Xóa mềm WorkLog
                     var scheduleIds = carePlanSchedules.Select(c => c.ScheduleId).ToList();
-                    
+
                     var workLogs = await _unitOfWork.WorkLogRepository
                         .GetAllNoPaging(w => w.ScheduleId.HasValue && scheduleIds.Contains(w.ScheduleId.Value));
 
