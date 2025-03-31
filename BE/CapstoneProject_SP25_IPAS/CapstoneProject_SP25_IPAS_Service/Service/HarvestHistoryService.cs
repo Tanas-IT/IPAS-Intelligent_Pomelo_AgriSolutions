@@ -559,7 +559,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             StartTime = updateRequest.StartTime,
                             EndTime = updateRequest.EndTime,
-                            CustomeDates = new List<DateTime> { updateRequest.DateHarvest.Value },
+                            CustomeDates = new List<DateTime> { updateRequest.DateHarvest.Value, DateTime.Now.AddDays(10), DateTime.Now.AddDays(15) },
                             ScheduleId = scheduleExist.ScheduleId
                         };
                         var updateWorkLog = await _scheduleService.ChangeTimeOfSchedule(updateSheduleRequest);

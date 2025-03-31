@@ -87,6 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 };
                                 newWorklog.UserWorkLogs.Add(UserWorklog);
                             }
+                            await _unitOfWork.WorkLogRepository.Insert(newWorklog);
                         }
                     }
 
