@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Lấy danh sách ScheduleId từ CarePlanSchedules
             var scheduleIds = listCarePlanSchedule.Select(x => x.ScheduleId).ToList();
 
-            // Lấy danh sách WorkLogs liên quan, loại bỏ những workLog có Date < hiện tại hoặc có Status "completed"
+            // Lấy danh sách WorkLogs liên quan, loại bỏ những workLog có Date < hiện tại hoặc có Status "done"
             var workLogsToDelete = await _context.WorkLogs
                 .Where(x => scheduleIds.Contains(x.ScheduleId.Value) &&
                             !(x.Date < DateTime.Now || (x.Status != null && x.Status.ToLower() == "done")))
