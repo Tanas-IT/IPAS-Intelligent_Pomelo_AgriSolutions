@@ -32,6 +32,7 @@ export { default as ActionMenuPartner } from "@/components/UI/ActionMenu/ActionM
 export { default as ActionMenuCriteria } from "@/components/UI/ActionMenu/ActionMenuCriteria";
 export { default as ActionMenuGraftedPlant } from "@/components/UI/ActionMenu/ActionMenuGraftedPlant";
 export { default as ActionMenuCrop } from "@/components/UI/ActionMenu/ActionMenuCrop";
+export { default as ActionMenuHarvest } from "@/components/UI/ActionMenu/ActionMenuHarvest";
 export { default as ActionMenuChat } from "@/components/UI/ActionMenu/ActionMenuChat";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
@@ -78,6 +79,8 @@ export { default as PlantMarkAsDeadModal } from "@/components/UI/Modal/PlantMark
 export { default as PlantModal } from "@/components/UI/Modal/PlantModal/PlantModal";
 export { default as LotModal } from "@/components/UI/Modal/LotModal";
 export { default as CropModal } from "@/components/UI/Modal/CropModal";
+export { default as HarvestModal } from "@/components/UI/Modal/HarvestModal/HarvestModal";
 export { default as CropSectionHeader } from "@/components/UI/Details/CropSectionHeader";
 export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlantModal";
 export { default as NewIssueModal } from "@/components/UI/Modal/NewIssueModal/NewIssueModal";
+export { default as CuttingGraftedModal } from "@/components/UI/Modal/CuttingGraftedModal";

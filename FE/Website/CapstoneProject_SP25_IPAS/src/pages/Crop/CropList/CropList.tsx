@@ -36,7 +36,6 @@ function CropList() {
   const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
   const updateConfirmModal = useModal<{ crop: CropRequest }>();
   const cancelConfirmModal = useModal();
-  const { isDirty } = useDirtyStore();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterCropState>(
     DEFAULT_CROP_FILTERS,

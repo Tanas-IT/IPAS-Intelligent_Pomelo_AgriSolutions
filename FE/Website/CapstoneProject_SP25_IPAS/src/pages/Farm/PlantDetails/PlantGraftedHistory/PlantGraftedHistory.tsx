@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
-import { Flex, Table, Collapse, Divider, Typography, Empty, DatePicker } from "antd";
+import { Flex, Table, Divider, Empty } from "antd";
 import { ConfirmModal, LoadingSkeleton, PlantSectionHeader, TimelineFilter } from "@/components";
 import style from "./PlantGraftedHistory.module.scss";
-import { ColumnsType } from "antd/es/table";
-import { DATE_FORMAT, formatDate } from "@/utils";
 import { graftedPlantService } from "@/services";
 import { useDirtyStore, usePlantStore } from "@/stores";
 import { CreateGraftedPlantsRequest, GetGraftedPlantHistory } from "@/payloads";
-import { Icons } from "@/assets";
 import { Dayjs } from "dayjs";
 import { columns } from "./columns";
 import { useModal } from "@/hooks";
 import CreateGraftedModal from "./CreateGraftedModal";
 import { toast } from "react-toastify";
-
-const { Text } = Typography;
-const { RangePicker } = DatePicker;
 
 function PlantGraftedHistory() {
   const { plant } = usePlantStore();

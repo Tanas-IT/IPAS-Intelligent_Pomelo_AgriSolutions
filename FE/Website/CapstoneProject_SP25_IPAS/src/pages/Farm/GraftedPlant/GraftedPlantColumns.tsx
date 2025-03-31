@@ -50,6 +50,16 @@ export const GraftedPlantColumns: TableColumn<GetGraftedPlant>[] = [
     width: 150,
   },
   {
+    header: "Completed",
+    field: "isCompleted",
+    accessor: (item) => (
+      <Tag color={item.isCompleted ? "green" : "red"}>
+        {item.isCompleted ? "Completed" : "Not Completed"}
+      </Tag>
+    ),
+    width: 120,
+  },
+  {
     header: "Mother Plant",
     field: "plantName",
     accessor: (item) => <TableCell value={item.plantName} />,
@@ -78,15 +88,5 @@ export const GraftedPlantColumns: TableColumn<GetGraftedPlant>[] = [
     field: "note",
     accessor: (item) => <TableCell value={item.note} />,
     width: 180,
-  },
-  {
-    header: "Completed",
-    field: "isCompleted",
-    accessor: (item) => (
-      <Tag color={item.isCompleted ? "green" : "red"}>
-        {item.isCompleted ? "Completed" : "Not Completed"}
-      </Tag>
-    ),
-    width: 120,
   },
 ];

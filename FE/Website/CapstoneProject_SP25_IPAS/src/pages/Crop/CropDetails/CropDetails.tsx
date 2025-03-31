@@ -5,7 +5,7 @@ import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { CropDetail } from "@/pages";
+import { CropDetail, HarvestDays } from "@/pages";
 
 function CropDetails() {
   const navigate = useNavigate();
@@ -17,6 +17,12 @@ function CropDetails() {
       icon: <Icons.detail className={style.iconTab} />,
       label: <label className={style.titleTab}>Detail</label>,
       children: <CropDetail />,
+    },
+    {
+      key: "2",
+      icon: <Icons.plant className={style.iconTab} />,
+      label: <label className={style.titleTab}>Harvest Days</label>,
+      children: <HarvestDays />,
     },
   ];
 

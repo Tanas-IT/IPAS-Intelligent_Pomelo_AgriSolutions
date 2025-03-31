@@ -15,7 +15,7 @@ import {
 } from "antd";
 import style from "./FormFieldModal.module.scss";
 import { DATE_FORMAT } from "@/utils";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -36,7 +36,7 @@ interface FormFieldModalProps {
     | "image"
     | "time"
     | "radio";
-  options?: { value: string | number; label: string }[];
+  options?: { value: string | number; label: string | ReactNode }[];
   value?: string | string[] | number | undefined;
   image?: File | string;
   readonly?: boolean;
@@ -44,6 +44,7 @@ interface FormFieldModalProps {
   isLoading?: boolean;
   isSearch?: boolean;
   isCheck?: boolean;
+  isSingleRadio?: boolean;
   hasFeedback?: boolean;
   placeholder?: string;
   radioLabels?: { yes: string; no: string };
@@ -69,6 +70,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   isLoading = false,
   isSearch = true,
   isCheck = false,
+  isSingleRadio = false,
   hasFeedback = true,
   placeholder = `Enter ${label.toLowerCase()}`,
   radioLabels = { yes: "Yes", no: "No" },
@@ -152,7 +154,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
         return (
           <Radio.Group onChange={(e) => onChange?.(e.target.value)} value={value}>
             <Radio value={true}>{radioLabels.yes}</Radio>
-            <Radio value={false}>{radioLabels.no}</Radio>
+            {!isSingleRadio && <Radio value={false}>{radioLabels.no}</Radio>}
           </Radio.Group>
         );
       case "textarea":

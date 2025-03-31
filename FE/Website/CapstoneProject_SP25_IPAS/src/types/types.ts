@@ -1,5 +1,6 @@
 import { GetLandPlot } from "@/payloads";
 import { GetProp, UploadProps } from "antd";
+import { ReactNode } from "react";
 
 export interface ActionMenuItem {
   icon: React.ReactNode;
@@ -41,7 +42,7 @@ export interface PolygonInit {
 
 export interface SelectOption {
   value: string | number;
-  label: string;
+  label: string | ReactNode;
 }
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
@@ -70,6 +71,15 @@ export type FilterCropState = {
   marketPriceFrom: number | undefined;
   marketPriceTo: number | undefined;
   LandPlotIds: string[];
+  status: string[];
+};
+
+export type FilterHarvestDayState = {
+  dateHarvestFrom: string;
+  dateHarvestTo: string;
+  totalPriceFrom: number | undefined;
+  totalPriceTo: number | undefined;
+  status: string[];
 };
 
 export type FilterCriteriaState = {

@@ -13,7 +13,7 @@ import {
   userService,
 } from "@/services";
 import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
@@ -160,6 +160,14 @@ export const getCurrentDate = (): string => {
 
 export const formatDate = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY");
+};
+
+export const formatDateReq = (date?: dayjs.ConfigType): string | null => {
+  return date ? dayjs(date).format("YYYY-MM-DD") : null;
+};
+
+export const formatTimeReq = (time?: dayjs.ConfigType): string | null => {
+  return time ? dayjs(time).format("HH:mm:ss") : null;
 };
 
 export const formatDateAndTime = (date: Date): string => {
