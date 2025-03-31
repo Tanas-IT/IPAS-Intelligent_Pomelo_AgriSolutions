@@ -24,18 +24,31 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
-        public async Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId, bool? isRead)
+        public async Task<List<Notification>> GetListPlanNotificationByUserId(int userId, bool? isRead)
         {
-            var result = await _context.PlanNotifications
-                .Include(x => x.User)
-                .Include(x => x.Notification)
-                .ThenInclude(x => x.MasterType)
-                .Include(x => x.Notification)
-                .ThenInclude(X => X.Sender)
-                .Where(x => x.UserID == userId).ToListAsync();
+            // Lấy danh sách ID từ PlanNotification
+            var notificationIdsFromPlan = _context.PlanNotifications
+                .Where(x => x.UserID == userId && x.NotificationID != null)
+                .Select(x => x.NotificationID.Value);
+
+            // Lấy danh sách ID từ bảng Notification
+            var allNotificationIds = _context.Notifications
+                  .Where(n => n.SenderID == userId)
+                .Select(n => n.NotificationId);
+
+            // Hợp 2 danh sách ID
+            var allNotificationIdsDistinct = notificationIdsFromPlan
+                .Union(allNotificationIds);
+
+            // Truy vấn lại Notification với đầy đủ Include
+            var result = await _context.Notifications
+                .Where(n => allNotificationIdsDistinct.Contains(n.NotificationId))
+                .Include(n => n.MasterType)
+                .Include(n => n.Sender)
+                .ToListAsync();
             if (isRead != null)
             {
-                result.Where(x => x.isRead == isRead);
+                result.Where(x => x.IsRead == isRead);
             }
             else
             {
