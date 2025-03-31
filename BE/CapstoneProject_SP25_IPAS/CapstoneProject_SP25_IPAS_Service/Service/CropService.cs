@@ -131,7 +131,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (farmId <= 0)
                     return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
 
-                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId;
+                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
                 // Lọc theo SearchText
                 if (!string.IsNullOrEmpty(cropFilter.LandPlotIds))
@@ -425,7 +425,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
                     }
-                    if (cropEntityUpdate.StartDate.Value.Date >= DateTime.Now.Date)
+                    if (cropEntityUpdate.StartDate.Value.Date < DateTime.Now.Date)
                         return new BusinessResult(400, "Cannot delete Crop has Start");
                     // Cập nhật các thuộc tính từ model nếu giá trị không null hoặc mặc định
                     cropEntityUpdate.IsDeleted = true;

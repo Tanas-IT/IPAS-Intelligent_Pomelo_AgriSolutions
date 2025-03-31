@@ -526,7 +526,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             }
         }
 
-        public HarvestTypeHistoryRepository HarvestTypeHistoryRepository
+        public HarvestTypeHistoryRepository ProductHarvestHistoryRepository
         {
             get
             {

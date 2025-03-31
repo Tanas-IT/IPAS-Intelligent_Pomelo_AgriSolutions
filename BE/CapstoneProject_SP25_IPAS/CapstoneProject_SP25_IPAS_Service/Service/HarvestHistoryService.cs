@@ -22,6 +22,8 @@ using CloudinaryDotNet.Actions;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using MailKit.Search;
+using System.Linq;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -31,12 +33,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         private readonly IWorkLogService _workLogService;
-        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService)
+        private readonly IScheduleService _scheduleService;
+        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService, IScheduleService scheduleService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = config;
             _workLogService = workLogService;
+            _scheduleService = scheduleService;
         }
 
         public async Task<BusinessResult> createHarvestHistory(CreateHarvestHistoryRequest createRequest)
@@ -67,6 +71,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         HarvestStatus = HarvestStatusConst.NOT_YET,
                         TotalPrice = createRequest.TotalPrice,
                         CropId = cropExist.CropId,
+                        IsDeleted = false,
                     };
 
                     if (createRequest.ProductHarvestHistory?.Any() == true)
@@ -113,12 +118,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (addNewTask.StatusCode != 200)
                             return addNewTask;
 
-
-
-                        await _unitOfWork.SaveAsync();
+                        //await _unitOfWork.SaveAsync();
+                        var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
                         await transaction.CommitAsync();
 
-                        var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
                         return new BusinessResult(Const.SUCCESS_CREATE_HARVEST_HISTORY_CODE, Const.SUCCESS_CREATE_HARVEST_HISTORY_MSG, mappedResult);
                     }
                     else
@@ -127,11 +130,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE, Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
                     }
                 }
+                catch (AutoMapperMappingException ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.InnerException?.Message);
+                    return new BusinessResult(400, "Fail to create harvest.", ex.Message);
+
+                }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
                     return new BusinessResult(400, "Fail to create harvest.", ex.Message);
                 }
+
             }
         }
 
@@ -160,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         x.PlantId == null;
 
-                    var existingHarvest = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(checkExistingCondition);
+                    var existingHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
 
                     //// 3. Nếu đã có sản phẩm này trong buổi thu hoạch
                     if (existingHarvest != null)
@@ -210,7 +222,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         SellPrice = createRequest.Price,
                         QuantityNeed = createRequest.Quantity
                     };
-                    await _unitOfWork.HarvestTypeHistoryRepository.Insert(newHarvestEntry);
+                    await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
                     //}
 
                     // 5. Lưu thay đổi vào database
@@ -227,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //if (hasPlantId)
                         //    filter = filter.And(x => x.PlantId == createRequest.PlantId);
 
-                        string includeProperties = "HarvestHistory,MasterType";
+                        string includeProperties = "HarvestHistory,Product";
                         //var harvestHistory = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(filter, includeProperties);
                         var harvestHistory = await _unitOfWork.HarvestHistoryRepository.GetByID(createRequest.HarvestHistoryId.Value);
                         var mappedResult = _mapper.Map<HarvestHistoryModel>(harvestHistory);
@@ -276,7 +288,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         x.PlantId == null;
 
-                    var existingHarvest = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(checkExistingCondition);
+                    var existingHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
 
                     // 3. Nếu sản phẩm chưa tồn tại trong buổi thu hoạch, trả lỗi
                     if (existingHarvest == null)
@@ -288,13 +300,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.MasterTypeId == createRequest.MasterTypeId &&
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         x.PlantId == createRequest.PlantId);
-                    var existingHarvestWithPlant = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(checkExistingCondition);
+                    var existingHarvestWithPlant = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
 
                     if (existingHarvestWithPlant != null)
                     {
                         // Nếu đã tồn tại sản phẩm thu hoạch có PlantID này, cộng dồn quantity
                         existingHarvestWithPlant.ActualQuantity += createRequest.Quantity;
-                        _unitOfWork.HarvestTypeHistoryRepository.Update(existingHarvestWithPlant);
+                        _unitOfWork.ProductHarvestHistoryRepository.Update(existingHarvestWithPlant);
                     }
                     else
                     {
@@ -307,7 +319,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Unit = existingHarvest.Unit,
                             ActualQuantity = createRequest.Quantity
                         };
-                        await _unitOfWork.HarvestTypeHistoryRepository.Insert(newHarvestEntry);
+                        await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
                     }
 
                     // 5. Lưu thay đổi vào database
@@ -323,7 +335,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             x.PlantId == createRequest.PlantId;
 
                         string includeProperties = "HarvestHistory,MasterType";
-                        var harvestHistory = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(filter, includeProperties);
+                        var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                         var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
 
                         return new BusinessResult(Const.SUCCESS_UPDATE_HARVEST_HISTORY_CODE,
@@ -353,7 +365,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     Expression<Func<HarvestHistory, bool>> filter = x => x.HarvestHistoryId == harvestHistoryId;
-                    string includeProperties = "ProductHarvestHistories";
+                    string includeProperties = "ProductHarvestHistories,CarePlanSchedules";
                     var harvestHistory = await _unitOfWork.HarvestHistoryRepository.GetByCondition(filter, includeProperties);
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
@@ -388,11 +400,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Expression<Func<ProductHarvestHistory, bool>> filter = x => x.HarvestHistoryId == harvestHistoryId && x.MasterTypeId == masterTypeId;
                     //if (plantId.HasValue)
                     //    filter.And(x => x.PlantId == plantId);
-                    var harvestHistory = await _unitOfWork.HarvestTypeHistoryRepository.GetAllNoPaging(filter);
+                    var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter);
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
-                    _unitOfWork.HarvestTypeHistoryRepository.RemoveRange(harvestHistory);
+                    _unitOfWork.ProductHarvestHistoryRepository.RemoveRange(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -432,7 +444,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> getHarvestById(int harvestId)
         {
-            var harvest = await _unitOfWork.HarvestHistoryRepository.GetByID(harvestId);
+            var harvest = await _unitOfWork.HarvestHistoryRepository.GetByCondition(h => h.HarvestHistoryId == harvestId);
             if (harvest == null)
                 return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
             var mappedResult = _mapper.Map<HarvestHistoryModel>(harvest);
@@ -446,7 +458,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 if (cropId <= 0)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
-                Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
+                Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
                 Expression<Func<HarvestHistory, bool>> filter = c => c.CropId == cropId && c.Crop!.IsDeleted == false;
                 //Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.StartDate >= DateTime.Now && x.Crop.EndDate <= DateTime.Now;
                 //Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
@@ -525,10 +537,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
-                    harvestHistory.DateHarvest = updateRequest.DateHarvest;
-                    harvestHistory.HarvestHistoryNote = updateRequest.HarvestHistoryNote;
-                    harvestHistory.TotalPrice = updateRequest.TotalPrice;
-                    harvestHistory.HarvestStatus = updateRequest.HarvestStatus;
+                    if (!string.IsNullOrEmpty(updateRequest.HarvestHistoryNote))
+                    {
+                        harvestHistory.HarvestHistoryNote = updateRequest.HarvestHistoryNote;
+                    }
+                    if (updateRequest.TotalPrice.HasValue)
+                        harvestHistory.TotalPrice = updateRequest.TotalPrice;
+                    if (!string.IsNullOrEmpty(updateRequest.HarvestStatus))
+                    {
+                        if (!HarvestStatusConst.ValidStatuses.Contains(updateRequest.HarvestStatus.ToLower()))
+                        {
+                            return new BusinessResult(400, $"Invalid harvest status '{updateRequest.HarvestStatus}'");
+                        }
+                        harvestHistory.HarvestStatus = updateRequest.HarvestStatus;
+                    }
+                    if (updateRequest.DateHarvest.HasValue)
+                    {
+                        var scheduleExist = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.HarvestHistoryID == harvestHistory.HarvestHistoryId && x.IsDeleted == false);
+                        harvestHistory.DateHarvest = updateRequest.DateHarvest;
+                        var updateSheduleRequest = new ChangeTimeOfScheduleModel
+                        {
+                            StartTime = updateRequest.StartTime,
+                            EndTime = updateRequest.EndTime,
+                            CustomeDates = new List<DateTime> { updateRequest.DateHarvest.Value },
+                            ScheduleId = scheduleExist.ScheduleId
+                        };
+                        var updateWorkLog = await _scheduleService.ChangeTimeOfSchedule(updateSheduleRequest);
+                        if (updateWorkLog.StatusCode != 200)
+                            return updateWorkLog;
+                    }
 
                     _unitOfWork.HarvestHistoryRepository.Update(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
@@ -562,8 +599,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Expression<Func<ProductHarvestHistory, bool>> filter = x => x.HarvestHistoryId == updateRequest.HarvestHistoryId && x.MasterTypeId == updateRequest.MasterTypeId;
                     if (updateRequest.PlantId.HasValue)
                         filter.And(x => x.PlantId == updateRequest.PlantId);
-                    string includeProperties = "HarvestHistory,MasterType";
-                    var harvestHistory = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(filter, includeProperties);
+                    string includeProperties = "HarvestHistory,Product";
+                    var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
@@ -573,7 +610,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         harvestHistory.Unit = updateRequest.Unit;
                     if (harvestHistory.QuantityNeed.HasValue && updateRequest.Quantity > 0)
                         harvestHistory.QuantityNeed = updateRequest.Quantity;
-                    _unitOfWork.HarvestTypeHistoryRepository.Update(harvestHistory);
+                    _unitOfWork.ProductHarvestHistoryRepository.Update(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -613,7 +650,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // 🔹 1. Lấy dữ liệu thu hoạch từ DB theo năm, sản phẩm và cây trồng
-                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                var harvestData = await _unitOfWork.ProductHarvestHistoryRepository
                     .GetAllNoPaging(x => x.PlantId == request.plantId &&
                                          x.HarvestHistory.DateHarvest.HasValue &&
                                          x.MasterTypeId == request.productId &&
@@ -672,11 +709,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Expression<Func<ProductHarvestHistory, bool>> filter = x => request.ProductHarvestHistoryId.Contains(x.ProductHarvestHistoryId);
                         //if (plantId.HasValue)
                         //    filter.And(x => x.PlantId == plantId);
-                        var harvestHistory = await _unitOfWork.HarvestTypeHistoryRepository.GetAllNoPaging(filter);
+                        var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter);
                         if (harvestHistory == null)
                             return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
-                        _unitOfWork.HarvestTypeHistoryRepository.RemoveRange(harvestHistory);
+                        _unitOfWork.ProductHarvestHistoryRepository.RemoveRange(harvestHistory);
                         int result = await _unitOfWork.SaveAsync();
                         if (result > 0)
                         {
@@ -706,10 +743,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkHarvestExis = await _unitOfWork.HarvestTypeHistoryRepository.GetByCondition(x => x.HarvestHistoryId == harvestId);
+                var checkHarvestExis = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(x => x.HarvestHistoryId == harvestId);
                 if (checkHarvestExis == null)
                     return new BusinessResult(400, "Harvest not exist");
-                var productInHarvest = await _unitOfWork.HarvestTypeHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "MasterType");
+                var productInHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "MasterType");
                 if (!productInHarvest.Any())
                     return new BusinessResult(400, "No product found in this harvest");
                 var product = productInHarvest.Select(x => x.Product);
@@ -732,7 +769,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //  1. Lấy danh sách thu hoạch theo loại sản phẩm
                 request.yearFrom = request.yearFrom ?? DateTime.Now.Year;
                 request.yearTo = request.yearTo ?? DateTime.Now.Year;
-                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                var harvestData = await _unitOfWork.ProductHarvestHistoryRepository
                     .getToTopStatistic(
                         x => x.MasterTypeId == request.productId &&
                              x.PlantId.HasValue &&
@@ -756,7 +793,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
            .Select(group => new
            {
                Plant = _mapper.Map<PlantModel>(group.First().Plant),  // Lấy object Plant đầy đủ
-               //Plant = group.Key,
+                                                                      //Plant = group.Key,
                TotalQuantity = group.Sum(x => x.ActualQuantity ?? 0), // Tổng sản lượng
                HarvestCount = group.Count() // Số lần thu hoạch
            })
@@ -790,7 +827,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     request.cropId = (await _unitOfWork.CropRepository.GetCropsInCurrentTime(request.farmId)).Select(x => x.CropId).ToList();
                 }
                 //  1. Lấy danh sách thu hoạch theo loại sản phẩm
-                var harvestData = await _unitOfWork.HarvestTypeHistoryRepository
+                var harvestData = await _unitOfWork.ProductHarvestHistoryRepository
                     .getToTopStatistic(
                         x => x.MasterTypeId == request.productId &&
                              x.PlantId.HasValue &&
@@ -869,5 +906,79 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     break;
             }
         }
+
+        public async Task<BusinessResult> SoftedDeleted(List<int> harvestHistoryIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var harvestHistories = await _unitOfWork.HarvestHistoryRepository
+                        .GetAllNoPaging(h => harvestHistoryIds.Contains(h.HarvestHistoryId));
+
+                    if (!harvestHistories.Any())
+                        return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
+
+                    // Xóa mềm HarvestHistory
+                    harvestHistories.ToList().ForEach(h => h.IsDeleted = true);
+                    _unitOfWork.HarvestHistoryRepository.UpdateRange(harvestHistories);
+
+                    // Xóa cứng ProductHarvestHistory (không có IsDeleted)
+                    var productHarvestHistories = await _unitOfWork.ProductHarvestHistoryRepository
+                        .GetAllNoPaging(p => harvestHistoryIds.Contains(p.HarvestHistoryId));
+
+                    _unitOfWork.ProductHarvestHistoryRepository.RemoveRange(productHarvestHistories);
+
+                    // Xóa mềm CarePlanSchedule
+                    var carePlanSchedules = await _unitOfWork.CarePlanScheduleRepository
+                        .GetAllNoPaging(c => harvestHistoryIds.Contains(c.HarvestHistoryID ?? 0));
+
+                    carePlanSchedules.ToList().ForEach(c => c.IsDeleted = true);
+                    _unitOfWork.CarePlanScheduleRepository.UpdateRange(carePlanSchedules);
+                    // Xóa mềm WorkLog
+                    var scheduleIds = carePlanSchedules.Select(c => c.ScheduleId).ToList();
+
+                    var workLogs = await _unitOfWork.WorkLogRepository
+                        .GetAllNoPaging(w => w.ScheduleId.HasValue && scheduleIds.Contains(w.ScheduleId.Value));
+
+                    workLogs.ToList().ForEach(w => w.IsDeleted = true);
+                    _unitOfWork.WorkLogRepository.UpdateRange(workLogs);
+
+                    // Xóa cứng UserWorkLog
+                    var workLogIds = workLogs.Select(u => u.WorkLogId).ToList();
+
+                    var userWorkLogs = await _unitOfWork.UserWorkLogRepository
+                        .GetAllNoPaging(u => workLogIds.Contains(u.WorkLogId));
+
+                    _unitOfWork.UserWorkLogRepository.RemoveRange(userWorkLogs);
+
+                    // Xóa cứng TaskFeedback
+                    var taskFeedbacks = await _unitOfWork.TaskFeedbackRepository
+                        .GetAllNoPaging(t => workLogIds.Contains(t.WorkLogId.Value));
+
+                    _unitOfWork.TaskFeedbackRepository.RemoveRange(taskFeedbacks);
+
+                    // Lưu thay đổi vào DB
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_UPDATE_HARVEST_HISTORY_CODE, "Delete Harvest Success");
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                        return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE, Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_UPDATE_HARVEST_HISTORY_CODE, Const.FAIL_UPDATE_HARVEST_HISTORY_MSG, ex.Message);
+                }
+            }
+        }
+
     }
 }

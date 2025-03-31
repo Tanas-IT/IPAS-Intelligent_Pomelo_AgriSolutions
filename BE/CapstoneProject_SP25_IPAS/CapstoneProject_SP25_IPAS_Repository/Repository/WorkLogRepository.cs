@@ -350,14 +350,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
          .ToListAsync();
 
             // Kiểm tra công việc có thể làm chung không
-            var newMasterType = await _context.MasterTypes.FindAsync(masterTypeId);
-            if (newMasterType == null)
-                throw new Exception("Invalid MasterTypeId");
-
-            if (newMasterType.IsConflict == true && existingWorkLogs.Any())
+            if (masterTypeId.HasValue)
             {
-                throw new Exception("This work cannot be scheduled because it conflicts with existing work logs.");
+                var newMasterType = await _context.MasterTypes.FindAsync(masterTypeId);
+
+                if (newMasterType == null)
+                    throw new Exception("Invalid MasterTypeId");
+                if (newMasterType.IsConflict == true && existingWorkLogs.Any())
+                {
+                    throw new Exception("This work cannot be scheduled because it conflicts with existing work logs.");
+                }
             }
+
 
             // Kiểm tra nhân viên có bị trùng lịch không
             var userConflicts = await _context.UserWorkLogs
@@ -386,7 +390,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
         }
 
-        public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck,  List<int> listEmployeeIds)
+        public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds)
         {
             var userConflicts = await _context.UserWorkLogs
               .Include(wl => wl.WorkLog)
@@ -432,7 +436,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.CarePlan)
                 .ThenInclude(x => x.MasterType)
                 .Where(x => x.Schedule.FarmID == farmId &&
-                            x.ActualStartTime.HasValue && 
+                            x.ActualStartTime.HasValue &&
                             x.Date.Value.Date == DateTime.Now.Date &&
                             x.ActualStartTime.Value >= nowTimeSpan &&
                             x.ActualStartTime.Value <= timeAfter3Hours)

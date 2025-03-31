@@ -21,18 +21,37 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public override async Task<HarvestHistory> GetByID(int harvestId)
+        public  async Task<HarvestHistory> GetByCondition(Expression<Func<HarvestHistory, bool>> filter)
         {
-            var historys = await _context.HarvestHistories
-                .Include(x => x.Crop)
+            //var historys = await _context.HarvestHistories
+            //    .Include(x => x.Crop)
+            //    .Include(x => x.ProductHarvestHistories/*.Where(x => x.PlantId == null)*/)
+            //    .ThenInclude(x => x.Product)
+            //    .Include(x => x.CarePlanSchedules)
+            //    .ThenInclude(x => x.WorkLogs)
+            //    .ThenInclude(x => x.UserWorkLogs)
+            //    .ThenInclude(x => x.User)
+            //    .Where(x => x.HarvestHistoryId == harvestId && x.IsDeleted == false)
+            //    .FirstOrDefaultAsync();
+            IQueryable<HarvestHistory> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(x => x.Crop)
                 .Include(x => x.ProductHarvestHistories.Where(x => x.PlantId == null))
                 .ThenInclude(x => x.Product)
-                .Where(x => x.HarvestHistoryId == harvestId)
-                .FirstOrDefaultAsync();
-            return historys;
+                .Include(x => x.CarePlanSchedules)
+                .ThenInclude(x => x.WorkLogs)
+                .ThenInclude(x => x.UserWorkLogs)
+                .ThenInclude(x => x.User);
+
+            return await query.AsNoTracking().FirstOrDefaultAsync();
+            //return historys;
         }
 
-        public async Task<IEnumerable<HarvestHistory>> GetHarvestPaginFilterAsync( Expression<Func<HarvestHistory, bool>> filter = null!, 
+        public async Task<IEnumerable<HarvestHistory>> GetHarvestPaginFilterAsync(Expression<Func<HarvestHistory, bool>> filter = null!,
             Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = null!,
             int? pageIndex = null, // Optional parameter for pagination (page number)
             int? pageSize = null)
@@ -44,7 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.ProductHarvestHistories/*.Where(x => x.PlantId != null)*/)
                 .ThenInclude(x => x.Product)
                 .Include(x => x.Crop);
-                //.Where(c => c.CropId == cropId && c.Crop!.IsDeleted == false);
+            //.Where(c => c.CropId == cropId && c.Crop!.IsDeleted == false);
             if (filter != null)
             {
                 query = query.Where(filter);

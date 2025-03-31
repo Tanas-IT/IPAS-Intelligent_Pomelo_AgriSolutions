@@ -33,5 +33,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string PACKAGE = "PKG.";
         public static string PAYMENT = "PAY.";
         public static string RESOURCE = "RES.";
+        public static string WORKLOG = "WLG.";
     }
 }

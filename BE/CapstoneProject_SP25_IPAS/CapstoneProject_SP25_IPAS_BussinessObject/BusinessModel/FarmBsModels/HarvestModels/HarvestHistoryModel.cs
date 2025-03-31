@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.CarePlanScheduleModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +34,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         public int? NumberProduct { get; set; }
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public virtual ICollection<ProductHarvestHistoryModel> ProductHarvestHistory { get; set; } = new List<ProductHarvestHistoryModel>();
+        public ICollection<ProductHarvestHistoryModel> ProductHarvestHistory { get; set; } = new List<ProductHarvestHistoryModel>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ICollection<CarePlanScheduleModel> CarePlanSchedules { get; set; } = new List<CarePlanScheduleModel>();
 
-        //public virtual ICollection<WorkLog> WorkLogs { get; set; } = new List<WorkLog>();
     }
 }
