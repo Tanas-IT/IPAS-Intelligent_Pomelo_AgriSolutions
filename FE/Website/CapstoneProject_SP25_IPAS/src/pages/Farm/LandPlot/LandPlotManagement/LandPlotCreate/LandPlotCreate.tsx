@@ -44,7 +44,7 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
           [createPlotFormFields.area]: selectedPlot.area,
           [createPlotFormFields.length]: selectedPlot.length,
           [createPlotFormFields.width]: selectedPlot.width,
-          [createPlotFormFields.status]: selectedPlot.status,
+          // [createPlotFormFields.status]: selectedPlot.status,
         });
 
         setPolygonDimensions(selectedPlot.area, selectedPlot.width, selectedPlot.length);
@@ -147,14 +147,14 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
                   onChange={(e) => handleInputChange(e.target.value)}
                 />
               </Flex>
-              {selectedPlot && (
+              {/* {selectedPlot && (
                 <FormFieldModal
                   label="Status"
                   name={createPlotFormFields.status}
                   placeholder="Enter status"
                   onChange={(e) => handleInputChange(e.target.value)}
                 />
-              )}
+              )} */}
               <FormFieldModal
                 label="Area (m²)"
                 description="The calculated area is approximate and may vary slightly from the actual size."

@@ -111,6 +111,13 @@ export const cropFormFields = {
   landPlotCrops: "landPlotCrops",
 };
 
+export const harvestFormFields = {
+  cropId: "cropId",
+  dateHarvest: "dateHarvest",
+  harvestHistoryNote: "harvestHistoryNote",
+  totalPrice: "totalPrice",
+};
+
 export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraftedPlant> = {
   graftedPlantId: "graftedPlantId",
   graftedPlantCode: "graftedPlantCode",

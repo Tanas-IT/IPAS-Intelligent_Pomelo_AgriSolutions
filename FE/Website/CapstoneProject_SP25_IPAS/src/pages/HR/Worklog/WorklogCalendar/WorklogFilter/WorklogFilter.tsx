@@ -12,7 +12,7 @@ type FilterProps = {
     workDateTo: string;
     growthStage: string[];
     status: string[];
-    employees: string[];
+    employees: string[] | number[];
     typePlan: string[];
   };
   updateFilters: (filters: any) => void;
@@ -27,6 +27,7 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   const { options: growthStageOptions } = useGrowthStageOptions(true);
   const listRole = [5, 4];
   const { options } = useUserInFarmByRole(listRole);
+  console.log(options);
 
   const isFilterEmpty = !(
     localFilters.workDateFrom ||
@@ -110,9 +111,9 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
 
         <FormFieldFilter
           label="Employee"
-          fieldType="selectCustom"
+          fieldType="select"
           value={localFilters.employees}
-          optionCustom={options}
+          options={options}
           onChange={(value) => setLocalFilters((prev) => ({ ...prev, employees: value }))}
         />
 

@@ -15,6 +15,17 @@ export interface GetHarvestStatisticOfPlant {
 }
 
 export interface GetHarvestStatisticPlants {
-  plant: GetPlant
+  plant: GetPlant;
   totalQuantity: number;
+}
+
+export interface GetHarvestDay {
+  harvestHistoryId: number;
+  harvestHistoryCode: string;
+  dateHarvest: string;
+  harvestHistoryNote: string;
+  totalPrice: number;
+  harvestStatus: string;
+  yieldHasRecord: number;
+  // productHarvestHistory: string;
 }

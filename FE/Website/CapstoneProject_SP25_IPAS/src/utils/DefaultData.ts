@@ -13,6 +13,7 @@ import {
   FilterCropState,
   FilterEmployeeState,
   FilterGraftedPlantState,
+  FilterHarvestDayState,
   FilterLandRowState,
   FilterMasterTypeState,
   FilterPartnerState,
@@ -118,6 +119,15 @@ export const DEFAULT_CROP_FILTERS: FilterCropState = {
   marketPriceFrom: undefined,
   marketPriceTo: undefined,
   LandPlotIds: [] as string[],
+  status: [] as string[],
+};
+
+export const DEFAULT_HARVEST_DAY_FILTERS: FilterHarvestDayState = {
+  dateHarvestFrom: "",
+  dateHarvestTo: "",
+  totalPriceFrom: undefined,
+  totalPriceTo: undefined,
+  status: [] as string[],
 };
 
 export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {

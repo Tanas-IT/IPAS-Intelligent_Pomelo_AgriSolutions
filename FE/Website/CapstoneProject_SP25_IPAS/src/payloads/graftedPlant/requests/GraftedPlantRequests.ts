@@ -3,11 +3,11 @@ import { FileResource } from "@/types";
 export interface GraftedPlantRequest {
   graftedPlantId: number;
   graftedPlantName: string;
-  separatedDate: string;
-  graftedDate: string;
+  separatedDate?: string;
+  graftedDate?: string;
   status: string;
   note: string;
-  plantLotId: number;
+  plantLotId?: number;
 }
 
 export interface CreateGraftedPlantsRequest {

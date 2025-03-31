@@ -11,3 +11,33 @@ export interface HarvestStatisticInYearRequest {
   yearTo: number;
   productId: number;
 }
+
+export interface productHarvestHistory {
+  masterTypeId: number;
+  unit: string;
+  sellPrice: number;
+  quantityNeed: number;
+}
+
+export interface AssignEmployee {
+  userId: number;
+  isReporter: boolean;
+}
+
+export interface addNewTask {
+  taskName: string;
+  assignorId: number;
+  startTime?: string;
+  endTime?: string;
+  listEmployee: AssignEmployee[];
+}
+
+export interface HarvestRequest {
+  harvestHistoryId?: number;
+  cropId?: number;
+  dateHarvest?: string;
+  harvestHistoryNote: string;
+  totalPrice: number;
+  productHarvestHistory?: productHarvestHistory[];
+  addNewTask?: addNewTask;
+}

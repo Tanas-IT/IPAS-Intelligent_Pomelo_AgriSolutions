@@ -1,7 +1,7 @@
 import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
-import { RulesManager } from "@/utils";
+import { formatDateReq, RulesManager } from "@/utils";
 import { HEALTH_STATUS, MASTER_TYPE, plantFormFields } from "@/constants";
 import { GetPlant, PlantRequest } from "@/payloads";
 import { useMasterTypeOptions } from "@/hooks";
@@ -174,7 +174,7 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       ),
       // imageUrl: image || form.getFieldValue(plantFormFields.imageUrl),
       imageUrl: image !== undefined ? image : plantData?.imageUrl,
-      plantingDate: form.getFieldValue(plantFormFields.plantingDate)?.format("YYYY-MM-DD") || "",
+      plantingDate: formatDateReq(form.getFieldValue(plantFormFields.plantingDate)) || undefined,
       ...(!isUpdate && {
         landPlotId: form.getFieldValue(plantFormFields.landPlotId),
         landRowId: form.getFieldValue(plantFormFields.landRowId),

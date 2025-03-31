@@ -54,18 +54,6 @@ function FarmInfo() {
       label: <label className={style.titleTab}>Legal Documents</label>,
       children: <LegalDocument />,
     },
-    {
-      key: "3",
-      icon: <Icons.seedling className={style.iconTab} />,
-      label: <label className={style.titleTab}>Crops</label>,
-      children: "Content of Tab Pane 3",
-    },
-    {
-      key: "4",
-      icon: <Icons.map className={style.iconTab} />,
-      label: <label className={style.titleTab}>Map</label>,
-      children: "Content of Tab Pane 3",
-    },
   ];
 
   return (

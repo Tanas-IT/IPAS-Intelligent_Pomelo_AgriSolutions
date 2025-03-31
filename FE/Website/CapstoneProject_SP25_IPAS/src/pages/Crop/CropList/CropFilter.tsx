@@ -1,9 +1,10 @@
-import { DatePicker, Flex, Space } from "antd";
-import { useEffect, useState } from "react";
+import { Flex, Space } from "antd";
+import { useState } from "react";
 import style from "./CropList.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterCropState } from "@/types";
 import { useLandPlotOptions } from "@/hooks";
+import { CROP_STATUS } from "@/constants";
 
 type FilterProps = {
   filters: FilterCropState;
@@ -22,7 +23,8 @@ const CropFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
     filters.actualYieldFrom !== undefined ||
     filters.actualYieldTo !== undefined ||
     filters.marketPriceFrom !== undefined ||
-    filters.marketPriceTo !== undefined
+    filters.marketPriceTo !== undefined ||
+    (filters.status && filters.status.length > 0)
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -35,7 +37,7 @@ const CropFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
 
   return (
     <Flex className={style.filterContent}>
-      <Space direction="vertical">
+      <Space direction="vertical" style={{ width: "100%" }}>
         <FormFieldFilter
           label="Crop Duration"
           fieldType="date"
@@ -64,14 +66,25 @@ const CropFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
             updateFilters("marketPriceTo", val.to);
           }}
         />
-
-        <FormFieldFilter
-          label="Plots"
-          fieldType="select"
-          value={filters.LandPlotIds}
-          options={plotOptions}
-          onChange={(value) => updateFilters("LandPlotIds", value)}
-        />
+        <Flex gap={20}>
+          <FormFieldFilter
+            label="Plots"
+            fieldType="select"
+            value={filters.LandPlotIds}
+            options={plotOptions}
+            onChange={(value) => updateFilters("LandPlotIds", value)}
+          />
+          <FormFieldFilter
+            label="Status"
+            fieldType="select"
+            value={filters.status}
+            options={Object.entries(CROP_STATUS).map(([key, value]) => ({
+              value: key,
+              label: value,
+            }))}
+            onChange={(value) => updateFilters("status", value)}
+          />
+        </Flex>
 
         <FilterFooter
           isFilterEmpty={isFilterEmpty}

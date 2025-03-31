@@ -1,12 +1,11 @@
 import { Button, Flex, Tag, Tooltip } from "antd";
 import style from "./Details.module.scss";
 import { Icons } from "@/assets";
-import { ActionMenuGraftedPlant, ConfirmModal, CustomButton } from "@/components";
-import { useDirtyStore, useGraftedPlantStore } from "@/stores";
+import { ActionMenuGraftedPlant, CustomButton, CuttingGraftedModal } from "@/components";
+import { useGraftedPlantStore } from "@/stores";
 import { useModal } from "@/hooks";
 import { GetGraftedPlantDetail } from "@/payloads";
 import { healthStatusColors } from "@/constants";
-import CuttingGraftedModal from "./CuttingGraftedModal";
 import { useState } from "react";
 import { graftedPlantService } from "@/services";
 import { toast } from "react-toastify";
@@ -15,11 +14,15 @@ const GraftedPlantSectionHeader = ({
   onApplyCriteria,
   formModal,
   deleteConfirmModal,
+  onAddToLot,
+  removeFromLotConfirm,
   onAddNewIssue,
 }: {
   onApplyCriteria?: () => void;
   formModal?: ReturnType<typeof useModal<GetGraftedPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
+  onAddToLot?: ReturnType<typeof useModal<{ id: number }>>;
+  removeFromLotConfirm?: ReturnType<typeof useModal<{ id: number }>>;
   onAddNewIssue?: () => void;
 }) => {
   const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
@@ -52,7 +55,7 @@ const GraftedPlantSectionHeader = ({
       <Flex className={style.contentSectionTitle}>
         <Flex className={style.contentSectionTitleLeft}>
           <label className={style.title}>{graftedPlant.graftedPlantName}</label>
-          <Tooltip title="Hello">
+          <Tooltip title="Grafted Plant">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
           <Tag
@@ -89,12 +92,20 @@ const GraftedPlantSectionHeader = ({
         {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuGraftedPlant
-              id={graftedPlant.graftedPlantId}
               isCompleted={graftedPlant.isCompleted}
-              noView={true}
-              noCriteria
               onEdit={() => formModal?.showModal(graftedPlant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: graftedPlant.graftedPlantId })}
+              {...(onAddToLot
+                ? {
+                    onAddToLot: () => onAddToLot?.showModal({ id: graftedPlant.graftedPlantId }),
+                  }
+                : {})}
+              {...(removeFromLotConfirm
+                ? {
+                    onRemoveFromLot: () =>
+                      removeFromLotConfirm.showModal({ id: graftedPlant.graftedPlantId }),
+                  }
+                : {})}
             />
           </Flex>
         )}

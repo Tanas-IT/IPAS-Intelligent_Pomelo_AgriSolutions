@@ -164,6 +164,7 @@
     flex-direction: column;
   }
   input,
+  textarea,
   select,
   span {
     font-size: 16px !important;
@@ -201,6 +202,7 @@
   overflow: hidden;
   padding: 10px 24px;
   margin-top: 8px;
+  min-height: 80vh;
 
   .containerWrapper {
     width: 100%;
@@ -335,7 +337,6 @@
         margin: 0;
         border-radius: 8px;
         font-weight: bold;
-        border: transparent;
       }
       .normal {
         width: fit-content;

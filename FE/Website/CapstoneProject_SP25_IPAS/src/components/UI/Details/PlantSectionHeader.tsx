@@ -29,7 +29,7 @@ const PlantSectionHeader = ({
       <Flex className={style.contentSectionTitle}>
         <Flex className={style.contentSectionTitleLeft}>
           <label className={style.title}>{plant.plantName}</label>
-          <Tooltip title="Hello">
+          <Tooltip title="Plant">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
           <Tag
@@ -38,6 +38,16 @@ const PlantSectionHeader = ({
           >
             {plant.healthStatus || "Unknown"}
           </Tag>
+          {onCreateGraftedBranch &&
+            (plant.isPassed ? (
+              <Tag color="green" className={style.passedTag}>
+                ✅ Grafting Eligible
+              </Tag>
+            ) : (
+              <Tag color="red" className={style.passedTag}>
+                ❌ Not Eligible
+              </Tag>
+            ))}
         </Flex>
         {onApplyCriteria && (
           <Flex>
@@ -52,8 +62,6 @@ const PlantSectionHeader = ({
           <Flex>
             <ActionMenuPlant
               isPlantDead={plant.isDead}
-              noView={true}
-              noCriteria
               onEdit={() => formModal?.showModal(plant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: plant.plantId })}
               onMarkAsDead={() => markAsDeadModal?.showModal({ id: plant.plantId })}

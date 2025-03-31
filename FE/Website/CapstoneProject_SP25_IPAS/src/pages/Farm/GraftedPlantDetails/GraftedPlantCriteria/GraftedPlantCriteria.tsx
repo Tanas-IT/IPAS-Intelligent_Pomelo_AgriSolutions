@@ -178,7 +178,6 @@ function GraftedPlantCriteria() {
   return (
     <Flex className={style.contentDetailWrapper}>
       <GraftedPlantSectionHeader
-        isCriteria={true}
         onApplyCriteria={() => criteriaModal.showModal({ id: graftedPlant?.graftedPlantId })}
       />
       <Divider className={style.divider} />

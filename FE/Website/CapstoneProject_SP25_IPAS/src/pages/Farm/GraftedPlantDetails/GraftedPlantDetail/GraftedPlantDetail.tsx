@@ -5,6 +5,7 @@ import { Icons } from "@/assets";
 import {
   ConfirmModal,
   CustomButton,
+  CuttingGraftedModal,
   GraftedPlantModal,
   GraftedPlantSectionHeader,
   InfoFieldDetail,
@@ -29,6 +30,8 @@ function GraftedPlantDetail() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetGraftedPlantDetail>();
   const deleteConfirmModal = useModal<{ id: number }>();
+  const addToLotModal = useModal<{ id: number }>();
+  const removeLotConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedGrafted: GraftedPlantRequest }>();
   const cancelConfirmModal = useModal();
 
@@ -142,6 +145,32 @@ function GraftedPlantDetail() {
     },
   });
 
+  const onAddToLot = async (lotId: number, graftedPlantId?: number) => {
+    if (!graftedPlantId) return;
+    var res = await graftedPlantService.groupGraftedPlant([graftedPlantId], lotId);
+
+    if (res.statusCode === 200) {
+      addToLotModal.hideModal();
+      toast.success(res.message);
+      await fetchPlantLot();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const removeFromLot = async (id?: number) => {
+    if (!id) return;
+    var res = await graftedPlantService.unGroupGraftedPlant([id]);
+
+    if (res.statusCode === 200) {
+      removeLotConfirmModal.hideModal();
+      toast.success(res.message);
+      await fetchPlantLot();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
   const infoFieldsLeft = [
     {
       label: "Separated Date",
@@ -166,7 +195,14 @@ function GraftedPlantDetail() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <GraftedPlantSectionHeader formModal={formModal} deleteConfirmModal={deleteConfirmModal} />
+      <GraftedPlantSectionHeader
+        formModal={formModal}
+        deleteConfirmModal={deleteConfirmModal}
+        {...(!graftedPlant?.plantLotId && graftedPlant?.isCompleted
+          ? { onAddToLot: addToLotModal }
+          : {})}
+        {...(graftedPlant?.plantLotId ? { removeFromLotConfirm: removeLotConfirmModal } : {})}
+      />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
         <Flex className={style.col}>
@@ -207,6 +243,13 @@ function GraftedPlantDetail() {
         isLoadingAction={formModal.modalState.data ? isUpdating : false}
         graftedPlantData={formModal.modalState.data}
       />
+      <CuttingGraftedModal
+        isMove
+        isOpen={addToLotModal.modalState.visible}
+        onClose={addToLotModal.hideModal}
+        onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.id)}
+        isLoadingAction={isLoading}
+      />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
@@ -222,6 +265,17 @@ function GraftedPlantDetail() {
         onCancel={updateConfirmModal.hideModal}
         itemName="Plant Lot"
         actionType="update"
+      />
+      {/* Confirm remove from lot Modal */}
+      <ConfirmModal
+        visible={removeLotConfirmModal.modalState.visible}
+        onConfirm={() => removeFromLot(removeLotConfirmModal.modalState.data?.id)}
+        onCancel={removeLotConfirmModal.hideModal}
+        title="Remove Grafted Plant from Lot"
+        description="Are you sure you want to remove this grafted plant from the lot? This action will not delete the plant but will unassign it from the current lot."
+        confirmText="Remove"
+        cancelText="Cancel"
+        isDanger={true}
       />
       {/* Confirm Cancel Modal */}
       <ConfirmModal
