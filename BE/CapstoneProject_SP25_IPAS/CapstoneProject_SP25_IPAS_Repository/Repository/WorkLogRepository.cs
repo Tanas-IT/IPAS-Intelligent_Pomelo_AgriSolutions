@@ -369,7 +369,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(wl => wl.Schedule)
                 .Where(uwl => uwl.WorkLog.IsDeleted == false &&
                                 listEmployeeIds.Contains(uwl.UserId) &&
-                              uwl.WorkLog.Date == dayCheck &&
+                              uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
                               uwl.WorkLog.Schedule.StartTime < newEndTime &&
                               uwl.WorkLog.Schedule.EndTime > newStartTime)
                 .Select(uwl => new
@@ -386,18 +386,20 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
                     $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts: {conflictDetails}");
+                throw new Exception($"The following employees have scheduling conflicts {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
             }
         }
 
         public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds)
-        {
+        { 
+
+           
             var userConflicts = await _context.UserWorkLogs
               .Include(wl => wl.WorkLog)
               .ThenInclude(wl => wl.Schedule)
               .Where(uwl => uwl.WorkLog.IsDeleted == false &&
                               listEmployeeIds.Contains(uwl.UserId) &&
-                            uwl.WorkLog.Date == dayCheck &&
+                            uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
                             uwl.WorkLog.Schedule.StartTime < newEndTime &&
                             uwl.WorkLog.Schedule.EndTime > newStartTime)
               .Select(uwl => new
@@ -414,7 +416,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
                     $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts: {conflictDetails}");
+                throw new Exception($"The following employees have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
             }
         }
 
