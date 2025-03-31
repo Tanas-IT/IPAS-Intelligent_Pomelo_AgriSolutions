@@ -288,7 +288,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.LandPlotCrops
                              .Include(x => x.LandPlot)
-                             .Where(x => x.CropID == cropId)
+                             .Where(x => x.CropID == cropId && x.Crop.IsDeleted == false)
                              .Select(x => x.LandPlot)
                              .ToListAsync();
 
