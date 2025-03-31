@@ -4,6 +4,7 @@ import { DATE_FORMAT } from "@/utils";
 import style from "./FormFieldFilter.module.scss";
 import { useStyle } from "@/hooks";
 import dayjs from "dayjs";
+import { ReactNode } from "react";
 
 const { RangePicker } = DatePicker;
 
@@ -19,7 +20,7 @@ type FormFieldFilterProps = {
   label: string;
   fieldType: "date" | "select" | "radio" | "treeSelect" | "numberRange" | "selectCustom";
   value: any;
-  options?: { value: string | number | boolean; label: string }[];
+  options?: { value: string | number | boolean; label: string | ReactNode }[];
   treeData?: TreeNode[];
   onChange: (value: any) => void;
   loadData?: (node: any) => Promise<void>;
@@ -36,7 +37,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
   onChange,
   loadData,
   direction = "column",
-  optionCustom
+  optionCustom,
 }) => {
   const { styles } = useStyle();
 
@@ -61,6 +62,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
             options={options}
             value={value}
             onChange={onChange}
+            allowClear
           />
         );
       case "radio":
@@ -91,7 +93,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
         );
       case "numberRange":
         return (
-          <Flex gap={24} align="center">
+          <Flex gap={24} align="center" style={{ width: "100%" }}>
             <Flex vertical align="start">
               <span className={style.label}>From</span>
               <InputNumber
@@ -127,7 +129,6 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
             value={value}
             onChange={onChange}
             optionRender={(option) => {
-
               return (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {option.data.avatarURL && (

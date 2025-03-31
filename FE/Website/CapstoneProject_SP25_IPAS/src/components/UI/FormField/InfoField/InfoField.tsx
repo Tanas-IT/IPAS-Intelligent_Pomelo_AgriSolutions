@@ -3,10 +3,11 @@ import { Select, Input, Form, Upload, UploadFile, DatePicker, Switch, TimePicker
 import style from "./InfoField.module.scss";
 import { Icons } from "@/assets";
 import dayjs from "dayjs";
+import { ReactNode } from "react";
 
 interface Option {
   value: string | boolean | number;
-  label: string;
+  label: string | ReactNode;
 }
 
 interface InfoFieldProps {
@@ -42,7 +43,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
   onRemove,
   value,
   hasFeedback = true,
-  multiple = false
+  multiple = false,
 }) => {
   const { styles } = useStyle();
   const inputClass = type === "text" || type === "textarea" ? styles.customInput2 : "";
@@ -105,7 +106,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
             value={value ? [dayjs(value[0]), dayjs(value[1])] : null}
             onChange={onChange}
             disabled={!isEditing}
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
           />
         );
 
@@ -116,7 +117,7 @@ const InfoField: React.FC<InfoFieldProps> = ({
             value={value ? [dayjs(value[0], "HH:mm:ss"), dayjs(value[1], "HH:mm:ss")] : null}
             onChange={onChange}
             disabled={!isEditing}
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
           />
         );
       case "switch":

@@ -3,6 +3,7 @@ import { GetPlantLot2 } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
 import { Tag } from "antd";
+import { LOT_TYPE, lotTypeColors } from "@/constants";
 
 export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
@@ -20,11 +21,10 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Lot Type",
     field: "isFromGrafted",
-    accessor: (item) => (
-      <Tag color={item.isFromGrafted ? "blue" : "default"}>
-        {item.isFromGrafted ? "Grafted Lot" : "Imported Lot"}
-      </Tag>
-    ),
+    accessor: (item) => {
+      const lotType = item.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT;
+      return <Tag color={lotTypeColors[lotType]}>{lotType}</Tag>;
+    },
     width: 150,
   },
   {

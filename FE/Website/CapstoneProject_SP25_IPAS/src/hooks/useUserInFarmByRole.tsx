@@ -1,34 +1,25 @@
 import { useState, useEffect } from "react";
-import { ApiResponse } from "@/payloads";
+import { ApiResponse, GetUserInFarm } from "@/payloads";
 import { farmService } from "@/services";
 import { getFarmId } from "@/utils";
+import { SelectOption } from "@/types";
 
-interface User {
-  userId: number;
-  avatarURL: string;
-  fullName: string;
-}
-
-interface SelectOption {
-  value: number;
-  label: string;
-  avatarURL: string;
-}
-
-const useUserInFarmByRole = (listRole: number[]) => {
+const useUserInFarmByRole = (listRole: number[], isDetail: boolean = false) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
       try {
         const farmId = getFarmId();
-        const result: ApiResponse<any[]> = await farmService.getUserInFarmByRole(farmId, listRole);
+        const result: ApiResponse<GetUserInFarm[]> = await farmService.getUserInFarmByRole(
+          farmId,
+          listRole,
+        );
 
         if (result.statusCode === 200) {
-          const mappedOptions = result.data.map((user) => ({
-            value: user.fullName,
+          const mappedOptions: SelectOption[] = result.data.map((user) => ({
+            value: isDetail ? user.userId : user.fullName,
             label: user.fullName,
-            avatarURL: user.user.avatarURL,
           }));
           setOptions(mappedOptions);
         } else {
@@ -40,7 +31,7 @@ const useUserInFarmByRole = (listRole: number[]) => {
     };
 
     fetchOptions();
-  }, [listRole]);
+  }, []);
   return { options };
 };
 

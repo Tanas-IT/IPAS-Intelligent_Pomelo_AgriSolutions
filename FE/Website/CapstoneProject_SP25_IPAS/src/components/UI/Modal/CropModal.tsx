@@ -1,7 +1,7 @@
 import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
-import { RulesManager } from "@/utils";
+import { formatDateReq, RulesManager } from "@/utils";
 import { cropFormFields, HARVEST_SEASON_OPTIONS } from "@/constants";
 import { CropRequest, GetCrop2 } from "@/payloads";
 import { useLandPlotOptions } from "@/hooks";
@@ -42,17 +42,17 @@ const CropModal = ({ isOpen, onClose, onSave, cropData, isLoadingAction }: CropM
   }, [isOpen, cropData]);
 
   const getFormData = (): CropRequest => {
-    const formData = form.getFieldsValue();
-    const duration = formData[cropFormFields.duration];
+    const { [cropFormFields.duration]: _, ...formData } = form.getFieldsValue(); // Loại bỏ duration
+    const duration = form.getFieldValue(cropFormFields.duration);
 
     return {
       ...formData,
       cropId: form.getFieldValue(cropFormFields.cropId),
-      startDate: duration?.[0]?.format("YYYY-MM-DD") || undefined,
-      endDate: duration?.[1]?.format("YYYY-MM-DD") || undefined,
+      startDate: formatDateReq(duration?.[0]) || undefined,
+      endDate: formatDateReq(duration?.[1]) || undefined,
       cropExpectedTime:
-        formData[cropFormFields.cropExpectedTime]?.format("YYYY-MM-DD") || undefined,
-      cropActualTime: formData[cropFormFields.cropActualTime]?.format("YYYY-MM-DD") || undefined,
+        formatDateReq(form.getFieldValue(cropFormFields.cropExpectedTime)) || undefined,
+      cropActualTime: formatDateReq(form.getFieldValue(cropFormFields.cropActualTime)) || undefined,
     };
   };
 

@@ -107,3 +107,41 @@ export const HARVEST_SEASON_OPTIONS = {
   AUTUMN: "Autumn Harvest",
   WINTER: "Winter Harvest",
 } as const;
+
+export const LOT_TYPE = {
+  GRAFTED_LOT: "Grafted Lot",
+  IMPORTED_LOT: "Imported Lot",
+} as const;
+
+export const lotTypeColors: Record<string, string> = {
+  "Grafted Lot": "blue",
+  "Imported Lot": "default",
+};
+
+export const CROP_STATUS = {
+  PLANNED: "Planned",
+  IN_CROP: "In Crop",
+  HARVESTING: "Harvesting",
+  COMPLETED: "Completed",
+} as const;
+
+export const cropStatusColors: Record<string, string> = {
+  Planned: "blue",
+  "In Crop": "orange",
+  Harvesting: "orange",
+  Completed: "green",
+};
+
+export const HARVEST_STATUS = {
+  NOT_STARTED: "Not Started",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
+  INCOMPLETE: "Incomplete",
+} as const;
+
+export const harvestStatusColors: Record<string, string> = {
+  "Not Started": "blue",
+  "In Progress": "orange",
+  Incomplete: "orange",
+  Completed: "green",
+};

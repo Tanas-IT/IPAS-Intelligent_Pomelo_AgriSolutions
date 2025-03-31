@@ -1,16 +1,16 @@
-import { useNavigate } from "react-router-dom"
-import style from "./Worklog.module.scss"
-import { useState } from "react"
+import { useNavigate } from "react-router-dom";
+import style from "./Worklog.module.scss";
+import { useState } from "react";
 
 type props = {
   calendarEvent: {
-    id: string | number
-    title: string
-    start: string
-    end: string
-    calendarId: string
-  }
-}
+    id: string | number;
+    title: string;
+    start: string;
+    end: string;
+    calendarId: string;
+  };
+};
 
 export default function CustomTimeGridEvent({ calendarEvent }: props) {
   const navigate = useNavigate();
@@ -22,12 +22,11 @@ export default function CustomTimeGridEvent({ calendarEvent }: props) {
   const calendarId = calendarEvent.calendarId;
 
   return (
-    <div
-      onClick={handleClick}
-      className={`${style.event} ${style[`event${calendarId}`] || ""}`}
-    >
+    <div onClick={handleClick} className={`${style.event} ${style[`event${calendarId}`] || ""}`}>
       <strong>{calendarEvent.title}</strong>
-      <p>{calendarEvent.start.split(" ")[1]} - {calendarEvent.end.split(" ")[1]}</p>
+      <p>
+        {calendarEvent.start.split(" ")[1]} - {calendarEvent.end.split(" ")[1]}
+      </p>
     </div>
-  )
+  );
 }

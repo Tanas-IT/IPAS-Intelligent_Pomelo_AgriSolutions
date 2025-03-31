@@ -6,34 +6,34 @@ import { ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
-  id: number;
+  id?: number;
   isCompleted: boolean;
-  noView?: boolean;
-  noCriteria?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onApplyCriteria?: () => void;
+  onAddToLot?: () => void;
+  onRemoveFromLot?: () => void;
 }
 
 const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
   id,
   isCompleted,
-  noView = false,
-  noCriteria = false,
   onEdit,
   onDelete,
   onApplyCriteria,
+  onAddToLot,
+  onRemoveFromLot,
 }) => {
   const navigate = useNavigate();
   const actionItems = [
-    !noView
+    id !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View Details",
           onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(id)),
         }
       : null,
-    !isCompleted && !noCriteria
+    !isCompleted && onApplyCriteria
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",
@@ -50,6 +50,20 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
       label: "Delete Grafted Plant",
       onClick: () => onDelete(),
     },
+    onAddToLot
+      ? {
+          icon: <Icons.box />,
+          label: "Add to Lot",
+          onClick: () => onAddToLot?.(),
+        }
+      : null,
+    onRemoveFromLot
+      ? {
+          icon: <Icons.delete />,
+          label: "Remove from Lot",
+          onClick: () => onRemoveFromLot?.(), // Gọi hàm xử lý khi nhấn vào
+        }
+      : null,
   ].filter(Boolean) as ActionMenuItem[];
 
   return (

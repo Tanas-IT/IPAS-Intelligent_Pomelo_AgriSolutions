@@ -3,6 +3,7 @@ import { GetCrop2 } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatCurrencyVND, formatDate } from "@/utils";
 import { Tag } from "antd";
+import { cropStatusColors } from "@/constants";
 
 export const CropColumns: TableColumn<GetCrop2>[] = [
   {
@@ -46,7 +47,10 @@ export const CropColumns: TableColumn<GetCrop2>[] = [
   {
     header: "Status",
     field: "status",
-    accessor: (item) => <TableCell value={item.status} />,
+    accessor: (item) => {
+      const statusText = item.status;
+      return <Tag color={cropStatusColors[statusText] || "default"}>{statusText || "Unknown"}</Tag>;
+    },
     width: 120,
   },
   {
