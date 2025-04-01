@@ -1,13 +1,11 @@
-import { Flex, Form } from "antd";
+import { Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
-import { RulesManager } from "@/utils";
-import { graftedPlantFormFields, HEALTH_STATUS } from "@/constants";
-import { GetGraftedPlant, GraftedPlantRequest } from "@/payloads";
-import dayjs from "dayjs";
 import { usePlantLotOptions } from "@/hooks";
+import { RulesManager } from "@/utils";
 
 type CuttingGraftedModalProps = {
+  isMove?: boolean;
   isOpen: boolean;
   onClose: () => void;
   onSave: (lotId: number) => void;
@@ -15,6 +13,7 @@ type CuttingGraftedModalProps = {
 };
 
 const CuttingGraftedModal = ({
+  isMove = false,
   isOpen,
   onClose,
   onSave,
@@ -32,6 +31,7 @@ const CuttingGraftedModal = ({
 
   const handleOk = async () => {
     const values = await form.validateFields();
+
     onSave(values.lot);
   };
 
@@ -44,15 +44,20 @@ const CuttingGraftedModal = ({
       onSave={handleOk}
       isLoading={isLoadingAction}
       title={"Select Lot for Grafted Plant"}
-      saveLabel="Cut & Move"
+      saveLabel={isMove ? "Move" : "Cut & Move"}
     >
       <Form form={form} layout="vertical">
         <FormFieldModal
           type="select"
           label="Destination Lot"
           options={plantLotOptions}
-          rules={RulesManager.getRequiredRules("Destination Lot")}
+          rules={isMove ? RulesManager.getRequiredRules("Destination Lot") : []}
           name="lot"
+          description={
+            !isMove
+              ? "Select a destination lot to cut and move the grafted plant. Moving a new lot is not required."
+              : undefined
+          }
         />
       </Form>
     </ModalForm>

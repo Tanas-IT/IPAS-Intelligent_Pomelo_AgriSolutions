@@ -6,10 +6,8 @@ import { ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
-  id: number;
+  id?: number;
   isCompleted: boolean;
-  noView?: boolean;
-  noCriteria?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onApplyCriteria?: () => void;
@@ -18,22 +16,20 @@ interface ActionMenuProps {
 const ActionMenuLot: FC<ActionMenuProps> = ({
   id,
   isCompleted,
-  noView = false,
-  noCriteria = false,
   onEdit,
   onDelete,
   onApplyCriteria,
 }) => {
   const navigate = useNavigate();
   const actionItems = [
-    !noView
+    id !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View Plant Lot Details",
           onClick: () => navigate(ROUTES.FARM_PLANT_LOT_DETAIL(id)),
         }
       : null,
-    !isCompleted && !noCriteria
+    !isCompleted && onApplyCriteria
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",

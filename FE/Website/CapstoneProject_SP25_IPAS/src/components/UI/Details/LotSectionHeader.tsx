@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useModal } from "@/hooks";
 import { GetPlantLotDetail } from "@/payloads";
 import FillPlantsModal from "./FillPlantsModal";
+import { LOT_TYPE, lotTypeColors } from "@/constants";
 
 const LotSectionHeader = ({
   isCriteria = false,
@@ -44,9 +45,15 @@ const LotSectionHeader = ({
       <Flex className={style.contentSectionTitle}>
         <Flex className={style.contentSectionTitleLeft}>
           <label className={style.title}>{lot.plantLotName}</label>
-          <Tooltip title="Hello">
+          <Tooltip title="Plant Lot">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
+          <Tag
+            className={style.statusTag}
+            color={lotTypeColors[lot.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT]}
+          >
+            {lot.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT}
+          </Tag>
           <Flex className={style.actionButtons} gap={20}>
             {!lot.isPassed ? (
               <Button type="primary" onClick={updateConfirmModal.showModal} ghost>
@@ -82,10 +89,7 @@ const LotSectionHeader = ({
         {!isCriteria && (
           <Flex>
             <ActionMenuLot
-              id={lot.plantLotId}
               isCompleted={lot.isPassed}
-              noView={true}
-              noCriteria
               onEdit={() => formModal?.showModal(lot)}
               onDelete={() => deleteConfirmModal?.showModal({ id: lot.plantLotId })}
             />

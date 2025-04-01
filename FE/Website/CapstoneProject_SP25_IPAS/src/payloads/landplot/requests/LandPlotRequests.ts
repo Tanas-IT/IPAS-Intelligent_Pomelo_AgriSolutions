@@ -44,7 +44,7 @@ export interface LandPlotUpdateRequest {
   soilType: string;
   description: string;
   targetMarket: string;
-  status: string;
+  status?: string;
 }
 
 export interface LandPlotUpdateCoordinationRequest {

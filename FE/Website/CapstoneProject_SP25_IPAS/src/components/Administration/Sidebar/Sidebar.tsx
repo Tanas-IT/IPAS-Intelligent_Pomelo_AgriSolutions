@@ -104,13 +104,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           to: PATHS.CROP.CROP_LIST,
           activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL],
         },
-        {
-          key: "Manage Harvest Days",
-          label: "Manage Harvest Days",
-          icon: Images.radius,
-          to: PATHS.CROP.HARVEST_DAYS,
-          activePaths: [PATHS.CROP.HARVEST_DAYS],
-        },
+        // {
+        //   key: "Manage Harvest Days",
+        //   label: "Manage Harvest Days",
+        //   icon: Images.radius,
+        //   to: PATHS.CROP.HARVEST_DAYS,
+        //   activePaths: [PATHS.CROP.HARVEST_DAYS],
+        // },
         {
           key: "Plant Yield Performance",
           label: "Plant Yield Performance",

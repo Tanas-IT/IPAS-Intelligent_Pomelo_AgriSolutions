@@ -65,5 +65,5 @@ export { default as EmployeeWorklog } from "@/pages/EmployeeView/EmployeeWorklog
 export { default as EmployeeWorklogDetail } from "@/pages/EmployeeView/EmployeeWorklog/WorklogDetail/EmployeeWorklogDetail";
 export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
 export { default as CropList } from "@/pages/Crop/CropList/CropList";
-export { default as HarvestDays } from "@/pages/Crop/HarvestDays/HarvestDays";
+export { default as HarvestDays } from "@/pages/Crop/CropDetails/HarvestDays/HarvestDays";
 export { default as ChatBox } from "@/pages/ChatBox/ChatBox";

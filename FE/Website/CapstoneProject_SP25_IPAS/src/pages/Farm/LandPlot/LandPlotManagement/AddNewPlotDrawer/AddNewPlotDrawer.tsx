@@ -206,7 +206,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
             soilType: form.getFieldValue(createPlotFormFields.soilType),
             targetMarket: form.getFieldValue(createPlotFormFields.targetMarket),
             description: form.getFieldValue(createPlotFormFields.description),
-            status: form.getFieldValue(createPlotFormFields.status),
+            // status: form.getFieldValue(createPlotFormFields.status),
           }
         : null;
 

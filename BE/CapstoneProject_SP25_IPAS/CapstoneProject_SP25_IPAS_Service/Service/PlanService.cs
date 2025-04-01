@@ -1536,27 +1536,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
-                foreach (var customeDate in createPlanModel.CustomDates)
-                {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
-                    {
-                        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), customeDate);
-                        if (checkConflictTimeOfWorkLog)
-                        {
-                            conflictCustomDates.Add(customeDate);
-                        }
-                    }
+                //foreach (var customeDate in createPlanModel.CustomDates)
+                //{
+                //    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                //    {
+                //        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), customeDate);
+                //        if (checkConflictTimeOfWorkLog)
+                //        {
+                //            conflictCustomDates.Add(customeDate);
+                //        }
+                //    }
 
-                }
+                //}
 
-                if (conflictCustomDates.Count > 5)
-                {
-                    throw new Exception("Schedule is conflicted");
-                }
-                if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
-                {
-                    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
-                }
+                //if (conflictCustomDates.Count > 5)
+                //{
+                //    throw new Exception("Schedule is conflicted");
+                //}
+                //if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
+                //{
+                //    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
+                //}
 
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {

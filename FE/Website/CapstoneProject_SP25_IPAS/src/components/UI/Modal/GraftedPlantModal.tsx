@@ -1,10 +1,12 @@
 import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
-import { RulesManager } from "@/utils";
+import { formatDateReq, RulesManager } from "@/utils";
 import { graftedPlantFormFields, HEALTH_STATUS } from "@/constants";
 import { GetGraftedPlant, GraftedPlantRequest } from "@/payloads";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+dayjs.extend(isSameOrAfter);
 import { usePlantLotOptions } from "@/hooks";
 
 type GraftedPlantModalProps = {
@@ -43,19 +45,21 @@ const GraftedPlantModal = ({
     }
   }, [isOpen, graftedPlantData]);
 
-  const getFormData = (): GraftedPlantRequest => ({
-    graftedPlantId: form.getFieldValue(graftedPlantFormFields.graftedPlantId),
-    graftedPlantName: form.getFieldValue(graftedPlantFormFields.graftedPlantName),
-    separatedDate: form.getFieldValue(graftedPlantFormFields.separatedDate)
-      ? form.getFieldValue(graftedPlantFormFields.separatedDate).format("YYYY-MM-DD")
-      : null,
-    status: form.getFieldValue(graftedPlantFormFields.status),
-    graftedDate: form.getFieldValue(graftedPlantFormFields.graftedDate)
-      ? form.getFieldValue(graftedPlantFormFields.graftedDate).format("YYYY-MM-DD")
-      : null,
-    note: form.getFieldValue(graftedPlantFormFields.note),
-    plantLotId: form.getFieldValue(graftedPlantFormFields.plantLotId),
-  });
+  const getFormData = (): GraftedPlantRequest => {
+    const plantLotId = form.getFieldValue(graftedPlantFormFields.plantLotId);
+
+    return {
+      graftedPlantId: form.getFieldValue(graftedPlantFormFields.graftedPlantId),
+      graftedPlantName: form.getFieldValue(graftedPlantFormFields.graftedPlantName),
+      separatedDate:
+        formatDateReq(form.getFieldValue(graftedPlantFormFields.separatedDate)) || undefined,
+      status: form.getFieldValue(graftedPlantFormFields.status),
+      graftedDate:
+        formatDateReq(form.getFieldValue(graftedPlantFormFields.graftedDate)) || undefined,
+      note: form.getFieldValue(graftedPlantFormFields.note),
+      ...(plantLotId ? { plantLotId } : {}), // Chỉ thêm nếu có giá trị
+    };
+  };
 
   const handleOk = async () => {
     await form.validateFields();
@@ -92,7 +96,29 @@ const GraftedPlantModal = ({
               type="date"
               label="Separated Date"
               name={graftedPlantFormFields.separatedDate}
-              rules={RulesManager.getRequiredRules("Separated Date")}
+              rules={[
+                ...RulesManager.getRequiredRules("Separated Date"),
+                {
+                  validator: (_: any, value: Dayjs) => {
+                    const graftedDate = form.getFieldValue(graftedPlantFormFields.graftedDate);
+
+                    if (!graftedDate || !value) {
+                      return Promise.resolve();
+                    }
+
+                    const graftedDayjs = dayjs(graftedDate);
+                    const separatedDayjs = dayjs(value);
+
+                    if (separatedDayjs.isSameOrAfter(graftedDayjs)) {
+                      return Promise.resolve();
+                    }
+
+                    return Promise.reject(
+                      new Error("Separated Date must be after or equal to Grafted Date"),
+                    );
+                  },
+                },
+              ]}
             />
           )}
         </Flex>
@@ -108,7 +134,7 @@ const GraftedPlantModal = ({
                 label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
               }))}
             />
-            {graftedPlantData?.isCompleted && (
+            {graftedPlantData?.isCompleted && graftedPlantData?.plantLotId && (
               <FormFieldModal
                 type="select"
                 label="Destination Lot"

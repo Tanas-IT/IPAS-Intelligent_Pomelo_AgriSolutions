@@ -20,6 +20,7 @@ import {
   ActionMenuGraftedPlant,
   ApplyGraftedPlantCriteriaModal,
   ConfirmModal,
+  CuttingGraftedModal,
   GraftedPlantModal,
   NavigationDot,
   SectionTitle,
@@ -35,6 +36,8 @@ function GraftedPlant() {
   const formModal = useModal<GetGraftedPlant>();
   const criteriaModal = useModal<{ ids: number[] }>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const removeLotConfirmModal = useModal<{ ids: number[] }>();
+  const addToLotModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ graftedPlant: GraftedPlantRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
@@ -148,6 +151,40 @@ function GraftedPlant() {
     }
   };
 
+  const onAddToLot = async (lotId: number, graftedPlantIds?: number[]) => {
+    if (!graftedPlantIds) return;
+    var res = await graftedPlantService.groupGraftedPlant(graftedPlantIds, lotId);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        addToLotModal.hideModal();
+        toast.success(res.message);
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const removeFromLot = async (ids?: number[]) => {
+    if (!ids) return;
+    var res = await graftedPlantService.unGroupGraftedPlant(ids);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        removeLotConfirmModal.hideModal();
+        toast.success(res.message);
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <GraftedPlantFilter
       filters={filters}
@@ -183,6 +220,12 @@ function GraftedPlant() {
               ids: ids,
             })
           }
+          onGroupGraftedPlant={(ids) =>
+            addToLotModal.showModal({
+              ids: ids,
+            })
+          }
+          onUnGroupGraftedPlant={(ids) => removeFromLot(ids)}
           isLoading={isLoading}
           caption="Grafted Plant Management Board"
           notifyNoData="No grafted plants to display"
@@ -197,6 +240,17 @@ function GraftedPlant() {
                   ids: [grPlant.graftedPlantId],
                 })
               }
+              {...(!grPlant.plantLotId && grPlant.isCompleted
+                ? {
+                    onAddToLot: () => addToLotModal.showModal({ ids: [grPlant.graftedPlantId] }),
+                  }
+                : {})}
+              {...(grPlant.plantLotId
+                ? {
+                    onRemoveFromLot: () =>
+                      removeLotConfirmModal.showModal({ ids: [grPlant.graftedPlantId] }),
+                  }
+                : {})}
             />
           )}
         />
@@ -223,12 +277,19 @@ function GraftedPlant() {
           onSave={applyCriteria}
           isLoadingAction={isActionLoading}
         />
+        <CuttingGraftedModal
+          isMove
+          isOpen={addToLotModal.modalState.visible}
+          onClose={addToLotModal.hideModal}
+          onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.ids)}
+          isLoadingAction={isActionLoading}
+        />
         {/* Confirm Delete Modal */}
         <ConfirmModal
           visible={deleteConfirmModal.modalState.visible}
           onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
           onCancel={deleteConfirmModal.hideModal}
-          itemName="Plant"
+          itemName="Grafted Plant"
           actionType="delete"
         />
         {/* Confirm Update Modal */}
@@ -236,8 +297,19 @@ function GraftedPlant() {
           visible={updateConfirmModal.modalState.visible}
           onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.graftedPlant)}
           onCancel={updateConfirmModal.hideModal}
-          itemName="Plant"
+          itemName="Grafted Plant"
           actionType="update"
+        />
+        {/* Confirm remove from lot Modal */}
+        <ConfirmModal
+          visible={removeLotConfirmModal.modalState.visible}
+          onConfirm={() => removeFromLot(removeLotConfirmModal.modalState.data?.ids)}
+          onCancel={removeLotConfirmModal.hideModal}
+          title="Remove Grafted Plant from Lot"
+          description="Are you sure you want to remove this grafted plant from the lot? This action will not delete the plant but will unassign it from the current lot."
+          confirmText="Remove"
+          cancelText="Cancel"
+          isDanger={true}
         />
 
         {/* Confirm Cancel Modal */}

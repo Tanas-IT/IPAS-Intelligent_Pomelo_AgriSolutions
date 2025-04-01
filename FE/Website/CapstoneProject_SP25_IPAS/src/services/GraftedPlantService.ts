@@ -91,16 +91,31 @@ export const updateGraftedPlant = async (
 
 export const updateIsCompletedAndCutting = async (
   graftedPlantId: number,
+  plantLotId?: number,
+): Promise<ApiResponse<GetGraftedPlantDetail>> => {
+  const payload: Record<string, any> = { graftedPlantId };
+  if (plantLotId) payload.plantLotId = plantLotId;
+
+  const res = await axiosAuth.axiosJsonRequest.put("grafted-plant/completed-and-cutting", payload);
+  const apiResponse = res.data as ApiResponse<GetGraftedPlantDetail>;
+  return apiResponse;
+};
+
+export const groupGraftedPlant = async (
+  graftedPlantIds: number[],
   plantLotId: number,
 ): Promise<ApiResponse<GetGraftedPlantDetail>> => {
-  const formatLotData = {
-    graftedPlantId,
-    plantLotId,
-  };
-  const res = await axiosAuth.axiosJsonRequest.put(
-    "grafted-plant/completed-and-cutting",
-    formatLotData,
-  );
+  const payload: Record<string, any> = { graftedPlantIds, plantLotId };
+
+  const res = await axiosAuth.axiosJsonRequest.put("grafted-plant/grouping", payload);
+  const apiResponse = res.data as ApiResponse<GetGraftedPlantDetail>;
+  return apiResponse;
+};
+
+export const unGroupGraftedPlant = async (
+  graftedPlantIds: number[],
+): Promise<ApiResponse<GetGraftedPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("grafted-plant/ungrouping", graftedPlantIds);
   const apiResponse = res.data as ApiResponse<GetGraftedPlantDetail>;
   return apiResponse;
 };

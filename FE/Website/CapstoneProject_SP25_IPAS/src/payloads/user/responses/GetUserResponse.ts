@@ -4,6 +4,12 @@ export interface GetUser {
   avatarURL: string;
 }
 
+export interface GetUserInFarm {
+  userId: number;
+  fullName: string;
+  user: GetUser;
+}
+
 export interface GetUserRoleEmployee {
   userId: number;
   userCode: string;

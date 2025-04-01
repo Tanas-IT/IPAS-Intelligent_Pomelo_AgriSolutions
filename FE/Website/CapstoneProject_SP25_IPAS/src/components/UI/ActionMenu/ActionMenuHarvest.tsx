@@ -7,25 +7,25 @@ interface ActionMenuProps {
   onDelete: () => void;
 }
 
-const ActionMenuMasterType: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
+const ActionMenuHarvest: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
   const actionItems = [
     {
       icon: <Icons.edit />,
-      label: "Update Type",
+      label: "Update Harvest",
       onClick: () => onEdit(),
     },
     {
       icon: <Icons.delete />,
-      label: "Delete Type",
+      label: "Delete Harvest",
       onClick: () => onDelete(),
     },
   ];
 
   return (
     <>
-      <ActionMenu title="Master Type Manage" items={actionItems} />
+      <ActionMenu title="Harvest Manage" items={actionItems} />
     </>
   );
 };
 
-export default ActionMenuMasterType;
+export default ActionMenuHarvest;

@@ -11,19 +11,20 @@ import {
   SectionLong,
 } from "@/components";
 import { useEffect, useState } from "react";
-import { formatDate, formatDayMonthAndTime } from "@/utils";
+import { formatDate, formatDayMonth } from "@/utils";
 import { cropService } from "@/services";
 import { CropRequest, GetCropDetail } from "@/payloads";
 import { useModal, useTableUpdate } from "@/hooks";
 import { toast } from "react-toastify";
 import { PATHS } from "@/routes";
+import { useCropStore } from "@/stores";
 
 function CropDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/");
   const cropId = pathnames[pathnames.length - 2];
-  const [crop, setCrop] = useState<GetCropDetail>();
+  const { crop, setCrop } = useCropStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetCropDetail>();
   const deleteConfirmModal = useModal<{ id: number }>();
@@ -44,7 +45,7 @@ function CropDetail() {
 
   useEffect(() => {
     fetchCrop();
-  }, [crop]);
+  }, [cropId]);
 
   const handleDelete = async (id: number | undefined) => {
     const res = await cropService.deleteCrop([id] as number[]);
@@ -132,7 +133,7 @@ function CropDetail() {
   const infoFieldsLeft = [
     {
       label: "Create Date",
-      value: crop?.createDate ? formatDayMonthAndTime(crop.createDate) : "N/A",
+      value: crop?.createDate ? formatDayMonth(crop.createDate) : "N/A",
       icon: Icons.time,
     },
     { label: "Harvest Season", value: crop?.harvestSeason, icon: Icons.leaf },
@@ -158,12 +159,12 @@ function CropDetail() {
   const infoFieldsRight = [
     {
       label: "Crop Expected Time",
-      value: crop?.cropExpectedTime ? formatDayMonthAndTime(crop?.cropExpectedTime) : "N/A",
+      value: crop?.cropExpectedTime ? formatDayMonth(crop?.cropExpectedTime) : "N/A",
       icon: Icons.clock,
     },
     {
       label: "Crop Actual Time",
-      value: crop?.cropActualTime ? formatDayMonthAndTime(crop?.cropActualTime) : "N/A",
+      value: crop?.cropActualTime ? formatDayMonth(crop?.cropActualTime) : "N/A",
       icon: Icons.clock,
     },
     {
@@ -187,11 +188,7 @@ function CropDetail() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <CropSectionHeader
-        crop={crop}
-        formModal={formModal}
-        deleteConfirmModal={deleteConfirmModal}
-      />
+      <CropSectionHeader formModal={formModal} deleteConfirmModal={deleteConfirmModal} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
         <Flex className={style.col}>

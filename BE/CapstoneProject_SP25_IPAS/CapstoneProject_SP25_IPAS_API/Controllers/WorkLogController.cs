@@ -337,5 +337,55 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.WorkLog.StatisticWorkLog, Name = "StatisticWorkLog")]
+        public async Task<IActionResult> StatisticWorkLog([FromQuery] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.TaskStatics(farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.GetWorkLogByStatusAndUserId, Name = "GetWorkLogByStatusAndUserId")]
+        public async Task<IActionResult> GetWorkLogByStatusAndUserId([FromQuery] string? status, [FromQuery] int? userId)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+
+                var workLogParam = new GetWorkLogByStatusParam()
+                {
+                    Status = status,
+                    UserId = userId.Value
+                };
+                var result = await _workLogService.GetWorkLogbyStatus(workLogParam);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

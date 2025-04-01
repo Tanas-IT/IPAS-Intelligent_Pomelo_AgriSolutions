@@ -30,3 +30,4 @@ export { default as useUserInFarmByRole } from "./useUserInFarmByRole";
 export { default as useGraftedPlantOptions } from "./useGraftedPlantOptions";
 export { default as usePlantOfRowOptions } from "./usePlantOfRowOptions";
 export { default as usePlantLotOptions } from "./usePlantLotOptions";
+export { default as useCropOptions } from "./useCropOptions";
