@@ -663,6 +663,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             errorList = errorList + "\n" + $"Row {plant.NumberOrder}: GrowthStageCode not exist.";
                         }
 
+                        if (!plant.PlantingDate.HasValue)
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Plant {plant.NumberOrder}: planting date must have.";
+                        }
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeCode == plant.MasterTypeCode);
                         if (masterType == null)
@@ -683,8 +688,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = plant.PlantName,
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-PL{plant.PlantingDate!.Value.ToString("ddMMyy")}",
                                 PlantIndex = plant.PlantIndex,
-                                HealthStatus = plant.HealthStatus,
+                                HealthStatus = HealthStatusConst.HEALTHY,
                                 PlantingDate = plant.PlantingDate,
                                 Description = plant.Description,
                                 CreateDate = DateTime.Now,
@@ -796,9 +802,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         item.IsDeleted = true;
                         var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(item.PlantId);
-                        foreach(var plantGrowthHistory in getPlantGrowthHistory)
+                        foreach (var plantGrowthHistory in getPlantGrowthHistory)
                         {
-                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId); 
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
                             _unitOfWork.ResourceRepository.RemoveRange(getResource);
                         }
                         _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
@@ -865,15 +871,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     && x.IsDeleted == false
                     && x.GrowthStage != null
                 && x.GrowthStage.ActiveFunction != null;
-                
+
 
                 string includeProperties = "GrowthStage";
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
-                    plantInPlot = plantInPlot.Where(x => !string.IsNullOrEmpty(x.GrowthStage!.ActiveFunction)
-                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
-                                        .Any(f => listFuncRequest.Contains(f)))
-                        .ToList();
+                plantInPlot = plantInPlot.Where(x => !string.IsNullOrEmpty(x.GrowthStage!.ActiveFunction)
+                               && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                    .Any(f => listFuncRequest.Contains(f)))
+                    .ToList();
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);

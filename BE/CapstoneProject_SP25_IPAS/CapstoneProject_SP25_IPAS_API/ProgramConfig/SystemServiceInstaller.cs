@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddSingleton(ProgramDefaultConfig);
 
             // Background service config
-            //services.AddHostedService<WeatherMonitoringService>();
+            services.AddHostedService<WeatherMonitoringService>();
             //services.AddHostedService<WorkLogStatusUpdaterService>();
             //services.AddHostedService<PlantGrowthUpdateService>();
 

@@ -552,7 +552,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var landRow = new LandRow()
                 {
-                    LandRowCode = $"{CodeAliasEntityConst.LANDPLOT}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}-{CodeHelper.GenerateCode()}",
+                    LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}",
                     RowIndex = row.RowIndex,
                     Length = row.Length,
                     Width = row.Width,

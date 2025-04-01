@@ -14,7 +14,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest
 
         public int? PlantIndex { get; set; }
 
-        public string? HealthStatus { get; set; }
+        //public string? HealthStatus { get; set; }
 
         public DateTime? PlantingDate { get; set; }
 
