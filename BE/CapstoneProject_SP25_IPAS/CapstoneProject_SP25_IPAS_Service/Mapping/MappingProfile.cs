@@ -360,6 +360,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant.LandRow.LandPlot.LandPlotName))
                 .ReverseMap();
 
+            CreateMap<ProductHarvestHistory, PlantLogHarvestModel>()
+              .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.MasterTypeName))
+              .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
+              .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+               .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.HarvestHistory.Crop.CropName))
+               .ForMember(dest => dest.HarvestDate, opt => opt.MapFrom(src => src.HarvestHistory.DateHarvest))
+               .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
+               .ReverseMap();
+
             CreateMap<Order, OrderModel>()
                .ForMember(dest => dest.FarmName, opt => opt.MapFrom(src => src.Farm!.FarmName))
                .ForMember(dest => dest.Package, opt => opt.MapFrom(src => src.Package))

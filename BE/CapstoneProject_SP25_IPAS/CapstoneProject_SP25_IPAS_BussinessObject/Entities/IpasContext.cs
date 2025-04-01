@@ -1355,18 +1355,25 @@ public partial class IpasContext : DbContext
 
         modelBuilder.Entity<Type_Type>(entity =>
         {
-            entity.HasKey(e => new { e.ProductId, e.CriteriaSetId }).HasName("PK_Type_Type__2F2CAR35609A834");
+            entity.HasKey(e => new { e.ProductId, e.CriteriaSetId })
+        .HasName("PK_Type_Type__2F2CAR35609A834");
 
             entity.ToTable("Type_Type");
 
-            entity.Property(e => e.ProductId).HasColumnName("MasterTypeID_1");
-            entity.Property(e => e.CriteriaSetId).HasColumnName("MasterTypeID_2");
+            // Map đúng tên cột từ DB
+            entity.Property(e => e.ProductId)
+                .HasColumnName("MasterTypeID_1");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.Products)
+            entity.Property(e => e.CriteriaSetId)
+                .HasColumnName("MasterTypeID_2");
+
+            entity.HasOne(d => d.Product)
+                .WithMany(p => p.Products)
                 .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK__Type_Type_1_MasterType__43A51090D");
 
-            entity.HasOne(d => d.CriteriaSet).WithMany(p => p.CriteriaSet)
+            entity.HasOne(d => d.CriteriaSet)
+                .WithMany(p => p.CriteriaSet)
                 .HasForeignKey(d => d.CriteriaSetId)
                 .HasConstraintName("FK__Type_Type_2_Master_Type__24218C17");
         });

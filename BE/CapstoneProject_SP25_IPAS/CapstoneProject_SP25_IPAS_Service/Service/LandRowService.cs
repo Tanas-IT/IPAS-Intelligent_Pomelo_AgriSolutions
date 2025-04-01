@@ -141,7 +141,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
-                string includeProperties = "LandPlot";
+                string includeProperties = "LandPlot,Plants";
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
                 var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (!rowsOfFarm.Any())

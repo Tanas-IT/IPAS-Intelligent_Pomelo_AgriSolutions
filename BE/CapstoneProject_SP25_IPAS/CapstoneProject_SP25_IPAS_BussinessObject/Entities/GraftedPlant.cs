@@ -26,6 +26,7 @@ public partial class GraftedPlant
     public int? PlantLotId { get; set; }
 
     public bool? IsDeleted { get; set; }
+    public bool? IsDead { get; set; }
     public string? FinishedPlantCode { get; set; }
     public int? FarmId { get; set; }
     public bool? IsCompleted { get; set; }

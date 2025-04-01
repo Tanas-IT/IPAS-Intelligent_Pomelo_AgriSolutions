@@ -78,6 +78,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
             public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
             public const string checkCriteriaForLot = Base + "/plant-lots/criteria/check-criteria";
+            public const string MarkUsedPlantLot = Base + "/plant-lots/mark-used";
         }
 
         public static class Resource
@@ -332,7 +333,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string prefix = Base + "/harvests";
             public const string createHarvest = prefix + "";
             public const string createProductHarvestHistory = prefix + "/product-harvest";
-            public const string createPlantRecordHarvest = prefix + "/record";
+            public const string createPlantRecordHarvest = prefix + "/plants/record";
             public const string deletePermanentlyHarvest = prefix + "";
             public const string deleteProductHarvest = prefix + "/delete-product";
             public const string deletePlantRecord = prefix + "/delete-plant-record";
@@ -348,6 +349,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestByCode = prefix + "/get-by-code";
             public const string statisticOfTopByYear = prefix + "/statistic/top-in-year";
             public const string statisticOfTopByCrop = prefix + "/statistic/top-in-crop";
+            public const string getPlantHarvestRecord = prefix + "/plants/record";
+
 
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
@@ -427,6 +430,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
             public const string GroupGraftedPlantsIntoPlantLot = prefix + "/grouping";
             public const string UnGroupGraftedPlantsIntoPlantLot = prefix + "/ungrouping";
+            public const string MarkDeadGraftedPlants = prefix + "/mark-dead";
             public const string CreatePlantFromGrafted = prefix + "/create-plant";
 
             public const string graftedNotePrefix = prefix + "/note";
