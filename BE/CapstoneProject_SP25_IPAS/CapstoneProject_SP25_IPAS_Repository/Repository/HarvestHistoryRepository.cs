@@ -60,6 +60,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             // Lọc theo LandPlotId
             query = query
+                .Include(x => x.CarePlanSchedules)
                 .Include(x => x.ProductHarvestHistories/*.Where(x => x.PlantId != null)*/)
                 .ThenInclude(x => x.Product)
                 .Include(x => x.Crop);
