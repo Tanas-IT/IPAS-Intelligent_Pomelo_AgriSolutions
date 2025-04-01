@@ -66,12 +66,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         changeTimeOfEmployeeModel.CustomeDates = changeTimeOfEmployeeModel.CustomeDates.Where(x => x.Date.Date > DateTime.Now.Date).OrderBy(x => x.Date).ToList();
                         foreach (var wl in workLogsFuture)
                         {
-                            DateTime dateUpdate = changeTimeOfEmployeeModel.CustomeDates.FirstOrDefault();
-                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(findSchedule.StartTime.Value, findSchedule.EndTime.Value, dateUpdate, userWorkLogs.DistinctBy(x => x.UserId).Select(x => x.UserId).ToList());
-                            wl.ActualStartTime = findSchedule.StartTime;
-                            wl.ActualEndTime = findSchedule.EndTime.Value;
-                            wl.Date = dateUpdate;
+                            if(changeTimeOfEmployeeModel.CustomeDates.Any())
+                            {
+                                DateTime dateUpdate = changeTimeOfEmployeeModel.CustomeDates.FirstOrDefault();
+                                await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(findSchedule.StartTime.Value, findSchedule.EndTime.Value, dateUpdate, userWorkLogs.DistinctBy(x => x.UserId).Select(x => x.UserId).ToList(), wl.WorkLogId);
+                                wl.ActualStartTime = findSchedule.StartTime;
+                                wl.ActualEndTime = findSchedule.EndTime.Value;
+                                wl.Date = dateUpdate;
+                             _unitOfWork.WorkLogRepository.Update(wl);
                             changeTimeOfEmployeeModel.CustomeDates.Remove(dateUpdate);
+                            }
+                            
                         }
                         _unitOfWork.WorkLogRepository.UpdateRange(workLogsFuture);
                         foreach (var date in changeTimeOfEmployeeModel.CustomeDates)
