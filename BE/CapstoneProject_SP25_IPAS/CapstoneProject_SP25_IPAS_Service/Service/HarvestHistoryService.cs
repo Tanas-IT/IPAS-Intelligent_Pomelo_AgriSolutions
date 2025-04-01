@@ -551,15 +551,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         harvestHistory.HarvestStatus = updateRequest.HarvestStatus;
                     }
-                    if (updateRequest.DateHarvest.HasValue)
+                    if (updateRequest.DateHarvest.HasValue || !string.IsNullOrEmpty(updateRequest.StartTime) || !string.IsNullOrEmpty(updateRequest.EndTime))
                     {
                         var scheduleExist = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.HarvestHistoryID == harvestHistory.HarvestHistoryId && x.IsDeleted == false);
-                        harvestHistory.DateHarvest = updateRequest.DateHarvest;
+                        if (updateRequest.DateHarvest.HasValue)
+                            harvestHistory.DateHarvest = updateRequest.DateHarvest;
                         var updateSheduleRequest = new ChangeTimeOfScheduleModel
                         {
                             StartTime = updateRequest.StartTime,
                             EndTime = updateRequest.EndTime,
-                            CustomeDates = new List<DateTime> { updateRequest.DateHarvest.Value, DateTime.Now.AddDays(10), DateTime.Now.AddDays(15) },
+                            CustomeDates = new List<DateTime> { harvestHistory.DateHarvest!.Value },
                             ScheduleId = scheduleExist.ScheduleId
                         };
                         var updateWorkLog = await _scheduleService.ChangeTimeOfSchedule(updateSheduleRequest);
