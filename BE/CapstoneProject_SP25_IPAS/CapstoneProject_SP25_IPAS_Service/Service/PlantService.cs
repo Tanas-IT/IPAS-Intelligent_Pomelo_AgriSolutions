@@ -906,7 +906,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     plantUpdate.HealthStatus = HealthStatusConst.DEAD;
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
-
+                    await DeletelanByPlantId(plantUpdate.PlantId);
                     // Save the changes
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -956,6 +956,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+        private async Task<bool> DeletelanByPlantId(int plantId)
+        {
+            try
+            {
+                var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByPlantId(plantId);
+                foreach(var planDelete in getPlanByPlantId)
+                {
+                    planDelete.IsActive = false;
+                    planDelete.Status = "Stopped";
+                    var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
+                    if(getWorkLogInFuture != null && getWorkLogInFuture.Any())
+                    {
+                        foreach (var deleteWorkLog in getWorkLogInFuture)
+                        {
+                            deleteWorkLog.Status = WorkLogStatusConst.CANCELLED;
+                        }
+                        _unitOfWork.WorkLogRepository.UpdateRange(getWorkLogInFuture);
+                    }
+
+                }
+                 _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
             }
         }
     }
