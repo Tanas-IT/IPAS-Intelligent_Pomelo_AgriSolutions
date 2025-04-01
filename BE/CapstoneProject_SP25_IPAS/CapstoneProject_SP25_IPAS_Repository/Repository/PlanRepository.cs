@@ -227,5 +227,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return false;
         }
 
+        public async Task<List<Plan>> GetPlanByPlantId(int plantId)
+        {
+            var getListPlant = await _context.Plans
+                                .Include(x => x.PlanTargets)
+                                .Include(x => x.CarePlanSchedule)
+                                .ThenInclude(x => x.WorkLogs)
+                                .ThenInclude(x => x.UserWorkLogs)
+                                .Where(x => x.PlanTargets.Any(y => y.PlantID == plantId)).ToListAsync();
+            return getListPlant;
+
+        }
     }
 }

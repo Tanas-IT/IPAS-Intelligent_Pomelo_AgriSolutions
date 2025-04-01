@@ -390,7 +390,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
         }
 
-        public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds)
+        public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds, int? workLogId = null)
         { 
 
            
@@ -400,6 +400,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
               .Where(uwl => uwl.WorkLog.IsDeleted == false &&
                               listEmployeeIds.Contains(uwl.UserId) &&
                             uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
+                             (workLogId == null || uwl.WorkLog.WorkLogId != workLogId) &&
                             uwl.WorkLog.Schedule.StartTime < newEndTime &&
                             uwl.WorkLog.Schedule.EndTime > newStartTime)
               .Select(uwl => new
