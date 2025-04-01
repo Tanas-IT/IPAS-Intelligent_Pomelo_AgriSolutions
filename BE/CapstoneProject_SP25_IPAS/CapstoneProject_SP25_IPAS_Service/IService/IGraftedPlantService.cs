@@ -27,6 +27,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GroupGraftedPlantsIntoPlantLot(GroupingGraftedRequest request);
         public Task<BusinessResult> CreatePlantFromGrafted(CreatePlantFromGraftedRequest request);
         public Task<BusinessResult> UngroupGraftedPlants(List<int> graftedPlantIds);
+        public Task<BusinessResult> markDeadGraftedAsync(List<int> graftedPlantIdsDead);
+
 
     }
 }

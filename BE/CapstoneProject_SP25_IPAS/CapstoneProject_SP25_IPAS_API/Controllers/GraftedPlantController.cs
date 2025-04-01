@@ -308,5 +308,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpPut(APIRoutes.GraftedPlant.MarkDeadGraftedPlants, Name = "MarkDeadGraftedPlants")]
+        public async Task<IActionResult> MarkDeadGraftedPlants(List<int> graftPlantsId)
+        {
+            var result = await _graftedPlantService.markDeadGraftedAsync(graftPlantsId);
+            return Ok(result);
+        }
     }
 }
