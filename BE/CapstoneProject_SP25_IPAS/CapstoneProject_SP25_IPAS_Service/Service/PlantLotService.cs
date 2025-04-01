@@ -803,7 +803,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.IsDeleted == false;
                 if (isFromGrafted.HasValue && isFromGrafted == true)
-                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.COMPLETED.ToLower()));
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.Equals(PlantLotStatusConst.USED, StringComparison.OrdinalIgnoreCase));
                 else
                     filter = filter.And(x => x.LastQuantity < x.UsedQuantity);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
@@ -1049,6 +1049,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(request.PlantLotID);
                 if (checkExistPlantLot == null)
                     return new BusinessResult(400, "Plant lot not exist");
+                if (!string.IsNullOrEmpty(checkExistPlantLot.Status) && checkExistPlantLot.Status!.Equals(PlantLotStatusConst.USED, StringComparison.OrdinalIgnoreCase))
+                    return new BusinessResult(400, "Plant lot is used");
                 if (!request.criteriaDatas.Any())
                 {
                     return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
@@ -1155,6 +1157,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
             //}
+        }
+
+        public async Task<BusinessResult> MarkStatusUsed(int plantLotIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    Expression<Func<PlantLot, bool>> filter = x => x.PlantLotId == plantLotIds && x.IsDeleted == false && x.IsFromGrafted == true;
+                    var lotExist = await _unitOfWork.PlantLotRepository.GetByCondition(filter: filter);
+                    if (lotExist == null)
+                        return new BusinessResult(400, "No Lot Found");
+                    if (!lotExist.PreviousQuantity.HasValue || lotExist.PreviousQuantity.Value == 0)
+                        return new BusinessResult(400, "Lot no have quantity to use");
+                    lotExist.Status = PlantLotStatusConst.USED;
+
+                    var graftedInLot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(g => g.PlantLotId == lotExist.PlantLotId && g.IsDead == false);
+                    foreach (var grafted in graftedInLot)
+                    {
+                        grafted.Status = GraftedPlantStatusConst.IS_USED;
+                    }
+
+                    _unitOfWork.PlantLotRepository.Update(lotExist);
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(graftedInLot);
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_PLANT_LOT_CODE, $"Mark as Used lot success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_PLANT_LOT_CODE, Const.FAIL_DELETE_PLANT_LOT_MESSAGE, new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
     }
 }

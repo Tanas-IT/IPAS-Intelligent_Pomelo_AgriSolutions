@@ -271,6 +271,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (!createRequest.HarvestHistoryId.HasValue)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
+                    if (createRequest.plantHarvestRecords == null)
+                        return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, "No record are create");
 
                     // 1. Kiểm tra MasterType có tồn tại hay không
                     var masterType = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(
@@ -288,40 +290,77 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         x.PlantId == null;
 
-                    var existingHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
+                    var existingProduct = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
 
                     // 3. Nếu sản phẩm chưa tồn tại trong buổi thu hoạch, trả lỗi
-                    if (existingHarvest == null)
+                    if (existingProduct == null)
                     {
                         return new BusinessResult(400, "This product not exist in harvest to record");
                     }
                     // kiểm tra xem đã tồn tại PlantID đó chưa
-                    checkExistingCondition = checkExistingCondition.And(x =>
+                    //foreach (var plant in createRequest.plantHarvestRecords)
+                    //{
+
+                    //    checkExistingCondition = checkExistingCondition.And(x =>
+                    //        x.MasterTypeId == createRequest.MasterTypeId &&
+                    //        x.HarvestHistoryId == createRequest.HarvestHistoryId &&
+                    //        x.PlantId == plant.PlantId);
+                    //    var existingHarvestWithPlant = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
+
+                    //    if (existingHarvestWithPlant != null)
+                    //    {
+                    //        // Nếu đã tồn tại sản phẩm thu hoạch có PlantID này, cộng dồn quantity
+                    //        existingHarvestWithPlant.ActualQuantity += plant.Quantity;
+                    //        _unitOfWork.ProductHarvestHistoryRepository.Update(existingHarvestWithPlant);
+                    //    }
+                    //    else
+                    //    {
+                    //        // Nếu chưa tồn tại bản ghi có PlantID, tạo mới bản ghi
+                    //        var newHarvestEntry = new ProductHarvestHistory()
+                    //        {
+                    //            MasterTypeId = createRequest.MasterTypeId,
+                    //            HarvestHistoryId = createRequest.HarvestHistoryId.Value,
+                    //            PlantId = plant.PlantId,
+                    //            Unit = existingProduct.Unit,
+                    //            ActualQuantity = plant.Quantity
+                    //        };
+                    //        await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
+                    //    }
+                    //}
+                    var updateList = new List<ProductHarvestHistory>();
+                    var insertList = new List<ProductHarvestHistory>();
+
+                    var plantIds = createRequest.plantHarvestRecords.Select(p => p.PlantId).ToList();
+                    var existingHarvests = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(x =>
                         x.MasterTypeId == createRequest.MasterTypeId &&
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
-                        x.PlantId == createRequest.PlantId);
-                    var existingHarvestWithPlant = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
+                        plantIds.Contains(x.PlantId!.Value));
 
-                    if (existingHarvestWithPlant != null)
+                    foreach (var plant in createRequest.plantHarvestRecords)
                     {
-                        // Nếu đã tồn tại sản phẩm thu hoạch có PlantID này, cộng dồn quantity
-                        existingHarvestWithPlant.ActualQuantity += createRequest.Quantity;
-                        _unitOfWork.ProductHarvestHistoryRepository.Update(existingHarvestWithPlant);
-                    }
-                    else
-                    {
-                        // Nếu chưa tồn tại bản ghi có PlantID, tạo mới bản ghi
-                        var newHarvestEntry = new ProductHarvestHistory()
+                        var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId);
+                        if (existingHarvest != null)
                         {
-                            MasterTypeId = createRequest.MasterTypeId,
-                            HarvestHistoryId = createRequest.HarvestHistoryId.Value,
-                            PlantId = createRequest.PlantId,
-                            Unit = existingHarvest.Unit,
-                            ActualQuantity = createRequest.Quantity
-                        };
-                        await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
+                            existingHarvest.ActualQuantity += plant.Quantity;
+                            updateList.Add(existingHarvest);
+                        }
+                        else
+                        {
+                            insertList.Add(new ProductHarvestHistory
+                            {
+                                MasterTypeId = createRequest.MasterTypeId,
+                                HarvestHistoryId = createRequest.HarvestHistoryId.Value,
+                                PlantId = plant.PlantId,
+                                Unit = existingProduct.Unit,
+                                ActualQuantity = plant.Quantity
+                            });
+                        }
                     }
 
+                    if (updateList.Any())
+                        _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(updateList);
+                    if (insertList.Any())
+                        await _unitOfWork.ProductHarvestHistoryRepository.InsertRangeAsync(insertList);
                     // 5. Lưu thay đổi vào database
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -329,17 +368,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await transaction.CommitAsync();
 
                         // Lấy dữ liệu đã tạo để trả về
-                        Expression<Func<ProductHarvestHistory, bool>> filter = x =>
-                            x.HarvestHistoryId == createRequest.HarvestHistoryId &&
-                            x.MasterTypeId == createRequest.MasterTypeId &&
-                            x.PlantId == createRequest.PlantId;
+                        //Expression<Func<ProductHarvestHistory, bool>> filter = x =>
+                        //    x.HarvestHistoryId == createRequest.HarvestHistoryId &&
+                        //    x.MasterTypeId == createRequest.MasterTypeId &&
+                        //    x.PlantId == createRequest.PlantId;
 
-                        string includeProperties = "HarvestHistory,MasterType";
-                        var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
-                        var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
+                        //string includeProperties = "HarvestHistory,MasterType";
+                        //var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
+                        //var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
 
                         return new BusinessResult(Const.SUCCESS_UPDATE_HARVEST_HISTORY_CODE,
-                                                  Const.SUCCESS_UPDATE_HARVEST_HISTORY_MSG, mappedResult);
+                                                  Const.SUCCESS_UPDATE_HARVEST_HISTORY_MSG/*, mappedResult*/);
                     }
                     else
                     {
@@ -459,7 +498,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (cropId <= 0)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
                 Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
-                Expression<Func<HarvestHistory, bool>> filter = c => c.CropId == cropId && c.Crop!.IsDeleted == false;
+                Expression<Func<HarvestHistory, bool>> filter = c => c.CropId == cropId && c.Crop!.IsDeleted == false && c.IsDeleted == false;
                 //Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.StartDate >= DateTime.Now && x.Crop.EndDate <= DateTime.Now;
                 //Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
                 if (filterRequest.DateHarvestFrom.HasValue && filterRequest.DateHarvestTo.HasValue)
@@ -981,5 +1020,84 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> getHarvestHistoryByPlant(int plantId, PaginationParameter paginationParameter, PlantHarvestFilter filterRequest)
+        {
+            try
+            {
+                if (plantId <= 0)
+                    return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, Const.WARNING_CROP_NOT_EXIST_MSG);
+                Func<IQueryable<ProductHarvestHistory>, IOrderedQueryable<ProductHarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistory.DateHarvest);
+                Expression<Func<ProductHarvestHistory, bool>> filter = c => c.PlantId == plantId && c.HarvestHistory.Crop!.IsDeleted == false && c.HarvestHistory.IsDeleted == false;
+                //Expression<Func<HarvestHistory, bool>> filter = x => x.CropId == cropId && x.Crop!.StartDate >= DateTime.Now && x.Crop.EndDate <= DateTime.Now;
+                //Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.HarvestHistoryId);
+                if (filterRequest.DateHarvestFrom.HasValue && filterRequest.DateHarvestTo.HasValue)
+                {
+                    if (filterRequest.DateHarvestTo < filterRequest.DateHarvestFrom)
+                        return new BusinessResult(400, "Date harvest from must before harvest to ");
+                    filter = filter.And(x => x.HarvestHistory.DateHarvest >= filterRequest.DateHarvestFrom &&
+                                            x.HarvestHistory.DateHarvest <= filterRequest.DateHarvestTo);
+                }
+                if (filterRequest.totalQuantityFrom.HasValue && filterRequest.totalQuantityTo.HasValue)
+                {
+                    if (filterRequest.totalQuantityTo < filterRequest.totalQuantityFrom)
+                        return new BusinessResult(400, "Total price from must less than total price to");
+                    filter = filter.And(x => x.ActualQuantity >= filterRequest.totalQuantityFrom &&
+                                           x.ActualQuantity <= filterRequest.totalQuantityTo);
+                }
+                if (!string.IsNullOrEmpty(filterRequest.productIds))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.productIds);
+                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()));
+                }
+                ApplyPlantHarvestSorting(orderBy: ref orderBy, paginationParameter.SortBy, paginationParameter.Direction);
+                var plantProductRecord = await _unitOfWork.ProductHarvestHistoryRepository.getPlantLogHarvestPagin(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                //if (!landPlotCrops.Any())
+                //    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
+                //var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
+                var pagin = new PageEntity<PlantLogHarvestModel>();
+                pagin.List = _mapper.Map<IEnumerable<PlantLogHarvestModel>>(plantProductRecord);
+                pagin.TotalRecord = await _unitOfWork.ProductHarvestHistoryRepository.Count(filter: filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, Const.SUCCESS_GET_ALL_CROP_FOUND_MSG, pagin);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+        private void ApplyPlantHarvestSorting(ref Func<IQueryable<ProductHarvestHistory>, IOrderedQueryable<ProductHarvestHistory>> orderBy, string? sortBy, string? direction)
+        {
+            bool isDescending = !string.IsNullOrEmpty(direction) && direction.ToLower().Equals("desc");
+            sortBy = sortBy?.ToLower() ?? "harvesthistoryid"; // Mặc định sắp xếp theo HarvestHistoryId
+
+            switch (sortBy)
+            {
+                case "harvesthistorycode":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest));
+                    break;
+                case "dateharvest":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "cropname":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest));
+                    break;
+                case "productname":
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderByDescending(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId));
+                    break;
+                case "actualquantity":
+                    orderBy = isDescending
+                        ? x => x.OrderByDescending(c => c.ActualQuantity).ThenByDescending(c => c.HarvestHistoryId)
+                        : x => x.OrderBy(c => c.ActualQuantity).ThenByDescending(c => c.HarvestHistoryId);
+                    break;
+                default:
+                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest));
+                    break;
+            }
+        }
     }
 }

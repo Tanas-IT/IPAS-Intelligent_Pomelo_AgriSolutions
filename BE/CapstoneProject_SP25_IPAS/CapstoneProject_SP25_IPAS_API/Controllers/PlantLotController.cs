@@ -258,5 +258,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             var result = await _plantLotService.CheckingCriteriaForLot(request);
             return Ok(result);
         }
+
+        [HttpPatch(APIRoutes.PlantLot.MarkUsedPlantLot, Name = "MarkUsedPlantLot")]
+        public async Task<IActionResult> MarkUsedPlantLot([FromQuery] int plantLotIds)
+        {
+            try
+            {
+                var result = await _plantLotService.MarkStatusUsed(plantLotIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

@@ -89,6 +89,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             IsDeleted = false,
                             IsCompleted = false,
                             FarmId = plantExist.FarmId,
+                            IsDead = false,
                         };
                         graftedInsert.Add(graftedCreateEntity);
                     }
@@ -288,7 +289,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (getRequest.IsCompleted.HasValue)
                     filter = filter.And(x => x.IsCompleted == getRequest.IsCompleted);
-
+                if (getRequest.IsDead.HasValue)
+                    filter = filter.And(x => x.IsDead== getRequest.IsDead);
                 if (!string.IsNullOrEmpty(getRequest.CultivarIds))
                 {
                     List<string> filterList = Util.SplitByComma(getRequest.CultivarIds);
@@ -444,7 +446,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // Kiểm tra cây ghép có tồn tại không
-                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == updateRequest.GraftedPlantId && x.IsDeleted != true;
+                Expression<Func<GraftedPlant, bool>> filter = x => x.GraftedPlantId == updateRequest.GraftedPlantId && x.IsDeleted != true && x.IsDead == false;
                 string includeProperties = "PlantLot,Plant";
                 var existingGraftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(filter, includeProperties);
                 if (existingGraftedPlant == null)
@@ -508,7 +510,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && !x.Status.ToLower().Equals(GraftedPlantStatusConst.DEAD);
+                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && !x.IsDead == false;
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
                 var plantInPlot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
@@ -578,6 +580,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Grafted Plant Not exist");
                     //var plantExist = await _unitOfWork.PlantRepository.GetByID(checkGraftedExist.PlantId!.Value);
                     // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
+                    if (checkGraftedExist.IsDead == true)
+                        return new BusinessResult(400, "This grafted has dead before. Please check again");
                     if (checkGraftedExist.SeparatedDate.HasValue)
                         return new BusinessResult(400, "This grafted has seperate before. Please check again");
                     if (checkGraftedExist.PlantLotId.HasValue)
@@ -1107,6 +1111,60 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
 
+        }
+
+        public async Task<BusinessResult> markDeadGraftedAsync(List<int> graftedPlantIdsDead)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    if (graftedPlantIdsDead == null || !graftedPlantIdsDead.Any())
+                    {
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, "No valid GraftedPlantIds provided.");
+                    }
+
+                    // Filter to find all plants with matching IDs
+                    Expression<Func<GraftedPlant, bool>> filter = x => graftedPlantIdsDead.Contains(x.GraftedPlantId);
+                    var grafteds = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter);
+
+                    if (grafteds == null || !grafteds.Any())
+                    {
+                        return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
+                    }
+                    grafteds.ToList().ForEach(gr =>
+                    {
+                        gr.IsDead = true;
+                    });
+                    //foreach (var gr in grafteds)
+                    //{
+                    //    var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(gr.GraftedPlantId);
+                    //    foreach (var graftedPlantNote in getListGraftedPlantNotes)
+                    //    {
+                    //        var getResource = await _unitOfWork.ResourceRepository.GetListResourceByGraftedNoteId(graftedPlantNote.GraftedPlantNoteId);
+                    //        _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                    //    }
+                    //    _unitOfWork.GraftedPlantNoteRepository.RemoveRange(getListGraftedPlantNotes);
+                    //    await _unitOfWork.SaveAsync();
+
+                    //}
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(grafteds);
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, $"Mark {grafteds.Count()} record dead success", true );
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, "Mark dead fail");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
     }
 }
