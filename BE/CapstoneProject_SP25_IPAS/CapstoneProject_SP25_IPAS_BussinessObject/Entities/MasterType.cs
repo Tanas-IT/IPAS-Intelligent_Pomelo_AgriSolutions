@@ -59,8 +59,8 @@ public partial class MasterType
     public virtual ICollection<PlantLot> PlantLots { get; set; } = new List<PlantLot>();
 
     public virtual ICollection<SubProcess> SubProcesses { get; set; } = new List<SubProcess>();
-    public virtual ICollection<Type_Type> Type_Types_1 { get; set; } = new List<Type_Type>();
-    public virtual ICollection<Type_Type> Type_Types_2 { get; set; } = new List<Type_Type>();
+    //public virtual ICollection<Type_Type> Type_Types_1 { get; set; } = new List<Type_Type>();
+    //public virtual ICollection<Type_Type> Type_Types_2 { get; set; } = new List<Type_Type>();
     //public virtual ICollection<GrowthStageMasterType> GrowthStageMasterTypes { get; set; } = new List<GrowthStageMasterType>();
 
     public virtual ICollection<Type_Type> Products { get; set; } = new List<Type_Type>();

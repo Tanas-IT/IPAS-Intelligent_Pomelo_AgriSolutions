@@ -966,6 +966,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach(var planDelete in getPlanByPlantId)
                 {
                     planDelete.IsActive = false;
+                    planDelete.IsDeleted = false;
                     planDelete.Status = "Stopped";
                     var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
                     if(getWorkLogInFuture != null && getWorkLogInFuture.Any())
