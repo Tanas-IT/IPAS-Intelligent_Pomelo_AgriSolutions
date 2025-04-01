@@ -199,7 +199,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 users = users.Where(x =>
                 x.Role.RoleName!.Equals(RoleEnum.MANAGER.ToString(), StringComparison.OrdinalIgnoreCase) ||
                  x.Role.RoleName.Equals(RoleEnum.OWNER.ToString(), StringComparison.OrdinalIgnoreCase) ||
-                 workLog.UserWorkLogs.Select(x => x.UserId).Contains(x.UserId)).ToList();
+                 workLog.UserWorkLogs.Select(u => u.UserId).Contains(x.UserId)).ToList();
                 List<CreateNotificationRequest> notis = new List<CreateNotificationRequest>();
                 foreach (var user in users)
                 {

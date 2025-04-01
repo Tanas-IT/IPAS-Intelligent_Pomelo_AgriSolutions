@@ -37,12 +37,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var findSchedule = await _unitOfWork.CarePlanScheduleRepository.GetByID(changeTimeOfEmployeeModel.ScheduleId);
-                if (changeTimeOfEmployeeModel.StartTime != null && changeTimeOfEmployeeModel.EndTime != null)
-                {
-                    var parseStartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
-                    var parseEndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
-                    findSchedule.StartTime = parseStartTime;
-                    findSchedule.EndTime = parseEndTime;
+                //if (changeTimeOfEmployeeModel.StartTime != null && changeTimeOfEmployeeModel.EndTime != null)
+                //{
+                    //var parseStartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
+                    //var parseEndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
+
+                    //findSchedule.StartTime = parseStartTime;
+                    //findSchedule.EndTime = parseEndTime;
+                    if (!string.IsNullOrWhiteSpace(changeTimeOfEmployeeModel.StartTime))
+                    {
+                        findSchedule.StartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(changeTimeOfEmployeeModel.EndTime))
+                    {
+                        findSchedule.EndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
+                    }
                     findSchedule.CustomDates = JsonConvert.SerializeObject(changeTimeOfEmployeeModel.CustomeDates.Select(x => x.ToString("yyyy/MM/dd")));
 
                     var findWorkLogs = await _unitOfWork.WorkLogRepository.GetAllNoPaging(w => w.ScheduleId == changeTimeOfEmployeeModel.ScheduleId, includeProperties: "UserWorkLogs");
@@ -57,9 +67,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var wl in workLogsFuture)
                         {
                             DateTime dateUpdate = changeTimeOfEmployeeModel.CustomeDates.FirstOrDefault();
-                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(parseStartTime, parseEndTime, dateUpdate, userWorkLogs.DistinctBy(x => x.UserId).Select(x => x.UserId).ToList());
-                            wl.ActualStartTime = parseStartTime;
-                            wl.ActualEndTime = parseEndTime;
+                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(findSchedule.StartTime.Value, findSchedule.EndTime.Value, dateUpdate, userWorkLogs.DistinctBy(x => x.UserId).Select(x => x.UserId).ToList());
+                            wl.ActualStartTime = findSchedule.StartTime;
+                            wl.ActualEndTime = findSchedule.EndTime.Value;
                             wl.Date = dateUpdate;
                             changeTimeOfEmployeeModel.CustomeDates.Remove(dateUpdate);
                         }
@@ -67,13 +77,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var date in changeTimeOfEmployeeModel.CustomeDates)
                         {
 
-                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(parseStartTime, parseEndTime, date, userWorkLogs.Select(x => x.UserId).ToList());
+                            await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(findSchedule.StartTime.Value, findSchedule.EndTime.Value, date, userWorkLogs.Select(x => x.UserId).ToList());
                             var newWorklog = new WorkLog
                             {
+                                WorkLogCode = $"{CodeAliasEntityConst.WORKLOG}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
                                 WorkLogName = $"{CodeAliasEntityConst.WORKLOG}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}",
                                 Status = WorkLogStatusConst.NOT_STARTED,
-                                ActualStartTime = parseStartTime,
-                                ActualEndTime = parseEndTime,
+                                ActualStartTime = findSchedule.StartTime.Value,
+                                ActualEndTime = findSchedule.EndTime.Value,
                                 Date = date,
                                 ScheduleId = findSchedule.ScheduleId,
                             };
@@ -103,7 +114,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //}
                     //foreach (var date in changeTimeOfEmployeeModel.CustomeDates)
                     _unitOfWork.CarePlanScheduleRepository.Update(findSchedule);
-                }
+                //}
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
