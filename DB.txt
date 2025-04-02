@@ -1783,7 +1783,7 @@ INSERT INTO [dbo].[CarePlanSchedule]
            ,[HarvestHistoryID])
      VALUES
            (NULL, 'Active', '08:00:00', '10:00:00', 1, NULL, '["2025/04/01"]', 1, NULL),
-           (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/05/01"]', 1, NULL),
+           (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/04/02"]', 1, NULL),
            (NULL, 'Completed', '07:00:00', '09:00:00', 3, NULL, '["2025/06/01"]', 1, NULL),
            (NULL, 'Active', '10:00:00', '12:00:00', 4, NULL, '["2025/07/01"]', 1, NULL),
            (NULL, 'Cancelled', '06:30:00', '08:30:00', 5, NULL, '["2025/08/01"]', 1, NULL),
@@ -1908,3 +1908,36 @@ VALUES
 ('Master Type', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
 ('Master Type', 'TypeName', 'Work', 'string', N'Công việc'),
 ('AI', 'Predict Percent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');
+-- Insert WorkLog
+INSERT INTO [dbo].[WorkLog]
+           ([WorkLogCode]
+           ,[WorkLogName]
+           ,[Status]
+           ,[Date]
+           ,[IsConfirm]
+           ,[IsDeleted]
+           ,[ActualStartTime]
+           ,[ActualEndTime]
+           ,[ScheduleID]
+           ,[WarningID]
+           ,[ReasonDelay])
+     VALUES
+           ('WL31162235' ,'Watering_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
+		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL)
+-- Insert UserWorkLog
+INSERT INTO [dbo].[UserWorkLog]
+           ([WorkLogID]
+           ,[UserID]
+           ,[IsReporter]
+           ,[IsDeleted]
+           ,[CreateDate]
+           ,[Notes]
+           ,[StatusOfUserWorkLog]
+           ,[ReplaceUserId]
+           ,[Issue])
+     VALUES
+           (1,1,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
+
