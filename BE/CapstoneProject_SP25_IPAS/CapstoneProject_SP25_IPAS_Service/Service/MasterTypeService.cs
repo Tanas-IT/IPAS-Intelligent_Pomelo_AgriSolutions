@@ -610,6 +610,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == MasterTypeId && x.IsDefault == false && x.IsDeleted == false;
                         var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId);
+                        // Kiểm tra xem MasterTypeId có đang được sử dụng ở các bảng khác không
+                        bool isUsed =
+                         await _unitOfWork.ProductHarvestHistoryRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
+                         await _unitOfWork.PlantRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.PlanRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.ProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.PlantLotRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.SubProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.CriteriaRepository.AnyAsync(x => x.MasterTypeID == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.NotificationRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
+                         await _unitOfWork.Type_TypeRepository.AnyAsync(x => x.ProductId == MasterTypeId || x.CriteriaSetId == MasterTypeId);
+
+                        if (isUsed)
+                        {
+                            await transaction.RollbackAsync();
+                            return new BusinessResult(400, $"MasterType '{checkExistMasterType.MasterTypeName}' is in use and cannot be deleted.", false);
+                        }
+
                         if (checkExistMasterType != null)
                         {
                             checkExistMasterType.IsDeleted = true;
@@ -660,9 +678,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var checkGetMastterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == masterTypeId);
-                if(checkGetMastterType != null)
+                if (checkGetMastterType != null)
                 {
-                    if(checkGetMastterType.Target != null && checkGetMastterType.Target.ToLower().Equals(target.ToLower()))
+                    if (checkGetMastterType.Target != null && checkGetMastterType.Target.ToLower().Equals(target.ToLower()))
                     {
                         return new BusinessResult(200, "Valid", true);
                     }
@@ -681,7 +699,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         private async Task<BusinessResult> ValidateMinTimeAndMaxTime(int createMinTime, int createMaxTime)
         {
-           
+
             var minTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_TIME.Trim(), (double)1);
             if (createMinTime < minTime)
                 return new BusinessResult(400, $"Min Time must > {minTime}.");

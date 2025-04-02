@@ -270,6 +270,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var checkUserExist = await _unitOfWork.UserRepository.GetByID(createRequest.UserId.Value);
+                    if (checkUserExist == null)
+                        return new BusinessResult(400, "You are not permission to create record");
                     if (!createRequest.HarvestHistoryId.HasValue)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
                     if (createRequest.plantHarvestRecords == null)
@@ -343,6 +346,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (existingHarvest != null)
                         {
                             existingHarvest.ActualQuantity += plant.Quantity;
+                            existingHarvest.UpdateBy = checkUserExist.FullName;
+                            existingHarvest.RecordDate = DateTime.Now;
                             updateList.Add(existingHarvest);
                         }
                         else
@@ -353,7 +358,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 HarvestHistoryId = createRequest.HarvestHistoryId.Value,
                                 PlantId = plant.PlantId,
                                 Unit = existingProduct.Unit,
-                                ActualQuantity = plant.Quantity
+                                ActualQuantity = plant.Quantity,
+                                RecordBy = checkUserExist.FullName,
+                                RecordDate = DateTime.Now,
                             });
                         }
                     }
@@ -637,20 +644,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    Expression<Func<ProductHarvestHistory, bool>> filter = x => x.HarvestHistoryId == updateRequest.HarvestHistoryId && x.MasterTypeId == updateRequest.MasterTypeId;
-                    if (updateRequest.PlantId.HasValue)
-                        filter.And(x => x.PlantId == updateRequest.PlantId);
+                    var checkUserExist = await _unitOfWork.UserRepository.GetByID(updateRequest.UserId.Value);
+                    if (checkUserExist == null)
+                        return new BusinessResult(400, "You are not perrmisstion to update");
+                    //Expression<Func<ProductHarvestHistory, bool>> filter = x => x.HarvestHistoryId == updateRequest.HarvestHistoryId && x.MasterTypeId == updateRequest.MasterTypeId;
+                    Expression<Func<ProductHarvestHistory, bool>> filter = x => x.ProductHarvestHistoryId == updateRequest.ProductHarvestHistoryId;
+                    //if (updateRequest.PlantId.HasValue)
+                    //    filter.And(x => x.PlantId == updateRequest.PlantId);
                     string includeProperties = "HarvestHistory,Product";
                     var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
+                    if (harvestHistory.PlantId.HasValue) // la record da them vao
+                    {
+                        if (updateRequest.Quantity.HasValue && updateRequest.Quantity.Value > 0)
+                            harvestHistory.ActualQuantity = updateRequest.Quantity;
+                        harvestHistory.RecordBy = checkUserExist.FullName;
+                        harvestHistory.RecordDate = DateTime.Now;
+                    }
+                    else if (!harvestHistory.PlantId.HasValue) // la cac san pham can thu hoach
+                    {
+                        if (harvestHistory.QuantityNeed.HasValue && updateRequest.Quantity > 0)
+                            harvestHistory.QuantityNeed = updateRequest.Quantity;
+                        if (!string.IsNullOrEmpty(updateRequest.Unit))
+                        {
+                            harvestHistory.Unit = updateRequest.Unit;
+                            // Cập nhật tất cả các bản ghi cùng MasterTypeId
+                            var relatedHarvestHistories = await _unitOfWork.ProductHarvestHistoryRepository
+                                .GetAllNoPaging(x => x.MasterTypeId == harvestHistory.MasterTypeId && x.HarvestHistoryId == harvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId);
+                            var recordsToUpdate = relatedHarvestHistories.Where(x => x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId).ToList();
 
-                    if (updateRequest.Quantity.HasValue && updateRequest.Quantity.Value > 0)
-                        harvestHistory.QuantityNeed = updateRequest.Quantity;
-                    if (string.IsNullOrEmpty(updateRequest.Unit))
-                        harvestHistory.Unit = updateRequest.Unit;
-                    if (harvestHistory.QuantityNeed.HasValue && updateRequest.Quantity > 0)
-                        harvestHistory.QuantityNeed = updateRequest.Quantity;
+                            foreach (var item in relatedHarvestHistories)
+                            {
+                                item.Unit = updateRequest.Unit;
+                            }
+                            _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(relatedHarvestHistories);
+                        }
+                        if (updateRequest.SellPrice.HasValue)
+                            harvestHistory.SellPrice = updateRequest.SellPrice;
+                        if (updateRequest.CostPrice.HasValue)
+                            harvestHistory.CostPrice = updateRequest.CostPrice;
+                    }
                     _unitOfWork.ProductHarvestHistoryRepository.Update(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -787,11 +821,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var checkHarvestExis = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(x => x.HarvestHistoryId == harvestId);
                 if (checkHarvestExis == null)
                     return new BusinessResult(400, "Harvest not exist");
-                var productInHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "MasterType");
+                var productInHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter: x => x.HarvestHistoryId == harvestId && x.PlantId == null, includeProperties: "Product");
                 if (!productInHarvest.Any())
                     return new BusinessResult(400, "No product found in this harvest");
                 var product = productInHarvest.Select(x => x.Product);
-                var mappedResult = _mapper.Map<ForSelectedModels>(product);
+                var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(product);
                 return new BusinessResult(200, "Get Product for selected success", mappedResult);
 
             }

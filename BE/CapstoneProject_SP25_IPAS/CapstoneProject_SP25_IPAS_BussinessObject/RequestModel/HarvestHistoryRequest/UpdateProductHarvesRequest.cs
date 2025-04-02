@@ -10,13 +10,14 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
     public class UpdateProductHarvesRequest
     {
         [Required]
-        public int MasterTypeId { get; set; }
-        public int? PlantId { get; set; }
+        public int ProductHarvestHistoryId { get; set; }
+        //public int? MasterTypeId { get; set; }
+        //public int? PlantId { get; set; }
         public string? Unit { get; set; }
-
-        public double? Price { get; set; }
+        public double? SellPrice { get; set; }
+        public double? CostPrice { get; set; }
         public int? Quantity { get; set; }
-        [Required]
-        public int? HarvestHistoryId { get; set; }
+        //public int? HarvestHistoryId { get; set; }
+        public int? UserId { get; set; }
     }
 }
