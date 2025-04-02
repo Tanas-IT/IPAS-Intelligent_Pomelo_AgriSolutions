@@ -137,6 +137,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.Harvest.createPlantRecordHarvest, Name = "createPlantRecordHarvest")]
         public async Task<IActionResult> createPlantRecordHarvest([FromBody] CreatePlantRecordHarvestRequest request)
         {
+            if(!request.UserId.HasValue)
+                request.UserId = _jwtTokenService.GetUserIdFromToken();
+            if(!request.UserId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "User Id is required"
+                });
+            }    
             var result = await _harvestHistoryService.createPlantRecordHarvest(request);
             return Ok(result);
         }
@@ -155,6 +165,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             //try
             //{
+            if (!harvestTypeUpdateRequest.UserId.HasValue)
+                harvestTypeUpdateRequest.UserId = _jwtTokenService.GetUserIdFromToken();
+            if (!harvestTypeUpdateRequest.UserId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "User Id is required"
+                });
+            }
             var result = await _harvestHistoryService.updateProductHarvest(harvestTypeUpdateRequest);
             return Ok(result);
             //}
