@@ -314,5 +314,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Harvest.getHarvestSelectedToPlantRecord, Name = "getHarvestSelectedToPlantRecord")]
+        public async Task<IActionResult> getHarvestSelectedToPlantRecord([FromQuery] GetHarvestForPlantRecordRequest request)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.getHarvestPlantCanRecord(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

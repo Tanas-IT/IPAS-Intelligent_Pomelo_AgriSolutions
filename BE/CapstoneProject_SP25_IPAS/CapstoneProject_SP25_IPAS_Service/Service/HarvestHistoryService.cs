@@ -24,6 +24,7 @@ using CapstoneProject_SP25_IPAS_Service.Pagination;
 using MailKit.Search;
 using System.Linq;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
+using Microsoft.EntityFrameworkCore;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -1097,6 +1098,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.DateHarvest))
                                            : (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest));
                     break;
+            }
+        }
+
+        public async Task<BusinessResult> getHarvestPlantCanRecord(GetHarvestForPlantRecordRequest request)
+        {
+            try
+            {
+                var plantExist = await _unitOfWork.PlantRepository.getById(request.PlantId);
+                if (plantExist == null)
+                    return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, "Plant not exist");
+                Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
+                Expression<Func<HarvestHistory, bool>> filter = c => c.Crop.LandPlotCrops.Select(x => x.LandPlotId).ToList().Contains(plantExist.LandRow.LandPlotId.Value)
+                && c.Crop!.IsDeleted == false
+                && c.IsDeleted == false
+                && c.DateHarvest >= request.StartDate
+                && c.DateHarvest <= request.EndDate;
+
+                //&& c.DateHarvest >= DateTime.Now.AddDays(-7);
+                //filter = filter.And(x => EF.Functions.DateDiffDay(DateTime.Now, x.DateHarvest.Value) <= 7);
+                var landPlotCrops = await _unitOfWork.HarvestHistoryRepository.GetAllHarvest(filter: filter, orderBy: orderBy);
+                //if (!landPlotCrops.Any())
+                //    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
+                //var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
+                var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
+                //pagin.List.ToList().ForEach(h => h.ProductHarvestHistory.Where(x => x.PlantId == null));
+                foreach (var havest in mappedResult)
+                {
+                    havest.ProductHarvestHistory = null!;
+                    havest.CarePlanSchedules = null!;
+                }
+                return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, "Get all Harvest plant can record success", mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

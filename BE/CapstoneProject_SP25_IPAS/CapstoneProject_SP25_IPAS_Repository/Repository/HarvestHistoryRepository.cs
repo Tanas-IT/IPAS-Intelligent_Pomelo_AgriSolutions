@@ -21,7 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public  async Task<HarvestHistory> GetByCondition(Expression<Func<HarvestHistory, bool>> filter)
+        public async Task<HarvestHistory> GetByCondition(Expression<Func<HarvestHistory, bool>> filter)
         {
             //var historys = await _context.HarvestHistories
             //    .Include(x => x.Crop)
@@ -179,6 +179,29 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .Where(x => x.Crop.FarmId == farmId)
                                 .ToListAsync();
             return historys;
+        }
+        public async Task<IEnumerable<HarvestHistory>> GetAllHarvest(Expression<Func<HarvestHistory, bool>> filter = null!,
+            Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = null!)
+        {
+            var query = _context.Set<HarvestHistory>().AsQueryable();
+
+            // Lọc theo LandPlotId
+            query = query
+                .Include(x => x.CarePlanSchedules)
+                .Include(x => x.ProductHarvestHistories/*.Where(x => x.PlantId != null)*/)
+                .ThenInclude(x => x.Product)
+                .Include(x => x.Crop)
+                .ThenInclude(x => x.LandPlotCrops);
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+            // Phân trang
+            return query;
         }
     }
 }
