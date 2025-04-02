@@ -86,6 +86,15 @@ export const updateIsCompletedLot = async (
   return apiResponse;
 };
 
+export const updateIsUsedLot = async (lotId: number): Promise<ApiResponse<GetPlantLot2>> => {
+  const formatLotData = {
+    plantLotIds: [lotId],
+  };
+  const res = await axiosAuth.axiosJsonRequest.put("plant-lots/mark-used", formatLotData);
+  const apiResponse = res.data as ApiResponse<GetPlantLot2>;
+  return apiResponse;
+};
+
 export const createLot = async (lot: PlantLotRequest): Promise<ApiResponse<GetPlantLot2>> => {
   const formatLotData = {
     partnerID: lot.partnerId,

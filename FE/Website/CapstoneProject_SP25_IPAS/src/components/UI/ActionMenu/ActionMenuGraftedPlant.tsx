@@ -4,36 +4,39 @@ import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
+import { GetGraftedPlant } from "@/payloads";
 
 interface ActionMenuProps {
-  id?: number;
-  isCompleted: boolean;
+  graftedPlant: GetGraftedPlant;
   onEdit: () => void;
   onDelete: () => void;
   onApplyCriteria?: () => void;
-  onAddToLot?: () => void;
-  onRemoveFromLot?: () => void;
+  onAddToLot: () => void;
+  onRemoveFromLot: () => void;
+  onMarkAsDead: () => void;
 }
 
 const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
-  id,
-  isCompleted,
+  graftedPlant,
   onEdit,
   onDelete,
   onApplyCriteria,
   onAddToLot,
   onRemoveFromLot,
+  onMarkAsDead,
 }) => {
   const navigate = useNavigate();
+  const { graftedPlantId, isCompleted, isDead, plantLotId } = graftedPlant;
+
   const actionItems = [
-    id !== undefined
+    graftedPlantId !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View Details",
-          onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(id)),
+          onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(graftedPlantId)),
         }
       : null,
-    !isCompleted && onApplyCriteria
+    !isCompleted && onApplyCriteria && !isDead
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",
@@ -50,18 +53,25 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
       label: "Delete Grafted Plant",
       onClick: () => onDelete(),
     },
-    onAddToLot
+    !isDead
+      ? {
+          icon: <Icons.warning />,
+          label: "Mark as Dead",
+          onClick: () => onMarkAsDead(),
+        }
+      : null,
+    !isDead && isCompleted && plantLotId === undefined
       ? {
           icon: <Icons.box />,
           label: "Add to Lot",
-          onClick: () => onAddToLot?.(),
+          onClick: () => onAddToLot(),
         }
       : null,
-    onRemoveFromLot
+    plantLotId !== undefined
       ? {
           icon: <Icons.delete />,
           label: "Remove from Lot",
-          onClick: () => onRemoveFromLot?.(), // Gọi hàm xử lý khi nhấn vào
+          onClick: () => onRemoveFromLot(),
         }
       : null,
   ].filter(Boolean) as ActionMenuItem[];

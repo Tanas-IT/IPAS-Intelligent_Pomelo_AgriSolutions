@@ -23,6 +23,7 @@ import {
   CuttingGraftedModal,
   GraftedPlantModal,
   NavigationDot,
+  PlantMarkAsDeadModal,
   SectionTitle,
   Table,
   TableTitle,
@@ -39,6 +40,8 @@ function GraftedPlant() {
   const removeLotConfirmModal = useModal<{ ids: number[] }>();
   const addToLotModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ graftedPlant: GraftedPlantRequest }>();
+  const markAsDeadModal = useModal<{ id: number }>();
+  const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -151,6 +154,24 @@ function GraftedPlant() {
     }
   };
 
+  const handleMarkAsDead = async (id?: number) => {
+    if (!id) return;
+    try {
+      markAsDeadConfirmModal.hideModal();
+      setIsActionLoading(true);
+      var res = await graftedPlantService.updateGraftedPlantDead(id);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        markAsDeadModal.hideModal();
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const onAddToLot = async (lotId: number, graftedPlantIds?: number[]) => {
     if (!graftedPlantIds) return;
     var res = await graftedPlantService.groupGraftedPlant(graftedPlantIds, lotId);
@@ -231,8 +252,7 @@ function GraftedPlant() {
           notifyNoData="No grafted plants to display"
           renderAction={(grPlant: GetGraftedPlant) => (
             <ActionMenuGraftedPlant
-              id={grPlant.graftedPlantId}
-              isCompleted={grPlant.isCompleted}
+              graftedPlant={grPlant}
               onEdit={() => formModal.showModal(grPlant)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [grPlant.graftedPlantId] })}
               onApplyCriteria={() =>
@@ -240,17 +260,11 @@ function GraftedPlant() {
                   ids: [grPlant.graftedPlantId],
                 })
               }
-              {...(!grPlant.plantLotId && grPlant.isCompleted
-                ? {
-                    onAddToLot: () => addToLotModal.showModal({ ids: [grPlant.graftedPlantId] }),
-                  }
-                : {})}
-              {...(grPlant.plantLotId
-                ? {
-                    onRemoveFromLot: () =>
-                      removeLotConfirmModal.showModal({ ids: [grPlant.graftedPlantId] }),
-                  }
-                : {})}
+              onMarkAsDead={() => markAsDeadModal.showModal({ id: grPlant.graftedPlantId })}
+              onAddToLot={() => addToLotModal.showModal({ ids: [grPlant.graftedPlantId] })}
+              onRemoveFromLot={() =>
+                removeLotConfirmModal.showModal({ ids: [grPlant.graftedPlantId] })
+              }
             />
           )}
         />
@@ -283,6 +297,21 @@ function GraftedPlant() {
           onClose={addToLotModal.hideModal}
           onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.ids)}
           isLoadingAction={isActionLoading}
+        />
+        <PlantMarkAsDeadModal
+          isOpen={markAsDeadModal.modalState.visible}
+          onClose={markAsDeadModal.hideModal}
+          onSave={markAsDeadConfirmModal.showModal}
+          isLoadingAction={isActionLoading}
+          entityType="GraftedPlant"
+        />
+        {/* Confirm Mark as Dead Modal */}
+        <ConfirmModal
+          visible={markAsDeadConfirmModal.modalState.visible}
+          onConfirm={() => handleMarkAsDead(markAsDeadModal.modalState.data?.id)}
+          onCancel={markAsDeadConfirmModal.hideModal}
+          confirmText="Mark as Dead"
+          title="Mark Grafted Plan as Dead?"
         />
         {/* Confirm Delete Modal */}
         <ConfirmModal

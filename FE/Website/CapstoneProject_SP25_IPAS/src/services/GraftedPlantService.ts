@@ -89,6 +89,12 @@ export const updateGraftedPlant = async (
   return apiResponse;
 };
 
+export const updateGraftedPlantDead = async (id: number): Promise<ApiResponse<GetGraftedPlant>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`grafted-plant/mark-dead`, [id]);
+  const apiResponse = res.data as ApiResponse<GetGraftedPlant>;
+  return apiResponse;
+};
+
 export const updateIsCompletedAndCutting = async (
   graftedPlantId: number,
   plantLotId?: number,

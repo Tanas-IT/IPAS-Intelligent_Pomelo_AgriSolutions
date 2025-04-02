@@ -12,3 +12,60 @@
 .filterContent {
   @include shared.filterContent;
 }
+
+.detailContainer {
+  width: 100%;
+  min-height: 60vh;
+  .modalHeader {
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modalInfoRow {
+    margin-top: 10px;
+
+    .iconLabelContainer {
+      align-items: center;
+      gap: 6px;
+      min-width: 12rem;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        color: vars.$color_text_detail;
+        margin-bottom: 4px;
+      }
+
+      .label {
+        font-weight: bold;
+        color: vars.$color_text_detail;
+      }
+    }
+
+    .label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+  }
+
+  .sectionDetails {
+    margin-top: 12px;
+    flex-direction: column;
+    gap: 40px;
+    .detailWrapper {
+      margin-top: 12px;
+      padding: 16px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+      .title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 16px;
+        padding-left: 16px;
+        position: relative;
+      }
+    }
+  }
+}

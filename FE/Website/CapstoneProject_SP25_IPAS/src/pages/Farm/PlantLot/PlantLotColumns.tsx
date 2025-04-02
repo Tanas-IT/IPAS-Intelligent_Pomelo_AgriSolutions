@@ -3,7 +3,7 @@ import { GetPlantLot2 } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
 import { Tag } from "antd";
-import { LOT_TYPE, lotTypeColors } from "@/constants";
+import { LOT_TYPE, lotStatusColors, lotTypeColors } from "@/constants";
 
 export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
@@ -35,6 +35,26 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 180,
   },
   {
+    header: "Status",
+    field: "status",
+    accessor: (item) => {
+      const statusText = item.status;
+      return <Tag color={lotStatusColors[statusText] || "default"}>{statusText || "Unknown"}</Tag>;
+    },
+
+    width: 180,
+  },
+  {
+    header: "Completed",
+    field: "isPassed",
+    accessor: (item) => (
+      <Tag color={item.isPassed ? "green" : "red"}>
+        {item.isPassed ? "Completed" : "Not Completed"}
+      </Tag>
+    ),
+    width: 120,
+  },
+  {
     header: "Unit",
     field: "unit",
     accessor: (item) => <TableCell value={item.unit} />,
@@ -49,23 +69,17 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Checked  Quantity",
     field: "inputQuantity",
-    accessor: (item) =>
-      item.isFromGrafted ? (
-        <TableCell value="" />
-      ) : (
-        <TableCell value={item.inputQuantity === undefined ? "Checking..." : item.inputQuantity} />
-      ),
+    accessor: (item) => (
+      <TableCell value={item.inputQuantity === undefined ? "Checking..." : item.inputQuantity} />
+    ),
     width: 160,
   },
   {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    accessor: (item) =>
-      item.isFromGrafted ? (
-        <TableCell value="" />
-      ) : (
-        <TableCell value={item.lastQuantity === undefined ? "Checking..." : item.lastQuantity} />
-      ),
+    accessor: (item) => (
+      <TableCell value={item.lastQuantity === undefined ? "Checking..." : item.lastQuantity} />
+    ),
     width: 160,
   },
   {
@@ -86,16 +100,6 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     field: "note",
     accessor: (item) => <TableCell value={item.note} />,
     width: 200,
-  },
-  {
-    header: "Completed",
-    field: "isPassed",
-    accessor: (item) => (
-      <Tag color={item.isPassed ? "green" : "red"}>
-        {item.isPassed ? "Completed" : "Not Completed"}
-      </Tag>
-    ),
-    width: 120,
   },
   {
     header: "Imported Date",

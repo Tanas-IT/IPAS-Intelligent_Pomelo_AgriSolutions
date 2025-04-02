@@ -78,72 +78,78 @@ const GraftedPlantModal = ({
       title={isUpdate ? "Update Grafted Plant" : "Add New Grafted Plant"}
     >
       <Form form={form} layout="vertical">
-        <FormFieldModal
-          label="Grafted Plant Name"
-          name={graftedPlantFormFields.graftedPlantName}
-          rules={RulesManager.getRequiredRules("Grafted Plant Name")}
-        />
-
-        <Flex justify="space-between" gap={20}>
+        {!graftedPlantData?.isDead && (
           <FormFieldModal
-            type="date"
-            label="Grafted Date"
-            name={graftedPlantFormFields.graftedDate}
-            rules={RulesManager.getRequiredRules("Grafted Date")}
+            label="Grafted Plant Name"
+            name={graftedPlantFormFields.graftedPlantName}
+            rules={RulesManager.getRequiredRules("Grafted Plant Name")}
           />
-          {graftedPlantData?.isCompleted && (
-            <FormFieldModal
-              type="date"
-              label="Separated Date"
-              name={graftedPlantFormFields.separatedDate}
-              rules={[
-                ...RulesManager.getRequiredRules("Separated Date"),
-                {
-                  validator: (_: any, value: Dayjs) => {
-                    const graftedDate = form.getFieldValue(graftedPlantFormFields.graftedDate);
+        )}
 
-                    if (!graftedDate || !value) {
-                      return Promise.resolve();
-                    }
-
-                    const graftedDayjs = dayjs(graftedDate);
-                    const separatedDayjs = dayjs(value);
-
-                    if (separatedDayjs.isSameOrAfter(graftedDayjs)) {
-                      return Promise.resolve();
-                    }
-
-                    return Promise.reject(
-                      new Error("Separated Date must be after or equal to Grafted Date"),
-                    );
-                  },
-                },
-              ]}
-            />
-          )}
-        </Flex>
-        {isUpdate && (
-          <Flex justify="space-between" gap={20}>
-            <FormFieldModal
-              type="select"
-              label="Health Status"
-              name={graftedPlantFormFields.status}
-              rules={RulesManager.getSelectHealthStatusRules()}
-              options={Object.keys(HEALTH_STATUS).map((key) => ({
-                value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
-                label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
-              }))}
-            />
-            {graftedPlantData?.isCompleted && graftedPlantData?.plantLotId && (
+        {!graftedPlantData?.isDead && (
+          <>
+            <Flex justify="space-between" gap={20}>
               <FormFieldModal
-                type="select"
-                label="Destination Lot"
-                name={graftedPlantFormFields.plantLotId}
-                rules={RulesManager.getRequiredRules("Destination Lot")}
-                options={plantLotOptions}
+                type="date"
+                label="Grafted Date"
+                name={graftedPlantFormFields.graftedDate}
+                rules={RulesManager.getRequiredRules("Grafted Date")}
               />
+              {graftedPlantData?.isCompleted && (
+                <FormFieldModal
+                  type="date"
+                  label="Separated Date"
+                  name={graftedPlantFormFields.separatedDate}
+                  rules={[
+                    ...RulesManager.getRequiredRules("Separated Date"),
+                    {
+                      validator: (_: any, value: Dayjs) => {
+                        const graftedDate = form.getFieldValue(graftedPlantFormFields.graftedDate);
+
+                        if (!graftedDate || !value) {
+                          return Promise.resolve();
+                        }
+
+                        const graftedDayjs = dayjs(graftedDate);
+                        const separatedDayjs = dayjs(value);
+
+                        if (separatedDayjs.isSameOrAfter(graftedDayjs)) {
+                          return Promise.resolve();
+                        }
+
+                        return Promise.reject(
+                          new Error("Separated Date must be after or equal to Grafted Date"),
+                        );
+                      },
+                    },
+                  ]}
+                />
+              )}
+            </Flex>
+            {isUpdate && (
+              <Flex justify="space-between" gap={20}>
+                <FormFieldModal
+                  type="select"
+                  label="Health Status"
+                  name={graftedPlantFormFields.status}
+                  rules={RulesManager.getSelectHealthStatusRules()}
+                  options={Object.keys(HEALTH_STATUS).map((key) => ({
+                    value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+                    label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+                  }))}
+                />
+                {graftedPlantData?.isCompleted && graftedPlantData?.plantLotId && (
+                  <FormFieldModal
+                    type="select"
+                    label="Destination Lot"
+                    name={graftedPlantFormFields.plantLotId}
+                    rules={RulesManager.getRequiredRules("Destination Lot")}
+                    options={plantLotOptions}
+                  />
+                )}
+              </Flex>
             )}
-          </Flex>
+          </>
         )}
 
         <FormFieldModal type="textarea" label="Note" name={graftedPlantFormFields.note} />

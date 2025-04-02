@@ -19,6 +19,12 @@ export interface GetHarvestStatisticPlants {
   totalQuantity: number;
 }
 
+export interface carePlanSchedules {
+  customDates?: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface GetHarvestDay {
   harvestHistoryId: number;
   harvestHistoryCode: string;
@@ -27,5 +33,51 @@ export interface GetHarvestDay {
   totalPrice: number;
   harvestStatus: string;
   yieldHasRecord: number;
-  // productHarvestHistory: string;
+  carePlanSchedules: carePlanSchedules[];
+}
+
+export interface productHarvestHistory {
+  productHarvestHistoryId: number;
+  masterTypeId: number;
+  unit: string;
+  sellPrice: number;
+  quantityNeed: number;
+  productName: string;
+}
+export interface UserWorkLog {
+  userWorklogId: number;
+  fullName: string;
+  isReporter: boolean;
+  avatarURL: string;
+  userId: number;
+  listResources: any[];
+}
+
+export interface WorkLog {
+  workLogId: number;
+  workLogCode: string;
+  status: string;
+  workLogName: string;
+  date: string;
+  actualStartTime: string;
+  actualEndTime: string;
+  isConfirm: boolean;
+  scheduleId: number;
+  userWorkLogs: UserWorkLog[];
+}
+
+export interface CarePlanSchedulesDetail {
+  scheduleId: number;
+  status: string;
+  customDates: string;
+  startTime: string;
+  endTime: string;
+  farmID: number;
+  harvestHistoryID: number;
+  workLogs: WorkLog[];
+}
+
+export interface GetHarvestDayDetail extends GetHarvestDay {
+  productHarvestHistory: productHarvestHistory[];
+  carePlanSchedules: CarePlanSchedulesDetail[];
 }

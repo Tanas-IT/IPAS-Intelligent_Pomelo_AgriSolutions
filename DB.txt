@@ -688,6 +688,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	MotherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
+	IsDead bit NULL DEFAULT 0,
 	PlantLotID int NULL,
 	FarmID int NULL,
 	FinishedPlantCode nvarchar(50) NULL,

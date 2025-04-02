@@ -6,7 +6,7 @@ export class RulesManager {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
       {
-        pattern: /^(?!0$)(\d+(\.\d+)?$)/,
+        pattern: /^(0\.\d+|[1-9]\d*(\.\d+)?)$/,
         message: `${fieldName} must be a valid number greater than 0!`,
       },
     ];

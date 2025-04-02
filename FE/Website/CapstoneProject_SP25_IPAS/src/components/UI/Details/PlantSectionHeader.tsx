@@ -49,7 +49,7 @@ const PlantSectionHeader = ({
               </Tag>
             ))}
         </Flex>
-        {onApplyCriteria && (
+        {onApplyCriteria && !plant.isDead && (
           <Flex>
             <CustomButton
               label="Add New Criteria"
@@ -78,7 +78,7 @@ const PlantSectionHeader = ({
             />
           </Flex>
         )}
-        {onAddNewIssue && (
+        {onAddNewIssue && !plant.isDead && (
           <Flex>
             <CustomButton
               label="Add New Issue"

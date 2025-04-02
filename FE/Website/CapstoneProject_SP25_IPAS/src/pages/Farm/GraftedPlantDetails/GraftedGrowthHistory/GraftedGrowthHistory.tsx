@@ -7,7 +7,6 @@ import {
   GrowthTimeline,
   LoadingSkeleton,
   NewIssueModal,
-  PlantSectionHeader,
   TimelineFilter,
 } from "@/components";
 import { useEffect, useState } from "react";
@@ -19,12 +18,8 @@ import { useHasChanges, useModal, useTableAdd } from "@/hooks";
 import { toast } from "react-toastify";
 import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
 
-interface GraftedGrowthHistoryProps {
-  activeTab: string;
-}
-
-function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
-  const { graftedPlant } = useGraftedPlantStore();
+function GraftedGrowthHistory() {
+  const { graftedPlant, isGrowthDetailView, setIsGrowthDetailView } = useGraftedPlantStore();
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -33,17 +28,12 @@ function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
   const [data, setData] = useState<GetGraftedGrowthHistory[]>([]);
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDetailView, setIsDetailView] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState<GetGraftedGrowthHistory | null>(null);
   const addIssueModal = useModal<GetGraftedGrowthHistory>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
 
   if (!graftedPlant) return;
-
-  useEffect(() => {
-    setIsDetailView(false);
-  }, [activeTab]);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -89,7 +79,7 @@ function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
       if (result.statusCode === 200) {
         toast.success(result.message);
         await handleResetData();
-        if (isDetailView) setIsDetailView(false);
+        if (isGrowthDetailView) setIsGrowthDetailView(false);
       } else {
         toast.error(result.message);
       }
@@ -117,17 +107,17 @@ function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
     fetchData: handleResetData,
     onSuccess: () => {
       addIssueModal.hideModal();
-      setIsDetailView(false);
+      setIsGrowthDetailView(false);
     },
   });
 
   const handleViewDetail = (item: GetGraftedGrowthHistory) => {
     setSelectedHistory(item);
-    setIsDetailView(true);
+    setIsGrowthDetailView(true);
   };
 
   const handleBackToList = () => {
-    setIsDetailView(false);
+    setIsGrowthDetailView(false);
     setSelectedHistory(null);
   };
 
@@ -137,7 +127,7 @@ function GraftedGrowthHistory({ activeTab }: GraftedGrowthHistoryProps) {
     <Flex className={style.contentDetailWrapper}>
       <GraftedPlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
       <Divider className={style.divider} />
-      {isDetailView ? (
+      {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
           idKey="graftedPlantNoteId"

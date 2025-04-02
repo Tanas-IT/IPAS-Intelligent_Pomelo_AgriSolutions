@@ -31,7 +31,7 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
           onClick: () => navigate(ROUTES.FARM_PLANT_DETAIL(id ?? 0)),
         }
       : null,
-    onApplyCriteria
+    onApplyCriteria && !isPlantDead
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",

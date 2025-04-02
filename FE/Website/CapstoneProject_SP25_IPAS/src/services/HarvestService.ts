@@ -3,6 +3,7 @@ import {
   ApiResponse,
   GetData,
   GetHarvestDay,
+  GetHarvestDayDetail,
   GetHarvestStatisticOfPlant,
   GetHarvestStatisticPlants,
   HarvestRequest,
@@ -30,6 +31,12 @@ export const getHarvests = async (
   return apiResponse.data as GetData<GetHarvestDay>;
 };
 
+export const getHarvest = async (id: number): Promise<ApiResponse<GetHarvestDayDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`harvests/${id}`);
+  const apiResponse = res.data as ApiResponse<GetHarvestDayDetail>;
+  return apiResponse;
+};
+
 export const deleteHarvest = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const harvestIds = ids;
   const res = await axiosAuth.axiosJsonRequest.put(
@@ -48,7 +55,10 @@ export const updateHarvest = async (
     dateHarvest: harvest.dateHarvest,
     harvestHistoryNote: harvest.harvestHistoryNote,
     totalPrice: harvest.totalPrice,
+    startTime: harvest.startTime,
+    endTime: harvest.endTime,
   };
+  console.log(payload);
   const res = await axiosAuth.axiosJsonRequest.put("harvests", payload);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
   return apiResponse;
@@ -57,8 +67,6 @@ export const updateHarvest = async (
 export const createHarvest = async (
   harvest: HarvestRequest,
 ): Promise<ApiResponse<GetHarvestDay>> => {
-  console.log(harvest);
-
   const res = await axiosAuth.axiosJsonRequest.post(`harvests`, harvest);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
   return apiResponse;

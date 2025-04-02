@@ -25,11 +25,11 @@ export interface AssignEmployee {
 }
 
 export interface addNewTask {
-  taskName: string;
-  assignorId: number;
+  taskName?: string;
+  assignorId?: number;
   startTime?: string;
   endTime?: string;
-  listEmployee: AssignEmployee[];
+  listEmployee?: AssignEmployee[];
 }
 
 export interface HarvestRequest {
@@ -38,6 +38,8 @@ export interface HarvestRequest {
   dateHarvest?: string;
   harvestHistoryNote: string;
   totalPrice: number;
+  startTime?: string;
+  endTime?: string;
   productHarvestHistory?: productHarvestHistory[];
   addNewTask?: addNewTask;
 }

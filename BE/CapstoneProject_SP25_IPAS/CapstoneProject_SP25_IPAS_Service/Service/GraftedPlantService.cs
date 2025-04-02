@@ -1135,6 +1135,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     grafteds.ToList().ForEach(gr =>
                     {
                         gr.IsDead = true;
+                        gr.Status = HealthStatusConst.DEAD;
                     });
                     //foreach (var gr in grafteds)
                     //{

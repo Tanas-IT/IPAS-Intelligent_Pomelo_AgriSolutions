@@ -142,6 +142,16 @@ export const HARVEST_STATUS = {
 export const harvestStatusColors: Record<string, string> = {
   "Not Started": "blue",
   "In Progress": "orange",
-  Incomplete: "orange",
+  Incomplete: "red",
   Completed: "green",
+};
+
+export const LOT_STATUS = {
+  PENDING: "Pending",
+  USED: "Used",
+} as const;
+
+export const lotStatusColors: Record<string, string> = {
+  Pending: "orange",
+  Used: "green",
 };

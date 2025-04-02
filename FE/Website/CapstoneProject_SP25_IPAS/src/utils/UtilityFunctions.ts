@@ -132,24 +132,16 @@ export const getCriteriaOptions = (total: number): number[] => {
   return [3];
 };
 
-export const formatCurrencyVND = (amount: number): string => {
+export const formatCurrencyVND_KG = (amount: number): string => {
   if (isNaN(amount)) return "";
 
   return new Intl.NumberFormat("vi-VN").format(amount) + " VND/kg";
 };
 
-export const formatCurrency = (amount: string): string => {
-  const number = parseFloat(amount.replace(/,/g, ""));
-  if (isNaN(number)) {
-    return amount;
-  }
+export const formatCurrencyVND = (amount: number): string => {
+  if (isNaN(amount)) return "";
 
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  })
-    .format(number)
-    .trim();
+  return new Intl.NumberFormat("vi-VN").format(amount) + " VND";
 };
 
 export const DATE_FORMAT = "DD/MM/YYYY";

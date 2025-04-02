@@ -101,12 +101,14 @@ const ApplyPlantCriteriaModal = ({
             placeholder="Select criteria type"
             name={"criteriaType"}
             rules={RulesManager.getTypeRules()}
-            options={[CRITERIA_TARGETS["Grafted Condition"], CRITERIA_TARGETS.Others].map(
-              (value) => ({
-                label: value,
-                value,
-              }),
-            )}
+            options={[
+              CRITERIA_TARGETS.Product,
+              CRITERIA_TARGETS["Grafted Condition"],
+              CRITERIA_TARGETS.Others,
+            ].map((value) => ({
+              label: value,
+              value,
+            }))}
             onChange={handleCriteriaTypeChange}
           />
           <FormFieldModal

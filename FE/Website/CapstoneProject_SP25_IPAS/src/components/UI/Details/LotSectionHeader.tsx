@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { useModal } from "@/hooks";
 import { GetPlantLotDetail } from "@/payloads";
 import FillPlantsModal from "./FillPlantsModal";
-import { LOT_TYPE, lotTypeColors } from "@/constants";
+import { LOT_STATUS, LOT_TYPE, lotStatusColors, lotTypeColors } from "@/constants";
 
 const LotSectionHeader = ({
   isCriteria = false,
@@ -40,6 +40,20 @@ const LotSectionHeader = ({
     }
   };
 
+  const handleMarkAsUsed = async () => {
+    try {
+      var res = await plantLotService.updateIsUsedLot(lot.plantLotId);
+      if (res.statusCode === 200) {
+        setLot({ ...lot, status: LOT_STATUS.USED });
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      updateConfirmModal.hideModal();
+    }
+  };
+
   return (
     <Flex className={style.contentSectionHeader}>
       <Flex className={style.contentSectionTitle}>
@@ -48,11 +62,8 @@ const LotSectionHeader = ({
           <Tooltip title="Plant Lot">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
-          <Tag
-            className={style.statusTag}
-            color={lotTypeColors[lot.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT]}
-          >
-            {lot.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT}
+          <Tag className={style.statusTag} color={lotStatusColors[lot.status] || "default"}>
+            {lot.status || "Unknown"}
           </Tag>
           <Flex className={style.actionButtons} gap={20}>
             {!lot.isPassed ? (
@@ -72,6 +83,11 @@ const LotSectionHeader = ({
                   />
                 )}
               </Flex>
+            )}
+            {lot.isFromGrafted && (
+              <Button type="primary" onClick={updateConfirmModal.showModal} ghost>
+                <Icons.check /> Mark as Used
+              </Button>
             )}
           </Flex>
         </Flex>

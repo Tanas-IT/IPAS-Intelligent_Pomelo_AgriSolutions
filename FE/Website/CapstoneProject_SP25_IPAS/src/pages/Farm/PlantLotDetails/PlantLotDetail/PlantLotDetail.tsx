@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { formatDate, formatDayMonth } from "@/utils";
 import { plantLotService } from "@/services";
 import { GetPlantLotDetail, PlantLotRequest } from "@/payloads";
-import { ROUTES } from "@/constants";
+import { LOT_TYPE, ROUTES } from "@/constants";
 import { usePlantLotStore } from "@/stores";
 import { useModal, useTableUpdate } from "@/hooks";
 import { toast } from "react-toastify";
@@ -111,6 +111,11 @@ function PlantLotDetail() {
   });
 
   const infoFieldsLeft = [
+    {
+      label: "Lot Type",
+      value: lot?.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT,
+      icon: Icons.category,
+    },
     { label: "Partner", value: lot?.partnerName, icon: Icons.category },
     { label: "Seeding Name", value: lot?.seedingName, icon: Icons.plant },
     {
@@ -126,12 +131,12 @@ function PlantLotDetail() {
     { label: "Initial Quantity", value: lot?.previousQuantity, icon: Icons.box },
     {
       label: "Checked  Quantity",
-      value: !lot?.inputQuantity && !lot?.isFromGrafted ? "Checking..." : "",
+      value: !lot?.inputQuantity ? "Checking..." : "",
       icon: Icons.checkSuccuss,
     },
     {
       label: "Qualified Quantity",
-      value: !lot?.lastQuantity && !lot?.isFromGrafted ? "Checking..." : "",
+      value: !lot?.lastQuantity ? "Checking..." : "",
       icon: Icons.star,
     },
     { label: "Assigned Quantity", value: lot?.usedQuantity ?? 0, icon: Icons.share },

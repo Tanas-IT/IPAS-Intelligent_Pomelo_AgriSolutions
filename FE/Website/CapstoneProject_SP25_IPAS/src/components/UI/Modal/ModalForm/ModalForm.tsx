@@ -13,7 +13,7 @@ type ModalFormProps = {
   isUpdate?: boolean;
   cancelLabel?: string;
   saveLabel?: string;
-  size?: "normal" | "normalXL" | "large" | "largeXL";
+  size?: "normal" | "normalXL" | "normalXXL" | "large" | "largeXL";
   noCancel?: boolean;
   noDivider?: boolean;
 };

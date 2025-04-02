@@ -31,6 +31,7 @@ export { default as PlantGrowthHistory } from "@/pages/Farm/PlantDetails/PlantGr
 export { default as PlantCriteria } from "@/pages/Farm/PlantDetails/PlantCriteria/PlantCriteria";
 export { default as PlantGraftedHistory } from "@/pages/Farm/PlantDetails/PlantGraftedHistory/PlantGraftedHistory";
 export { default as PlantCareHistory } from "@/pages/Farm/PlantDetails/PlantCareHistory/PlantCareHistory";
+export { default as PlantHarvestRecord } from "@/pages/Farm/PlantDetails/PlantHarvestRecord/PlantHarvestRecord";
 
 export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";
 export { default as PlantLotDetails } from "@/pages/Farm/PlantLotDetails/PlantLotDetails";

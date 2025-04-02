@@ -17,6 +17,7 @@ export interface GetGraftedPlant {
   cultivarId: number;
   cultivarName: string;
   isCompleted: boolean;
+  isDead: boolean;
   plantLotId: number;
   plantLotName: string;
   plantCode: string;

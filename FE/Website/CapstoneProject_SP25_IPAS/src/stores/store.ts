@@ -166,6 +166,8 @@ interface PlantStore {
   setPlant: (plant: GetPlantDetail | null) => void;
   shouldRefetch: boolean;
   markForRefetch: () => void;
+  isGrowthDetailView: boolean;
+  setIsGrowthDetailView: (value: boolean) => void;
 }
 
 interface GraftedPlantStore {
@@ -173,6 +175,8 @@ interface GraftedPlantStore {
   setGraftedPlant: (graftedPlant: GetGraftedPlantDetail | null) => void;
   shouldRefetch: boolean;
   markForRefetch: () => void;
+  isGrowthDetailView: boolean;
+  setIsGrowthDetailView: (value: boolean) => void;
 }
 
 export const useGraftedPlantStore = create<GraftedPlantStore>((set, get) => ({
@@ -180,6 +184,8 @@ export const useGraftedPlantStore = create<GraftedPlantStore>((set, get) => ({
   setGraftedPlant: (graftedPlant) => set({ graftedPlant }),
   shouldRefetch: false,
   markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+  isGrowthDetailView: false,
+  setIsGrowthDetailView: (value) => set({ isGrowthDetailView: value }),
 }));
 
 export const usePlantStore = create<PlantStore>((set, get) => ({
@@ -189,6 +195,8 @@ export const usePlantStore = create<PlantStore>((set, get) => ({
   setPlant: (plant) => set({ plant }),
   shouldRefetch: false,
   markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+  isGrowthDetailView: false,
+  setIsGrowthDetailView: (value) => set({ isGrowthDetailView: value }),
 }));
 
 interface CropStore {
@@ -198,6 +206,8 @@ interface CropStore {
   setHarvestDay: (harvestDays: GetHarvestDay | null) => void;
   shouldRefetch: boolean;
   markForRefetch: () => void;
+  isHarvestDetailView: boolean;
+  setIsHarvestDetailView: (value: boolean) => void;
 }
 
 export const useCropStore = create<CropStore>((set, get) => ({
@@ -207,4 +217,6 @@ export const useCropStore = create<CropStore>((set, get) => ({
   setHarvestDay: (harvestDay) => set({ harvestDay }),
   shouldRefetch: false,
   markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+  isHarvestDetailView: false,
+  setIsHarvestDetailView: (value) => set({ isHarvestDetailView: value }),
 }));

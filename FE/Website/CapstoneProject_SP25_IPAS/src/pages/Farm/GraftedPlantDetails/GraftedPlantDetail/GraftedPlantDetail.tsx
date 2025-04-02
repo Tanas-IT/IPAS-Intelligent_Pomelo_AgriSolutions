@@ -10,6 +10,7 @@ import {
   GraftedPlantSectionHeader,
   InfoFieldDetail,
   LoadingSkeleton,
+  PlantMarkAsDeadModal,
 } from "@/components";
 import { useEffect, useState } from "react";
 import { formatDayMonth } from "@/utils";
@@ -30,6 +31,8 @@ function GraftedPlantDetail() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetGraftedPlantDetail>();
   const deleteConfirmModal = useModal<{ id: number }>();
+  const markAsDeadModal = useModal<{ id: number }>();
+  const markAsDeadConfirmModal = useModal<{ id: number }>();
   const addToLotModal = useModal<{ id: number }>();
   const removeLotConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedGrafted: GraftedPlantRequest }>();
@@ -145,6 +148,20 @@ function GraftedPlantDetail() {
     },
   });
 
+  const handleMarkAsDead = async (id?: number) => {
+    if (!id) return;
+
+    markAsDeadConfirmModal.hideModal();
+    var res = await graftedPlantService.updateGraftedPlantDead(id);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      markAsDeadModal.hideModal();
+      await fetchPlantLot();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
   const onAddToLot = async (lotId: number, graftedPlantId?: number) => {
     if (!graftedPlantId) return;
     var res = await graftedPlantService.groupGraftedPlant([graftedPlantId], lotId);
@@ -198,10 +215,9 @@ function GraftedPlantDetail() {
       <GraftedPlantSectionHeader
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
-        {...(!graftedPlant?.plantLotId && graftedPlant?.isCompleted
-          ? { onAddToLot: addToLotModal }
-          : {})}
-        {...(graftedPlant?.plantLotId ? { removeFromLotConfirm: removeLotConfirmModal } : {})}
+        onAddToLot={addToLotModal}
+        removeFromLotConfirm={removeLotConfirmModal}
+        markAsDeadModal={markAsDeadModal}
       />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
@@ -249,6 +265,21 @@ function GraftedPlantDetail() {
         onClose={addToLotModal.hideModal}
         onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.id)}
         isLoadingAction={isLoading}
+      />
+      <PlantMarkAsDeadModal
+        isOpen={markAsDeadModal.modalState.visible}
+        onClose={markAsDeadModal.hideModal}
+        onSave={markAsDeadConfirmModal.showModal}
+        isLoadingAction={isLoading}
+        entityType="GraftedPlant"
+      />
+      {/* Confirm Mark as Dead Modal */}
+      <ConfirmModal
+        visible={markAsDeadConfirmModal.modalState.visible}
+        onConfirm={() => handleMarkAsDead(markAsDeadModal.modalState.data?.id)}
+        onCancel={markAsDeadConfirmModal.hideModal}
+        confirmText="Mark as Dead"
+        title="Mark Grafted Plan as Dead?"
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
