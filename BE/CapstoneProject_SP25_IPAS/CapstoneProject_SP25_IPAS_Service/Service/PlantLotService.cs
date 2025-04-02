@@ -617,6 +617,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (updatePlantLotRequestModel.UsedQuantity > checkExistPlantLot.LastQuantity)
                                 return new BusinessResult(400, "Used Quantity larger than last quantity");
                             checkExistPlantLot.UsedQuantity = updatePlantLotRequestModel.UsedQuantity;
+                            if (checkExistPlantLot.UsedQuantity >= checkExistPlantLot.LastQuantity)
+                                checkExistPlantLot.Status = PlantLotStatusConst.USED;
                         }
                         if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Unit))
                         {
@@ -628,6 +630,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Status))
                         {
+                            if (!PlantLotStatusConst.ValidStatuses.Contains(updatePlantLotRequestModel.Status.ToLower()))
+                            {
+                                return new BusinessResult(400, "Invalid Status value.");
+                            }
                             checkExistPlantLot.Status = updatePlantLotRequestModel.Status;
                         }
                         if (updatePlantLotRequestModel.IsPass.HasValue && updatePlantLotRequestModel.IsPass == true)
@@ -777,6 +783,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Cập nhật số lượng cây còn lại trong PlantLot
                     plantLot.UsedQuantity += (quantityToPlant - remainingPlants);
+                    if (plantLot.UsedQuantity >= plantLot.LastQuantity)
+                        plantLot.Status = PlantLotStatusConst.USED;
                     _unitOfWork.PlantLotRepository.Update(plantLot);
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
