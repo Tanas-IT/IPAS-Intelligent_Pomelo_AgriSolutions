@@ -1101,19 +1101,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getHarvestPlantCanRecord(int plantId)
+        public async Task<BusinessResult> getHarvestPlantCanRecord(GetHarvestForPlantRecordRequest request)
         {
             try
             {
-                var plantExist = await _unitOfWork.PlantRepository.getById(plantId);
+                var plantExist = await _unitOfWork.PlantRepository.getById(request.PlantId);
                 if (plantExist == null)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, "Plant not exist");
                 Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
-                Expression<Func<HarvestHistory, bool>> filter = c => c.Crop.LandPlotCrops.Select(x => x.LandPlotId).ToList().Contains(plantExist.LandRow.LandPlotId.Value) 
-                && c.Crop!.IsDeleted == false 
+                Expression<Func<HarvestHistory, bool>> filter = c => c.Crop.LandPlotCrops.Select(x => x.LandPlotId).ToList().Contains(plantExist.LandRow.LandPlotId.Value)
+                && c.Crop!.IsDeleted == false
                 && c.IsDeleted == false
-                //&& Math.Abs(EF.Functions.DateDiffDay(c.DateHarvest.Value, DateTime.Now)) <= 7;
-                && c.DateHarvest >= DateTime.Now.AddDays(-7);
+                && c.DateHarvest >= request.StartDate
+                && c.DateHarvest <= request.EndDate;
+
+                //&& c.DateHarvest >= DateTime.Now.AddDays(-7);
                 //filter = filter.And(x => EF.Functions.DateDiffDay(DateTime.Now, x.DateHarvest.Value) <= 7);
                 var landPlotCrops = await _unitOfWork.HarvestHistoryRepository.GetAllHarvest(filter: filter, orderBy: orderBy);
                 //if (!landPlotCrops.Any())
