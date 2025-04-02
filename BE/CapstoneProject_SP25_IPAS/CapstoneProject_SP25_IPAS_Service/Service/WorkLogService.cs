@@ -247,6 +247,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var result = await _unitOfWork.WorkLogRepository.AssignTaskForUser(employeeId, worklogId);
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(worklogId);
+                var addNotification = new Notification()
+                {
+                    Content = getWorkLog.WorkLogName + " has changed employee. Please check schedule",
+                    Title = "WorkLog",
+                    IsRead = false,
+                    MasterTypeId = 36,
+                    CreateDate = DateTime.Now,
+                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                };
+                await _unitOfWork.NotificationRepository.Insert(addNotification);
+                await _unitOfWork.SaveAsync();
+
+                await _webSocketService.SendToUser(employeeId, addNotification);
                 if (result)
                 {
                     await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + worklogId.ToString());
@@ -440,8 +455,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
                     }
-                    filter = filter.And(x => x.Schedule.CarePlan.StartDate >= scheduleFilter.FromDate &&
-                                             x.Schedule.CarePlan.EndDate <= scheduleFilter.ToDate);
+                    filter = filter.And(x => x.Date >= scheduleFilter.FromDate &&
+                                             x.Date <= scheduleFilter.ToDate);
                 }
 
                 if (!string.IsNullOrEmpty(scheduleFilter.FromTime) || !string.IsNullOrEmpty(scheduleFilter.ToTime))
@@ -456,10 +471,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_INVALID_TIME_FILTER_CODE, Const.WARNING_INVALID_TIME_FILTER_MSG);
                     }
 
-                    filter = filter.And(x => x.Schedule.StartTime.Value.Hours == TimeSpan.Parse(scheduleFilter.FromTime).Hours &&
-                                             x.Schedule.StartTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.FromTime).Minutes &&
-                                             x.Schedule.EndTime.Value.Hours == TimeSpan.Parse(scheduleFilter.ToTime).Hours &&
-                                             x.Schedule.EndTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.ToTime).Minutes);
+                    filter = filter.And(x => x.ActualStartTime.Value.Hours == TimeSpan.Parse(scheduleFilter.FromTime).Hours &&
+                                             x.ActualStartTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.FromTime).Minutes &&
+                                             x.ActualEndTime.Value.Hours == TimeSpan.Parse(scheduleFilter.ToTime).Hours &&
+                                             x.ActualEndTime.Value.Minutes == TimeSpan.Parse(scheduleFilter.ToTime).Minutes);
                 }
 
                 if (scheduleFilter.TypePlan != null)
@@ -565,6 +580,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var findWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == createNoteModel.WorkLogId && x.UserId == createNoteModel.UserId);
+                var getWorklog = await _unitOfWork.WorkLogRepository.GetByID(createNoteModel.WorkLogId);
+                var getUser = await _unitOfWork.UserRepository.GetByID(createNoteModel.UserId.Value);
                 if (findWorkLog != null)
                 {
                     findWorkLog.Notes = createNoteModel.Note;
@@ -622,6 +639,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                    var addNotification = new Notification()
+                    {
+                        Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check schedule",
+                        Title = "WorkLog",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -687,7 +717,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
-                        if(findWorkLog.Schedule.CarePlan != null)
+                        if (findWorkLog.Schedule.CarePlan != null)
                         {
                             await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(parseStartTime, parseEndTime, updateWorkLogModel.DateWork.Value, findWorkLog.Schedule.CarePlan.MasterTypeId, updateWorkLogModel.listEmployee.Select(x => x.UserId).ToList());
                         }
@@ -975,8 +1005,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
-                    }
 
+                        var addNotification = new Notification()
+                        {
+                            Content = "WorkLog " + findWorkLog.WorkLogName + " has been updated. Please check schedule",
+                            Title = "WorkLog",
+                            IsRead = false,
+                            MasterTypeId = 36,
+                            CreateDate = DateTime.Now,
+                            NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                        };
+                        await _unitOfWork.NotificationRepository.Insert(addNotification);
+                        await _unitOfWork.SaveAsync();
+                        foreach (var employeeModel in updateWorkLogModel.listEmployee)
+                        {
+                            await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                        }
+                    }
+                    
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -1310,7 +1357,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var addNotification = new Notification()
                     {
-                        Content = "Work " + getWorkLogToUpdate.WorkLogName + " has adjusted. Please check schedule",
+                        Content = "Status of " + getWorkLogToUpdate.WorkLogName + " has adjusted. Please check it",
                         Title = "Plan",
                         IsRead = false,
                         MasterTypeId = 36,
@@ -1534,7 +1581,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (changeEmployeeOfWorkLog.DateWork != null)
                 {
-                    if(changeEmployeeOfWorkLog.DateWork < DateTime.Now)
+                    if (changeEmployeeOfWorkLog.DateWork < DateTime.Now)
                     {
                         return new BusinessResult(400, "Date of Work must be greater than now");
                     }
@@ -1698,7 +1745,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var findWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == updateNoteModel.WorkLogId && x.UserId == updateNoteModel.UserId);
                 if (findWorkLog != null)
                 {
-                    if(updateNoteModel.Note != null)
+                    if (updateNoteModel.Note != null)
                     {
                         findWorkLog.Notes = updateNoteModel.Note;
                     }
@@ -1710,7 +1757,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach (var fileNote in updateNoteModel.Resources)
                         {
-                            if(fileNote.ResourceID != null)
+                            if (fileNote.ResourceID != null)
                             {
                                 var findOldResource = await _unitOfWork.ResourceRepository.GetByID(fileNote.ResourceID.Value);
                                 var getLink = "";
@@ -1741,8 +1788,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     _unitOfWork.ResourceRepository.Update(findOldResource);
                                 }
                             }
-                           
-                            
+
+
                         }
                     }
                     var result = await _unitOfWork.SaveAsync();
@@ -1775,12 +1822,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getWorklogByfarmId = await _unitOfWork.WorkLogRepository.GetListWorkLogByFarmId(farmId);
                 var statusCounts = getWorklogByfarmId
-                       .GroupBy(wl => string.IsNullOrEmpty(wl.Status) ? "unknown" : wl.Status.ToLower()) 
+                       .GroupBy(wl => string.IsNullOrEmpty(wl.Status) ? "unknown" : wl.Status.ToLower())
                        .ToDictionary(g => g.Key, g => g.Count());
 
                 statusCounts["total"] = getWorklogByfarmId.Count;
 
-                if(statusCounts != null && getWorklogByfarmId.Count > 0)
+                if (statusCounts != null && getWorklogByfarmId.Count > 0)
                 {
                     var result = new WorkLogSummaryModel()
                     {
@@ -1802,7 +1849,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                if(getWorkLogByStatusModel.UserId == 0)
+                if (getWorkLogByStatusModel.UserId == 0)
                 {
                     return new BusinessResult(400, "UserId can not be empty");
                 }
@@ -1816,7 +1863,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = wl.Status ?? "unknown", // Nếu null thì hiển thị "unknown"
                     avatarEmployees = wl.UserWorkLogs.Select(uwl => uwl.User.AvatarURL ?? "").ToList()
                 }).ToList();
-                if(result.Count > 0 )
+                if (result.Count > 0)
                 {
                     return new BusinessResult(200, "Get workLog by status success", result);
                 }
@@ -1824,7 +1871,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-               return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }
