@@ -22,7 +22,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
 
         public double? QuantityNeed { get; set; }
         public double? ActualQuantity { get; set; }
-
+        public string? RecordBy { get; set; }
+        public string? UpdateBy { get; set; }
+        public DateTime? RecordDate { get; set; }
         public int HarvestHistoryId { get; set; }
 
         public string? ProductName { get; set; }

@@ -171,7 +171,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Lọc theo Actual yiel from
                 if (cropFilter.MarketPriceFrom.HasValue && cropFilter.MarketPriceTo.HasValue)
                 {
-                    if ( cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
+                    if (cropFilter.MarketPriceTo < cropFilter.MarketPriceFrom)
                     {
                         return new BusinessResult(400, "Market price to must larger than market price from");
                     }
@@ -187,8 +187,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                 ApplySorting(ref orderBy, paginationParameter.SortBy, paginationParameter.Direction);
-                
-                var landPlotCrops = await _unitOfWork.CropRepository.Get(filter: filter,orderBy: orderBy ,pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+
+                var landPlotCrops = await _unitOfWork.CropRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<CropModel>();
                 pagin.List = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops).ToList();
                 pagin.TotalRecord = await _unitOfWork.CropRepository.Count(filter);
@@ -427,6 +427,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (cropEntityUpdate.StartDate.Value.Date < DateTime.Now.Date)
                         return new BusinessResult(400, "Cannot delete Crop has Start");
+                    bool isUsed = await _unitOfWork.HarvestHistoryRepository
+                .AnyAsync(hh => hh.CropId == cropId) ||
+                await _unitOfWork.LandPlotCropRepository
+                .AnyAsync(lpc => lpc.CropID == cropId) ||
+                await _unitOfWork.PlanRepository
+                .AnyAsync(p => p.CropId == cropId);
+                    if (isUsed)
+                    {
+                        return new BusinessResult(400, "Cannot delete Crop because it is already in use.");
+                    }
                     // Cập nhật các thuộc tính từ model nếu giá trị không null hoặc mặc định
                     cropEntityUpdate.IsDeleted = true;
                     _unitOfWork.CropRepository.Update(cropEntityUpdate);
@@ -509,12 +519,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var overlappingCrops = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(
                             x => landPlotIds.Contains(x.LandPlotId) &&
                                  x.CropID != cropEntityUpdate.CropId && //  Không lấy chính nó
-                                 //  Lọc những mùa vụ có khoảng thời gian bị chồng lấn
+                                                                        //  Lọc những mùa vụ có khoảng thời gian bị chồng lấn
                                  ((x.Crop.StartDate >= cropEntityUpdate.StartDate && x.Crop.StartDate <= cropEntityUpdate.EndDate) ||
                                   (x.Crop.EndDate >= cropEntityUpdate.StartDate && x.Crop.EndDate <= cropEntityUpdate.EndDate) ||
                                   (x.Crop.StartDate <= cropEntityUpdate.StartDate && x.Crop.EndDate >= cropEntityUpdate.EndDate)),
 
-                            includeProperties:"Crop"
+                            includeProperties: "Crop"
                         );
 
                         if (overlappingCrops.Any())
@@ -603,7 +613,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var landPlotCrops = await _unitOfWork.CropRepository.GetAllNoPaging(
                     filter: filter
-                    //includeProperties: includeProperties
+                //includeProperties: includeProperties
                 );
 
                 if (!landPlotCrops.Any())

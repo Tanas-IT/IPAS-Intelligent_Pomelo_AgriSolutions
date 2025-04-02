@@ -687,6 +687,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MotherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
+	IsDead bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
 	FarmID int NULL,
