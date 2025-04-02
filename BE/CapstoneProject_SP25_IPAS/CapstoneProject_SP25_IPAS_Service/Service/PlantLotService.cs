@@ -803,7 +803,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.IsDeleted == false;
                 if (isFromGrafted.HasValue && isFromGrafted == true)
-                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.Equals(PlantLotStatusConst.USED, StringComparison.OrdinalIgnoreCase));
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.USED.ToLower()));
                 else
                     filter = filter.And(x => x.LastQuantity < x.UsedQuantity);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
