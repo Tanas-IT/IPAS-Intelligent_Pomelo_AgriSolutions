@@ -20,5 +20,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
             int? pageSize = null);
         public Task<IEnumerable<ProductHarvestHistory>> GetAllPlantOfHarvesType(int harvestId, int masterTypeId);
         public Task<List<HarvestHistory>> GetHarvestHistoryInclude(int? farmId);
+        public Task<IEnumerable<HarvestHistory>> GetAllHarvest(Expression<Func<HarvestHistory, bool>> filter = null!,
+           Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = null!);
+
+
     }
 }

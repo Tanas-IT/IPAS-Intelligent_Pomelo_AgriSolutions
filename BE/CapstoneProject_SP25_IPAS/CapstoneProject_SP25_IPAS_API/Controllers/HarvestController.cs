@@ -137,6 +137,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.Harvest.createPlantRecordHarvest, Name = "createPlantRecordHarvest")]
         public async Task<IActionResult> createPlantRecordHarvest([FromBody] CreatePlantRecordHarvestRequest request)
         {
+            if(!request.UserId.HasValue)
+                request.UserId = _jwtTokenService.GetUserIdFromToken();
+            if(!request.UserId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "User Id is required"
+                });
+            }    
             var result = await _harvestHistoryService.createPlantRecordHarvest(request);
             return Ok(result);
         }
@@ -155,6 +165,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             //try
             //{
+            if (!harvestTypeUpdateRequest.UserId.HasValue)
+                harvestTypeUpdateRequest.UserId = _jwtTokenService.GetUserIdFromToken();
+            if (!harvestTypeUpdateRequest.UserId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "User Id is required"
+                });
+            }
             var result = await _harvestHistoryService.updateProductHarvest(harvestTypeUpdateRequest);
             return Ok(result);
             //}
@@ -302,6 +322,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _harvestHistoryService.getHarvestHistoryByPlant(plantId: plantId, paginationParameter: paginationParameter, filter: harvestFilter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Harvest.getHarvestSelectedToPlantRecord, Name = "getHarvestSelectedToPlantRecord")]
+        public async Task<IActionResult> getHarvestSelectedToPlantRecord([FromQuery] GetHarvestForPlantRecordRequest request)
+        {
+            try
+            {
+                var result = await _harvestHistoryService.getHarvestPlantCanRecord(request);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -1,4 +1,4 @@
-		Use [master]
+Use [master]
 GO
 DROP DATABASE [IPAS]
 GO
@@ -687,6 +687,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MotherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
+	IsDead bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
 	FarmID int NULL,
@@ -737,6 +738,9 @@ CREATE TABLE ipas.dbo.ProductHarvestHistory (
 	QuantityNeed float NULL,
 	ActualQuantity float NULL,
 	HarvestHistoryID int NOT NULL,
+	RecordDate datetime NULL,
+	RecordBy nvarchar(100) NULL,
+	UpdateBy nvarchar(100) NULL,
 	CONSTRAINT ProductHarvestHistory_PK PRIMARY KEY (ProductHarvestHistoryId),
 	CONSTRAINT FK_ProductHarvestHistory_Plant FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
 	CONSTRAINT FK__HarvestTy__Harve__40058253 FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
@@ -1544,17 +1548,17 @@ VALUES
 
 GO
 INSERT INTO [ipas].dbo.ProductHarvestHistory 
-    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
+    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID, RecordDate, RecordBy)
 VALUES 
     -- PlantID 9
-    (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1),  -- HarvestHistoryID 1
-    (32, 9, N'kg', 9500.0, 9000.0, 130, 160, 2),  -- HarvestHistoryID 2
-    (31, 9, N'kg', 9800.5, 9300.0, 140, 170, 3),  -- HarvestHistoryID 3
-    (32, 9, N'kg', 10200.3, 9700.0, 150, 180, 4),  -- HarvestHistoryID 4
-    (31, 9, N'kg', 10500.0, 10000.0, 160, 190, 5),  -- HarvestHistoryID 5
-    (32, 9, N'kg', 11000.2, 10400.0, 170, 200, 6),  -- HarvestHistoryID 6
-    (31, 9, N'kg', 11500.4, 10900.0, 180, 210, 7),  -- HarvestHistoryID 7
-    (32, 9, N'kg', 12000.0, 11400.0, 190, 220, 8),  -- HarvestHistoryID 8
+    (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1, GETDATE(), 'User1'),  -- HarvestHistoryID 1
+    (32, 9, N'kg', 9500.0, 9000.0, 130, 160, 2, GETDATE(), 'User1'),  -- HarvestHistoryID 2
+    (31, 9, N'kg', 9800.5, 9300.0, 140, 170, 3, GETDATE(), 'User1'),  -- HarvestHistoryID 3
+    (32, 9, N'kg', 10200.3, 9700.0, 150, 180, 4, GETDATE(), 'User1'),  -- HarvestHistoryID 4
+    (31, 9, N'kg', 10500.0, 10000.0, 160, 190, 5, GETDATE(), 'User1'),  -- HarvestHistoryID 5
+    (32, 9, N'kg', 11000.2, 10400.0, 170, 200, 6, GETDATE(), 'User1'),  -- HarvestHistoryID 6
+    (31, 9, N'kg', 11500.4, 10900.0, 180, 210, 7, GETDATE(), 'User1'),  -- HarvestHistoryID 7
+    (32, 9, N'kg', 12000.0, 11400.0, 190, 220, 8, GETDATE(), 'User1'),  -- HarvestHistoryID 8
 
     -- PlantID 10
     (32, 10, N'kg', 9800.0, 9300.0, 150, 175, 1),  -- HarvestHistoryID 1
@@ -1645,6 +1649,15 @@ VALUES
     (32, 8, N'kg', 6700.3, 6300.0, 105, 100, 6),  -- HarvestHistoryID 6
     (31, 8, N'kg', 7000.0, 6600.0, 90, 85, 7),  -- HarvestHistoryID 7
     (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
+GO
+UPDATE [ipas].dbo.ProductHarvestHistory
+SET 
+    RecordDate = GETDATE(),
+    RecordBy = 
+        CASE 
+            WHEN RecordBy IS NULL OR RecordBy = '' THEN 'Admin' 
+            ELSE RecordBy 
+        END;
 GO
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  

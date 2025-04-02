@@ -34,7 +34,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetTopPlantsByYear(GetTopStatisticByYearRequest request);
         public Task<BusinessResult> GetTopPlantsByCrop(GetTopStatisticByCropRequest request);
         public Task<BusinessResult> getHarvestHistoryByPlant(int plantId, PaginationParameter paginationParameter, PlantHarvestFilter filter);
-
+        public Task<BusinessResult> getHarvestPlantCanRecord(GetHarvestForPlantRecordRequest plantId);
 
     }
 }
