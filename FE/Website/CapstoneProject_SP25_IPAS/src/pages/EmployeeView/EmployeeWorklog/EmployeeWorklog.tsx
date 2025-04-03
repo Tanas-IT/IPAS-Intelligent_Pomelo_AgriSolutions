@@ -18,6 +18,8 @@ import dayjs from 'dayjs';
 import HeaderContentAppend from './HeaderContentAppend';
 import WorklogFilter from '@/pages/HR/Worklog/WorklogCalendar/WorklogFilter/WorklogFilter';
 import CustomTimeGridEvent from './CustomTimeGridEvent';
+import { debounce } from 'lodash';
+import { getUserId } from '@/utils';
 
 type Worklog = {
     id: string;
@@ -41,14 +43,12 @@ function EmployeeWorklog() {
     const [worklog, setWorklog] = useState<Worklog[]>([]);
 
     const [filters, setFilters] = useState({
-        createDateFrom: '',
-        createDateTo: '',
-        status: [] as string[],
-        processTypes: [] as string[],
-        isConfirm: true,
-        employees: [] as string[],
-        type: [] as string[],
-        plan: [] as string[],
+        workDateFrom: '',
+        workDateTo: '',
+        growthStage: [],
+        status: [],
+        employees: [],
+        typePlan: [],
     });
 
     const updateFilters = (key: string, value: any) => {
@@ -61,9 +61,9 @@ function EmployeeWorklog() {
 
     const fetchData = async () => {
         try {
-            const response = await worklogService.getWorklog(); // API lấy công việc của nhân viên hiện tại
+            const response = await worklogService.getWorklogByUserId(Number(getUserId())); // API lấy công việc của nhân viên hiện tại
             if (response) {
-                const worklogs = response.map((log: GetWorklog) => ({
+                const worklogs = response.data.map((log: GetWorklog) => ({
                     id: log.workLogId.toString(),
                     title: log.workLogName,
                     start: dayjs(`${log.date.split('T')[0]} ${log.startTime}`).format('YYYY-MM-DD HH:mm'),
@@ -79,22 +79,24 @@ function EmployeeWorklog() {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const debouncedFetchData = debounce(fetchData, 300);
+    
+      useEffect(() => {
+        debouncedFetchData();
+        return () => debouncedFetchData.cancel();
+      }, [filters]);
 
     const handleClear = () => {
-        setFilters({
-            createDateFrom: '',
-            createDateTo: '',
-            status: [],
-            processTypes: [],
-            isConfirm: true,
-            employees: [],
-            type: [],
-            plan: [],
-        });
-    };
+        const resetFilters = {
+          workDateFrom: '',
+          workDateTo: '',
+          growthStage: [],
+          status: [],
+          employees: [],
+          typePlan: [],
+        };
+        setFilters(resetFilters);
+      };
 
     const statusToCalendarId = (status: string): string => {
         const cleanStatus = status.trim().toLowerCase();
@@ -204,7 +206,7 @@ function EmployeeWorklog() {
     const filterContent = (
         <WorklogFilter
             filters={filters}
-            updateFilters={updateFilters}
+            updateFilters={setFilters}
             onClear={handleClear}
             onApply={handleApply}
         />

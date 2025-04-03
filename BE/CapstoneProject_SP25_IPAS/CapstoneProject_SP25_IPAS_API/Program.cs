@@ -16,6 +16,8 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:5242");
+
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.InstallerService(builder.Configuration);
 builder.Services.AddDbContext<IpasContext>(options =>

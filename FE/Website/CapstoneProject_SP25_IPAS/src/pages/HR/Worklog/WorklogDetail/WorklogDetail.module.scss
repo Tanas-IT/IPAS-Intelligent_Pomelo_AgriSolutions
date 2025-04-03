@@ -70,16 +70,31 @@
       border-radius: 100%;
     }
 
-    .createdBy {
-      font-size: 16px;
-      color: vars.$color_second;
-    }
+        .createdBy {
+            font-size: 16px;
+            color: vars.$color_second;
+        }
 
-    .createdDate {
-      font-size: 14px;
-      color: vars.$color_create_at;
+        .actualTime {
+            font-size: 16px;
+            color: #096dd9;
+        }
+
+        .textUpdated {
+            font-size: 16px;
+        }
+
+        .createdDate {
+            font-size: 14px;
+            color: vars.$color_create_at;
+        }
+
+        .info {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 15px;
+        }
     }
-  }
 
   .contentSectionBody {
     width: 80%;
