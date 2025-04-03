@@ -475,11 +475,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string key = $"{CacheKeyConst.PLAN}:{CacheKeyConst.FARM}:{farmId}";
 
                 //await _responseCacheService.RemoveCacheAsync(key);
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<PlanModel>>>(key);
-                if (cachedData != null && cachedData.Data != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
+                //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<PlanModel>>>(key);
+                //if (cachedData != null && cachedData.Data != null)
+                //{
+                //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                //}
                 Expression<Func<Plan, bool>> filter = x =>
                            x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
@@ -770,7 +770,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.EndDate)) : x => x.OrderBy(x => x.EndDate);
                         break;
                     default:
-                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
+                        orderBy = x => x.OrderByDescending(x => x.CreateDate);
                         break;
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
