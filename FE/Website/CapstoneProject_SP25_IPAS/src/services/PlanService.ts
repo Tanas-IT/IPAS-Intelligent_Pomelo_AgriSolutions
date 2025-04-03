@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantLot2, GetPlantTargetResponse } from "@/payloads";
-import { GetPlan } from "@/payloads/plan";
+import { GetPlan, GetPlanSelect } from "@/payloads/plan";
 import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
 
@@ -138,5 +138,11 @@ export const createManyPlans = async (plan: PlanRequest[], farmId: number): Prom
   
   const res = await axiosAuth.axiosJsonRequest.post(`plan/create-many?farmId=${farmId}`, plan);
   const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const getPlansForSelect = async (farmId: number): Promise<ApiResponse<GetPlanSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plan/get-for-select/${farmId}`);
+  const apiResponse = res.data as ApiResponse<GetPlanSelect[]>;
   return apiResponse;
 };

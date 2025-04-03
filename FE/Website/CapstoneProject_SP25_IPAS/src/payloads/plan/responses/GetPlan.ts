@@ -107,3 +107,9 @@ export interface PlanTarget {
   plantLotNames?: string[];
   graftedPlantNames?: string[];
 }
+
+export interface GetPlanSelect {
+  id: number;
+  code: string;
+  name: string;
+}

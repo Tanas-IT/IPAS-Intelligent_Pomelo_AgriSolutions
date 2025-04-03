@@ -1,3 +1,5 @@
+import { PlanTargetModel } from "@/payloads/plan";
+
 export interface User {
   userId: number;
   fullName: string;
@@ -28,7 +30,10 @@ export interface GetWorklog {
 
 export interface User {
   fullName: string;
-  avatar: string;
+  avatarURL: string;
+  isReporter: boolean;
+  statusOfUserWorkLog: string | null;
+  userId: number;
 }
 
 interface PlantModel {
@@ -42,21 +47,15 @@ interface RowModel {
   plants: PlantModel[]
 }
 
-export interface PlanTargetModel {
-  // rowIndex: number[];
-  // landPlotName: string;
-  // graftedPlantName: string[];
-  // plantLotName: string[];
-  // plantName: string[];
-  // plantTargetId: number;
-  unit?: string;
-  landPlotId?: number;
-  rows: RowModel[];
-  landPlotName: string;
-  graftedPlants: any[];
-  plantLots: any[];
-  plants: PlantModel[];
-}
+// export interface PlanTargetModel {
+//   unit?: string;
+//   landPlotId?: number;
+//   rows: RowModel[];
+//   landPlotName: string;
+//   graftedPlants: any[];
+//   plantLots: any[];
+//   plants: PlantModel[];
+// }
 
 export interface TaskFeedback {
   taskFeedbackId: number;
@@ -102,6 +101,16 @@ export interface GetWorklogDetail {
   processName: string;
   masterTypeName: string;
   cropName: string;
+  replacementEmployee: ReplacementEmployee[];
+}
+
+export interface ReplacementEmployee {
+  userId: number; //nhân viên được thay thế
+  replaceUserId: number; //người thay thế
+  fullName?: string;
+  avatar?: string;
+  replaceUserFullName?: string;
+  replaceUserAvatar?: string;
 }
 
 export interface GetWorklogNote {
@@ -111,5 +120,3 @@ export interface GetWorklogNote {
   userId: string;
   Resources: Resource[];
 }
-
-

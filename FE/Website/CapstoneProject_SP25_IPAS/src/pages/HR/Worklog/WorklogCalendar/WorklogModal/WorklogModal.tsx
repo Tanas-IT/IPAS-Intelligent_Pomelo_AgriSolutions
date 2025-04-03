@@ -3,7 +3,7 @@ import { worklogFormFields } from "@/constants";
 import { AssignEmployee } from "@/pages";
 import { GetUser } from "@/payloads";
 import { CreateWorklogRequest } from "@/payloads/worklog";
-import { cropService, userService } from "@/services";
+import { cropService, planService, userService } from "@/services";
 import { fetchUserInfoByRole, getFarmId, RulesManager } from "@/utils";
 import { Flex, Form, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
@@ -22,9 +22,10 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   const [selectedEmployees, setSelectedEmployees] = useState<GetUser[]>([]);
   const [cropOptions, setCropOptions] = useState<{ value: string; label: string }[]>([]);
   const [landPlotOptions, setLandPlotOptions] = useState<{ value: string; label: string }[]>([]);
-  const [typeOptions, setTypeOptions] = useState<{ value: string; label: string }[]>([]);
+  const [planOptions, setPlanOptions] = useState<{ value: number; label: string }[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const farmId = getFarmId();
 
   const handleCancel = () => {
@@ -33,22 +34,43 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
 
   const handleAdd = async () => {
     const values = await form.validateFields();
+    const date = new Date(values.dateWork);
+    const dateWork = new Date(date.getTime() - date.getTimezoneOffset()*60000);
+    const startTime = values.time?.[0]?.toDate().toLocaleTimeString();
+    const endTime = values.time?.[1]?.toDate().toLocaleTimeString();
     console.log("Form values:", values);
+    const payload = {
+      workLogName: values.worklogName,
+      dateWork: dateWork.toISOString(),
+      startTime: startTime,
+      endTime: endTime,
+      planId: values.planId,
+      listEmployee: selectedEmployees.map((employee) => ({
+        userId: employee.userId,
+        isReporter: employee.userId === selectedReporter,
+      })),
+    }
+    console.log("payloaddđ", payload);
+    
 
-    onSave(values);
+    onSave(payload);
 
     onClose();
+    form.resetFields();
   };
 
   const handleCropChange = () => { };
 
   const handleAssignMember = () => setIsModalOpen(true);
-  const handleConfirmAssign = () => { };
+  const handleConfirmAssign = () => {
+    setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     if (isOpen) {
       fetchEmployees();
-      fetchCropOptions();
+      fetchPlanOptions();
     }
   }, [isOpen]);
 
@@ -56,13 +78,15 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     setEmployee(await fetchUserInfoByRole("User"));
   };
 
-  const fetchCropOptions = async () => {
-    const crops = await cropService.getCropsOfFarmForSelect(farmId);
-    const formattedCropOptions = crops.map((crop) => ({
-      value: crop.cropId,
-      label: crop.cropName,
+  const fetchPlanOptions = async () => {
+    const plans = await planService.getPlansForSelect(Number(getFarmId()));
+    console.log("000", plans);
+    
+    const formattedPlanOptions = plans.data.map((plan) => ({
+      value: plan.id,
+      label: plan.name,
     }));
-    setCropOptions(formattedCropOptions);
+    setPlanOptions(formattedPlanOptions);
   };
 
   const handleReporterChange = (userId: number) => {
@@ -84,38 +108,19 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           placeholder="Enter the task name"
           name={worklogFormFields.worklogName}
         />
-        <Flex vertical={false} gap={10}>
-          <FormFieldModal
-            label="Crop"
-            rules={RulesManager.getCropRules()}
-            type="select"
-            options={cropOptions}
-            name={worklogFormFields.worklogName}
-          />
-          <FormFieldModal
-            label="Land Plot"
-            rules={RulesManager.getLandPlotRules()}
-            type="select"
-            options={cropOptions}
-            name={worklogFormFields.landPlotId}
-          />
-        </Flex>
-        <Flex vertical={false} gap={10}>
-          <FormFieldModal
-            label="Type"
-            rules={RulesManager.getWorklogTypeRules()}
-            type="select"
-            options={cropOptions}
-            name={worklogFormFields.type}
-          />
-          <FormFieldModal
-            label="Process"
-            rules={RulesManager.getProcessRules()}
-            type="select"
-            options={cropOptions}
-            name={worklogFormFields.processId}
-          />
-        </Flex>
+        <FormFieldModal
+          label="Plan"
+          rules={RulesManager.getPlanNameRules()}
+          type="select"
+          name={worklogFormFields.planId}
+          options={planOptions}
+        />
+        <FormFieldModal
+          label="Date"
+          rules={RulesManager.getTimeRules()}
+          type="date"
+          name={worklogFormFields.dateWork}
+        />
         <FormFieldModal
           label="Time"
           rules={RulesManager.getTimeRules()}
@@ -129,27 +134,34 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           selectedReporter={selectedReporter} />
 
         <Modal
-          title="Assign Members"
-          open={isModalOpen}
-          onOk={() => setIsModalOpen(false)}
-          onCancel={() => setIsModalOpen(false)}
-        >
-          <Form.Item name={worklogFormFields.responsibleBy}>
-            <Select
-              mode="multiple"
-              style={{ width: "100%" }}
-              placeholder="Select employees"
-              value={selectedEmployees}
-              onChange={setSelectedEmployees}
-            >
-              {employee.map((employee) => (
-                <Select.Option key={employee.userId} value={employee.userId}>
-                  {employee.fullName}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Modal>
+                    title="Assign Members"
+                    open={isModalOpen}
+                    onOk={handleConfirmAssign}
+                    onCancel={() => setIsModalOpen(false)}
+                  >
+                    <Select
+                      mode="multiple"
+                      style={{ width: "100%" }}
+                      placeholder="Select employees"
+                      value={selectedIds}
+                      onChange={setSelectedIds}
+                      optionLabelProp="label"
+                    >
+                      {employee.map((emp) => (
+                        <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <img
+                              src={emp.avatarURL}
+                              alt={emp.fullName}
+                              style={{ width: 24, height: 24, borderRadius: "50%" }}
+                              crossOrigin="anonymous"
+                            />
+                            <span>{emp.fullName}</span>
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Modal>
         {/* <label className={style.createdBy}> <span>Created by: </span>{authData.fullName}</label> */}
       </Form>
     </ModalForm>
