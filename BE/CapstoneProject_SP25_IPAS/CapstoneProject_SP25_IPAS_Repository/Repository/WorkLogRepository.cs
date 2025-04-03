@@ -96,11 +96,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Nếu có truyền startDate và endDate, lọc theo khoảng ngày
             if (startDate.HasValue && endDate.HasValue)
             {
-                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value && wl.Schedule.CarePlan.FarmID == farmId && wl.Schedule.CarePlan.IsDeleted == false).ToList();
+                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value).ToList();
             }
 
             return query;
-
         }
 
         public async Task<List<WorkLog>> GetListWorkLogByListSchedules(List<CarePlanSchedule> schedules)
