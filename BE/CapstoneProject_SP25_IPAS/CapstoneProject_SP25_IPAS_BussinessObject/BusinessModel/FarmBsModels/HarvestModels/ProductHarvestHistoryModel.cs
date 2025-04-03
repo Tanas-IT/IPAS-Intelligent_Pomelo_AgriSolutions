@@ -44,5 +44,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         //public virtual MasterTypeModel MasterType { get; set; } = null!;
 
         //public virtual PlantModel? Plant { get; set; }
+        public ICollection<PlantLogHarvestModel> plantLogHarvest { get; set; } = new List<PlantLogHarvestModel>();
     }
 }

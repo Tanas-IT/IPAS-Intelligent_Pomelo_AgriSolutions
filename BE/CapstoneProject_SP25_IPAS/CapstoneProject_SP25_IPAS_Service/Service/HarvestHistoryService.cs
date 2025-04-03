@@ -346,7 +346,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (existingHarvest != null)
                         {
                             existingHarvest.ActualQuantity += plant.Quantity;
-                            existingHarvest.UpdateBy = checkUserExist.FullName;
+                            existingHarvest.UserID = checkUserExist.UserId;
                             existingHarvest.RecordDate = DateTime.Now;
                             updateList.Add(existingHarvest);
                         }
@@ -359,7 +359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 PlantId = plant.PlantId,
                                 Unit = existingProduct.Unit,
                                 ActualQuantity = plant.Quantity,
-                                RecordBy = checkUserExist.FullName,
+                                UserID = checkUserExist.UserId,
                                 RecordDate = DateTime.Now,
                             });
                         }
@@ -495,6 +495,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (harvest == null)
                 return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
             var mappedResult = _mapper.Map<HarvestHistoryModel>(harvest);
+            foreach (var product in mappedResult.ProductHarvestHistory)
+            {
+                product.plantLogHarvest = harvest.ProductHarvestHistories
+                    .Where(x => x.MasterTypeId == product.MasterTypeId && x.HarvestHistoryId == product.HarvestHistoryId && x.PlantId != null)
+                    .Select(x => new PlantLogHarvestModel
+                    {
+                        ProductHarvestHistoryId = x.ProductHarvestHistoryId,
+                        HarvestHistoryId = x.HarvestHistoryId,
+                        PlantId = x.PlantId,
+                        PlantName = x.Plant.PlantName,
+                        PlantCode = x.Plant.PlantCode,
+                        ActualQuantity = x.ActualQuantity
+                    }).ToList();
+            }
             return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
 
         }
@@ -659,7 +673,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (updateRequest.Quantity.HasValue && updateRequest.Quantity.Value > 0)
                             harvestHistory.ActualQuantity = updateRequest.Quantity;
-                        harvestHistory.RecordBy = checkUserExist.FullName;
+                        harvestHistory.UserID = checkUserExist.UserId;
                         harvestHistory.RecordDate = DateTime.Now;
                     }
                     else if (!harvestHistory.PlantId.HasValue) // la cac san pham can thu hoach
@@ -1108,20 +1122,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             switch (sortBy)
             {
                 case "harvesthistorycode":
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest))
-                                           : (x => x.OrderByDescending(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderBy(o => o.HarvestHistory.HarvestHistoryCode).ThenByDescending(c => c.HarvestHistory.DateHarvest));
                     break;
                 case "dateharvest":
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId))
-                                           : (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderBy(o => o.HarvestHistory.DateHarvest).ThenByDescending(c => c.HarvestHistoryId));
                     break;
                 case "cropname":
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest))
-                                           : (x => x.OrderByDescending(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderBy(o => o.HarvestHistory!.Crop.CropName).ThenByDescending(c => c.HarvestHistory.DateHarvest));
                     break;
                 case "productname":
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId))
-                                           : (x => x.OrderByDescending(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId))
+                                           : (x => x.OrderBy(o => o.Product!.MasterTypeName).ThenByDescending(c => c.HarvestHistoryId));
                     break;
                 case "actualquantity":
                     orderBy = isDescending
@@ -1129,8 +1143,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         : x => x.OrderBy(c => c.ActualQuantity).ThenByDescending(c => c.HarvestHistoryId);
                     break;
                 default:
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistory.DateHarvest))
-                                           : (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.HarvestHistory.DateHarvest))
+                                           : (x => x.OrderBy(o => o.HarvestHistory.DateHarvest));
                     break;
             }
         }

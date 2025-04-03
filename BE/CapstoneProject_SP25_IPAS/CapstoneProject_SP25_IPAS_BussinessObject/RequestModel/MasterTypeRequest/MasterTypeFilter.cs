@@ -22,6 +22,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeReque
         public DateTime? createDateTo { get; set; }
         [FromQuery(Name = "isActive")]
         public bool? isActive { get; set; }
+        [FromQuery(Name = "target")]
+        public string? Target { get; set; }
         //[FromQuery(Name = "isDelete")]
         //public bool? isDelete { get; set; }
     }

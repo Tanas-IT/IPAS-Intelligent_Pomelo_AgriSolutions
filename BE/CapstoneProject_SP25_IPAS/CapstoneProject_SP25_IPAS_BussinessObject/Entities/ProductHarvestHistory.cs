@@ -20,12 +20,13 @@ public partial class ProductHarvestHistory
     public double? QuantityNeed { get; set; }
     public double? ActualQuantity { get; set; }
 
-    public string? RecordBy { get; set; }
-    public string? UpdateBy { get; set; }
+    public int? UserID { get; set; }
+    //public string? UpdateBy { get; set; }
     public DateTime? RecordDate { get; set; }
     public virtual HarvestHistory HarvestHistory { get; set; } = null!;
 
     public virtual MasterType Product { get; set; } = null!;
 
     public virtual Plant? Plant { get; set; }
+    public virtual User? User { get; set; }
 }

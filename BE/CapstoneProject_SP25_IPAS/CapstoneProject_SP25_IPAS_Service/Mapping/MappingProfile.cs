@@ -343,8 +343,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<CarePlanSchedule, CarePlanScheduleModel>()
                .ForMember(dest => dest.WorkLogs, opt => opt.MapFrom(src => src.WorkLogs))
-        //       .ForMember(dest => dest.WorkLogs, opt => opt.MapFrom(src =>
-        //src.WorkLogs ?? new List<WorkLog>())) // Tránh null
+                //       .ForMember(dest => dest.WorkLogs, opt => opt.MapFrom(src =>
+                //src.WorkLogs ?? new List<WorkLog>())) // Tránh null
                 .ReverseMap();
 
             CreateMap<WorkLog, WorkLogHarvestModel>()
@@ -354,19 +354,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<ProductHarvestHistory, ProductHarvestHistoryModel>()
                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.MasterTypeName))
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
-               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
-                .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant.PlantIndex))
-                .ForMember(dest => dest.LandRowIndex, opt => opt.MapFrom(src => src.Plant.LandRow.RowIndex))
-                .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant.LandRow.LandPlot.LandPlotName))
+               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant!.PlantName))
+                .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant!.PlantIndex))
+                .ForMember(dest => dest.LandRowIndex, opt => opt.MapFrom(src => src.Plant.LandRow!.RowIndex))
+                .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant!.LandRow.LandPlot!.LandPlotName))
+                //.ForMember(dest => dest.plantLogHarvest, opt => opt.MapFrom(src => src.Ignore()))
                 .ReverseMap();
 
             CreateMap<ProductHarvestHistory, PlantLogHarvestModel>()
               .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.MasterTypeName))
               .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
               .ForMember(dest => dest.PlantName, opt => opt.MapFrom(src => src.Plant.PlantName))
+              .ForMember(dest => dest.PlantCode, opt => opt.MapFrom(src => src.Plant.PlantCode))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.HarvestHistory.Crop.CropName))
                .ForMember(dest => dest.HarvestDate, opt => opt.MapFrom(src => src.HarvestHistory.DateHarvest))
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
+              .ForMember(dest => dest.RecordBy, opt => opt.MapFrom(src => src.User.FullName))
+              .ForMember(dest => dest.AvartarRecord, opt => opt.MapFrom(src => src.User.AvatarURL))
+
                .ReverseMap();
 
             CreateMap<Order, OrderModel>()
