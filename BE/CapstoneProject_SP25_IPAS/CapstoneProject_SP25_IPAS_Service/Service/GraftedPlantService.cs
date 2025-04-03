@@ -517,7 +517,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && !x.IsDead == false;
+                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && x.IsDead == false;
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
                 var plantInPlot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
