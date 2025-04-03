@@ -64,4 +64,5 @@ public partial class User
     public virtual ICollection<Report> Questioners { get; set; } = new List<Report>();
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
     public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
+    public virtual ICollection<ProductHarvestHistory> ProductHarvestHistories { get; set; } = new List<ProductHarvestHistory>();
 }

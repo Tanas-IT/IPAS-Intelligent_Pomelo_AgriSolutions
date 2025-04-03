@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
     {
         public int ProductHarvestHistoryId { get; set; }
         public int? PlantId { get; set; }
+        public string? PlantCode { get; set; }
         public string? PlantName { get; set; }
         public string? Unit { get; set; }
 
@@ -18,7 +19,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         //public double? QuantityNeed { get; set; }
         public double? ActualQuantity { get; set; }
         public string? RecordBy { get; set; }
-        public string? UpdateBy { get; set; }
+        public string? AvartarRecord { get; set; }
+        public int? UserID { get; set; }
+        //public string? UpdateBy { get; set; }
         public DateTime? RecordDate { get; set; }
         public int HarvestHistoryId { get; set; }
         public string? HarvestHistoryCode { get; set; }

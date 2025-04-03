@@ -40,8 +40,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 query = query.Where(filter);
             }
             query = query.Include(x => x.Crop)
-                .Include(x => x.ProductHarvestHistories.Where(x => x.PlantId == null))
+                .Include(x => x.ProductHarvestHistories)
                 .ThenInclude(x => x.Product)
+                .Include(x => x.ProductHarvestHistories)
+                .ThenInclude(x => x.Plant)
+                .ThenInclude(x => x.LandRow)
                 .Include(x => x.CarePlanSchedules)
                 .ThenInclude(x => x.WorkLogs)
                 .ThenInclude(x => x.UserWorkLogs)

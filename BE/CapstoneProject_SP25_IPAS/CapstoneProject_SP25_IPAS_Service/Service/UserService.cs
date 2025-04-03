@@ -1357,7 +1357,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
                                     string refreshToken = await GenerateRefreshToken(email, null, tokenValidityInDays, -1, -1);
 
-
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(jwtToken);
                                     await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
                                     {
                                         UserId = existUser.UserId,

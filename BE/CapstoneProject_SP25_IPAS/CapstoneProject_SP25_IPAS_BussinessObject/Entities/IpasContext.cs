@@ -457,7 +457,10 @@ public partial class IpasContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ProductHarvestHistory_Plant");
 
-
+            entity.HasOne(d => d.User).WithMany(p => p.ProductHarvestHistories)
+                .HasForeignKey(d => d.UserID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("ProductHarvest_User_FK");
         });
 
         modelBuilder.Entity<LandPlot>(entity =>

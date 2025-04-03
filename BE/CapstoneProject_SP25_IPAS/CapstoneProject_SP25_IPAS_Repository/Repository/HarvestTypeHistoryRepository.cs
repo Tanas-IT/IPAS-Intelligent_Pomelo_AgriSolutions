@@ -73,7 +73,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             query = query.Include(h => h.Plant)
                 .Include(h => h.HarvestHistory)
                 .ThenInclude(h => h.Crop)
-                .Include(h => h.Product);
+                .Include(h => h.Product)
+                .Include(x => x.User);
 
             if (orderBy != null)
             {

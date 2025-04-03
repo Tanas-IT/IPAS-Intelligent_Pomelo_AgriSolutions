@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -907,6 +908,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
                     await DeletelanByPlantId(plantUpdate.PlantId);
+                    await UpdateGraftedPlantsIfParentDead(plantUpdate.PlantId);
                     // Save the changes
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -963,13 +965,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByPlantId(plantId);
-                foreach(var planDelete in getPlanByPlantId)
+                foreach (var planDelete in getPlanByPlantId)
                 {
+                    if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
+                        continue;
                     planDelete.IsActive = false;
                     planDelete.IsDeleted = false;
                     planDelete.Status = "Stopped";
                     var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
-                    if(getWorkLogInFuture != null && getWorkLogInFuture.Any())
+                    if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
                     {
                         foreach (var deleteWorkLog in getWorkLogInFuture)
                         {
@@ -979,13 +983,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
-                 _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
+                _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
                 return true;
             }
             catch (Exception ex)
             {
 
                 throw new Exception(ex.Message);
+            }
+        }
+        private async Task UpdateGraftedPlantsIfParentDead(int plantId)
+        {
+            var graftedPlants = await _unitOfWork.GraftedPlantRepository
+                .GetAllNoPaging(gp => gp.MotherPlantId == plantId && gp.IsCompleted == false && gp.IsDeleted == false);
+
+            if (graftedPlants != null && graftedPlants.Any())
+            {
+                foreach (var graftedPlant in graftedPlants)
+                {
+                    graftedPlant.IsDead = true;
+                }
+
+                _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);
+                //await _unitOfWork.SaveAsync();
             }
         }
     }

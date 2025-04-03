@@ -46,8 +46,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (!cropCreateRequest.FarmId.HasValue || cropCreateRequest.FarmId <= 0)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                    if (cropCreateRequest.EndDate <= DateTime.Now)
+                    if (cropCreateRequest.StartDate <= DateTime.Now)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
+                    //if (cropCreateRequest.EndDate <= DateTime.Now)
+                    //    return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
                     if (cropCreateRequest.EndDate < cropCreateRequest.StartDate)
                         return new BusinessResult(400, "End date of crop must later than start date");
                     if (!cropCreateRequest.LandPlotId.Any())
@@ -419,7 +421,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     // Kiểm tra xem crop có tồn tại không
-                    var cropEntityUpdate = await _unitOfWork.CropRepository.GetByID(cropId);
+                    var cropEntityUpdate = await _unitOfWork.CropRepository.GetByCondition(x => x.CropId == cropId);
 
                     if (cropEntityUpdate == null)
                     {
@@ -429,8 +431,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Cannot delete Crop has Start");
                     bool isUsed = await _unitOfWork.HarvestHistoryRepository
                 .AnyAsync(hh => hh.CropId == cropId) ||
-                await _unitOfWork.LandPlotCropRepository
-                .AnyAsync(lpc => lpc.CropID == cropId) ||
                 await _unitOfWork.PlanRepository
                 .AnyAsync(p => p.CropId == cropId);
                     if (isUsed)
@@ -440,8 +440,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Cập nhật các thuộc tính từ model nếu giá trị không null hoặc mặc định
                     cropEntityUpdate.IsDeleted = true;
                     _unitOfWork.CropRepository.Update(cropEntityUpdate);
+                    var landplotCrop = await _unitOfWork.LandPlotCropRepository.GetAllNoPaging(x => x.CropID == cropId);
+                    _unitOfWork.LandPlotCropRepository.RemoveRange(landplotCrop);
                     int result = await _unitOfWork.SaveAsync();
-
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
