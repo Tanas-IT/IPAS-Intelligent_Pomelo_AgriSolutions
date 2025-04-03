@@ -20,7 +20,7 @@ const BackButton: React.FC<BackButtonProps> = ({
 
   const handlePress = () => {
     if (targetScreen === ROUTE_NAMES.MAIN.MAIN_TABS) {
-      // Xử lý đặc biệt cho Main screen
+      // Xử lý cho Main screen
       navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, { 
         screen: ROUTE_NAMES.MAIN.MAIN_TABS,
         ...(targetParams || {})

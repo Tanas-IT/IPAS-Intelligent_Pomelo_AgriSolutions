@@ -19,10 +19,11 @@ export type RootStackParamList = {
   };
   [ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL]: { worklogId: string };
   [ROUTE_NAMES.WORKLOG.ADD_NOTE_WORKLOG]: { 
-    worklogId: string;
-    historyId?: string;
+    worklogId: number;
+    historyId?: number;
     initialData?: WorklogNoteFormData;
   };
+  [ROUTE_NAMES.PEST_DETECTION.PEST_DETECTION]: undefined;
 };
 
 export type MainTabParamList = {
@@ -30,7 +31,7 @@ export type MainTabParamList = {
   Worklog: undefined;
   Scan: undefined;
   ChatAI: undefined;
-  PestDetection: undefined;
+  SplashScreen: undefined;
 };
 
 export type DrawerParamList = {
@@ -47,4 +48,4 @@ export type MainTabNavigationProp = {
 
 export type AuthNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export type PlantDetailRouteProp = RouteProp<RootStackParamList, typeof ROUTE_NAMES.PLANT.PLANT_DETAIL>;
-export type WorklogDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'WorklogDetail'>;
+export type WorklogDetailScreenProps = NativeStackScreenProps<RootStackParamList, typeof ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL>;

@@ -4,8 +4,8 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { RootStackNavigationProp } from '@/navigation/Types';
-import RollingGrapefruit from 'components/RollingGrapefruit';
 import { ROUTE_NAMES } from '@/navigation/RouteNames';
+import { styles } from './ScanScreen.styles';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -72,7 +72,6 @@ export default function ScanScreen() {
       <View style={styles.overlay}>
         <View style={styles.scanFrame} />
       </View>
-      {!scanned && <RollingGrapefruit />}
       {scanned && (
         <Button
           title={'Tap to Scan Again'}
@@ -83,23 +82,3 @@ export default function ScanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanFrame: {
-    width: 250,
-    height: 250,
-    borderWidth: 2,
-    borderColor: '#fff',
-    borderRadius: 10,
-    backgroundColor: 'transparent',
-  },
-});

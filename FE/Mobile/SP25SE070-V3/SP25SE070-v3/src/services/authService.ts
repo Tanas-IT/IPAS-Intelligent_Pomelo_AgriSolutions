@@ -3,6 +3,7 @@ import axiosAuth from '../api/axiosAuth';
 import { useAuthStore } from '@/store/authStore';
 import { useFarmStore } from '@/store/farmStore';
 import {
+  LoginPayload,
   LoginResponse,
   OtpResponse,
   RegisterRequest,
@@ -25,9 +26,13 @@ export const loginGoogle = async (googleToken: string): Promise<ApiResponse<Logi
   return apiResponse;
 };
 
-export const login = async (email: string, password: string): Promise<ApiResponse<LoginResponse>> => {
-  const res = await axiosNoAuth.post('login', { email, password });
+export const login = async (payload: LoginPayload): Promise<ApiResponse<LoginResponse>> => {
+  console.log('hhhhhhhh');
+  
+  const res = await axiosNoAuth.post('login', payload);
   const apiResponse = res.data as ApiResponse<LoginResponse>;
+  console.log('api', apiResponse);
+  
   if (apiResponse.statusCode === 200) {
     useAuthStore.getState().setAuth(apiResponse.data);
     await AsyncStorage.setItem('fullName', apiResponse.data.fullname);

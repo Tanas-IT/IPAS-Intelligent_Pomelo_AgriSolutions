@@ -20,4 +20,8 @@ export const ROUTE_NAMES = {
         ADD_NOTE_WORKLOG: "NoteFormWorklog"
     },
     NOTIFICATION: "Notification",
+    PEST_DETECTION: {
+        PEST_DETECTION: "PestDetection",
+        SPLASH_SCREEN: "SplashScreen"
+    }
 } as const;

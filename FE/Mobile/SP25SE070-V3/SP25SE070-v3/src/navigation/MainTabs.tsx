@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import WorklogScreen from '@/screens/Worklog/WorklogScreen';
+import WorklogScreen from '@/screens/Worklog/WorklogScreen/WorklogScreen';
 import ScanScreen from '@/screens/Scan/ScanScreen';
 import { MainTabParamList } from './Types';
 import AIScreen from '@/screens/AI/AI';
@@ -10,7 +10,10 @@ import PestDetectionScreen from '@/screens/PestDetection/PestDetection';
 import CustomIcon from 'components/CustomIcon';
 import { HeaderBackButton } from '@react-navigation/elements';
 import { DrawerActions } from '@react-navigation/native';
-import EmployeeHomeScreen from '@/screens/Home/EmployeeHomeScreen';
+import EmployeeHomeScreen from '@/screens/Home/EmployeeHomeScreen/EmployeeHomeScreen';
+import theme from '@/theme';
+import SplashScreen from '@/screens/PestDetection/SplashScreen/SplashScreen';
+import ManagerHomeScreen from '@/screens/Home/ManagerHomeScreen/ManagerHomeScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -26,7 +29,7 @@ export default function MainTabs() {
             tintColor="#326E2F"
           />
         ),
-        headerTitle: '', // Ẩn title mặc định
+        headerTitle: '',
         headerShown: true,
         tabBarIcon: ({ focused, color, size }) => {
           if (route.name === 'Scan') {
@@ -41,20 +44,21 @@ export default function MainTabs() {
             Home: { name: focused ? 'home' : 'home-outline', type: 'MaterialCommunityIcons' },
             Worklog: { name: focused ? 'calendar' : 'calendar-outline', type: 'MaterialCommunityIcons' },
             ChatAI: { name: focused ? 'chatbubbles' : 'chatbubbles-outline', type: 'Ionicons' },
-            PestDetection: { name: focused ? 'bug' : 'bug-outline', type: 'MaterialCommunityIcons' },
+            SplashScreen: { name: focused ? 'bug' : 'bug-outline', type: 'MaterialCommunityIcons' },
           } as const;
 
           const icon = icons[route.name] || { name: 'help-circle-outline', type: 'MaterialCommunityIcons' };
 
           return <CustomIcon name={icon.name} type={icon.type} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#326E2F',
+        tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: 'gray',
       })}
     >
       <Tab.Screen
         name="Home"
-        component={EmployeeHomeScreen}
+        // component={EmployeeHomeScreen}
+        component={ManagerHomeScreen}
         options={{
           tabBarLabel: 'Home',
           headerShown: false
@@ -96,9 +100,9 @@ export default function MainTabs() {
           tabBarLabel: 'Chat AI',
           headerShown: false
         }} />
-      <Tab.Screen
-        name="PestDetection"
-        component={PestDetectionScreen}
+        <Tab.Screen
+        name="SplashScreen"
+        component={SplashScreen}
         options={{
           tabBarLabel: 'Detection',
           headerShown: false
@@ -109,7 +113,7 @@ export default function MainTabs() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -130,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scanButton: {
-    backgroundColor: '#326E2F',
+    backgroundColor: theme.colors.primary,
     width: 70,
     height: 70,
     borderRadius: 35,

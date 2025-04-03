@@ -19,12 +19,25 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.laggg.SP25SE070"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/BalsamiqSans-Regular.ttf"
+          ]
+        }
+      ],
       [
         "expo-camera",
         {
@@ -34,6 +47,11 @@
         }
       ],
       "expo-video"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4af581fe-afec-49db-92c6-cd9b68a6dd2f"
+      }
+    }
   }
 }

@@ -4,10 +4,13 @@ import { DrawerParamList, RootStackNavigationProp } from './Types';
 import MainTabs from './MainTabs';
 import FarmPickerScreen from '@/screens/FarmPicker/FarmPickerScreen';
 import { CustomDrawerContent } from './CustomDrawerContent';
-import ProfileScreen from '@/screens/ProfileScreen';
+import ProfileScreen from '@/screens/Profile/ProfileScreen';
 import { Notification } from './components/Notification';
 import { ROUTE_NAMES } from './RouteNames';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
+import CustomIcon from 'components/CustomIcon';
+import theme from '@/theme';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
@@ -24,9 +27,10 @@ export default function DrawerNavigation() {
           backgroundColor: '#f5f5f5',
         },
         swipeEnabled: true,
+        headerTintColor: theme.colors.primary,
         headerRight: () => (
           <Notification 
-            unreadCount={5} // Số lượng thông báo chưa đọc
+            unreadCount={5}
             onPress={() => navigation.navigate(ROUTE_NAMES.NOTIFICATION)}
           />
         ),

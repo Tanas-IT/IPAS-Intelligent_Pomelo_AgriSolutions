@@ -1,13 +1,11 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Config from 'react-native-config';
 
-const API_HOST = Config.API_HOST;
-const API_PORT = Config.API_PORT;
-const API_DEVELOPMENT = Config.API_DEVELOPMENT;
-const API_DEPLOY = Config.API_DEPLOY;
+const API_HOST = process.env.EXPO_PUBLIC_API_HOST;
+const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
-const BASE_URL = API_DEVELOPMENT === "true" ? `${API_HOST}:${API_PORT}/ipas` : `${API_DEPLOY}`;
+
+const BASE_URL = `${API_HOST}:${API_PORT}/ipas`;
 
 const createAxiosInstance = (contentType: string): AxiosInstance => {
   const instance = axios.create({

@@ -12,6 +12,8 @@ import {
 import CustomIcon from 'components/CustomIcon';
 import { PlantGrowthHistory } from '@/types/plant';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import TextCustom from 'components/TextCustom';
+import theme from '@/theme';
 
 interface ExtendedPlantGrowthHistory extends PlantGrowthHistory {
   images?: string[];
@@ -52,8 +54,8 @@ const VideoThumbnail: React.FC<{ videoUrl: string; onSelect: (url: string) => vo
 
 const NoteDetailModal: React.FC<NoteDetailModalProps> = ({ visible, history, onClose }) => {
   const flatListRef = useRef<FlatList>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Index cho carousel hình ảnh
-  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null); // Video fullscreen
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   const processResources = (resources?: string[]) => {
     if (!resources) return { images: [], videos: [] };
@@ -94,7 +96,6 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
 
   return (
     <>
-      {/* Modal chính */}
       <Modal
         visible={visible && !selectedVideoUrl}
         transparent
@@ -103,7 +104,7 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
       >
         <TouchableOpacity style={styles.modalOverlay} onPress={onClose}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Note Details</Text>
+            <TextCustom style={styles.modalTitle}>Note Details</TextCustom>
 
             {/* Carousel */}
             {images.length > 0 ? (
@@ -116,7 +117,7 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   <CustomIcon
                     name="chevron-left"
                     size={30}
-                    color={currentImageIndex === 0 ? '#ccc' : '#064944'}
+                    color={currentImageIndex === 0 ? '#ccc' : theme.colors.primary}
                     type="MaterialCommunityIcons"
                   />
                 </TouchableOpacity>
@@ -148,18 +149,18 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   <CustomIcon
                     name="chevron-right"
                     size={30}
-                    color={currentImageIndex === images.length - 1 ? '#ccc' : '#064944'}
+                    color={currentImageIndex === images.length - 1 ? '#ccc' : theme.colors.primary}
                     type="MaterialCommunityIcons"
                   />
                 </TouchableOpacity>
               </View>
             ) : (
-              <Text style={styles.noMediaText}>No images available</Text>
+              <TextCustom style={styles.noMediaText}>No images available</TextCustom>
             )}
 
             {/* Video section */}
             <View style={styles.videoSection}>
-              <Text style={styles.sectionTitle}>Videoss</Text>
+              <TextCustom style={styles.sectionTitle}>Videoss</TextCustom>
               {videos.length > 0 ? (
                 <FlatList
                   data={videos}
@@ -170,18 +171,18 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   contentContainerStyle={styles.videoList}
                 />
               ) : (
-                <Text style={styles.noMediaText}>No videos available</Text>
+                <TextCustom style={styles.noMediaText}>No videos available</TextCustom>
               )}
             </View>
 
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Close</Text>
+              <TextCustom style={styles.closeButtonText}>Close</TextCustom>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
 
-      {/* fullscreen cho video */}
+      {/* Fullscreen cho video */}
       {selectedVideoUrl && (
         <Modal
           visible={!!selectedVideoUrl}
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#064944',
+    color: theme.colors.primary,
     marginBottom: 15,
   },
   carouselContainer: {
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#064944',
+    color: theme.colors.primary,
     marginBottom: 10,
   },
   videoList: {
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   closeButtonText: {
-    color: '#064944',
+    color: theme.colors.primary,
     fontSize: 16,
     fontWeight: '500',
   },

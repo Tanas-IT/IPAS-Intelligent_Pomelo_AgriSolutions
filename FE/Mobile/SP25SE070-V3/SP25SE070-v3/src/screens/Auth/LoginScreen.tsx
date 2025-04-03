@@ -11,6 +11,10 @@ import { VStack } from "native-base";
 import { AuthNavigationProp } from "@/navigation/Types";
 import { ROUTE_NAMES } from "@/navigation/RouteNames";
 import { authService } from "@/services";
+import TextCustom from "components/TextCustom";
+import theme from "@/theme";
+import CustomTextInput from "components/CustomTextInput";
+import { styles } from "./LoginScreen.styles";
 
 type FormData = {
   email: string;
@@ -18,8 +22,6 @@ type FormData = {
 };
 
 export const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation<AuthNavigationProp>();
@@ -39,71 +41,44 @@ export const LoginScreen = () => {
     setIsLoading(true);
     try {
       console.log("Login data:", data);
+      const res = await authService.login(data);
+      console.log("res", res);
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       Toast.show({
         type: "success",
-        text1: "Đăng nhập thành công",
+        text1: "Login successfully!",
       });
 
-      navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, { 
-        screen: ROUTE_NAMES.MAIN.MAIN_TABS 
+      navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
+        screen: ROUTE_NAMES.MAIN.MAIN_TABS
       });
     } catch (error) {
       Toast.show({
         type: "error",
-        text1: "Đăng nhập thất bại",
+        text1: "Login failed",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // const onSubmit = async (data: FormData) => {
-  //   setIsLoading(true);
-  //   try {
-  //     console.log("Login data:", data);
-      
-  // const response = await authService.login(data.email, data.password);
-  //     if (response.statusCode === 200) {
-  //       Toast.show({
-  //         type: 'success',
-  //         text1: 'Đăng nhập thành công',
-  //       });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: response.message || 'Đăng nhập thất bại',
-  //       });
-  //     }
-  //   } catch (error) {
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: 'Đã xảy ra lỗi khi đăng nhập',
-  //     });
-  //     console.error('Login error:', error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   return (
     <View style={styles.container}>
       <LinearGradient
-        // colors={['#D3F0E5', '#FEE69C']}
-        // colors={['#4ca784', '#064944']}
-        colors={['#BCD379', '#064944']}
+        colors={[theme.colors.secondary, theme.colors.primary]}
         style={styles.headerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >
         <SafeAreaView style={styles.hello}>
-          <Text variant="headlineLarge" style={styles.header}>
+          <TextCustom style={styles.header}>
             Hello
-          </Text>
-          <Text variant="headlineMedium" style={styles.subHeader}>
+          </TextCustom>
+          <TextCustom style={styles.subHeader}>
             Sign in!
-          </Text>
+          </TextCustom>
         </SafeAreaView>
       </LinearGradient>
 
@@ -118,10 +93,10 @@ export const LoginScreen = () => {
                 field: { onChange, onBlur, value },
                 fieldState: { error, isDirty } }) => (
                 <View style={styles.inputContainer}>
-                  <Text variant="labelLarge" style={styles.label}>
+                  <TextCustom style={styles.label}>
                     Gmaill
-                  </Text>
-                  <TextInput
+                  </TextCustom>
+                  <CustomTextInput
                     mode="flat"
                     underlineColor="#064944"
                     activeUnderlineColor="#064944"
@@ -137,35 +112,35 @@ export const LoginScreen = () => {
                       alignSelf: 'flex-start',
                       flex: 1
                     }}
+                    left={<TextInput.Icon icon="account" size={20} color={theme.colors.primary} />}
                     right={
                       isDirty && !error && value && /\S+@\S+\.\S+/.test(value) ? (
                         <TextInput.Icon
                           icon="check-circle"
-                          color="#4CAF50"
+                          color={theme.colors.primary}
                           size={20}
                         />
                       ) : null
                     }
                   />
                   {errors.email && (
-                    <Text style={styles.errorText}>
+                    <TextCustom style={styles.errorText}>
                       {errors.email.message}
-                    </Text>
+                    </TextCustom>
                   )}
                 </View>
               )}
             />
 
-            {/* Password Input */}
             <Controller
               control={control}
               name="password"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View style={styles.inputContainer}>
-                  <Text variant="labelLarge" style={styles.label}>
+                  <TextCustom style={styles.label}>
                     Password
-                  </Text>
-                  <TextInput
+                  </TextCustom>
+                  <CustomTextInput
                     mode="flat"
                     underlineColor="#064944"
                     activeUnderlineColor="#064944"
@@ -177,34 +152,33 @@ export const LoginScreen = () => {
                     secureTextEntry={!showPassword}
                     style={styles.input}
                     outlineStyle={styles.inputOutline}
-                    // left={<TextInput.Icon icon="lock" size={20} />}
+                    left={<TextInput.Icon icon="lock" size={20} color={theme.colors.primary} />}
                     right={
                       <TextInput.Icon
                         icon={showPassword ? "eye-off" : "eye"}
                         onPress={() => setShowPassword(!showPassword)}
+                        color={theme.colors.primary}
                       />
                     }
                     error={!!errors.password}
                   />
                   {errors.password && (
-                    <Text style={styles.errorText}>
+                    <TextCustom style={styles.errorText}>
                       {errors.password.message}
-                    </Text>
+                    </TextCustom>
                   )}
                 </View>
               )}
             />
           </VStack>
 
-          {/* Forgot Password */}
           <Pressable
             style={styles.forgotPassword}
             onPress={() => console.log("Forgot password pressed")}
           >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            <TextCustom style={styles.forgotPasswordText}>Forgot password?</TextCustom>
           </Pressable>
 
-          {/* Sign In Button */}
           <Pressable
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading}
@@ -214,8 +188,7 @@ export const LoginScreen = () => {
             ]}
           >
             <LinearGradient
-              // colors={['#D3F0E5', '#FEE69C']}
-              colors={['#BCD379', '#064944']}
+              colors={[theme.colors.secondary, theme.colors.primary]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.gradientBackground}
@@ -223,16 +196,15 @@ export const LoginScreen = () => {
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.gradientButtonText}>SIGN IN</Text>
+                <TextCustom style={styles.gradientButtonText}>SIGN IN</TextCustom>
               )}
             </LinearGradient>
           </Pressable>
 
-          {/* Sign Up Link */}
           <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have account?</Text>
+            <TextCustom style={styles.signUpText}>Don't have account?</TextCustom>
             <Pressable onPress={() => console.log("Sign up pressed")}>
-              <Text style={styles.signUpLink}>Sign up</Text>
+              <TextCustom style={styles.signUpLink}>Sign up</TextCustom>
             </Pressable>
           </View>
         </View>
@@ -241,122 +213,6 @@ export const LoginScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  headerGradient: {
-    paddingTop: 50,
-    paddingBottom: 30,
-    paddingHorizontal: 24,
-  },
-  hello: {
-    marginBottom: 30,
-    marginTop: 30,
-    marginLeft: 10
-  },
-  header: {
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: 'white',
-  },
-  subHeader: {
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: 'white',
-  },
-  formContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-    marginTop: -35, // Kéo lên để che phần bo tròn
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    paddingTop: 30,
-  },
-  formContent: {
-    paddingHorizontal: 24,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    marginBottom: 0,
-    marginLeft: 17,
-    color: '#173F15',
-    fontWeight: "600",
-    fontSize: 16
-  },
-  input: {
-    backgroundColor: "white",
-    padding: -5
-  },
-  inputOutline: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 0
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 24,
-    color: '#000000'
-  },
-  forgotPasswordText: {
-    color: "#064944",
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  signInButton: {
-    borderRadius: 8,
-    paddingVertical: 8,
-    marginBottom: 16,
-    backgroundColor: "#4285F4",
-  },
-  buttonLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-  },
-  signUpContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  signUpText: {
-    fontSize: 14,
-    marginRight: 4,
-    color: '#666',
-  },
-  signUpLink: {
-    fontSize: 14,
-    color: "#064944",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    marginTop: 4,
-    marginLeft: 12,
-    fontStyle: 'italic',
-  },
-  gradientButton: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 16,
-    marginTop: 20
-  },
-  gradientBackground: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gradientButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+
 
 export default LoginScreen;

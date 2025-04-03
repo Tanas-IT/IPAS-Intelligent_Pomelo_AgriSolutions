@@ -5,15 +5,15 @@ import MainTabs from "./MainTabs";
 import DrawerNavigation from "./DrawerNavigation";
 import { ROUTE_NAMES } from "./RouteNames";
 import PlantDetailScreen from "@/screens/Plant/PlantDetail/PlantDetailScreen";
-import AddNoteScreen from "@/screens/Plant/PlantDetail/AddNoteScreen";
-import NoteFormScreen from "@/screens/Plant/PlantDetail/NoteFormScreen";
+import NoteFormScreen from "@/screens/Plant/PlantDetail/NoteFormScreen/NoteFormScreen";
 import { useAuthStore } from "@/store/authStore";
 import { useFarmStore } from "@/store/farmStore";
 import FarmPickerScreen from "@/screens/FarmPicker/FarmPickerScreen";
-import WorklogDetailScreen from "@/screens/Worklog/WorklogDetailScreen";
+import WorklogDetailScreen from "@/screens/Worklog/WorklogDetailScreen/WorklogDetailScreen";
 import { RootStackParamList } from "./Types";
 import NotificationScreen from "@/screens/Notification/Notification";
-import AddNoteWorklogScreen from "@/screens/Worklog/AddNoteWorklogScreen";
+import AddNoteWorklogScreen from "@/screens/Worklog/AddNoteWorklogScreen/AddNoteWorklogScreen";
+import PestDetectionScreen from "@/screens/PestDetection/PestDetection";
 
 // const Stack = createNativeStackNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -51,6 +51,10 @@ export default function AppNavigation() {
         <Stack.Screen
         name={ROUTE_NAMES.WORKLOG.ADD_NOTE_WORKLOG}
         component={AddNoteWorklogScreen}
+        options={{ headerShown: false }} />
+        <Stack.Screen
+        name={ROUTE_NAMES.PEST_DETECTION.PEST_DETECTION}
+        component={PestDetectionScreen}
         options={{ headerShown: false }} />
       {/* {!accessToken ? (
           <Stack.Screen

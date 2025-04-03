@@ -1,4 +1,5 @@
 // components/plant/PlantBasicInfo.tsx
+import TextCustom from 'components/TextCustom';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -19,22 +20,22 @@ const PlantBasicInfo: React.FC<PlantBasicInfoProps> = ({
 }) => {
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Basic Information</Text>
+            <TextCustom style={styles.sectionTitle}>Basic Information</TextCustom>
             
             <View style={styles.infoRow}>
-                <Text style={styles.label}>Planting Date:</Text>
-                <Text style={styles.value}>{new Date(plantingDate).toLocaleDateString()}</Text>
+                <TextCustom style={styles.label}>Planting Date:</TextCustom>
+                <TextCustom style={styles.value}>{new Date(plantingDate).toLocaleDateString()}</TextCustom>
             </View>
             
             <View style={styles.infoRow}>
-                <Text style={styles.label}>Location:</Text>
-                <Text style={styles.value}>{landPlotName}, Row {rowIndex}</Text>
+                <TextCustom style={styles.label}>Location:</TextCustom>
+                <TextCustom style={styles.value}>{landPlotName}, Row {rowIndex}</TextCustom>
             </View>
             
             {description && (
                 <View style={styles.infoRow}>
-                    <Text style={styles.label}>Description:</Text>
-                    <Text style={styles.value}>{description}</Text>
+                    <TextCustom style={styles.label}>Description:</TextCustom>
+                    <TextCustom style={styles.value}>{description}</TextCustom>
                 </View>
             )}
             

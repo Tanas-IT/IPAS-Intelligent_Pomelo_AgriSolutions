@@ -4,28 +4,35 @@ import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback } from "react";
 import * as SplashScreen from "expo-splash-screen";
-import { NativeBaseProvider, theme } from "native-base";
+import { extendTheme, NativeBaseProvider, theme } from "native-base";
 import Toast from "react-native-toast-message";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
-import { PaperProvider } from "react-native-paper";
+import { DefaultTheme, PaperProvider } from "react-native-paper";
+
+const themeCustome = {
+  ...DefaultTheme,
+  fonts: {
+    ...DefaultTheme.fonts,
+    regular: {
+      fontFamily: 'BalsamiqSans-Regular',
+      fontWeight: 'normal',
+    },
+    medium: {
+      fontFamily: 'BalsamiqSans-Regular',
+      fontWeight: 'normal',
+    },
+  },
+};
 
 export default function MainApp() {
   const [isAppReady, setIsAppReady] = React.useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
-    "Balsamiq-Sans": require("../assets/fonts/BalsamiqSans-Regular.ttf"),
+    "BalsamiqSans-Regular": require("../assets/fonts/BalsamiqSans-Regular.ttf"),
+    "BalsamiqSans-Bold": require("../assets/fonts/BalsamiqSans-Bold.ttf"),
+    "BalsamiqSans-Italic": require("../assets/fonts/BalsamiqSans-Italic.ttf"),
   });
-
-  //   useEffect(() => {
-  //     if (fontsLoaded) {
-  //       SplashScreen.hideAsync();
-  //     }
-  //   }, [fontsLoaded]);
-
-  //   if (!fontsLoaded) {
-  //     return <View><Text>Loading Fonts...</Text></View>;
-  //   }
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -50,7 +57,7 @@ export default function MainApp() {
       }}
     >
       <NativeBaseProvider theme={theme}>
-        <PaperProvider>
+        <PaperProvider theme={themeCustome}>
           <NavigationContainer>
             <StatusBar style="auto" />
             {isAppReady && <AppNavigation />}

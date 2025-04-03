@@ -6,10 +6,11 @@ import CustomIcon from 'components/CustomIcon';
 import { avt } from 'assets/images';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ROUTE_NAMES } from './RouteNames';
+import theme from '@/theme';
+import TextCustom from 'components/TextCustom';
 
 export function CustomDrawerContent(props: DrawerContentComponentProps) {
   const theme = useTheme();
-  const { colors } = theme;
   const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
 
   const handleLogout = () => {
@@ -17,9 +18,8 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
   };
 
   const menuItems = [
-    { label: 'Farm Picker', icon: 'barn', screen: 'FarmPicker' },
-    { label: 'Scan QR Code', icon: 'qrcode-scan', screen: 'Scan' },
-    { label: 'Notifications', icon: 'bell', screen: 'Notifications' },
+    { label: 'Farm Picker', icon: 'barn', screen: ROUTE_NAMES.FARM.FARM_PICKER },
+    { label: 'Notifications', icon: 'bell', screen: ROUTE_NAMES.NOTIFICATION },
     { label: 'Profile', icon: 'account', screen: 'Profile' },
     { label: 'Settings', icon: 'cog', screen: 'Settings' }
   ];
@@ -37,20 +37,19 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
             <Image source={avt} style={styles.avatar} />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.userName}>Jenna Madelyyyvvv</Text>
+            <TextCustom style={styles.userName}>Jenna Madelyyyvvv</TextCustom>
             <View style={styles.userRole}>
               <CustomIcon name="user" type="FontAwesome" size={16} color="white" />
-              <Text style={styles.roleText}>Employee</Text>
+              <TextCustom style={styles.roleText}>Employee</TextCustom>
             </View>
           </View>
         </View>
       </LinearGradient>
 
       <View style={styles.proBadge}>
-        <Text style={styles.proText}>Farm: ABCDEFU</Text>
+        <TextCustom style={styles.proText}>Farm: ABCDEFU</TextCustom>
       </View>
 
-      {/* Menu items */}
       <View style={styles.menuContainer}>
         {menuItems.map((item, index) => (
           <TouchableOpacity
@@ -62,22 +61,21 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
               <CustomIcon 
                 name={item.icon} 
                 type="MaterialCommunityIcons" 
-                size={22} 
+                size={32} 
                 color='#064944'
               />
             </View>
-            <Text style={styles.menuLabel}>{item.label}</Text>
+            <TextCustom style={styles.menuLabel}>{item.label}</TextCustom>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerTitle}>Intelligent Pomelo AgriSolutions</Text>
-        <Text style={styles.versionText}>Version 1.0.1</Text>
+        <TextCustom style={styles.footerTitle}>Intelligent Pomelo AgriSolutions</TextCustom>
+        <TextCustom style={styles.versionText}>Version 1.0.1</TextCustom>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <CustomIcon name="logout" type="MaterialCommunityIcons" size={20} color='red' />
-          <Text style={styles.logoutText}>Logout</Text>
+          <TextCustom style={styles.logoutText}>Logout</TextCustom>
         </TouchableOpacity>
       </View>
     </View>
@@ -87,7 +85,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: theme.colors.background,
   },
   gradient: {
     paddingBottom: 20,
@@ -149,9 +147,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE69C'
   },
   proText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#064944',
+    color: theme.colors.primary,
   },
   menuContainer: {
     flex: 1,
@@ -164,18 +162,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 26,
     backgroundColor: '#ECF2DA'
   },
   menuLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#064944',
+    color: theme.colors.primary,
   },
   footer: {
     padding: 20,

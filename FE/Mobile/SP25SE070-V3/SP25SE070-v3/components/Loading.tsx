@@ -1,3 +1,4 @@
+import theme from '@/theme';
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 
@@ -10,7 +11,7 @@ interface LoadingProps {
 
 const Loading: React.FC<LoadingProps> = ({
   size = 'large',
-  color = '#326E2F',
+  color = theme.colors.primary,
   text = 'Loading...',
   fullScreen = true,
 }) => {

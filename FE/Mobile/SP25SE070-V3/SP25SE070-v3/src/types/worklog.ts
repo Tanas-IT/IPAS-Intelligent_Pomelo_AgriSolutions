@@ -1,3 +1,5 @@
+export type StatusType = 'notStarted' | 'inProgress' | 'overdue' | 'reviewing' | 'done' | 'redo' | 'onRedo' | 'cancelled';
+
 export interface User {
   userId: number;
   fullName: string;
@@ -35,4 +37,61 @@ export interface WorklogNoteFormData {
   note: string;
   issue?: string;
   resources?: ResourceItem[];
+}
+
+export interface GetWorklogByStatus {
+  worklogId: number;
+  worklogName: string;
+  date: string;
+  time: string;
+  status: StatusType;
+  avatarEmployees: string[]
+}
+
+interface UserWorklogDetail {
+  userId: number;
+  fullName: string;
+  avatarURL: string;
+  statusOfUserWorkLog: string
+}
+
+interface ListNoteOfWorkLog {
+  userWorklogId: number;
+  notes: string;
+  fullName: string;
+  avatarURL: string;
+  issue: string;
+  userId: number;
+  listResources: any[];
+}
+
+interface ReplacementEmployee {
+  userId: number;
+  fullName: string;
+  avatar: string;
+  replaceUserId: number;
+  replaceUserFullName: string;
+  replaceUserAvatar: string;
+}
+
+export interface WorklogDetail {
+  workLogId: number;
+  workLogCode: string;
+  status: string;
+  workLogName: string;
+  planName: string;
+  processName: string;
+  masterTypeName: string;
+  date: string;
+  actualStartTime: string;
+  actualEndTime: string;
+  isConfirm: boolean;
+  listEmployee: UserWorklogDetail[];
+  reporter: UserWorklogDetail[];
+  planTargetModels: { landPlotId: number; landPlotName: string }[];
+  typeWork: string;
+  listGrowthStageName: string[];
+  listTaskFeedback: any[];
+  listNoteOfWorkLog: ListNoteOfWorkLog[];
+  replacementEmployee: ReplacementEmployee[];
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomIcon from 'components/CustomIcon';
+import theme from '@/theme';
 
 interface NotificationIconProps {
   unreadCount?: number;
@@ -15,7 +16,7 @@ export const Notification: React.FC<NotificationIconProps> = ({
   unreadCount = 0,
   iconSize = 24,
   badgeColor = '#FF6B6B',
-  iconColor = '#064944',
+  iconColor = theme.colors.primary,
   onPress,
 }) => {
   const navigation = useNavigation();

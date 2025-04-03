@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '@/navigation/Types';
 import { ROUTE_NAMES } from '@/navigation/RouteNames';
+import TextCustom from 'components/TextCustom';
 
 const PlantHeader: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -52,8 +53,8 @@ const PlantHeader: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.plantName}>{plant.plantName}</Text>
-          <Text style={styles.plantCode}>{plant.plantCode}</Text>
+          <TextCustom style={styles.plantName}>{plant.plantName}</TextCustom>
+          <TextCustom style={styles.plantCode}>{plant.plantCode}</TextCustom>
 
           <View style={styles.statusRow}>
             <View style={[
@@ -62,7 +63,7 @@ const PlantHeader: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
               plant.healthStatus === 'Moderate' && styles.moderateStatus,
               plant.healthStatus === 'Poor' && styles.poorStatus,
             ]}>
-              <Text style={styles.statusText}>{plant.healthStatus}</Text>
+              <TextCustom style={styles.statusText}>{plant.healthStatus}</TextCustom>
             </View>
 
             <View style={styles.spacer} />
@@ -74,7 +75,7 @@ const PlantHeader: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                 color="#4CAF50"
                 type="MaterialCommunityIcons"
               />
-              <Text style={styles.growthStageText}>{plant.growthStageName}</Text>
+              <TextCustom style={styles.growthStageText}>{plant.growthStageName}</TextCustom>
             </View>
           </View>
         </View>
@@ -90,10 +91,6 @@ const styles = StyleSheet.create({
     // position: 'relative',
   },
   image: {
-    // width: '100%',
-    // height: '100%',
-    // resizeMode: 'cover',
-    // position: 'absolute',
     ...StyleSheet.absoluteFillObject,
   },
   overlay: {
@@ -172,7 +169,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 40, // Điều chỉnh phù hợp với UI
+    top: 40,
     left: 16,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     padding: 8,

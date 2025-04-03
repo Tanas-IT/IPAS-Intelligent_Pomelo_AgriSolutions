@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import TextCustom from './TextCustom';
 
 type SegmentedControlProps = {
   options: string[];
@@ -53,7 +54,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = React.memo(
             key={option}
             style={[styles.labelContainer, { width: itemWidth }]}
           >
-            <Text style={styles.label}>{option}</Text>
+            <TextCustom style={styles.label}>{option}</TextCustom>
           </TouchableOpacity>
         ))}
       </View>
