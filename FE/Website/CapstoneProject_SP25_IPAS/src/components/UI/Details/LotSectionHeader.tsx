@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { useModal } from "@/hooks";
 import { GetPlantLotDetail } from "@/payloads";
 import FillPlantsModal from "./FillPlantsModal";
-import { LOT_STATUS, LOT_TYPE, lotStatusColors, lotTypeColors } from "@/constants";
+import { LOT_STATUS, lotStatusColors } from "@/constants";
 
 const LotSectionHeader = ({
   isCriteria = false,
@@ -23,6 +23,7 @@ const LotSectionHeader = ({
 }) => {
   const { lot, setLot } = usePlantLotStore();
   const updateConfirmModal = useModal();
+  const updateUsedConfirmModal = useModal();
   const fillPlantsModal = useModal();
 
   if (!lot) return;
@@ -75,19 +76,20 @@ const LotSectionHeader = ({
                 <Tag color="green" className={style.passedTag}>
                   ✅ Lot Completed
                 </Tag>
-                {lot.lastQuantity !== lot.usedQuantity && (
+                {lot.lastQuantity !== lot.usedQuantity && lot.status !== LOT_STATUS.USED && (
                   <CustomButton
                     label="Fill Empty Plots"
                     icon={<Icons.plantFill />}
                     handleOnClick={fillPlantsModal.showModal}
                   />
                 )}
+
+                {lot.isFromGrafted && lot.status !== LOT_STATUS.USED && (
+                  <Button type="primary" onClick={updateUsedConfirmModal.showModal} ghost>
+                    <Icons.check /> Mark as Used
+                  </Button>
+                )}
               </Flex>
-            )}
-            {lot.isFromGrafted && (
-              <Button type="primary" onClick={updateConfirmModal.showModal} ghost>
-                <Icons.check /> Mark as Used
-              </Button>
             )}
           </Flex>
         </Flex>
@@ -120,6 +122,14 @@ const LotSectionHeader = ({
         actionType="update"
         title="Mark as Completed"
         description="Are you sure you want to mark this Lot as completed? This action cannot be undone."
+      />
+      <ConfirmModal
+        visible={updateUsedConfirmModal.modalState.visible}
+        onConfirm={() => handleMarkAsUsed()}
+        onCancel={updateUsedConfirmModal.hideModal}
+        actionType="update"
+        title="Mark as Used"
+        description="Are you sure you want to mark this Lot as used? This action cannot be undone and will update the status accordingly."
       />
       <FillPlantsModal
         isOpen={fillPlantsModal.modalState.visible}

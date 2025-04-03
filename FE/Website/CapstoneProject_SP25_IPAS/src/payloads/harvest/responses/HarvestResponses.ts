@@ -81,3 +81,9 @@ export interface GetHarvestDayDetail extends GetHarvestDay {
   productHarvestHistory: productHarvestHistory[];
   carePlanSchedules: CarePlanSchedulesDetail[];
 }
+
+export interface GetHarvestSelected {
+  id: number;
+  code: string;
+  name: string;
+}

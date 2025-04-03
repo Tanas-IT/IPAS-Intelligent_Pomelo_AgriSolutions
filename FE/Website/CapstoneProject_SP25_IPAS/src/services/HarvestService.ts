@@ -4,11 +4,13 @@ import {
   GetData,
   GetHarvestDay,
   GetHarvestDayDetail,
+  GetHarvestSelected,
   GetHarvestStatisticOfPlant,
   GetHarvestStatisticPlants,
   HarvestRequest,
   HarvestStatisticInYearRequest,
   HarvestStatisticOfPlantRequest,
+  RecordHarvestRequest,
 } from "@/payloads";
 import { buildParams } from "@/utils";
 
@@ -58,7 +60,6 @@ export const updateHarvest = async (
     startTime: harvest.startTime,
     endTime: harvest.endTime,
   };
-  console.log(payload);
   const res = await axiosAuth.axiosJsonRequest.put("harvests", payload);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
   return apiResponse;
@@ -69,6 +70,24 @@ export const createHarvest = async (
 ): Promise<ApiResponse<GetHarvestDay>> => {
   const res = await axiosAuth.axiosJsonRequest.post(`harvests`, harvest);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
+  return apiResponse;
+};
+
+export const getProductInHarvest = async (
+  id: number,
+): Promise<ApiResponse<GetHarvestSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/for-selected/product-in-harvest?harvestId=${id}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetHarvestSelected[]>;
+  return apiResponse;
+};
+
+export const createRecordHarvest = async (
+  record: RecordHarvestRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`harvests/plants/record`, record);
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
 

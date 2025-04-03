@@ -14,6 +14,7 @@ import { useDirtyStore, usePlantStore } from "@/stores";
 type NewIssueModalProps<T extends { [key: string]: any }> = {
   data: T;
   idKey: keyof T;
+  id: number;
   isOpen: boolean;
   onClose: (values: T) => void;
   onSave: (values: T) => void;
@@ -23,6 +24,7 @@ type NewIssueModalProps<T extends { [key: string]: any }> = {
 const NewIssueModal = <T extends { [key: string]: any }>({
   data,
   idKey,
+  id,
   isOpen,
   onClose,
   onSave,
@@ -70,7 +72,7 @@ const NewIssueModal = <T extends { [key: string]: any }>({
 
   const getFormData = (): T => {
     return {
-      [idKey]: data[idKey],
+      [idKey]: id,
       issueName: form.getFieldValue(plantGrowthHistoryFormFields.issueName),
       content: form.getFieldValue(plantGrowthHistoryFormFields.content),
       resources: fileList

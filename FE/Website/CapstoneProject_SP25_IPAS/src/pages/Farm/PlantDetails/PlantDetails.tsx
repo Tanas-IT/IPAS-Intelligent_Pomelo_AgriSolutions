@@ -18,6 +18,7 @@ import {
   PlantHarvestRecord,
   PlantOverview,
 } from "@/pages";
+import { plantService } from "@/services";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -35,12 +36,21 @@ function PlantDetails() {
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
   const { styles } = useStyle();
-  const { isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
+  const { plant, setPlant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
+
+  const fetchPlant = async () => {
+    const res = await plantService.getPlant(Number(plantId));
+    if (res.statusCode === 200) {
+      setPlant(res.data);
+    }
+  };
 
   useEffect(() => {
-    if (plantId) {
-      setPlantId(Number(plantId));
-    }
+    if (!plant) fetchPlant();
+  }, []);
+
+  useEffect(() => {
+    if (plantId) setPlantId(Number(plantId));
   }, [plantId, setPlantId]);
 
   const items: TabsProps["items"] = [

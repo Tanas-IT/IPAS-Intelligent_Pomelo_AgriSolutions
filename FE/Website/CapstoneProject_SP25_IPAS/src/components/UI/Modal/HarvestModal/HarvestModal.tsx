@@ -238,17 +238,18 @@ const HarvestModal = ({
                           options={productOptions}
                           rules={RulesManager.getRequiredRules("Product")}
                         />
-                        <FormFieldModal label="Unit" name={[name, "unit"]} readonly />
-                        <FormFieldModal
-                          label="Sell Price (VND/Kg)"
-                          name={[name, "sellPrice"]}
-                          rules={RulesManager.getNumberRules("Price")}
-                        />
+                        <FormFieldModal label="Unit" name={[name, "unit"]} />
                         <FormFieldModal
                           label="Quantity Need"
                           name={[name, "quantityNeed"]}
                           rules={RulesManager.getNumberRules("Quantity")}
                         />
+                        <FormFieldModal
+                          label="Sell Price (VND)"
+                          name={[name, "sellPrice"]}
+                          rules={RulesManager.getNumberRules("Price")}
+                        />
+
                         <Button
                           onClick={() => {
                             remove(name);

@@ -21,19 +21,29 @@ import {
 import { useEffect, useState } from "react";
 import { DEFAULT_HARVEST_DAY_FILTERS, getOptions, getUserId } from "@/utils";
 import { FilterHarvestDayState } from "@/types";
-import { HarvestRequest, GetHarvestDay, GetHarvestDayDetail } from "@/payloads";
+import {
+  HarvestRequest,
+  GetHarvestDay,
+  GetHarvestDayDetail,
+  RecordHarvestRequest,
+} from "@/payloads";
 import { harvestService } from "@/services";
 import HarvestDayFilter from "./HarvestDayFilter";
 import { HarvestDayColumns } from "./HarvestDayColumns";
 import { useCropStore, useDirtyStore } from "@/stores";
 import HarvestDayDetail from "./HarvestDayDetail";
 import { CROP_STATUS } from "@/constants";
+import RecordHarvestModal from "./RecordHarvestModal";
+import { toast } from "react-toastify";
 
 function HarvestDays() {
   const [selectedHarvest, setSelectedHarvest] = useState<number | null>(null);
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const formModal = useModal<GetHarvestDay>();
+  const recordModal = useModal<GetHarvestDay>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ harvest: HarvestRequest }>();
+  const recordConfirmModal = useModal<{ record: RecordHarvestRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
   const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView } = useCropStore();
@@ -113,6 +123,14 @@ function HarvestDays() {
     }
   };
 
+  const handleRecordConfirm = (record: RecordHarvestRequest) => {
+    if (isDirty) {
+      recordConfirmModal.showModal({ record });
+    } else {
+      recordModal.hideModal();
+    }
+  };
+
   const handleCancelConfirm = (harvest: HarvestRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(harvest, "harvestHistoryId", undefined, ["startTime", "endTime"])
@@ -130,6 +148,14 @@ function HarvestDays() {
       cancelConfirmModal.showModal();
     } else {
       formModal.hideModal();
+    }
+  };
+
+  const handleRecordCancelConfirm = () => {
+    if (isDirty) {
+      cancelConfirmModal.showModal();
+    } else {
+      recordModal.hideModal();
     }
   };
 
@@ -151,8 +177,26 @@ function HarvestDays() {
     onSuccess: () => {
       formModal.hideModal();
       setCrop({ ...crop, status: CROP_STATUS.HARVESTING });
+      setIsHarvestDetailView(false);
     },
   });
+
+  const handleRecord = async (record?: RecordHarvestRequest) => {
+    if (!record) return;
+    var res = await harvestService.createRecordHarvest(record);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        recordModal.hideModal();
+        recordConfirmModal.hideModal();
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
 
   const filterContent = (
     <HarvestDayFilter
@@ -170,82 +214,96 @@ function HarvestDays() {
       {isHarvestDetailView ? (
         <HarvestDayDetail selectedHarvest={selectedHarvest} onBack={handleBackToList} />
       ) : (
-        <>
-          <Flex className={style.container}>
-            <Flex className={style.table}>
-              <Table
-                columns={HarvestDayColumns}
-                rows={data}
-                rowKey="harvestHistoryCode"
-                idName="harvestHistoryId"
-                isOnRowEvent={true}
-                onRowDoubleClick={(record) => handleViewDetail(record.harvestHistoryId)}
-                title={<TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd />}
-                isViewCheckbox={false}
-                handleSortClick={handleSortChange}
-                selectedColumn={sortField}
-                rotation={rotation}
-                currentPage={currentPage}
-                rowsPerPage={rowsPerPage}
-                // handleDelete={(ids) => handleDelete(ids)}
-                isLoading={isLoading}
-                caption="Harvest Day Management Table"
-                notifyNoData="No days to display"
-                renderAction={(harvest: GetHarvestDay) => (
-                  <ActionMenuHarvest
-                    onEdit={() => formModal.showModal(harvest)}
-                    onDelete={() =>
-                      deleteConfirmModal.showModal({ ids: [harvest.harvestHistoryId] })
-                    }
-                  />
-                )}
-              />
+        <Flex className={style.container}>
+          <Flex className={style.table}>
+            <Table
+              columns={HarvestDayColumns}
+              rows={data}
+              rowKey="harvestHistoryCode"
+              idName="harvestHistoryId"
+              isOnRowEvent={true}
+              onRowDoubleClick={(record) => handleViewDetail(record.harvestHistoryId)}
+              title={<TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd />}
+              isViewCheckbox={false}
+              handleSortClick={handleSortChange}
+              selectedColumn={sortField}
+              rotation={rotation}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              // handleDelete={(ids) => handleDelete(ids)}
+              isLoading={isLoading}
+              caption="Harvest Day Management Table"
+              notifyNoData="No days to display"
+              renderAction={(harvest: GetHarvestDay) => (
+                <ActionMenuHarvest
+                  onEdit={() => formModal.showModal(harvest)}
+                  onDelete={() => deleteConfirmModal.showModal({ ids: [harvest.harvestHistoryId] })}
+                  onOpenRecordModal={() => recordModal.showModal(harvest)}
+                />
+              )}
+            />
 
-              <NavigationDot
-                totalPages={totalPages}
-                currentPage={currentPage}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handlePageChange}
-                rowsPerPageOptions={getOptions(totalRecords)}
-                onRowsPerPageChange={handleRowsPerPageChange}
-              />
-            </Flex>
-            <HarvestModal
-              isOpen={formModal.modalState.visible}
-              onClose={handleCancelConfirm}
-              onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
-              isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
-              harvestData={formModal.modalState.data}
-            />
-            {/* Confirm Delete Modal */}
-            <ConfirmModal
-              visible={deleteConfirmModal.modalState.visible}
-              onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
-              onCancel={deleteConfirmModal.hideModal}
-              itemName="Harvest"
-              actionType="delete"
-            />
-            {/* Confirm Update Modal */}
-            <ConfirmModal
-              visible={updateConfirmModal.modalState.visible}
-              onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.harvest)}
-              onCancel={updateConfirmModal.hideModal}
-              itemName="Harvest"
-              actionType="update"
-            />
-            {/* Confirm Cancel Modal */}
-            <ConfirmModal
-              visible={cancelConfirmModal.modalState.visible}
-              actionType="unsaved"
-              onConfirm={() => {
-                cancelConfirmModal.hideModal();
-                formModal.hideModal();
-              }}
-              onCancel={cancelConfirmModal.hideModal}
+            <NavigationDot
+              totalPages={totalPages}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handlePageChange}
+              rowsPerPageOptions={getOptions(totalRecords)}
+              onRowsPerPageChange={handleRowsPerPageChange}
             />
           </Flex>
-        </>
+        </Flex>
       )}
+
+      <HarvestModal
+        isOpen={formModal.modalState.visible}
+        onClose={handleCancelConfirm}
+        onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
+        isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
+        harvestData={formModal.modalState.data}
+      />
+      <RecordHarvestModal
+        isOpen={recordModal.modalState.visible}
+        onClose={handleRecordCancelConfirm}
+        onSave={handleRecordConfirm}
+        isLoadingAction={isActionLoading}
+        harvestData={recordModal.modalState.data}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Harvest"
+        actionType="delete"
+      />
+      {/* Confirm Update Modal */}
+      <ConfirmModal
+        visible={updateConfirmModal.modalState.visible}
+        onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.harvest)}
+        onCancel={updateConfirmModal.hideModal}
+        itemName="Harvest"
+        actionType="update"
+      />
+      {/* Confirm Record Modal */}
+      <ConfirmModal
+        visible={recordConfirmModal.modalState.visible}
+        onConfirm={() => handleRecord(recordConfirmModal.modalState.data?.record)}
+        onCancel={recordConfirmModal.hideModal}
+        confirmText="Confirm Harvest Record"
+        title="Are you sure you want to record this harvest?"
+      />
+      {/* Confirm Cancel Modal */}
+      <ConfirmModal
+        visible={cancelConfirmModal.modalState.visible}
+        actionType="unsaved"
+        onConfirm={() => {
+          cancelConfirmModal.hideModal();
+          formModal.hideModal();
+          recordModal.hideModal();
+        }}
+        onCancel={cancelConfirmModal.hideModal}
+      />
     </Flex>
   );
 }

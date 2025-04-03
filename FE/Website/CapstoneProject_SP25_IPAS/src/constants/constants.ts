@@ -19,6 +19,13 @@ export const MASTER_TYPE = {
   NOTIFICATION: "Notification",
 };
 
+export const GRAFTED_STATUS = {
+  HEALTHY: "Healthy",
+  MINOR_ISSUE: "Minor Issues",
+  SERIOUS_ISSUE: "Serious Issues",
+  USED: "Used",
+} as const;
+
 export const HEALTH_STATUS = {
   HEALTHY: "Healthy",
   MINOR_ISSUE: "Minor Issues",

@@ -689,7 +689,6 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	IsDeleted bit DEFAULT 0 NULL,
 	IsDead bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
-	IsDead bit NULL DEFAULT 0,
 	PlantLotID int NULL,
 	FarmID int NULL,
 	FinishedPlantCode nvarchar(50) NULL,
@@ -1549,17 +1548,17 @@ VALUES
 
 GO
 INSERT INTO [ipas].dbo.ProductHarvestHistory 
-    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID, RecordDate, RecordBy)
+    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
 VALUES 
     -- PlantID 9
-    (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1, GETDATE(), 'User1'),  -- HarvestHistoryID 1
-    (32, 9, N'kg', 9500.0, 9000.0, 130, 160, 2, GETDATE(), 'User1'),  -- HarvestHistoryID 2
-    (31, 9, N'kg', 9800.5, 9300.0, 140, 170, 3, GETDATE(), 'User1'),  -- HarvestHistoryID 3
-    (32, 9, N'kg', 10200.3, 9700.0, 150, 180, 4, GETDATE(), 'User1'),  -- HarvestHistoryID 4
-    (31, 9, N'kg', 10500.0, 10000.0, 160, 190, 5, GETDATE(), 'User1'),  -- HarvestHistoryID 5
-    (32, 9, N'kg', 11000.2, 10400.0, 170, 200, 6, GETDATE(), 'User1'),  -- HarvestHistoryID 6
-    (31, 9, N'kg', 11500.4, 10900.0, 180, 210, 7, GETDATE(), 'User1'),  -- HarvestHistoryID 7
-    (32, 9, N'kg', 12000.0, 11400.0, 190, 220, 8, GETDATE(), 'User1'),  -- HarvestHistoryID 8
+    (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1),  -- HarvestHistoryID 1
+    (32, 9, N'kg', 9500.0, 9000.0, 130, 160, 2),  -- HarvestHistoryID 2
+    (31, 9, N'kg', 9800.5, 9300.0, 140, 170, 3),  -- HarvestHistoryID 3
+    (32, 9, N'kg', 10200.3, 9700.0, 150, 180, 4),  -- HarvestHistoryID 4
+    (31, 9, N'kg', 10500.0, 10000.0, 160, 190, 5),  -- HarvestHistoryID 5
+    (32, 9, N'kg', 11000.2, 10400.0, 170, 200, 6),  -- HarvestHistoryID 6
+    (31, 9, N'kg', 11500.4, 10900.0, 180, 210, 7),  -- HarvestHistoryID 7
+    (32, 9, N'kg', 12000.0, 11400.0, 190, 220, 8),  -- HarvestHistoryID 8
 
     -- PlantID 10
     (32, 10, N'kg', 9800.0, 9300.0, 150, 175, 1),  -- HarvestHistoryID 1
@@ -1954,4 +1953,3 @@ INSERT INTO [dbo].[UserWorkLog]
 		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
-

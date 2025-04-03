@@ -286,7 +286,7 @@ function GraftedPlantDetail() {
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
         onCancel={deleteConfirmModal.hideModal}
-        itemName="Plant Lot"
+        itemName="Grafted Plant"
         actionType="delete"
       />
       {/* Confirm Update Modal */}
@@ -294,7 +294,7 @@ function GraftedPlantDetail() {
         visible={updateConfirmModal.modalState.visible}
         onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.updatedGrafted)}
         onCancel={updateConfirmModal.hideModal}
-        itemName="Plant Lot"
+        itemName="Grafted Plant"
         actionType="update"
       />
       {/* Confirm remove from lot Modal */}

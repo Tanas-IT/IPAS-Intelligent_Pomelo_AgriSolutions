@@ -152,6 +152,7 @@ function PlantGrowthHistory() {
       <NewIssueModal
         data={data[0]}
         idKey="plantId"
+        id={plant.plantId}
         isOpen={addIssueModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleAddNewIssue}

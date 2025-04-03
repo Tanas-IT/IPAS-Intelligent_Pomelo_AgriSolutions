@@ -32,7 +32,7 @@ function PlantDetail() {
   const markAsDeadModal = useModal<{ id: number }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
-  const { plant, setPlant, shouldRefetch } = usePlantStore();
+  const { plant, setPlant } = usePlantStore();
 
   const fetchPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây

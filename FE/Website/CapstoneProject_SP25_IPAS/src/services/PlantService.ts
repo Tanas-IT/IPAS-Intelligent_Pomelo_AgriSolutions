@@ -7,6 +7,7 @@ import {
   GetPlantDetail,
   GetPlantGrowthHistory,
   GetPlantOfRowSelect,
+  GetPlantRecord,
   GetPlantSelect,
   PlantGrowthHistoryRequest,
   PlantRequest,
@@ -135,6 +136,28 @@ export const getPlantGrowthHistory = async (
     },
   });
   const apiResponse = res.data as ApiResponse<GetData<GetPlantGrowthHistory>>;
+  return apiResponse;
+};
+
+export const getPlantRecordHarvest = async (
+  plantId: number,
+  pageSize: number,
+  pageIndex: number,
+  dateHarvestFrom?: string,
+  dateHarvestTo?: string,
+  productIds?: number,
+): Promise<ApiResponse<GetData<GetPlantRecord>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("harvests/plants/record", {
+    params: {
+      plantId,
+      pageSize,
+      pageIndex,
+      dateHarvestFrom,
+      dateHarvestTo,
+      productIds,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetPlantRecord>>;
   return apiResponse;
 };
 

@@ -1,7 +1,7 @@
 import { Flex, Space } from "antd";
 import { useEffect, useState } from "react";
 import { FilterFooter, FormFieldFilter } from "@/components";
-import { GROWTH_ACTIONS, HEALTH_STATUS, MASTER_TYPE } from "@/constants";
+import { GRAFTED_STATUS, GROWTH_ACTIONS, MASTER_TYPE } from "@/constants";
 import { FilterGraftedPlantState, SelectOption } from "@/types";
 import { useMasterTypeOptions, usePlantLotOptions } from "@/hooks";
 import style from "./GraftedPlant.module.scss";
@@ -104,10 +104,10 @@ const GraftedPlantFilter = ({ filters, updateFilters, onClear, onApply }: Filter
           />
 
           <FormFieldFilter
-            label="Health Status"
+            label="Status"
             fieldType="select"
             value={filters.status}
-            options={Object.entries(HEALTH_STATUS).map(([key, value]) => ({
+            options={Object.entries(GRAFTED_STATUS).map(([key, value]) => ({
               value: key,
               label: value,
             }))}

@@ -43,3 +43,15 @@ export interface HarvestRequest {
   productHarvestHistory?: productHarvestHistory[];
   addNewTask?: addNewTask;
 }
+
+export interface plantHarvestRecords {
+  plantId: number;
+  quantity: number;
+}
+
+export interface RecordHarvestRequest {
+  masterTypeId: number;
+  harvestHistoryId: number;
+  userId: number;
+  plantHarvestRecords: plantHarvestRecords[];
+}

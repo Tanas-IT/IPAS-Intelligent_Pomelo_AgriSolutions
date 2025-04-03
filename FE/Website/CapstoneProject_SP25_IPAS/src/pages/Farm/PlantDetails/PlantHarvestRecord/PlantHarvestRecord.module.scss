@@ -3,4 +3,24 @@
 
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    gap: 20px;
+  }
+}
+
+.historyTimeline {
+  @include shared.historyTimeline;
+  .historyContainer {
+    max-height: 13rem;
+    &:hover {
+      cursor: auto;
+    }
+    .label {
+      min-width: 100px !important;
+    }
+  }
+}
+
+.loadMoreWrapper {
+  @include shared.loadMoreWrapper;
 }

@@ -83,9 +83,6 @@ function HarvestDayDetail({ selectedHarvest, onBack }: HarvestDayDetailProps) {
             </Tag>
           </Flex>
         </Flex>
-        {/* <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
-          Back to Harvest
-        </Button> */}
       </Flex>
 
       {/* Harvest Info */}
@@ -139,16 +136,16 @@ function HarvestDayDetail({ selectedHarvest, onBack }: HarvestDayDetailProps) {
                 align: "center",
               },
               {
-                title: "Unit",
-                dataIndex: "unit",
-                key: "unit",
-                align: "center",
-              },
-              {
                 title: "Sell Price",
                 dataIndex: "sellPrice",
                 key: "sellPrice",
-                render: (price) => `${formatCurrencyVND_KG(price)}`,
+                render: (price) => `${formatCurrencyVND(price)}`,
+                align: "center",
+              },
+              {
+                title: "Unit",
+                dataIndex: "unit",
+                key: "unit",
                 align: "center",
               },
             ]}

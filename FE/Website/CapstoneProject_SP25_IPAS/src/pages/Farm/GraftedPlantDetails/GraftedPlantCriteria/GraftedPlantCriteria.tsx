@@ -28,7 +28,7 @@ function GraftedPlantCriteria() {
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { graftedPlant, setGraftedPlant, shouldRefetch } = useGraftedPlantStore();
+  const { graftedPlant } = useGraftedPlantStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();

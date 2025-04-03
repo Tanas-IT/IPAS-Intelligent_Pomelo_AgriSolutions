@@ -153,6 +153,7 @@ function GraftedGrowthHistory() {
       <NewIssueModal
         data={data[0]}
         idKey="graftedPlantId"
+        id={graftedPlant.graftedPlantId}
         isOpen={addIssueModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleAddNewIssue}
