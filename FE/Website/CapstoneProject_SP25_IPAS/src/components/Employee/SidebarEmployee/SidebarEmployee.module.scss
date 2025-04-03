@@ -82,6 +82,7 @@
     .menuContainer {
       flex-direction: column;
       row-gap: 8px;
+      min-height: 66vh;
       overflow-y: hidden;
 
       &:hover {

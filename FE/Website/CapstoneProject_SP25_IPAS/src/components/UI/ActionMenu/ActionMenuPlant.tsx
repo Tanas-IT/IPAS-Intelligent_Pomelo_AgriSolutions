@@ -8,27 +8,34 @@ import { ROUTES } from "@/constants";
 interface ActionMenuProps {
   id?: number;
   isPlantDead: boolean;
-  noView?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onApplyCriteria?: () => void;
   onMarkAsDead: () => void;
 }
 
 const ActionMenuPlant: FC<ActionMenuProps> = ({
   id,
   isPlantDead,
-  noView = false,
   onEdit,
   onDelete,
+  onApplyCriteria,
   onMarkAsDead,
 }) => {
   const navigate = useNavigate();
   const actionItems = [
-    !noView
+    id !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View Plant Details",
           onClick: () => navigate(ROUTES.FARM_PLANT_DETAIL(id ?? 0)),
+        }
+      : null,
+    onApplyCriteria
+      ? {
+          icon: <Icons.checkSuccuss />,
+          label: "Apply Criteria",
+          onClick: () => onApplyCriteria?.(),
         }
       : null,
     {

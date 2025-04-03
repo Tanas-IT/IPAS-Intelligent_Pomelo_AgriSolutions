@@ -30,11 +30,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public LandPlotService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IResponseCacheService _responseCacheService;
+        public LandPlotService(IUnitOfWork unitOfWork, IMapper mapper, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest)
@@ -89,6 +90,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{createRequest.FarmId}");
                         var mappedResult = _mapper.Map<LandPlotModel>(landplotCreateEntity);
                         return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mappedResult);
                     }
@@ -228,6 +230,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+            string key = $"{CacheKeyConst.LANDPLOT}:{CacheKeyConst.FARM}:{farmId}";
+
+            //await _responseCacheService.RemoveCacheAsync(key);
+            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<IEnumerable<LandPlotModel>>>(key);
+            if (cachedData != null)
+            {
+                return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+            }
+
             Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.IsDeleted != true;
             if (!string.IsNullOrEmpty(searchKey))
             {
@@ -239,7 +251,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (landplotInFarm.Any())
             {
                 var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
-                return new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
+                var result = new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
+                string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{farmId}";
+                await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                return result;
             }
             else
             {
@@ -301,6 +316,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
+            string key = CacheKeyConst.LANDPLOT + $"{landPlotId}";
+
+            //await _responseCacheService.RemoveCacheAsync(key);
+            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<LandPlotModel>>(key);
+            if (cachedData != null)
+            {
+                return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+            }
             string includeProperties = "LandPlotCoordinations,Farm";
             Expression<Func<LandPlot, bool>> filter = x => x.LandPlotId == landPlotId && x.IsDeleted != true;
 
@@ -310,20 +333,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
-            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot in farm success", mappedResult);
-
+            var result = new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot in farm success", mappedResult);
+            if (mappedResult != null)
+            {
+                string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landplot.LandPlotId}";
+                await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+            }
+            //return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot in farm success", mappedResult);
+            return result;
         }
 
         public async Task<BusinessResult> GetForMapped(int landplotId)
         {
+            string key = $"{CacheKeyConst.LANDPLOT}{nameof(GetForMapped)}:{landplotId}";
 
+            //await _responseCacheService.RemoveCacheAsync(key);
+            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<LandPlotModel>>(key);
+            if (cachedData != null)
+            {
+                return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+            }
             var landplot = await _unitOfWork.LandPlotRepository.GetForMapped(landplotId);
             // kiem tra null
             if (landplot == null)
                 return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
-            return new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot for mapped success", mappedResult);
+            var result = new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot for mapped success", mappedResult);
+            if (mappedResult != null)
+            {
+                string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landplot.LandPlotId}";
+                await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+            }
+            return result;
         }
 
         public async Task<BusinessResult> UpdateLandPlotCoordination(LandPlotUpdateCoordinationRequest updateRequest)
@@ -384,6 +426,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await transaction.CommitAsync();
                         var resultSave = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId);
                         var mappedResult = _mapper.Map<IEnumerable<LandPlotCoordinationModel>>(resultSave);
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{checkLandPlotExist.FarmId}");
+                        await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + checkLandPlotExist.LandPlotId.ToString());
+
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, mappedResult);
                     }
                     else
@@ -435,6 +480,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<LandPlotModel>(landplotEntityUpdate);
+                        await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + landplotEntityUpdate.LandPlotId.ToString());
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{landplotEntityUpdate.FarmId}");
+
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, mappedResult);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
@@ -467,6 +515,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
+                        await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + landPlotId.ToString());
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{landplotEntityUpdate.FarmId}");
+
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, "Delete softed successfully", new { success = true });
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
@@ -501,7 +552,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var landRow = new LandRow()
                 {
-                    LandRowCode = $"{CodeAliasEntityConst.LANDPLOT}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}-{CodeHelper.GenerateCode()}",
+                    LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}",
                     RowIndex = row.RowIndex,
                     Length = row.Length,
                     Width = row.Width,
@@ -536,7 +587,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (createRequest.LandRows == null || !createRequest.LandRows.Any())
                 return new BusinessResult(Const.WARNING_EMPTY_LAND_ROWS_CODE, Const.WARNING_EMPTY_LAND_ROWS_MSG);
-            var pointRequired = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.COORDINATION_POINT_REQUIRED.Trim(), 3 );
+            var pointRequired = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.COORDINATION_POINT_REQUIRED.Trim(), 3);
             if (createRequest.LandPlotCoordinations.Count < pointRequired)
                 return new BusinessResult(Const.WARNING_INVALID_PLOT_COORDINATIONS_CODE, Const.WARNING_INVALID_PLOT_COORDINATIONS_MSG);
             var minLenght = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH.Trim(), (double)1);

@@ -14,6 +14,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
     public class QualityYieldStat
     {
         public string QualityType { get; set; }
-        public int QuantityYield { get; set; }
+        public double QuantityYield { get; set; }
     }
 }

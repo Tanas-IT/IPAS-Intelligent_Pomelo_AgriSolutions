@@ -1,5 +1,4 @@
 export interface GetCrop {
-    cropId: string;
-    cropName: string;
-  }
-  
+  cropId: string;
+  cropName: string;
+}

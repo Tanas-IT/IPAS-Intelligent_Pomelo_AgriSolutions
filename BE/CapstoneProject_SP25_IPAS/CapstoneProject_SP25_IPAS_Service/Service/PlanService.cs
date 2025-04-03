@@ -30,6 +30,9 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using GenerativeAI.Types;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -40,12 +43,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IWebSocketService _webSocketService;
         private string warningAddMessage = string.Empty;
         private string warningUpdateMessage = string.Empty;
+        private readonly IResponseCacheService _responseCacheService;
 
-        public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
+        public PlanService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _webSocketService = webSocketService;
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
@@ -72,14 +77,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
                                 $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
-                            
+
                         }
                     }
-                    if(createPlanModel.StartTime != null && createPlanModel.EndTime != null)
+                    if (createPlanModel.StartTime != null && createPlanModel.EndTime != null)
                     {
                         var parseStartTime = TimeSpan.Parse(createPlanModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(createPlanModel.EndTime);
-                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeId == createPlanModel.MasterTypeId);
@@ -91,13 +96,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = $"PLAN_{DateTime.Now:yyyyMMdd_HHmmss}_{createPlanModel.MasterTypeId}",
+                        PlanCode = $"PLAN{DateTime.Now:ddHHmmss}",
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -247,7 +252,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
 
-                            if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID.Count() == 0 && plantTarget.PlantID.Count() == 0)
+                            if (plantTarget.LandPlotID.HasValue)
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                 foreach (var row in rowToPlants)
@@ -425,12 +430,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     await _unitOfWork.SaveAsync();
-                    
+
                     var getLastPlan = await _unitOfWork.PlanRepository.GetLastPlan();
                     var result = await GeneratePlanSchedule(getLastPlan, createPlanModel);
                     if (result)
                     {
                         if (useTransaction) await transaction.CommitAsync();
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{getLastPlan.FarmID}");
                         if (createPlanModel.ListEmployee != null)
                         {
                             foreach (var employeeModel in createPlanModel.ListEmployee)
@@ -438,7 +444,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                             }
                         }
-                        if(!string.IsNullOrEmpty(warningAddMessage))
+                        if (!string.IsNullOrEmpty(warningAddMessage))
                         {
                             return new BusinessResult(Const.SUCCESS_CREATE_PLAN_CODE, warningAddMessage, result);
                         }
@@ -466,6 +472,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = $"{CacheKeyConst.PLAN}:{CacheKeyConst.FARM}:{farmId}";
+
+                //await _responseCacheService.RemoveCacheAsync(key);
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<PlanModel>>>(key);
+                if (cachedData != null && cachedData.Data != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 Expression<Func<Plan, bool>> filter = x =>
                            x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                            (
@@ -774,11 +788,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    return new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{farmId}";
+                    var result = new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return result;
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_PLAN_EMPTY_CODE, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
+                    return new BusinessResult(200, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
                 }
             }
             catch (Exception ex)
@@ -792,6 +809,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                string key = CacheKeyConst.PLAN + $"{planId}";
+                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PlanModel>>(key);
+                if (cachedData != null)
+                {
+                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                }
                 var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
                 if (getPlan != null)
                 {
@@ -803,7 +826,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
-                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
+                    if (result != null)
+                    {
+                        string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
+                        var finalResult = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
+                        await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                        return finalResult;
+                    }
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
             }
@@ -936,7 +965,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 // HashSet để tránh trùng lặp
-                
+
                 var rowIds = new HashSet<int>(displayModel.Rows.Select(r => r.LandRowId != null ? r.LandRowId.Value : 0));
                 var plantIds = new HashSet<int>(displayModel.Plants.Select(p => p.PlantId != null ? p.PlantId.Value : 0));
                 var plantLotIds = new HashSet<int>(displayModel.PlantLots.Select(p => p.PlantLotId != null ? p.PlantLotId.Value : 0));
@@ -944,7 +973,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
 
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "row")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "row")
                 {
                     if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
@@ -952,7 +981,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "plant")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "plant")
                 {
                     if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
@@ -960,7 +989,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "plantlot")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "plantlot")
                 {
                     if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
@@ -968,7 +997,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit.ToLower() == "graftedplant")
+                if (isFullMode || getPlanTarget.Unit?.ToLower() == "graftedplant")
                 {
                     if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
@@ -990,7 +1019,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
+                    if (updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
+                    {
+                        var parseStartTime = TimeSpan.Parse(updatePlanModel.StartTime);
+                        var parseEndTime = TimeSpan.Parse(updatePlanModel.EndTime);
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
 
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                            .GetByCondition(x => x.MasterTypeId == updatePlanModel.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                            }
+                        }
+                    }
                     if (checkExistPlan != null)
                     {
                         if (checkExistPlan.StartDate <= DateTime.Now)
@@ -1040,8 +1088,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                     {
-                                         _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
-                                         await _unitOfWork.SaveAsync();
+                                        _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                        await _unitOfWork.SaveAsync();
                                     }
                                 }
                                 foreach (var landPlotOfCrop in updatePlanModel.ListLandPlotOfCrop)
@@ -1105,7 +1153,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (updatePlanModel.MasterTypeId != null)
                         {
                             checkExistPlan.MasterTypeId = updatePlanModel.MasterTypeId;
-                            if(updatePlanModel.ProcessId != null)
+                            if (updatePlanModel.ProcessId != null)
                             {
                                 var getCheckExistProcess = await _unitOfWork.ProcessRepository.GetByID(updatePlanModel.ProcessId.Value);
                                 if (getCheckExistProcess != null)
@@ -1208,8 +1256,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 foreach (var removeOldPlanTarget in removePlanTargetOfPlan)
                                 {
-                                     _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
-                                      await _unitOfWork.SaveAsync();
+                                    _unitOfWork.PlanTargetRepository.Delete(removeOldPlanTarget);
+                                    await _unitOfWork.SaveAsync();
                                 }
                             }
                             // HashSet để lưu các cặp (PlantID, LandPlotID, LandRowID) đã thêm vào tránh trùng lặp
@@ -1411,6 +1459,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _unitOfWork.PlanRepository.UpdatePlan(checkExistPlan);
                                 await _unitOfWork.SaveAsync();
                                 await transaction.CommitAsync();
+                                await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{checkExistPlan.FarmID}");
+                                await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + checkExistPlan.PlanId.ToString());
                                 if (updatePlanModel.ListEmployee != null)
                                 {
                                     foreach (var employeeModel in updatePlanModel.ListEmployee)
@@ -1456,15 +1506,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
             var result = 0;
             DateTime currentDate = createPlanModel.StartDate;
-            if (currentDate <= DateTime.Now)
+            if (createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime)) <= DateTime.Now)
             {
-                throw new Exception("Start Date must be greater than or equal now");
+                throw new Exception("Start Time must be greater than or equal now");
             }
             if (TimeSpan.Parse(createPlanModel.StartTime) >= TimeSpan.Parse(createPlanModel.EndTime))
             {
                 throw new Exception("Start time must be less than End Time");
             }
-
+            if (plan.Frequency == null)
+            {
+                throw new Exception("Frequency can not be empty. It must be weekly, monthly, daily or none");
+            }
             if (plan.Frequency.ToLower() == "none" && createPlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
@@ -1483,27 +1536,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
                 result += await _unitOfWork.SaveAsync();
                 List<DateTime> conflictCustomDates = new List<DateTime>();
-                foreach (var customeDate in createPlanModel.CustomDates)
-                {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
-                    {
-                        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), customeDate);
-                        if (checkConflictTimeOfWorkLog)
-                        {
-                            conflictCustomDates.Add(customeDate);
-                        }
-                    }
+                //foreach (var customeDate in createPlanModel.CustomDates)
+                //{
+                //    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                //    {
+                //        var checkConflictTimeOfWorkLog = await _unitOfWork.WorkLogRepository.CheckConflictTimeOfWorkLog(TimeSpan.Parse(createPlanModel.StartTime), TimeSpan.Parse(createPlanModel.EndTime), customeDate);
+                //        if (checkConflictTimeOfWorkLog)
+                //        {
+                //            conflictCustomDates.Add(customeDate);
+                //        }
+                //    }
 
-                }
-                
-                if (conflictCustomDates.Count > 5)
-                {
-                    throw new Exception("Schedule is conflicted");
-                }
-                if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
-                {
-                    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
-                }
+                //}
+
+                //if (conflictCustomDates.Count > 5)
+                //{
+                //    throw new Exception("Schedule is conflicted");
+                //}
+                //if (conflictCustomDates.Count() > 0 && conflictCustomDates.Count() < 5)
+                //{
+                //    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
+                //}
 
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
@@ -1665,7 +1718,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //        }
                     //    }
                     //}
-                    
+
                     //if (conflictDatesInMonthly.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -1701,7 +1754,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //{
                     //    conflictDatesInDaily.Add(currentDate);
                     //}
-                   
+
                     //if (conflictDatesInDaily.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -1734,11 +1787,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             CarePlanSchedule schedule = new CarePlanSchedule();
             var result = 0;
             DateTime currentDate = updatePlanModel.StartDate.Value;
-            if (currentDate <= DateTime.Now)
+            if (updatePlanModel.StartDate.Value.Add(TimeSpan.Parse(updatePlanModel.StartTime)) <= DateTime.Now)
             {
-                throw new Exception("Start Date must be greater than or equal now");
+                throw new Exception("Start Time must be greater than or equal now");
             }
-
+            if (plan.Frequency == null)
+            {
+                throw new Exception("Frequency can not be empty. It must be weekly, monthly, daily or none");
+            }
             if (plan.Frequency.ToLower() == "none" && updatePlanModel.CustomDates != null)
             {
                 schedule = new CarePlanSchedule()
@@ -1770,7 +1826,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    }
 
                 //}
-               
+
 
                 //if (conflictCustomDates.Count > 5)
                 //{
@@ -1899,7 +1955,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //        }
                     //    }
                     //}
-                   
+
                     //if (conflictDatesInWeekly.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -1981,7 +2037,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //{
                     //    conflictDatesDaily.Add(currentDate);
                     //}
-                   
+
                     //if (conflictDatesDaily.Count > 5)
                     //{
                     //    throw new Exception("Schedule is conflicted");
@@ -2036,7 +2092,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
             }
-            if(createPlanModel.PlanTargetModel != null)
+            if (createPlanModel.PlanTargetModel != null)
             {
                 foreach (var plantTarget in createPlanModel.PlanTargetModel)
                 {
@@ -2094,16 +2150,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     count++;
                 }
             }
-           
+
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
+                WorkLogName = getTypePlan.MasterTypeName + "_on_" + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId
@@ -2203,12 +2259,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL-{schedule.ScheduleId}-{DateTime.UtcNow.Ticks}",
+                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
                 ActualEndTime = schedule.EndTime,
-                WorkLogName = getTypePlan.MasterTypeName + " on " + plantLotName,
+                WorkLogName = getTypePlan.MasterTypeName + "_on_" + plantLotName,
                 Date = dateWork.Date.Add(schedule.StartTime.Value),
                 IsConfirm = false,
                 ScheduleId = schedule.ScheduleId
@@ -2260,7 +2316,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
                         IsReporter = user.isReporter,
-                        StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
                         IsDeleted = false,
                     });
                 }
@@ -2356,10 +2411,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                     _unitOfWork.PlanRepository.Update(getPlanById);
+                    await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{getPlanById.FarmID}");
+                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + getPlanById.PlanId.ToString());
                 }
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
+
                     return new BusinessResult(Const.SUCCESS_SOFT_DELETE_PLAN_CODE, Const.SUCCESS_SOFT_DELETE_PLAN_MSG, result > 0);
                 }
                 return new BusinessResult(Const.FAIL_SOFT_DELETE_PLAN_CODE, Const.FAIL_SOFT_DELETE_PLAN_MESSAGE, false);
@@ -2419,7 +2477,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (planTarget.PlanID != null)
                     {
                         var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
-                        if (getPlan != null && getPlan.IsDeleted == false)
+                        if (getPlan != null && getPlan.IsDeleted == false && getPlan.IsSample == false)
                         {
                             getListPlan.Add(getPlan);
                         }
@@ -2558,7 +2616,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 });
                                 return result;
                             }
-                            
+
                         //case "graftedplant":
                         //    var validGraftedPlantsTemp = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging();
                         //    var validGraftedPlants = validGraftedPlantsTemp.Where(pl => pl.FarmId == farmId && (getAllPlants || growthStageIds.Contains(pl.GrowthStageID)))
@@ -2616,40 +2674,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> FilterTypeOfWorkByGrowthStageIds(List<int?> growthStageIds)
         {
-            try
-            {
-                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
-                if (getMasterType != null && getMasterType.Any())
-                {
-                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
-                }
-                return new BusinessResult(404, "Do not have any type of work");
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            //try
+            //{
+            //    var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByGrowthStages(growthStageIds);
+            //    if (getMasterType != null && getMasterType.Any())
+            //    {
+            //        return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
+            //    }
+            //    return new BusinessResult(404, "Do not have any type of work");
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            //}
+            var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("work");
+            return new BusinessResult(200, "Filter type of work by growth stage id sucess");
         }
 
 
         public async Task<BusinessResult> FilterMasterTypeByGrowthStageIds(List<int?> growthStageIds, string typeName)
         {
-            try
-            {
-                var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesWithTypeNameByGrowthStages(growthStageIds, typeName);
-                if (getMasterType != null && getMasterType.Any())
-                {
-                    return new BusinessResult(200, "Filter type of work by growth stage id sucess", getMasterType);
-                }
-                return new BusinessResult(404, "Do not have any type of work");
-            }
-            catch (Exception ex)
-            {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
-            }
+            var getMasterType = await _unitOfWork.MasterTypeRepository.GetMasterTypesByTypeName("work");
+            return new BusinessResult(200, "Filter type of work by growth stage id sucess");
         }
 
-        public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
+            public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -2690,10 +2739,222 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListPlan = await _unitOfWork.PlanRepository.GetPlanIncludeByProcessId(processId);
                 if (getListPlan != null && getListPlan.Count() > 0)
-                {   
-                    return new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
+                {
+                    var result = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
+                    return result;
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetPlanOfTarget(GetPlanOfTargetRequest filterRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                Expression<Func<Plan, bool>> filter = x =>
+                           x.IsDeleted == false;
+                Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
+                if (filterRequest.PlantId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.PlantID == filterRequest.PlantId.Value));
+                }
+                if (filterRequest.GraftedPlantId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.GraftedPlantID == filterRequest.GraftedPlantId.Value));
+                }
+                if (filterRequest.PlantLotId.HasValue)
+                {
+                    filter = filter.And(x => x.PlanTargets.Any(pt => pt.PlantLotID == filterRequest.PlantLotId.Value));
+                }
+
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+
+                    filter = filter.And(x => x.PlanCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PlanDetail.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.ResponsibleBy.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Frequency.ToLower().Contains(paginationParameter.Search.ToLower()));
+
+                }
+
+                if (filterRequest.FromDate.HasValue || filterRequest.ToDate.HasValue)
+                {
+                    if (filterRequest.FromDate.Value > filterRequest.ToDate.Value)
+                    {
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+                    }
+                    filter = filter.And(x => x.StartDate >= filterRequest.FromDate&&
+                                             x.EndDate <= filterRequest.ToDate);
+                }
+
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
+                {
+                    case "planid":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanId)
+                                   : x => x.OrderBy(x => x.PlanId)) : x => x.OrderBy(x => x.PlanId);
+                        break;
+                    case "plancode":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanCode)
+                                   : x => x.OrderBy(x => x.PlanCode)) : x => x.OrderBy(x => x.PlanCode);
+                        break;
+                    case "plandetail":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanDetail)
+                                   : x => x.OrderBy(x => x.PlanDetail)) : x => x.OrderBy(x => x.PlanDetail);
+                        break;
+                    case "planname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PlanName)
+                                   : x => x.OrderBy(x => x.PlanName)) : x => x.OrderBy(x => x.PlanName);
+                        break;
+                    case "masterstylename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MasterType.MasterTypeName)
+                                   : x => x.OrderBy(x => x.MasterType.MasterTypeName)) : x => x.OrderBy(x => x.MasterType.MasterTypeName);
+                        break;
+                    case "cropname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Crop.CropName)
+                                   : x => x.OrderBy(x => x.Crop.CropName)) : x => x.OrderBy(x => x.Crop.CropName);
+                        break;
+                    case "isdelete":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.IsDeleted)
+                                   : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
+                        break;
+                    case "pesticidename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.PesticideName)
+                                   : x => x.OrderBy(x => x.PesticideName)) : x => x.OrderBy(x => x.PesticideName);
+                        break;
+                    case "isactive":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.IsActive)
+                                   : x => x.OrderBy(x => x.IsActive)) : x => x.OrderBy(x => x.IsActive);
+                        break;
+
+                    case "processname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Process.ProcessName)
+                                   : x => x.OrderBy(x => x.Process.ProcessName)) : x => x.OrderBy(x => x.Process.ProcessName);
+                        break;
+                    case "frequency":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Frequency)
+                                   : x => x.OrderBy(x => x.Frequency)) : x => x.OrderBy(x => x.Frequency);
+                        break;
+                    case "responsibleby":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ResponsibleBy)
+                                   : x => x.OrderBy(x => x.ResponsibleBy)) : x => x.OrderBy(x => x.ResponsibleBy);
+                        break;
+                    case "assignorname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.User.FullName)
+                                   : x => x.OrderBy(x => x.User.FullName)) : x => x.OrderBy(x => x.User.FullName);
+                        break;
+                    case "note":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Notes)
+                                   : x => x.OrderBy(x => x.Notes)) : x => x.OrderBy(x => x.Notes);
+                        break;
+                    case "minVolume":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MinVolume)
+                                   : x => x.OrderBy(x => x.MinVolume)) : x => x.OrderBy(x => x.MinVolume);
+                        break;
+                    case "maxVolume":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.MaxVolume)
+                                   : x => x.OrderBy(x => x.MaxVolume)) : x => x.OrderBy(x => x.MaxVolume);
+                        break;
+                    case "status":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Status)
+                                   : x => x.OrderBy(x => x.Status)) : x => x.OrderBy(x => x.Status);
+                        break;
+                    case "createdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.CreateDate)
+                                   : x => x.OrderBy(x => x.CreateDate)) : x => x.OrderBy(x => x.CreateDate);
+                        break;
+                    case "updatedate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.UpdateDate)
+                                   : x => x.OrderBy(x => x.UpdateDate)) : x => x.OrderBy(x => x.UpdateDate);
+                        break;
+                    case "startdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.StartDate)
+                                   : x => x.OrderBy(x => x.StartDate)) : x => x.OrderBy(x => x.StartDate);
+                        break;
+                    case "enddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.EndDate)
+                                   : x => x.OrderBy(x => x.EndDate)) : x => x.OrderBy(x => x.EndDate);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.ProcessId);
+                        break;
+                }
+                string includeProperties = "PlanTargets";
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter: filter, orderBy: orderBy, /*includeProperties:includeProperties ,*/ pageIndex: paginationParameter.PageIndex,pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<PlanModel>();
+
+                var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
+
+                //foreach (var planTemp in listTemp)
+                //{
+                //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                //    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                //}
+                pagin.List = listTemp;
+                pagin.TotalRecord = await _unitOfWork.PlanRepository.Count(filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    //string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{listTemp.}";
+                    var result = new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return result;
+                }
+                else
+                {
+                    return new BusinessResult(200, Const.WARNING_GET_PLAN_EMPTY_MSG, new PageEntity<PlanModel>());
+                }
             }
             catch (Exception ex)
             {

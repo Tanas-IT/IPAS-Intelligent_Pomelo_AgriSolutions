@@ -1,8 +1,10 @@
 import {
+  GetGraftedPlant,
   GetGrowthStage,
   GetMasterType,
   GetPartner,
   GetPlant,
+  GetPlantGrowthHistory,
   GetPlantLot2,
   MasterTypeDetail,
 } from "@/payloads";
@@ -51,6 +53,7 @@ export const plantFormFields: Record<keyof GetPlant, keyof GetPlant> = {
   rowIndex: "rowIndex",
   landPlotName: "landPlotName",
   isDead: "isDead",
+  isPassed: "isPassed",
 };
 
 export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterType> = {
@@ -65,6 +68,8 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   target: "target",
   isConflict: "isConflict",
   createDate: "createDate",
+  minTime: "minTime",
+  maxTime: "maxTime",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
 };
@@ -82,10 +87,52 @@ export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {
   importedDate: "importedDate",
   note: "note",
   masterTypeId: "masterTypeId",
+  isFromGrafted: "isFromGrafted",
   isPassed: "isPassed",
   seedingName: "seedingName",
   partnerId: "partnerId",
   partnerName: "partnerName",
+};
+
+export const cropFormFields = {
+  cropId: "cropId",
+  cropName: "cropName",
+  startDate: "startDate",
+  endDate: "endDate",
+  duration: "duration",
+  cropExpectedTime: "cropExpectedTime",
+  cropActualTime: "cropActualTime",
+  harvestSeason: "harvestSeason",
+  estimateYield: "estimateYield",
+  actualYield: "actualYield",
+  status: "status",
+  notes: "notes",
+  marketPrice: "marketPrice",
+  landPlotCrops: "landPlotCrops",
+};
+
+export const harvestFormFields = {
+  cropId: "cropId",
+  dateHarvest: "dateHarvest",
+  harvestHistoryNote: "harvestHistoryNote",
+  totalPrice: "totalPrice",
+};
+
+export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraftedPlant> = {
+  graftedPlantId: "graftedPlantId",
+  graftedPlantCode: "graftedPlantCode",
+  graftedPlantName: "graftedPlantName",
+  separatedDate: "separatedDate",
+  status: "status",
+  graftedDate: "graftedDate",
+  note: "note",
+  cultivarId: "cultivarId",
+  cultivarName: "cultivarName",
+  isCompleted: "isCompleted",
+  plantLotId: "plantLotId",
+  plantCode: "plantCode",
+  plantLotName: "plantLotName",
+  plantName: "plantName",
 };
 
 export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
@@ -97,6 +144,23 @@ export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowth
   monthAgeEnd: "monthAgeEnd",
   createDate: "createDate",
   activeFunction: "activeFunction",
+};
+
+export const plantGrowthHistoryFormFields: Record<
+  keyof GetPlantGrowthHistory,
+  keyof GetPlantGrowthHistory
+> = {
+  plantId: "plantId",
+  plantGrowthHistoryId: "plantGrowthHistoryId",
+  plantGrowthHistoryCode: "plantGrowthHistoryCode",
+  issueName: "issueName",
+  content: "content",
+  createDate: "createDate",
+  numberImage: "numberImage",
+  numberVideos: "numberVideos",
+  resources: "resources",
+  noteTakerName: "noteTakerName",
+  noteTakerAvatar: "noteTakerAvatar",
 };
 
 export const partnerFormFields: Record<keyof GetPartner, keyof GetPartner> = {
@@ -183,7 +247,7 @@ export const addPlanFormFields = {
   listLandPlotOfCrop: "listLandPlotOfCrop",
   planTarget: "planTarget",
   plantLot: "plantLot",
-  graftedPlant: "graftedPlant"
+  graftedPlant: "graftedPlant",
 };
 
 export const packageFormFields = {
@@ -204,5 +268,5 @@ export const processFormFields = {
   isSample: "isSample",
   planTarget: "planTarget",
   plantLot: "plantLot",
-  graftedPlant: "graftedPlant"
+  graftedPlant: "graftedPlant",
 };

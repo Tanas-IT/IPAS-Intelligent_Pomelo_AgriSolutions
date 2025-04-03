@@ -2,13 +2,16 @@ import { Flex } from "antd";
 import style from "./PlantList.module.scss";
 import {
   ActionMenuPlant,
+  ApplyPlantCriteriaModal,
   ConfirmModal,
   NavigationDot,
+  PlantMarkAsDeadModal,
   SectionTitle,
   Table,
   TableTitle,
+  PlantModal,
 } from "@/components";
-import { GetPlant, PlantRequest } from "@/payloads";
+import { GetPlant, PlantCriteriaApplyRequest, PlantRequest } from "@/payloads";
 import {
   useFetchData,
   useFilters,
@@ -20,16 +23,15 @@ import {
 } from "@/hooks";
 import { useEffect, useState } from "react";
 import { DEFAULT_PLANT_FILTERS, getOptions } from "@/utils";
-import { plantService } from "@/services";
+import { criteriaService, plantService } from "@/services";
 import PlantFilter from "./PlantFilter";
 import { plantColumns } from "./PlantColumns";
 import { FilterPlantState } from "@/types";
-import PlantModel from "./PlantModal";
 import { HEALTH_STATUS, ROUTES } from "@/constants";
 import PlantImportModal from "./PlantImportModal";
 import { toast } from "react-toastify";
-import PlantMarkAsDeadModal from "./PlantMarkAsDeadModal";
 import { useNavigate } from "react-router-dom";
+import { useDirtyStore } from "@/stores";
 
 function PlantList() {
   const navigate = useNavigate();
@@ -38,10 +40,12 @@ function PlantList() {
   const importErrorModal = useModal<{ errors: string[] }>();
   const importModal = useModal();
   const markAsDeadModal = useModal<{ id: number }>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ plant: PlantRequest }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
+  const criteriaModal = useModal<{ ids: number[] }>();
   const cancelConfirmModal = useModal();
+  const { isDirty } = useDirtyStore();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantState>(
     DEFAULT_PLANT_FILTERS,
@@ -75,7 +79,7 @@ function PlantList() {
 
   const { handleDelete } = useTableDelete(
     {
-      deleteFunction: plantService.deletePlant,
+      deleteFunction: plantService.deletePlants,
       fetchData,
       onSuccess: () => {
         deleteConfirmModal.hideModal();
@@ -172,6 +176,29 @@ function PlantList() {
     }
   };
 
+  const handleCloseCriteria = () => {
+    if (isDirty) {
+      cancelConfirmModal.showModal();
+    } else {
+      criteriaModal.hideModal();
+    }
+  };
+
+  const applyCriteria = async (criteria: PlantCriteriaApplyRequest) => {
+    var res = await criteriaService.applyPlantCriteria(criteria);
+    try {
+      setIsPlantActionLoading(true);
+      if (res.statusCode === 200) {
+        criteriaModal.hideModal();
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsPlantActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <PlantFilter
       filters={filters}
@@ -210,6 +237,11 @@ function PlantList() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
+          onApplyCriteria={(ids) =>
+            criteriaModal.showModal({
+              ids: ids,
+            })
+          }
           isLoading={isLoading}
           caption="Plant Management Board"
           notifyNoData="No plants to display"
@@ -219,6 +251,11 @@ function PlantList() {
               isPlantDead={plant.isDead}
               onEdit={() => formModal.showModal(plant)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [plant.plantId] })}
+              onApplyCriteria={() =>
+                criteriaModal.showModal({
+                  ids: [plant.plantId],
+                })
+              }
               onMarkAsDead={() => markAsDeadModal.showModal({ id: plant.plantId })}
             />
           )}
@@ -232,7 +269,7 @@ function PlantList() {
           rowsPerPageOptions={getOptions(totalRecords)}
           onRowsPerPageChange={handleRowsPerPageChange}
         />
-        <PlantModel
+        <PlantModal
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
           onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
@@ -243,6 +280,13 @@ function PlantList() {
           isOpen={importModal.modalState.visible}
           onClose={handleImportClose}
           onSave={handleImport}
+          isLoadingAction={isPlantActionLoading}
+        />
+        <ApplyPlantCriteriaModal
+          plantIds={criteriaModal.modalState.data?.ids}
+          isOpen={criteriaModal.modalState.visible}
+          onClose={handleCloseCriteria}
+          onSave={applyCriteria}
           isLoadingAction={isPlantActionLoading}
         />
         <PlantMarkAsDeadModal
@@ -283,6 +327,7 @@ function PlantList() {
             cancelConfirmModal.hideModal();
             formModal.hideModal();
             importModal.hideModal();
+            criteriaModal.hideModal();
           }}
           onCancel={cancelConfirmModal.hideModal}
         />

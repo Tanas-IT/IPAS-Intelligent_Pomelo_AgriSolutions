@@ -25,25 +25,23 @@ import EditWorklogModal from "./EditWorklogModal";
 import { Dayjs } from "dayjs";
 
 const InfoField = ({
-    icon: Icon,
-    label,
-    value,
-    isTag = false,
+  icon: Icon,
+  label,
+  value,
+  isTag = false,
 }: {
-    icon: React.ElementType;
-    label: string;
-    value: string | React.ReactNode;
-    isTag?: boolean;
+  icon: React.ElementType;
+  label: string;
+  value: string | React.ReactNode;
+  isTag?: boolean;
 }) => (
-    <Flex className={style.infoField}>
-        <Flex className={style.fieldLabelWrapper}>
-            <Icon className={style.fieldIcon} />
-            <label className={style.fieldLabel}>{label}:</label>
-        </Flex>
-        <label className={style.fieldValue}>
-            {isTag ? <Tag color="green">{value}</Tag> : value}
-        </label>
+  <Flex className={style.infoField}>
+    <Flex className={style.fieldLabelWrapper}>
+      <Icon className={style.fieldIcon} />
+      <label className={style.fieldLabel}>{label}:</label>
     </Flex>
+    <label className={style.fieldValue}>{isTag ? <Tag color="green">{value}</Tag> : value}</label>
+  </Flex>
 );
 
 function WorklogDetail() {
@@ -71,15 +69,15 @@ function WorklogDetail() {
         { replacedUserId: number; replacementUserId: number }[]
     >([]);
 
-    const handleUpdateFeedback = (feedback: TaskFeedback) => {
-        setSelectedFeedback(feedback);
-        formModal.showModal();
-    };
+  const handleUpdateFeedback = (feedback: TaskFeedback) => {
+    setSelectedFeedback(feedback);
+    formModal.showModal();
+  };
 
-    const handleCloseModal = () => {
-        setSelectedFeedback(undefined);
-        formModal.hideModal();
-    };
+  const handleCloseModal = () => {
+    setSelectedFeedback(undefined);
+    formModal.hideModal();
+  };
 
     const handleOpenDeleteModal = (feedback: TaskFeedback) => {
         setSelectedFeedbackToDelete(feedback);
@@ -174,36 +172,38 @@ function WorklogDetail() {
         }
     };
 
-    const handleDeleteFeedback = async () => {
-        if (!selectedFeedbackToDelete) return;
+  const handleDeleteFeedback = async () => {
+    if (!selectedFeedbackToDelete) return;
 
-        try {
-            await feedbackService.deleteFeedback(selectedFeedbackToDelete.taskFeedbackId);
-            setFeedbackList(feedbackList.filter(fb => fb.taskFeedbackId !== selectedFeedbackToDelete.taskFeedbackId));
-            setIsDeleteModalVisible(false);
-        } catch (error) {
-            console.error("Error deleting feedback:", error);
-        }
-    };
-    const [infoFieldsLeft, setInfoFieldsLeft] = useState([
-        { label: "Crop", value: "Spring 2025", icon: Icons.growth },
-        { label: "Plan Name", value: "Plan name", icon: Icons.box },
-        { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
-    ]);
-
-    const [infoFieldsRight, setInfoFieldsRight] = useState([
-        { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
-        { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
-    ]);
-    const addModal = useModal<CreateFeedbackRequest>();
-
-    const handleFeedback = () => {
-        formModal.showModal();
-    };
-
-    const handleAdd = () => {
-        // Handle add feedback
+    try {
+      await feedbackService.deleteFeedback(selectedFeedbackToDelete.taskFeedbackId);
+      setFeedbackList(
+        feedbackList.filter((fb) => fb.taskFeedbackId !== selectedFeedbackToDelete.taskFeedbackId),
+      );
+      setIsDeleteModalVisible(false);
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
     }
+  };
+  const [infoFieldsLeft, setInfoFieldsLeft] = useState([
+    { label: "Crop", value: "Spring 2025", icon: Icons.growth },
+    { label: "Plan Name", value: "Plan name", icon: Icons.box },
+    { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
+  ]);
+
+  const [infoFieldsRight, setInfoFieldsRight] = useState([
+    { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
+    { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
+  ]);
+  const addModal = useModal<CreateFeedbackRequest>();
+
+  const handleFeedback = () => {
+    formModal.showModal();
+  };
+
+  const handleAdd = () => {
+    // Handle add feedback
+  };
 
     const determineUnit = (planTargetModels: PlanTargetModel) => {
         const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
@@ -325,32 +325,40 @@ function WorklogDetail() {
             const date = new Date(res.date);
             setSelectedDate(new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString());
 
-            setInfoFieldsLeft([
-                { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
-                { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
-                { label: "Growth Stage", value: res.listGrowthStageName.join(", ") || "Cây non", icon: Icons.plant },
-            ]);
+      setInfoFieldsLeft([
+        { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
+        { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
+        {
+          label: "Growth Stage",
+          value: res.listGrowthStageName.join(", ") || "Cây non",
+          icon: Icons.plant,
+        },
+      ]);
 
-            setInfoFieldsRight([
-                { label: "Process Name", value: res.processName || "None", icon: Icons.process },
-                { label: "Type", value: res.masterTypeName || "Watering", icon: Icons.category, isTag: true },
-            ]);
+      setInfoFieldsRight([
+        { label: "Process Name", value: res.processName || "None", icon: Icons.process },
+        {
+          label: "Type",
+          value: res.masterTypeName || "Watering",
+          icon: Icons.category,
+          isTag: true,
+        },
+      ]);
 
-            infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
-            infoFieldsRight[1].value = res.status || "Watering";
-            // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
-        } catch (error) {
-            console.error("error", error);
-            navigate("/error");
-        }
-    };
+      infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
+      infoFieldsRight[1].value = res.status || "Watering";
+      // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
+    } catch (error) {
+      console.error("error", error);
+      navigate("/error");
+    }
+  };
 
-    useEffect(() => {
-        if (!id) {
-            navigate("/404");
-            return;
-        }
-
+  useEffect(() => {
+    if (!id) {
+      navigate("/404");
+      return;
+    }
 
         fetchPlanDetail();
     }, [id]);
@@ -579,139 +587,146 @@ function WorklogDetail() {
                 replacementEmployees={worklogDetail?.replacementEmployee || []}
             />
 
-            <Divider className={style.divider} />
+      <Divider className={style.divider} />
 
-            {/* Plan Details */}
-            <Flex className={style.contentSectionBody} gap={20}>
-                <Flex className={style.col}>
-                    {infoFieldsLeft.map((field, index) => (
-                        <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
-                    ))}
-                </Flex>
-                <Flex className={style.col}>
-                    {infoFieldsRight.map((field, index) => (
-                        <InfoField
-                            key={index}
-                            icon={field.icon}
-                            label={field.label}
-                            value={field.value}
-                            isTag={field.isTag}
-                        />
-                    ))}
-                </Flex>
-            </Flex>
-
-            <Divider className={style.divider} />
-
-            <TimelineNotes notes={worklogDetail?.listNoteOfWorkLog || []} />
-
-            <Divider className={style.divider} />
-
-            <PlanTargetTable
-                data={worklogDetail?.planTargetModels ? transformPlanTargetData(worklogDetail.planTargetModels) : []}
+      {/* Plan Details */}
+      <Flex className={style.contentSectionBody} gap={20}>
+        <Flex className={style.col}>
+          {infoFieldsLeft.map((field, index) => (
+            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
+          ))}
+        </Flex>
+        <Flex className={style.col}>
+          {infoFieldsRight.map((field, index) => (
+            <InfoField
+              key={index}
+              icon={field.icon}
+              label={field.label}
+              value={field.value}
+              isTag={field.isTag}
             />
+          ))}
+        </Flex>
+      </Flex>
 
-            <Divider className={style.divider} />
+      <Divider className={style.divider} />
 
-            <WeatherAlerts />
+      <TimelineNotes notes={worklogDetail?.listNoteOfWorkLog || []} />
 
-            <Divider className={style.divider} />
+      <Divider className={style.divider} />
 
-            {/* Feedback */}
+      <PlanTargetTable
+        data={
+          worklogDetail?.planTargetModels
+            ? transformPlanTargetData(worklogDetail.planTargetModels)
+            : []
+        }
+      />
 
-            <Flex vertical justify="space-between" align="center" className={style.feedbackSection}>
-                {feedbackList.length > 0 ? (
-                    <div className={style.feedbackContent}>
-                        {feedbackList.map((item, index) => (
-                            <div
-                                key={index}
-                                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : style.doneBackground}`}
-                            >
-                                <Image
-                                    src={"https://via.placeholder.com/40"}
-                                    width={40}
-                                    height={40}
-                                    className={style.avt}
-                                    preview={false}
-                                    crossOrigin="anonymous"
-                                />
-                                <div className={style.feedbackText}>
-                                    <Flex vertical>
-                                        <div className={style.feedbackName}>{manager?.fullName}</div>
-                                        <div className={style.feedbackMessage}>{item.content}</div>
-                                    </Flex>
-                                    {worklogDetail?.status === "Redo" && (
-                                        <Flex vertical={false}>
-                                            <Button
-                                                className={style.updateButton}
-                                                onClick={() => handleUpdateFeedback(item)}
-                                            >
-                                                Update
-                                            </Button>
-                                            <Button className={style.deleteButton} onClick={() => handleOpenDeleteModal(item)} disabled>Delete</Button>
-                                            <Button
-                                                className={style.reassignButton}
-                                                onClick={() => navigate("/hr-management/worklogs")}
-                                            >
-                                                Re-assign
-                                            </Button>
-                                        </Flex>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={style.noFeedback}>Chưa có feedback</div>
-                )}
-                {
-                    (worklogDetail?.status === "Reviewing" ||
-                        worklogDetail?.status === "Overdue") ? (
-                        <Button onClick={handleFeedback} className={style.btnFeedback}>
-                            Feedback
-                        </Button>
-                    ) :
-                        worklogDetail?.status === "Not Started" ||
-                            worklogDetail?.status === "In Progress" ||
-                            worklogDetail?.status === "On Redo" ? (
-                            <>
-                                <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
-                                    Feedback
-                                </Button>
-                                <p className={style.informFb}>
-                                    The employee has not completed the task yet. Please check back later.
-                                </p>
-                            </>
-                        ) :
-                            null
-                }
-            </Flex>
+      <Divider className={style.divider} />
 
-            <FeedbackModal
-                // isOpen={true}
-                isOpen={formModal.modalState.visible}
-                onClose={handleCloseModal}
-                onSave={handleAdd}
-                worklogId={Number(id)}
-                managerId={Number(getUserId())}
-                onSuccess={fetchPlanDetail}
-                feedbackData={selectedFeedback}
-            />
-            <ConfirmModal
-                visible={isDeleteModalVisible}
-                onConfirm={handleDeleteFeedback}
-                onCancel={() => setIsDeleteModalVisible(false)}
-                actionType="delete"
-                itemName="feedback"
-                title="Delete Feedback?"
-                description="Are you sure you want to delete this feedback? This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-                isDanger={true}
-            />
-            <ToastContainer />
-        </div>
-    )
+      <WeatherAlerts />
+
+      <Divider className={style.divider} />
+
+      {/* Feedback */}
+
+      <Flex vertical justify="space-between" align="center" className={style.feedbackSection}>
+        {feedbackList.length > 0 ? (
+          <div className={style.feedbackContent}>
+            {feedbackList.map((item, index) => (
+              <div
+                key={index}
+                className={`${style.feedbackItem} ${
+                  worklogDetail?.status === "Redo" ? style.redoBackground : style.doneBackground
+                }`}
+              >
+                <Image
+                  src={"https://via.placeholder.com/40"}
+                  width={40}
+                  height={40}
+                  className={style.avt}
+                  preview={false}
+                  crossOrigin="anonymous"
+                />
+                <div className={style.feedbackText}>
+                  <Flex vertical>
+                    <div className={style.feedbackName}>{manager?.fullName}</div>
+                    <div className={style.feedbackMessage}>{item.content}</div>
+                  </Flex>
+                  {worklogDetail?.status === "Redo" && (
+                    <Flex vertical={false}>
+                      <Button
+                        className={style.updateButton}
+                        onClick={() => handleUpdateFeedback(item)}
+                      >
+                        Update
+                      </Button>
+                      <Button
+                        className={style.deleteButton}
+                        onClick={() => handleOpenDeleteModal(item)}
+                        disabled
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        className={style.reassignButton}
+                        onClick={() => navigate("/hr-management/worklogs")}
+                      >
+                        Re-assign
+                      </Button>
+                    </Flex>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={style.noFeedback}>Chưa có feedback</div>
+        )}
+        {worklogDetail?.status === "Reviewing" || worklogDetail?.status === "Overdue" ? (
+          <Button onClick={handleFeedback} className={style.btnFeedback}>
+            Feedback
+          </Button>
+        ) : worklogDetail?.status === "Not Started" ||
+          worklogDetail?.status === "In Progress" ||
+          worklogDetail?.status === "On Redo" ? (
+          <>
+            <Button onClick={handleFeedback} disabled className={style.btnFeedback}>
+              Feedback
+            </Button>
+            <p className={style.informFb}>
+              The employee has not completed the task yet. Please check back later.
+            </p>
+          </>
+        ) : null}
+      </Flex>
+
+      <FeedbackModal
+        // isOpen={true}
+        isOpen={formModal.modalState.visible}
+        onClose={handleCloseModal}
+        onSave={handleAdd}
+        worklogId={Number(id)}
+        managerId={Number(getUserId())}
+        onSuccess={fetchPlanDetail}
+        feedbackData={selectedFeedback}
+      />
+      <ConfirmModal
+        visible={isDeleteModalVisible}
+        onConfirm={handleDeleteFeedback}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        actionType="delete"
+        itemName="feedback"
+        title="Delete Feedback?"
+        description="Are you sure you want to delete this feedback? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+      />
+      <ToastContainer />
+    </div>
+  );
 }
 
 export default WorklogDetail;

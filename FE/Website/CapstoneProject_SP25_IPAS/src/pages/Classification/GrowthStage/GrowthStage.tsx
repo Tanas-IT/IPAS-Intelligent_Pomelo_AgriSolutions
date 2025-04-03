@@ -26,7 +26,7 @@ import { useGrowthStageStore } from "@/stores";
 
 function GrowthStage() {
   const formModal = useModal<GetGrowthStage>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const updateConfirmModal = useModal<{ stage: GrowthStageRequest }>();
   const cancelConfirmModal = useModal();
   const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);

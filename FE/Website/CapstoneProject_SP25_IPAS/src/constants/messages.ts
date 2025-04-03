@@ -7,6 +7,8 @@ export const MESSAGES = {
   SESSION_EXPIRED: "Your session has expired, please log in again",
   BAD_REQUEST: "Invalid request. Please check your input and try again.",
   IMAGE_INVALID: "Only image files (PNG, JPG, GIF, WEBP) are allowed!",
+  IMAGE_OR_VIDEO_INVALID:
+    "Only image (PNG, JPG, GIF, WEBP) and video (MP4, WEBM, OGG) files are allowed!",
   OUT_PLANT:
     "The total number of plants exceeds the row's capacity. Please reduce the number of plants or adjust the spacing.",
   DRAW_PLOT: "Please draw a plot before proceeding to the next step!",
@@ -25,4 +27,11 @@ export const MESSAGES = {
   LOT_CRITERIA_EVALUATION: "Qualified Quantity must be less than or equal to Checked quantity.",
   LOT_CRITERIA_EVALUATION_MAX: "The new quantity cannot exceed the existing Qualified quantity.",
   LOT_CRITERIA_CONDITION_MAX: "The new quantity cannot exceed the existing Checked quantity.",
+  REQUIRE_PRODUCT: "At least one product is required.",
+  REQUIRE_EMPLOYEE: "At least one employee is required.",
+  INVALID_HARVEST_DATE: "Harvest date must be today or later!",
+  INVALID_START_TIME: "Start time must be greater than or equal to the current time!",
+  INVALID_END_TIME: "End time must be after start time!",
+  REQUIRE_REPORTER: "At least one employee must be assigned as the reporter.",
+  HARVEST_DATE_OUT_OF_RANGE: "Harvest date must be within the crop period!",
 } as const;

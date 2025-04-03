@@ -13,9 +13,10 @@
     padding: 12px;
     .controls {
       gap: 20px;
+
       .controlSelect {
-        min-width: 14rem;
-        max-width: 20rem;
+        min-width: 16rem;
+        max-width: 32rem;
       }
     }
     .segment {
@@ -65,7 +66,7 @@
 
   .zoomControls {
     justify-content: flex-end;
-    margin-left: 40rem;
+    margin-left: 38rem;
     gap: 20px;
   }
 }

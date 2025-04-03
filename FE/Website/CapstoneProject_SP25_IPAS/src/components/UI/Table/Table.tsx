@@ -24,7 +24,10 @@ interface TableProps<T, E = T> {
   rotation: number;
   currentPage?: number;
   rowsPerPage?: number;
-  handleDelete?: (ids: string[]) => void;
+  handleDelete?: (ids: number[]) => void;
+  onApplyCriteria?: (ids: number[]) => void;
+  onGroupGraftedPlant?: (ids: number[]) => void;
+  onUnGroupGraftedPlant?: (ids: number[]) => void;
   isLoading: boolean;
   caption: string;
   notifyNoData: string;
@@ -51,6 +54,9 @@ const TableComponent = <T, E = T>({
   currentPage = 1,
   rowsPerPage = DEFAULT_ROWS_PER_PAGE,
   handleDelete,
+  onApplyCriteria,
+  onGroupGraftedPlant,
+  onUnGroupGraftedPlant,
   isLoading,
   caption,
   notifyNoData,
@@ -126,10 +132,10 @@ const TableComponent = <T, E = T>({
     setSelection([]);
   }, [currentPage, rowsPerPage]);
 
-  const getIdFromCode = (code: string): string | undefined => {
+  const getIdFromCode = (code: string): number | undefined => {
     for (const row of rows) {
       if ((row as T)[rowKey] === code) {
-        return (row as T)[idName as keyof T] as string;
+        return (row as T)[idName as keyof T] as number;
       }
 
       // Kiểm tra hàng con (expanded rows)
@@ -137,7 +143,7 @@ const TableComponent = <T, E = T>({
         const expandedRows = (row[expandedRowName] as E[]) || [];
         for (const child of expandedRows) {
           if (expandedRowKey && (child as E)[expandedRowKey] === code) {
-            return (child as E)[idExpandedName as keyof E] as string;
+            return (child as E)[idExpandedName as keyof E] as number;
           }
         }
       }
@@ -145,17 +151,20 @@ const TableComponent = <T, E = T>({
     return undefined;
   };
 
-  const deleteSelectedItems = () => {
+  const handleSelectionAction = (callback?: (ids: number[]) => void) => {
     const selectedIds = selection
       .map((code) => getIdFromCode(code))
-      .filter((id): id is string => id !== undefined);
+      .filter((id): id is number => id !== undefined);
 
-    if (handleDelete) {
-      handleDelete(selectedIds); // Gửi danh sách các id đã chọn để xóa
-    }
-
+    if (callback) callback(selectedIds);
     setSelection([]);
   };
+
+  // Gọi hàm với từng action cụ thể
+  const deleteSelectedItems = () => handleSelectionAction(handleDelete);
+  const applyCriteriaSelectedItems = () => handleSelectionAction(onApplyCriteria);
+  const groupSelectedItemsToLot = () => handleSelectionAction(onGroupGraftedPlant);
+  const unGroupSelectedItemsFromLot = () => handleSelectionAction(onUnGroupGraftedPlant);
 
   const antColumns = [
     isViewCheckbox && {
@@ -319,7 +328,13 @@ const TableComponent = <T, E = T>({
         </div>
       )}
 
-      <ActionBar selectedCount={selection.length} deleteSelectedItems={deleteSelectedItems} />
+      <ActionBar
+        selectedCount={selection.length}
+        deleteSelectedItems={deleteSelectedItems}
+        {...(onApplyCriteria && { onApplyCriteria: applyCriteriaSelectedItems })}
+        {...(onGroupGraftedPlant && { onGroupGraftedPlant: groupSelectedItemsToLot })}
+        {...(onUnGroupGraftedPlant && { onUnGroupGraftedPlant: unGroupSelectedItemsFromLot })}
+      />
     </>
   );
 };

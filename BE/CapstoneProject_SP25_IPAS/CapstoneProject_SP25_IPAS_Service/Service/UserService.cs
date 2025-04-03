@@ -876,7 +876,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<User, bool>> filter = null!;
+                Expression<Func<User, bool>> filter = x => x.IsDeleted == false!;
                 Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -1357,7 +1357,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int tokenValidityInDays);
                                     string refreshToken = await GenerateRefreshToken(email, null, tokenValidityInDays, -1, -1);
 
-
+                                    await _unitOfWork.RefreshTokenRepository.DeleteToken(jwtToken);
                                     await _unitOfWork.RefreshTokenRepository.AddRefreshToken(new RefreshToken()
                                     {
                                         UserId = existUser.UserId,

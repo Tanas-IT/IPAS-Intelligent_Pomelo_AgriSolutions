@@ -253,6 +253,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var result = await _context.WorkLogs
                         .Include(x => x.Schedule)
+                        .Include(x => x.Schedule.HarvestHistory)
+                        .Include(x => x.Schedule.CarePlan)
                         .Include(x => x.Schedule.CarePlan.Crop)
                         .Include(x => x.Schedule.CarePlan.MasterType)
                         .Include(x => x.Schedule.CarePlan.Process)
@@ -341,25 +343,33 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
          .Include(wl => wl.Schedule)
          .ThenInclude(s => s.CarePlan)
          .ThenInclude(p => p.MasterType)
-         .Where(wl => wl.Date == dayCheck &&
+         .Where(wl => wl.IsDeleted == false &&
+                      wl.Date == dayCheck &&
                       wl.Schedule.StartTime < newEndTime &&
                       wl.Schedule.EndTime > newStartTime)
          .ToListAsync();
 
             // Kiểm tra công việc có thể làm chung không
-            var newMasterType = await _context.MasterTypes.FindAsync(masterTypeId);
-            if (newMasterType == null)
-                throw new Exception("Invalid MasterTypeId");
-
-            if (newMasterType.IsConflict == true && existingWorkLogs.Any())
+            if (masterTypeId.HasValue)
             {
-                throw new Exception("This work cannot be scheduled because it conflicts with existing work logs.");
+                var newMasterType = await _context.MasterTypes.FindAsync(masterTypeId);
+
+                if (newMasterType == null)
+                    throw new Exception("Invalid MasterTypeId");
+                if (newMasterType.IsConflict == true && existingWorkLogs.Any())
+                {
+                    throw new Exception("This work cannot be scheduled because it conflicts with existing work logs.");
+                }
             }
+
 
             // Kiểm tra nhân viên có bị trùng lịch không
             var userConflicts = await _context.UserWorkLogs
-                .Where(uwl => listEmployeeIds.Contains(uwl.UserId) &&
-                              uwl.WorkLog.Date == dayCheck &&
+                .Include(wl => wl.WorkLog)
+                .ThenInclude(wl => wl.Schedule)
+                .Where(uwl => uwl.WorkLog.IsDeleted == false &&
+                                listEmployeeIds.Contains(uwl.UserId) &&
+                              uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
                               uwl.WorkLog.Schedule.StartTime < newEndTime &&
                               uwl.WorkLog.Schedule.EndTime > newStartTime)
                 .Select(uwl => new
@@ -374,9 +384,40 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             if (userConflicts.Any())
             {
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
-                    $"[{uwl.FullName} - {uwl.StartTime:HH:mm} to {uwl.EndTime:HH:mm}]"
+                    $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts: {conflictDetails}");
+                throw new Exception($"The following employees have scheduling conflicts {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
+            }
+        }
+
+        public async Task CheckConflictTaskOfEmployee(TimeSpan newStartTime, TimeSpan newEndTime, DateTime dayCheck, List<int> listEmployeeIds, int? workLogId = null)
+        { 
+
+           
+            var userConflicts = await _context.UserWorkLogs
+              .Include(wl => wl.WorkLog)
+              .ThenInclude(wl => wl.Schedule)
+              .Where(uwl => uwl.WorkLog.IsDeleted == false &&
+                              listEmployeeIds.Contains(uwl.UserId) &&
+                            uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
+                             (workLogId == null || uwl.WorkLog.WorkLogId != workLogId) &&
+                            uwl.WorkLog.Schedule.StartTime < newEndTime &&
+                            uwl.WorkLog.Schedule.EndTime > newStartTime)
+              .Select(uwl => new
+              {
+                  uwl.User.FullName,  // Lấy tên nhân viên nếu có
+                  uwl.UserId,
+                  StartTime = uwl.WorkLog.Schedule.StartTime,
+                  EndTime = uwl.WorkLog.Schedule.EndTime
+              })
+              .ToListAsync();
+
+            if (userConflicts.Any())
+            {
+                var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
+                    $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
+                ));
+                throw new Exception($"The following employees have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
             }
         }
 
@@ -398,12 +439,32 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.CarePlan)
                 .ThenInclude(x => x.MasterType)
                 .Where(x => x.Schedule.FarmID == farmId &&
-                            x.ActualStartTime.HasValue && 
+                            x.ActualStartTime.HasValue &&
                             x.Date.Value.Date == DateTime.Now.Date &&
                             x.ActualStartTime.Value >= nowTimeSpan &&
                             x.ActualStartTime.Value <= timeAfter3Hours)
                 .ToListAsync();
             return result;
+        }
+
+        public async Task<List<WorkLog>> GetListWorkLogByFarmId(int farmId)
+        {
+            var getAllWorkLog = await _context.WorkLogs
+                            .Include(x => x.Schedule)
+                            .Where(x => x.Schedule.FarmID == farmId).ToListAsync();
+            return getAllWorkLog;
+        }
+
+        public async Task<List<WorkLog>> GetWorkLogByStatusAndUserId(string status, int userId)
+        {
+            var getListWorkLog = await _context.WorkLogs
+                                    .Include(x => x.UserWorkLogs)
+                                    .ThenInclude(uwl => uwl.User) // Giả sử User có Avatar
+                                    .Where(x =>
+                                        (string.IsNullOrEmpty(status) || (x.Status ?? "").ToLower() == status.ToLower()) // Nếu status là null thì lấy tất cả
+                                        && x.UserWorkLogs.Any(uwl => uwl.UserId == userId))
+                                    .ToListAsync();
+            return getListWorkLog;
         }
     }
 }

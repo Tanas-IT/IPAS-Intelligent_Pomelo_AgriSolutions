@@ -25,11 +25,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.ProductCriteriaSet.getCriteriaSetOfProduct, Name = "getCriteriaSetOfProduct")]
-        public async Task<IActionResult> getCriteriaSetOfProduct([FromQuery] int productId)
+        public async Task<IActionResult> getCriteriaSetOfProduct([FromQuery] GetProductCriteriaRequest getRequest)
         {
             try
             {
-                var result = await _typetypeService.GetCriteriaSetOfProduct(productId: productId);
+                var result = await _typetypeService.GetCriteriaSetOfProduct(request: getRequest);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -13,7 +13,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject
         public string ApiKey { get; set; }
         public string ChecksumKey { get; set; }
         public string Domain { get; set; }
-
         public string ReturnPath { get; set; }
         public string CanclePath { get; set; }
     }

@@ -145,9 +145,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //    return new BusinessResult(400, $"The following Criteria Sets are empty and must have at least one Criteria: {string.Join(", ", emptyCriteriaSet)}");
 
                     //  6. Kiểm tra đối tác có tồn tại không
-                    var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
-                    if (checkPartnerExist == null)
-                        return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                    if (createPlantLotModel.IsFromGrafted == false)
+                    {
+                        var checkPartnerExist = await _unitOfWork.PartnerRepository.GetByCondition(x => x.PartnerId == createPlantLotModel.PartnerId && x.IsDeleted == false);
+                        if (checkPartnerExist == null)
+                            return new BusinessResult(Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                    }
 
                     //  7. Tạo lô cây (PlantLot)
                     var plantLot = new PlantLot()
@@ -297,11 +300,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }).ToList();
 
                             // 10. Gọi hàm `ApplyCriteriasForTarget`
-                            var criteriaApplyRequest = new CriteriaTargerRequest
+                            var criteriaApplyRequest = new ApplyCriteriaForTargetRequest
                             {
                                 PlantLotId = new List<int> { additionalPlantLot.PlantLotId },
                                 CriteriaData = criteriaDataList,
-                                allowOveride = false
+                                //allowOveride = false
                             };
                             await _criteriaTargetService.ApplyCriteriasForTarget(criteriaApplyRequest);
                         }
@@ -565,7 +568,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             // chi check dieu kien can de nhap
                             //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition ?? new List<string>();
-                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY.Trim().ToLower()));
                             var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
 
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
@@ -588,10 +591,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             // chi check dieu kien can de danh gia
                             //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation ?? new List<string>();
-                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY));
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
                             var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
-                            if (checkCondition.StatusCode != 200)
+                            if (checkCondition.StatusCode == 300 && updatePlantLotRequestModel.LastQuantity.Value != 0)
                                 return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (updatePlantLotRequestModel.LastQuantity > checkExistPlantLot.InputQuantity)
                                 return new BusinessResult(400, "Last Quantity larger than input quantity");
@@ -601,9 +604,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
                             //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
-                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => 
-                                                x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY) ||
-                                                x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x =>
+                                                x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()) ||
+                                                x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY.Trim().ToLower()));
                             var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
 
                             var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
@@ -614,6 +617,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (updatePlantLotRequestModel.UsedQuantity > checkExistPlantLot.LastQuantity)
                                 return new BusinessResult(400, "Used Quantity larger than last quantity");
                             checkExistPlantLot.UsedQuantity = updatePlantLotRequestModel.UsedQuantity;
+                            if (checkExistPlantLot.UsedQuantity >= checkExistPlantLot.LastQuantity)
+                                checkExistPlantLot.Status = PlantLotStatusConst.USED;
                         }
                         if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Unit))
                         {
@@ -625,6 +630,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (!string.IsNullOrEmpty(updatePlantLotRequestModel.Status))
                         {
+                            if (!PlantLotStatusConst.ValidStatuses.Contains(updatePlantLotRequestModel.Status.ToLower()))
+                            {
+                                return new BusinessResult(400, "Invalid Status value.");
+                            }
                             checkExistPlantLot.Status = updatePlantLotRequestModel.Status;
                         }
                         if (updatePlantLotRequestModel.IsPass.HasValue && updatePlantLotRequestModel.IsPass == true)
@@ -637,8 +646,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
                             if (!checkExistPlantLot.LastQuantity.HasValue)
                                 return new BusinessResult(400, "You must enter last quantity before Completed to use");
-                            if (checkExistPlantLot.LastQuantity == 0)
-                                return new BusinessResult(400, "This plant lot no have any seeding to use");
+                            //if (checkExistPlantLot.LastQuantity == 0)
+                            //    return new BusinessResult(400, "This plant lot no have any seeding to use");
                             checkExistPlantLot.PassedDate = DateTime.Now;
                             checkExistPlantLot.IsPassed = updatePlantLotRequestModel.IsPass;
                         }
@@ -685,6 +694,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                     if (plantLot.IsPassed == false)
                         return new BusinessResult(400, "Plant lot not mark as PASS to fill to plot");
+                    if (plantLot.LastQuantity!.HasValue && plantLot.LastQuantity == 0)
+                        return new BusinessResult(400, "Plant lot no have seeding to use");
                     //var masterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(fillRequest.MasterTypeId, TypeNameInMasterEnum.Cultiva.ToString());
                     //if (masterTypeExist == null)
                     //    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG);
@@ -772,6 +783,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Cập nhật số lượng cây còn lại trong PlantLot
                     plantLot.UsedQuantity += (quantityToPlant - remainingPlants);
+                    if (plantLot.UsedQuantity >= plantLot.LastQuantity)
+                        plantLot.Status = PlantLotStatusConst.USED;
                     _unitOfWork.PlantLotRepository.Update(plantLot);
                     // Lưu thay đổi
                     var result = await _unitOfWork.SaveAsync();
@@ -796,9 +809,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.LastQuantity >= x.UsedQuantity && x.IsDeleted == false;
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.IsDeleted == false;
                 if (isFromGrafted.HasValue && isFromGrafted == true)
-                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.COMPLETED.ToLower()));
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted && !x.Status!.ToLower().Equals(PlantLotStatusConst.USED.ToLower()));
+                else
+                    filter = filter.And(x => x.LastQuantity < x.UsedQuantity);
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
@@ -920,36 +935,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //    return new BusinessResult(200, "The plant lot has successfully completed all required evaluations.");
         //}
 
-        public async Task<BusinessResult> CheckPlantLotApplyCriteriaAsync(int plantLotId, List<string> criteriaRequireCheck)
+        private async Task<BusinessResult> CheckPlantLotHasCheckCriteriaAsync(int plantLotId, List<string> criteriaRequireCheck)
         {
             var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
 
-            // Kiểm tra lô cây có tồn tại không
-            var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.MasterTypeId == plantLotId && x.IsDeleted == false);
+            // Kiểm tra xem tất cả các tiêu chí phải được check và pass thì mới trả về true 
+            // vì có chỉ cần bắt trường hợp tất cả được check nhưng có 1 cái nào đó ko pass để handle
+            // có value --> là được check rồi nhưng ko pass
+            //bool hasCompletedEvaluation = appliedCriterias
+            //    .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+            //    .All(x => x.ValueChecked.HasValue && x.IsPassed == true);
+            bool allChecked = appliedCriterias
+       .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+       .All(x => x.ValueChecked.HasValue);
 
-            // Kiểm tra xem tất cả các tiêu chí đánh giá đã được hoàn thành chưa
-            bool hasCompletedEvaluation = appliedCriterias
-                .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
-                //.All(x => x.IsChecked == true);
-                .All(x => x.IsPassed == true);
-
-            if (!hasCompletedEvaluation)
+            if (!allChecked)
             {
-                return new BusinessResult(400, "The plant lot has not completed all required evaluations.");
+                return new BusinessResult(250, "The plant lot has not been fully checked.");
             }
 
-            return new BusinessResult(200, "The plant lot has successfully completed all required evaluations.");
+            // Kiểm tra xem tất cả các tiêu chí đã check có pass hết hay không
+            bool hasCompletedEvaluation = appliedCriterias
+                .Where(x => criteriaRequireCheck.Contains(x.Criteria!.MasterType!.Target, StringComparer.OrdinalIgnoreCase))
+                .All(x => x.IsPassed == true);
+            // neu co cai nao check ma ko pass thi tra loi 300 de handle
+            if (!hasCompletedEvaluation)
+            {
+                return new BusinessResult(300, "The plant lot has not passed all required.");
+            }
+
+            return new BusinessResult(200, "The plant lot has successfully completed all required.");
         }
 
-        public async Task<BusinessResult> CheckPlantLotCriteriaCompletedAsync(int plantLotId, List<string> criteriaRequireCheck)
+        private async Task<BusinessResult> CheckPlantLotCriteriaCompletedAsync(int plantLotId, List<string> criteriaRequireCheck)
         {
-            //// 1. Kiểm tra lô cây có tồn tại không
-            //var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == plantLotId && x.isDeleted == false);
-            //if (plantLotExist == null)
-            //{
-            //    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
-            //}
-
             // 2. Lấy danh sách tiêu chí đã áp dụng
             var appliedCriterias = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantLotId: plantLotId);
 
@@ -964,13 +983,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             // 4. Kiểm tra xem tất cả tiêu chí đã được **hoàn thành** chưa (`IsPassed == true`)
-            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true);
+            bool hasCompletedCriteria = appliedCriteriaTargets.All(x => x.IsPassed == true && x.ValueChecked.HasValue);
 
             if (!hasCompletedCriteria)
             {
-                return new BusinessResult(300, $"The plant lot has not checked all required criteria: {string.Join(",", criteriaRequireCheck)} ");
+                return new BusinessResult(300, $"The plant lot has not PASS all required criteria: {string.Join(",", criteriaRequireCheck)} ");
             }
-
             return new BusinessResult(200, "The plant lot has successfully checked all required criteria.");
         }
 
@@ -1028,6 +1046,164 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlant);
             return;
+        }
+
+        public async Task<BusinessResult> CheckingCriteriaForLot(CheckPlantLotCriteriaRequest request)
+        {
+            //using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            //{
+            try
+            {
+                var checkExistPlantLot = await _unitOfWork.PlantLotRepository.GetByID(request.PlantLotID);
+                if (checkExistPlantLot == null)
+                    return new BusinessResult(400, "Plant lot not exist");
+                if (!string.IsNullOrEmpty(checkExistPlantLot.Status) && checkExistPlantLot.Status!.Equals(PlantLotStatusConst.USED, StringComparison.OrdinalIgnoreCase))
+                    return new BusinessResult(400, "Plant lot is used");
+                if (!request.criteriaDatas.Any())
+                {
+                    return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                }
+
+                // Lấy danh sách CriteriaTarget 
+                var listCriteriaId = request.criteriaDatas.Select(x => x.CriteriaId).ToList();
+                var CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
+                   .GetAllNoPaging(filter: x => request.PlantLotID.Equals(x.PlantLotID!.Value) && listCriteriaId.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
+
+                if (!CriteriaTargetList.Any())
+                {
+                    return new BusinessResult(Const.FAIL_GET_CRITERIA_CODE, "Don't have criteria to complete task");
+                }
+
+                var criteriaDict = request.criteriaDatas.ToDictionary(c => c.CriteriaId);
+
+                foreach (var lotCriteria in CriteriaTargetList)
+                {
+                    if (lotCriteria.CriteriaID.HasValue && criteriaDict.TryGetValue(lotCriteria.CriteriaID.Value, out var criteriaData))
+                    {
+                        // Cập nhật trạng thái `IsChecked`
+                        //if (criteriaData.IsChecked.HasValue)
+                        if (criteriaData.ValueChecked.HasValue)
+                        {
+                            //plantCriteria.IsChecked = criteriaData.IsChecked;
+                            lotCriteria.ValueChecked = criteriaData.ValueChecked;
+                            lotCriteria.CheckedDate = DateTime.Now;
+                        }
+
+                        // Cập nhật trạng thái `IsPassed`
+                        if (lotCriteria.Criteria!.MinValue.HasValue && lotCriteria.Criteria.MaxValue.HasValue)
+                        {
+                            if (criteriaData.ValueChecked >= lotCriteria.Criteria!.MinValue && criteriaData.ValueChecked <= lotCriteria.Criteria.MaxValue)
+                            {
+                                lotCriteria.IsPassed = true;
+                            }
+                            if (criteriaData.ValueChecked < lotCriteria.Criteria!.MinValue || criteriaData.ValueChecked > lotCriteria.Criteria.MaxValue)
+                            {
+                                lotCriteria.IsPassed = false;
+                            }
+                        }
+
+                    }
+                    lotCriteria.Criteria = null;
+                }
+                // Cập nhật danh sách CriteriaTarget 
+                _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
+                int result = await _unitOfWork.SaveAsync();
+
+                #region kiem check dieu kien TRUOC khi duyet lo
+                //bool flag = false;  // để duyệt qua điều kiện 1 khỏi duyệt qua điều kiện 2
+                //// kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
+                //var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY));
+                //var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+
+                //var checkCondition = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, ConditionList);
+                //// neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
+                //if (checkCondition.StatusCode == 300)
+                //{
+                //    flag = true;
+                //    checkExistPlantLot.InputQuantity = 0;
+                //    checkExistPlantLot.LastQuantity = 0;
+                //    _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
+                //}
+                #endregion
+
+                #region kiem check dieu kien trc khi SAU duyet lo
+                //if (flag == false)
+                //{
+                // kiem tra xem cac criteria do co hoan thanh duoc tieu chi de nhap so luong chua, neu check het ma con cai nao ko pass thi update lại số
+                var requiredEvaluation = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()));
+                var EvaluationList = requiredEvaluation.Any() ? requiredEvaluation.Select(x => x.ConfigValue).ToList() : new List<string>();
+
+                var checkEvaluation = await CheckPlantLotHasCheckCriteriaAsync(request.PlantLotID, EvaluationList);
+                // neu check het cai nay ma ko pass thi cap nhat inputQuantity va LastQuantity
+                if (checkEvaluation.StatusCode == 250)
+                {
+                    // Không cập nhật LastQuantity
+                }
+                else if (checkEvaluation.StatusCode == 300)
+                {
+                    checkExistPlantLot.LastQuantity = 0;
+                    _unitOfWork.PlantLotRepository.Update(checkExistPlantLot);
+                }
+                //}
+                #endregion
+
+                result += await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    //await transaction.CommitAsync();
+                    //var newPlantCriteria = await _unitOfWork.CriteriaTargetRepository
+                    //    .GetAllCriteriaOfPlantNoPaging(targetList!.FirstOrDefault()!.Value);
+
+                    return new BusinessResult(Const.SUCCES_CHECK_PLANT_CRITERIA_CODE, Const.SUCCES_CHECK_PLANT_CRITERIA_MSG, new { success = true });
+                }
+
+                return new BusinessResult(Const.FAIL_CHECK_CRITERIA_TARGET_CODE, Const.FAIL_CHECK_CRITERIA_TARGET_MSG, new { success = false });
+            }
+            catch (Exception ex)
+            {
+                //await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+            //}
+        }
+
+        public async Task<BusinessResult> MarkStatusUsed(int plantLotIds)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    Expression<Func<PlantLot, bool>> filter = x => x.PlantLotId == plantLotIds && x.IsDeleted == false && x.IsFromGrafted == true;
+                    var lotExist = await _unitOfWork.PlantLotRepository.GetByCondition(filter: filter);
+                    if (lotExist == null)
+                        return new BusinessResult(400, "No Lot Found");
+                    if (!lotExist.PreviousQuantity.HasValue || lotExist.PreviousQuantity.Value == 0)
+                        return new BusinessResult(400, "Lot no have quantity to use");
+                    lotExist.Status = PlantLotStatusConst.USED;
+
+                    var graftedInLot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(g => g.PlantLotId == lotExist.PlantLotId && g.IsDead == false);
+                    foreach (var grafted in graftedInLot)
+                    {
+                        grafted.Status = GraftedPlantStatusConst.IS_USED;
+                    }
+
+                    _unitOfWork.PlantLotRepository.Update(lotExist);
+                    _unitOfWork.GraftedPlantRepository.UpdateRange(graftedInLot);
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_DELETE_PLANT_LOT_CODE, $"Mark as Used lot success", result > 0);
+                    }
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.FAIL_DELETE_PLANT_LOT_CODE, Const.FAIL_DELETE_PLANT_LOT_MESSAGE, new { success = false });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
+            }
         }
     }
 }

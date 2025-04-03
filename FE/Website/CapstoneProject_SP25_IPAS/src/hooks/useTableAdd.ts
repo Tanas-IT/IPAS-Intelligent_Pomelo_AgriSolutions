@@ -17,7 +17,7 @@ export default function useTableAdd<T>({ addService, fetchData, onSuccess }: Use
       setIsAdding(true);
       try {
         const result = await addService(data);
-        if (result.statusCode === 200) {
+        if (result.statusCode === 200 || result.statusCode === 201) {
           toast.success(result.message);
           await fetchData();
           onSuccess?.();

@@ -9,7 +9,14 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
     public static class PlantLotStatusConst
     {
         public static string PENDING = "Pending";
-        public static string PROGRESS = "Progress";
-        public static string COMPLETED = "Complete";
+        //public static string PROGRESS = "Progress";
+        //public static string COMPLETED = "Complete";
+        public static string USED = "Used";
+        public static readonly HashSet<string> ValidStatuses = new HashSet<string>
+    {
+        PENDING.ToLower(), 
+        /* PROGRESS.ToLower(), COMPLETED.ToLower(),*/ 
+            USED.ToLower()
+    };
     }
 }

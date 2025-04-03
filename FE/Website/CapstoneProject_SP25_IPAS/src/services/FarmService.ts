@@ -7,8 +7,9 @@ import {
   GetFarmInfo,
   GetFarmPicker,
   GetUser,
+  GetUserInFarm,
 } from "@/payloads";
-import { getUserId } from "@/utils";
+import { getFileFormat, getUserId } from "@/utils";
 
 export const getFarmsOfUser = async (): Promise<ApiResponse<GetFarmPicker[]>> => {
   const userId = getUserId();
@@ -77,10 +78,14 @@ export const createFarmDocuments = async (
 
   if (doc.resources && doc.resources.length > 0) {
     doc.resources.forEach((fileResource, index) => {
-      formData.append(`Resources[${index}].fileFormat`, fileResource.file.type);
-      formData.append(`Resources[${index}].file`, fileResource.file);
+      const format = getFileFormat(fileResource.file.type);
+      if (format) {
+        formData.append(`Resources[${index}].fileFormat`, format);
+        formData.append(`Resources[${index}].file`, fileResource.file);
+      }
     });
   }
+
   const res = await axiosAuth.axiosMultipartForm.post(`legal-documents`, formData);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -117,14 +122,14 @@ export const updateFarmDocuments = async (
 
 export const getUserInFarmByRole = async (
   farmId: string,
-  listRole: number[]
-): Promise<ApiResponse<GetUser[]>> => {
-  const queryParams = listRole.map((role) => `listRole=${role}`).join('&');
+  listRole: number[],
+): Promise<ApiResponse<GetUserInFarm[]>> => {
+  const queryParams = listRole.map((role) => `listRole=${role}`).join("&");
 
   const res = await axiosAuth.axiosJsonRequest.get(
-    `farms/get-users-farm-by-role?farmId=${farmId}&${queryParams}`
+    `farms/get-users-farm-by-role?farmId=${farmId}&${queryParams}`,
   );
 
-  const apiResponse = res.data as ApiResponse<GetUser[]>;
+  const apiResponse = res.data as ApiResponse<GetUserInFarm[]>;
   return apiResponse;
 };

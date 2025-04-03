@@ -4,7 +4,7 @@ import { Button } from "antd";
 interface MapControlsProps {
   label: string;
   icon?: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   isDisabled?: boolean;
 }
 

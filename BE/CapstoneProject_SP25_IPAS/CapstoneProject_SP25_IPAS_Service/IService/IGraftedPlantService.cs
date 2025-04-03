@@ -13,8 +13,10 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest);
         public Task<BusinessResult> updateGraftedPlantAsync(UpdateGraftedPlantRequest updateRequest);
-        public Task<BusinessResult> getGraftedOfPlantPaginAsync(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter);
+        public Task<BusinessResult> getAllGraftedPagin(GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter);
+        public Task<BusinessResult> getAllGraftedByPlantPagin(GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> getGraftedByIdAsync(int graftedPlantId);
+
         public Task<BusinessResult> deletePermanentlyGrafteAsync(List<int> graftedPlantId);
         public Task<BusinessResult> deteSoftedGraftedAsync(List<int> graftedPlantId);
         public Task<BusinessResult> getGraftedForSelected(int farmId);
@@ -25,6 +27,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GroupGraftedPlantsIntoPlantLot(GroupingGraftedRequest request);
         public Task<BusinessResult> CreatePlantFromGrafted(CreatePlantFromGraftedRequest request);
         public Task<BusinessResult> UngroupGraftedPlants(List<int> graftedPlantIds);
+        public Task<BusinessResult> markDeadGraftedAsync(List<int> graftedPlantIdsDead);
+
 
     }
 }

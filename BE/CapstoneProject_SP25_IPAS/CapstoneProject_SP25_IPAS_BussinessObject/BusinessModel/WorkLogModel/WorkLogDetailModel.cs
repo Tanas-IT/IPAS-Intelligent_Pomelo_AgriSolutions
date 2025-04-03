@@ -19,10 +19,15 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? Status { get; set; }
         public string? WorkLogName { get; set; }
         public string? PlanName { get; set; }
+        public int? PlanId { get; set; }
+        public string? PlanCode { get; set; }
+        public string? HarvestHistoryCode { get; set; }
+        public int? HarvestHistoryId { get; set; }
+        public bool? IsHarvest { get; set; }
         public string? ProcessName { get; set; }
         public string? MasterTypeName { get; set; }
 
-
+        public bool? IsTakeAttendance { get; set; }
         public string? ReasonDelay { get; set; }
 
         public DateTime? Date { get; set; }

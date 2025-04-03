@@ -234,6 +234,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Target = group.First().Criteria!.MasterType!.Target,
                         CriteriaList = group.OrderBy(pc => pc.Priority).Select(pc => new CriteriaInfoModel
                         {
+                            CriteriaTargetId = pc.CriteriaTargetId,
                             PlantId = pc.PlantID,
                             GraftedPlantId = pc.GraftedPlantID,
                             PlantLotId = pc.PlantLotID,
@@ -314,6 +315,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     List<string> filterList = Util.SplitByComma(masterTypeFilter.TypeName);
                     filter = filter.And(x => filterList.Contains(x.TypeName.ToLower()));
                 }
+                if (!string.IsNullOrEmpty(masterTypeFilter.Target))
+                {
+                    List<string> filterList = Util.SplitByComma(masterTypeFilter.Target);
+                    filter = filter.And(x => filterList.Contains(x.Target.ToLower()));
+                }
                 if (!string.IsNullOrEmpty(paginationParameter.SortBy))
                 {
                     switch (paginationParameter.SortBy.ToLower())
@@ -378,6 +384,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                        ? x => x.OrderByDescending(x => x.TypeName).OrderByDescending(x => x.MasterTypeId)
                                        : x => x.OrderBy(x => x.TypeName).OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.TypeName).OrderByDescending(x => x.MasterTypeId);
                             break;
+                        case "target":
+                            orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                        ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                       ? x => x.OrderByDescending(x => x.Target).OrderByDescending(x => x.MasterTypeId)
+                                       : x => x.OrderBy(x => x.Target).OrderBy(x => x.MasterTypeId)) : x => x.OrderBy(x => x.Target).OrderByDescending(x => x.MasterTypeId);
+                            break;
                         default:
                             orderBy = x => x.OrderBy(x => x.MasterTypeId);
                             break;
@@ -391,12 +403,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    pagin.List.GroupBy(x => x.TypeName);
+                    pagin.List = pagin.List.OrderBy(x => x.Target);
                     return new BusinessResult(Const.SUCCESS_GET_ALL_MASTER_TYPE_CODE, Const.SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE, pagin);
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG, new PageEntity<MasterTypeModel>());
+                    return new BusinessResult(200, Const.WARNING_GET_MASTER_TYPE_DOES_NOT_EXIST_MSG, new PageEntity<MasterTypeModel>());
                 }
             }
             catch (Exception ex)

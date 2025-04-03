@@ -152,7 +152,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         private async Task CheckAndProcessWeatherWarning(WorkLog workLog, WeatherForecastResponse forecastData)
         {
-            var workType = workLog.Schedule.CarePlan.MasterType?.Target;
+            var workType = "";
+            if (!string.IsNullOrEmpty(workLog.Schedule.CarePlan.MasterType?.Target))
+                workType = workLog.Schedule.CarePlan.MasterType?.Target;
+            else if (workLog.Schedule.HarvestHistoryID.HasValue)
+                workType = "Harvest";
             var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
             if (string.IsNullOrEmpty(workType) || !rules.ContainsKey(workType)) return;
 
@@ -199,7 +203,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 users = users.Where(x =>
                 x.Role.RoleName!.Equals(RoleEnum.MANAGER.ToString(), StringComparison.OrdinalIgnoreCase) ||
                  x.Role.RoleName.Equals(RoleEnum.OWNER.ToString(), StringComparison.OrdinalIgnoreCase) ||
-                 workLog.UserWorkLogs.Select(x => x.UserId).Contains(x.UserId)).ToList();
+                 workLog.UserWorkLogs.Select(u => u.UserId).Contains(x.UserId)).ToList();
                 List<CreateNotificationRequest> notis = new List<CreateNotificationRequest>();
                 foreach (var user in users)
                 {

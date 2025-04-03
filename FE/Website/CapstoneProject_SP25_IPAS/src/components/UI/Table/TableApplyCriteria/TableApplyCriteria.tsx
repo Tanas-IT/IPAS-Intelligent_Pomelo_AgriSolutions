@@ -34,6 +34,24 @@ const TableApplyCriteria = ({
       align: "center" as const,
     },
     {
+      title: "Min Value",
+      dataIndex: "minValue",
+      key: "minValue",
+      align: "center" as const,
+    },
+    {
+      title: "Max Value",
+      dataIndex: "maxValue",
+      key: "maxValue",
+      align: "center" as const,
+    },
+    {
+      title: "Unit",
+      dataIndex: "unit",
+      key: "unit",
+      align: "center" as const,
+    },
+    {
       title: "Priority",
       dataIndex: "priority",
       key: "priority",
@@ -46,6 +64,20 @@ const TableApplyCriteria = ({
           onChange={(value) => handlePriorityChange(record.key, value)}
         />
       ),
+    },
+    {
+      title: "Check Interval Days ",
+      dataIndex: "frequencyDate",
+      key: "frequencyDate",
+      align: "center" as const,
+      // render: (_: any, record: { key: number; frequencyDate: number }) => (
+      //   <InputNumber
+      //     className={style.priorityNumber}
+      //     min={1}
+      //     value={record.frequencyDate}
+      //     onChange={(value) => handlePriorityChange(record.key, value)}
+      //   />
+      // ),
     },
     {
       title: "Action",

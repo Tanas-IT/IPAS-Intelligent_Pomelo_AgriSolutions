@@ -10,6 +10,8 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeRequest;
+using CapstoneProject_SP25_IPAS_Service.Base;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -137,7 +139,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.Criteria.applyCriteriaTargetMultiple, Name = "applyCriteriaTargetMultiple")]
-        public async Task<IActionResult> applyCriteriaTargetMultiple([FromBody] CriteriaTargerRequest request)
+        public async Task<IActionResult> applyCriteriaTargetMultiple([FromBody] ApplyCriteriaForTargetRequest request)
         {
             try
             {
@@ -155,6 +157,23 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HttpPost(APIRoutes.Criteria.applyCriteriaForPlant, Name = "applyCriteriaPlant")]
+        public async Task<IActionResult> applyCriteriaPlant([FromBody] ApplyCriteriaForPlantRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var baseReponse = new BusinessResult()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ModelState.ValidationState.ToString()
+                };
+                return BadRequest(baseReponse);
+            }
+            var result = await _criteriaTargetService.ApplyCriteriasForPlant(request);
+            return Ok(result);
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
@@ -200,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.Criteria.updateCriteriaMultipleTarget, Name = "updateCriteriaMultipleTarget")]
-        public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] CriteriaTargerRequest request)
+        public async Task<IActionResult> updateCriteriaMultipleTarget([FromBody] UpdateCriteriaTargerRequest request)
         {
             try
             {
@@ -242,14 +261,56 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [HttpPut(APIRoutes.Criteria.checkCriteriaForTarget, Name = "checkCriteriaForTarget")]
-        public async Task<IActionResult> checkCriteriaForTarget([FromBody] CheckPlantCriteriaRequest request)
+        [HttpPut(APIRoutes.Criteria.checkCriteriaForGrafted, Name = "checkCriteriaForTarget")]
+        public async Task<IActionResult> checkCriteriaForTarget([FromBody] CheckGraftedCriteriaRequest request)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest();
-                var result = await _criteriaTargetService.CheckingCriteriaForTarget(request);
+                var result = await _criteriaTargetService.CheckingCriteriaForGrafted(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpPut(APIRoutes.Criteria.checkCriteriaForPlant, Name = "checkCriteriaForPlant")]
+        public async Task<IActionResult> checkCriteriaForPlant([FromBody] CheckPlantCriteriaRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
+                var result = await _criteriaTargetService.CheckingCriteriaForPlant(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpPut(APIRoutes.Criteria.resetPlantCriteria, Name = "resetPlantCriteria")]
+        public async Task<IActionResult> resetPlantCriteria(ResetPlantCriteriaRequest resetRequest)
+        {
+            try
+            {
+                var result = await _criteriaTargetService.ResetPlantCriteria(resetRequest);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -344,5 +405,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
 
         }
+
+        
     }
 }

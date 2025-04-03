@@ -3,13 +3,17 @@ import { LOCAL_STORAGE_KEYS, MASTER_TYPE } from "@/constants";
 import {
   ApiResponse,
   CriteriaApplyRequest,
-  CriteriaCheckRequest,
   CriteriaDeleteRequest,
+  CriteriaGraftedPlantCheckRequest,
   CriteriaMasterRequest,
+  CriteriaPlantCheckRequest,
   GetCriteriaByMasterType,
   GetCriteriaObject,
   GetCriteriaSelect,
   GetData,
+  GetPlantDetail,
+  PlantCriteriaApplyRequest,
+  ResetCriteriaPlantRequest,
 } from "@/payloads";
 import { buildParams } from "@/utils";
 
@@ -50,6 +54,10 @@ export const createCriteria = async (
       criteriaName: item.criteriaName,
       criteriaDescription: item.criteriaDescription,
       priority: item.priority,
+      frequencyDate: item.frequencyDate,
+      minValue: item.minValue,
+      maxValue: item.maxValue,
+      unit: item.unit,
       isActive: true,
     })),
   };
@@ -74,12 +82,15 @@ export const updateCriteria = async (
       criteriaId: item.criteriaId,
       criteriaName: item.criteriaName,
       criteriaDescription: item.criteriaDescription,
+      minValue: item.minValue,
+      maxValue: item.maxValue,
+      unit: item.unit,
       priority: item.priority,
+      frequencyDate: item.frequencyDate,
       isActive: true,
     })),
   };
-  console.log(formatUpdateData);
-  
+
   const res = await axiosAuth.axiosJsonRequest.put(
     `criterias/update-list-criteria`,
     formatUpdateData,
@@ -88,12 +99,34 @@ export const updateCriteria = async (
   return res.data as ApiResponse<GetCriteriaByMasterType>;
 };
 
-export const getCriteriaTypeSelect = async (
+export const getPlantLotCriteriaTypeSelect = async (
   lotId: number,
   target: string,
 ): Promise<ApiResponse<GetCriteriaSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `criterias/plantlot/get-for-selected/except?plantLotId=${lotId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
+
+export const getPlantCriteriaTypeSelect = async (
+  plantId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/plant/get-for-selected/except?plantId=${plantId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
+
+export const getGraftedPlantCriteriaTypeSelect = async (
+  graftedPlantId: number,
+  target: string,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/grafted-plant/get-for-selected/except?graftedId=${graftedPlantId}&target=${target}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
   return apiResponse;
@@ -115,6 +148,17 @@ export const applyCriteria = async (
   return apiResponse;
 };
 
+export const applyPlantCriteria = async (
+  criteria: PlantCriteriaApplyRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(
+    `criterias/target/plant/apply-criteria`,
+    criteria,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
+  return apiResponse;
+};
+
 export const getCriteriaOfLandPlot = async (
   lotId: number,
 ): Promise<ApiResponse<GetCriteriaObject[]>> => {
@@ -125,20 +169,56 @@ export const getCriteriaOfLandPlot = async (
   return apiResponse;
 };
 
-export const checkCriteria = async (check: CriteriaCheckRequest): Promise<ApiResponse<object>> => {
+export const getCriteriaOfPlant = async (
+  plantId: number,
+): Promise<ApiResponse<GetCriteriaObject[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/get-criteria-of-object?PlantID=${plantId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
+  return apiResponse;
+};
+
+export const getCriteriaOfGraftedPlant = async (
+  graftedPlantId: number,
+): Promise<ApiResponse<GetCriteriaObject[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/get-criteria-of-object?GraftedPlantID=${graftedPlantId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaObject[]>;
+  return apiResponse;
+};
+
+export const checkGraftedPlantCriteria = async (
+  check: CriteriaGraftedPlantCheckRequest,
+): Promise<ApiResponse<object>> => {
   const res = await axiosAuth.axiosJsonRequest.put(
-    `criterias/target/check-criteria-for-target`,
+    `criterias/target/grafted-plant/check-criteria`,
     check,
   );
   const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
 };
 
+export const checkPlantCriteria = async (
+  check: CriteriaPlantCheckRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`criterias/target/plant/check-criteria`, check);
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
+  return apiResponse;
+};
+
+export const resetPlantCriteria = async (
+  reset: ResetCriteriaPlantRequest,
+): Promise<ApiResponse<GetPlantDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`criterias/target/plant/reset-criteria`, reset);
+  const apiResponse = res.data as ApiResponse<GetPlantDetail>;
+  return apiResponse;
+};
+
 export const deleteCriteriaObject = async (
   criteria: CriteriaDeleteRequest,
 ): Promise<ApiResponse<object>> => {
-  console.log(criteria);
-
   const res = await axiosAuth.axiosJsonRequest.delete(
     `criterias/target/delete-for-multiple-target`,
     { data: criteria },

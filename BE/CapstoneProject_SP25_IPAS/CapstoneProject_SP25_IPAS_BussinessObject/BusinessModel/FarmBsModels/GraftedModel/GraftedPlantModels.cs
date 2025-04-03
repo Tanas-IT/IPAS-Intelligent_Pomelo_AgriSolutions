@@ -29,10 +29,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
 
         public int? PlantId { get; set; }
         public string? PlantCode { get; set; }
+        public string? PlantName { get; set; }
         public string? CultivarId { get; set; }
         public string? CultivarName { get; set; }
         public string? PlantLotName { get; set; }
         public string? PlantLotCode { get; set; }
+        public string? MasterTypeName { get; set; }
 
         //public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
 

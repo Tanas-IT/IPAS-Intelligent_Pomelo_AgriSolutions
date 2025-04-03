@@ -11,7 +11,7 @@ public partial class PlantGrowthHistory
 
     public string? Content { get; set; }
 
-    public string? NoteTaker { get; set; }
+    //public string? NoteTaker { get; set; }
 
     public DateTime? CreateDate { get; set; }
 
@@ -20,7 +20,11 @@ public partial class PlantGrowthHistory
     public int? PlantId { get; set; }
 
     public string? IssueName { get; set; }
+    public int UserId { get; set; }
+
+    public virtual User? User { get; set; }
 
     public virtual Plant? Plant { get; set; }
+
     public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }

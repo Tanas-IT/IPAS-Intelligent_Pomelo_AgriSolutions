@@ -15,7 +15,7 @@ interface HeaderContentAppendProps {
 }
 
 const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     return (
         <Flex gap={10}>

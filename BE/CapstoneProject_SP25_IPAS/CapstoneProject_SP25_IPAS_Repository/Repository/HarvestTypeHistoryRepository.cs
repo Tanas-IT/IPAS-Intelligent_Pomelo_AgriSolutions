@@ -56,5 +56,42 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.AsNoTracking().ToListAsync();
 
         }
+
+        public async Task<IEnumerable<ProductHarvestHistory>> getPlantLogHarvestPagin(
+       Expression<Func<ProductHarvestHistory, bool>> filter = null!,
+            Func<IQueryable<ProductHarvestHistory>, IOrderedQueryable<ProductHarvestHistory>> orderBy = null!,
+            int? pageIndex = null, // Optional parameter for pagination (page number)
+            int? pageSize = null)  // Optional parameter for pagination (number of records per page)
+        {
+            IQueryable<ProductHarvestHistory> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(h => h.Plant)
+                .Include(h => h.HarvestHistory)
+                .ThenInclude(h => h.Crop)
+                .Include(h => h.Product)
+                .Include(x => x.User);
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
     }
 }

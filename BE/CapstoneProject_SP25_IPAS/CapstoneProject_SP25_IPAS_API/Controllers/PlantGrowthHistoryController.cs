@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -14,10 +17,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class PlantGrowthHistoryController : ControllerBase
     {
         private readonly IPlantGrowthHistoryService _plantGrowthHistoryService;
-
-        public PlantGrowthHistoryController(IPlantGrowthHistoryService plantGrowthHistoryService)
+        private readonly IJwtTokenService _jwtTokenService;
+        public PlantGrowthHistoryController(IPlantGrowthHistoryService plantGrowthHistoryService, IJwtTokenService jwtTokenService)
         {
             _plantGrowthHistoryService = plantGrowthHistoryService;
+            _jwtTokenService = jwtTokenService;
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
@@ -26,9 +30,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                //if (!ModelState.IsValid)
+                //{
+                //    return BadRequest(ModelState);
+                //}
+                if (!request.UserId.HasValue)
+                    request.UserId = _jwtTokenService.GetUserIdFromToken();
+                if (!request.UserId.HasValue)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
                 }
                 var result = await _plantGrowthHistoryService.createPlantGrowthHistory(request);
                 return Ok(result);
@@ -108,6 +122,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.PlantGrowthHistory.getAllHistoryOfPlantPagin , Name = "getAllHistoryOfPlantPagin")]
+        public async Task<IActionResult> getAllHistoryOfPlantPagin([FromQuery] GetPlantGrowtRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _plantGrowthHistoryService.getAllHistoryOfPlantPagin(getRequest, paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpDelete(APIRoutes.PlantGrowthHistory.deletePlantGrowthHistory + "/{plant-growth-history-id}", Name = "deleteGrowthHistoryAsync")]
         public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)

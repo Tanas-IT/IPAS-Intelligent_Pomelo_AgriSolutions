@@ -10,7 +10,10 @@ import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
   FilterCriteriaState,
+  FilterCropState,
   FilterEmployeeState,
+  FilterGraftedPlantState,
+  FilterHarvestDayState,
   FilterLandRowState,
   FilterMasterTypeState,
   FilterPartnerState,
@@ -104,6 +107,27 @@ export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   partnerId: [] as string[],
   previousQuantityFrom: undefined,
   previousQuantityTo: undefined,
+  isFromGrafted: null,
+};
+
+export const DEFAULT_CROP_FILTERS: FilterCropState = {
+  yearFrom: "",
+  yearTo: "",
+  harvestSeason: [] as string[],
+  actualYieldFrom: undefined,
+  actualYieldTo: undefined,
+  marketPriceFrom: undefined,
+  marketPriceTo: undefined,
+  LandPlotIds: [] as string[],
+  status: [] as string[],
+};
+
+export const DEFAULT_HARVEST_DAY_FILTERS: FilterHarvestDayState = {
+  dateHarvestFrom: "",
+  dateHarvestTo: "",
+  totalPriceFrom: undefined,
+  totalPriceTo: undefined,
+  status: [] as string[],
 };
 
 export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {
@@ -123,6 +147,18 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   healthStatus: [] as string[],
   isLocated: null,
   isDead: null,
+};
+
+export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
+  plantIds: [] as string[],
+  plantLotIds: [] as string[],
+  separatedDateFrom: "",
+  separatedDateTo: "",
+  status: [] as string[],
+  cultivarIds: [] as string[],
+  graftedDateFrom: "",
+  graftedDateTo: "",
+  isCompleted: null,
 };
 
 export const DEFAULT_LAND_ROW_FILTERS: FilterLandRowState = {
@@ -191,6 +227,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   landRowId: 0,
   masterTypeId: 0,
   isDead: false,
+  isPassed: false,
   plantReferenceCode: "",
   plantReferenceId: 0,
 };

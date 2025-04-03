@@ -8,8 +8,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserReq
 {
     public class AssignTagToImageModel
     {
-        public string ImageURL { get; set; }
+        public int ReportId { get; set; }
         public string TagId { get; set; }
-        public int? AnswererId { get; set; }
+
     }
 }

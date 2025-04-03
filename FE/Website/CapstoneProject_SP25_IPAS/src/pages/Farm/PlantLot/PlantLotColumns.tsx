@@ -3,6 +3,7 @@ import { GetPlantLot2 } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
 import { Tag } from "antd";
+import { LOT_TYPE, lotTypeColors } from "@/constants";
 
 export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
@@ -18,10 +19,20 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     width: 150,
   },
   {
+    header: "Lot Type",
+    field: "isFromGrafted",
+    accessor: (item) => {
+      const lotType = item.isFromGrafted ? LOT_TYPE.GRAFTED_LOT : LOT_TYPE.IMPORTED_LOT;
+      return <Tag color={lotTypeColors[lotType]}>{lotType}</Tag>;
+    },
+    width: 150,
+  },
+  {
     header: "Provider",
     field: "partnerName",
-    accessor: (item) => <TableCell value={item.partnerName} />,
-    width: 150,
+    accessor: (item) =>
+      item.isFromGrafted ? <TableCell value="" /> : <TableCell value={item.partnerName} />,
+    width: 180,
   },
   {
     header: "Unit",
@@ -38,17 +49,23 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
   {
     header: "Checked  Quantity",
     field: "inputQuantity",
-    // accessor: (item) => <TableCell value={item.inputQuantity} />,
-    accessor: (item) => (
-      <TableCell value={!item.inputQuantity ? "Checking..." : item.inputQuantity} />
-    ),
+    accessor: (item) =>
+      item.isFromGrafted ? (
+        <TableCell value="" />
+      ) : (
+        <TableCell value={item.inputQuantity === undefined ? "Checking..." : item.inputQuantity} />
+      ),
     width: 160,
   },
   {
     header: "Qualified Quantity",
     field: "lastQuantity",
-    // accessor: (item) => <TableCell value={item.lastQuantity} />,
-    accessor: (item) => <TableCell value={!item.lastQuantity ? "Checking..." : item.lastQuantity} />,
+    accessor: (item) =>
+      item.isFromGrafted ? (
+        <TableCell value="" />
+      ) : (
+        <TableCell value={item.lastQuantity === undefined ? "Checking..." : item.lastQuantity} />
+      ),
     width: 160,
   },
   {
@@ -63,6 +80,7 @@ export const PlantLotColumns: TableColumn<GetPlantLot2>[] = [
     accessor: (item) => <TableCell value={item.seedingName} />,
     width: 180,
   },
+
   {
     header: "Note",
     field: "note",

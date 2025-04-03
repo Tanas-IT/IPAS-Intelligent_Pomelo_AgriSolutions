@@ -11,8 +11,8 @@
 
   .action_bar_content {
     pointer-events: auto;
-    max-width: 600px;
-    padding: 12px 14px;
+    max-width: 700px;
+    padding: 12px 24px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
@@ -64,6 +64,15 @@
     }
   }
 
+  .action_bar_btn_more {
+    font-size: 1.1rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    outline: transparent;
+    border-radius: 2rem;
+    padding-inline: 1.4rem;
+  }
+
   .divider_container {
     justify-content: center;
     align-items: center;
@@ -94,5 +103,18 @@
   100% {
     transform: translateY(-50%);
     opacity: 0;
+  }
+}
+
+.customDropdownMenu {
+  padding: 8px !important;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15) !important;
+  li {
+    padding: 8px !important;
+    font-size: 15px !important;
+    &:hover {
+      color: vars.$color_primary !important;
+      background-color: vars.$color_second !important;
+    }
   }
 }

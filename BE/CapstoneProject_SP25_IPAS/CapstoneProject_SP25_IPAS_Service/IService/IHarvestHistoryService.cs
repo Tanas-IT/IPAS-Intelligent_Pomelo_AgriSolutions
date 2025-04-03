@@ -28,11 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         //public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId, int? plantId);
         public Task<BusinessResult> deleteProductHarvest(int harvestHistory, int masterTypeId);
         public Task<BusinessResult> deletePlantRecord(DeletePlantRecoredRequest request);
+        public Task<BusinessResult> SoftedDeleted(List<int> harvestHistoryId);
         public Task<BusinessResult> StatisticOfPlantByYear(GetStatictisOfPlantByYearRequest request);
         public Task<BusinessResult> getProductInHarvestForSelected(int harvestId);
         public Task<BusinessResult> GetTopPlantsByYear(GetTopStatisticByYearRequest request);
         public Task<BusinessResult> GetTopPlantsByCrop(GetTopStatisticByCropRequest request);
-
+        public Task<BusinessResult> getHarvestHistoryByPlant(int plantId, PaginationParameter paginationParameter, PlantHarvestFilter filter);
+        public Task<BusinessResult> getHarvestPlantCanRecord(GetHarvestForPlantRecordRequest plantId);
 
     }
 }

@@ -330,7 +330,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ProcessModel>());
+                    return new BusinessResult(200, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG, new PageEntity<ProcessModel>());
                 }
             }
             catch (Exception ex)
@@ -350,7 +350,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = _mapper.Map<ProcessModel>(getProcess);
                     return new BusinessResult(Const.SUCCESS_GET_PROCESS_BY_ID_CODE, Const.SUCCESS_GET_PROCESS_BY_ID_MESSAGE, result);
                 }
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
             }
             catch (Exception ex)
             {
@@ -369,7 +369,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = _mapper.Map<List<ForSelectedModels>>(getProcess);
                     return new BusinessResult(Const.SUCCESS_GET_PROCESS_BY_ID_CODE, "Get Process for selected by master type success", result);
                 }
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+                return new BusinessResult(200, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
             }
             catch (Exception ex)
             {
@@ -1090,7 +1090,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 if (farmId <= 0)
-                    return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+                    return new BusinessResult(200, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                 Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 if (isSample != null)
                 {

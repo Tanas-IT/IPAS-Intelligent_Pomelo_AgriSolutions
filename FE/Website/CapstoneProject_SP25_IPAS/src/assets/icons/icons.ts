@@ -26,6 +26,8 @@ export {
   MdOutlineScatterPlot as lot,
   MdOutlineTerrain as soil,
   MdAssignmentAdd as addPLan,
+  MdOutlinePermMedia as media,
+  MdBarChart as chart
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -56,6 +58,9 @@ export {
   FaRegEye as eye,
   FaRegStar as star,
   FaTasks as task,
+  FaLeaf as leaf,
+  FaMoneyBillAlt as money,
+  FaClock as clock
 } from "react-icons/fa";
 export {
   PiFarm as farms,
@@ -74,7 +79,12 @@ export {
   IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
-export { GrOverview as overview, GrMapLocation as location, GrPlan as plan } from "react-icons/gr";
+export {
+  GrOverview as overview,
+  GrMapLocation as location,
+  GrPlan as plan,
+  GrPowerReset as reset,
+} from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
 export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
 export {

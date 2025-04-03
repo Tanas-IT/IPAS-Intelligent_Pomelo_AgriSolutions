@@ -11,7 +11,6 @@ import {
   Label,
 } from "recharts";
 import { Select, Divider, Flex, Empty, Typography, DatePicker } from "antd";
-import PlantSectionHeader from "../PlantSectionHeader/PlantSectionHeader";
 import style from "./PlantOverview.module.scss";
 import dayjs from "dayjs";
 import { useMasterTypeOptions } from "@/hooks";
@@ -20,6 +19,7 @@ import { harvestService } from "@/services";
 import { GetHarvestStatisticOfPlant } from "@/payloads";
 import { usePlantStore } from "@/stores";
 import { Icons } from "@/assets";
+import { PlantSectionHeader } from "@/components";
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
@@ -90,7 +90,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
 
   return (
     <Flex className={style.contentDetailWrapper} vertical>
-      <PlantSectionHeader isCriteria={false} />
+      <PlantSectionHeader />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
         {/* Bộ lọc */}

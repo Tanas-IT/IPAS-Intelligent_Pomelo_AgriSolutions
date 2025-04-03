@@ -10,6 +10,7 @@ type UpdateQuantityModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (quantity: number, supplementQuantity?: number) => void;
+  isAllConditionPassed?: boolean;
   target?: string;
   isLoadingAction?: boolean;
 };
@@ -18,6 +19,7 @@ const UpdateQuantityModal = ({
   isOpen,
   onClose,
   onSave,
+  isAllConditionPassed = true,
   target,
   isLoadingAction,
 }: UpdateQuantityModalProps) => {
@@ -39,7 +41,11 @@ const UpdateQuantityModal = ({
     if (isOpen) {
       form.setFieldsValue({
         inputQuantity:
-          target === CRITERIA_TARGETS["Plantlot Condition"] ? lot?.inputQuantity : undefined,
+          target === CRITERIA_TARGETS["Plantlot Condition"]
+            ? !isAllConditionPassed
+              ? 0
+              : lot?.inputQuantity
+            : undefined,
         lastQuantity:
           target === CRITERIA_TARGETS["Plantlot Evaluation"] ? lot?.lastQuantity : undefined,
       });
@@ -55,6 +61,10 @@ const UpdateQuantityModal = ({
     const lastQuantity = form.getFieldValue("lastQuantity");
 
     if (target === CRITERIA_TARGETS["Plantlot Condition"]) {
+      if (isAllConditionPassed && inputQuantity == 0) {
+        toast.error(`Quantity must be greater than 0 if condition is passed`);
+        return;
+      }
       const requiredSupplement = lot.previousQuantity - inputQuantity;
 
       if (
@@ -125,6 +135,7 @@ const UpdateQuantityModal = ({
             <FormFieldModal
               label="Checked Quantity"
               name="inputQuantity"
+              readonly={!isAllConditionPassed}
               rules={RulesManager.getQuantityRules()}
             />
             {warningMessage && (

@@ -149,6 +149,37 @@ CREATE TABLE ipas.dbo.[Role] (
 );
 
 
+-- ipas.dbo.[User] definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.[User];
+
+CREATE TABLE ipas.dbo.[User] (
+	UserID int IDENTITY(1,1) NOT NULL,
+	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	DOB datetime NULL,
+	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	IsDeleted bit NULL DEFAULT 0,
+	DeleteDate datetime NULL,
+	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	IsDependency int NULL,
+	RoleID int NULL,
+	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	ExpiredOtpTime datetime NULL,
+	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	RemainDays int NULL,
+	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
+	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
+);
+
 -- ipas.dbo.Warning definition
 
 -- Drop table
@@ -463,7 +494,7 @@ CREATE TABLE ipas.dbo.Plant (
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	PlantingDate datetime NULL,
-	IsPassed bit NULL,
+	IsPassed bit NULL DEFAULT 0,
         IsDead bit NULL DEFAULT 0,
         PassedDate datetime NULL,
 	PlantReferenceID int NULL,
@@ -491,12 +522,14 @@ CREATE TABLE ipas.dbo.PlantGrowthHistory (
 	PlantGrowthHistoryID int IDENTITY(1,1) NOT NULL,
 	PlantGrowthHistoryCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	-- NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
 	PlantID int NULL,
 	IssueName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	UserID int NULL,
 	CONSTRAINT PK__PlantGro__8F26DC48C9286D17 PRIMARY KEY (PlantGrowthHistoryID),
+	CONSTRAINT PlantGro_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK__PlantNote__Plant__32AB8735 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
 );
 
@@ -596,36 +629,6 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
 );
 
--- ipas.dbo.[User] definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.[User];
-
-CREATE TABLE ipas.dbo.[User] (
-	UserID int IDENTITY(1,1) NOT NULL,
-	Email nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Password nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	FullName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PhoneNumber nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Gender nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	DOB datetime NULL,
-	UserCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	IsDeleted bit NULL DEFAULT 0,
-	DeleteDate datetime NULL,
-	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	IsDependency int NULL,
-	RoleID int NULL,
-	AvatarURL nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Otp nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	ExpiredOtpTime datetime NULL,
-	Address nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	RemainDays int NULL,
-	CONSTRAINT PK__User__1788CCACFB4299F2 PRIMARY KEY (UserID),
-	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
-);
 
 
 -- ipas.dbo.UserFarm definition
@@ -684,6 +687,7 @@ CREATE TABLE ipas.dbo.GraftedPlant (
 	Note nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MotherPlantID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
+	IsDead bit DEFAULT 0 NULL,
 	IsCompleted bit NULL,
 	PlantLotID int NULL,
 	FarmID int NULL,
@@ -707,11 +711,13 @@ CREATE TABLE ipas.dbo.GraftedPlantNote (
 	GraftedPlantNoteCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	IssueName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	--NoteTaker nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	GraftedPlantID int NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
+	UserID int NULL,
 	CONSTRAINT PK__GraftedP__09DC047162079786 PRIMARY KEY (GraftedPlantNoteID),
+	CONSTRAINT GraftedPlantNote_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT FK_GraftedPlantNote_GraftedPlant FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID) ON DELETE CASCADE
 );
 
@@ -728,13 +734,16 @@ CREATE TABLE ipas.dbo.ProductHarvestHistory (
 	PlantID int NULL,
 	Unit nvarchar(50) NULL,
 	SellPrice float NULL,
-    CostPrice float NULL,
-	QuantityNeed int NULL,
-	ActualQuantity int NULL,
+    	CostPrice float NULL,
+	QuantityNeed float NULL,
+	ActualQuantity float NULL,
 	HarvestHistoryID int NOT NULL,
+	RecordDate datetime NULL,
+ 	UserID int NULL,
 	CONSTRAINT ProductHarvestHistory_PK PRIMARY KEY (ProductHarvestHistoryId),
 	CONSTRAINT FK_ProductHarvestHistory_Plant FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE,
 	CONSTRAINT FK__HarvestTy__Harve__40058253 FOREIGN KEY (HarvestHistoryID) REFERENCES ipas.dbo.HarvestHistory(HarvestHistoryID) ON DELETE CASCADE,
+	CONSTRAINT ProductHarvest_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
 	CONSTRAINT ProductHarvestHistory_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
 );
 
@@ -1033,22 +1042,13 @@ CREATE TABLE ipas.dbo.GrowthStagePlan (
 	CONSTRAINT GrowthStagePlan_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID)
 );
 
-CREATE TABLE ipas.dbo.GrowthStageMasterType (
-	GrowthStageMasterTypeID int IDENTITY(1,1) NOT NULL,
-	GrowthStageID int NULL,
-	MasterTypeID int NULL,
-	FarmID int NULL,
-	CONSTRAINT GrowthStageMasterType_PK PRIMARY KEY (GrowthStageMasterTypeID),
-	CONSTRAINT GrowthStageMasterType_Farm_FK FOREIGN KEY (FarmID) REFERENCES ipas.dbo.Farm(FarmID),
-	CONSTRAINT GrowthStageMasterType_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
-	CONSTRAINT GrowthStageMasterType_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
-);
-
 CREATE TABLE ipas.dbo.Report (
 	ReportID int IDENTITY(1,1) NOT NULL,
 	ReportCode nvarchar(300) NULL,
 	Description nvarchar(MAX) NULL,
 	CreateDate datetime NULL,
+        QuestionOfUser nvarchar(MAX) NULL,
+	AnswerFromExpert nvarchar(MAX) NULL,
         ImageURL nvarchar(MAX),
 	IsTrainned bit NULL,
 	AnswererID int NULL,
@@ -1060,7 +1060,7 @@ CREATE TABLE ipas.dbo.Report (
 GO
 CREATE TABLE SystemConfiguration (
     ConfigID INT IDENTITY(1,1) PRIMARY KEY,
-   -- ConfigGroup NVARCHAR(100) NOT NULL,  
+	ConfigGroup NVARCHAR(100) NOT NULL,  
     ConfigKey NVARCHAR(100) NOT NULL,      
     ConfigValue NVARCHAR(500) NOT NULL,    
     ValueType NVARCHAR(50) NOT NULL,       
@@ -1124,8 +1124,8 @@ VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 1),
 ('tambtse171869@fpt.edu.vn', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Jane Smith', '0987654321', 'Female', '1985-08-15', 'U002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 2),
 ('abcfarm@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Alex Johnson', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
-('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
-('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
+('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'The Tam', '0912345678', 'Female', '1992-12-20', 'U004', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
+('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Phuoc Tan', '0912345678', 'Female', '1992-12-20', 'U005', GETDATE(), GETDATE(), 0, 'Inactive', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png', NULL, NULL, 2),
 ('giao@gmail.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Ai Giao', '0911222333', 'Female', '1995-06-25', 'E006', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 ('employee2@example.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Bob Williams', '0922333444', 'Male', '1998-09-12', 'E007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 ('employee3@example.com', '$2a$11$VJHyrhGtfFJkbp5OGhMvZOz4s9d.X3RWaqKveqqXrUVgW7fqF0EVC', 'Charlie Davis', '0933444555', 'Male', '1993-11-30', 'E008', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755864/pw8jyieauzsacwbae9gg.png', NULL, NULL, 2),
@@ -1141,11 +1141,13 @@ VALUES
 ('manager2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Daniel Brown', '0922334455', 'Male', '1985-10-18', 'M002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 -- User not in farm
 ('user1@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Liam Anderson', '0933111222', 'Male', '1992-02-14', 'U006', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
-('user2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
+('user2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U0011', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Mason Wilson', '0955333444', 'Male', '1989-11-10', 'U008', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
-('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2);
-;
+('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
+
+('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2);
+
 GO
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
 VALUES 
@@ -1164,16 +1166,17 @@ VALUES
 (1, 14, 5), 
 (1, 15, 5), 
 (1, 16, 4), -- Olivia Martinez (Manager)
-(1, 17, 4); -- Daniel Brown (Manager)
+(1, 17, 4), -- Daniel Brown (Manager)
+(1, 23, 5);
 GO
 -- Fake data for GrowthStage table with FarmID = 1
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)
 VALUES
-('GS101', 'Germination Stage', 0, 3, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
-('GS102', 'Seedling Stage', 4, 8, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
-('GS103', 'Vegetative Growth Stage', 9, 18, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
-('GS104', 'Flowering Stage', 19, 24, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
-('GS105', 'Fruiting & Harvest Stage', 25, 36, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
+('GS101', 'Germination Stage', 0, 6, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
+('GS102', 'Seedling Stage', 7, 24, 0, 1, 0, GETDATE(), NULL, 'Young plant starts growing leaves and roots'),
+('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
+('GS104', 'Flowering Stage', 49, 60, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
+('GS105', 'Fruiting & Harvest Stage', 61, 120, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
 GO
 
 -- Fake data for GrowthStage table with FarmID = 2
@@ -1187,127 +1190,228 @@ VALUES
 
 GO
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [IsDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target])
+    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
 VALUES
-      ('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+      ('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', NULL, NULL, 'Green skin, Sweet taste', 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT010', N'5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', NULL, NULL, 'Sweet, Refreshing', 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT011', N'Vien Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', NULL, NULL, 'Tart, Firm', 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', NULL, NULL, 'Green skin, Sweet taste', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT010', N'5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', NULL, NULL, 'Sweet, Refreshing', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT011', N'Vien Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', NULL, NULL, 'Tart, Firm', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting'),
+    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting', NULL, NULL),
     
-    ('MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Watering'),
-    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer'),
-    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping'),
-    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control'),
-    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others'),
+    ('MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Watering', 15, 60),
+    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
+    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
+    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
+    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
     
-    ('MT020', 'Seedling', 'Criteria', 'Defines the criteria for selecting seedlings', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation'),
-    ('MT021', 'Caring', 'Criteria', 'Defines the criteria for plant care during growth stages', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation'),
-    ('MT022', 'Grafting', 'Criteria', 'Describes the grafting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition'),
-    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest'),
-	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
-    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
-	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
-    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
-	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition'),
-	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation'),
+	('MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
+    ('MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
+    ('MT022', 'Grafted Branch Market Evaluation', 'Criteria', 'Evaluation of grafted branches to determine their quality for sale or commercial use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
+    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest', NULL, NULL),
+	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
+    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
+	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
+    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
+	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
+	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
 
-    ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
-    ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL),
+    ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(), 1, null, NULL, NULL),
-    ('MT040', 'Grafting', 'Work', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting'),
-    ('MT041', 'PlantLot', 'Work', 'Preparing for plantLot', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'PlantLot'),
-    ('MT042', 'PlantLot', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'PlantLot');
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL);
 
 GO
-GO
-UPDATE [ipas].[dbo].[MasterType]
-SET MinTime = 0, MaxTime = 24
-WHERE TypeName = 'Work';
-GO
+
 GO
 INSERT INTO [dbo].[Criteria]
-    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority], [isActive], [IsDeleted],[MasterTypeID])
+    ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority],[isActive], [isDeleted],[MasterTypeID], [FrequencyDate])
 VALUES
-    ('CR001', 'Quality Standard', 'Ensures high product quality', 1, 1, 0, 20),
-    ('CR002', 'Customer Satisfaction', 'Measures customer happiness', 2, 1, 0, 20),
-    ('CR003', 'On-Time Delivery', 'Tracks timely order fulfillment', 3, 1, 0, 20),
-    ('CR004', 'Return Policy', 'Defines product return conditions', 1, 1, 0, 21),
-    ('CR005', 'Payment Security', 'Ensures safe payment processing', 2, 1, 0, 21),
-    ('CR006', 'Product Warranty', 'Guarantees product durability', 3, 1, 0, 21),
-    ('CR007', 'Loyalty Program', 'Rewards frequent customers', 1, 1, 0, 22),
-    ('CR008', 'Tax Compliance', 'Adheres to taxation policies', 2, 1, 0, 22),
-    ('CR009', 'Support Response Time', 'Tracks customer service efficiency', 3, 1, 0, 22),
-    ('CR010', 'Shipping Cost Efficiency', 'Optimizes delivery expenses', 4, 1, 0, 22),
-	('CR011', 'Tree Density', 'Ensures optimal tree spacing (400-500 trees per hectare)', 1, 1, 0, 24),
-    ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters (Measured from base to highest point)', 2, 1, 0, 24),
-    ('CR013', 'Fruit Size', 'Measures average fruit size (Weight: 1.2kg - 2.5kg, Diameter: 15-22 cm)', 3, 1, 0, 24),
-    ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage (Less than 5% affected fruits per lot)', 4, 1, 0, 24),
-    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range (50-70% field capacity)', 5, 1, 0, 24),
-	('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing or disease spots', 1, 1, 0, 26),
-    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 0, 26),
-    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26),
-    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 0, 26),
-    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26),
-	('C029', 'Pest & Disease Inspection', 'Check for common pests and diseases affecting Green Skin Pomelo', 1, 1, 0, 28),
-    ('C030', 'Soil & Nutrient Condition', 'Assess soil fertility and nutrient levels for optimal growth', 2, 1, 0, 28),
-    ('C031', 'Canopy & Root Development', 'Evaluate the development of canopy structure and root health', 3, 1, 0, 28),
-	('C032', 'Fruit Count & Size', 'Estimate the number of fruits and average size per tree', 1, 1, 0, 29),
-    ('C033', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance to determine fruit sweetness', 2, 1, 0, 29),
-    ('C034', 'External Quality & Appearance', 'Check fruit skin texture, color, and any physical defects', 3, 1, 0, 29);
+ -- MasterTypeID 20: Grafting Suitability (Determining if a tree is suitable for grafting)
+    ('CR001', N'Tree Age', N'Determines if the tree is old enough for grafting', 1, 1, 0, 20, 180),  -- Kiểm tra nửa năm/lần
+    ('CR002', N'Branch Diameter', N'Ensures the branch meets the required size for grafting', 2, 1, 0, 20, 90),  -- Kiểm tra mỗi quý
+    ('CR003', N'Tree Health Status', N'Checks if the tree is healthy and free from pests before grafting', 3, 1, 0, 20, 60), -- Kiểm tra mỗi 2 tháng
+
+    -- MasterTypeID 21: Seedling Selection (Criteria for selecting suitable seedlings)
+    ('CR004', N'Root Development', N'Evaluates root growth to determine seedling viability', 1, 1, 0, 21, 90),  -- Kiểm tra mỗi quý
+    ('CR005', N'Leaf and Stem Condition', N'Checks the health of leaves and stems for strong seedling growth', 2, 1, 0, 21, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR006', N'Pest and Disease Resistance', N'Assesses the seedling’s resistance to common diseases and pests', 3, 1, 0, 21, 180),  -- Kiểm tra nửa năm/lần
+
+    -- MasterTypeID 22: Grafted Branch Market Evaluation (Assessing grafted branches for sale)
+    ('CR007', N'Rooting Success Rate', N'Evaluates the percentage of successful root formation', 1, 1, 0, 22, 90),  -- Kiểm tra mỗi quý
+    ('CR008', N'Root Length', N'Determines if the root length meets the standard for transplanting', 2, 1, 0, 22, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR009', N'Leaf and Stem Quality', N'Ensures leaves and stems are healthy enough for commercial sale', 3, 1, 0, 22, 30),  -- Kiểm tra hàng tháng
+    ('CR010', N'Environmental Adaptability', N'Assesses the grafted branch’s ability to adapt to different conditions', 4, 1, 0, 22, 45),  -- Kiểm tra mỗi 1.5 tháng
+
+    -- MasterTypeID 24: General Tree Growth & Maintenance
+    ('CR011', 'Tree Density', 'Ensures optimal tree spacing (400-500 trees per hectare)', 1, 1, 0, 24, 180), -- Kiểm tra nửa năm/lần
+    ('CR012', 'Tree Height >= 2m', 'Ensures tree height is at least 2 meters', 2, 1, 0, 24, 90), -- Kiểm tra mỗi quý
+    ('CR013', 'Fruit Size', 'Measures average fruit size', 3, 1, 0, 24, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR014', 'Pest Control Effectiveness', 'Ensures minimal pest damage', 4, 1, 0, 24, 30), -- Kiểm tra hàng tháng
+    ('CR015', 'Soil Moisture Level', 'Checks if soil moisture is within optimal range', 5, 1, 0, 24, 15), -- Kiểm tra nửa tháng/lần
+
+    -- MasterTypeID 26: Fruit & Quality Control
+    ('CR016', 'Leaf Color & Health', 'Leaves must be dark green, with no signs of yellowing', 1, 1, 0, 26, 30), -- Kiểm tra hàng tháng
+    ('CR017', 'Flowering & Pollination Success Rate', 'At least 80% of flowers must successfully set fruit', 2, 1, 0, 26, 90), -- Kiểm tra mỗi quý
+    ('CR018', 'Soil pH Level', 'Soil pH must be between 5.5 - 6.5 for optimal growth', 3, 1, 0, 26, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR019', 'Fruit Sugar Content (Brix Level)', 'Pomelo sweetness must be between 10 - 13% Brix', 4, 1, 0, 26, 45), -- Kiểm tra mỗi 1.5 tháng
+    ('CR020', 'Disease Resistance Score', 'Assessment of resistance to Greening Disease (HLB)', 5, 1, 0, 26, 180), -- Kiểm tra nửa năm/lần
+
+    -- MasterTypeID 28: Farm Condition & Environment
+    ('CR021', 'Pest & Disease Inspection', 'Check for common pests and diseases', 1, 1, 0, 28, 30), -- Kiểm tra hàng tháng
+    ('CR022', 'Soil & Nutrient Condition', 'Assess soil fertility and nutrient levels', 2, 1, 0, 28, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR023', 'Canopy & Root Development', 'Evaluate canopy structure and root health', 3, 1, 0, 28, 90), -- Kiểm tra mỗi quý
+
+    -- MasterTypeID 29: Fruit Assessment Before Harvest
+    ('CR024', 'Fruit Count & Size', 'Estimate the number of fruits and average size per tree', 1, 1, 0, 29, 45), -- Kiểm tra mỗi 1.5 tháng
+    ('CR025', 'Sugar & Acid Balance', 'Analyze the sugar-acid balance for fruit sweetness', 2, 1, 0, 29, 60), -- Kiểm tra mỗi 2 tháng
+    ('CR026', 'External Quality & Appearance', 'Check fruit skin texture, color, and physical defects', 3, 1, 0, 29, 30), -- Kiểm tra hàng tháng
+
+	('CR027', N'Branch Maturity', N'Ensures the grafted branch is mature enough for cutting and transplantation', 1, 1, 0, 40, 90),  -- Kiểm tra mỗi quý
+    ('CR028', N'Branch Strength', N'Checks if the branch is strong enough to survive the transplantation process', 2, 1, 0, 40, 60),  -- Kiểm tra mỗi 2 tháng
+    ('CR029', N'Rooting Potential', N'Evaluates if the branch has developed enough roots for successful growth', 3, 1, 0, 40, 45),  -- Kiểm tra mỗi 1,5 tháng
+    ('CR030', N'Disease Resistance', N'Ensures the grafted branch is free from infections and diseases before transplantation', 4, 1, 0, 40, 30);  -- Kiểm tra mỗi tháng
 GO
 UPDATE [dbo].[Criteria]
 SET 
     MinValue = CASE 
+        -- Grafting Suitability (MasterTypeID 20)
+        WHEN CriteriaCode = 'CR001' THEN 3   -- Tree Age (years)
+        WHEN CriteriaCode = 'CR002' THEN 1.5 -- Branch Diameter (cm)
+        WHEN CriteriaCode = 'CR003' THEN 80  -- Tree Health Score (%)
+          -- Seedling Selection (MasterTypeID 21)
+        WHEN CriteriaCode = 'CR004' THEN 10  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR005' THEN 7   -- Leaf and Stem Condition (rating)
+        WHEN CriteriaCode = 'CR006' THEN 12  -- Pest and Disease Resistance (months)
+
+        -- Grafted Branch Market Evaluation (MasterTypeID 22)
+        WHEN CriteriaCode = 'CR007' THEN 70  -- Rooting Success Rate (%)
+        WHEN CriteriaCode = 'CR008' THEN 15  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR009' THEN 8   -- Leaf and Stem Quality (rating)
+        WHEN CriteriaCode = 'CR010' THEN 5   -- Environmental Adaptability (rating)
+
         WHEN CriteriaCode = 'CR011' THEN 400
         WHEN CriteriaCode = 'CR012' THEN 2
-        WHEN CriteriaCode = 'CR013' THEN 1.2
-        WHEN CriteriaCode = 'CR014' THEN 0
+        WHEN CriteriaCode = 'CR013' THEN 1.5
+        WHEN CriteriaCode = 'CR014' THEN 1
         WHEN CriteriaCode = 'CR015' THEN 50
-        WHEN CriteriaCode = 'CR017' THEN 80
+        WHEN CriteriaCode = 'CR016' THEN 80
+        WHEN CriteriaCode = 'CR017' THEN 85
         WHEN CriteriaCode = 'CR018' THEN 5.5
         WHEN CriteriaCode = 'CR019' THEN 10
+        WHEN CriteriaCode = 'CR020' THEN 7
+        WHEN CriteriaCode = 'CR021' THEN 7
+        WHEN CriteriaCode = 'CR022' THEN 7
+        WHEN CriteriaCode = 'CR023' THEN 7
+        WHEN CriteriaCode = 'CR024' THEN 80
+        WHEN CriteriaCode = 'CR025' THEN 10
+        WHEN CriteriaCode = 'CR026' THEN 7
+		WHEN CriteriaCode = 'CR027' THEN 6   -- Branch Maturity (months)
+        WHEN CriteriaCode = 'CR028' THEN 1.2 -- Branch Strength (cm diameter)
+        WHEN CriteriaCode = 'CR029' THEN 5   -- Rooting Potential (cm root length)
+        WHEN CriteriaCode = 'CR030' THEN 85  -- Disease Resistance (% healthy)
         ELSE MinValue
     END,
     MaxValue = CASE 
+          -- Grafting Suitability
+        WHEN CriteriaCode = 'CR001' THEN 10  -- Tree Age (years)
+        WHEN CriteriaCode = 'CR002' THEN 5   -- Branch Diameter (cm)
+        WHEN CriteriaCode = 'CR003' THEN 100 -- Tree Health Score (%)
+
+        -- Seedling Selection
+        WHEN CriteriaCode = 'CR004' THEN 30  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR005' THEN 10  -- Leaf and Stem Condition (rating)
+        WHEN CriteriaCode = 'CR006' THEN 36  -- Pest and Disease Resistance (months)
+
+        -- Grafted Branch Market Evaluation
+        WHEN CriteriaCode = 'CR007' THEN 100 -- Rooting Success Rate (%)
+        WHEN CriteriaCode = 'CR008' THEN 25  -- Root Length (cm)
+        WHEN CriteriaCode = 'CR009' THEN 10  -- Leaf and Stem Quality (rating)
+        WHEN CriteriaCode = 'CR010' THEN 10  -- Environmental Adaptability (rating)
         WHEN CriteriaCode = 'CR011' THEN 500
+        WHEN CriteriaCode = 'CR012' THEN 8
         WHEN CriteriaCode = 'CR013' THEN 2.5
         WHEN CriteriaCode = 'CR014' THEN 5
         WHEN CriteriaCode = 'CR015' THEN 70
+        WHEN CriteriaCode = 'CR016' THEN 100
+        WHEN CriteriaCode = 'CR017' THEN 100
         WHEN CriteriaCode = 'CR018' THEN 6.5
         WHEN CriteriaCode = 'CR019' THEN 13
+        WHEN CriteriaCode = 'CR020' THEN 10
+        WHEN CriteriaCode = 'CR021' THEN 10
+        WHEN CriteriaCode = 'CR022' THEN 10
+        WHEN CriteriaCode = 'CR023' THEN 10
+        WHEN CriteriaCode = 'CR024' THEN 150
+        WHEN CriteriaCode = 'CR025' THEN 15
+        WHEN CriteriaCode = 'CR026' THEN 10
+
+		WHEN CriteriaCode = 'CR027' THEN 12  -- Branch Maturity (months)
+        WHEN CriteriaCode = 'CR028' THEN 2.5 -- Branch Strength (cm diameter)
+        WHEN CriteriaCode = 'CR029' THEN 15  -- Rooting Potential (cm root length)
+        WHEN CriteriaCode = 'CR030' THEN 100 -- Disease Resistance (% healthy)
         ELSE MaxValue
     END,
     Unit = CASE 
+        -- Grafting Suitability
+        WHEN CriteriaCode = 'CR001' THEN 'years'
+        WHEN CriteriaCode = 'CR002' THEN 'cm'
+        WHEN CriteriaCode = 'CR003' THEN '%'
+
+        -- Seedling Selection
+        WHEN CriteriaCode = 'CR004' THEN 'cm'
+        WHEN CriteriaCode = 'CR005' THEN 'rating'
+        WHEN CriteriaCode = 'CR006' THEN 'months'
+
+        -- Grafted Branch Market Evaluation
+        WHEN CriteriaCode = 'CR007' THEN '%'
+        WHEN CriteriaCode = 'CR008' THEN 'cm'
+        WHEN CriteriaCode = 'CR009' THEN 'rating'
+        WHEN CriteriaCode = 'CR010' THEN 'rating'
         WHEN CriteriaCode = 'CR011' THEN 'trees/hectare'
         WHEN CriteriaCode = 'CR012' THEN 'm'
         WHEN CriteriaCode = 'CR013' THEN 'kg'
         WHEN CriteriaCode = 'CR014' THEN '%'
         WHEN CriteriaCode = 'CR015' THEN '%'
+        WHEN CriteriaCode = 'CR016' THEN 'rating'
+        WHEN CriteriaCode = 'CR017' THEN '%'
         WHEN CriteriaCode = 'CR018' THEN 'pH'
         WHEN CriteriaCode = 'CR019' THEN 'Brix'
+        WHEN CriteriaCode = 'CR020' THEN 'score'
+        WHEN CriteriaCode = 'CR021' THEN 'rating'
+        WHEN CriteriaCode = 'CR022' THEN 'rating'
+        WHEN CriteriaCode = 'CR023' THEN 'rating'
+        WHEN CriteriaCode = 'CR024' THEN 'fruits/tree'
+        WHEN CriteriaCode = 'CR025' THEN 'Brix'
+        WHEN CriteriaCode = 'CR026' THEN 'rating'
+
+		WHEN CriteriaCode = 'CR027' THEN 'months'
+        WHEN CriteriaCode = 'CR028' THEN 'cm'
+        WHEN CriteriaCode = 'CR029' THEN 'cm'
+        WHEN CriteriaCode = 'CR030' THEN '%'
         ELSE Unit
     END
-WHERE CriteriaCode IN ('CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR017', 'CR018', 'CR019');
+WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR007', 'CR008', 'CR009', 'CR010',
+                       'CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR016', 'CR017', 'CR018', 'CR019', 'CR020',
+                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030');
+
 GO
 INSERT INTO ipas.dbo.LandPlot (
     LandPlotCode, LandPlotName, Area, [Length], Width, RowperLine, RowSpacing, SoilType, 
@@ -1359,16 +1463,25 @@ VALUES
 INSERT INTO [ipas].dbo.Plant 
 (PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
 VALUES
-('P001', 'Green Skin Pomelo A', 1, 'Healthy', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
-('P002', 'Green Skin Pomelo B', 2, 'Moderate', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
+('P001', 'Green Skin Pomelo A', 1, 'Minor Issues', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
+('P002', 'Green Skin Pomelo B', 2, 'Healthy', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
 ('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2024-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
-('P004', 'Green Skin Pomelo D', 4, 'Unhealthy', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
+('P004', 'Green Skin Pomelo D', 4, 'Minor Issues', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
 ('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2024-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
-('P006', 'Green Skin Pomelo F', 6, 'Moderate', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 1, 1, 1),
+('P006', 'Green Skin Pomelo F', 6, 'Minor Issues', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 1, 1, 1),
 ('P007', 'Green Skin Pomelo G', 7, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', 1, 1, 1),
-('P008', 'Green Skin Pomelo H', 8, 'Unhealthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 1, 2, 1),
-('P009', 'Green Skin Pomelo I', 9, 'Moderate', '2024-02-09', '2024-02-13', '2023-3-28', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 1, 3, 1),
-('P010', 'Green Skin Pomelo J', 10, 'Healthy', '2024-02-10', '2024-02-14', '2023-3-25', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 1, 4, 1);
+('P008', 'Green Skin Pomelo H', 8, 'Healthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 1, 2, 1),
+('P009', 'Green Skin Pomelo I', 9, 'Healthy', '2020-2-1', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 1, 3, 1),
+('P010', 'Green Skin Pomelo J', 10, 'Healthy', '2020-2-11', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 1, 4, 1);
+
+UPDATE [ipas].dbo.Plant
+SET isPassed = 0;
+
+UPDATE p
+SET GrowthStageID = gs.GrowthStageID
+FROM ipas.dbo.Plant p
+JOIN ipas.dbo.GrowthStage gs
+ON DATEDIFF(MONTH, p.PlantingDate, GETDATE()) BETWEEN gs.MonthAgeStart AND gs.MonthAgeEnd;
 
 GO
 -- Chèn dữ liệu vào bảng LegalDocument
@@ -1393,19 +1506,19 @@ GO
 INSERT INTO [ipas].dbo.Crop (CropCode, CropName, StartDate, EndDate, CreateDate, UpdateDate, CropExpectedTime, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
 VALUES 
 -- 2023
-(N'CRP001', N'Pomelo', '2023-01-01', '2023-03-31', '2022-12-15', '2023-04-10', '2023-02-01', '2023-04-05', N'Pomelo Winter Harvest', 5400, 5300, 0, N'Active', N'Quality harvest', 1200, 2),
-(N'CRP002', N'Pomelo', '2023-04-01', '2023-06-30', '2023-01-20', '2023-07-05', '2023-05-01', '2023-07-05', N'Pomelo Spring Harvest', 4900, 4800, 0, N'Active', N'Good market demand', 1100, 2),
-(N'CRP003', N'Pomelo', '2023-07-01', '2023-09-30', '2023-02-10', '2023-10-10', '2023-08-01', '2023-10-05', N'Pomelo Summer Harvest', 5100, 5000, 0, N'Active', N'High yield', 1150, 2),
-(N'CRP004', N'Pomelo', '2023-10-01', '2023-12-31', '2023-03-15', '2024-01-05', '2023-11-01', '2024-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Active', N'Excellent growth', 1100, 2),
+(N'CRP001', N'Winter Harvest 2023', '2023-01-01', '2023-03-31', '2022-12-15', '2023-04-10', '2023-02-01', '2023-04-05', N'Pomelo Winter Harvest', 5400, 5300, 0, N'Completed', N'Quality harvest', 1200, 1),
+(N'CRP002', N'Spring Harvest 2023', '2023-04-01', '2023-06-30', '2023-01-20', '2023-07-05', '2023-05-01', '2023-07-05', N'Pomelo Spring Harvest', 4900, 4800, 0, N'Completed', N'Good market demand', 1100, 1),
+(N'CRP003', N'Summer Harvest 2023', '2023-07-01', '2023-09-30', '2023-02-10', '2023-10-10', '2023-08-01', '2023-10-05', N'Pomelo Summer Harvest', 5100, 5000, 0, N'Completed', N'High yield', 1150, 1),
+(N'CRP004', N'Autumn Harvest 2023', '2023-10-01', '2023-12-31', '2023-03-15', '2024-01-05', '2023-11-01', '2024-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Completed', N'Excellent growth', 1100, 1),
 
 -- 2024
-(N'CRP005', N'Pomelo', '2024-01-01', '2024-03-31', '2023-12-10', '2024-04-15', '2024-02-01', '2024-04-05', N'Pomelo Winter Harvest', 5000, 4800, 0, N'Active', N'High yield', 1200, 3),
-(N'CRP006', N'Pomelo', '2024-04-01', '2024-06-30', '2024-01-15', '2024-07-10', '2024-05-01', '2024-07-05', N'Pomelo Spring Harvest', 4500, 4300, 0, N'Active', N'Good season', 1100, 3),
-(N'CRP007', N'Pomelo', '2024-07-01', '2024-09-30', '2024-02-10', '2024-10-15', '2024-08-01', '2024-10-05', N'Pomelo Summer Harvest', 4700, 4600, 0, N'Active', N'Quality harvest', 1150, 3),
-(N'CRP008', N'Pomelo', '2024-10-01', '2024-12-31', '2024-03-10', '2025-01-05', '2024-11-01', '2025-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Active', N'Needs more care', 1000, 3),
+(N'CRP005', N'Winter Harvest 2024', '2024-01-01', '2024-03-31', '2023-12-10', '2024-04-15', '2024-02-01', '2024-04-05', N'Pomelo Winter Harvest', 5000, 4800, 0, N'Completed', N'High yield', 1200, 1),
+(N'CRP006', N'Spring Harvest 2024', '2024-04-01', '2024-06-30', '2024-01-15', '2024-07-10', '2024-05-01', '2024-07-05', N'Pomelo Spring Harvest', 4500, 4300, 0, N'Completed', N'Good season', 1100, 1),
+(N'CRP007', N'Summer Harvest 2024', '2024-07-01', '2024-09-30', '2024-02-10', '2024-10-15', '2024-08-01', '2024-10-05', N'Pomelo Summer Harvest', 4700, 4600, 0, N'Completed', N'Quality harvest', 1150, 1),
+(N'CRP008', N'Autumn Harvest 2024', '2024-10-01', '2024-12-31', '2024-03-10', '2025-01-05', '2024-11-01', '2025-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Completed', N'Needs more care', 1000, 1),
 
 -- 2025
-(N'CRP009', N'Pomelo', '2025-01-01', '2025-03-31', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'Active', N'Excellent growth', 1200, 4);
+(N'CRP009', N'Winter Harvest 2025', '2025-01-01', '2025-03-31', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'Completed', N'Excellent growth', 1200, 1);
 
 GO
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
@@ -1537,6 +1650,10 @@ VALUES
     (31, 8, N'kg', 7000.0, 6600.0, 90, 85, 7),  -- HarvestHistoryID 7
     (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
 GO
+UPDATE ipas.dbo.ProductHarvestHistory
+SET UserID = 1, RecordDate = GETDATE()
+WHERE UserID IS NULL;
+GO
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
@@ -1593,11 +1710,11 @@ VALUES
 GO
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
-('P001', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
-('P002', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
-('P003', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
-('P004', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
-('P005', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
+('P001', 'Southern Vietnam Plant Seedling JSC', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
+('P002', 'Tien Giang Fruit Seedling Center', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Provider', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
+('P003', 'Dong Thap Seedling Cooperative', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam', 'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Provider', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
+('P004', 'Southern Fruit Research Institute', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Provider', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
+('P005', 'Ba Ria Pomelo Seedling Farm', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Provider', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1),
 ('P006', 'Partner One', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
 ('P007', 'Partner Two', 'Ho Chi Minh', '0987654321', 'partner2@example.com', GETDATE(), NULL, 'Vietnam',  'District 1', 'Ben Nghe', 'Supplier of organic products', 'Customer', 'Active', 'Tran Thi B', 'Expanding market', 'Retail', 1),
 ('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam',  'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Customer', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
@@ -1634,7 +1751,7 @@ VALUES
 ('GP012', 'Grafted Plant L', '2024-12-08', 'Used', '2024-12-01', 'Great potential', 2, 0, 0 ,3, 2),
 ('GP013', 'Grafted Plant M', '2025-01-15', 'Used', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
 ('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
-('GP015', 'Grafted Plant O',  '2025-03-10', 'Used', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
+('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
 GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
@@ -1674,7 +1791,7 @@ INSERT INTO [dbo].[CarePlanSchedule]
            ,[HarvestHistoryID])
      VALUES
            (NULL, 'Active', '08:00:00', '10:00:00', 1, NULL, '["2025/04/01"]', 1, NULL),
-           (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/05/01"]', 1, NULL),
+           (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/04/02"]', 1, NULL),
            (NULL, 'Completed', '07:00:00', '09:00:00', 3, NULL, '["2025/06/01"]', 1, NULL),
            (NULL, 'Active', '10:00:00', '12:00:00', 4, NULL, '["2025/07/01"]', 1, NULL),
            (NULL, 'Cancelled', '06:30:00', '08:30:00', 5, NULL, '["2025/08/01"]', 1, NULL),
@@ -1704,97 +1821,130 @@ INSERT INTO [dbo].[PlanTarget]
            (9, 10, 1, 2, 1, 4, 'Plant'),
            (10, 1, 2, 3, 2, 5, 'Row');
 GO
-INSERT INTO [dbo].[GrowthStageMasterType] ([GrowthStageID], [MasterTypeID], [FarmID])
-VALUES 
-    (1, 15, 1),
-    (1, 16, 1),
-    (1, 18, 1),
-    (3, 15, 1),
-    (3, 16, 1),
-    (3, 17, 1),
-    (3, 18, 1),
-    (3, 19, 1),
-    (2, 15, 1),
-    (2, 16, 1),
-    (2, 18, 1),
-    (4, 15, 1),
-    (4, 16, 1),
-    (4, 17, 1),
-    (4, 18, 1),
-    (4, 19, 1),
-    (5, 19, 1),
-    (NULL, 14, 1);
-Go
+
+INSERT INTO ipas.dbo.PlantGrowthHistory 
+    (PlantGrowthHistoryCode, Content, CreateDate, UpdateDate, PlantID, IssueName, UserID)
+VALUES
+    ('PGH001', N'Leaves turning yellow at the tips, possibly due to nitrogen deficiency.', '2024-01-15 08:30:00', NULL, 10, N'Yellow Leaves', 23),
+    ('PGH002', N'Slow growth observed, recommend checking soil pH levels.', '2024-02-20 10:15:00', NULL, 10, N'Slow Growth', 23),
+    ('PGH003', N'White mold appearing near the base, antifungal treatment needed.', '2024-04-05 14:45:00', NULL, 10, N'Fungal Infection', 23),
+    ('PGH004', N'Leaves curling with black spots, possible pest infestation detected.', '2024-06-10 09:20:00', NULL, 10, N'Pest Infestation', 23),
+    ('PGH005', N'New shoots appearing, but growth rate is still below normal.', '2024-07-25 11:50:00', NULL, 10, N'Slow Shoot Growth', 23),
+    ('PGH006', N'Stem damage observed due to strong winds, recommend support structure.', '2024-09-15 15:10:00', NULL, 10, N'Stem Damage', 23),
+    ('PGH007', N'Plant is recovering well after treatments, new healthy leaves appearing.', '2024-11-30 08:00:00', NULL, 10, N'Recovery Progress', 23);
+
+	INSERT INTO ipas.dbo.GraftedPlantNote (GraftedPlantNoteCode, IssueName, Content, GraftedPlantID, CreateDate, UpdateDate, UserID)
+VALUES
+('GPN-001', 'Leaf Discoloration', 'Observed yellowing on the lower leaves.', 8, '2024-01-10 08:30:00', '2024-01-10 08:30:00', 23),
+('GPN-002', 'Stem Weakness', 'The grafted stem appears weak and bending.', 8, '2024-04-05 10:15:00', '2024-04-05 10:15:00', 23),
+('GPN-003', 'Slow Growth', 'The plant is growing at a slower rate than expected.', 8, '2024-06-15 14:45:00', '2024-06-15 14:45:00', 23),
+('GPN-004', 'Pest Infestation', 'Small insects are found on new growth areas.', 8, '2024-08-20 09:20:00', '2024-08-20 09:20:00', 23),
+('GPN-005', 'Wilted Leaves', 'Leaves appear wilted despite regular watering.', 8, '2024-11-10 11:50:00', '2024-11-10 11:50:00', 23),
+('GPN-006', 'Graft Union Swelling', 'Swelling observed at the graft union site.', 8, '2025-02-01 15:10:00', '2025-02-01 15:10:00', 23),
+('GPN-007', 'Fungal Spots', 'Dark spots appearing on the leaves, possibly fungal infection.', 8, '2025-03-15 08:00:00', '2025-03-15 08:00:00', 23);
 
 -- Cấu hình hệ thống
-INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-( 'Growth Exponent', '1.4', 'int', 'Số mũ tăng trưởng'),
-( 'Initial Branching Coefficient', '5', 'int', 'Hệ số phân nhánh ban đầu'),
-( 'Maximum Grafting Limit', '100', 'int', 'Giới hạn chiết cành tối đa');
-
+( 'Validation Variable','Growth Exponent', '1.4', 'int', N'Số mũ tăng trưởng'),
+( 'Validation Variable','Initial Branching Coefficient', '5', N'int', 'Hệ số phân nhánh ban đầu'),
+('Validation Variable','Min Time', '1', 'double', N'Thời gian tối thiểu'),
+( 'Validation Variable','Max Time', '24', 'double', N'Thời gian tối đa'),
+( 'Validation Variable','Maximum Grafting Limit', '100', 'int', N'Giới hạn chiết cành tối đa');
 
 -- Danh sách WorkTargets
-INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Work Type', 'Watering', 'string', 'Tưới nước'),
-('Work Type', 'Fertilizer', 'string', 'Bón phân'),
-('Work Type', 'Pruning-Shaping', 'string', 'Cắt tỉa - tạo táng'),
-('Work Type', 'Grafted', 'string', 'Chiết cành'),
-('Work Type', 'Pest Control', 'string', 'Kiểm soát sâu bệnh'),
-('Work Type', 'Others', 'string', 'Các loại công việc khác');
+('Master Type','Work Type', 'Watering', 'string', N'Tưới nước'),
+('Master Type','Work Type', 'Fertilizer', 'string', N'Bón phân'),
+('Master Type','Work Type', 'Pruning-Shaping', 'string', N'Cắt tỉa - tạo táng'),
+('Master Type','Work Type', 'Grafted', 'string', N'Chiết cành'),
+('Master Type','Work Type', 'Pest Control', 'string', N'Kiểm soát sâu bệnh'),
+('Master Type','Work Type', 'Others', 'string', N'Các loại công việc khác');
 GO
 -- Danh sách Criteria
-INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Criteria Type', 'Grafted Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
-('Criteria Type', 'Grafted Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
-('Criteria Type', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá lô giống nhập vào'),
-('Criteria Type', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Criteria Type', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
-('Criteria Type', 'Others', 'string', 'Các loại tiêu chí khác');
+('Master Type', 'Criteria Type', 'Grafted Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
+('Master Type', 'Criteria Type', 'Grafted Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('Master Type', 'Criteria Type', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá lô giống nhập vào'),
+('Master Type', 'Criteria Type', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Master Type', 'Criteria Type', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
+('Master Type', 'Criteria Type', 'Others', 'string', N'Các loại tiêu chí khác');
 GO
 -- Danh sách Criteria
-INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Grafted Condition Apply', 'Grafted Condition', 'string', 'Bộ tiêu chí dùng để đánh giá cành chiết'),
-('Grafted Evaluation Apply', 'Grafted Evaluation', 'string', 'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
+('Criteria Apply', 'Grafted Condition Apply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('Criteria Apply', 'Grafted Evaluation Apply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
 
-('PlantLot Condition Apply', 'PlantLot Condition', 'string', 'Tiêu chí đánh giá cành chiết'),
-('PlantLot Evaluation Apply', 'PlantLot Evaluation', 'string', 'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('Criteria Apply', 'PlantLot Condition Apply', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
+('Criteria Apply', 'PlantLot Evaluation Apply', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
 
-('Grafted Criteria', 'Grafted Evaluation', 'string', 'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Grafted Criteria', 'Others', 'string', 'Bộ tiêu chí khác'),
+('Criteria Apply', 'Grafted Criteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
+('Criteria Apply', 'Grafted Criteria', 'Others', 'string', N'Bộ tiêu chí khác'),
 
-('PlantLot Criteria', 'Plantlot Condition', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
-('PlantLot Criteria', 'Plantlot Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
-('PlantLot Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+('Criteria Apply', 'PlantLot Criteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
+('Criteria Apply', 'PlantLot Criteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
+('Criteria Apply', 'PlantLot Criteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Plant Criteria', 'Grafted Condition', 'string', 'Bộ tiêu chí đánh giá cây mẹ'),
-('Plant Criteria', 'Plant Evaluation', 'string', 'Tiêu chí đánh giá có thể chọn cho cây'),
-('Plant Criteria', 'Others', 'string', 'Các loại tiêu chí có thể chọn cho khác'), 
+('Criteria Apply', 'Plant Criteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
+('Criteria Apply', 'Plant Criteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
+('Criteria Apply', 'Plant Criteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Product Criteria', 'Product', 'string', 'Tiêu chí đánh giá sản phẩm'),
-('Product Criteria', 'Orther', 'string', 'Tiêu chí đánh giá sản phẩm');
+('Criteria Apply', 'Product Criteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
+('Criteria Apply', 'Product Criteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
 GO
 -- Danh sách Config trong farm
-INSERT INTO SystemConfiguration (ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Min Lenght', '1', 'double', 'Độ dài tối thiểu'),
-('Min Width', '1', 'double', 'Độ dài tối đa'),
-('Min Area', '1', 'double', 'Diện tích tối thiểu'),
-('Min Row Of LandPlot', '1', 'int', 'Số hàng tối thiểu của 1 LandPlot'),
-('Coordiantion Point Required ', '3', 'int', 'Số điểm tối đa của plantLot'),
-('Min Distance Plant', '2.5', 'double', 'Khoảng cách tối thiểu giữa các cây'),
-('Min Plant Of LandRow', '1', 'int', 'Số cây tối thiểu của 1 Hàng');
+('Validation Variable','Min Lenght', '1', 'double', N'Độ dài tối thiểu'),
+('Validation Variable','Min Width', '1', 'double', N'Độ dài tối đa'),
+('Validation Variable','Min Area', '1', 'double', N'Diện tích tối thiểu'),
+('Validation Variable','Min Row Of LandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
+('Validation Variable','Coordiantion Point Required', '3', 'int', N'Số điểm tối đa của plantLot'),
+('Validation Variable','Min Distance Plant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('Validation Variable','Min Plant Of LandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng');
 GO
 -- Danh sách TypeNames
-INSERT INTO SystemConfiguration ( ConfigKey, ConfigValue, ValueType, Description)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-( 'TypeName', 'Document', 'string', 'Quy trình'),
-( 'TypeName', 'Criteria', 'string', 'Tiêu chí'),
-( 'TypeName', 'Product', 'string', 'Sản phẩm'),
-( 'TypeName', 'Cultivar', 'string', 'Giống cây'),
-( 'TypeName', 'Document', 'string', 'Các loại tài liệu'),
-( 'TypeName', 'Work', 'string', 'Công việc');
-
+('Master Type', 'TypeName', 'Document', 'string', N'Quy trình'),
+('Master Type', 'TypeName', 'Criteria', 'string', N'Tiêu chí'),
+('Master Type', 'TypeName', 'Product', 'string', N'Sản phẩm'),
+('Master Type', 'TypeName', 'Cultivar', 'string', N'Giống cây'),
+('Master Type', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
+('Master Type', 'TypeName', 'Work', 'string', N'Công việc'),
+('AI', 'Predict Percent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');
+-- Insert WorkLog
+INSERT INTO [dbo].[WorkLog]
+           ([WorkLogCode]
+           ,[WorkLogName]
+           ,[Status]
+           ,[Date]
+           ,[IsConfirm]
+           ,[IsDeleted]
+           ,[ActualStartTime]
+           ,[ActualEndTime]
+           ,[ScheduleID]
+           ,[WarningID]
+           ,[ReasonDelay])
+     VALUES
+           ('WL31162235' ,'Watering_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
+		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL)
+-- Insert UserWorkLog
+INSERT INTO [dbo].[UserWorkLog]
+           ([WorkLogID]
+           ,[UserID]
+           ,[IsReporter]
+           ,[IsDeleted]
+           ,[CreateDate]
+           ,[Notes]
+           ,[StatusOfUserWorkLog]
+           ,[ReplaceUserId]
+           ,[Issue])
+     VALUES
+           (1,1,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)

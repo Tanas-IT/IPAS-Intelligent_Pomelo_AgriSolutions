@@ -9,6 +9,12 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 {
     public class SystemConfigConst
     {
+        #region CONFIG GROUP NAME
+        public const string VALIDATION_VARIABLE = "Validation Variable";
+        public const string MASTER_TYPE = "Master Type";
+        public const string CRITERIA_APPLY = "Criteria Apply";
+        #endregion
+
         #region CONFIG FOR PLANT IN GRAFTED
         public const string GROWTH_EXPONENT = "Growth Exponent";
         public const string INITIAL_BRANCHING_COEFFICIENT = "Initial Branching Coefficient";
@@ -31,7 +37,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #region GRAFTED
         public const string GRAFTED_CRITERIA = "Grafted Criteria"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
-        public const string GRAFTED_CONDITION_CAPPLY = "Grafted Condition Apply"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
+        public const string GRAFTED_CONDITION_APPLY = "Grafted Condition Apply"; // Lấy tất cả các tiêu chí được sử dụng trong plant lot
         public const string GRAFTED_EVALUATION_APPLY = "Grafted Evaluation Apply";
         #endregion
 
@@ -41,6 +47,10 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #region PRODUCT
         public const string PRODUCT_CRITERIA = "Product Criteria";
+        #endregion
+
+        #region AI
+        public const string PREDICT_PERCENT = "Predict Percent";
         #endregion
         #endregion
 
@@ -53,14 +63,16 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MIN_PLANT_OF_LAND_ROW = "Min Plant Of LandRow";
         public const string COORDINATION_POINT_REQUIRED = "Coordiantion Point Required";
         public const string MIN_DISTANCE_OF_PLANT = "Min Distance Plant";
+        public const string MIN_TIME = "Min Time";
+        public const string MAX_TIME = "Max Time";
 
         #endregion
 
         public static readonly HashSet<string> ADDABLE_CONFIG_KEYS = new HashSet<string>
-    {
-        PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
-        GRAFTED_CRITERIA, GRAFTED_CONDITION_CAPPLY, GRAFTED_EVALUATION_APPLY,
-        PLANT_CRITERIA, PRODUCT_CRITERIA
-    };
+        {
+            PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
+            GRAFTED_CRITERIA, GRAFTED_CONDITION_APPLY, GRAFTED_EVALUATION_APPLY,
+            PLANT_CRITERIA, PRODUCT_CRITERIA
+        };
     }
 }

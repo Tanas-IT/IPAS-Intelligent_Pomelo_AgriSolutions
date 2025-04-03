@@ -33,5 +33,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CropRequest
 
         [FromQuery(Name = "marketPriceTo")]
         public int? MarketPriceTo { get; set; }
+        [RegularExpression(@"^\d+(,\d+)*$", ErrorMessage = "LandPlotIds must be a comma-separated list of numbers (e.g., '1,2,3').")]
+        public string? LandPlotIds { get; set; }
     }
 }

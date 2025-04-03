@@ -1,5 +1,11 @@
 import { LOCAL_STORAGE_KEYS } from "@/constants";
-import { GetPlantDetail, GetPlantLotDetail } from "@/payloads";
+import {
+  GetCropDetail,
+  GetGraftedPlantDetail,
+  GetHarvestDay,
+  GetPlantDetail,
+  GetPlantLotDetail,
+} from "@/payloads";
 import { PolygonInit } from "@/types";
 import { create } from "zustand";
 
@@ -162,11 +168,43 @@ interface PlantStore {
   markForRefetch: () => void;
 }
 
+interface GraftedPlantStore {
+  graftedPlant: GetGraftedPlantDetail | null;
+  setGraftedPlant: (graftedPlant: GetGraftedPlantDetail | null) => void;
+  shouldRefetch: boolean;
+  markForRefetch: () => void;
+}
+
+export const useGraftedPlantStore = create<GraftedPlantStore>((set, get) => ({
+  graftedPlant: null,
+  setGraftedPlant: (graftedPlant) => set({ graftedPlant }),
+  shouldRefetch: false,
+  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+}));
+
 export const usePlantStore = create<PlantStore>((set, get) => ({
   plantId: null,
   setPlantId: (plantId) => set({ plantId }),
   plant: null,
   setPlant: (plant) => set({ plant }),
+  shouldRefetch: false,
+  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+}));
+
+interface CropStore {
+  crop: GetCropDetail | null;
+  setCrop: (crop: GetCropDetail | null) => void;
+  harvestDay: GetHarvestDay | null;
+  setHarvestDay: (harvestDays: GetHarvestDay | null) => void;
+  shouldRefetch: boolean;
+  markForRefetch: () => void;
+}
+
+export const useCropStore = create<CropStore>((set, get) => ({
+  crop: null,
+  setCrop: (crop) => set({ crop }),
+  harvestDay: null,
+  setHarvestDay: (harvestDay) => set({ harvestDay }),
   shouldRefetch: false,
   markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
 }));

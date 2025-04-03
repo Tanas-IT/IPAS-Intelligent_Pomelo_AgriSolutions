@@ -81,11 +81,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.assignTask, Name = "AssignTask")]
-        public async Task<IActionResult> AssignTask(int employeeId, int workLogId)
+        public async Task<IActionResult> AssignTask(int employeeId, int workLogId, int? farmId)
         {
             try
             {
-                var result = await _workLogService.AssignTaskForEmployee(employeeId, workLogId);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.AssignTaskForEmployee(employeeId, workLogId, farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -147,11 +149,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.NoteForWorkLog, Name = "NoteForWorkLog")]
-        public async Task<IActionResult> NoteForWorkLog([FromForm] CreateNoteModel createNoteModel)
+        public async Task<IActionResult> NoteForWorkLog([FromForm] CreateNoteModel createNoteModel, [FromQuery] int? farmId)
         {
             try
             {
-                var result = await _workLogService.NoteForWorkLog(createNoteModel);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.NoteForWorkLog(createNoteModel, farmId.Value);
 
                 return Ok(result);
             }
@@ -299,11 +303,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.WorkLog.CanceledWorkLogByEmployee, Name = "CanceledWorkLogByEmployee")]
-        public async Task<IActionResult> CanceledWorkLogByEmployee([FromBody] CancelledWorkLogModel cancelledWorkLogModel)
+        public async Task<IActionResult> CanceledWorkLogByEmployee([FromBody] CancelledWorkLogModel cancelledWorkLogModel, [FromQuery]int? farmId)
         {
             try
             {
-                var result = await _workLogService.CanceledWorkLogByEmployee(cancelledWorkLogModel.WorkLogId, cancelledWorkLogModel.UserId);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.CanceledWorkLogByEmployee(cancelledWorkLogModel.WorkLogId, cancelledWorkLogModel.UserId, farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -319,11 +325,63 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.WorkLog.CheckAttendance, Name = "CheckAttendance")]
-        public async Task<IActionResult> CheckAttendance([FromBody] CheckAttendanceModel checkAttendanceModel)
+        public async Task<IActionResult> CheckAttendance([FromBody] CheckAttendanceModel checkAttendanceModel, [FromQuery] int? farmId)
         {
             try
             {
-                var result = await _workLogService.CheckAttendance(checkAttendanceModel);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.CheckAttendance(checkAttendanceModel, farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.StatisticWorkLog, Name = "StatisticWorkLog")]
+        public async Task<IActionResult> StatisticWorkLog([FromQuery] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.TaskStatics(farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.GetWorkLogByStatusAndUserId, Name = "GetWorkLogByStatusAndUserId")]
+        public async Task<IActionResult> GetWorkLogByStatusAndUserId([FromQuery] string? status, [FromQuery] int? userId)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+
+                var workLogParam = new GetWorkLogByStatusParam()
+                {
+                    Status = status,
+                    UserId = userId.Value
+                };
+                var result = await _workLogService.GetWorkLogbyStatus(workLogParam);
                 return Ok(result);
             }
             catch (Exception ex)

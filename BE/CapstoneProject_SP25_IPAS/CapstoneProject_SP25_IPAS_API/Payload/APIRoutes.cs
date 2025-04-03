@@ -77,6 +77,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string FillPlantToPlot = Base + "/fill-plant-to-plot";
             public const string GetPlantPlotForSelected = Base + "/get-for-selected";
             public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
+            public const string checkCriteriaForLot = Base + "/plant-lots/criteria/check-criteria";
+            public const string MarkUsedPlantLot = Base + "/plant-lots/mark-used";
         }
 
         public static class Resource
@@ -118,13 +120,15 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCriteriaSetGraftedExcept = prefix + "/grafted-plant/get-for-selected/except";
             public const string getCriteriaSetPlantExcept = prefix + "/plant/get-for-selected/except";
             public const string getCriteriaSetPagin = prefix + "/criteria-set";
-
             public const string prefixCriteriaTarget = Base + "/criterias/target";
             public const string applyCriteriaTargetMultiple = prefixCriteriaTarget + "/apply-criteria";
             public const string updateCriteriaTarget = prefixCriteriaTarget + "/update-criteria-target";
             public const string updateCriteriaMultipleTarget = prefixCriteriaTarget + "/update-multiple-target";
-            public const string checkCriteriaForTarget = prefixCriteriaTarget + "/check-criteria-for-target";
+            public const string checkCriteriaForGrafted = prefixCriteriaTarget + "/grafted-plant/check-criteria";
+            public const string checkCriteriaForPlant = prefixCriteriaTarget + "/plant/check-criteria";
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
+            public const string applyCriteriaForPlant = prefixCriteriaTarget + "/plant/apply-criteria";
+            public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
         }
 
         public static class Authentication
@@ -259,6 +263,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deletePlantGrowthHistory = prefix + "";
             public const string updatePlantGrowthHistoryInfo = prefix + "";
             public const string getPlantGrowthHistoryById = prefix + "";
+            public const string getAllHistoryOfPlantPagin = prefix + "/pagin";
             public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
         }
 
@@ -280,6 +285,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string filterByGrowthStage = prefix + "/filter-by-growth-stage";
             public const string filterTypeWorkByGrowthStage = prefix + "/type-work/filter-by-growth-stage";
             public const string filterTypeNameByGrowthStage = prefix + "/type-name/filter-by-growth-stage";
+            public const string getPlanOfTarget = prefix + "/get-plan-of-target";
+
         }
 
         public static class UserWorkLog
@@ -325,11 +332,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/harvests";
             public const string createHarvest = prefix + "";
-            public const string createProductHarvestHistory = prefix + "/create-product-of-harvest";
-            public const string createPlantRecordHarvest = prefix + "/create-plant-record-of-harvest";
+            public const string createProductHarvestHistory = prefix + "/product-harvest";
+            public const string createPlantRecordHarvest = prefix + "/plants/record";
             public const string deletePermanentlyHarvest = prefix + "";
             public const string deleteProductHarvest = prefix + "/delete-product";
             public const string deletePlantRecord = prefix + "/delete-plant-record";
+            public const string SoftedDeletedHarvestHistory = prefix + "/softed-delete";
             public const string updateHarvestInfo = prefix + "";
             public const string updateProductHarvestInfo = prefix + "/update-product-harvest";
             public const string getHarvestById = prefix + "";
@@ -341,6 +349,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestByCode = prefix + "/get-by-code";
             public const string statisticOfTopByYear = prefix + "/statistic/top-in-year";
             public const string statisticOfTopByCrop = prefix + "/statistic/top-in-crop";
+            public const string getPlantHarvestRecord = prefix + "/plants/record";
+            public const string getHarvestSelectedToPlantRecord = prefix + "/plants/can-harvert";
+
 
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
@@ -367,6 +378,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string ChangeEmployeeOfWorkLog = prefix + "/change-employee";
             public const string CanceledWorkLogByEmployee = prefix + "/cancelled-workLog";
             public const string CheckAttendance = prefix + "/check-attendance";
+            public const string UpdateNoteForWorkLog = prefix + "/update-note";
+            public const string StatisticWorkLog = prefix + "/employee/task-stats";
+            public const string GetWorkLogByStatusAndUserId = prefix + "/get-by-status-and-userId";
         }
 
         public static class Report
@@ -411,10 +425,13 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllGraftedPagin = prefix + "";
             public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
+            public const string getAllGraftedByPlantPagin = prefix + "/get-by-plant";
+
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
             public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
             public const string GroupGraftedPlantsIntoPlantLot = prefix + "/grouping";
             public const string UnGroupGraftedPlantsIntoPlantLot = prefix + "/ungrouping";
+            public const string MarkDeadGraftedPlants = prefix + "/mark-dead";
             public const string CreatePlantFromGrafted = prefix + "/create-plant";
 
             public const string graftedNotePrefix = prefix + "/note";
@@ -423,6 +440,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateGraftedNoteInfo = graftedNotePrefix + "";
             public const string getGraftedNoteById = graftedNotePrefix + "";
             public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
+            public const string getAllNoteOfGraftedPagin = graftedNotePrefix + "/pagin";
         }
 
         public static class AI
@@ -443,6 +461,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getImageTaggedAsync = prefix + "/get-image-tagged";
             public const string updateTag = prefix + "/update-tag";
             public const string trainedProject = prefix + "/trained-project";
+            public const string publishIteration = prefix + "/publish-iteration";
         }
 
 
@@ -496,19 +515,29 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string DeleteReportOfUser = prefix + "/delete";
             public const string UpdateReportOfUser = prefix + "/update";
             public const string AssignTagToImageinReportOfUser = prefix + "/assign-tag-to-image";
+            public const string getReportOfUser = prefix + "/get-report-of-user";
+            public const string answerReportOfUser = prefix + "/answer-report";
         }
 
         public static class SystemConfig
         {
             private const string prefix = Base + "/system-config";
-            public const string createSystemConfig = prefix ;
-            public const string getSystemConfigById = prefix ;
+            public const string createSystemConfig = prefix;
+            public const string getSystemConfigById = prefix;
             public const string getSystemConfigPagination = prefix;
-            public const string permanenlyDelete = prefix ;
+            public const string permanenlyDelete = prefix;
             public const string updateSystemConfig = prefix;
             public const string getSystemConfigForSelected = prefix + "/for-selected";
             public const string getSystemConfigAddable = prefix + "/addable";
+            public const string getSystemConfigGroup = prefix + "/group/for-selected";
+            public const string getSystemConfigNoPagin = prefix + "/no-pagin";
 
+        }
+        public static class Schedule
+        {
+            private const string prefix = Base + "/schedule";
+            public const string updateTimeAndEmployee = prefix + "/update-time-and-employee";
+            public const string changeTimeOfSchedule = prefix + "/change-time-of-schedule";
         }
     }
 }

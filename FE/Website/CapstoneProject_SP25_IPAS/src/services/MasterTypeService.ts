@@ -113,11 +113,11 @@ export const getWorkTypeSelect = async (
   return apiResponse;
 };
 
-export const IsMasterTypeHasTarget =  async (masterTypeId: number, target: string) => {
+export const IsMasterTypeHasTarget = async (masterTypeId: number, target: string) => {
   const res = await axiosAuth.axiosJsonRequest.post(`masterTypes/check-by-target`, {
     masterTypeId,
-    target
+    target,
   });
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
-}
+};

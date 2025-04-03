@@ -24,6 +24,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest
         public DateTime? GraftedDateTo { get; set; }
         public string? PlantLotIds { get; set; }
         public string? CultivarIds { get; set; }
+        public bool? IsDead { get; set; }
         public bool? IsCompleted { get; set; }
     }
 }

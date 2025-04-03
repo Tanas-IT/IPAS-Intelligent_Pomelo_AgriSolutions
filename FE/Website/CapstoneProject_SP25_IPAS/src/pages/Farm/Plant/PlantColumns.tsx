@@ -2,8 +2,8 @@ import { TableColumn } from "@/types";
 import { GetPlant } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
-import { Button, Popover, QRCode, Tag, Typography } from "antd";
-import { HEALTH_STATUS, healthStatusColors } from "@/constants";
+import { Popover, QRCode, Tag } from "antd";
+import { healthStatusColors } from "@/constants";
 
 const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 

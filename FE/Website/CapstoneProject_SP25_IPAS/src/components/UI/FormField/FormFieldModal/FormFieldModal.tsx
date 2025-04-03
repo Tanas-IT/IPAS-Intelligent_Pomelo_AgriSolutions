@@ -15,7 +15,7 @@ import {
 } from "antd";
 import style from "./FormFieldModal.module.scss";
 import { DATE_FORMAT } from "@/utils";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -29,13 +29,14 @@ interface FormFieldModalProps {
     | "text"
     | "textarea"
     | "date"
+    | "dateRange"
     | "select"
     | "switch"
     | "colorPicker"
     | "image"
     | "time"
     | "radio";
-  options?: { value: string | number; label: string }[];
+  options?: { value: string | number; label: string | ReactNode }[];
   value?: string | string[] | number | undefined;
   image?: File | string;
   readonly?: boolean;
@@ -43,8 +44,10 @@ interface FormFieldModalProps {
   isLoading?: boolean;
   isSearch?: boolean;
   isCheck?: boolean;
+  isSingleRadio?: boolean;
   hasFeedback?: boolean;
   placeholder?: string;
+  radioLabels?: { yes: string; no: string };
   direction?: "row" | "col";
   dependencies?: string[];
   checkedChildren?: string;
@@ -67,14 +70,16 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   isLoading = false,
   isSearch = true,
   isCheck = false,
+  isSingleRadio = false,
   hasFeedback = true,
   placeholder = `Enter ${label.toLowerCase()}`,
+  radioLabels = { yes: "Yes", no: "No" },
   direction = "col",
   dependencies,
   checkedChildren,
   unCheckedChildren,
   disable = false,
-  multiple = false
+  multiple = false,
 }) => {
   const { styles } = useStyle();
   const isRequired = rules.some((rule) => rule.required);
@@ -148,8 +153,8 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
       case "radio":
         return (
           <Radio.Group onChange={(e) => onChange?.(e.target.value)} value={value}>
-            <Radio value={true}>Yes</Radio>
-            <Radio value={false}>No</Radio>
+            <Radio value={true}>{radioLabels.yes}</Radio>
+            {!isSingleRadio && <Radio value={false}>{radioLabels.no}</Radio>}
           </Radio.Group>
         );
       case "textarea":
@@ -158,7 +163,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             placeholder={placeholder}
             onChange={onChange}
             readOnly={readonly}
-            maxLength={500}
+            maxLength={255}
           />
         );
       case "date":
@@ -167,6 +172,14 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             className={style.date}
             format={DATE_FORMAT}
             onChange={(date) => onChange?.(date)}
+          />
+        );
+      case "dateRange":
+        return (
+          <DatePicker.RangePicker
+            format={DATE_FORMAT}
+            onChange={(dates) => onChange?.(dates)}
+            className={style.date}
           />
         );
       case "select":

@@ -14,14 +14,34 @@ export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as LandPlot } from "@/pages/Farm/LandPlot/LandPlot";
 export { default as LandRow } from "@/pages/Farm/LandRow/LandRow";
 export { default as Criteria } from "@/pages/Farm/Criteria/Criteria";
+export { default as GraftedPlantDetails } from "@/pages/Farm/GraftedPlantDetails/GraftedPlantDetails";
 export { default as AddNewPlotDrawer } from "@/pages/Farm/LandPlot/LandPlotManagement/AddNewPlotDrawer/AddNewPlotDrawer";
 export { default as LandPlotCreate } from "@/pages/Farm/LandPlot/LandPlotManagement/LandPlotCreate/LandPlotCreate";
 export { default as RowConfiguration } from "@/pages/Farm/LandPlot/LandPlotManagement/RowConfiguration/RowConfiguration";
 export { default as DraggableRow } from "@/pages/Farm/LandPlot/LandPlotManagement/DraggableRow/DraggableRow";
+
+export { default as CropDetails } from "@/pages/Crop/CropDetails/CropDetails";
+export { default as CropDetail } from "@/pages/Crop/CropDetails/CropDetail/CropDetail";
+
 export { default as PlantList } from "@/pages/Farm/Plant/PlantList";
 export { default as PlantDetails } from "@/pages/Farm/PlantDetails/PlantDetails";
+export { default as PlantOverview } from "@/pages/Farm/PlantDetails/PlantOverview/PlantOverview";
+export { default as PlantDetail } from "@/pages/Farm/PlantDetails/PlantDetail/PlantDetail";
+export { default as PlantGrowthHistory } from "@/pages/Farm/PlantDetails/PlantGrowthHistory/PlantGrowthHistory";
+export { default as PlantCriteria } from "@/pages/Farm/PlantDetails/PlantCriteria/PlantCriteria";
+export { default as PlantGraftedHistory } from "@/pages/Farm/PlantDetails/PlantGraftedHistory/PlantGraftedHistory";
+export { default as PlantCareHistory } from "@/pages/Farm/PlantDetails/PlantCareHistory/PlantCareHistory";
+
 export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";
 export { default as PlantLotDetails } from "@/pages/Farm/PlantLotDetails/PlantLotDetails";
+export { default as PlantLotDetail } from "@/pages/Farm/PlantLotDetails/PlantLotDetail/PlantLotDetail";
+export { default as PlantLotCriteria } from "@/pages/Farm/PlantLotDetails/PlantLotCriteria/PlantLotCriteria";
+
+export { default as GraftedPlant } from "@/pages/Farm/GraftedPlant/GraftedPlant";
+export { default as GraftedPlantDetail } from "@/pages/Farm/GraftedPlantDetails/GraftedPlantDetail/GraftedPlantDetail";
+export { default as GraftedPlantCriteria } from "@/pages/Farm/GraftedPlantDetails/GraftedPlantCriteria/GraftedPlantCriteria";
+export { default as GraftedGrowthHistory } from "@/pages/Farm/GraftedPlantDetails/GraftedGrowthHistory/GraftedGrowthHistory";
+
 export { default as Weather } from "@/pages/Weather/Weather";
 export { default as ProcessList } from "@/pages/Process/ProcessList/ProcessList";
 export { default as ProcessDetails } from "@/pages/Process/ProcessDetails/ProcessDetails";
@@ -43,3 +63,7 @@ export { default as Partner } from "@/pages/Partner/Partner";
 export { default as NotFoundPage } from "@/pages/NotFoundPage/NotFoundPage";
 export { default as EmployeeWorklog } from "@/pages/EmployeeView/EmployeeWorklog/EmployeeWorklog";
 export { default as EmployeeWorklogDetail } from "@/pages/EmployeeView/EmployeeWorklog/WorklogDetail/EmployeeWorklogDetail";
+export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashboard/EmployeeDashboard";
+export { default as CropList } from "@/pages/Crop/CropList/CropList";
+export { default as HarvestDays } from "@/pages/Crop/CropDetails/HarvestDays/HarvestDays";
+export { default as ChatBox } from "@/pages/ChatBox/ChatBox";

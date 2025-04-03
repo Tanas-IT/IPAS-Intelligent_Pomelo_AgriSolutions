@@ -6,6 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -78,6 +79,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         FarmId = plantCreateRequest.FarmId,
                         IsDeleted = false,
                         IsDead = false,
+                        IsPassed = false,
                         CreateDate = DateTime.Now,
                     };
 
@@ -160,6 +162,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Delete the plant entities
                     foreach (var plant in plants)
                     {
+                        var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(plant.PlantId);
+                        foreach (var plantGrowthHistory in getPlantGrowthHistory)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
                         _unitOfWork.PlantRepository.Delete(plant);
                     }
 
@@ -199,6 +208,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(plant.ImageUrl);
                     }
+
+                    var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(plantId);
+                    foreach (var plantGrowthHistory in getPlantGrowthHistory)
+                    {
+                        var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
+                        _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                    }
+                    _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
 
                     // Delete the plant entity
                     _unitOfWork.PlantRepository.Delete(plant);
@@ -524,7 +541,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantEntityUpdate.HealthStatus = plantUpdateRequest.HealthStatus;
 
                     if (plantUpdateRequest.PlantingDate.HasValue && plantEntityUpdate.PlantingDate != plantUpdateRequest.PlantingDate)
+                    {
+                        var growthStage = await _growthStageService
+                          .GetGrowthStageIdByPlantingDate(farmId: plantEntityUpdate.FarmId!.Value, plantingDate: plantUpdateRequest.PlantingDate.Value);
+                        if (growthStage == null)
+                        {
+                            return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
+                        }
                         plantEntityUpdate.PlantingDate = plantUpdateRequest.PlantingDate;
+                    }
 
                     if (!string.IsNullOrEmpty(plantUpdateRequest.Description) && plantEntityUpdate.Description != plantUpdateRequest.Description)
                         plantEntityUpdate.Description = plantUpdateRequest.Description;
@@ -639,6 +664,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             errorList = errorList + "\n" + $"Row {plant.NumberOrder}: GrowthStageCode not exist.";
                         }
 
+                        if (!plant.PlantingDate.HasValue)
+                        {
+                            fileHasError = true;
+                            errorList = errorList + "\n" + $"Plant {plant.NumberOrder}: planting date must have.";
+                        }
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeCode == plant.MasterTypeCode);
                         if (masterType == null)
@@ -659,8 +689,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = plant.PlantName,
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-PL{plant.PlantingDate!.Value.ToString("ddMMyy")}",
                                 PlantIndex = plant.PlantIndex,
-                                HealthStatus = plant.HealthStatus,
+                                HealthStatus = HealthStatusConst.HEALTHY,
                                 PlantingDate = plant.PlantingDate,
                                 Description = plant.Description,
                                 CreateDate = DateTime.Now,
@@ -771,6 +802,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var item in plantsExistGet)
                     {
                         item.IsDeleted = true;
+                        var getPlantGrowthHistory = await _unitOfWork.PlantGrowthHistoryRepository.GetGrowthHistoryByPlantId(item.PlantId);
+                        foreach (var plantGrowthHistory in getPlantGrowthHistory)
+                        {
+                            var getResource = await _unitOfWork.ResourceRepository.GetListResourceByPlantGrowthHistoryId(plantGrowthHistory.PlantGrowthHistoryId);
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                        }
+                        _unitOfWork.PlantGrowthHistoryRepository.RemoveRange(getPlantGrowthHistory);
                         _unitOfWork.PlantRepository.Update(item);
                         //_unitOfWork.PlantRepository.Update(item);
                     }
@@ -812,14 +850,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-        public async Task<BusinessResult> getPlantByGrowthActiveFunc(int farmId, string activeFunction)
+        public async Task<BusinessResult> getPlantByGrowthActiveFunc(int farmId, string actFunctions)
         {
             try
             {
                 var checkFarmExixt = await _farmService.CheckFarmExist(farmId);
                 if (checkFarmExixt == null)
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
-                var invalidFunctions = _growthStageService.ValidateActiveFunction(activeFunction);
+                var invalidFunctions = _growthStageService.ValidateActiveFunction(actFunctions);
                 if (invalidFunctions.Any())
                 {
                     //var invalidFunctions = ValidateActiveFunction(createGrowthStageModel.ActiveFunction);
@@ -828,16 +866,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, $"Some ActiveFunction not available: {string.Join(", ", invalidFunctions)}");
                     }
                 }
-                var listFuncRequest = Util.SplitByComma(activeFunction);
+                var listFuncRequest = Util.SplitByComma(actFunctions);
                 Expression<Func<Plant, bool>> filter = x => x.FarmId == farmId
-                    && !x.LandRowId.HasValue
+                    && x.LandRowId.HasValue
                     && x.IsDeleted == false
                     && x.GrowthStage != null
-                    && listFuncRequest.Any(validFunc => x.GrowthStage.ActiveFunction!.Contains(validFunc));
+                && x.GrowthStage.ActiveFunction != null;
+
 
                 string includeProperties = "GrowthStage";
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
+                plantInPlot = plantInPlot.Where(x => !string.IsNullOrEmpty(x.GrowthStage!.ActiveFunction)
+                               && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                    .Any(f => listFuncRequest.Contains(f)))
+                    .ToList();
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
@@ -864,7 +907,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     plantUpdate.HealthStatus = HealthStatusConst.DEAD;
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
-
+                    await DeletelanByPlantId(plantUpdate.PlantId);
+                    await UpdateGraftedPlantsIfParentDead(plantUpdate.PlantId);
                     // Save the changes
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -901,10 +945,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(actFunction))
                 {
                     var actFunctionLower = actFunction.ToLower();
+                    var actFunctions = Util.SplitByComma(actFunctionLower);
                     plantInPlot = plantInPlot
                         .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction)
-                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction!)
-                                        .Any(f => f.Equals(actFunctionLower, StringComparison.OrdinalIgnoreCase)))
+                                   && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
+                                        .Any(f => actFunctions.Contains(f)))
                         .ToList();
                 }
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
@@ -913,6 +958,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+        private async Task<bool> DeletelanByPlantId(int plantId)
+        {
+            try
+            {
+                var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByPlantId(plantId);
+                foreach (var planDelete in getPlanByPlantId)
+                {
+                    if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
+                        continue;
+                    planDelete.IsActive = false;
+                    planDelete.IsDeleted = false;
+                    planDelete.Status = "Stopped";
+                    var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
+                    if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
+                    {
+                        foreach (var deleteWorkLog in getWorkLogInFuture)
+                        {
+                            deleteWorkLog.Status = WorkLogStatusConst.CANCELLED;
+                        }
+                        _unitOfWork.WorkLogRepository.UpdateRange(getWorkLogInFuture);
+                    }
+
+                }
+                _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+        }
+        private async Task UpdateGraftedPlantsIfParentDead(int plantId)
+        {
+            var graftedPlants = await _unitOfWork.GraftedPlantRepository
+                .GetAllNoPaging(gp => gp.MotherPlantId == plantId && gp.IsCompleted == false && gp.IsDeleted == false);
+
+            if (graftedPlants != null && graftedPlants.Any())
+            {
+                foreach (var graftedPlant in graftedPlants)
+                {
+                    graftedPlant.IsDead = true;
+                }
+
+                _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);
+                //await _unitOfWork.SaveAsync();
             }
         }
     }

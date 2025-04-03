@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.MasterTypeRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
@@ -37,7 +39,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
+                    //var lastedId = await _unitOfWork.MasterTypeRepository.GetLastID();
                     string typename = createMasterTypeModel.TypeName!.ToString().ToUpper();
                     string code = CodeHelper.GenerateCode();
                     var newMasterType = new MasterType()
@@ -70,6 +72,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime < createMasterTypeModel.MaxTime)
                     {
+                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MaxTime.Value, createMasterTypeModel.MinTime.Value);
+                        if (validationResult.StatusCode != 200) return validationResult;
                         newMasterType.MinTime = createMasterTypeModel.MinTime;
                         newMasterType.MaxTime = createMasterTypeModel.MaxTime;
                     }
@@ -476,6 +480,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //    }
                         //}
                         checkExistMasterType.UpdateDate = DateTime.Now;
+                        if (updateMasterTypeModel.MaxTime.HasValue && updateMasterTypeModel.MinTime.HasValue && updateMasterTypeModel.MinTime < updateMasterTypeModel.MaxTime)
+                        {
+                            var validationResult = await ValidateMinTimeAndMaxTime(updateMasterTypeModel.MaxTime.Value, updateMasterTypeModel.MinTime.Value);
+                            if (validationResult.StatusCode != 200) return validationResult;
+                        }
                         if (!string.IsNullOrEmpty(updateMasterTypeModel.BackgroundColor))
                         {
                             checkExistMasterType.BackgroundColor = updateMasterTypeModel.BackgroundColor;
@@ -601,6 +610,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == MasterTypeId && x.IsDefault == false && x.IsDeleted == false;
                         var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId);
+                        // Kiểm tra xem MasterTypeId có đang được sử dụng ở các bảng khác không
+                        bool isUsed =
+                         await _unitOfWork.ProductHarvestHistoryRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
+                         await _unitOfWork.PlantRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.PlanRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.ProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.PlantLotRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.SubProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.CriteriaRepository.AnyAsync(x => x.MasterTypeID == MasterTypeId && x.IsDeleted == false) ||
+                         await _unitOfWork.NotificationRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
+                         await _unitOfWork.Type_TypeRepository.AnyAsync(x => x.ProductId == MasterTypeId || x.CriteriaSetId == MasterTypeId);
+
+                        if (isUsed)
+                        {
+                            await transaction.RollbackAsync();
+                            return new BusinessResult(400, $"MasterType '{checkExistMasterType.MasterTypeName}' is in use and cannot be deleted.", false);
+                        }
+
                         if (checkExistMasterType != null)
                         {
                             checkExistMasterType.IsDeleted = true;
@@ -651,9 +678,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var checkGetMastterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == masterTypeId);
-                if(checkGetMastterType != null)
+                if (checkGetMastterType != null)
                 {
-                    if(checkGetMastterType.Target != null && checkGetMastterType.Target.ToLower().Equals(target.ToLower()))
+                    if (checkGetMastterType.Target != null && checkGetMastterType.Target.ToLower().Equals(target.ToLower()))
                     {
                         return new BusinessResult(200, "Valid", true);
                     }
@@ -667,6 +694,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+
+        private async Task<BusinessResult> ValidateMinTimeAndMaxTime(int createMinTime, int createMaxTime)
+        {
+
+            var minTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_TIME.Trim(), (double)1);
+            if (createMinTime < minTime)
+                return new BusinessResult(400, $"Min Time must > {minTime}.");
+            var maxTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MAX_TIME.Trim(), (double)24);
+            if (createMaxTime < maxTime)
+                return new BusinessResult(400, $"Max Time must > {maxTime}.");
+            return new BusinessResult(200, "No error found");
         }
     }
 }

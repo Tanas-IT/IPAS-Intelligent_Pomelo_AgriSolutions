@@ -11,12 +11,12 @@ const ActionMenuMasterType: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
   const actionItems = [
     {
       icon: <Icons.edit />,
-      label: "Update type",
+      label: "Update Type",
       onClick: () => onEdit(),
     },
     {
       icon: <Icons.delete />,
-      label: "Delete type",
+      label: "Delete Type",
       onClick: () => onDelete(),
     },
   ];

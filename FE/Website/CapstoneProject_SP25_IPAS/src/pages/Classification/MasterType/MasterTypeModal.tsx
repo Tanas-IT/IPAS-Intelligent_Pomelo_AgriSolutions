@@ -2,12 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import {
-  CRITERIA_TARGETS,
-  MASTER_TYPE_SHOW_TABLE,
-  masterTypeFormFields,
-  WORK_TARGETS,
-} from "@/constants";
+import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, WORK_TARGETS } from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
@@ -34,14 +29,8 @@ const MasterTypeModel = ({
     value: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
     label: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
   }));
-  const criteriaTargetOptions = Object.keys(CRITERIA_TARGETS).map((key) => ({
-    value: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-    label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-  }));
 
-  const handleSwitchChange = (newChecked: boolean) => {
-    setChecked(newChecked);
-  };
+  const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);
 
   const resetForm = () => {
     form.resetFields();
@@ -65,6 +54,8 @@ const MasterTypeModel = ({
     masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
     masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
     typeName: form.getFieldValue(masterTypeFormFields.typeName),
+    minTime: form.getFieldValue(masterTypeFormFields.minTime),
+    maxTime: form.getFieldValue(masterTypeFormFields.maxTime),
     isActive: checked,
     isConflict: form.getFieldValue(masterTypeFormFields.isConflict),
     target: form.getFieldValue(masterTypeFormFields.target),
@@ -112,7 +103,6 @@ const MasterTypeModel = ({
             placeholder="Enter the type name"
           />
           <FormFieldModal label="Type" readonly={true} name={masterTypeFormFields.typeName} />
-
         </Flex>
 
         <FormFieldModal
@@ -122,7 +112,6 @@ const MasterTypeModel = ({
           rules={RulesManager.getFarmDescriptionRules()}
           placeholder="Enter the description"
         />
-
 
         {typeCurrent === MASTER_TYPE_SHOW_TABLE.WORK && (
           <>
@@ -139,6 +128,37 @@ const MasterTypeModel = ({
                 label="Can Overlap"
                 name={masterTypeFormFields.isConflict}
                 rules={RulesManager.getIsConflictRules()}
+              />
+            </Flex>
+
+            <Flex justify="space-between" gap={40}>
+              <FormFieldModal
+                label="Min Time (Minutes)"
+                name={masterTypeFormFields.minTime}
+                placeholder="Enter min time"
+                rules={RulesManager.getTimeRangeRules()}
+              />
+              <FormFieldModal
+                label="Max Time (Minutes)"
+                name={masterTypeFormFields.maxTime}
+                placeholder="Enter max time"
+                rules={[
+                  ...RulesManager.getTimeRangeRules(),
+                  {
+                    validator: async (_: any, value: number | string) => {
+                      const minValue = form.getFieldValue(masterTypeFormFields.minTime);
+                      if (
+                        minValue !== undefined &&
+                        value !== undefined &&
+                        Number(value) <= Number(minValue)
+                      ) {
+                        return Promise.reject(new Error("Max Time must be greater than Min Time"));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                dependencies={[masterTypeFormFields.minTime]}
               />
             </Flex>
 

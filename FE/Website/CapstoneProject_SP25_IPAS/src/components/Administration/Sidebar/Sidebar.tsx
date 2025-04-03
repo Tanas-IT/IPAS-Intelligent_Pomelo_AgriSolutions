@@ -98,19 +98,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
       subMenuItems: [
         {
-          key: "Season Management",
-          label: "Season Management",
+          key: "Manage Crop",
+          label: "Manage Crop",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.CROP.CROP_LIST,
+          activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL],
         },
-        {
-          key: "Harvest Management",
-          label: "Harvest Management",
-          icon: Images.radius,
-          to: "",
-          activePaths: [],
-        },
+        // {
+        //   key: "Manage Harvest Days",
+        //   label: "Manage Harvest Days",
+        //   icon: Images.radius,
+        //   to: PATHS.CROP.HARVEST_DAYS,
+        //   activePaths: [PATHS.CROP.HARVEST_DAYS],
+        // },
         {
           key: "Plant Yield Performance",
           label: "Plant Yield Performance",
@@ -198,8 +198,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           key: "Manage Grafted Plants",
           label: "Manage Grafted Plants",
           icon: Images.radius,
-          to: "",
-          activePaths: [],
+          to: PATHS.FARM.GRAFTED_PLANT_LIST,
+          activePaths: [PATHS.FARM.GRAFTED_PLANT_LIST, PATHS.FARM.GRAFTED_PLANT_DETAIL],
         },
         {
           key: "Manage Criteria",
@@ -225,13 +225,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       key: "AI Chatbox",
       label: "AI Chatbox",
       icon: <Icons.robot />,
-      activePaths: [""],
+      to: PATHS.CHATBOX.AI_CHATBOX,
+      activePaths: [PATHS.CHATBOX.AI_CHATBOX],
       category: "Main",
       isView: !isDefault,
     },
     {
-      key: "HR Management",
-      label: "HR Management",
+      key: "Staff Management",
+      label: "Staff Management",
       icon: <Icons.people />,
       activePaths: [""],
       subMenuItems: [
@@ -529,6 +530,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         </Flex>
 
         {/* Main Menu */}
+        {/* <div style={{ height: "66vh" }}>{renderMenuSection("Main")}</div> */}
         {renderMenuSection("Main")}
 
         {!isDefault && (

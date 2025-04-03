@@ -2,7 +2,9 @@ import { Flex } from "antd";
 import style from "./PlantLot.module.scss";
 import {
   ActionMenuLot,
+  ApplyLotCriteriaModal,
   ConfirmModal,
+  LotModal,
   NavigationDot,
   SectionTitle,
   Table,
@@ -22,8 +24,6 @@ import { useEffect, useState } from "react";
 import { DEFAULT_LOT_FILTERS, getOptions } from "@/utils";
 import { criteriaService, plantLotService } from "@/services";
 import { PlantLotColumns } from "./PlantLotColumns";
-import LotModel from "./LotModal";
-import ApplyCriteriaModal from "./ApplyCriteriaModal";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { FilterPlantLotState } from "@/types";
@@ -34,8 +34,12 @@ import { toast } from "react-toastify";
 function PlantLot() {
   const navigate = useNavigate();
   const formModal = useModal<GetPlantLot2>();
-  const criteriaModal = useModal<{ id: number }>();
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const criteriaModal = useModal<{
+    id: number;
+    hasInputQuantity?: boolean;
+    hasLastQuantity?: boolean;
+  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ lot: PlantLotRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
@@ -100,7 +104,7 @@ function PlantLot() {
   const handleCancelConfirm = (lot: PlantLotRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(lot, "plantLotId")
-      : hasChanges(lot, undefined, { unit: "Plant" });
+      : hasChanges(lot, undefined, { unit: "Plant", isFromGrafted: false });
 
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
@@ -194,7 +198,13 @@ function PlantLot() {
               isCompleted={lot.isPassed}
               onEdit={() => formModal.showModal(lot)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [lot.plantLotId] })}
-              onApplyCriteria={() => criteriaModal.showModal({ id: lot.plantLotId })}
+              onApplyCriteria={() =>
+                criteriaModal.showModal({
+                  id: lot.plantLotId,
+                  hasInputQuantity: !!lot.inputQuantity,
+                  hasLastQuantity: !!lot.lastQuantity,
+                })
+              }
             />
           )}
         />
@@ -207,15 +217,17 @@ function PlantLot() {
           rowsPerPageOptions={getOptions(totalRecords)}
           onRowsPerPageChange={handleRowsPerPageChange}
         />
-        <LotModel
+        <LotModal
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
           onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
           isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
           lotData={formModal.modalState.data}
         />
-        <ApplyCriteriaModal
+        <ApplyLotCriteriaModal
           lotId={criteriaModal.modalState.data?.id}
+          hasInputQuantity={criteriaModal.modalState.data?.hasInputQuantity ?? false}
+          hasLastQuantity={criteriaModal.modalState.data?.hasLastQuantity ?? false}
           isOpen={criteriaModal.modalState.visible}
           onClose={handleCloseCriteria}
           onSave={applyCriteria}

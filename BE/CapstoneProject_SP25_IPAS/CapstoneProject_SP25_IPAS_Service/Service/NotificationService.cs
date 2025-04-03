@@ -139,23 +139,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var notifcationPlanModel = new NotificationModel()
                     {
-                        NotificationId = notificationPlan.NotificationID != null ? notificationPlan.NotificationID.Value : 0,
-                        Title = notificationPlan.Notification != null ? notificationPlan.Notification.Title : null,
-                        Content = notificationPlan.Notification?.Content,
-                        CreateDate = notificationPlan.Notification?.CreateDate,
-                        IsRead = notificationPlan.Notification?.IsRead,
-                        Link = notificationPlan.Notification?.Link,
-                        Color = notificationPlan.Notification?.MasterType?.BackgroundColor,
+                        NotificationId = notificationPlan.NotificationId,
+                        Title = notificationPlan.Title,
+                        Content = notificationPlan.Content,
+                        CreateDate = notificationPlan.CreateDate,
+                        IsRead = notificationPlan.IsRead,
+                        Link = notificationPlan.Link,
+                        Color = notificationPlan.MasterType?.BackgroundColor,
                         MasterType = new MasterTypeNotification()
                         {
-                            MasterTypeId = notificationPlan.Notification?.MasterTypeId,
-                            MasterTypeName = notificationPlan.Notification?.MasterType != null ? notificationPlan.Notification.MasterType.MasterTypeName : null
+                            MasterTypeId = notificationPlan.MasterTypeId,
+                            MasterTypeName = notificationPlan.MasterType != null ? notificationPlan.MasterType.MasterTypeName : null
                         },
                         Sender = new SenderNotification()
                         {
-                            SenderId = notificationPlan.Notification?.SenderID,
-                            SenderName = notificationPlan.Notification?.Sender != null ? notificationPlan.Notification.Sender.FullName : null,
-                            SenderAvatar = notificationPlan.Notification?.Sender != null ? notificationPlan.Notification.Sender.AvatarURL : null
+                            SenderId = notificationPlan.SenderID,
+                            SenderName = notificationPlan.Sender != null ? notificationPlan.Sender.FullName : null,
+                            SenderAvatar = notificationPlan.Sender != null ? notificationPlan.Sender.AvatarURL : null
                         }
                     };
                     listNotificationResponse.Add(notifcationPlanModel);
@@ -164,7 +164,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Get list notification success", listNotificationResponse);
                 }
-                return new BusinessResult(404, "Do not have any notification");
+                return new BusinessResult(200, "Do not have any notification");
             }
             catch (Exception ex)
             {

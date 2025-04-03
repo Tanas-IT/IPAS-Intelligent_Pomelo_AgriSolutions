@@ -3,7 +3,7 @@ import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
-import { HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
+import { FILE_FORMAT, HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
   growthStageService,
@@ -13,7 +13,7 @@ import {
   userService,
 } from "@/services";
 import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
@@ -132,19 +132,10 @@ export const getCriteriaOptions = (total: number): number[] => {
   return [3];
 };
 
-export const formatCurrencyVND = (amount: string): string => {
-  const number = parseFloat(amount.replace(/,/g, ""));
-  if (isNaN(number)) {
-    return amount;
-  }
+export const formatCurrencyVND = (amount: number): string => {
+  if (isNaN(amount)) return "";
 
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  })
-    .format(number)
-    .replace("₫", "VND")
-    .trim();
+  return new Intl.NumberFormat("vi-VN").format(amount) + " VND/kg";
 };
 
 export const formatCurrency = (amount: string): string => {
@@ -171,11 +162,19 @@ export const formatDate = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY");
 };
 
+export const formatDateReq = (date?: dayjs.ConfigType): string | null => {
+  return date ? dayjs(date).format("YYYY-MM-DD") : null;
+};
+
+export const formatTimeReq = (time?: dayjs.ConfigType): string | null => {
+  return time ? dayjs(time).format("HH:mm:ss") : null;
+};
+
 export const formatDateAndTime = (date: Date): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };
 
-export const formatDayMonthAndTime = (date: Date): string => {
+export const formatDayMonthAndTime = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY, h:mm A");
 };
 
@@ -183,6 +182,20 @@ export const formatDayMonth = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY");
 };
 
+export const formatDateRange = (startDate: string | Date, endDate?: string | Date): string => {
+  const start = moment(startDate);
+  const end = endDate ? moment(endDate) : null;
+
+  if (!end) {
+    return `(${start.format("DD/MM/YYYY HH:mm:ss")})`;
+  }
+
+  if (start.isSame(end, "day")) {
+    return `(${start.format("DD/MM/YYYY HH:mm:ss")} - ${end.format("HH:mm:ss")})`;
+  }
+
+  return `(${start.format("DD/MM/YYYY HH:mm:ss")} - ${end.format("DD/MM/YYYY HH:mm:ss")})`;
+};
 export const getRoleId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   if (!accessToken) return "";
@@ -198,7 +211,7 @@ export const getUserId = (): string => {
 export const getUserInfoById = (userId: number) => {
   const user = userService.getUserById(userId);
   return user;
-}
+};
 
 export const getFarmId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
@@ -315,13 +328,13 @@ export const worklogStatusOptions = [
 export const planTargetOptions = [
   { label: "Land Plot/ Land Row/ Plant", value: "regular" },
   { label: "Plant Lot", value: "plantLot" },
-  { label: "Grafted Plant", value: "graftedPlant" }
+  { label: "Grafted Plant", value: "graftedPlant" },
 ];
 
 export const planTargetOptions2 = [
   { label: "Land Plot/ Land Row/ Plant", value: 1 },
   { label: "Plant Lot", value: 2 },
-  { label: "Grafted Plant", value: 3 }
+  { label: "Grafted Plant", value: 3 },
 ];
 
 export const fetchTypeOptionsByName = async (typeName: string) => {
@@ -439,14 +452,14 @@ export const isDayInRange = (
 
 export const getGrowthStageOfProcess = async (processId: number): Promise<number | undefined> => {
   const res = await getProcessDetail(processId);
-  
+
   return res.processGrowthStageModel?.growthStageId;
 };
 
 export const getTypeOfProcess = async (processId: number): Promise<number> => {
   const res = await getProcessDetail(processId);
   return res.processMasterTypeModel.masterTypeId;
-}
+};
 
 // export const isTargetOverlapping = (
 //   index: number,
@@ -584,7 +597,6 @@ export const fetchTargetsByUnit = async (
       Number(getFarmId()),
     );
     console.log("res trong fetchTargetsByUnit", response);
-    
 
     const formattedData = response.map((item) => ({
       unit,
@@ -624,7 +636,6 @@ export const fetchTargetsByUnit = async (
           : [],
     }));
     console.log("formattedData trong fetchTargetsByUnit", formattedData);
-    
 
     setSelectedTargets((prev) => {
       const newSelectedTargets = [...prev];
@@ -633,8 +644,6 @@ export const fetchTargetsByUnit = async (
       return newSelectedTargets;
     });
     console.log("hình như k chạy đến đây");
-    
-    
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;
@@ -653,13 +662,12 @@ export const fetchPlantLotsByUnitAndGrowthStage = async (
       farmId,
     );
     console.log("filter lot", response);
-    
 
     const formattedData = response.flatMap((item) =>
       item.plantLots.map((lot) => ({
         value: lot.plantLotId,
         label: `${item.landPlotName} - ${lot.plantLotName}`,
-      }))
+      })),
     );
 
     return formattedData;
@@ -671,86 +679,95 @@ export const fetchPlantLotsByUnitAndGrowthStage = async (
 
 export const determineUnit = (target: any): string => {
   if (target.graftedPlants && target.graftedPlants.length > 0) {
-      return "graftedplant";
+    return "graftedplant";
   }
   if (target.plantLots && target.plantLots.length > 0) {
-      return "plantlot";
+    return "plantlot";
   }
   if (target.plants && target.plants.length > 0) {
-      return "plant";
+    return "plant";
   }
   if (target.rows && target.rows.length > 0) {
-      return "row";
+    return "row";
   }
   if (target.landPlotId) {
-      return "landplot";
+    return "landplot";
   }
   return "";
 };
 
+export const getFileFormat = (
+  mimeType: string,
+): (typeof FILE_FORMAT)[keyof typeof FILE_FORMAT] | null => {
+  if (!mimeType) return null;
+  if (mimeType.startsWith("image/")) return FILE_FORMAT.IMAGE;
+  if (mimeType.startsWith("video/")) return FILE_FORMAT.VIDEO;
+  return null;
+};
+
 export const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): PlanTarget[] => {
-        return planTargetModels.flatMap((model) => {
-            const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
-            const unit = determineUnit(model);
-            const data: PlanTarget[] = [];
-    
-            switch (unit) {
-                case "Row":
-                    if (rows && rows.length > 0) {
-                        const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
-                        const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
-                        data.push({
-                            type: "Row",
-                            plotNames: landPlotName ? [landPlotName] : undefined,
-                            rowNames: rowNames.length > 0 ? rowNames : undefined,
-                            plantNames: plantNames.length > 0 ? plantNames : undefined,
-                        });
-                    }
-                    break;
-    
-                case "Plant":
-                    if (plants && plants.length > 0) {
-                        data.push({
-                            type: "Plant",
-                            plotNames: landPlotName ? [landPlotName] : undefined,
-                            plantNames: plants.map((plant) => plant.plantName),
-                        });
-                    }
-                    break;
-    
-                case "Grafted Plant":
-                    if (graftedPlants && graftedPlants.length > 0) {
-                        data.push({
-                            type: "Grafted Plant",
-                            plotNames: landPlotName ? [landPlotName] : undefined,
-                            graftedPlantNames: graftedPlants.map((plant) => plant.name),
-                        });
-                    }
-                    break;
-    
-                case "Plant Lot":
-                    if (plantLots && plantLots.length > 0) {
-                        data.push({
-                            type: "Plant Lot",
-                            plotNames: landPlotName ? [landPlotName] : undefined,
-                            plantLotNames: plantLots.map((lot) => lot.name),
-                        });
-                    }
-                    break;
-    
-                case "Plot":
-                    if (landPlotName) {
-                        data.push({
-                            type: "Plot",
-                            plotNames: [landPlotName],
-                        });
-                    }
-                    break;
-    
-                default:
-                    break;
-            }
-    
-            return data;
-        });
-    };
+  return planTargetModels.flatMap((model) => {
+    const { rows, landPlotName, graftedPlants, plantLots, plants } = model;
+    const unit = determineUnit(model);
+    const data: PlanTarget[] = [];
+
+    switch (unit) {
+      case "Row":
+        if (rows && rows.length > 0) {
+          const rowNames = rows.map((row) => `Row ${row.rowIndex}`);
+          const plantNames = rows.flatMap((row) => row.plants.map((plant) => plant.plantName));
+          data.push({
+            type: "Row",
+            plotNames: landPlotName ? [landPlotName] : undefined,
+            rowNames: rowNames.length > 0 ? rowNames : undefined,
+            plantNames: plantNames.length > 0 ? plantNames : undefined,
+          });
+        }
+        break;
+
+      case "Plant":
+        if (plants && plants.length > 0) {
+          data.push({
+            type: "Plant",
+            plotNames: landPlotName ? [landPlotName] : undefined,
+            plantNames: plants.map((plant) => plant.plantName),
+          });
+        }
+        break;
+
+      case "Grafted Plant":
+        if (graftedPlants && graftedPlants.length > 0) {
+          data.push({
+            type: "Grafted Plant",
+            plotNames: landPlotName ? [landPlotName] : undefined,
+            graftedPlantNames: graftedPlants.map((plant) => plant.name),
+          });
+        }
+        break;
+
+      case "Plant Lot":
+        if (plantLots && plantLots.length > 0) {
+          data.push({
+            type: "Plant Lot",
+            plotNames: landPlotName ? [landPlotName] : undefined,
+            plantLotNames: plantLots.map((lot) => lot.name),
+          });
+        }
+        break;
+
+      case "Plot":
+        if (landPlotName) {
+          data.push({
+            type: "Plot",
+            plotNames: [landPlotName],
+          });
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return data;
+  });
+};

@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<CriteriaTarget>> GetForDelete(
+        public async Task<IEnumerable<CriteriaTarget>> GetWithMasterType(
             Expression<Func<CriteriaTarget, bool>> filter = null!)
         {
             IQueryable<CriteriaTarget> query = dbSet;

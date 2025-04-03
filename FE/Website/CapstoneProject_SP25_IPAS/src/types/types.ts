@@ -1,5 +1,6 @@
 import { GetLandPlot } from "@/payloads";
 import { GetProp, UploadProps } from "antd";
+import { ReactNode } from "react";
 
 export interface ActionMenuItem {
   icon: React.ReactNode;
@@ -12,6 +13,15 @@ export interface Farm {
   farmId: number;
   farmName: string;
   location: string;
+}
+
+export interface FileResource {
+  resourceID: number;
+  resourceCode: string;
+  resourceType: string;
+  resourceURL: string;
+  fileFormat: string;
+  createDate: string;
 }
 
 export interface LogoState {
@@ -32,7 +42,7 @@ export interface PolygonInit {
 
 export interface SelectOption {
   value: string | number;
-  label: string;
+  label: string | ReactNode;
 }
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
@@ -49,6 +59,27 @@ export type FilterPlantLotState = {
   partnerId: string[];
   previousQuantityFrom: number | undefined;
   previousQuantityTo: number | undefined;
+  isFromGrafted: boolean | null;
+};
+
+export type FilterCropState = {
+  yearFrom: string;
+  yearTo: string;
+  harvestSeason: string[];
+  actualYieldFrom: number | undefined;
+  actualYieldTo: number | undefined;
+  marketPriceFrom: number | undefined;
+  marketPriceTo: number | undefined;
+  LandPlotIds: string[];
+  status: string[];
+};
+
+export type FilterHarvestDayState = {
+  dateHarvestFrom: string;
+  dateHarvestTo: string;
+  totalPriceFrom: number | undefined;
+  totalPriceTo: number | undefined;
+  status: string[];
 };
 
 export type FilterCriteriaState = {
@@ -70,6 +101,18 @@ export type FilterPlantState = {
   isDead: boolean | null;
 };
 
+export type FilterGraftedPlantState = {
+  plantIds: string[];
+  plantLotIds: string[];
+  separatedDateFrom: string;
+  separatedDateTo: string;
+  status: string[];
+  cultivarIds: string[];
+  graftedDateFrom: string;
+  graftedDateTo: string;
+  isCompleted: boolean | null;
+};
+
 export type FilterLandRowState = {
   rowIndexFrom: number | undefined;
   rowIndexTo: number | undefined;
@@ -89,6 +132,11 @@ export interface LandPlotsStateType {
   longitude: number;
   latitude: number;
   landPlots: GetLandPlot[];
+}
+
+export interface plotOfCrop {
+  landPlotID: number;
+  landPlotName: string;
 }
 
 // export interface rowStateType {

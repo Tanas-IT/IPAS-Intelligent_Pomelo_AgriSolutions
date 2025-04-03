@@ -150,11 +150,13 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<CapstoneProject_SP25_IPAS_Service.IService.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentService>();
             services.AddScoped<CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod.IPaymentService, CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod.PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
+            //services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
             services.AddScoped<ISoftDeleteCommon, SoftDeleteCommon>();
-            //services.AddHostedService<WorkLogStatusUpdaterService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
+            services.AddHostedService<WorkLogStatusUpdaterService>();
             //services.AddHostedService<PlantGrowthUpdateService>();
+            services.AddHostedService<WeatherMonitoringService>();
             
 
 

@@ -1,4 +1,4 @@
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react';
+import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import {
   createViewDay,
   createViewMonthAgenda,
@@ -50,20 +50,20 @@ function Worklog() {
   const addModal = useModal<CreateWorklogRequest>();
 
   const [filters, setFilters] = useState({
-    workDateFrom: '',
-    workDateTo: '',
+    workDateFrom: "",
+    workDateTo: "",
     growthStage: [],
     status: [],
     employees: [],
     typePlan: [],
   });
-  
+
   const fetchData = async () => {
     console.log("gọi fetch data");
     console.log("Đang gọi API với filters:", filters);
     try {
       console.log("ủa?");
-      
+
       const response = await worklogService.getWorklog(filters);
       console.log("ủa?????", response);
       if (response) {
@@ -71,15 +71,15 @@ function Worklog() {
         const worklogs = response.map((log: GetWorklog) => ({
           id: log.workLogId.toString(),
           title: log.workLogName,
-          start: dayjs(`${log.date.split('T')[0]} ${log.startTime}`).format('YYYY-MM-DD HH:mm'),
-          end: dayjs(`${log.date.split('T')[0]} ${log.endTime}`).format('YYYY-MM-DD HH:mm'),
+          start: dayjs(`${log.date.split("T")[0]} ${log.startTime}`).format("YYYY-MM-DD HH:mm"),
+          end: dayjs(`${log.date.split("T")[0]} ${log.endTime}`).format("YYYY-MM-DD HH:mm"),
           status: log.status,
         }));
         console.log("wl được filter", worklogs);
         setWorklog(worklogs);
       }
     } catch (error) {
-      console.error('Error fetching worklogs:', error);
+      console.error("Error fetching worklogs:", error);
     }
   };
 
@@ -92,8 +92,8 @@ function Worklog() {
 
   const handleClear = () => {
     const resetFilters = {
-      workDateFrom: '',
-      workDateTo: '',
+      workDateFrom: "",
+      workDateTo: "",
       growthStage: [],
       status: [],
       employees: [],
@@ -109,13 +109,13 @@ function Worklog() {
   const statusToCalendarId = (status: string): string => {
     const cleanStatus = status.trim().toLowerCase();
     const mapping: Record<string, string> = {
-      'not started': 'notStarted',
-      'in progress': 'inProgress',
-      overdue: 'overdue',
-      reviewing: 'reviewing',
-      done: 'done',
+      "not started": "notStarted",
+      "in progress": "inProgress",
+      overdue: "overdue",
+      reviewing: "reviewing",
+      done: "done",
     };
-    const result = mapping[cleanStatus] || 'notStarted';
+    const result = mapping[cleanStatus] || "notStarted";
     return result;
   };
 
@@ -156,7 +156,7 @@ function Worklog() {
   const calendar = useCalendarApp({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
     events: formattedEvents,
-    selectedDate: dayjs().format('YYYY-MM-DD'),
+    selectedDate: dayjs().format("YYYY-MM-DD"),
     plugins: [eventsService, eventModal],
   });
 

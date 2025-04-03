@@ -2,19 +2,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import style from "./PlantDetail.module.scss";
 import { Divider, Flex } from "antd";
 import { Icons } from "@/assets";
-import { ConfirmModal, InfoFieldDetail, LoadingSkeleton } from "@/components";
+import {
+  ConfirmModal,
+  InfoFieldDetail,
+  LoadingSkeleton,
+  PlantMarkAsDeadModal,
+  PlantSectionHeader,
+  PlantModal,
+} from "@/components";
 import { useEffect, useState } from "react";
-import { DEFAULT_PLANT, formatDayMonth, formatDayMonthAndTime } from "@/utils";
+import { formatDayMonth, formatDayMonthAndTime } from "@/utils";
 import { plantService } from "@/services";
 import { GetPlantDetail, PlantRequest } from "@/payloads";
 import { useModal, useTableUpdate } from "@/hooks";
-import PlantModel from "../../Plant/PlantModal";
 import DescriptionSection from "./DescriptionSection";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
-import PlantMarkAsDeadModal from "../../Plant/PlantMarkAsDeadModal";
 import { usePlantStore } from "@/stores";
-import PlantSectionHeader from "../PlantSectionHeader/PlantSectionHeader";
 
 function PlantDetail() {
   const navigate = useNavigate();
@@ -47,7 +51,7 @@ function PlantDetail() {
   }, []);
 
   const handleDelete = async (id: number | undefined) => {
-    const res = await plantService.deletePlant([id] as number[]);
+    const res = await plantService.deletePlants([id] as number[]);
     const toastMessage = res.message;
     if (res.statusCode === 200) {
       deleteConfirmModal.hideModal();
@@ -134,7 +138,7 @@ function PlantDetail() {
   };
 
   const infoFieldsLeft = [
-    { label: "Growth Status", value: plant?.growthStageName, icon: Icons.growth },
+    { label: "Growth Stage", value: plant?.growthStageName, icon: Icons.growth },
     { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
     { label: "Mother Plant", value: plant?.plantReferenceCode ?? "N/A", icon: Icons.plant },
     {
@@ -170,7 +174,6 @@ function PlantDetail() {
   return (
     <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader
-        isDetail={true}
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
         markAsDeadModal={markAsDeadModal}
@@ -199,7 +202,7 @@ function PlantDetail() {
         </Flex>
       </Flex>
       <DescriptionSection />
-      <PlantModel
+      <PlantModal
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleUpdateConfirm}

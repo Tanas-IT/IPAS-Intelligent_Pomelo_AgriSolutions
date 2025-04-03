@@ -15,13 +15,15 @@ public partial class GraftedPlantNote
 
     //public string? Image { get; set; }
 
-    public string? NoteTaker { get; set; }
+    //public string? NoteTaker { get; set; }
 
     public int? GraftedPlantId { get; set; }
 
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
+    public int? UserId { get; set; }
     public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
     public virtual GraftedPlant? GraftedPlant { get; set; }
+    public virtual User? User { get; set; }
 }

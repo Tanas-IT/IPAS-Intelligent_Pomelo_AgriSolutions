@@ -10,6 +10,8 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantLotRequest;
 using CapstoneProject_SP25_IPAS_API.Middleware;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
+using CapstoneProject_SP25_IPAS_Service.Service;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -228,6 +230,41 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _plantLotService.softedMultipleDelete(plantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.PlantLot.checkCriteriaForLot, Name = "checkCriteriaForLot")]
+        public async Task<IActionResult> checkCriteriaForLot([FromBody] CheckPlantLotCriteriaRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Data = ModelState.ValidationState.ToString()
+                };
+                return BadRequest(response);
+            }
+            var result = await _plantLotService.CheckingCriteriaForLot(request);
+            return Ok(result);
+        }
+
+        [HttpPatch(APIRoutes.PlantLot.MarkUsedPlantLot, Name = "MarkUsedPlantLot")]
+        public async Task<IActionResult> MarkUsedPlantLot([FromQuery] int plantLotIds)
+        {
+            try
+            {
+                var result = await _plantLotService.MarkStatusUsed(plantLotIds);
                 return Ok(result);
             }
             catch (Exception ex)

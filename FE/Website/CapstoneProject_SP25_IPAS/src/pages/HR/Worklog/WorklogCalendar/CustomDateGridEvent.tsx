@@ -29,8 +29,8 @@ export default function CustomDateGridEvent({ calendarEvent }: Props) {
       style={{ cursor: "pointer" }}
     >
       <Flex gap={10}>
-      <p style={{ fontSize: "13px" }}>{calendarEvent.start.split(" ")[1]}</p>
-      <p style={{ fontSize: "13px" }}>{calendarEvent.title}</p>
+        <p style={{ fontSize: "13px" }}>{calendarEvent.start.split(" ")[1]}</p>
+        <p style={{ fontSize: "13px" }}>{calendarEvent.title}</p>
       </Flex>
     </div>
   );

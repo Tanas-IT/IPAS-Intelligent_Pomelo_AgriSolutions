@@ -25,7 +25,7 @@ function PlanList() {
     isActive: [] as string[],
     assignor: [] as string[],
   });
-  const deleteConfirmModal = useModal<{ ids: number[] | string[] }>();
+  const deleteConfirmModal = useModal<{ ids: number[]  }>();
 
   const {
     data,
