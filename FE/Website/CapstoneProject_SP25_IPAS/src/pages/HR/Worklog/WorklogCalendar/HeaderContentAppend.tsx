@@ -17,21 +17,21 @@ interface HeaderContentAppendProps {
 const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {
   const navigate = useNavigate();
 
-  return (
-    <Flex gap={10}>
-      <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
-        <>
-          <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => {}} />
-        </>
-      </Popover>
-      <CustomButton
-        label="Add New Plan"
-        icon={<Icons.plus />}
-        // handleOnClick={() => addModal.showModal()}
-        handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
-      />
-    </Flex>
-  );
-};
+    return (
+        <Flex gap={10}>
+            <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
+                <>
+                    <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => { }} />
+                </>
+            </Popover>
+            <CustomButton
+                label="Add New Worklog"
+                icon={<Icons.plus />}
+                handleOnClick={() => addModal.showModal()}
+                // handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
+            />
+        </Flex>
+    )
+}
 
 export default HeaderContentAppend;

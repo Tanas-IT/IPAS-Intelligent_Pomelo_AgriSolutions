@@ -1,0 +1,208 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
+import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { useTheme } from 'native-base';
+import CustomIcon from 'components/CustomIcon';
+import { avt } from 'assets/images';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ROUTE_NAMES } from './RouteNames';
+import theme from '@/theme';
+import TextCustom from 'components/TextCustom';
+
+export function CustomDrawerContent(props: DrawerContentComponentProps) {
+  const theme = useTheme();
+  const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+
+  const handleLogout = () => {
+    props.navigation.navigate(ROUTE_NAMES.AUTH.LOGIN);
+  };
+
+  const menuItems = [
+    { label: 'Farm Picker', icon: 'barn', screen: ROUTE_NAMES.FARM.FARM_PICKER },
+    { label: 'Notifications', icon: 'bell', screen: ROUTE_NAMES.NOTIFICATION },
+    { label: 'Profile', icon: 'account', screen: 'Profile' },
+    { label: 'Settings', icon: 'cog', screen: 'Settings' }
+  ];
+
+  return (
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#BCD379', '#064944']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.gradient, { paddingTop: STATUS_BAR_HEIGHT }]}
+      >
+        <View style={styles.userContainer}>
+          <View style={styles.avatarContainer}>
+            <Image source={avt} style={styles.avatar} />
+          </View>
+          <View style={styles.userInfo}>
+            <TextCustom style={styles.userName}>Jenna Madelyyyvvv</TextCustom>
+            <View style={styles.userRole}>
+              <CustomIcon name="user" type="FontAwesome" size={16} color="white" />
+              <TextCustom style={styles.roleText}>Employee</TextCustom>
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
+
+      <View style={styles.proBadge}>
+        <TextCustom style={styles.proText}>Farm: ABCDEFU</TextCustom>
+      </View>
+
+      <View style={styles.menuContainer}>
+        {menuItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.menuItem}
+            onPress={() => props.navigation.navigate(item.screen)}
+          >
+            <View style={styles.iconContainer}>
+              <CustomIcon 
+                name={item.icon} 
+                type="MaterialCommunityIcons" 
+                size={32} 
+                color='#064944'
+              />
+            </View>
+            <TextCustom style={styles.menuLabel}>{item.label}</TextCustom>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.footer}>
+        <TextCustom style={styles.footerTitle}>Intelligent Pomelo AgriSolutions</TextCustom>
+        <TextCustom style={styles.versionText}>Version 1.0.1</TextCustom>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <CustomIcon name="logout" type="MaterialCommunityIcons" size={20} color='red' />
+          <TextCustom style={styles.logoutText}>Logout</TextCustom>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  gradient: {
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  userContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    marginTop: 50
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  userInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: 'white',
+    marginBottom: 8,
+  },
+  userRole: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  roleText: {
+    fontSize: 14,
+    color: 'white',
+    marginLeft: 6,
+  },
+  proBadge: {
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginTop: -10,
+    marginBottom: 20,
+    zIndex: 1,
+    backgroundColor: '#FEE69C'
+  },
+  proText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  menuContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 26,
+    backgroundColor: '#ECF2DA'
+  },
+  menuLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  footer: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    marginBottom: 30
+  },
+  footerTitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  versionText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textAlign: 'center',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    marginTop: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 8,
+    color: 'red'
+  },
+});
