@@ -2,10 +2,13 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeDetail;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ProductCriteriaSetRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using System;
 using System.Collections.Generic;
@@ -27,18 +30,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _mapper = mapper;
         }
 
-        public async Task<BusinessResult> GetCriteriaSetOfProduct(int productId)
+        public async Task<BusinessResult> GetCriteriaSetOfProduct(GetProductCriteriaRequest getRequest)
         {
             try
             {
-                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => productId.Equals(x.MasterTypeId)
+                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => getRequest.productId.Equals(x.MasterTypeId)
                                                                     && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower())
                                                                     && x.IsActive == true
                                                                     && x.IsDeleted == false);
                 if (checkProductExist == null)
                     return new BusinessResult(400, "No Product was found");
                 // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
-                Expression<Func<Type_Type, bool>> filter = x => productId.Equals(x.ProductId) && x.IsActive == true;
+                Expression<Func<Type_Type, bool>> filter = x => getRequest.Equals(x.ProductId) ;
+                if (!string.IsNullOrEmpty(getRequest.Targets))
+                {
+                    var filterList = Util.SplitByComma(getRequest.Targets);
+                    filter = filter.And(x => filterList.Contains(x.CriteriaSet.Target.ToLower()));
+                }
                 //string includeProperties = "CriteriaSet,Product";
                 var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(filter: filter, null!);
 
@@ -176,9 +184,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
 
                 // 1. Kiểm tra PlantLot tồn tại
-                var productExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == productId 
+                var productExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == productId
                                                                                 && x.IsDeleted == false
-                                                                                && x.IsActive == true 
+                                                                                && x.IsActive == true
                                                                                 && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower()));
                 if (productExist == null)
                     return new BusinessResult(400, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
@@ -200,7 +208,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 // group criteriatarget lai theo mastertypeId (sau khi include criteria với masterType trong hàm GetAllCriteriaOfTargetNoPaging )
                 var appliedMasterTypeIds = appliedCriteriaTargets
-                    .Where(x => x.CriteriaSet != null )
+                    .Where(x => x.CriteriaSet != null)
                     .Select(x => x.CriteriaSet!.MasterTypeId)
                     .Distinct() //  Tránh trùng lặp
                     .ToList();
@@ -223,6 +231,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-        
+
     }
 }
