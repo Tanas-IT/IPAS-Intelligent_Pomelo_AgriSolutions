@@ -16,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
 
         public string? HarvestHistoryNote { get; set; }
 
-        public double? TotalPrice { get; set; }
+        //public double? TotalPrice { get; set; }
         [Required]
         public int CropId { get; set; }
 

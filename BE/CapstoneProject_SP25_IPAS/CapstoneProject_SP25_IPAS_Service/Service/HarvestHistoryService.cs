@@ -73,7 +73,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         DateHarvest = createRequest.DateHarvest,
                         HarvestHistoryNote = createRequest.HarvestHistoryNote,
                         HarvestStatus = HarvestStatusConst.NOT_YET,
-                        TotalPrice = createRequest.TotalPrice,
+                        TotalPrice = createRequest.ProductHarvestHistory.Sum(x => x.SellPrice),
                         CropId = cropExist.CropId,
                         IsDeleted = false,
                     };
@@ -101,6 +101,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 MasterTypeId = item.MasterTypeId,
                                 SellPrice = item.SellPrice,
+                                CostPrice = item.CostPrice,
                                 Unit = item.Unit,
                                 QuantityNeed = item.QuantityNeed,
                                 //ProcessId = item.ProcessId ?? null,
@@ -224,6 +225,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //PlantId = createRequest.PlantId,  // Có thể NULL nếu chưa có cây cụ thể
                         Unit = createRequest.Unit,
                         SellPrice = createRequest.Price,
+                        CostPrice = createRequest.CostPrice,
                         QuantityNeed = createRequest.Quantity
                     };
                     await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
@@ -458,7 +460,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter);
                     if (harvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
-
+                    bool productIsBeingUsed = await _unitOfWork.ProductHarvestHistoryRepository.AnyAsync(x => x.HarvestHistoryId == harvestHistoryId
+                                                && x.MasterTypeId == masterTypeId
+                                                && x.PlantId != null);
+                    if (productIsBeingUsed)
+                        return new BusinessResult(400, "Product is still have record of plant, cannot delete");
                     _unitOfWork.ProductHarvestHistoryRepository.RemoveRange(harvestHistory);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -491,7 +497,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var historyTypes = await _unitOfWork.HarvestHistoryRepository.GetAllPlantOfHarvesType(harvestId, masterTypeId);
 
             if (!historyTypes.Any())
-                return new BusinessResult(Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_CODE, Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG);
+                return new BusinessResult(200, Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG);
 
             var mappedResult = _mapper.Map<IEnumerable<ProductHarvestHistoryModel>>(historyTypes);
             return new BusinessResult(Const.SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_CODE, Const.SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_MSG, mappedResult);
