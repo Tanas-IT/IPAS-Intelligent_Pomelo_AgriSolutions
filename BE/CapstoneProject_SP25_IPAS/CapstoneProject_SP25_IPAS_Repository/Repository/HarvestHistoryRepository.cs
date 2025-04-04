@@ -206,5 +206,19 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Phân trang
             return query;
         }
+
+        public async Task<HarvestHistory?> GetHarvestAndProduct(Expression<Func<HarvestHistory, bool>> filter = null!)
+        {
+            IQueryable<HarvestHistory> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(x => x.Crop)
+                .Include(x => x.ProductHarvestHistories.Where(x => x.PlantId == null!))
+                .ThenInclude(x => x.Product);
+            return await query.AsNoTracking().FirstOrDefaultAsync()!;
+        }
     }
 }

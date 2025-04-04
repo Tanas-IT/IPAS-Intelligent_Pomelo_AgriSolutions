@@ -28,11 +28,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public LandRowService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
+        private readonly IResponseCacheService _responseCacheService;
+        public LandRowService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _configuration = configuration;
+            _responseCacheService = responseCacheService;
         }
 
         public async Task<BusinessResult> CreateLandRow(CreateLandRowRequest createRequest)
@@ -89,6 +91,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mapReturn = _mapper.Map<LandRowModel>(newRow);
+                        string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landplot.LandPlotId}";
+                        await _responseCacheService.RemoveCacheByGroupAsync(groupKey);
                         return new BusinessResult(Const.SUCCESS_CREATE_ONE_LANDROW_OF_FARM_CODE, Const.SUCCESS_CREATE_ONE_LANDROW_OF_FARM_MSG, mapReturn);
                     }
                     else return new BusinessResult(Const.FAIL_CREATE_ONE_LANDROW_OF_FARM_CODE, Const.FAIL_CREATE_ONE_LANDROW_OF_FARM_MSG);
@@ -125,6 +129,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
+                        string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{row.LandPlotId}";
+                        await _responseCacheService.RemoveCacheByGroupAsync(groupKey);
                         return new BusinessResult(Const.SUCCESS_DELETE_ONE_ROW_CODE, Const.SUCCESS_DELETE_ONE_ROW_MSG, new { success = true });
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);
@@ -250,6 +256,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
+                        string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landRow.LandPlotId}";
+                        await _responseCacheService.RemoveCacheByGroupAsync(groupKey);
                         return new BusinessResult(Const.SUCCESS_UPDATE_ONE_ROW_CODE, Const.SUCCESS_UPDATE_ONE_ROW_MSG, landRow);
                     }
                     else return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_TO_SAVE_TO_DATABASE);

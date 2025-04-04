@@ -173,7 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.Package!.PackageName)) : x => x.OrderBy(x => x.Package!.PackageName);
                         break;
                     default:
-                        orderBy = x => x.OrderByDescending(x => x.FarmId);
+                        orderBy = x => x.OrderByDescending(x => x.EnrolledDate);
                         break;
                 }
                 var entities = await _unitOfWork.OrdersRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
@@ -182,7 +182,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<Order, bool>> filterCount = null!;
                 pagin.TotalRecord = await _unitOfWork.OrdersRepository.Count(filter: filterCount);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
-
 
                 var order = await _unitOfWork.OrdersRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (order == null)
