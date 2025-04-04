@@ -50,11 +50,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             //.ForMember(dest => dest.FarmCoordinations, opt => opt.MapFrom(src => src.FarmCoordinations))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.UserFarms.FirstOrDefault(x => x.RoleId == (int)RoleEnum.OWNER)!.User))
             .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(
-                            src => src.Orders.Any(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals("PAID"))
-                                   ? src.Orders.Where(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals("PAID"))
+                            src => src.Orders.Any(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals(OrderStatusEnum.Paid.ToString().ToUpper()))
+                                   ? src.Orders.Where(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals(OrderStatusEnum.Paid.ToString().ToUpper()))
                                                .Max(x => x.ExpiredDate)
                                    : (DateTime?)null // Trả về null nếu không có đơn hàng nào
                             ))
+             .ForMember(dest => dest.TotalOrderSuccess, opt => opt.MapFrom(src =>
+                src.Orders.Count(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals(OrderStatusEnum.Paid.ToString().ToUpper()))
+            ))
+            .ForMember(dest => dest.TotalPay, opt => opt.MapFrom(src =>
+                src.Orders
+                    .Where(x => x.FarmId == src.FarmId && x.Status!.ToUpper().Equals(OrderStatusEnum.Paid.ToString().ToUpper()))
+                    .Sum(x => (double?)x.TotalPrice) ?? 0
+            ))
             //.ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Orders.Where(x => x.FarmId == src.FarmId && x.Status.ToUpper().Equals("PAID")).Max(x => x.ExpiredDate )))
             //.ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Orders))
             //.ForMember(dest => dest.Processes, opt => opt.MapFrom(src => src.Processes))
@@ -147,6 +155,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             //CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
                 .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias.Where(x => x.IsDeleted == false)))
+                .ForMember(dest => dest.Type_Types, opt => opt.MapFrom(src => src.Products))
                 .ReverseMap();
 
 
@@ -562,7 +571,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Type_Type, TypeTypeModel>()
           .ForMember(dest => dest.CriteriaSet, opt => opt.MapFrom(src => src.CriteriaSet))
-          .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product!.MasterTypeName))
+          .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
              .ReverseMap();
 
             CreateMap<Payment, PaymentModel>()
