@@ -4,7 +4,7 @@ import EmployeeTable from "./EmployeeTable";
 import EditableTimeRangeField from "./EditableTimeField";
 import dayjs from "dayjs";
 import { Images } from "@/assets";
-import { ReplacementEmployee } from "@/payloads/worklog";
+import { GetAttendanceList, ReplacementEmployee } from "@/payloads/worklog";
 
 interface EditWorklogModalProps {
   visible: boolean;
@@ -20,6 +20,7 @@ interface EditWorklogModalProps {
   onSave: () => void;
   onUpdateReporter: (userId: number, isReporter: boolean) => void;
   replacementEmployees: ReplacementEmployee[]; // Thêm prop này
+  list: GetAttendanceList[];
 }
 
 const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
@@ -36,6 +37,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   onSave,
   onUpdateReporter,
   replacementEmployees,
+  list
 }) => {
   // Kết hợp danh sách nhân viên hiện tại, reporter và nhân viên đã bị thay thế
   const combinedEmployees = [
@@ -67,8 +69,8 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
       width={800}
     >
       <EmployeeTable
-        employees={combinedEmployees}
-        reporter={reporter}
+        employees={list}
+        // reporter={reporter}
         attendanceStatus={attendanceStatus}
         onReplaceEmployee={onReplaceEmployee}
         onUpdateReporter={onUpdateReporter}
