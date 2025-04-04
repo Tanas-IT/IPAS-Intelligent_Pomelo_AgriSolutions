@@ -84,7 +84,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             int? pageSize = null) 
         {
             IQueryable<Plan> query = dbSet;
-
+           
             if (filter != null)
             {
                 query = query.Where(filter);

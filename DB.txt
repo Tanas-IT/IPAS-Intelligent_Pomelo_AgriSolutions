@@ -1237,7 +1237,8 @@ VALUES
     ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
     ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
     ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL);
+	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
+    ('MT041', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
 
 GO
 
@@ -1756,28 +1757,28 @@ GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
-     [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID])
+     [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample])
 VALUES
     ('Active', 'PLN001', GETDATE(), '2025-04-01', '2025-04-01', GETDATE(), 1, 'Plan for pesticide spraying', 'Detail 1', 
-     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, NULL, 1),
+     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, NULL, 1, 0),
     ('Pending', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
-     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, NULL, 1),
+     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, NULL, 1, 0),
     ('Completed', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
-     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, NULL, 1),
+     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, NULL, 1, 0),
     ('Active', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
-     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, NULL, 1),
+     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, NULL, 1, 0),
     ('Pending', 'PLN005', GETDATE(), '2025-08-01', '2025-08-25', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
-     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, NULL, 1),
+     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, NULL, 1, 0),
     ('Completed', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
-     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, NULL, 1),
+     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, NULL, 1, 0),
     ('Active', 'PLN007', GETDATE(), '2025-10-01', '2025-10-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
-     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, NULL, 1),
+     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, NULL, 1, 0),
     ('Pending', 'PLN008', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 8', 
-     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, NULL, 1),
+     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, NULL, 1, 0),
     ('Completed', 'PLN009', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 9', 
-     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, NULL, 1),
+     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, NULL, 1, 0),
     ('Active', 'PLN010', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 10', 
-     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, NULL, 1);
+     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, NULL, 1, 0);
 GO
 INSERT INTO [dbo].[CarePlanSchedule]
            ([DayOfWeek]
