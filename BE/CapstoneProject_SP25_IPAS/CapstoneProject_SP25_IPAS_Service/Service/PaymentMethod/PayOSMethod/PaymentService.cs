@@ -200,6 +200,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
                     }
                     else return new BusinessResult(400, "Save fail");
                 }
+                else if(callback.Status.ToLower() == OrderStatusEnum.Cancelled.ToString().ToLower())
+                {
+                    payment.Status = OrderStatusEnum.Cancelled.ToString();
+                    _unitOfWork.PaymentRepository.Update(payment);
+                    await _unitOfWork.SaveAsync();
+                    return new BusinessResult(200, "Payment cancle");
+                }
                 else
                 {
                     payment.Status = OrderStatusEnum.Fail.ToString();

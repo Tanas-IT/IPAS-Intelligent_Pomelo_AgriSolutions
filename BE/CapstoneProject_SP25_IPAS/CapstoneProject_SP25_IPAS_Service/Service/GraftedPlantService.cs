@@ -187,7 +187,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
                     var isBeingUsed = await _unitOfWork.PlanTargetRepository
-                        .AnyAsync(x => graftedPlantIdsDelete.Contains(x.GraftedPlantID.Value));
+                        .AnyAsync(x => graftedPlantIdsDelete.Contains(x.GraftedPlantID!.Value));
 
                     if (isBeingUsed)
                     {

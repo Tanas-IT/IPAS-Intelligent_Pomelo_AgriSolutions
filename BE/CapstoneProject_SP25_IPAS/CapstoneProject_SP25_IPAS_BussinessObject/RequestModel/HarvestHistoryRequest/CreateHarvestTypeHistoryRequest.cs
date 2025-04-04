@@ -17,6 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
         public string? Unit { get; set; }
 
         public double? Price { get; set; }
+        public double? CostPrice { get; set; }
         [Required]
         public int? Quantity { get; set; }
 

@@ -9,7 +9,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
     public class GetHarvestForPlantRecordRequest
     {
         public int PlantId { get; set; }
-        public DateTime? StartDate { get; set; } = DateTime.Now;
-        public DateTime? EndDate { get; set;} = DateTime.Now;
+        //public DateTime? StartDate { get; set; } = DateTime.Now;
+        //public DateTime? EndDate { get; set;} = DateTime.Now;
     }
 }
