@@ -176,13 +176,5 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return product;
         }
 
-        public async Task<List<Type_Type>> GetTypeTypesByProductIdAsync(int productId)
-        {
-            return await _context.Type_Types
-                .Where(tt => tt.ProductId == productId)
-                .Include(tt => tt.CriteriaSet)
-                    .ThenInclude(cs => cs.Criterias)
-                .ToListAsync();
-        }
     }
 }
