@@ -1744,9 +1744,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 continue; // Không làm gì cả
                             }
-
+                          
                             // Nếu thực sự đổi người mới
-                            _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
+                            getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.BEREPLACED;
+                            getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                            _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
                             await _unitOfWork.SaveAsync();
 
                             var newUserWorkLog = new UserWorkLog()
@@ -1756,7 +1758,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsReporter = changeEmployee.IsReporter,
                                 WorkLogId = getUserToUpdate.WorkLogId,
                                 IsDeleted = false,
-                                StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED,
+                                StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
