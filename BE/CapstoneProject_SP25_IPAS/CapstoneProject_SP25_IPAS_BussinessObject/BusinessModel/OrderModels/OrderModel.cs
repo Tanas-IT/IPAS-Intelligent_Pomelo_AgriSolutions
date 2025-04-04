@@ -37,6 +37,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels
         //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public PackageModel? Package { get; set; }
 
-        public PaymentModel Payments { get; set; } = new PaymentModel();
+        public PaymentModel? Payments { get; set; } = new PaymentModel();
     }
 }

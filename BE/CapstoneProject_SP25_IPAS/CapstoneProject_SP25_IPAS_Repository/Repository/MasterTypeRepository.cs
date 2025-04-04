@@ -157,7 +157,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         //    return result;
         //}
 
-        public async Task<MasterType> GetByIdIncludeMasterType(int masterTypeId)
+        public async Task<MasterType?> GetByIdIncludeMasterType(int masterTypeId)
         {
             //var masterType = await _context.MasterTypes.Where(x => x.MasterTypeId == masterTypeId
             //                                            && x.IsDelete == false)
@@ -166,24 +166,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             //            .ThenInclude(tt => tt.CriteriaSet)
             //                .ThenInclude(cs => cs.Criterias)
             //     .FirstOrDefaultAsync();
-            var masterType = await _context.MasterTypes
-                .Where(x => x.MasterTypeId == masterTypeId && x.IsDeleted == false)
-                .Select(x => new MasterType
-                {
-                    MasterTypeId = x.MasterTypeId,
-                    MasterTypeName = x.MasterTypeName,
-                    CriteriaSet = x.CriteriaSet.Select(tt => new Type_Type
-                    {
-                        CriteriaSet = new MasterType
-                        {
-                            MasterTypeId = tt.CriteriaSet!.MasterTypeId,
-                            MasterTypeName = tt.CriteriaSet!.MasterTypeName,
-                            Criterias = tt.CriteriaSet.Criterias.ToList() // Lấy danh sách tiêu chí
-                        }
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
-            return masterType;
+            var product = await _context.MasterTypes
+                 .Where(p => p.MasterTypeId == masterTypeId && p.TypeName == "Product" && p.IsDeleted == false)
+                 .Include(p => p.Products) // Type_Type: Product → CriteriaSet
+                     .ThenInclude(tt => tt.CriteriaSet)
+                         .ThenInclude(cs => cs.Criterias)
+                 .FirstOrDefaultAsync();
+
+            return product;
         }
+
     }
 }

@@ -351,7 +351,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string statisticOfTopByCrop = prefix + "/statistic/top-in-crop";
             public const string getPlantHarvestRecord = prefix + "/plants/record";
             public const string getHarvestSelectedToPlantRecord = prefix + "/plants/can-harvert";
-
+            public const string importPlantFromExcel = prefix + "/plant/record/import-excel";
 
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";
@@ -469,6 +469,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/order";
             public const string createOrder = prefix + "";
+            public const string FarmOrder = prefix + "/farm";
             public const string deletePermanentlyOrder = prefix + "";
             public const string updateOrderInfo = prefix + "";
             public const string deleteSoftedOrder = prefix + "/softed-delete";

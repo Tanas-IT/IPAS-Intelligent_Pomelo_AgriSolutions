@@ -11,10 +11,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeDeta
     public class TypeTypeModel
     {
         public int ProductId { get; set; }
-        public string? ProductName { get; set; }
+        //public string? ProductName { get; set; }
         public int CriteriaSetId { get; set; }
         public bool? IsActive { get; set; }
-        //public virtual MasterType? Product { get; set; }
+        public MasterTypeModel? Product { get; set; }
         public MasterTypeModel? CriteriaSet { get; set; }
     }
 }

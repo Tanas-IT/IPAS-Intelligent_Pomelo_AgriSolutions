@@ -37,5 +37,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 
         public Task<List<WorkLog>> GetListWorkLogByFarmId(int farmId);
         public Task<List<WorkLog>> GetWorkLogByStatusAndUserId (string status, int userId);
+        public Task<List<WorkLog>> GetListWorkLogById(int workLogId);
     }
 }
