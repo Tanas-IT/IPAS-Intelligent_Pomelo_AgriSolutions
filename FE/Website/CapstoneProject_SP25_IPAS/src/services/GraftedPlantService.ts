@@ -126,6 +126,21 @@ export const unGroupGraftedPlant = async (
   return apiResponse;
 };
 
+export const convertToPlant = async (
+  graftedId: number,
+  landRowId: number,
+  plantIndex: number,
+): Promise<ApiResponse<Object>> => {
+  const payload = {
+    graftedId,
+    landRowId,
+    plantIndex,
+  };
+  const res = await axiosAuth.axiosJsonRequest.post("grafted-plant/create-plant", payload);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
 export const getGraftedPlantGrowthHistory = async (
   graftedPlantId: number,
   pageSize: number,

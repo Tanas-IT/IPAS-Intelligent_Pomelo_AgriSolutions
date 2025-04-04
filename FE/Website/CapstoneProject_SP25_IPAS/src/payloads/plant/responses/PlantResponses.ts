@@ -82,9 +82,11 @@ export interface GetPlantGrowthHistory {
 }
 
 export interface GetPlantRecord {
+  productHarvestHistoryId: number;
   unit: string;
   actualQuantity: number;
   recordBy: string;
+  avartarRecord: string;
   recordDate: string;
   harvestDate: string;
   productName: string;

@@ -43,7 +43,6 @@ export const deleteHarvest = async (ids: number[] | string[]): Promise<ApiRespon
   const harvestIds = ids;
   const res = await axiosAuth.axiosJsonRequest.put(
     `harvests/softed-delete?harvestIds=${harvestIds[0]}`,
-    harvestIds,
   );
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -87,6 +86,14 @@ export const createRecordHarvest = async (
   record: RecordHarvestRequest,
 ): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.post(`harvests/plants/record`, record);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteRecordHarvest = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`harvests/delete-plant-record`, {
+    data: { productHarvestHistoryId: [id] },
+  });
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

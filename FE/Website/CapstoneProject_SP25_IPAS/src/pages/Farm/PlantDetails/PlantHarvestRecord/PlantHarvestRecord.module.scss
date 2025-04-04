@@ -18,6 +18,14 @@
     .label {
       min-width: 100px !important;
     }
+    .iconDelete {
+      color: red;
+      font-size: 20px;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.5;
+      }
+    }
   }
 }
 

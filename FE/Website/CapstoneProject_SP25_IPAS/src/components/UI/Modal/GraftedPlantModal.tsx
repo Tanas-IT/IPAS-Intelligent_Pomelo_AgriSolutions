@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, RulesManager } from "@/utils";
-import { graftedPlantFormFields, HEALTH_STATUS } from "@/constants";
+import { GRAFTED_STATUS, graftedPlantFormFields, HEALTH_STATUS } from "@/constants";
 import { GetGraftedPlant, GraftedPlantRequest } from "@/payloads";
 import dayjs, { Dayjs } from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -28,6 +28,7 @@ const GraftedPlantModal = ({
   const { options: plantLotOptions } = usePlantLotOptions(true);
 
   const isUpdate = graftedPlantData !== undefined && Object.keys(graftedPlantData).length > 0;
+  const isUsed = graftedPlantData?.status === GRAFTED_STATUS.USED;
 
   const resetForm = () => form.resetFields();
 
@@ -78,7 +79,7 @@ const GraftedPlantModal = ({
       title={isUpdate ? "Update Grafted Plant" : "Add New Grafted Plant"}
     >
       <Form form={form} layout="vertical">
-        {!graftedPlantData?.isDead && (
+        {!graftedPlantData?.isDead && !isUsed && (
           <FormFieldModal
             label="Grafted Plant Name"
             name={graftedPlantFormFields.graftedPlantName}
@@ -86,7 +87,7 @@ const GraftedPlantModal = ({
           />
         )}
 
-        {!graftedPlantData?.isDead && (
+        {!graftedPlantData?.isDead && !isUsed && (
           <>
             <Flex justify="space-between" gap={20}>
               <FormFieldModal

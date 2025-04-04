@@ -1,13 +1,13 @@
 import { Flex, Tabs, TabsProps } from "antd";
-import style from "./PlantLotDetails.module.scss";
+import style from "./ProductDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { PlantLotCriteria, PlantLotDetail } from "@/pages";
+import { ProductDetail } from "@/pages";
 
-function PlantLotDetails() {
+function ProductDetails() {
   const navigate = useNavigate();
   const { styles } = useStyle();
 
@@ -16,13 +16,7 @@ function PlantLotDetails() {
       key: "1",
       icon: <Icons.detail className={style.iconTab} />,
       label: <label className={style.titleTab}>Detail</label>,
-      children: <PlantLotDetail />,
-    },
-    {
-      key: "2",
-      icon: <Icons.criteria className={style.iconTab} />,
-      label: <label className={style.titleTab}>Criteria</label>,
-      children: <PlantLotCriteria />,
+      children: <ProductDetail />,
     },
   ];
 
@@ -49,4 +43,4 @@ function PlantLotDetails() {
   );
 }
 
-export default PlantLotDetails;
+export default ProductDetails;

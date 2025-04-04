@@ -6,7 +6,6 @@ export const MASTER_TYPE_SHOW_TABLE = {
   DOCUMENT: "Document",
   CULTIVAR: "Cultivar",
   WORK: "Work",
-  PRODUCT: "Product",
 };
 
 export const MASTER_TYPE = {
@@ -95,6 +94,7 @@ export const ROUTES = {
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
     `/farm/plant-lots/${parentId}/additional/${id}/details`,
   FARM_GRAFTED_PLANT_DETAIL: (id: number) => `/farm/grafted-plants/${id}/details`,
+  PRODUCT_DETAIL: (id: number) => `/classification/products/${id}/details`,
 };
 
 export const PLAN_TARGET_TYPE = {

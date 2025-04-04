@@ -6,11 +6,9 @@ import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { CropDetail, HarvestDays } from "@/pages";
-import { useState } from "react";
 import { useCropStore } from "@/stores";
 
 function CropDetails() {
-  // const [activeTab, setActiveTab] = useState("1");
   const { isHarvestDetailView, setIsHarvestDetailView } = useCropStore();
   const navigate = useNavigate();
   const { styles } = useStyle();

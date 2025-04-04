@@ -17,6 +17,7 @@ const GraftedPlantSectionHeader = ({
   markAsDeadModal,
   onAddToLot,
   removeFromLotConfirm,
+  convertToPlantModal,
   onAddNewIssue,
 }: {
   onApplyCriteria?: () => void;
@@ -25,6 +26,7 @@ const GraftedPlantSectionHeader = ({
   markAsDeadModal?: ReturnType<typeof useModal<{ id: number }>>;
   onAddToLot?: ReturnType<typeof useModal<{ id: number }>>;
   removeFromLotConfirm?: ReturnType<typeof useModal<{ id: number }>>;
+  convertToPlantModal?: ReturnType<typeof useModal<{ id: number }>>;
   onAddNewIssue?: () => void;
 }) => {
   const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
@@ -102,6 +104,9 @@ const GraftedPlantSectionHeader = ({
               onAddToLot={() => onAddToLot?.showModal({ id: graftedPlant.graftedPlantId })}
               onRemoveFromLot={() =>
                 removeFromLotConfirm?.showModal({ id: graftedPlant.graftedPlantId })
+              }
+              onConvertToPlant={() =>
+                convertToPlantModal?.showModal({ id: graftedPlant.graftedPlantId })
               }
             />
           </Flex>

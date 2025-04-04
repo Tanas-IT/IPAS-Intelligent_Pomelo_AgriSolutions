@@ -205,7 +205,7 @@ interface CropStore {
   harvestDay: GetHarvestDay | null;
   setHarvestDay: (harvestDays: GetHarvestDay | null) => void;
   shouldRefetch: boolean;
-  markForRefetch: () => void;
+  markForRefetch: () => Promise<void>;
   isHarvestDetailView: boolean;
   setIsHarvestDetailView: (value: boolean) => void;
 }
@@ -216,7 +216,10 @@ export const useCropStore = create<CropStore>((set, get) => ({
   harvestDay: null,
   setHarvestDay: (harvestDay) => set({ harvestDay }),
   shouldRefetch: false,
-  markForRefetch: () => set({ shouldRefetch: !get().shouldRefetch }),
+  markForRefetch: async () => {
+    set({ shouldRefetch: !get().shouldRefetch });
+    return Promise.resolve();
+  },
   isHarvestDetailView: false,
   setIsHarvestDetailView: (value) => set({ isHarvestDetailView: value }),
 }));

@@ -2,23 +2,14 @@ import { Button, Flex, Form, Input, InputNumber, Space, Table } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import {
-  CRITERIA_TARGETS,
-  MASTER_TYPE,
-  masterTypeFormFields,
-  MESSAGES,
-  WORK_TARGETS,
-} from "@/constants";
-import {
-  GetMasterType,
-  CriteriaMasterRequest,
-  GetCriteriaByMasterType,
-  CriteriaRequest,
-} from "@/payloads";
+import { CRITERIA_TARGETS, masterTypeFormFields, MESSAGES } from "@/constants";
+import { CriteriaMasterRequest, GetCriteriaByMasterType, CriteriaRequest } from "@/payloads";
 import { Icons } from "@/assets";
 import style from "./Criteria.module.scss";
 import { toast } from "react-toastify";
 import { useDirtyStore } from "@/stores";
+import { CriteriaColModal } from "./CriteriaColModal";
+import { ColumnsType } from "antd/es/table";
 
 type CriteriaModelProps = {
   isOpen: boolean;
@@ -44,6 +35,7 @@ const CriteriaModel = ({
     label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
   }));
   const { setIsDirty } = useDirtyStore();
+  const [target, setTarget] = useState<string | undefined>();
 
   const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);
   const toggleForm = () => setForceUpdate((prev) => !prev);
@@ -52,6 +44,7 @@ const CriteriaModel = ({
     form.resetFields();
     setChecked(false);
     setIsDirty(false);
+    setTarget(undefined);
   };
 
   useEffect(() => {
@@ -202,165 +195,11 @@ const CriteriaModel = ({
 
   const handleCancel = () => onClose(getFormData(), isUpdate);
 
-  const columns = [
-    {
-      title: "Criteria Name",
-      dataIndex: "criteriaName",
-      align: "center" as const,
-      width: 200,
-
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "criteriaName"]}
-          rules={RulesManager.getCriteriaRules()}
-          tooltip
-        >
-          <Input
-            placeholder="Enter criteria name"
-            value={record.criteriaName}
-            onChange={handleInputChange}
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Description",
-      dataIndex: "criteriaDescription",
-      align: "center" as const,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item name={["criteriaList", index, "criteriaDescription"]} className={style.noMargin}>
-          <Input.TextArea
-            placeholder="Enter description"
-            autoSize={{ minRows: 1, maxRows: 3 }}
-            value={record.criteriaDescription}
-            onChange={handleInputChange}
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Min Value",
-      dataIndex: "priority",
-      align: "center" as const,
-      width: 100,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "minValue"]}
-          rules={RulesManager.getNumberRules("Min Value")}
-        >
-          <InputNumber
-            min={0.1}
-            className={style.inputNumberField}
-            value={record.minValue}
-            onChange={handleInputChange}
-            placeholder="Value..."
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Max Value",
-      dataIndex: "priority",
-      align: "center" as const,
-      width: 100,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "maxValue"]}
-          rules={[
-            ...RulesManager.getNumberRules("Max Value"),
-            {
-              validator: async (_, value) => {
-                const minValue = form.getFieldValue(["criteriaList", index, "minValue"]);
-                if (
-                  value !== undefined &&
-                  minValue !== undefined &&
-                  Number(value) <= Number(minValue)
-                ) {
-                  return Promise.reject(new Error("Max Value must be greater than Min Value!"));
-                }
-                return Promise.resolve();
-              },
-            },
-          ]}
-          dependencies={[["criteriaList", index, "minValue"]]}
-        >
-          <InputNumber
-            className={style.inputNumberField}
-            value={record.maxValue}
-            onChange={handleInputChange}
-            placeholder="Value..."
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Unit",
-      dataIndex: "unit",
-      align: "center" as const,
-      width: 140,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "unit"]}
-          rules={RulesManager.getUnitRules()}
-        >
-          <Input placeholder="Enter unit" value={record.unit} onChange={handleInputChange} />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Priority",
-      dataIndex: "priority",
-      align: "center" as const,
-      width: 70,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "priority"]}
-          rules={RulesManager.getPriorityRules()}
-        >
-          <InputNumber
-            className={style.inputNumberField}
-            min={1}
-            value={record.priority}
-            onChange={handleInputChange}
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Check Interval Days ",
-      dataIndex: "frequencyDate",
-      align: "center" as const,
-      // width: 70,
-      render: (_: any, record: CriteriaRequest, index: number) => (
-        <Form.Item
-          className={style.noMargin}
-          name={["criteriaList", index, "frequencyDate"]}
-          rules={RulesManager.getCheckIntervalDaysRules()}
-        >
-          <InputNumber
-            className={style.inputNumberField}
-            min={1}
-            value={record.frequencyDate}
-            onChange={handleInputChange}
-            placeholder="Value..."
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      align: "center" as const,
-      render: (_: any, record: CriteriaRequest) => (
-        <Button danger onClick={() => deleteCriteria(record.criteriaId)} icon={<Icons.delete />} />
-      ),
-    },
-  ];
+  const columns = CriteriaColModal(
+    form,
+    () => {},
+    () => {},
+  );
 
   return (
     <ModalForm
@@ -386,6 +225,7 @@ const CriteriaModel = ({
             name={masterTypeFormFields.target}
             rules={RulesManager.getTargetRules()}
             options={criteriaTargetOptions}
+            onChange={(value) => setTarget(value)}
           />
         </Flex>
         <Flex gap={20}>
@@ -411,7 +251,13 @@ const CriteriaModel = ({
           <div className={style.criteriaTableWrapper}>
             <Table
               className={style.criteriaTable}
-              columns={columns}
+              columns={columns.filter((col) =>
+                // Kiểm tra nếu cột có dataIndex và chắc chắn dataIndex là một chuỗi
+                "dataIndex" in col && typeof col.dataIndex === "string" && target === "Product"
+                  ? !["minValue", "maxValue", "unit"].includes(col.dataIndex)
+                  : true,
+              )}
+              // columns={columns}
               dataSource={form.getFieldValue("criteriaList") || []}
               rowKey="criteriaId"
               pagination={false}

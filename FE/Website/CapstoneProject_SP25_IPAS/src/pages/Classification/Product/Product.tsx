@@ -1,5 +1,5 @@
-import { Flex, Select } from "antd";
-import style from "./MasterType.module.scss";
+import { Flex } from "antd";
+import style from "./Product.module.scss";
 import {
   ActionMenuMasterType,
   ConfirmModal,
@@ -23,20 +23,17 @@ import { useEffect, useState } from "react";
 import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
 import { masterTypeService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
-import { masterTypeColumns } from "./MasterTypeColumns";
-import MasterTypeFilter from "./MasterTypeFilter";
-import { MASTER_TYPE_SHOW_TABLE } from "@/constants";
+import { CRITERIA_TARGETS, MASTER_TYPE, ROUTES } from "@/constants";
+import MasterTypeFilter from "../MasterType/MasterTypeFilter";
+import { productColumns } from "./ProductColumns";
+import { useNavigate } from "react-router-dom";
 
-function MasterType() {
+function Product() {
+  const navigate = useNavigate();
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
-  const typeOptions = Object.keys(MASTER_TYPE_SHOW_TABLE).map((key) => ({
-    value: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
-    label: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
-  }));
-  const [typeName, setTypeName] = useState<string>(MASTER_TYPE_SHOW_TABLE.PROCESS);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
@@ -67,18 +64,14 @@ function MasterType() {
         sortField,
         sortDirection,
         searchValue,
-        typeName,
-        filters,
+        CRITERIA_TARGETS.Product,
+        // filters,
       ),
   });
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue, typeName]);
-
-  const handleTypeChange = (type: string) => {
-    setTypeName(type);
-  };
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
 
   const { handleDelete } = useTableDelete(
     {
@@ -109,7 +102,7 @@ function MasterType() {
   const handleCancelConfirm = (stage: MasterTypeRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(stage, "masterTypeId")
-      : hasChanges(stage, undefined, { isActive: false, typeName: typeName });
+      : hasChanges(stage, undefined, { isActive: false, typeName: MASTER_TYPE.PRODUCT });
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
     } else {
@@ -146,10 +139,10 @@ function MasterType() {
 
   return (
     <Flex className={style.container}>
-      <SectionTitle title="Master Type Management" totalRecords={totalRecords} />
+      <SectionTitle title="Product Management" totalRecords={totalRecords} />
       <Flex className={style.table}>
         <Table
-          columns={masterTypeColumns}
+          columns={productColumns}
           rows={data}
           rowKey="masterTypeCode"
           idName="masterTypeId"
@@ -157,20 +150,12 @@ function MasterType() {
             <TableTitle
               onSearch={handleSearch}
               filterContent={filterContent}
-              addLabel="Add New Type"
+              addLabel="Add New Product"
               onAdd={() => formModal.showModal()}
-              extraContent={
-                <Select
-                  placeholder="Select Type"
-                  value={typeName}
-                  style={{ width: "20rem" }}
-                  options={typeOptions}
-                  onChange={(value) => handleTypeChange(value)}
-                />
-              }
-              sectionRightSize="small"
             />
           }
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(ROUTES.PRODUCT_DETAIL(record.masterTypeId))}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           rotation={rotation}
@@ -178,12 +163,12 @@ function MasterType() {
           rowsPerPage={rowsPerPage}
           handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
-          caption="Master Type Management Table"
-          notifyNoData="No data to display"
-          renderAction={(type: GetMasterType) => (
+          caption="Product Management Table"
+          notifyNoData="No product to display"
+          renderAction={(product: GetMasterType) => (
             <ActionMenuMasterType
-              onEdit={() => formModal.showModal(type)}
-              onDelete={() => deleteConfirmModal.showModal({ ids: [type.masterTypeId] })}
+              onEdit={() => formModal.showModal(product)}
+              onDelete={() => deleteConfirmModal.showModal({ ids: [product.masterTypeId] })}
             />
           )}
         />
@@ -203,14 +188,14 @@ function MasterType() {
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
         masterTypeData={formModal.modalState.data}
-        typeCurrent={typeName}
+        typeCurrent={CRITERIA_TARGETS.Product}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
         onCancel={deleteConfirmModal.hideModal}
-        itemName="Type"
+        itemName="Product"
         actionType="delete"
       />
       {/* Confirm Update Modal */}
@@ -218,7 +203,7 @@ function MasterType() {
         visible={updateConfirmModal.modalState.visible}
         onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.type)}
         onCancel={updateConfirmModal.hideModal}
-        itemName="Type"
+        itemName="Product"
         actionType="update"
       />
       {/* Confirm Cancel Modal */}
@@ -235,4 +220,4 @@ function MasterType() {
   );
 }
 
-export default MasterType;
+export default Product;

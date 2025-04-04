@@ -20,6 +20,7 @@ import {
   ActionMenuGraftedPlant,
   ApplyGraftedPlantCriteriaModal,
   ConfirmModal,
+  ConvertToPlantModal,
   CuttingGraftedModal,
   GraftedPlantModal,
   NavigationDot,
@@ -39,6 +40,7 @@ function GraftedPlant() {
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const removeLotConfirmModal = useModal<{ ids: number[] }>();
   const addToLotModal = useModal<{ ids: number[] }>();
+  const convertModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ graftedPlant: GraftedPlantRequest }>();
   const markAsDeadModal = useModal<{ id: number }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
@@ -206,6 +208,23 @@ function GraftedPlant() {
     }
   };
 
+  const convertToPlant = async (landRowId: number, plantIndex: number, graftedId?: number) => {
+    if (!graftedId) return;
+    var res = await graftedPlantService.convertToPlant(graftedId, landRowId, plantIndex);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        convertModal.hideModal();
+        toast.success(res.message);
+        await fetchData();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <GraftedPlantFilter
       filters={filters}
@@ -265,6 +284,7 @@ function GraftedPlant() {
               onRemoveFromLot={() =>
                 removeLotConfirmModal.showModal({ ids: [grPlant.graftedPlantId] })
               }
+              onConvertToPlant={() => convertModal.showModal({ id: grPlant.graftedPlantId })}
             />
           )}
         />
@@ -296,6 +316,14 @@ function GraftedPlant() {
           isOpen={addToLotModal.modalState.visible}
           onClose={addToLotModal.hideModal}
           onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.ids)}
+          isLoadingAction={isActionLoading}
+        />
+        <ConvertToPlantModal
+          isOpen={convertModal.modalState.visible}
+          onClose={convertModal.hideModal}
+          onSave={(rowId, plantIndex) =>
+            convertToPlant(rowId, plantIndex, convertModal.modalState.data?.id)
+          }
           isLoadingAction={isActionLoading}
         />
         <PlantMarkAsDeadModal

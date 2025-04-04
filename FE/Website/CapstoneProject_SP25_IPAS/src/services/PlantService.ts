@@ -146,6 +146,8 @@ export const getPlantRecordHarvest = async (
   dateHarvestFrom?: string,
   dateHarvestTo?: string,
   productIds?: number,
+  totalQuantityFrom?: number | null,
+  totalQuantityTo?: number | null,
 ): Promise<ApiResponse<GetData<GetPlantRecord>>> => {
   const res = await axiosAuth.axiosJsonRequest.get("harvests/plants/record", {
     params: {
@@ -155,6 +157,8 @@ export const getPlantRecordHarvest = async (
       dateHarvestFrom,
       dateHarvestTo,
       productIds,
+      totalQuantityFrom: totalQuantityFrom ?? undefined, 
+      totalQuantityTo: totalQuantityTo ?? undefined, 
     },
   });
   const apiResponse = res.data as ApiResponse<GetData<GetPlantRecord>>;

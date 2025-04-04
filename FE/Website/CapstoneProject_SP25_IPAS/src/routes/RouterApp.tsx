@@ -46,6 +46,8 @@ import {
   CropDetails,
   ChatBox,
   HarvestDays,
+  Product,
+  ProductDetails,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -104,6 +106,12 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.CROP.PLANT_YIELD, component: PlantYield, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.GROWTH_STAGE, component: GrowthStage, layout: ManagementLayout },
+  { path: PATHS.CLASSIFICATION.PRODUCT, component: Product, layout: ManagementLayout },
+  {
+    path: PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+    component: ProductDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.FARM.FARM_INFO, component: FarmInfo, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },

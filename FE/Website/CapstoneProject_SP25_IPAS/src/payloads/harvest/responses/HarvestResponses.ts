@@ -53,7 +53,7 @@ export interface UserWorkLog {
   listResources: any[];
 }
 
-export interface WorkLog {
+export interface WorkLogHarvest {
   workLogId: number;
   workLogCode: string;
   status: string;
@@ -74,7 +74,7 @@ export interface CarePlanSchedulesDetail {
   endTime: string;
   farmID: number;
   harvestHistoryID: number;
-  workLogs: WorkLog[];
+  workLogs: WorkLogHarvest[];
 }
 
 export interface GetHarvestDayDetail extends GetHarvestDay {

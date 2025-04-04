@@ -2,27 +2,30 @@ import { Flex, Button, Empty, Table, Tag } from "antd";
 import { Icons } from "@/assets";
 import style from "./HarvestDays.module.scss";
 import { useEffect, useState } from "react";
-import { GetHarvestDayDetail } from "@/payloads";
+import { GetHarvestDay, GetHarvestDayDetail } from "@/payloads";
 import { harvestService } from "@/services";
-import { LoadingSkeleton, UserAvatar } from "@/components";
-import { formatCurrencyVND, formatCurrencyVND_KG, formatDate } from "@/utils";
+import { ActionMenuHarvest, LoadingSkeleton, UserAvatar } from "@/components";
+import { formatCurrencyVND, formatDate } from "@/utils";
 import { harvestStatusColors } from "@/constants";
+import { useCropStore } from "@/stores";
 
 interface HarvestDayDetailProps {
-  selectedHarvest: number | null;
+  selectedHarvest: GetHarvestDay | null;
   onBack: () => void;
+  actionMenu: React.ReactNode;
 }
 
-function HarvestDayDetail({ selectedHarvest, onBack }: HarvestDayDetailProps) {
+function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDetailProps) {
   const [harvestData, setHarvestData] = useState<GetHarvestDayDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { shouldRefetch } = useCropStore();
   if (!selectedHarvest) return null;
 
   useEffect(() => {
     const fetchHarvest = async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const res = await harvestService.getHarvest(selectedHarvest);
+        const res = await harvestService.getHarvest(selectedHarvest.harvestHistoryId);
         if (res.statusCode === 200) {
           setHarvestData(res.data);
         }
@@ -32,7 +35,7 @@ function HarvestDayDetail({ selectedHarvest, onBack }: HarvestDayDetailProps) {
     };
 
     fetchHarvest();
-  }, [selectedHarvest]);
+  }, [selectedHarvest, shouldRefetch]);
 
   if (loading) return <LoadingSkeleton rows={10} />;
   if (!harvestData)
@@ -76,11 +79,15 @@ function HarvestDayDetail({ selectedHarvest, onBack }: HarvestDayDetailProps) {
             <Icons.description />
             <span className={style.label}>Harvest Code:</span>
           </Flex>
-          <Flex gap={20}>
-            <p>{harvestHistoryCode}</p>
-            <Tag color={harvestStatusColors[harvestStatus] || "default"}>
-              {harvestStatus || "Unknown"}
-            </Tag>
+          <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+            <Flex gap={20}>
+              <p>{harvestHistoryCode}</p>
+              <Tag color={harvestStatusColors[harvestStatus] || "default"}>
+                {harvestStatus || "Unknown"}
+              </Tag>
+            </Flex>
+
+            {actionMenu}
           </Flex>
         </Flex>
       </Flex>

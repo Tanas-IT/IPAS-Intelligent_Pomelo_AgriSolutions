@@ -30,8 +30,10 @@ export const PATHS = {
   },
 
   CLASSIFICATION: {
-    MASTER_TYPE: "/classification/master-types",
     GROWTH_STAGE: "/classification/growth-stages",
+    MASTER_TYPE: "/classification/master-types",
+    PRODUCT: "/classification/products",
+    PRODUCT_DETAIL: "/classification/products/:id/details",
   },
 
   // Farm Management

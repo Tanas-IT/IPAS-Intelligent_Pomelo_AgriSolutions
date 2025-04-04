@@ -1,14 +1,25 @@
-import { LoadingSkeleton, PlantSectionHeader, TimelineFilter } from "@/components";
-import { Divider, Empty, Flex, Select } from "antd";
+import {
+  ActionMenuRecord,
+  ConfirmModal,
+  LoadingSkeleton,
+  PlantSectionHeader,
+  TimelineFilter,
+  UserAvatar,
+} from "@/components";
+import { Button, Divider, Empty, Flex, InputNumber, Select, Typography } from "antd";
 import style from "./PlantHarvestRecord.module.scss";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
-import { formatDayMonthAndTime } from "@/utils";
+import { formatDate, formatDayMonthAndTime } from "@/utils";
 import { GetPlantRecord } from "@/payloads";
 import { DEFAULT_RECORDS_IN_DETAIL, MASTER_TYPE } from "@/constants";
 import { useDirtyStore, usePlantStore } from "@/stores";
-import { plantService } from "@/services";
-import { useMasterTypeOptions } from "@/hooks";
+import { harvestService, plantService } from "@/services";
+import { useMasterTypeOptions, useModal } from "@/hooks";
+import { Icons } from "@/assets";
+import { toast } from "react-toastify";
+
+const { Text } = Typography;
 
 function PlantHarvestRecord() {
   const { plant } = usePlantStore();
@@ -17,10 +28,12 @@ function PlantHarvestRecord() {
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const [productFilter, setProductFilter] = useState<number>();
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+  const [quantityRange, setQuantityRange] = useState<[number | null, number | null]>([null, null]);
   const visibleCount = DEFAULT_RECORDS_IN_DETAIL;
   const [data, setData] = useState<GetPlantRecord[]>([]);
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const deleteConfirmModal = useModal<{ id: number }>();
   if (!plant) return;
 
   const fetchData = async () => {
@@ -33,6 +46,8 @@ function PlantHarvestRecord() {
         dateRange?.[0]?.format("YYYY-MM-DD"),
         dateRange?.[1]?.format("YYYY-MM-DD"),
         productFilter,
+        quantityRange[0],
+        quantityRange[1],
       );
       if (res.statusCode === 200) {
         setData((prevData) => (currentPage > 1 ? [...prevData, ...res.data.list] : res.data.list));
@@ -64,6 +79,29 @@ function PlantHarvestRecord() {
     handleResetData();
   };
 
+  const handleQuantityChange = (values: [number | null, number | null]) => {
+    setQuantityRange(values);
+    if (values[0] !== null && values[1] !== null && values[0] <= values[1]) {
+      handleResetData();
+    }
+  };
+
+  const handleDelete = async () => {
+    const id = deleteConfirmModal.modalState.data?.id;
+    if (!id) return;
+    try {
+      var result = await harvestService.deleteRecordHarvest(id);
+      if (result.statusCode === 200) {
+        toast.success(result.message);
+        await handleResetData();
+      } else {
+        toast.error(result.message);
+      }
+    } finally {
+      deleteConfirmModal.hideModal();
+    }
+  };
+
   if (isFirstLoad) return <LoadingSkeleton rows={10} />;
   return (
     <Flex className={style.contentDetailWrapper}>
@@ -80,6 +118,25 @@ function PlantHarvestRecord() {
             style={{ width: 150 }}
             options={productOptions}
           />
+
+          <Flex gap={10} align="center">
+            <Text>Yield:</Text>
+            <InputNumber
+              placeholder="From"
+              value={quantityRange[0]}
+              onChange={(value) => handleQuantityChange([value, quantityRange[1]])}
+              min={0}
+              style={{ width: 100 }}
+            />
+            <Text>-</Text>
+            <InputNumber
+              placeholder="To"
+              value={quantityRange[1]}
+              onChange={(value) => handleQuantityChange([quantityRange[0], value])}
+              min={0}
+              style={{ width: 100 }}
+            />
+          </Flex>
         </Flex>
 
         <Flex className={style.historyTimeline}>
@@ -99,6 +156,11 @@ function PlantHarvestRecord() {
                   </Flex>
                   <div className={style.timelineDetail}>
                     <Flex gap={10} align="center">
+                      <UserAvatar
+                        avatarURL={record?.avartarRecord}
+                        fallbackText={record.recordBy && record.recordBy.charAt(0).toUpperCase()}
+                        size={30}
+                      />
                       <span className={style.userName}>{record.recordBy}</span>
                       <span>recorded a harvest</span>
                       <span className={style.createdDate}>
@@ -110,14 +172,26 @@ function PlantHarvestRecord() {
                       <span className={style.noteContent}>{record.cropName}</span>
                     </Flex>
                     <Flex className={style.infoRow}>
+                      <span className={style.label}>Harvest Date:</span>
+                      <span className={style.noteContent}>{formatDate(record.harvestDate)}</span>
+                    </Flex>
+                    <Flex className={style.infoRow}>
                       <span className={style.label}>Product Name:</span>
                       <span className={style.noteContent}>{record.productName}</span>
                     </Flex>
-                    <Flex className={style.infoRow}>
-                      <span className={style.label}>Yield:</span>
-                      <span className={style.noteContent}>
-                        {record.actualQuantity} {record.unit}
-                      </span>
+                    <Flex justify="space-between">
+                      <Flex className={style.infoRow}>
+                        <span className={style.label}>Yield:</span>
+                        <span className={style.noteContent}>
+                          {record.actualQuantity} {record.unit}
+                        </span>
+                      </Flex>
+                      <ActionMenuRecord
+                        onEdit={() => {}}
+                        onDelete={() =>
+                          deleteConfirmModal.showModal({ id: record.productHarvestHistoryId })
+                        }
+                      />
                     </Flex>
                   </div>
                 </Flex>
@@ -134,6 +208,15 @@ function PlantHarvestRecord() {
           </Flex>
         )}
       </Flex>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={handleDelete}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Record"
+        actionType="delete"
+      />
     </Flex>
   );
 }

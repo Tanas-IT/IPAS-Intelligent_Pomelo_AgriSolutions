@@ -37,7 +37,7 @@ import RecordHarvestModal from "./RecordHarvestModal";
 import { toast } from "react-toastify";
 
 function HarvestDays() {
-  const [selectedHarvest, setSelectedHarvest] = useState<number | null>(null);
+  const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const formModal = useModal<GetHarvestDay>();
   const recordModal = useModal<GetHarvestDay>();
@@ -46,17 +46,18 @@ function HarvestDays() {
   const recordConfirmModal = useModal<{ record: RecordHarvestRequest }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView } = useCropStore();
+  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
+    useCropStore();
   if (!crop) return;
 
-  const handleViewDetail = (id: number) => {
-    setSelectedHarvest(id);
+  const handleViewDetail = (selected: GetHarvestDay) => {
+    setSelectedHarvest(selected);
     setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
   };
 
   const handleBackToList = () => {
     setSelectedHarvest(null);
-    setIsHarvestDetailView(false); // Quay về danh sách
+    setIsHarvestDetailView(false);
   };
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterHarvestDayState>(
@@ -103,6 +104,7 @@ function HarvestDays() {
       fetchData,
       onSuccess: () => {
         deleteConfirmModal.hideModal();
+        if (isHarvestDetailView) setIsHarvestDetailView(false);
       },
     },
     {
@@ -161,7 +163,7 @@ function HarvestDays() {
 
   const { handleUpdate, isUpdating } = useTableUpdate<HarvestRequest>({
     updateService: harvestService.updateHarvest,
-    fetchData: fetchData,
+    fetchData: isHarvestDetailView ? markForRefetch : fetchData,
     onSuccess: () => {
       formModal.hideModal();
       updateConfirmModal.hideModal();
@@ -189,6 +191,7 @@ function HarvestDays() {
       if (res.statusCode === 200) {
         recordModal.hideModal();
         recordConfirmModal.hideModal();
+        isHarvestDetailView && markForRefetch;
         toast.success(res.message);
       } else {
         toast.error(res.message);
@@ -211,8 +214,20 @@ function HarvestDays() {
     <Flex className={style.contentDetailWrapper}>
       <CropSectionHeader onAddNewHarvest={() => formModal.showModal()} />
       <Divider className={style.divider} />
-      {isHarvestDetailView ? (
-        <HarvestDayDetail selectedHarvest={selectedHarvest} onBack={handleBackToList} />
+      {isHarvestDetailView && selectedHarvest ? (
+        <HarvestDayDetail
+          selectedHarvest={selectedHarvest}
+          onBack={handleBackToList}
+          actionMenu={
+            <ActionMenuHarvest
+              onEdit={() => formModal.showModal(selectedHarvest)}
+              onDelete={() =>
+                deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
+              }
+              onOpenRecordModal={() => recordModal.showModal(selectedHarvest)}
+            />
+          }
+        />
       ) : (
         <Flex className={style.container}>
           <Flex className={style.table}>
@@ -222,7 +237,7 @@ function HarvestDays() {
               rowKey="harvestHistoryCode"
               idName="harvestHistoryId"
               isOnRowEvent={true}
-              onRowDoubleClick={(record) => handleViewDetail(record.harvestHistoryId)}
+              onRowDoubleClick={(record) => handleViewDetail(record)}
               title={<TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd />}
               isViewCheckbox={false}
               handleSortClick={handleSortChange}
