@@ -25,6 +25,7 @@ using MailKit.Search;
 using System.Linq;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
 using Microsoft.EntityFrameworkCore;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -35,13 +36,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IConfiguration _config;
         private readonly IWorkLogService _workLogService;
         private readonly IScheduleService _scheduleService;
-        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService, IScheduleService scheduleService)
+        private readonly IExcelReaderService _excelReaderService;
+        public HarvestHistoryService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration config, IWorkLogService workLogService, IScheduleService scheduleService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _config = config;
             _workLogService = workLogService;
             _scheduleService = scheduleService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createHarvestHistory(CreateHarvestHistoryRequest createRequest)
@@ -342,6 +345,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     foreach (var plant in createRequest.plantHarvestRecords)
                     {
+                        int index = 1;
+                        var canHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId: plant.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
+                        if (canHarvest == true)
+                            return new BusinessResult(400, $"Plant number {index} is not in suitable growth stage to harvest");
                         var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId);
                         if (existingHarvest != null)
                         {
@@ -363,6 +370,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 RecordDate = DateTime.Now,
                             });
                         }
+                        index++;
                     }
 
                     if (updateList.Any())
@@ -1183,5 +1191,128 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> ImportPlantAsync(ImportHarvestExcelRequest request)
+        {
+            try
+            {
+                using (var transaction = await _unitOfWork.BeginTransactionAsync())
+                {
+                    // 1. Kiểm tra Harvest History
+                    var harvest = await _unitOfWork.HarvestHistoryRepository
+                        .GetHarvestAndProduct(x => x.HarvestHistoryId == request.harvestId && x.IsDeleted == false);
+
+                    if (harvest == null)
+                        return new BusinessResult(400, "Harvest History is not exist");
+
+                    // 2. Đọc file Excel
+                    List<PlantRecordHarvestImportMdoel> recordCsvList =
+                        await _excelReaderService.ReadCsvFileAsync<PlantRecordHarvestImportMdoel>(request.fileExcel);
+                    if (!recordCsvList.Any())
+                        return new BusinessResult(400, "File excel is empty. Please try again!");
+
+                    // 3. Kiểm tra trùng lặp trong file
+                    var (duplicateErrors, validPlants) = await _excelReaderService.FindDuplicatesInFileAsync(recordCsvList);
+                    if (duplicateErrors.Any())
+                    {
+                        var duplicateMsg = string.Join("\n", duplicateErrors.Select(error =>
+                            $"Row {string.Join(" and ", error.RowIndexes)} is exist in data."));
+                        return new BusinessResult(Const.WARNING_IMPORT_PLANT_DUPLICATE_CODE, duplicateMsg, duplicateErrors);
+                    }
+
+                    // 4. Chuẩn bị dữ liệu kiểm tra
+                    var plotIds = (await _unitOfWork.LandPlotCropRepository
+                        .GetAllNoPaging(x => x.CropID == harvest.CropId && !x.LandPlot.IsDeleted.Value, includeProperties: "LandPlot"))
+                        .Select(x => x.LandPlotId).ToList();
+
+                    var allRowOfCrop = (await _unitOfWork.LandRowRepository
+                        .GetAllNoPaging(x => plotIds.Contains(x.LandPlotId!.Value) && !x.IsDeleted.Value))
+                        .Select(x => x.LandRowId).ToHashSet();
+
+                    var plantCodes = validPlants.Select(x => x.PlantCode).Distinct().ToList();
+                    var masterTypeCodes = validPlants.Select(x => x.MasterTypeCode).Distinct().ToList();
+
+                    var plants = (await _unitOfWork.PlantRepository
+                        .GetAllNoPaging(x => plantCodes.Contains(x.PlantCode)
+                            && !x.IsDead.Value && !x.IsDeleted.Value
+                            && allRowOfCrop.Contains(x.LandRowId!.Value)))
+                        .ToDictionary(x => x.PlantCode);
+
+                    var masterTypes = (await _unitOfWork.MasterTypeRepository
+                        .GetAllNoPaging(x => masterTypeCodes.Contains(x.MasterTypeCode)
+                            && x.TypeName!.ToLower() == TypeNameInMasterEnum.Product.ToString().ToLower()))
+                        .ToDictionary(x => x.MasterTypeCode);
+
+                    var selectedProductIds = harvest.ProductHarvestHistories
+                        .Select(x => x.MasterTypeId).ToHashSet();
+
+                    // 5. Kiểm tra lỗi và mapping dữ liệu
+                    string errorList = "";
+                    bool fileHasError = false;
+                    var harvestRecord = new List<ProductHarvestHistory>();
+
+                    foreach (var plant in validPlants)
+                    {
+                        if (!plants.TryGetValue(plant.PlantCode, out var plantExist))
+                        {
+                            fileHasError = true;
+                            errorList += $"\nRow {plant.NumberOrder}: Plant is not exist or not in crop can harvest.";
+                            continue;
+                        }
+
+                        if (!masterTypes.TryGetValue(plant.MasterTypeCode, out var masterType))
+                        {
+                            fileHasError = true;
+                            errorList += $"\nRow {plant.NumberOrder}: MasterTypeCode not exist or not product.";
+                            continue;
+                        }
+
+                        if (!selectedProductIds.Contains(masterType.MasterTypeId))
+                        {
+                            fileHasError = true;
+                            errorList += $"\nRow {plant.NumberOrder}: MasterTypeCode is not selected product in harvest.";
+                            continue;
+                        }
+
+                        if (!plant.Quantity.HasValue || plant.Quantity.Value <= 0)
+                        {
+                            fileHasError = true;
+                            errorList += $"\nRow {plant.NumberOrder}: Quantity must be > 0.";
+                            continue;
+                        }
+
+                        harvestRecord.Add(new ProductHarvestHistory
+                        {
+                            HarvestHistoryId = harvest.HarvestHistoryId,
+                            MasterTypeId = masterType.MasterTypeId,
+                            UserID = request.userId,
+                            PlantId = plantExist.PlantId,
+                            ActualQuantity = plant.Quantity.Value,
+                            RecordDate = DateTime.Now
+                        });
+                    }
+
+                    if (fileHasError)
+                        return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, errorList);
+
+                    // 6. Thêm vào database
+                    await _unitOfWork.ProductHarvestHistoryRepository.InsertRangeAsync(harvestRecord);
+                    int result = await _unitOfWork.SaveAsync();
+
+                    if (result > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_IMPORT_PLANT_CODE, $"Import {result} record harvest from excel success");
+                    }
+
+                    return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, "Save to database failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, "Error when import", ex.Message);
+            }
+        }
+
     }
 }

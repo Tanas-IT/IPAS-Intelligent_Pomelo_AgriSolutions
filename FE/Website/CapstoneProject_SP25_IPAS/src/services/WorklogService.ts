@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { GetWorklog, GetWorklogDetail, GetWorklogNote } from "@/payloads/worklog";
+import { CreateWorklogRequest, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq } from "@/payloads/worklog";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -34,7 +34,13 @@ export const getWorklog = async (filters: {
 
   const apiResponse = res.data as ApiResponse<GetWorklog[]>;
   return apiResponse.data;
-};
+}
+
+export const getWorklogByUserId = async (userId: number) => {
+  const res = await axiosAuth.axiosJsonRequest.get(`work-log/get-schedule?userId=${userId}`);
+  const apiResponse = res.data as ApiResponse<GetWorklog[]>;
+  return apiResponse;
+}
 
 export const getWorklogDetail = async (worklogId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`work-log/detail/${worklogId}`);
@@ -42,19 +48,43 @@ export const getWorklogDetail = async (worklogId: number) => {
   return apiResponse.data;
 };
 
-export const addWorklogNote = async (note: GetWorklogNote): Promise<ApiResponse<Object>> => {
-  const formData = new FormData();
-  formData.append("UserId", note.userId);
-  formData.append("WorkLogId", note.userWorklogId);
-  formData.append("Note", note.notes);
-  formData.append("Issue", note.issue);
+export const addWorklogNote = async (
+    note: GetWorklogNote,
+  ): Promise<ApiResponse<Object>> => {
+    const formData = new FormData();
+    formData.append("UserId", note.userId);
+    formData.append("WorkLogId", note.userWorklogId);
+    formData.append("Note", note.notes);
+    formData.append("Issue", note.issue);
+  
+    if (note.Resources && note.Resources.length > 0) {
+      note.Resources.forEach((fileResource, index) => {
+        formData.append(`Resources[${index}].resourceURL`, fileResource.resourceURL);
+      });
+    }
+  
+    const res = await axiosAuth.axiosMultipartForm.post(`work-log/take-note`, formData);
+    return res.data as ApiResponse<Object>;
+  };
 
-  if (note.Resources && note.Resources.length > 0) {
-    note.Resources.forEach((fileResource, index) => {
-      formData.append(`Resources[${index}].resourceURL`, fileResource.resourceURL);
+  export const saveAttendance = async (worklogId: number, listEmployeeCheckAttendance: ListEmployeeAttendance[]): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.put(`work-log/check-attendance`, {
+      worklogId,
+      listEmployeeCheckAttendance
     });
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
   }
 
-  const res = await axiosAuth.axiosMultipartForm.post(`work-log/take-note`, formData);
-  return res.data as ApiResponse<Object>;
-};
+  export const updateWorklog = async (payload: UpdateWorklogReq): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.put(`work-log/change-employee`, payload);
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  }
+
+  export const addWorklog = async (payload: CreateWorklogRequest): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(`work-log/add-new-worklog`, payload);
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  }
+  

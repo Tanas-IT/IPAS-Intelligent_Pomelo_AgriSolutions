@@ -123,7 +123,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var newSchedule = new CarePlanSchedule()
                 {
-                    CustomDates = JsonConvert.SerializeObject(addNewTaskModel.DateWork.Value.ToString("yyyy/MM/dd")),
+                    CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.DateWork.Value.ToString("yyyy/MM/dd")) + "]",
                     StartTime = TimeSpan.Parse(addNewTaskModel.StartTime),
                     EndTime = TimeSpan.Parse(addNewTaskModel.EndTime),
                     FarmID = farmId,
@@ -471,12 +471,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string key = $"{CacheKeyConst.WORKLOG}:{CacheKeyConst.FARM}:{farmId}";
 
                 //await _responseCacheService.RemoveCacheAsync(key);
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<List<ScheduleModel>>>(key);
-                if (cachedData != null && cachedData.Data != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false && x.Schedule.IsDeleted == false && x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<List<ScheduleModel>>>(key);
+                //if (cachedData != null && cachedData.Data != null)
+                //{
+                //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                //}
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false || x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -564,7 +564,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
 
-
+                var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
                 var result = entities
                        .Select(wl => new ScheduleModel()
@@ -1244,7 +1244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
                 {
-                    var checkTime = (int)(endTime - startTime).TotalHours; // Chuyển TimeSpan sang số phút
+                    var checkTime = (int)(endTime - startTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                     var masterType = await _unitOfWork.MasterTypeRepository
                         .GetByCondition(x => x.MasterTypeId == getExistPlan.MasterTypeId);
@@ -1256,7 +1256,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         if (checkTime < minTime || checkTime > maxTime)
                         {
-                            throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                            throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                         }
                     }
                 }
@@ -1278,7 +1278,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.DateWork.ToString("yyyy/MM/dd")) + "]",
                     FarmID = farmId,
                 };
-                getExistPlan.CarePlanSchedule = newSchedule;
+                
+                    getExistPlan.CarePlanSchedule = newSchedule;
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
 
@@ -1830,7 +1831,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var result = 0;
-                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(checkAttendanceModel.WorkLogId);
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId, "UserWorkLogs");
                 foreach (var employeeModel in checkAttendanceModel.ListEmployeeCheckAttendance)
                 {
                     var getUserWorkLogToCheckAttendance = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId && x.UserWorkLogID == employeeModel.UserId);

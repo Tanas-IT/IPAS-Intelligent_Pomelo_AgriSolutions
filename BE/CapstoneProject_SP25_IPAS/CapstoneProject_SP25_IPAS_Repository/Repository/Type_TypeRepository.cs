@@ -32,7 +32,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 query = orderBy(query);
             }
-            query = query.Include(x => x.Product)
+            query = query
+                .Include(x => x.Product)
                 .Include(x => x.CriteriaSet)
                 .ThenInclude(x => x.Criterias);
             return await query.AsNoTracking().ToListAsync();

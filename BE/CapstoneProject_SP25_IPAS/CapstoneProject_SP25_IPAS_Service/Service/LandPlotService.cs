@@ -31,6 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IResponseCacheService _responseCacheService;
+        private string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}=";
         public LandPlotService(IUnitOfWork unitOfWork, IMapper mapper, IResponseCacheService responseCacheService)
         {
             _unitOfWork = unitOfWork;
@@ -90,7 +91,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{createRequest.FarmId}");
+                        //string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}={createRequest.FarmId}";
+                        await _responseCacheService.RemoveCacheByGroupAsync(groupKey + createRequest.FarmId.ToString()); ;
                         var mappedResult = _mapper.Map<LandPlotModel>(landplotCreateEntity);
                         return new BusinessResult(Const.SUCCESS_CREATE_FARM_CODE, Const.SUCCESS_CREATE_FARM_MSG, mappedResult);
                     }
@@ -231,7 +233,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (farmId <= 0)
                 return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
 
-            string key = $"{CacheKeyConst.LANDPLOT}:{CacheKeyConst.FARM}:{farmId}";
+            string key = $"{CacheKeyConst.LANDPLOT}:{CacheKeyConst.FARM}={farmId}&searchKey={searchKey}";
 
             //await _responseCacheService.RemoveCacheAsync(key);
             var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<IEnumerable<LandPlotModel>>>(key);
@@ -252,8 +254,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
                 var result = new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
-                string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{farmId}";
-                await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                //string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}={farmId}";
+                await _responseCacheService.AddCacheWithGroupAsync(groupKey + farmId.ToString(), key.Trim(), result, TimeSpan.FromMinutes(5));
                 return result;
             }
             else
@@ -316,7 +318,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetLandPlotById(int landPlotId)
         {
-            string key = CacheKeyConst.LANDPLOT + $"{landPlotId}";
+            string key = $"{CacheKeyConst.LANDPLOT}={landPlotId}";
 
             //await _responseCacheService.RemoveCacheAsync(key);
             var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<LandPlotModel>>(key);
@@ -345,14 +347,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> GetForMapped(int landplotId)
         {
-            string key = $"{CacheKeyConst.LANDPLOT}{nameof(GetForMapped)}:{landplotId}";
+            //string key = $"{CacheKeyConst.LANDPLOT}{nameof(GetForMapped)}={landplotId}";
 
-            //await _responseCacheService.RemoveCacheAsync(key);
-            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<LandPlotModel>>(key);
-            if (cachedData != null)
-            {
-                return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-            }
+            ////await _responseCacheService.RemoveCacheAsync(key);
+            //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<LandPlotModel>>(key);
+            //if (cachedData != null)
+            //{
+            //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+            //}
             var landplot = await _unitOfWork.LandPlotRepository.GetForMapped(landplotId);
             // kiem tra null
             if (landplot == null)
@@ -360,11 +362,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // neu khong null return ve mapper
             var mappedResult = _mapper.Map<LandPlotModel>(landplot);
             var result = new BusinessResult(Const.SUCCESS_GET_FARM_CODE, "Get landplot for mapped success", mappedResult);
-            if (mappedResult != null)
-            {
-                string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landplot.LandPlotId}";
-                await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
-            }
+            //if (mappedResult != null)
+            //{
+            //    string groupKey = CacheKeyConst.GROUP_LANDPLOT + $"{landplot.LandPlotId}";
+            //    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+            //}
             return result;
         }
 
@@ -426,7 +428,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await transaction.CommitAsync();
                         var resultSave = await _unitOfWork.LandPlotCoordinationRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId);
                         var mappedResult = _mapper.Map<IEnumerable<LandPlotCoordinationModel>>(resultSave);
-                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{checkLandPlotExist.FarmId}");
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{groupKey}{checkLandPlotExist.FarmId}");
                         await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + checkLandPlotExist.LandPlotId.ToString());
 
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_CODE, Const.SUCCESS_UPDATE_LANDPLOT_COORDINATION_MSG, mappedResult);
@@ -481,7 +483,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await transaction.CommitAsync();
                         var mappedResult = _mapper.Map<LandPlotModel>(landplotEntityUpdate);
                         await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + landplotEntityUpdate.LandPlotId.ToString());
-                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{landplotEntityUpdate.FarmId}");
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{groupKey}{landplotEntityUpdate.FarmId}");
 
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, Const.SUCCESS_UPDATE_LANDPLOT_MSG, mappedResult);
                     }
@@ -516,7 +518,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + landPlotId.ToString());
-                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_LANDPLOT}:{landplotEntityUpdate.FarmId}");
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{groupKey}{landplotEntityUpdate.FarmId}");
 
                         return new BusinessResult(Const.SUCCESS_UPDATE_LANDPLOT_CODE, "Delete softed successfully", new { success = true });
                     }

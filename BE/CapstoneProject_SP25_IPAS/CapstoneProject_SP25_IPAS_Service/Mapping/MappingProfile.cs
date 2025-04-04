@@ -147,6 +147,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             //CreateMap<MasterTypeDetail, MasterTypeDetailModel>().ReverseMap();
             CreateMap<MasterType, MasterTypeModel>()
                 .ForMember(dest => dest.Criterias, opt => opt.MapFrom(src => src.Criterias.Where(x => x.IsDeleted == false)))
+                .ForMember(dest => dest.Type_Types, opt => opt.MapFrom(src => src.Products))
                 .ReverseMap();
 
 
@@ -562,7 +563,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<Type_Type, TypeTypeModel>()
           .ForMember(dest => dest.CriteriaSet, opt => opt.MapFrom(src => src.CriteriaSet))
-          .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product!.MasterTypeName))
+          .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
              .ReverseMap();
 
             CreateMap<Payment, PaymentModel>()

@@ -96,11 +96,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Nếu có truyền startDate và endDate, lọc theo khoảng ngày
             if (startDate.HasValue && endDate.HasValue)
             {
-                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value && wl.Schedule.CarePlan.FarmID == farmId && wl.Schedule.CarePlan.IsDeleted == false).ToList();
+                query = query.Where(wl => wl.Date >= startDate.Value && wl.Date <= endDate.Value).ToList();
             }
 
             return query;
-
         }
 
         public async Task<List<WorkLog>> GetListWorkLogByListSchedules(List<CarePlanSchedule> schedules)
@@ -464,6 +463,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                         (string.IsNullOrEmpty(status) || (x.Status ?? "").ToLower() == status.ToLower()) // Nếu status là null thì lấy tất cả
                                         && x.UserWorkLogs.Any(uwl => uwl.UserId == userId))
                                     .ToListAsync();
+            return getListWorkLog;
+        }
+
+        public async Task<List<WorkLog>> GetListWorkLogById(int workLogId)
+        {
+            var getListWorkLog = await _context.WorkLogs
+                                    .Include(x => x.UserWorkLogs)
+                                    .ThenInclude(uwl => uwl.User)
+                                    .Where(x => x.WorkLogId == workLogId).ToListAsync();
             return getListWorkLog;
         }
     }

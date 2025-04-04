@@ -5,25 +5,26 @@ import {
   createViewMonthGrid,
   createViewWeek,
   createCalendar,
-} from "@schedule-x/calendar";
-import { createEventsServicePlugin } from "@schedule-x/events-service";
-import "@schedule-x/theme-default/dist/index.css";
-import { useEffect, useMemo, useState } from "react";
-import { createEventModalPlugin } from "@schedule-x/event-modal";
-import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
-import CustomTimeGridEvent from "./CustomTimeGridEvent";
-import CustomDateGridEvent from "./CustomDateGridEvent";
-import HeaderContentAppend from "./HeaderContentAppend";
-import style from "./Worklog.module.scss";
-import "./customScheduleX.scss";
-import WorklogFilter from "./WorklogFilter/WorklogFilter";
-import { useModal } from "@/hooks";
-import { CreateWorklogRequest, GetWorklog } from "@/payloads/worklog";
-import WorklogModal from "./WorklogModal/WorklogModal";
-import { useNavigate } from "react-router-dom";
-import { worklogService } from "@/services";
-import dayjs from "dayjs";
-import { debounce } from "lodash";
+} from '@schedule-x/calendar';
+import { createEventsServicePlugin } from '@schedule-x/events-service';
+import '@schedule-x/theme-default/dist/index.css';
+import { useEffect, useMemo, useState } from 'react';
+import { createEventModalPlugin } from '@schedule-x/event-modal';
+import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
+import CustomTimeGridEvent from './CustomTimeGridEvent';
+import CustomDateGridEvent from './CustomDateGridEvent';
+import HeaderContentAppend from './HeaderContentAppend';
+import style from './Worklog.module.scss';
+import './customScheduleX.scss';
+import WorklogFilter from './WorklogFilter/WorklogFilter';
+import { useModal } from '@/hooks';
+import { CreateWorklogRequest, GetWorklog } from '@/payloads/worklog';
+import WorklogModal from './WorklogModal/WorklogModal';
+import { useNavigate } from 'react-router-dom';
+import { worklogService } from '@/services';
+import dayjs from 'dayjs';
+import { debounce } from 'lodash';
+import { toast } from 'react-toastify';
 
 type Worklog = {
   id: string;
@@ -132,6 +133,18 @@ function Worklog() {
   }, [worklog]);
   console.log("số lần render");
 
+  const hadleAddWorklog = async (worklog: CreateWorklogRequest) => {
+    const res = await worklogService.addWorklog(worklog);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      addModal.hideModal();
+      fetchData();
+    } else {
+      toast.error(res.message);
+    }
+  }
+  
+
   useEffect(() => {
     if (eventsService && formattedEvents.length > 0) {
       console.log("formattedEvents:", formattedEvents);
@@ -171,7 +184,7 @@ function Worklog() {
       <WorklogModal
         isOpen={addModal.modalState.visible}
         onClose={addModal.hideModal}
-        onSave={() => {}}
+        onSave={hadleAddWorklog}
       />
     </div>
   );
