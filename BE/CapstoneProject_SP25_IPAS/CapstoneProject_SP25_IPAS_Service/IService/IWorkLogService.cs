@@ -31,5 +31,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CheckAttendance(CheckAttendanceModel checkAttendanceModel, int farmId);
         public Task<BusinessResult> TaskStatics(int farmId);
         public Task<BusinessResult> GetWorkLogbyStatus(GetWorkLogByStatusParam getWorkLogByStatusModel);
+        public Task<BusinessResult> GetAttendanceList(int workLogId);
     }
 }
