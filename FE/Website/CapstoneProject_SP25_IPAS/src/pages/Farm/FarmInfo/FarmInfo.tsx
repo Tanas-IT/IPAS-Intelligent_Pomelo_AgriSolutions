@@ -59,7 +59,7 @@ function FarmInfo() {
       key: "3",
       icon: <Icons.document className={style.iconTab} />,
       label: <label className={style.titleTab}>Package Information</label>,
-      children: <PackageInfo />,
+      children: <PackageInfo farm={farmDetails} />,
     },
   ];
 
