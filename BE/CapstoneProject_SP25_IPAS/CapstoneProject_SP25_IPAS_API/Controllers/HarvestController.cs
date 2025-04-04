@@ -4,10 +4,13 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 //using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,10 +22,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
         private readonly IHarvestHistoryService _harvestHistoryService;
         private readonly IJwtTokenService _jwtTokenService;
-        public HarvestController(IHarvestHistoryService harvestHistoryService, IJwtTokenService jwtTokenService)
+        private readonly IValidator<IFormFile> _fileValidator;
+
+        public HarvestController(IHarvestHistoryService harvestHistoryService, IJwtTokenService jwtTokenService, IValidator<IFormFile> fileValidator)
         {
             _harvestHistoryService = harvestHistoryService;
             _jwtTokenService = jwtTokenService;
+            _fileValidator = fileValidator;
         }
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
@@ -353,5 +359,45 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.Harvest.importPlantFromExcel)]
+        public async Task<IActionResult> ImportPlantFromExcel([FromForm] ImportHarvestExcelRequest request)
+        {
+            try
+            {
+                if (!request.userId.HasValue)
+                    request.userId = _jwtTokenService.GetUserIdFromToken();
+                var validationResult = await _fileValidator.ValidateAsync(request.fileExcel);
+                if (!validationResult.IsValid)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Message = validationResult.ToProblemDetails().Errors.ToString()
+                    });
+                }
+                if (!request.userId.HasValue)
+                {
+                    return BadRequest(new BaseResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        IsSuccess = false,
+                        Message = "User Id is require"
+                    });
+                }
+                var result = await _harvestHistoryService.ImportPlantAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
     }
 }
