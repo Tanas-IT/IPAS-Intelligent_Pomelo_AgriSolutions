@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetCriteriaSetPlantLotNotApply(int plantlotId, int farmId, string target = null);
         public Task<BusinessResult> GetCriteriaSetGraftedNotApply(int graftedId, int farmId, string target);
         public Task<BusinessResult> GetCriteriaSetPlantNotApply(int plantId, int farmId, string target);
+        public Task<BusinessResult> GetCriteriaSetProductNotApply(int productId, int farmId, string target);
 
 
     }

@@ -1834,7 +1834,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId, "UserWorkLogs");
                 foreach (var employeeModel in checkAttendanceModel.ListEmployeeCheckAttendance)
                 {
-                    var getUserWorkLogToCheckAttendance = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId && x.UserWorkLogID == employeeModel.UserId);
+                    var getUserWorkLogToCheckAttendance = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == checkAttendanceModel.WorkLogId && x.UserId == employeeModel.UserId);
                     if (getUserWorkLogToCheckAttendance != null)
                     {
                         getUserWorkLogToCheckAttendance.StatusOfUserWorkLog = employeeModel.Status;

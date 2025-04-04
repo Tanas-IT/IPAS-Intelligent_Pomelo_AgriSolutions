@@ -406,6 +406,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         }
 
-        
+        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.Criteria.getCriteriaSetProductExcept, Name = "getCriteriaSetProductExcept")]
+        public async Task<IActionResult> getCriteriaSetProductExcept([FromQuery] int productId, int? farmId, string? target)
+        {
+
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm id has required"
+                });
+            }
+            var result = await _criteriaService.GetCriteriaSetProductNotApply(productId: productId, farmId: farmId.Value, target: target);
+            return Ok(result);
+
+        }
     }
 }
