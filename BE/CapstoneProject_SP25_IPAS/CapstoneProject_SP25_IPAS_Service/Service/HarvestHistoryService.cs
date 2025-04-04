@@ -1288,6 +1288,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = request.userId,
                             PlantId = plantExist.PlantId,
                             ActualQuantity = plant.Quantity.Value,
+                            RecordDate = DateTime.Now
                         });
                     }
 

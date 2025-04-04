@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeDetail;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ProductCriteriaSetRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -10,6 +11,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,27 +36,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var checkProductExist = await _unitOfWork.MasterTypeRepository.GetByCondition(x => getRequest.productId.Equals(x.MasterTypeId)
-                                                                    && x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Product.ToString().ToLower())
-                                                                    && x.IsActive == true
-                                                                    && x.IsDeleted == false);
-                if (checkProductExist == null)
-                    return new BusinessResult(400, "No Product was found");
-                // Lấy danh sách bộ tiêu chí áp dụng cho sản phẩm
-                Expression<Func<Type_Type, bool>> filter = x => getRequest.Equals(x.ProductId) ;
+                var product = await _unitOfWork.MasterTypeRepository.GetByIdIncludeMasterType(getRequest.productId);
+
+                if (product == null)
+                    return new BusinessResult(404, "Product not found");
+
+                // Lọc theo Targets nếu có
                 if (!string.IsNullOrEmpty(getRequest.Targets))
                 {
-                    var filterList = Util.SplitByComma(getRequest.Targets);
-                    filter = filter.And(x => filterList.Contains(x.CriteriaSet.Target.ToLower()));
+                    var filterTargets = Util.SplitByComma(getRequest.Targets).Select(t => t.ToLower()).ToList();
+                    product.Products = product.Products
+                        .Where(tt => tt.CriteriaSet != null &&
+                                     !string.IsNullOrEmpty(tt.CriteriaSet.Target) &&
+                                     filterTargets.Contains(tt.CriteriaSet.Target.ToLower()))
+                        .ToList();
                 }
-                //string includeProperties = "CriteriaSet,Product";
-                var criteriaSets = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(filter: filter, null!);
 
-                if (!criteriaSets.Any())
-                    return new BusinessResult(200, "No criteria set found for this product.");
-
-                var result = _mapper.Map<List<TypeTypeModel>>(criteriaSets);
-                return new BusinessResult(200, "Successfully retrieved criteria sets.", result);
+                var result = _mapper.Map<MasterTypeModel>(product);
+                return new BusinessResult(200, "Successfully retrieved product with criteria sets.", result);
             }
             catch (Exception ex)
             {
@@ -73,7 +72,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var criteriaSetId in criteriaSetIds)
                     {
                         var checkCriteriaSet = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.TypeName!.ToLower().Equals(TypeNameInMasterEnum.Criteria.ToString().ToLower())
-                                                                                                && x.IsDeleted == false, "Criterias");
+                                                                    && x.MasterTypeId == criteriaSetId
+                                                                    && x.IsDeleted == false, "Criterias");
                         if (checkCriteriaSet == null)
                             return new BusinessResult(400, "Criteria set not exist");
                         if (!checkCriteriaSet.Criterias.Any())
@@ -99,13 +99,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var getCriteriaOfProdut = await _unitOfWork.Type_TypeRepository.GetAllNoPaging(
-                            filter: x => x.ProductId == productId,
-                            includeProperties: "CriteriaSet");
+                            filter: x => x.ProductId == productId
+                            /*includeProperties: "CriteriaSet"*/);
                         var mappedResult = _mapper.Map<IEnumerable<TypeTypeModel>>(getCriteriaOfProdut);
                         return new BusinessResult(200, "Criteria set applied successfully.", mappedResult);
                     }
                     await transaction.RollbackAsync();
                     return new BusinessResult(400, "Criteria set applied fail");
+                }
+                catch (SqlException ex)
+                {
+                    if (ex.ToString().Contains("duplicate"))
+                        return new BusinessResult(400, "This criteria set has apply");
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
                 catch (Exception ex)
                 {
