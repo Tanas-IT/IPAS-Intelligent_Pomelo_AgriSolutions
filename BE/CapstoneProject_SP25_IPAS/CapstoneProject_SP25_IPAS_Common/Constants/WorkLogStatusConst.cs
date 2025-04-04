@@ -19,5 +19,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string REJECTED = "Rejected";
         public static string RECEIVED = "Received";
         public static string REPLACED = "Replaced";
+        public static string BEREPLACED = "BeReplaced";
     }
 }
