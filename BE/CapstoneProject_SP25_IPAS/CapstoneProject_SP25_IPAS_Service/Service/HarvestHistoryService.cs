@@ -1170,12 +1170,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var plantExist = await _unitOfWork.PlantRepository.getById(request.PlantId);
                 if (plantExist == null)
                     return new BusinessResult(Const.WARNING_CROP_NOT_EXIST_CODE, "Plant not exist");
+                var dateCanRecordConfig = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.RECORD_AFTER_DATE, (int)3);
                 Func<IQueryable<HarvestHistory>, IOrderedQueryable<HarvestHistory>> orderBy = x => x.OrderByDescending(x => x.DateHarvest);
                 Expression<Func<HarvestHistory, bool>> filter = c => c.Crop.LandPlotCrops.Select(x => x.LandPlotId).ToList().Contains(plantExist.LandRow.LandPlotId.Value)
                 && c.Crop!.IsDeleted == false
                 && c.IsDeleted == false
-                && c.DateHarvest >= request.StartDate
-                && c.DateHarvest <= request.EndDate;
+                //&& c.DateHarvest >= request.StartDate
+                && c.DateHarvest!.Value.AddDays(dateCanRecordConfig).Date >= DateTime.Now.Date;
 
                 //&& c.DateHarvest >= DateTime.Now.AddDays(-7);
                 //filter = filter.And(x => EF.Functions.DateDiffDay(DateTime.Now, x.DateHarvest.Value) <= 7);
