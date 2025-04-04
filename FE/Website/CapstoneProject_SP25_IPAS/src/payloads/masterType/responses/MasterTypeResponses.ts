@@ -1,3 +1,5 @@
+import { GetCriteriaByMasterType } from "@/payloads/criteria";
+
 export interface MasterTypeDetail {
   masterTypeDetailId: number;
   masterTypeDetailCode: string;
@@ -22,6 +24,15 @@ export interface GetMasterType {
   minTime: number;
   maxTime: number;
   masterTypeDetailModels: MasterTypeDetail[];
+}
+
+interface type_Types {
+  productId: number;
+  criteriaSet: GetCriteriaByMasterType;
+}
+
+export interface GetMasterTypeDetail extends GetMasterType {
+  type_Types: type_Types[];
 }
 
 export interface GetMasterTypeSelected {

@@ -347,7 +347,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         int index = 1;
                         var canHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId: plant.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
-                        if (canHarvest == true)
+                        if (canHarvest != true)
                             return new BusinessResult(400, $"Plant number {index} is not in suitable growth stage to harvest");
                         var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId);
                         if (existingHarvest != null)

@@ -1,22 +1,37 @@
 import { axiosAuth } from "@/api";
-import { MASTER_TYPE } from "@/constants";
-import { ApiResponse, GetData, GetProduct } from "@/payloads";
-import { buildParams } from "@/utils";
+import { ApiResponse, GetMasterType, GetMasterTypeDetail } from "@/payloads";
 
-export const getProducts = async (
-  currentPage?: number,
-  rowsPerPage?: number,
-  sortField?: string,
-  sortDirection?: string,
-  searchValue?: string,
-  additionalParams?: Record<string, any>,
-): Promise<GetData<GetProduct>> => {
-  const params = buildParams(currentPage, rowsPerPage, sortField, sortDirection, searchValue, {
-    typeName: MASTER_TYPE.PRODUCT,
-    ...additionalParams,
+export const getProduct = async (id: number): Promise<ApiResponse<GetMasterTypeDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`products/criteria-set?productId=${id}`);
+  const apiResponse = res.data as ApiResponse<GetMasterTypeDetail>;
+  return apiResponse;
+};
+
+export const applyProductCriteria = async (
+  productId: number,
+  criteriaSetId: number,
+): Promise<ApiResponse<GetMasterType>> => {
+  const payload = {
+    productId,
+    listCriteriaSet: [criteriaSetId],
+  };
+  const res = await axiosAuth.axiosJsonRequest.post(`products/criteria-set`, payload);
+  const apiResponse = res.data as ApiResponse<GetMasterType>;
+  return apiResponse;
+};
+
+export const deleteProductCriteria = async (
+  productId: number,
+  criteriaSetId: number,
+): Promise<ApiResponse<GetMasterType>> => {
+  const payload = {
+    productId,
+    criteriaSetId,
+  };
+
+  const res = await axiosAuth.axiosJsonRequest.delete(`products/criteria-set`, {
+    data: payload,
   });
-
-  const res = await axiosAuth.axiosJsonRequest.get("masterTypes", { params });
-  const apiResponse = res.data as ApiResponse<GetData<GetProduct>>;
-  return apiResponse.data as GetData<GetProduct>;
+  const apiResponse = res.data as ApiResponse<GetMasterType>;
+  return apiResponse;
 };

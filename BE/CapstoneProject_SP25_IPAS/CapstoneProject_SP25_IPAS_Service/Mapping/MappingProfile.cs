@@ -534,23 +534,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                             .FirstOrDefault()
                                                                     })
                                                                     .ToList()))
-            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REJECTED)
+            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REPLACED)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
                                                                         UserId = group.First().User.UserId,
                                                                         FullName = group.First().User.FullName,
                                                                         avatarURL = group.First().User.AvatarURL,
-                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
+                                                                        IsReporter = group.First().IsReporter
                                                                     }).ToList()))
-            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
+            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true && x.StatusOfUserWorkLog != WorkLogStatusConst.REPLACED)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
                                                                         UserId = group.First().User.UserId,
                                                                         FullName = group.First().User.FullName,
                                                                         avatarURL = group.First().User.AvatarURL,
-                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
+                                                                        IsReporter = group.First().IsReporter
                                                                     })
                                                                     .ToList()))
             .ForMember(dest => dest.ListGrowthStageName, opt =>

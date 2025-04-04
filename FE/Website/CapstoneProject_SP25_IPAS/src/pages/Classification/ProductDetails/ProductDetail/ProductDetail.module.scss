@@ -3,21 +3,29 @@
 
 .contentDetailWrapper {
   @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    gap: 20px;
+  }
 }
 
-.additionalTableWrapper {
-  max-height: 25rem;
-  overflow: auto;
-  .additionalTable {
-    th {
-      background: vars.$color_second !important;
-      color: vars.$color_primary !important;
-      font-weight: bold;
-      text-align: center !important;
-    }
-    td {
-      text-align: center !important;
-      padding: 4px 0;
-    }
+.collapseWrapper {
+  margin-bottom: 24px;
+  .collapseTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  .criteriaCollapse {
+    @include shared.criteriaCollapse;
+  }
+}
+
+.iconDelete {
+  cursor: pointer;
+  color: red;
+  transition: color 0.3s ease;
+  margin-top: 4px;
+  &:hover {
+    opacity: 0.8;
   }
 }

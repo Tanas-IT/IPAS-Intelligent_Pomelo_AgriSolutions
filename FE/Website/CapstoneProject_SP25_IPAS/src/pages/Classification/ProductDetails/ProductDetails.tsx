@@ -20,7 +20,7 @@ function ProductDetails() {
     },
   ];
 
-  const handleBack = () => navigate(PATHS.FARM.FARM_PLANT_LOT_LIST);
+  const handleBack = () => navigate(PATHS.CLASSIFICATION.PRODUCT);
 
   return (
     <Flex className={style.detailContainer}>

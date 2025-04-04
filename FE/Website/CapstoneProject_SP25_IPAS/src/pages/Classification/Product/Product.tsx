@@ -1,13 +1,14 @@
 import { Flex } from "antd";
 import style from "./Product.module.scss";
 import {
-  ActionMenuMasterType,
   ConfirmModal,
   NavigationDot,
   SectionTitle,
   Table,
   TableTitle,
   MasterTypesModal,
+  ActionMenuProduct,
+  ApplyProductCriteriaModal,
 } from "@/components";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 import {
@@ -21,19 +22,24 @@ import {
 } from "@/hooks";
 import { useEffect, useState } from "react";
 import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
-import { masterTypeService } from "@/services";
+import { masterTypeService, productService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
 import { CRITERIA_TARGETS, MASTER_TYPE, ROUTES } from "@/constants";
 import MasterTypeFilter from "../MasterType/MasterTypeFilter";
 import { productColumns } from "./ProductColumns";
 import { useNavigate } from "react-router-dom";
+import { useDirtyStore } from "@/stores";
+import { toast } from "react-toastify";
 
 function Product() {
   const navigate = useNavigate();
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
+  const criteriaModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
+  const { isDirty } = useDirtyStore();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
@@ -128,6 +134,29 @@ function Product() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const handleCloseCriteria = () => {
+    if (isDirty) {
+      cancelConfirmModal.showModal();
+    } else {
+      criteriaModal.hideModal();
+    }
+  };
+
+  const applyCriteria = async (productId: number, criteriaSetId: number) => {
+    var res = await productService.applyProductCriteria(productId, criteriaSetId);
+    try {
+      setIsActionLoading(true);
+      if (res.statusCode === 200) {
+        criteriaModal.hideModal();
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <MasterTypeFilter
       filters={filters}
@@ -166,9 +195,14 @@ function Product() {
           caption="Product Management Table"
           notifyNoData="No product to display"
           renderAction={(product: GetMasterType) => (
-            <ActionMenuMasterType
+            <ActionMenuProduct
               onEdit={() => formModal.showModal(product)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [product.masterTypeId] })}
+              onApplyCriteria={() =>
+                criteriaModal.showModal({
+                  id: product.masterTypeId,
+                })
+              }
             />
           )}
         />
@@ -183,12 +217,20 @@ function Product() {
         />
       </Flex>
       <MasterTypesModal
+        isProduct={true}
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
         isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
         masterTypeData={formModal.modalState.data}
         typeCurrent={CRITERIA_TARGETS.Product}
+      />
+      <ApplyProductCriteriaModal
+        productId={criteriaModal.modalState.data?.id}
+        isOpen={criteriaModal.modalState.visible}
+        onClose={handleCloseCriteria}
+        onSave={applyCriteria}
+        isLoadingAction={isActionLoading}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal

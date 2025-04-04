@@ -6,6 +6,7 @@ import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, WORK_TARGETS } from "@/co
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 
 type MasterTypeModelProps = {
+  isProduct?: boolean;
   isOpen: boolean;
   onClose: (values: MasterTypeRequest, isUpdate: boolean) => void;
   onSave: (values: MasterTypeRequest) => void;
@@ -15,6 +16,7 @@ type MasterTypeModelProps = {
 };
 
 const MasterTypeModel = ({
+  isProduct = false,
   isOpen,
   onClose,
   onSave,
@@ -91,16 +93,28 @@ const MasterTypeModel = ({
       onSave={handleOk}
       isUpdate={isUpdate}
       isLoading={isLoadingAction}
-      title={isUpdate ? "Update Type" : "Add New Type"}
+      title={
+        isUpdate
+          ? isProduct
+            ? "Update Product"
+            : "Update Type"
+          : isProduct
+          ? "Add New Product"
+          : "Add New Type"
+      }
       size="large"
     >
       <Form form={form} layout="vertical">
         <Flex gap={20}>
           <FormFieldModal
-            label="Type Name"
+            label={isProduct ? "Product Name" : "Type Name"}
             name={masterTypeFormFields.masterTypeName}
-            rules={RulesManager.getTypeNameRules()}
-            placeholder="Enter the type name"
+            rules={
+              isProduct
+                ? RulesManager.getRequiredRules("Product Name")
+                : RulesManager.getTypeNameRules()
+            }
+            placeholder={isProduct ? "Enter the product name" : "Enter the type name"}
           />
           <FormFieldModal label="Type" readonly={true} name={masterTypeFormFields.typeName} />
         </Flex>
