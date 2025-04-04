@@ -10,6 +10,7 @@ import { defaultLogoFarm, getDefaultFarm, getFarmId } from "@/utils";
 import { farmService } from "@/services";
 import { LogoState } from "@/types";
 import { LoadingSkeleton } from "@/components";
+import PackageInfo from "./PackageInfo";
 
 function FarmInfo() {
   const { styles } = useStyle();
@@ -53,6 +54,12 @@ function FarmInfo() {
       icon: <Icons.document className={style.iconTab} />,
       label: <label className={style.titleTab}>Legal Documents</label>,
       children: <LegalDocument />,
+    },
+    {
+      key: "3",
+      icon: <Icons.document className={style.iconTab} />,
+      label: <label className={style.titleTab}>Package Information</label>,
+      children: <PackageInfo />,
     },
   ];
 

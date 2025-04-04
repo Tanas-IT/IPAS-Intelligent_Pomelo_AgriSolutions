@@ -57,6 +57,9 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
 
     onClose();
     form.resetFields();
+    setSelectedEmployees([]);
+    setSelectedIds([]);
+    setSelectedReporter(null);
   };
 
   const handleCropChange = () => { };
@@ -110,7 +113,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
         />
         <FormFieldModal
           label="Plan"
-          rules={RulesManager.getPlanNameRules()}
+          // rules={RulesManager.getPlanNameRules()}
           type="select"
           name={worklogFormFields.planId}
           options={planOptions}

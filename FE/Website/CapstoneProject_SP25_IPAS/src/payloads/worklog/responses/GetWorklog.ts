@@ -102,6 +102,10 @@ export interface GetWorklogDetail {
   masterTypeName: string;
   cropName: string;
   replacementEmployee: ReplacementEmployee[];
+  planId: number;
+  planName: string;
+  processId: number;
+  isHarvest: boolean;
 }
 
 export interface ReplacementEmployee {

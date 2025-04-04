@@ -342,6 +342,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     foreach (var plant in createRequest.plantHarvestRecords)
                     {
+                        int index = 1;
+                        var canHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId: plant.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
+                        if (canHarvest == true)
+                            return new BusinessResult(400, $"Plant number {index} is not in suitable growth stage to harvest");
                         var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId);
                         if (existingHarvest != null)
                         {
@@ -363,6 +367,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 RecordDate = DateTime.Now,
                             });
                         }
+                        index++;
                     }
 
                     if (updateList.Any())

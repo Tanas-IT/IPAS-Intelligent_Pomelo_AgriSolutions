@@ -524,6 +524,7 @@ const AddPlanByProcess = () => {
                 setSelectedProcess(undefined);
                 setGrowthStage([]);
                 setPlanTargetType(undefined);
+                navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
             } else {
                 toast.error(response.message);
             }

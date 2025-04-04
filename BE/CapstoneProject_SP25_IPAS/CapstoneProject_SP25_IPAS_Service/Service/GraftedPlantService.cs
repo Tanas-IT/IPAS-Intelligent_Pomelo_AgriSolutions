@@ -136,7 +136,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Delete each plant entity
                     //foreach (var plant in plants)
                     //{
-                    foreach(var graftedPlant in grafteds)
+                    foreach (var graftedPlant in grafteds)
                     {
                         var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(graftedPlant.GraftedPlantId);
                         foreach (var graftedPlantNote in getListGraftedPlantNotes)
@@ -186,6 +186,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
+                    var isBeingUsed = await _unitOfWork.PlanTargetRepository
+                        .AnyAsync(x => graftedPlantIdsDelete.Contains(x.GraftedPlantID.Value));
+
+                    if (isBeingUsed)
+                    {
+                        return new BusinessResult(400, "Some GraftedPlants are still in use in plan and cannot be deleted.");
+                    }
                     grafteds.ToList().ForEach(gr =>
                     {
                         gr.IsDeleted = true;
@@ -193,10 +200,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var gr in grafteds)
                     {
                         var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(gr.GraftedPlantId);
-                        foreach(var graftedPlantNote in getListGraftedPlantNotes)
+                        foreach (var graftedPlantNote in getListGraftedPlantNotes)
                         {
                             var getResource = await _unitOfWork.ResourceRepository.GetListResourceByGraftedNoteId(graftedPlantNote.GraftedPlantNoteId);
-                             _unitOfWork.ResourceRepository.RemoveRange(getResource);
+                            _unitOfWork.ResourceRepository.RemoveRange(getResource);
                         }
                         _unitOfWork.GraftedPlantNoteRepository.RemoveRange(getListGraftedPlantNotes);
                         await _unitOfWork.SaveAsync();
@@ -290,7 +297,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getRequest.IsCompleted.HasValue)
                     filter = filter.And(x => x.IsCompleted == getRequest.IsCompleted);
                 if (getRequest.IsDead.HasValue)
-                    filter = filter.And(x => x.IsDead== getRequest.IsDead);
+                    filter = filter.And(x => x.IsDead == getRequest.IsDead);
                 if (!string.IsNullOrEmpty(getRequest.CultivarIds))
                 {
                     List<string> filterList = Util.SplitByComma(getRequest.CultivarIds);
@@ -412,7 +419,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         GraftedDate = group.Key,
                         TotalBranches = group.Count(),
-                        ListGrafted = group.Select(x => new GraftedName { Name = x.GraftedPlantName, IsCompleted = x.IsCompleted , Status = x.Status}).ToList(),
+                        ListGrafted = group.Select(x => new GraftedName { Name = x.GraftedPlantName, IsCompleted = x.IsCompleted, Status = x.Status }).ToList(),
                         CompletedCount = group.Count(x => x.IsCompleted!.Value),
                         CompletionRate = group.Count(x => x.IsCompleted!.Value) + "/" + group.Count()
                     })
@@ -510,7 +517,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && !x.IsDead == false;
+                Expression<Func<GraftedPlant, bool>> filter = x => x.FarmId == farmId && !x.Status.ToLower().Equals(GraftedPlantStatusConst.IS_USED) && x.IsDead == false;
                 Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
                 var plantInPlot = await _unitOfWork.GraftedPlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
@@ -968,8 +975,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (graftedPlant.Status != GraftedPlantStatusConst.HEALTHY)
                         return new BusinessResult(400, $"GraftedPlant {graftedPlant.GraftedPlantCode} is not in a healthy condition for planting.");
 
-
-
                     // 2.1 kiểm tra vị trí sắp trồng có trống hay ko
                     var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == request.LandRowId, "Plants,LandPlot");
                     if (landrowExist == null)
@@ -1154,7 +1159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, $"Mark {grafteds.Count()} record dead success", true );
+                        return new BusinessResult(Const.SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, $"Mark {grafteds.Count()} record dead success", true);
                     }
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.FAIL_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE, "Mark dead fail");

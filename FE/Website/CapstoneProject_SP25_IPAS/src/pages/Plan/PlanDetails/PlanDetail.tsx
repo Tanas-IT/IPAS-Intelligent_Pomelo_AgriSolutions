@@ -29,23 +29,41 @@ const InfoField = ({
     icon: Icon,
     label,
     value,
+    processId,
     isTag = false,
 }: {
     icon: React.ElementType;
     label: string;
     value: string | React.ReactNode;
+    processId?: number;
     isTag?: boolean;
-}) => (
-    <Flex className={style.infoField}>
-        <Flex className={style.fieldLabelWrapper}>
-            <Icon className={style.fieldIcon} />
-            <label className={style.fieldLabel}>{label}:</label>
+}) => {
+    const navigate = useNavigate();
+    const isProcessName = label === "Process Name" && value !== "None";
+
+    return (
+        <Flex className={style.infoField}>
+            <Flex className={style.fieldLabelWrapper}>
+                <Icon className={style.fieldIcon} />
+                <label className={style.fieldLabel}>{label}:</label>
+            </Flex>
+            <Flex className={style.fieldValue}>
+                {isProcessName ? (
+                    <span
+                        className={style.linkText}
+                        onClick={() => navigate(`/processes/${processId}`)}
+                    >
+                        {value}
+                    </span>
+                ) : isTag ? (
+                    <Tag color="green">{value}</Tag>
+                ) : (
+                    value
+                )}
+            </Flex>
         </Flex>
-        <label className={style.fieldValue}>
-            {isTag ? <Tag color="green">{value}</Tag> : value}
-        </label>
-    </Flex>
-);
+    );
+};
 
 function PlanDetail() {
     const navigate = useNavigate();
@@ -277,7 +295,7 @@ function PlanDetail() {
                 <Flex className={style.infoSection}>
                     <Flex className={style.col}>
                         {infoFieldsLeft.map((field, index) => (
-                            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
+                            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} processId={planDetail?.processId} />
                         ))}
                     </Flex>
                     <Flex className={style.col}>
@@ -288,6 +306,7 @@ function PlanDetail() {
                                 label={field.label}
                                 value={field.value}
                                 isTag={field.isTag}
+                                processId={planDetail?.processId}
                             />
                         ))}
                     </Flex>

@@ -28,21 +28,48 @@ const InfoField = ({
   icon: Icon,
   label,
   value,
+  planId,
+  processId,
   isTag = false,
 }: {
   icon: React.ElementType;
   label: string;
   value: string | React.ReactNode;
+  planId?: number;
+  processId?: number;
   isTag?: boolean;
-}) => (
-  <Flex className={style.infoField}>
-    <Flex className={style.fieldLabelWrapper}>
-      <Icon className={style.fieldIcon} />
-      <label className={style.fieldLabel}>{label}:</label>
+}) => {
+  const navigate = useNavigate();
+
+  const getNavigationPath = () => {
+    if (label === "Plan Name") return `/plans/${planId}`;
+    if (label === "Process Name") return `/processes/${processId}`;
+    return null;
+  };
+
+  const path = getNavigationPath();
+  const isClickable = path !== null && value !== "None";
+
+  return (
+    <Flex className={style.infoField}>
+      <Flex className={style.fieldLabelWrapper}>
+        <Icon className={style.fieldIcon} />
+        <label className={style.fieldLabel}>{label}:</label>
+      </Flex>
+      <label className={style.fieldValue}>
+        {isClickable ? (
+          <span className={style.linkText} onClick={() => navigate(path!)}>
+            {value}
+          </span>
+        ) : isTag ? (
+          <Tag color="green">{value}</Tag>
+        ) : (
+          value
+        )}
+      </label>
     </Flex>
-    <label className={style.fieldValue}>{isTag ? <Tag color="green">{value}</Tag> : value}</label>
-  </Flex>
-);
+  );
+};
 
 function WorklogDetail() {
     const navigate = useNavigate();
@@ -73,6 +100,8 @@ function WorklogDetail() {
     setSelectedFeedback(feedback);
     formModal.showModal();
   };
+  console.log("id", id);
+  
 
   const handleCloseModal = () => {
     setSelectedFeedback(undefined);
@@ -194,6 +223,7 @@ function WorklogDetail() {
   const [infoFieldsRight, setInfoFieldsRight] = useState([
     { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
     { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
+    { label: "Harvest", value: "Harvest", icon: Icons.category, isTag: false },
   ]);
   const addModal = useModal<CreateFeedbackRequest>();
 
@@ -299,8 +329,8 @@ function WorklogDetail() {
         try {
             const res = await worklogService.getWorklogDetail(Number(id));
             console.log("res", res);
-            const imsotired = transformPlanTargetData(res.planTargetModels);
-            console.log("imsotired", imsotired);
+            // const imsotired = transformPlanTargetData(res?.planTargetModels);
+            // console.log("imsotired", imsotired);
 
             setWorklogDetail(res);
             // const initialAttendanceStatus = res.listEmployee.reduce((acc, employee) => {
@@ -327,10 +357,10 @@ function WorklogDetail() {
 
       setInfoFieldsLeft([
         { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
-        { label: "Plan Name", value: res.workLogName || "Plan name", icon: Icons.box },
+        { label: "Plan Name", value: res.planName || "None", icon: Icons.box },
         {
           label: "Growth Stage",
-          value: res.listGrowthStageName.join(", ") || "Cây non",
+          value: res.listGrowthStageName.join(", ") || "None",
           icon: Icons.plant,
         },
       ]);
@@ -343,11 +373,18 @@ function WorklogDetail() {
           icon: Icons.category,
           isTag: true,
         },
+        {
+          label: "Harvest",
+          value: res.isHarvest ? "Yes" : "No",
+          icon: Icons.category,
+        },
       ]);
 
       infoFieldsRight[0].value = res.workLogName || "Caring Process for Pomelo Tree";
       infoFieldsRight[1].value = res.status || "Watering";
       // infoFieldsRight[2].value = res.planTargetModels[0]?.plantLotName.join(", ") || "#001";
+      console.log('1111');
+      
     } catch (error) {
       console.error("error", error);
       navigate("/error");
@@ -377,10 +414,19 @@ function WorklogDetail() {
     };
 
     const handleSaveAttendance = async () => {
-        const listEmployee = worklogDetail?.listEmployee.map((employee) => ({
-            userId: employee.userId,
-            status: attendanceStatus[employee.userId] || "Rejected", // Mặc định là vắng mặt nếu không chọn
-        })) || [];
+      console.log("...........................");
+      
+      const allUsers = [
+        ...(worklogDetail?.listEmployee || []), // Employee
+        ...(worklogDetail?.reporter || [])      // Reporter
+    ];
+
+    const listEmployee = allUsers.map(user => ({
+        userId: user.userId,
+        status: attendanceStatus[user.userId] || "Rejected", // Mặc định vắng mặt nếu không chọn
+    }));
+        console.log('payloadđ', listEmployee);
+        
 
         try {
             const resultAttendance = await worklogService.saveAttendance(Number(id), listEmployee);
@@ -390,8 +436,7 @@ function WorklogDetail() {
             } else {
                 toast.error(resultAttendance.message);
             }
-            // Cập nhật lại dữ liệu
-            setIsAttendanceModalVisible(false); // Đóng modal
+            setIsAttendanceModalVisible(false);
         } catch (error) {
             console.error("Error saving attendance:", error);
         }
@@ -593,7 +638,7 @@ function WorklogDetail() {
       <Flex className={style.contentSectionBody} gap={20}>
         <Flex className={style.col}>
           {infoFieldsLeft.map((field, index) => (
-            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} />
+            <InfoField key={index} icon={field.icon} label={field.label} value={field.value} planId={worklogDetail?.planId} processId={worklogDetail?.processId} />
           ))}
         </Flex>
         <Flex className={style.col}>
@@ -604,6 +649,8 @@ function WorklogDetail() {
               label={field.label}
               value={field.value}
               isTag={field.isTag}
+              planId={worklogDetail?.planId}
+              processId={worklogDetail?.processId}
             />
           ))}
         </Flex>

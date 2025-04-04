@@ -180,6 +180,49 @@
       }
     }
   }
+
+  .packageContainer {
+    padding: 24px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+
+    .title {
+      color: #1e90ff;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+  
+    .summaryCard {
+      margin-bottom: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: #fff;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .buyButton {
+        background: #28a745;
+        border-color: #28a745;
+        &:hover {
+          background: #218838;
+          border-color: #218838;
+        }
+      }
+    }
+
+    .table {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+      .bold {
+        font-weight: 600;
+      }
+    }
+  }
 }
 
 
