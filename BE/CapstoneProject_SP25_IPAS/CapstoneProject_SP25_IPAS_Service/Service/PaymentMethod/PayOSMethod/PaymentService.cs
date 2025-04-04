@@ -177,7 +177,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
                 if (callback.Status.ToLower() == "paid")
                 {
                     // Cập nhật trạng thái thanh toán
-                    payment.Status = "PAID";
+                    payment.Status = OrderStatusEnum.Paid.ToString();
                     payment.TransactionId = callback.TransactionId;
                     payment.UpdateDate = DateTime.Now;
                     _unitOfWork.PaymentRepository.Update(payment);
@@ -202,7 +202,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service.PaymentMethod.PayOSMethod
                 }
                 else
                 {
-                    payment.Status = "Failed";
+                    payment.Status = OrderStatusEnum.Fail.ToString();
                     _unitOfWork.PaymentRepository.Update(payment);
                     await _unitOfWork.SaveAsync();
                     return new BusinessResult(400, "Payment failed");

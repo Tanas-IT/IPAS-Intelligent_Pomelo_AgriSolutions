@@ -1696,18 +1696,18 @@ VALUES
 ('PKD115', 'Multi-platform Access', 'Access your farm data from any device.', 3);
 GO
 
-INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID)
+INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID, Status)
 VALUES
-('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1),
-('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1),
-('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1),
-('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 1, 2),
-('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 2, 2),
-('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 3, 2),
-('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 1, 2),
-('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 2, 3),
-('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 3, 3),
-('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 1, 3);
+('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1, 'Paid'),
+('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1, 'fail'),
+('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1, 'Paid'),
+('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 1, 2, 'fail'),
+('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 2, 2, 'Paid'),
+('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 3, 2, 'Paid'),
+('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 1, 2, 'Paid'),
+('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 2, 3, 'Paid'),
+('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 3, 3, 'Paid'),
+('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 1, 3, 'Paid');
 GO
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
