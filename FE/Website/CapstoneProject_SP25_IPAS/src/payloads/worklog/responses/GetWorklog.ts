@@ -106,6 +106,7 @@ export interface GetWorklogDetail {
   planName: string;
   processId: number;
   isHarvest: boolean;
+  isTakeAttendance: boolean;
 }
 
 export interface ReplacementEmployee {
@@ -123,4 +124,12 @@ export interface GetWorklogNote {
   issue: string;
   userId: string;
   Resources: Resource[];
+}
+
+export interface GetAttendanceList {
+  userWorkLogId: number;
+  userId: number;
+  avatarURL: string;
+  fullName: string;
+  isReporter: boolean;
 }

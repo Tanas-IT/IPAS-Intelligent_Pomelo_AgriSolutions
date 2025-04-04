@@ -590,12 +590,14 @@ function WorklogDetail() {
 
       <AttendanceModal
         visible={isAttendanceModalVisible}
+        worklogId={Number(id) || 0}
         onClose={() => setIsAttendanceModalVisible(false)}
         employees={worklogDetail?.listEmployee || []}
         reporter={worklogDetail?.reporter || []}
         attendanceStatus={attendanceStatus}
         onAttendanceChange={handleAttendanceChange}
         onSave={handleSaveAttendance}
+        isTakeAttendance={worklogDetail?.isTakeAttendance || false}
       />
 
       <EditWorklogModal
