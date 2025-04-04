@@ -316,12 +316,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string key = CacheKeyConst.WORKLOG + $"{workLogId}";
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<WorkLogDetailModel>>(key);
-                if (cachedData != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
+                //string key = CacheKeyConst.WORKLOG + $"{workLogId}";
+                //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<WorkLogDetailModel>>(key);
+                //if (cachedData != null)
+                //{
+                //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                //}
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 if (getDetailWorkLog.Schedule != null)
@@ -340,8 +340,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     string groupKey = CacheKeyConst.GROUP_WORKLOG + $"{getDetailWorkLog.WorkLogId}";
                     var finalResult = new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
-                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getDetailWorkLog.WorkLogId.ToString());
-                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                    //await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getDetailWorkLog.WorkLogId.ToString());
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
                     return finalResult;
                 }
                 return new BusinessResult(400, "Get Detail WorkLog Failed");
@@ -1792,6 +1792,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getWorkLogToCancelled != null)
                 {
                     getWorkLogToCancelled.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    getWorkLogToCancelled.IsDeleted = true;
                     _unitOfWork.UserWorkLogRepository.Update(getWorkLogToCancelled);
                 }
                 var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
@@ -2078,6 +2079,82 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetAttendanceList(int workLogId)
+        {
+            try
+            {
+                var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
+                var result = new List<GetListEmployeeToCheckAttendance>();
+                // Group theo UserId chính
+                foreach (var uwl in getListUserWorkLog)
+                {
+                    // Bỏ qua trường hợp bị hủy trước điểm danh (Trường hợp 1)
+                    if (uwl.IsDeleted == true)
+                        continue;
+
+                    // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
+                    var replacement = getListUserWorkLog
+                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted != true);
+
+                    // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
+                    // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
+                    if (uwl.ReplaceUserId != null)
+                    {
+                        var replacedUser = getListUserWorkLog
+                            .FirstOrDefault(x => x.UserId == uwl.ReplaceUserId && x.WorkLogId == uwl.WorkLogId);
+
+                        result.Add(new GetListEmployeeToCheckAttendance
+                        {
+                            UserWorkLogId = uwl.UserWorkLogID,
+                            UserId = uwl.UserId,
+                            FullName = uwl.User.FullName,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
+                            AvatarURL = uwl.User.AvatarURL,
+                            IsReporter = uwl.IsReporter,
+                        });
+
+                        continue;
+                    }
+
+                    // Nếu có người thay thế mình sau khi điểm danh => trường hợp 2
+                    if (replacement != null)
+                    {
+                        result.Add(new GetListEmployeeToCheckAttendance
+                        {
+                            UserWorkLogId = uwl.UserWorkLogID,
+                            UserId = uwl.UserId,
+                            FullName = uwl.User.FullName,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
+                            AvatarURL = uwl.User.AvatarURL,
+                            IsReporter = uwl.IsReporter,
+                        });
+                    }
+                    else
+                    {
+                        result.Add(new GetListEmployeeToCheckAttendance
+                        {
+                            UserWorkLogId = uwl.UserWorkLogID,
+                            UserId = uwl.UserId,
+                            FullName = uwl.User.FullName,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
+                            AvatarURL = uwl.User.AvatarURL,
+                            IsReporter = uwl.IsReporter,
+                        });
+                    }
+                }
+                if(result.Count() > 0)
+                {
+                    return new BusinessResult(200, "Get attedance list success", result);
+                }
+                return new BusinessResult(404, "Attedance list is empty");
+            }
+            catch (Exception ex)
+            {
+
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
