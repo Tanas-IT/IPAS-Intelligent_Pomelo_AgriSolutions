@@ -606,7 +606,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var checkFarmExist = await _farmService.GetFarmByID(request.FarmId!.Value);
                     if (checkFarmExist.Data == null)
                         return checkFarmExist;
-                    List<PlantCSVImportRequest> plantCsvList = await _excelReaderService.ReadCsvFileAsync<PlantCSVImportRequest>(request.fileExcel);
+                    List<PlantCSVImportModel> plantCsvList = await _excelReaderService.ReadCsvFileAsync<PlantCSVImportModel>(request.fileExcel);
                     if (!plantCsvList.Any())
                         return new BusinessResult(400, "File excel is empty. Please try again!");
                     bool fileHasError = false;

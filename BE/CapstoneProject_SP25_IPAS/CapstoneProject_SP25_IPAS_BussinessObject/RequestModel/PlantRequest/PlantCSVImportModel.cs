@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest
 {
-    public class PlantCSVImportRequest
+    public class PlantCSVImportModel
     {
         public int? NumberOrder { get; set; }
 
