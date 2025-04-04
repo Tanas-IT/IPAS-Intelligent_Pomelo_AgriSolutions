@@ -316,12 +316,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string key = CacheKeyConst.WORKLOG + $"{workLogId}";
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<WorkLogDetailModel>>(key);
-                if (cachedData != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
+                //string key = CacheKeyConst.WORKLOG + $"{workLogId}";
+                //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<WorkLogDetailModel>>(key);
+                //if (cachedData != null)
+                //{
+                //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
+                //}
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 if (getDetailWorkLog.Schedule != null)
@@ -340,8 +340,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     string groupKey = CacheKeyConst.GROUP_WORKLOG + $"{getDetailWorkLog.WorkLogId}";
                     var finalResult = new BusinessResult(200, "Get Detail WorkLog Sucesss", result);
-                    await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getDetailWorkLog.WorkLogId.ToString());
-                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                    //await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_WORKLOG + getDetailWorkLog.WorkLogId.ToString());
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
                     return finalResult;
                 }
                 return new BusinessResult(400, "Get Detail WorkLog Failed");
@@ -2112,7 +2112,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserWorkLogId = uwl.UserWorkLogID,
                             UserId = uwl.UserId,
                             FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog ?? null,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
                             AvatarURL = uwl.User.AvatarURL,
                             IsReporter = uwl.IsReporter,
                         });
@@ -2128,7 +2128,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserWorkLogId = uwl.UserWorkLogID,
                             UserId = uwl.UserId,
                             FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog ?? null,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
                             AvatarURL = uwl.User.AvatarURL,
                             IsReporter = uwl.IsReporter,
                         });
@@ -2140,7 +2140,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserWorkLogId = uwl.UserWorkLogID,
                             UserId = uwl.UserId,
                             FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog ?? null,
+                            StatusOfUser = uwl.StatusOfUserWorkLog,
                             AvatarURL = uwl.User.AvatarURL,
                             IsReporter = uwl.IsReporter,
                         });
