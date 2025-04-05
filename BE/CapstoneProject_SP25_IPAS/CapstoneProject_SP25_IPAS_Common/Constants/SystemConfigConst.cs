@@ -65,6 +65,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MIN_DISTANCE_OF_PLANT = "Min Distance Plant";
         public const string MIN_TIME = "Min Time";
         public const string MAX_TIME = "Max Time";
+        public const string RECORD_AFTER_DATE = "Record After Date";
 
         #endregion
 

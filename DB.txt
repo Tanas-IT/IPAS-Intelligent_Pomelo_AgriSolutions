@@ -1923,7 +1923,8 @@ VALUES
 ('Validation Variable','Min Row Of LandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
 ('Validation Variable','Coordiantion Point Required', '3', 'int', N'Số điểm tối đa của plantLot'),
 ('Validation Variable','Min Distance Plant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
-('Validation Variable','Min Plant Of LandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng');
+('Validation Variable','Min Plant Of LandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
+('Validation Variable','Record After Date', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
 GO
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)

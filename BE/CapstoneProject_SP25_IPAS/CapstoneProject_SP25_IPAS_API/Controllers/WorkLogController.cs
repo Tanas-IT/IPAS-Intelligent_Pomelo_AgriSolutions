@@ -415,5 +415,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPut(APIRoutes.WorkLog.CancelReplacement, Name = "CancelReplacement")]
+        public async Task<IActionResult> CancelReplacement([FromBody] CancelledWorkLogModel cancelledWorkLogModel)
+        {
+            try
+            {
+                var result = await _workLogService.CancelReplacement(cancelledWorkLogModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
