@@ -275,7 +275,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 };
                 await _unitOfWork.NotificationRepository.Insert(addNotification);
-                
+
 
                 await _webSocketService.SendToUser(employeeId, addNotification);
                 var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
@@ -1062,7 +1062,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
 
-                     
+
                         await _unitOfWork.SaveAsync();
                         foreach (var employeeModel in updateWorkLogModel.listEmployee)
                         {
@@ -1100,7 +1100,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         }
                     }
-                    
+
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -1238,16 +1238,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == addNewTaskModel.PlanId && x.FarmID == farmId);
 
-                if (getExistPlan == null)
-                {
-                    return new BusinessResult(400, "Plan does not exist");
-                }
                 if (addNewTaskModel.StartTime != null && addNewTaskModel.EndTime != null)
                 {
                     var checkTime = (int)(endTime - startTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                     var masterType = await _unitOfWork.MasterTypeRepository
-                        .GetByCondition(x => x.MasterTypeId == getExistPlan.MasterTypeId);
+                        .GetByCondition(x => x.MasterTypeId == addNewTaskModel.MasterTypeId);
 
                     if (masterType != null)
                     {
@@ -1278,8 +1274,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.DateWork.ToString("yyyy/MM/dd")) + "]",
                     FarmID = farmId,
                 };
-                
+
+                if (getExistPlan != null)
+                {
                     getExistPlan.CarePlanSchedule = newSchedule;
+                }
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
 
@@ -1365,7 +1364,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     }
-                    
+
                     var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
 
                     foreach (var employee in getListManagerOfFarm)
@@ -1486,7 +1485,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     }
-                    
+
                     await _unitOfWork.SaveAsync();
 
                     foreach (var employeeModel in getListManagerOfFarm)
@@ -1621,7 +1620,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                         }
-                        
+
                         await _unitOfWork.SaveAsync();
                         _unitOfWork.WorkLogRepository.Update(getWorkLogToReAssign);
                         var result = await _unitOfWork.SaveAsync();
@@ -1685,6 +1684,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
 
                 }
+                _unitOfWork.WorkLogRepository.Update(getWorkLog);
 
                 foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
@@ -1744,7 +1744,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 continue; // Không làm gì cả
                             }
-                          
+
                             // Nếu thực sự đổi người mới
                             getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.BEREPLACED;
                             getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
@@ -1805,7 +1805,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var addNotification = new Notification()
                     {
-                        Content = getUser.FullName + " has cancelled "  +  getWorkLog.WorkLogName,
+                        Content = getUser.FullName + " has cancelled " + getWorkLog.WorkLogName,
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
@@ -2149,7 +2149,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         });
                     }
                 }
-                if(result.Count() > 0)
+                if (result.Count() > 0)
                 {
                     return new BusinessResult(200, "Get attedance list success", result);
                 }
@@ -2167,19 +2167,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == cancelledWorkLogModel.UserId);
-                if(getUserWorkLog != null)
+                if (getUserWorkLog != null)
                 {
                     var getReplacementWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == getUserWorkLog.ReplaceUserId);
-                    if(getReplacementWorkLog != null)
+                    if (getReplacementWorkLog != null)
                     {
                         _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
                     }
                     getUserWorkLog.ReplaceUserId = null;
                     getUserWorkLog.StatusOfUserWorkLog = null;
+                    getUserWorkLog.IsDeleted = false;
                     _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
                 }
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Cancel Replacement Success", result > 0);
                 }
@@ -2191,6 +2192,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
-            
+
     }
 }
