@@ -1207,7 +1207,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> ImportPlantAsync(ImportHarvestExcelRequest request)
+        public async Task<BusinessResult> ImportPlantRecordAsync(ImportHarvestExcelRequest request)
         {
             try
             {
@@ -1237,7 +1237,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 4. Chuẩn bị dữ liệu kiểm tra
                     var plotIds = (await _unitOfWork.LandPlotCropRepository
-                        .GetAllNoPaging(x => x.CropID == harvest.CropId && !x.LandPlot.IsDeleted.Value, includeProperties: "LandPlot"))
+                        .GetAllNoPaging(x => x.CropID == harvest.CropId && !x.LandPlot.IsDeleted!.Value, includeProperties: "LandPlot"))
                         .Select(x => x.LandPlotId).ToList();
 
                     var allRowOfCrop = (await _unitOfWork.LandRowRepository
@@ -1274,6 +1274,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             errorList += $"\nRow {plant.NumberOrder}: Plant is not exist or not in crop can harvest.";
                             continue;
                         }
+                        else
+                        {
+                            bool plantCanHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantExist.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
+                            if (!plantCanHarvest)
+                            {
+                                fileHasError = true;
+                                errorList += $"\nRow {plant.NumberOrder}: Plant is not in stage can harvest.";
+                                continue;
+                            }
+                        }
 
                         if (!masterTypes.TryGetValue(plant.MasterTypeCode, out var masterType))
                         {
@@ -1300,6 +1310,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             HarvestHistoryId = harvest.HarvestHistoryId,
                             MasterTypeId = masterType.MasterTypeId,
+                            Unit = harvest.ProductHarvestHistories
+                            .FirstOrDefault(x => x.MasterTypeId == masterType.MasterTypeId)?.Unit,
                             UserID = request.userId,
                             PlantId = plantExist.PlantId,
                             ActualQuantity = plant.Quantity.Value,
