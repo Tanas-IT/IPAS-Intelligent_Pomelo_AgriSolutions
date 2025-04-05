@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         public string? Unit { get; set; }
 
         public double? SellPrice { get; set; }
-
+        public double? CostPrice { get; set; }
         public double? QuantityNeed { get; set; }
         public double? ActualQuantity { get; set; }
         public string? RecordBy { get; set; }
