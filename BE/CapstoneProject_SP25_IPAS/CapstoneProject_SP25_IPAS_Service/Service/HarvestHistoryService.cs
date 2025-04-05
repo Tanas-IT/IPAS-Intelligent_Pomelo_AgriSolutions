@@ -73,7 +73,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         DateHarvest = createRequest.DateHarvest,
                         HarvestHistoryNote = createRequest.HarvestHistoryNote,
                         HarvestStatus = HarvestStatusConst.NOT_YET,
-                        TotalPrice = createRequest.ProductHarvestHistory.Sum(x => x.SellPrice),
+                        TotalPrice = createRequest.ProductHarvestHistory.Any(x => x.SellPrice.HasValue)
+                                            ? createRequest.ProductHarvestHistory.Where(x => x.SellPrice.HasValue).Sum(x => x.SellPrice!.Value)
+                                            : null,
                         CropId = cropExist.CropId,
                         IsDeleted = false,
                     };
@@ -104,6 +106,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CostPrice = item.CostPrice,
                                 Unit = item.Unit,
                                 QuantityNeed = item.QuantityNeed,
+                                RecordDate = DateTime.Now
                                 //ProcessId = item.ProcessId ?? null,
                             };
                             harvestHistory.ProductHarvestHistories.Add(historyType);
@@ -158,7 +161,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
-                    if (!createRequest.HarvestHistoryId.HasValue)
+                    var existHarvest = await _unitOfWork.HarvestHistoryRepository.GetByID(createRequest.HarvestHistoryId!.Value);
+                    if (existHarvest == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
                     // 1. Kiểm tra Product có tồn tại hay không
@@ -177,10 +181,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         x.PlantId == null;
 
-                    var existingHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
+                    var existingProductHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(checkExistingCondition);
 
                     //// 3. Nếu đã có sản phẩm này trong buổi thu hoạch
-                    if (existingHarvest != null)
+                    if (existingProductHarvest != null)
                     {
                         return new BusinessResult(400, "This product has apply to harvest");
                     }
@@ -224,13 +228,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         HarvestHistoryId = createRequest.HarvestHistoryId.Value,
                         //PlantId = createRequest.PlantId,  // Có thể NULL nếu chưa có cây cụ thể
                         Unit = createRequest.Unit,
-                        SellPrice = createRequest.Price,
+                        SellPrice = createRequest.SellPrice,
                         CostPrice = createRequest.CostPrice,
                         QuantityNeed = createRequest.Quantity
                     };
                     await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
                     //}
-
+                    if (existingProductHarvest!.SellPrice.HasValue)
+                    {
+                        existHarvest.TotalPrice = existHarvest.TotalPrice!.GetValueOrDefault() + newHarvestEntry.SellPrice.Value;
+                        _unitOfWork.HarvestHistoryRepository.Update(existHarvest);
+                    }
                     // 5. Lưu thay đổi vào database
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
