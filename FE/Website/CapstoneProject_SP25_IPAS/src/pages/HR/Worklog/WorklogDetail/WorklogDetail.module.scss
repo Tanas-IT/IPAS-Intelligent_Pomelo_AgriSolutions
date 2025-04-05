@@ -84,6 +84,38 @@
             font-size: 16px;
         }
 
+        .replacementBadge {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          background-color: #f0f2f5;
+          border-radius: 16px;
+          padding: 2px 8px 2px 4px;
+          margin: 2px;
+          cursor: pointer;
+          transition: all 0.3s;
+          border: 1px solid #d9d9d9;
+        
+          &:hover {
+            background-color: #e6f7ff;
+            border-color: #91d5ff;
+          }
+
+          .deleteIcon {
+            color: #bfbfbf;
+            font-size: 10px;
+            padding: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 2px rgba(0,0,0,0.2);
+            
+            &:hover {
+              color: #ff4d4f;
+              background: white;
+            }
+          }
+        }
+
         .createdDate {
             font-size: 14px;
             color: vars.$color_create_at;

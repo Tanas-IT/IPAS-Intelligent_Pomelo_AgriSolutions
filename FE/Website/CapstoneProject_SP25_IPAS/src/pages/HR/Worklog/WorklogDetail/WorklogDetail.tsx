@@ -1,4 +1,4 @@
-import { Button, DatePicker, Divider, Flex, Image, Tag } from "antd";
+import { Avatar, Badge, Button, DatePicker, Divider, Flex, Image, Tag } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
@@ -223,19 +223,19 @@ function WorklogDetail() {
 
   const handleSaveEdit = async () => {
     if (!worklogDetail || !id) return;
-  
+
     try {
       const listEmployeeUpdate: ListEmployeeUpdate[] = [];
-  
+
       // 1. Xử lý thay thế reporter (nếu có)
       const replacedReporter = worklogDetail.replacementEmployee?.find(
         (replacement) => replacement.replaceUserId === worklogDetail.reporter[0].userId
       );
-  
+
       if (replacedReporter) {
         const originalReporter = worklogDetail.reporter[0];
         const isRejected = originalReporter.statusOfUserWorkLog === "Rejected";
-        
+
         listEmployeeUpdate.push({
           oldUserId: replacedReporter.replaceUserId,
           newUserId: replacedReporter.userId,
@@ -243,22 +243,22 @@ function WorklogDetail() {
           status: isRejected ? "add" : "update", // Xử lý theo status
         });
       }
-  
+
       // 2. Xử lý thay thế các nhân viên khác
       worklogDetail.replacementEmployee?.forEach((replacement) => {
         // Bỏ qua nếu đã xử lý reporter ở trên
         if (replacement.replaceUserId === worklogDetail.reporter[0]?.userId) return;
-  
+
         const originalEmployee = worklogDetail.listEmployee.find(
           (emp) => emp.userId === replacement.replaceUserId
         );
-  
+
         if (originalEmployee) {
           const isReporterReplacement = worklogDetail.reporter.some(
             (rep) => rep.userId === replacement.replaceUserId
           );
           const isRejected = originalEmployee.statusOfUserWorkLog === "Rejected";
-  
+
           listEmployeeUpdate.push({
             oldUserId: replacement.replaceUserId,
             newUserId: replacement.userId,
@@ -267,7 +267,7 @@ function WorklogDetail() {
           });
         }
       });
-  
+
       // 3. Gửi payload
       const payload: UpdateWorklogReq = {
         workLogId: Number(id),
@@ -276,11 +276,11 @@ function WorklogDetail() {
         startTime: selectedTimeRange[0],
         endTime: selectedTimeRange[1],
       };
-  
+
       console.log("Final payload:", payload);
-  
+
       const response = await worklogService.updateWorklog(payload);
-  
+
       if (response?.statusCode === 200) {
         toast.success("Worklog updated successfully!");
         await fetchPlanDetail();
@@ -484,15 +484,15 @@ function WorklogDetail() {
   };
 
   const fetchListAttendance = async () => {
-      try {
-        const result = await worklogService.getAttendanceList(Number(id));
-        if (result.statusCode === 200) {
-          setList(result.data);
-        }
-      } catch (error) {
-        console.error("Error fetching attendance list:", error);
+    try {
+      const result = await worklogService.getAttendanceList(Number(id));
+      if (result.statusCode === 200) {
+        setList(result.data);
       }
+    } catch (error) {
+      console.error("Error fetching attendance list:", error);
     }
+  }
 
   useEffect(() => {
     if (!id) {
@@ -604,18 +604,22 @@ function WorklogDetail() {
               <label className={style.textUpdated}>Assigned To:</label>
               {worklogDetail?.listEmployee?.map((employee, index) => {
                 const isRejected = employee.statusOfUserWorkLog === "Rejected";
+                const isBeReplaced = employee.statusOfUserWorkLog === "BeReplaced";
+                const borderColor = isRejected ? "red" : isBeReplaced ? "goldenrod" : "none";
+                const textColor = isRejected ? "red" : isBeReplaced ? "goldenrod" : "inherit";
+                const tooltipText = isRejected ? "Rejected" : isBeReplaced ? "Being Replaced" : "";
 
                 return (
-                  <Tooltip key={index} title={isRejected ? "Rejected" : ""}>
+                  <Tooltip key={index} title={tooltipText}>
                     <Flex align="center">
                       <Image
                         src={employee.avatarURL || Images.avatar}
                         width={25}
                         className={style.avt}
                         crossOrigin="anonymous"
-                        style={{ border: isRejected ? "2px solid red" : "none" }}
+                        style={{ border: `2px solid ${borderColor}` }}
                       />
-                      <label className={style.createdBy} style={{ color: isRejected ? "red" : "inherit" }}>
+                      <label className={style.createdBy} style={{ color: textColor }}>
                         {employee.fullName || "Unknown"}
                       </label>
                     </Flex>
@@ -624,50 +628,89 @@ function WorklogDetail() {
               })}
             </Flex>
 
-            <Flex gap={15}>
-              <label className={style.textUpdated}>Replacement Employee:</label>
-              {worklogDetail?.replacementEmployee.map((e) => (
-                <>
-                  <Tooltip
-                    title={
-                      <>
-                        Replace for <span style={{ color: 'red' }}>{e.fullName || ""}</span>
-                      </>
-                    }
-                  >
 
-                    <Image
-                      src={e.avatar || Images.avatar}
-                      width={25}
-                      className={style.avt}
-                      crossOrigin="anonymous"
-                    />
-                    <label className={style.createdBy}>{e.replaceUserFullName || "Alex Johnson"}</label>
-                  </Tooltip>
-                </>
+            <Flex gap={8} align="center" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+              <label className={style.textUpdated}>Replacement:</label>
+              {worklogDetail?.replacementEmployee?.map((e) => (
+                <Tooltip
+                  key={e.userId}
+                  title={`Replacing: ${e.replaceUserFullName}`}
+                  placement="top"
+                >
+                  <div className={style.replacementBadge}>
+                    <Flex align="center" gap={6}>
+                      <Badge
+                        count={
+                          <Icons.delete
+                            className={style.deleteIcon}
+                          // onClick={(event) => {
+                          //   event.stopPropagation();
+                          //   onRemoveReplacement(e.userId);
+                          // }}
+                          />
+                        }
+                        offset={[-4, 8]}
+                        style={{ backgroundColor: 'transparent' }}
+                      >
+                        <Image
+                          src={e.avatar || Images.avatar}
+                          width={25}
+                          className={style.avt}
+                          crossOrigin="anonymous"
+                        />
+                      </Badge>
+                      <span className={style.replacementText}>
+                        {e.replaceUserFullName} {/* Chỉ hiển thị first name */}
+                      </span>
+                    </Flex>
+                  </div>
+                </Tooltip>
               ))}
-
-
             </Flex>
+
             <Flex gap={15}>
               <label className={style.textUpdated}>Reporter:</label>
-              <Image
-                src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
-                width={25}
-                className={style.avt}
-                crossOrigin="anonymous"
-                style={{ border: worklogDetail?.reporter[0]?.statusOfUserWorkLog === 'Rejected' ? '2px solid red' : 'none' }}
-
-              />
-              <label
-                style={{
-                  color: worklogDetail?.reporter[0]?.statusOfUserWorkLog === 'Rejected' ? 'red' : '#bcd379',
-                  fontSize: 16
-                }}
+              <Tooltip
+                title={
+                  worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
+                    ? "Rejected"
+                    : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
+                      ? "Being Replaced"
+                      : ""
+                }
               >
-                {worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}
-              </label>
+                <Flex align="center">
+                  <Image
+                    src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
+                    width={25}
+                    className={style.avt}
+                    crossOrigin="anonymous"
+                    style={{
+                      border:
+                        worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
+                          ? "2px solid red"
+                          : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
+                            ? "2px solid goldenrod"
+                            : "none",
+                    }}
+                  />
+                  <label
+                    style={{
+                      color:
+                        worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
+                          ? "red"
+                          : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
+                            ? "goldenrod"
+                            : "#bcd379",
+                      fontSize: 16,
+                    }}
+                  >
+                    {worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}
+                  </label>
+                </Flex>
+              </Tooltip>
             </Flex>
+
             <Divider className={style.divider} />
             <Flex gap={15}>
               <label className={style.textUpdated}>Working Time:</label>
