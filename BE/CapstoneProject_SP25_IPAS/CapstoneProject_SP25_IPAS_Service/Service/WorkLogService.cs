@@ -1748,6 +1748,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             // Nếu thực sự đổi người mới
                             getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.BEREPLACED;
                             getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                            getUserToUpdate.IsDeleted = true;
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
                             await _unitOfWork.SaveAsync();
 
@@ -2160,5 +2161,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> CancelReplacement(CancelledWorkLogModel cancelledWorkLogModel)
+        {
+            try
+            {
+                var getUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == cancelledWorkLogModel.UserId);
+                if(getUserWorkLog != null)
+                {
+                    var getReplacementWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == getUserWorkLog.ReplaceUserId);
+                    if(getReplacementWorkLog != null)
+                    {
+                        _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
+                    }
+                    getUserWorkLog.ReplaceUserId = null;
+                    getUserWorkLog.StatusOfUserWorkLog = null;
+                    _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
+                }
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Cancel Replacement Success", result > 0);
+                }
+                return new BusinessResult(400, "Cancel Replacement Failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+            
     }
 }
