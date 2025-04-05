@@ -39,19 +39,6 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   replacementEmployees,
   list
 }) => {
-  // Kết hợp danh sách nhân viên hiện tại, reporter và nhân viên đã bị thay thế
-  const combinedEmployees = [
-    // ...reporter.map((rep) => ({
-    //   ...rep,
-    //   isReporter: true,
-    //   statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
-    // })),
-    ...employees.map((emp) => ({
-      ...emp,
-      isReporter: false,
-    //   statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
-    })),
-  ];
 
   return (
     <Modal

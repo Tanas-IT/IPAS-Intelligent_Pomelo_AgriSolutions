@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
-import { GetAttendanceList, GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
+import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
@@ -566,6 +566,22 @@ function WorklogDetail() {
     });
   };
 
+  const onRemoveReplacement = async (userId: number) => {
+    if (!worklogDetail) return;
+    const payload: CancelReplacementRequest = {
+      worklogId: Number(id),
+      userId: userId,
+    }
+    try {
+      await worklogService.cancelReplacement(payload);
+      toast.success("Removed successfully!");
+      fetchPlanDetail();
+    } catch (error) {
+      console.error("Error removing replacement:", error);
+      toast.error("Failed to remove replacement.");
+    }
+  }
+
   return (
     <div className={style.container}>
       <Flex className={style.extraContent}>
@@ -606,8 +622,14 @@ function WorklogDetail() {
                 const isRejected = employee.statusOfUserWorkLog === "Rejected";
                 const isBeReplaced = employee.statusOfUserWorkLog === "BeReplaced";
                 const borderColor = isRejected ? "red" : isBeReplaced ? "goldenrod" : "none";
-                const textColor = isRejected ? "red" : isBeReplaced ? "goldenrod" : "inherit";
-                const tooltipText = isRejected ? "Rejected" : isBeReplaced ? "Being Replaced" : "";
+                const textColor = isRejected ? "red" : isBeReplaced ? "goldenrod" : "#bcd379";
+                const tooltipText = isRejected ? "Rejected" : isBeReplaced ? "Being Replaced" : "Received";
+                console.log("employeeeeeee", employee);
+                console.log("isRejected", isRejected);
+                console.log("isBeReplaced", isBeReplaced);
+                console.log("borderColor", borderColor);
+                console.log("textColor", textColor);
+                
 
                 return (
                   <Tooltip key={index} title={tooltipText}>
@@ -634,23 +656,23 @@ function WorklogDetail() {
               {worklogDetail?.replacementEmployee?.map((e) => (
                 <Tooltip
                   key={e.userId}
-                  title={`Replacing: ${e.replaceUserFullName}`}
+                  title={`Replacing: ${e.fullName}`}
                   placement="top"
                 >
                   <div className={style.replacementBadge}>
                     <Flex align="center" gap={6}>
                       <Badge
                         count={
-                          <Icons.delete
+                          <Icons.delUser
                             className={style.deleteIcon}
-                          // onClick={(event) => {
-                          //   event.stopPropagation();
-                          //   onRemoveReplacement(e.userId);
-                          // }}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onRemoveReplacement(e.userId);
+                          }}
                           />
                         }
-                        offset={[-4, 8]}
-                        style={{ backgroundColor: 'transparent' }}
+                        offset={[5, -3]}
+                        style={{ backgroundColor: 'white', cursor: 'pointer' }}
                       >
                         <Image
                           src={e.avatar || Images.avatar}
@@ -658,10 +680,11 @@ function WorklogDetail() {
                           className={style.avt}
                           crossOrigin="anonymous"
                         />
-                      </Badge>
-                      <span className={style.replacementText}>
-                        {e.replaceUserFullName} {/* Chỉ hiển thị first name */}
+                        <span className={style.replacementText}>
+                        {e.replaceUserFullName}
                       </span>
+                      </Badge>
+                      
                     </Flex>
                   </div>
                 </Tooltip>

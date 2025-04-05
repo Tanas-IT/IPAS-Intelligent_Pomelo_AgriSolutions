@@ -86,7 +86,7 @@ export {
   GrPowerReset as reset,
 } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
-export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
+export { TiWeatherPartlySunny as weather, TiTick as tick, TiUserDelete as delUser } from "react-icons/ti";
 export {
   FaWind as wind,
   FaTableList as table,

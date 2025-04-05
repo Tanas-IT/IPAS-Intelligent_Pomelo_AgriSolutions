@@ -37,3 +37,8 @@ export interface UpdateWorklogReq {
   startTime: string,
   endTime: string,
 }
+
+export interface CancelReplacementRequest {
+  worklogId: number;
+  userId: number;
+}
