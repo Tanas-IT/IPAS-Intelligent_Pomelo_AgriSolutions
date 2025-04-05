@@ -1261,7 +1261,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                       startTime,
                                                                        endTime,
                                                                        addNewTaskModel.DateWork,
-                                                                       getExistPlan.MasterTypeId,
+                                                                       addNewTaskModel.MasterTypeId,
                                                                         addNewTaskModel.listEmployee.Select(x => x.UserId).ToList()
                                                                    );
                 var newSchedule = new CarePlanSchedule()
