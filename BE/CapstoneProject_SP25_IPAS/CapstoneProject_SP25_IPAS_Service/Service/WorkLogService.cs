@@ -262,7 +262,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var result = await _unitOfWork.WorkLogRepository.AssignTaskForUser(employeeId, worklogId);
+                var newListEmployee = new List<int> { employeeId };
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(worklogId);
+                await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(getWorkLog.ActualStartTime.Value, getWorkLog.ActualEndTime.Value, getWorkLog.Date.Value, newListEmployee);
                 var addNotification = new Notification()
                 {
                     Content = getWorkLog.WorkLogName + " has changed employee. Please check schedule",
