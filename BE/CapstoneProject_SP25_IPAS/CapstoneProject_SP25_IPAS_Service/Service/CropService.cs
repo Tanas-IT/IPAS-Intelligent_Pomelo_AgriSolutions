@@ -638,45 +638,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public string DetermineCropStatus(DateTime? startDate, DateTime? endDate, DateTime? cropActualTime)
         {
-            DateTime now = DateTime.UtcNow; // Lấy thời gian hiện tại theo UTC
+            DateTime now = DateTime.UtcNow;
 
-            //  Nếu chưa có ngày bắt đầu => Mùa vụ chưa được lên kế hoạch
             if (!startDate.HasValue)
-            {
                 return CropStatusConst.Planned.ToString();
-            }
 
-            //  Nếu chưa tới ngày bắt đầu => Đang lên kế hoạch
             if (now < startDate.Value)
-            {
                 return CropStatusConst.Planned.ToString();
-            }
 
-            //  Nếu đã bắt đầu nhưng chưa kết thúc => Đang hoạt động
             if (now >= startDate.Value && (!endDate.HasValue || now < endDate.Value))
-            {
                 return CropStatusConst.InCrop.ToString();
-            }
 
-            //  Nếu có ngày thu hoạch dự kiến và đang trong thời gian thu hoạch
-            if (!cropActualTime.HasValue || now <= cropActualTime.Value)
-            {
+            if (endDate.HasValue && now >= endDate.Value && (!cropActualTime.HasValue || now < cropActualTime.Value))
                 return CropStatusConst.Harvesting.ToString();
-            }
 
-            //  Nếu có ngày kết thúc hoặc đã thu hoạch xong => Hoàn thành
-            if (endDate.HasValue && now >= endDate.Value || (cropActualTime.HasValue && now >= cropActualTime.Value))
-            {
+            if ((endDate.HasValue && now >= endDate.Value) || (cropActualTime.HasValue && now >= cropActualTime.Value))
                 return CropStatusConst.Completed.ToString();
-            }
 
-            ////  Nếu có ngày kết thúc nhưng bị hủy bỏ trước đó
-            //if (endDate.HasValue && now > endDate.Value)
-            //{
-            //    return CropStatusEnum.Cancelled.ToString();
-            //}
-
-            return CropStatusConst.Planned.ToString(); // Trạng thái mặc định
+            return CropStatusConst.Planned.ToString();
         }
 
         private void ApplySorting(ref Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy, string? sortBy, string? direction)

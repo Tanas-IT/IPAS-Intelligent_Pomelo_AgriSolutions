@@ -284,10 +284,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<Plant>> GetAllForBrService(int farmId)
         {
             var plants = await _context.Plants
+                .Include(x => x.LandRow)
+                .ThenInclude(x => x.LandPlot)
                 .Where(x => x.FarmId == farmId &&
                 x.IsDead == false &&
                 x.IsDeleted == false &&
-                x.PlantingDate.HasValue)
+                x.PlantingDate.HasValue &&
+                x.LandRow!.IsDeleted == false &&
+                x.LandRow.LandPlot!.IsDeleted == false)
                 .AsNoTracking().ToListAsync();
             return plants;
         }

@@ -1117,7 +1117,8 @@ VALUES
 ('User', 2),
 ('Owner', 3),
 ('Manager', 4),
-('Employee', 5);
+('Employee', 5),
+('Expert', 6);
 GO
 INSERT INTO [ipas].[dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDeleted], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
 VALUES
@@ -1145,8 +1146,8 @@ VALUES
 ('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Mason Wilson', '0955333444', 'Male', '1989-11-10', 'U008', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, NULL, NULL, NULL, 2),
-
-('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2);
+('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
+('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2);
 
 GO
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
@@ -1167,6 +1168,7 @@ VALUES
 (1, 15, 5), 
 (1, 16, 4), -- Olivia Martinez (Manager)
 (1, 17, 4), -- Daniel Brown (Manager)
+(1, 24, 6),
 (1, 23, 5);
 GO
 -- Fake data for GrowthStage table with FarmID = 1
@@ -1935,6 +1937,7 @@ VALUES
 ('Master Type', 'TypeName', 'Cultivar', 'string', N'Giống cây'),
 ('Master Type', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
 ('Master Type', 'TypeName', 'Work', 'string', N'Công việc'),
+('WorkLog', 'TimeToTakeAttendance', '15', 'double', N'thời gian điểm danh trước khi worklog bắt đầu'),
 ('AI', 'Predict Percent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');
 -- Insert WorkLog
 INSERT INTO [dbo].[WorkLog]

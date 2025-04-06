@@ -386,7 +386,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "User Id is require"
                     });
                 }
-                var result = await _harvestHistoryService.ImportPlantAsync(request);
+                var result = await _harvestHistoryService.ImportPlantRecordAsync(request);
                 return Ok(result);
             }
             catch (Exception ex)

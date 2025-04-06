@@ -510,6 +510,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     }
+                    bool isBeingUsed =
+                //await _unitOfWork.LandPlotCoordinationRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
+                        await _unitOfWork.LandRowRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
+                        await _unitOfWork.LandPlotCropRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
+                        await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandPlotID == landPlotId);
+
+                    if (isBeingUsed)
+                    {
+                        return new BusinessResult(400, "Can not delete because LandPlot is used in other function.");
+                    }
                     // Lấy danh sách thuộc tính từ model
                     landplotEntityUpdate.IsDeleted = true;
                     _unitOfWork.LandPlotRepository.Update(landplotEntityUpdate);

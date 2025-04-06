@@ -461,5 +461,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _ => "Winter"
             };
         }
+
+        public async Task<BusinessResult> GetWeatherOfFarm(int farmId)
+        {
+            try
+            {
+                var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+                string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                JObject weatherData = JObject.Parse(responseBody);
+                var weatherProperty = new WeatherPropertyModel
+                {
+                    CurrentTemp = weatherData["main"]["temp"].Value<double>(),
+                    TempMax = weatherData["main"]["temp_max"].Value<double>(),
+                    TempMin = weatherData["main"]["temp_min"].Value<double>(),
+                    Status = weatherData["weather"][0]["main"].Value<string>(),
+                    Description = weatherData["weather"][0]["description"].Value<string>(),
+                    Humidity = weatherData["main"]["humidity"].Value<double>(),
+                    Visibility = weatherData["visibility"].Value<int>(),
+                    Clouds = weatherData["clouds"]["all"].Value<double>(),
+                    WindSpeed = weatherData["wind"]["speed"].Value<double>() + " m/s",
+                };
+
+                return new BusinessResult(200, "Get Weather Of Farm Success", weatherData);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
