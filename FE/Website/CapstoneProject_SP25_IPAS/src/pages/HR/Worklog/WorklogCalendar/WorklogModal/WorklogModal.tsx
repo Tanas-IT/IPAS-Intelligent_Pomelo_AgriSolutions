@@ -58,6 +58,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           userId: employee.userId,
           isReporter: employee.userId === selectedReporter,
         })),
+        masterTypeId: values.masterTypeId,
       };
 
       console.log("Payload:", payload);

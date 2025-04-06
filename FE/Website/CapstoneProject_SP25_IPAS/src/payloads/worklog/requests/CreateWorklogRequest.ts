@@ -5,6 +5,7 @@ export interface CreateWorklogRequest {
   endTime: string;
   planId: number;
   listEmployee: ListEmployee[];
+  masterTypeId: number;
 }
 
 interface ListEmployee {
