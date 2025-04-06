@@ -124,11 +124,11 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           name={worklogFormFields.worklogName}
         />
 
-        <Flex vertical gap={4}>
           <FormFieldModal
             label="Plan"
             type="select"
             name={worklogFormFields.planId}
+            rules={RulesManager.getPlanNameRules()}
             options={planOptions}
             onChange={(value) => {
               setSelectedPlan(value);
@@ -137,32 +137,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
               }
             }}
           />
-          {selectedPlan && (
-            <Flex justify="flex-end">
-              <Button
-                type="link"
-                onClick={handleClearPlan}
-                style={{
-                  height: "auto",
-                  color: "#1890ff",
-                  width: "fit-content",
-                  marginTop: -10,
-                }}
-              >
-                Clear
-              </Button>
-            </Flex>
-
-          )}
-        </Flex>
-
-        <FormFieldModal
-          label="Type of work"
-          type="select"
-          name={worklogFormFields.masterTypeId}
-          options={workTypeOptions}
-          disable={!!selectedPlan} // Disable khi có Plan
-        />
+          
 
         <FormFieldModal
           label="Date"

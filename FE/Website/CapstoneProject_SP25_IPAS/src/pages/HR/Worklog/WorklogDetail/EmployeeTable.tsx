@@ -35,19 +35,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     };
     fetchAllEmployees();
   }, []);
-
-  // const combinedEmployees = [
-  //   ...reporter.map((rep) => ({
-  //     ...rep,
-  //     isReporter: true,
-  //   //   statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
-  //   })),
-  //   ...employees.map((emp) => ({
-  //     ...emp,
-  //     isReporter: false,
-  //   //   statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
-  //   })),
-  // ];
+  useEffect(() => {
+    setReplacingStates({});
+  }, [employees]);
 
   const handleReplace = (replacedUserId: number, replacementUserId: number) => {
     console.log("replacedUserId", replacedUserId);

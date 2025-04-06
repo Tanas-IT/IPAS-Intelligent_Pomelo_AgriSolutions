@@ -15,7 +15,7 @@ import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmpl
 import { formatDate, formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
-import { ConfirmModal, Tooltip } from "@/components";
+import { ConfirmModal, Loading, Tooltip } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import EmployeeDropdown from "./EmployeeDropdown";
 import moment from "moment";
@@ -87,7 +87,7 @@ function WorklogDetail() {
   const [attendanceData, setAttendanceData] = useState<{ userId: number; isPresent: boolean }[]>([]);
   const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: string | null }>({});
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [list, setList] = useState<GetAttendanceList[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
     worklogDetail?.actualStartTime || "",
     worklogDetail?.actualEndTime || "",
@@ -160,66 +160,6 @@ function WorklogDetail() {
 
     // await fetchWorklogDetail(); // Gọi lại API để đồng bộ
   };
-
-  // const handleSaveEdit = async () => {
-  //   if (!worklogDetail || !id) return;
-
-  //   try {
-  //     const listEmployeeUpdate: ListEmployeeUpdate[] = [];
-
-  //     worklogDetail.replacementEmployee?.forEach((replacement) => {
-  //       const replacedEmployee = worklogDetail.listEmployee.find(
-  //         (emp) => emp.userId === replacement.replaceUserId
-  //       );
-  //       console.log("replacedEmployee", replacedEmployee);
-
-
-  //       if (replacedEmployee) {
-  //         listEmployeeUpdate.push({
-  //           oldUserId: replacedEmployee.userId,
-  //           newUserId: replacement.userId,
-  //           isReporter: replacedEmployee.userId === worklogDetail.reporter[0].userId ? true : false,
-  //           status: replacedEmployee.userId === worklogDetail.reporter[0].userId ? "update" : "add",
-  //         });
-  //       }
-  //     });
-
-  //     const replacedReporter = worklogDetail.replacementEmployee?.find(
-  //       (replacement) => replacement.replaceUserId === worklogDetail.reporter[0].userId
-  //     );
-
-  //     if (replacedReporter) {
-  //       listEmployeeUpdate.push({
-  //         oldUserId: replacedReporter.replaceUserId,
-  //         newUserId: replacedReporter.userId,
-  //         isReporter: true,
-  //         status: "update",
-  //       });
-  //     }
-
-  //     const payload: UpdateWorklogReq = {
-  //       workLogId: Number(id),
-  //       listEmployeeUpdate: listEmployeeUpdate,
-  //       dateWork: selectedDate,
-  //       startTime: selectedTimeRange[0],
-  //       endTime: selectedTimeRange[1],
-  //     };
-  //     console.log("8888888", payload);
-
-  //     const response = await worklogService.updateWorklog(payload);
-
-  //     if (response && response.statusCode === 200) {
-  //       toast.success("Worklog updated successfully!");
-  //       await fetchPlanDetail();
-  //       setIsEditModalVisible(false);
-  //     } else {
-  //       toast.error("Failed to update worklog.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating worklog:", error);
-  //     toast.error("An error occurred while updating the worklog.");
-  //   }
-  // };
 
   const handleSaveEdit = async () => {
     if (!worklogDetail || !id) return;
@@ -483,17 +423,6 @@ function WorklogDetail() {
     }
   };
 
-  const fetchListAttendance = async () => {
-    try {
-      const result = await worklogService.getAttendanceList(Number(id));
-      if (result.statusCode === 200) {
-        setList(result.data);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance list:", error);
-    }
-  }
-
   useEffect(() => {
     if (!id) {
       navigate("/404");
@@ -501,7 +430,6 @@ function WorklogDetail() {
     }
 
     fetchPlanDetail();
-    fetchListAttendance();
   }, [id]);
 
   const handleSave = async () => {
@@ -582,6 +510,20 @@ function WorklogDetail() {
     }
   }
 
+  const handleCloseEditModal = () => {
+    setIsEditModalVisible(false);
+    setSelectedTimeRange(selectedTimeRange);
+    setSelectedDate(selectedDate);
+    fetchPlanDetail();
+  };
+  
+  if (isLoading)
+      return (
+        <Flex justify="center" align="center" style={{ width: "100%" }}>
+          <Loading />
+        </Flex>
+      );
+
   return (
     <div className={style.container}>
       <Flex className={style.extraContent}>
@@ -629,7 +571,7 @@ function WorklogDetail() {
                 console.log("isBeReplaced", isBeReplaced);
                 console.log("borderColor", borderColor);
                 console.log("textColor", textColor);
-                
+
 
                 return (
                   <Tooltip key={index} title={tooltipText}>
@@ -653,43 +595,48 @@ function WorklogDetail() {
 
             <Flex gap={8} align="center" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
               <label className={style.textUpdated}>Replacement:</label>
-              {worklogDetail?.replacementEmployee?.map((e) => (
-                <Tooltip
-                  key={e.userId}
-                  title={`Replacing: ${e.fullName}`}
-                  placement="top"
-                >
-                  <div className={style.replacementBadge}>
-                    <Flex align="center" gap={6}>
-                      <Badge
-                        count={
-                          <Icons.delUser
-                            className={style.deleteIcon}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onRemoveReplacement(e.userId);
-                          }}
+
+              {worklogDetail?.replacementEmployee?.length ? (
+                worklogDetail.replacementEmployee.map((e) => (
+                  <Tooltip
+                    key={e.userId}
+                    title={`Replacing: ${e.fullName}`}
+                    placement="top"
+                  >
+                    <div className={style.replacementBadge}>
+                      <Flex align="center" gap={6}>
+                        <Badge
+                          count={
+                            <Icons.delUser
+                              className={style.deleteIcon}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                onRemoveReplacement(e.userId);
+                              }}
+                            />
+                          }
+                          offset={[5, -3]}
+                          style={{ backgroundColor: 'white', cursor: 'pointer' }}
+                        >
+                          <Image
+                            src={e.avatar || Images.avatar}
+                            width={25}
+                            className={style.avt}
+                            crossOrigin="anonymous"
                           />
-                        }
-                        offset={[5, -3]}
-                        style={{ backgroundColor: 'white', cursor: 'pointer' }}
-                      >
-                        <Image
-                          src={e.avatar || Images.avatar}
-                          width={25}
-                          className={style.avt}
-                          crossOrigin="anonymous"
-                        />
-                        <span className={style.replacementText}>
-                        {e.replaceUserFullName}
-                      </span>
-                      </Badge>
-                      
-                    </Flex>
-                  </div>
-                </Tooltip>
-              ))}
+                          <span className={style.replacementText}>
+                            {e.replaceUserFullName}
+                          </span>
+                        </Badge>
+                      </Flex>
+                    </div>
+                  </Tooltip>
+                ))
+              ) : (
+                <span className={style.noReplacementText}>No replacement assigned</span>
+              )}
             </Flex>
+
 
             <Flex gap={15}>
               <label className={style.textUpdated}>Reporter:</label>
@@ -699,7 +646,7 @@ function WorklogDetail() {
                     ? "Rejected"
                     : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
                       ? "Being Replaced"
-                      : ""
+                      : "Received"
                 }
               >
                 <Flex align="center">
@@ -767,10 +714,10 @@ function WorklogDetail() {
 
       <EditWorklogModal
         visible={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
+        onClose={handleCloseEditModal}
         employees={worklogDetail?.listEmployee || []}
         reporter={worklogDetail?.reporter || []}
-        list={list}
+        id={Number(id)}
         attendanceStatus={attendanceStatus}
         onReplaceEmployee={handleReplaceEmployee}
         selectedTimeRange={selectedTimeRange}
