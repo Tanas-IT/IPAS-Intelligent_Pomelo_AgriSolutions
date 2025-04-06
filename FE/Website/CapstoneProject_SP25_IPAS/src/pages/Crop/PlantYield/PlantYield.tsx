@@ -141,7 +141,7 @@ const PlantYield = () => {
                   <Flex style={{ width: "100%" }} justify="center" align="center">
                     <label className={style.chartTitle}>🌱 Top 10 Highest-Yielding Plants</label>
                   </Flex>
-                  <ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={harvestData.slice(0, 10)} barSize={40}>
                       <XAxis dataKey="plant.plantName" />
                       <YAxis />

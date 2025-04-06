@@ -734,7 +734,7 @@ CREATE TABLE ipas.dbo.ProductHarvestHistory (
 	PlantID int NULL,
 	Unit nvarchar(50) NULL,
 	SellPrice float NULL,
-    	CostPrice float NULL,
+    CostPrice float NULL,
 	QuantityNeed float NULL,
 	ActualQuantity float NULL,
 	HarvestHistoryID int NOT NULL,
@@ -1240,7 +1240,10 @@ VALUES
     ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
     ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
 	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
-    ('MT041', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
+	('MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    ('MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    ('MT043', 'Green Skin Pomelo Grade 3', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 3', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    ('MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
 
 GO
 
@@ -1291,7 +1294,22 @@ VALUES
 	('CR027', N'Branch Maturity', N'Ensures the grafted branch is mature enough for cutting and transplantation', 1, 1, 0, 40, 90),  -- Kiểm tra mỗi quý
     ('CR028', N'Branch Strength', N'Checks if the branch is strong enough to survive the transplantation process', 2, 1, 0, 40, 60),  -- Kiểm tra mỗi 2 tháng
     ('CR029', N'Rooting Potential', N'Evaluates if the branch has developed enough roots for successful growth', 3, 1, 0, 40, 45),  -- Kiểm tra mỗi 1,5 tháng
-    ('CR030', N'Disease Resistance', N'Ensures the grafted branch is free from infections and diseases before transplantation', 4, 1, 0, 40, 30);  -- Kiểm tra mỗi tháng
+    ('CR030', N'Disease Resistance', N'Ensures the grafted branch is free from infections and diseases before transplantation', 4, 1, 0, 40, 30),  -- Kiểm tra mỗi tháng
+
+	-- MasterTypeID 42: Tiêu chí đánh giá Bưởi Loại 2
+	('CR031', 'Size & Weight', 'Evaluate size and weight standards for grade 2', 1, 1, 0, 42, 15), -- Kiểm tra mỗi 15 ngày
+    ('CR032', 'Color & Appearance', 'Assess color uniformity and skin condition', 2, 1, 0, 42, 30), -- Kiểm tra hàng tháng
+    ('CR033', 'Taste & Freshness', 'Test sweetness, acidity, and freshness', 3, 1, 0, 42, 45), -- Kiểm tra mỗi 1.5 tháng
+
+	-- MasterTypeID 43: Tiêu chí đánh giá Bưởi Loại 3
+    ('CR034', 'Size & Weight', 'Evaluate size and weight standards for grade 3', 1, 1, 0, 43, 10), -- Kiểm tra mỗi 10 ngày
+    ('CR035', 'Color & Appearance', 'Assess color uniformity and skin defects', 2, 1, 0, 43, 20), -- Kiểm tra mỗi 20 ngày
+    ('CR036', 'Taste & Freshness', 'Test sweetness, acidity, and shelf life', 3, 1, 0, 43, 30), -- Kiểm tra hàng tháng
+
+	  -- MasterTypeID 41: Tiêu chí đánh giá Bưởi Loại 1
+    ('CR037', 'Size & Weight', 'Evaluate size and weight standards for grade 1', 1, 1, 0, 41, 20), -- Kiểm tra mỗi 20 ngày
+    ('CR038', 'Color & Appearance', 'Assess color uniformity and skin condition', 2, 1, 0, 41, 25), -- Kiểm tra mỗi 25 ngày
+    ('CR039', 'Taste & Freshness', 'Test sweetness, acidity, and premium freshness', 3, 1, 0, 41, 35); -- Kiểm tra mỗi 35 ngày
 GO
 UPDATE [dbo].[Criteria]
 SET 

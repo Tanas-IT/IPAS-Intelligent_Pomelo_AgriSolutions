@@ -15,8 +15,10 @@ import {
   PlantDetail,
   PlantGraftedHistory,
   PlantGrowthHistory,
+  PlantHarvestRecord,
   PlantOverview,
 } from "@/pages";
+import { plantService } from "@/services";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -34,12 +36,21 @@ function PlantDetails() {
   const pathnames = location.pathname.split("/");
   const plantId = pathnames[pathnames.length - 2];
   const { styles } = useStyle();
-  const [activeTab, setActiveTab] = useState("1");
+  const { plant, setPlant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
+
+  const fetchPlant = async () => {
+    const res = await plantService.getPlant(Number(plantId));
+    if (res.statusCode === 200) {
+      setPlant(res.data);
+    }
+  };
 
   useEffect(() => {
-    if (plantId) {
-      setPlantId(Number(plantId));
-    }
+    if (!plant) fetchPlant();
+  }, []);
+
+  useEffect(() => {
+    if (plantId) setPlantId(Number(plantId));
   }, [plantId, setPlantId]);
 
   const items: TabsProps["items"] = [
@@ -65,7 +76,7 @@ function PlantDetails() {
       key: "4",
       icon: <Icons.history className={style.iconTab} />,
       label: <label className={style.titleTab}>Growth History</label>,
-      children: <PlantGrowthHistory activeTab={activeTab} />,
+      children: <PlantGrowthHistory />,
     },
     {
       key: "5",
@@ -75,6 +86,12 @@ function PlantDetails() {
     },
     {
       key: "6",
+      icon: <Icons.plant className={style.iconTab} />,
+      label: <label className={style.titleTab}>Harvest Record</label>,
+      children: <PlantHarvestRecord />,
+    },
+    {
+      key: "7",
       icon: <Icons.seedling className={style.iconTab} />,
       label: <label className={style.titleTab}>Grafted History</label>,
       children: <PlantGraftedHistory />,
@@ -86,6 +103,8 @@ function PlantDetails() {
       navigate(PATHS.FARM.FARM_ROW_LIST, {
         state: { plotId, viewMode: "simulate" },
       });
+    } else if (isGrowthDetailView) {
+      setIsGrowthDetailView(false);
     } else {
       navigate(PATHS.FARM.FARM_PLANT_LIST);
     }
@@ -97,12 +116,12 @@ function PlantDetails() {
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey={productType && yearRange ? "1" : "2"}
         items={items}
-        onChange={setActiveTab}
+        onChange={() => setIsGrowthDetailView(false)}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>
               <Tooltip
-                title="Back to List"
+                title={isGrowthDetailView ? "Back to Growth History" : "Back to List"}
                 children={<Icons.back className={style.backIcon} onClick={handleBack} />}
               />
             </Flex>

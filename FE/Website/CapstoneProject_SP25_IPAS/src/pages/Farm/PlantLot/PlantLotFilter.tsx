@@ -1,8 +1,8 @@
-import { DatePicker, Flex, Space } from "antd";
+import { Flex, Space } from "antd";
 import { useEffect, useState } from "react";
 import style from "./PlantLot.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
-import { PARTNER } from "@/constants";
+import { LOT_STATUS, PARTNER } from "@/constants";
 import { FilterPlantLotState, SelectOption } from "@/types";
 import { partnerService } from "@/services";
 
@@ -37,6 +37,7 @@ const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
     filters.importedDateFrom ||
     filters.importedDateTo ||
     (filters.partnerId && filters.partnerId.length > 0) ||
+    (filters.status && filters.status.length > 0) ||
     filters.previousQuantityFrom !== undefined ||
     filters.previousQuantityTo !== undefined ||
     filters.isFromGrafted !== undefined
@@ -68,6 +69,16 @@ const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
           value={filters.partnerId}
           options={partnerOptions}
           onChange={(value) => updateFilters("partnerId", value)}
+        />
+        <FormFieldFilter
+          label="Status"
+          fieldType="select"
+          value={filters.status}
+          options={Object.entries(LOT_STATUS).map(([key, value]) => ({
+            value: key,
+            label: value,
+          }))}
+          onChange={(value) => updateFilters("status", value)}
         />
 
         <FormFieldFilter

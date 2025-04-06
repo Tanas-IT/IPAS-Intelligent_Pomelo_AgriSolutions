@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Config from 'react-native-config';
-import Toast from 'react-native-toast-message';
-import { ROUTE_NAMES } from '@/navigation/RouteNames';
-import { CommonActions } from '@react-navigation/native';
-import { GetNotification } from '@/types/notification';
-import { notificationService } from '@/services';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Config from "react-native-config";
+import Toast from "react-native-toast-message";
+import { ROUTE_NAMES } from "@/constants/RouteNames";
+import { CommonActions } from "@react-navigation/native";
+import { GetNotification } from "@/types/notification";
+import { NotificationService } from "@/services";
 
 const WS_URL = Config.WS_URL;
 
@@ -17,27 +17,27 @@ const useNotifications = () => {
   const navigation = useNavigation();
 
   const fetchUserId = async () => {
-    const userId = await AsyncStorage.getItem('userId');
+    const userId = await AsyncStorage.getItem("userId");
     return userId ? Number(userId) : null;
   };
 
   const fetchNotifications = useCallback(async () => {
     const userId = await fetchUserId();
     if (!userId) {
-      Toast.show({ type: 'error', text1: 'userId not found' });
+      Toast.show({ type: "error", text1: "userId not found" });
       return;
     }
 
     try {
-      const response = await notificationService.getNotificationByUser(userId);
+      const response = await NotificationService.getNotificationByUser(userId);
       if (response.statusCode === 200) {
         setNotifications(response.data);
       }
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'error fethcing notifications',
-        text2: 'Please try again later',
+        type: "error",
+        text1: "error fethcing notifications",
+        text2: "Please try again later",
       });
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
@@ -56,7 +56,7 @@ const useNotifications = () => {
   }, [fetchNotifications]);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter(n => !n.isRead).length);
+    setUnreadCount(notifications.filter((n) => !n.isRead).length);
   }, [notifications]);
 
   useEffect(() => {
@@ -67,25 +67,25 @@ const useNotifications = () => {
       const ws = new WebSocket(`${WS_URL}?userId=${userId}`);
 
       ws.onopen = () => {
-        console.log('Connected to WebSocket!');
+        console.log("Connected to WebSocket!");
       };
 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log('Parsed Message:', message);
+          console.log("Parsed Message:", message);
           fetchNotifications();
         } catch (error) {
-          console.error('Error parsing JSON:', error);
+          console.error("Error parsing JSON:", error);
         }
       };
 
       ws.onclose = (event) => {
-        console.log('WebSocket disconnected:', event);
+        console.log("WebSocket disconnected:", event);
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
       };
 
       setSocket(ws);
@@ -102,20 +102,29 @@ const useNotifications = () => {
     const userId = await fetchUserId();
     if (!userId) return;
 
-    setNotifications(prev =>
-      prev.map(n => (n.notificationId === notificationId ? { ...n, isRead: true } : n))
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.notificationId === notificationId ? { ...n, isRead: true } : n
+      )
     );
 
     try {
-      const response = await notificationService.markAsRead(userId, 'once', notificationId);
-      if (response.statusCode !== 200) throw new Error('Failed to mark as read');
+      const response = await NotificationService.markAsRead(
+        userId,
+        "once",
+        notificationId
+      );
+      if (response.statusCode !== 200)
+        throw new Error("Failed to mark as read");
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Failed to mark as read',
+        type: "error",
+        text1: "Failed to mark as read",
       });
-      setNotifications(prev =>
-        prev.map(n => (n.notificationId === notificationId ? { ...n, isRead: false } : n))
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.notificationId === notificationId ? { ...n, isRead: false } : n
+        )
       );
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
@@ -133,17 +142,18 @@ const useNotifications = () => {
     const userId = await fetchUserId();
     if (!userId) return;
 
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
     try {
-      const response = await notificationService.markAsRead(userId);
-      if (response.statusCode !== 200) throw new Error('Failed to mark all as read');
+      const response = await NotificationService.markAsRead(userId);
+      if (response.statusCode !== 200)
+        throw new Error("Failed to mark all as read");
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Failed to mark all as read',
+        type: "error",
+        text1: "Failed to mark all as read",
       });
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: false })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: false })));
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
         navigation.dispatch(

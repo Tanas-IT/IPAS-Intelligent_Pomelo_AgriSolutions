@@ -34,4 +34,6 @@ export const MESSAGES = {
   INVALID_END_TIME: "End time must be after start time!",
   REQUIRE_REPORTER: "At least one employee must be assigned as the reporter.",
   HARVEST_DATE_OUT_OF_RANGE: "Harvest date must be within the crop period!",
+  EMPLOYEE_DUPLICATE: "Duplicate employees detected. Please remove duplicates.",
+  PRODUCT_DUPLICATE: "Duplicate products detected. Please remove duplicates.",
 } as const;

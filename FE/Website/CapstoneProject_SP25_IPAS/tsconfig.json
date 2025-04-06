@@ -26,6 +26,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "ProductColumns.tsx"],
   "files": ["client.d.ts"]
 }

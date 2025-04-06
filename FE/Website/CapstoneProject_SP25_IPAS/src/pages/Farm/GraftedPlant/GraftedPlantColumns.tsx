@@ -39,7 +39,7 @@ export const GraftedPlantColumns: TableColumn<GetGraftedPlant>[] = [
     width: 160,
   },
   {
-    header: "Health Status",
+    header: "Status",
     field: "status",
     accessor: (item) => {
       const statusText = item.status; // Dữ liệu đã là text

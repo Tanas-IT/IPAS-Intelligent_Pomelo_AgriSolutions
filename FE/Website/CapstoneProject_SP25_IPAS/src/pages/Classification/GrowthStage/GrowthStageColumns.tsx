@@ -17,16 +17,18 @@ export const growthStageColumns: TableColumn<GetGrowthStage>[] = [
     width: 180,
   },
   {
-    header: "From Month",
+    header: "Month Range",
     field: "monthAgeStart",
-    accessor: (item) => <TableCell value={item.monthAgeStart} />,
-    width: 150,
-  },
-  {
-    header: "To Month",
-    field: "monthAgeEnd",
-    accessor: (item) => <TableCell value={item.monthAgeEnd} />,
-    width: 150,
+    accessor: (item) => {
+      const startYear = (item.monthAgeStart / 12).toFixed(0);
+      const endYear = (item.monthAgeEnd / 12).toFixed(0);
+      return (
+        <TableCell
+          value={`${item.monthAgeStart} - ${item.monthAgeEnd} (${startYear} - ${endYear} years)`}
+        />
+      );
+    },
+    width: 180,
   },
   {
     header: "Stage Actions",

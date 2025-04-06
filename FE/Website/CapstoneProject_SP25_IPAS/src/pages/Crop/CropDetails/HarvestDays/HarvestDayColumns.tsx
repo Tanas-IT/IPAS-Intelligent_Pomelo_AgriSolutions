@@ -1,6 +1,6 @@
 import { TableColumn } from "@/types";
 import { GetHarvestDay } from "@/payloads";
-import { formatDate } from "@/utils";
+import { formatCurrencyVND, formatDate } from "@/utils";
 import { TableCell } from "@/components";
 import { Tag } from "antd";
 import { harvestStatusColors } from "@/constants";
@@ -10,13 +10,22 @@ export const HarvestDayColumns: TableColumn<GetHarvestDay>[] = [
     header: "Code",
     field: "harvestHistoryCode",
     accessor: (item) => <TableCell value={item.harvestHistoryCode} isCopyable={true} />,
-    width: 200,
+    width: 250,
   },
   {
     header: "Harvest Date",
     field: "dateHarvest",
-    accessor: (item) => <TableCell value={formatDate(item.dateHarvest)} />,
-    width: 150,
+    accessor: (item) => {
+      const schedule = item.carePlanSchedules?.[0]; // Lấy lịch đầu tiên nếu có
+      return (
+        <TableCell
+          value={`${formatDate(item.dateHarvest)} ${
+            schedule?.startTime ? `(${schedule.startTime} - ${schedule.endTime})` : ""
+          }`}
+        />
+      );
+    },
+    width: 250,
   },
   {
     header: "Harvest Status",
@@ -32,7 +41,7 @@ export const HarvestDayColumns: TableColumn<GetHarvestDay>[] = [
   {
     header: "Total Price",
     field: "totalPrice",
-    accessor: (item) => <TableCell value={item.totalPrice} />,
+    accessor: (item) => <TableCell value={formatCurrencyVND(item.totalPrice)} />,
     width: 200,
   },
   {

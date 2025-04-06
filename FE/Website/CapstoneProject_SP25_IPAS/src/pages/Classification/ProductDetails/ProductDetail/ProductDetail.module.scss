@@ -1,0 +1,31 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.contentDetailWrapper {
+  @include shared.contentDetailWrapper;
+  .contentSectionBody {
+    gap: 20px;
+  }
+}
+
+.collapseWrapper {
+  margin-bottom: 24px;
+  .collapseTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  .criteriaCollapse {
+    @include shared.criteriaCollapse;
+  }
+}
+
+.iconDelete {
+  cursor: pointer;
+  color: red;
+  transition: color 0.3s ease;
+  margin-top: 4px;
+  &:hover {
+    opacity: 0.8;
+  }
+}

@@ -1,17 +1,20 @@
 import { Table, InputNumber } from "antd";
 import style from "./TableApplyCriteria.module.scss";
 import { Icons } from "@/assets";
+import { ColumnsType } from "antd/es/table";
 
 type TableApplyCriteriaProps = {
   dataSource: any[];
   handleDelete: (key: number) => void;
   handlePriorityChange: (key: number, value: number | null) => void;
+  isValueCheck?: boolean;
 };
 
 const TableApplyCriteria = ({
   dataSource,
   handleDelete,
   handlePriorityChange,
+  isValueCheck = true,
 }: TableApplyCriteriaProps) => {
   const columns = [
     {
@@ -33,19 +36,19 @@ const TableApplyCriteria = ({
       key: "criteriaDescription",
       align: "center" as const,
     },
-    {
+    isValueCheck && {
       title: "Min Value",
       dataIndex: "minValue",
       key: "minValue",
       align: "center" as const,
     },
-    {
+    isValueCheck && {
       title: "Max Value",
       dataIndex: "maxValue",
       key: "maxValue",
       align: "center" as const,
     },
-    {
+    isValueCheck && {
       title: "Unit",
       dataIndex: "unit",
       key: "unit",
@@ -56,14 +59,17 @@ const TableApplyCriteria = ({
       dataIndex: "priority",
       key: "priority",
       align: "center" as const,
-      render: (_: any, record: { key: number; priority: number }) => (
-        <InputNumber
-          className={style.priorityNumber}
-          min={1}
-          value={record.priority}
-          onChange={(value) => handlePriorityChange(record.key, value)}
-        />
-      ),
+      render: (_: any, record: { key: number; priority: number }) =>
+        isValueCheck ? (
+          <InputNumber
+            className={style.priorityNumber}
+            min={1}
+            value={record.priority}
+            onChange={(value) => handlePriorityChange(record.key, value)}
+          />
+        ) : (
+          <span>{record.priority}</span>
+        ),
     },
     {
       title: "Check Interval Days ",
@@ -79,7 +85,7 @@ const TableApplyCriteria = ({
       //   />
       // ),
     },
-    {
+    isValueCheck && {
       title: "Action",
       key: "action",
       align: "center" as const,
@@ -89,7 +95,7 @@ const TableApplyCriteria = ({
         </span>
       ),
     },
-  ];
+  ].filter(Boolean) as ColumnsType;
 
   return (
     <div className={style.criteriaTableWrapper}>

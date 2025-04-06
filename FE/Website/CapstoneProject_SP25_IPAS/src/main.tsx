@@ -12,7 +12,6 @@ console.warn = (message, ...args) => {
   if (typeof message === "string" && message.includes("antd")) {
     return; // Bỏ qua tất cả các cảnh báo có liên quan đến Ant Design
   }
-  originalWarn(message, ...args); // Hiển thị các cảnh báo khác
 };
 
 // Ghi đè console.error

@@ -1,7 +1,7 @@
 import { TableColumn } from "@/types";
 import { GetCrop2 } from "@/payloads";
 import { TableCell } from "@/components";
-import { formatCurrencyVND, formatDate } from "@/utils";
+import { formatCurrencyVND_KG, formatDate } from "@/utils";
 import { Tag } from "antd";
 import { cropStatusColors } from "@/constants";
 
@@ -76,7 +76,7 @@ export const CropColumns: TableColumn<GetCrop2>[] = [
   {
     header: "Market Price",
     field: "marketPrice",
-    accessor: (item) => <TableCell value={formatCurrencyVND(item.marketPrice)} />,
+    accessor: (item) => <TableCell value={formatCurrencyVND_KG(item.marketPrice)} />,
     width: 150,
   },
   {

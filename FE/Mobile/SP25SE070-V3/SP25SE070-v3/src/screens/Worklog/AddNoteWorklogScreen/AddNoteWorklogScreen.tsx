@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   ScrollView,
@@ -6,20 +6,18 @@ import {
   TouchableOpacity,
   Animated,
   Image,
-} from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import CustomIcon from 'components/CustomIcon';
-import { RootStackNavigationProp } from '@/navigation/Types';
-import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { ResourceItem, WorklogNoteFormData } from '@/types/worklog';
-import { addNoteWorklogSchema } from '@/validations/noteWorklogSchema';
-import { styles } from './AddNoteWorklogScreen.styles';
-import TextCustom from 'components/TextCustom';
-import theme from '@/theme';
-
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { RootStackNavigationProp } from "@/constants/Types";
+import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ResourceItem, WorklogNoteFormData } from "@/types/worklog";
+import { addNoteWorklogSchema } from "@/validations/noteWorklogSchema";
+import { styles } from "./AddNoteWorklogScreen.styles";
+import theme from "@/theme";
+import { CustomIcon, TextCustom } from "@/components";
 
 const AddNoteWorklogScreen: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -40,11 +38,14 @@ const AddNoteWorklogScreen: React.FC = () => {
     setValue,
   } = useForm<WorklogNoteFormData>({
     resolver: yupResolver(addNoteWorklogSchema),
-    defaultValues: isEditMode && initialData ? initialData : {
-      note: '',
-      issue: '',
-      resources: [],
-    },
+    defaultValues:
+      isEditMode && initialData
+        ? initialData
+        : {
+            note: "",
+            issue: "",
+            resources: [],
+          },
   });
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -67,24 +68,24 @@ const AddNoteWorklogScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets) {
-      const currentResources = watch('resources') || [];
+      const currentResources = watch("resources") || [];
       const newResource: ResourceItem = {
         resourceID: 0,
-        description: '',
+        description: "",
         resourceURL: result.assets[0].uri,
-        fileFormat: 'image/jpeg',
-        file: '',
+        fileFormat: "image/jpeg",
+        file: "",
       };
       const newResources = [...currentResources, newResource];
-      setValue('resources', newResources, { shouldValidate: true });
+      setValue("resources", newResources, { shouldValidate: true });
     }
   };
 
   const removeImage = (index: number) => {
-    const currentResources = watch('resources') || [];
+    const currentResources = watch("resources") || [];
     const newResources = [...currentResources];
     newResources.splice(index, 1);
-    setValue('resources', newResources, { shouldValidate: true });
+    setValue("resources", newResources, { shouldValidate: true });
   };
 
   const onSubmit = async (data: WorklogNoteFormData) => {
@@ -94,11 +95,14 @@ const AddNoteWorklogScreen: React.FC = () => {
       userId: 0,
       workLogId: worklogId,
       note: data.note,
-      issue: data.issue || '',
+      issue: data.issue || "",
       resources: data.resources || [],
     };
 
-    console.log(isEditMode ? 'Updating Worklog Note:' : 'Adding Worklog Note:', payload);
+    console.log(
+      isEditMode ? "Updating Worklog Note:" : "Adding Worklog Note:",
+      payload
+    );
 
     // fake
     setTimeout(() => {
@@ -106,29 +110,34 @@ const AddNoteWorklogScreen: React.FC = () => {
       navigation.goBack();
     }, 1500);
 
-    // call api 
+    // call api
   };
 
   const handlePress = () => {
     handleSubmit(onSubmit)();
     if (Object.keys(errors).length > 0) {
-      console.log('Form Errors:', errors);
+      console.log("Form Errors:", errors);
     }
   };
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <LinearGradient
-        colors={['#fffcee', '#fffcee']}
+        colors={["#fffcee", "#fffcee"]}
         style={styles.gradientBackground}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <CustomIcon name="arrow-left" size={24} color="#064944" type="MaterialCommunityIcons" />
+              <CustomIcon
+                name="arrow-left"
+                size={24}
+                color="#064944"
+                type="MaterialCommunityIcons"
+              />
             </TouchableOpacity>
             <TextCustom style={styles.headerTitle}>
-              {isEditMode ? 'Edit Worklog Note' : 'Add Worklog Note'}
+              {isEditMode ? "Edit Worklog Note" : "Add Worklog Note"}
             </TextCustom>
             <View style={{ width: 24 }} />
           </View>
@@ -138,7 +147,9 @@ const AddNoteWorklogScreen: React.FC = () => {
             name="issue"
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={styles.section}>
-                <TextCustom style={styles.sectionTitle}>Issue (Optional)</TextCustom>
+                <TextCustom style={styles.sectionTitle}>
+                  Issue (Optional)
+                </TextCustom>
                 <TextInput
                   style={styles.input}
                   placeholder="Describe any issues..."
@@ -148,7 +159,9 @@ const AddNoteWorklogScreen: React.FC = () => {
                   onBlur={onBlur}
                 />
                 {errors.issue && (
-                  <TextCustom style={styles.errorText}>{errors.issue.message}</TextCustom>
+                  <TextCustom style={styles.errorText}>
+                    {errors.issue.message}
+                  </TextCustom>
                 )}
               </View>
             )}
@@ -159,7 +172,9 @@ const AddNoteWorklogScreen: React.FC = () => {
             name="note"
             render={({ field: { onChange, onBlur, value } }) => (
               <View style={styles.section}>
-                <TextCustom style={styles.sectionTitle}>Note Details*</TextCustom>
+                <TextCustom style={styles.sectionTitle}>
+                  Note Details*
+                </TextCustom>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   placeholder="Write your observations..."
@@ -171,7 +186,9 @@ const AddNoteWorklogScreen: React.FC = () => {
                   onBlur={onBlur}
                 />
                 {errors.note && (
-                  <TextCustom style={styles.errorText}>{errors.note.message}</TextCustom>
+                  <TextCustom style={styles.errorText}>
+                    {errors.note.message}
+                  </TextCustom>
                 )}
               </View>
             )}
@@ -183,10 +200,22 @@ const AddNoteWorklogScreen: React.FC = () => {
             render={({ field: { value } }) => (
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <TextCustom style={styles.sectionTitle}>Attachments</TextCustom>
-                  <TouchableOpacity style={styles.addPhotoButton} onPress={pickImage}>
-                    <CustomIcon name="camera" size={18} color="#064944" type="MaterialCommunityIcons" />
-                    <TextCustom style={styles.addPhotoText}>Add Photo</TextCustom>
+                  <TextCustom style={styles.sectionTitle}>
+                    Attachments
+                  </TextCustom>
+                  <TouchableOpacity
+                    style={styles.addPhotoButton}
+                    onPress={pickImage}
+                  >
+                    <CustomIcon
+                      name="camera"
+                      size={18}
+                      color="#064944"
+                      type="MaterialCommunityIcons"
+                    />
+                    <TextCustom style={styles.addPhotoText}>
+                      Add Photo
+                    </TextCustom>
                   </TouchableOpacity>
                 </View>
 
@@ -194,19 +223,29 @@ const AddNoteWorklogScreen: React.FC = () => {
                   <View style={styles.imageGrid}>
                     {value?.map((resource: ResourceItem, index: number) => (
                       <View key={index} style={styles.imageContainer}>
-                        <Image source={{ uri: resource.resourceURL }} style={styles.image} />
+                        <Image
+                          source={{ uri: resource.resourceURL }}
+                          style={styles.image}
+                        />
                         <TouchableOpacity
                           style={styles.removeImageButton}
                           onPress={() => removeImage(index)}
                         >
-                          <CustomIcon name="close" size={16} color="white" type="MaterialCommunityIcons" />
+                          <CustomIcon
+                            name="close"
+                            size={16}
+                            color="white"
+                            type="MaterialCommunityIcons"
+                          />
                         </TouchableOpacity>
                       </View>
                     ))}
                   </View>
                 )}
                 {errors.resources && (
-                  <TextCustom style={styles.errorText}>{errors.resources.message}</TextCustom>
+                  <TextCustom style={styles.errorText}>
+                    {errors.resources.message}
+                  </TextCustom>
                 )}
               </View>
             )}
@@ -214,7 +253,10 @@ const AddNoteWorklogScreen: React.FC = () => {
         </ScrollView>
 
         <TouchableOpacity
-          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          style={[
+            styles.submitButton,
+            isSubmitting && styles.submitButtonDisabled,
+          ]}
           onPress={handlePress}
           disabled={isSubmitting}
         >
@@ -225,10 +267,15 @@ const AddNoteWorklogScreen: React.FC = () => {
             end={{ x: 1, y: 0 }}
           >
             {isSubmitting ? (
-              <CustomIcon name="loading" size={24} color="white" type="MaterialCommunityIcons" />
+              <CustomIcon
+                name="loading"
+                size={24}
+                color="white"
+                type="MaterialCommunityIcons"
+              />
             ) : (
               <TextCustom style={styles.submitButtonText}>
-                {isEditMode ? 'Update Note' : 'Save Note'}
+                {isEditMode ? "Update Note" : "Save Note"}
               </TextCustom>
             )}
           </LinearGradient>

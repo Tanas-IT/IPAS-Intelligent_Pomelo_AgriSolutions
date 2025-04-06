@@ -27,12 +27,12 @@ function PlantDetail() {
   const plantId = pathnames[pathnames.length - 2];
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetPlantDetail>();
-  const markAsDeadModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedPlant: PlantRequest }>();
+  const markAsDeadModal = useModal<{ id: number }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
-  const { plant, setPlant, shouldRefetch } = usePlantStore();
+  const { plant, setPlant } = usePlantStore();
 
   const fetchPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây

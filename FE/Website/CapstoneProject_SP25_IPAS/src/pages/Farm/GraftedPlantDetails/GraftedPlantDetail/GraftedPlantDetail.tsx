@@ -4,12 +4,14 @@ import { Divider, Flex, QRCode } from "antd";
 import { Icons } from "@/assets";
 import {
   ConfirmModal,
+  ConvertToPlantModal,
   CustomButton,
   CuttingGraftedModal,
   GraftedPlantModal,
   GraftedPlantSectionHeader,
   InfoFieldDetail,
   LoadingSkeleton,
+  PlantMarkAsDeadModal,
 } from "@/components";
 import { useEffect, useState } from "react";
 import { formatDayMonth } from "@/utils";
@@ -30,8 +32,11 @@ function GraftedPlantDetail() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetGraftedPlantDetail>();
   const deleteConfirmModal = useModal<{ id: number }>();
+  const markAsDeadModal = useModal<{ id: number }>();
+  const markAsDeadConfirmModal = useModal<{ id: number }>();
   const addToLotModal = useModal<{ id: number }>();
   const removeLotConfirmModal = useModal<{ id: number }>();
+  const convertModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedGrafted: GraftedPlantRequest }>();
   const cancelConfirmModal = useModal();
 
@@ -55,7 +60,7 @@ function GraftedPlantDetail() {
   };
   const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 
-  const fetchPlantLot = async () => {
+  const fetchGraftedPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
       const res = await graftedPlantService.getGraftedPlant(Number(lotId));
@@ -68,7 +73,7 @@ function GraftedPlantDetail() {
   };
 
   useEffect(() => {
-    fetchPlantLot();
+    fetchGraftedPlant();
   }, [lotId, shouldRefetch]);
 
   const handleDelete = async (id: number | undefined) => {
@@ -135,7 +140,7 @@ function GraftedPlantDetail() {
 
   const { handleUpdate, isUpdating } = useTableUpdate<GraftedPlantRequest>({
     updateService: graftedPlantService.updateGraftedPlant,
-    fetchData: fetchPlantLot,
+    fetchData: fetchGraftedPlant,
     onSuccess: () => {
       formModal.hideModal();
       updateConfirmModal.hideModal();
@@ -145,6 +150,20 @@ function GraftedPlantDetail() {
     },
   });
 
+  const handleMarkAsDead = async (id?: number) => {
+    if (!id) return;
+
+    markAsDeadConfirmModal.hideModal();
+    var res = await graftedPlantService.updateGraftedPlantDead(id);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      markAsDeadModal.hideModal();
+      await fetchGraftedPlant();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
   const onAddToLot = async (lotId: number, graftedPlantId?: number) => {
     if (!graftedPlantId) return;
     var res = await graftedPlantService.groupGraftedPlant([graftedPlantId], lotId);
@@ -152,7 +171,7 @@ function GraftedPlantDetail() {
     if (res.statusCode === 200) {
       addToLotModal.hideModal();
       toast.success(res.message);
-      await fetchPlantLot();
+      await fetchGraftedPlant();
     } else {
       toast.error(res.message);
     }
@@ -165,7 +184,20 @@ function GraftedPlantDetail() {
     if (res.statusCode === 200) {
       removeLotConfirmModal.hideModal();
       toast.success(res.message);
-      await fetchPlantLot();
+      await fetchGraftedPlant();
+    } else {
+      toast.error(res.message);
+    }
+  };
+
+  const convertToPlant = async (landRowId: number, plantIndex: number, graftedId?: number) => {
+    if (!graftedId) return;
+    var res = await graftedPlantService.convertToPlant(graftedId, landRowId, plantIndex);
+
+    if (res.statusCode === 200) {
+      convertModal.hideModal();
+      toast.success(res.message);
+      await fetchGraftedPlant();
     } else {
       toast.error(res.message);
     }
@@ -198,10 +230,10 @@ function GraftedPlantDetail() {
       <GraftedPlantSectionHeader
         formModal={formModal}
         deleteConfirmModal={deleteConfirmModal}
-        {...(!graftedPlant?.plantLotId && graftedPlant?.isCompleted
-          ? { onAddToLot: addToLotModal }
-          : {})}
-        {...(graftedPlant?.plantLotId ? { removeFromLotConfirm: removeLotConfirmModal } : {})}
+        onAddToLot={addToLotModal}
+        removeFromLotConfirm={removeLotConfirmModal}
+        markAsDeadModal={markAsDeadModal}
+        convertToPlantModal={convertModal}
       />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody}>
@@ -250,12 +282,35 @@ function GraftedPlantDetail() {
         onSave={(lotId) => onAddToLot(lotId, addToLotModal.modalState.data?.id)}
         isLoadingAction={isLoading}
       />
+      <PlantMarkAsDeadModal
+        isOpen={markAsDeadModal.modalState.visible}
+        onClose={markAsDeadModal.hideModal}
+        onSave={markAsDeadConfirmModal.showModal}
+        isLoadingAction={isLoading}
+        entityType="GraftedPlant"
+      />
+      <ConvertToPlantModal
+        isOpen={convertModal.modalState.visible}
+        onClose={convertModal.hideModal}
+        onSave={(rowId, plantIndex) =>
+          convertToPlant(rowId, plantIndex, convertModal.modalState.data?.id)
+        }
+        isLoadingAction={isLoading}
+      />
+      {/* Confirm Mark as Dead Modal */}
+      <ConfirmModal
+        visible={markAsDeadConfirmModal.modalState.visible}
+        onConfirm={() => handleMarkAsDead(markAsDeadModal.modalState.data?.id)}
+        onCancel={markAsDeadConfirmModal.hideModal}
+        confirmText="Mark as Dead"
+        title="Mark Grafted Plan as Dead?"
+      />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.id)}
         onCancel={deleteConfirmModal.hideModal}
-        itemName="Plant Lot"
+        itemName="Grafted Plant"
         actionType="delete"
       />
       {/* Confirm Update Modal */}
@@ -263,7 +318,7 @@ function GraftedPlantDetail() {
         visible={updateConfirmModal.modalState.visible}
         onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.updatedGrafted)}
         onCancel={updateConfirmModal.hideModal}
-        itemName="Plant Lot"
+        itemName="Grafted Plant"
         actionType="update"
       />
       {/* Confirm remove from lot Modal */}

@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Modal, TouchableOpacity, StyleSheet } from 'react-native';
-import TextCustom from 'components/TextCustom';
-import theme from '@/theme';
+import React from "react";
+import { View, Modal, TouchableOpacity, StyleSheet } from "react-native";
+import theme from "@/theme";
+import { TextCustom } from "@/components";
 
 interface ConfirmModalProps {
   visible: boolean;
@@ -9,14 +9,19 @@ interface ConfirmModalProps {
   onConfirm: () => void;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({ visible, onClose, onConfirm }) => {
+const ConfirmModal: React.FC<ConfirmModalProps> = ({
+  visible,
+  onClose,
+  onConfirm,
+}) => {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <TextCustom style={styles.modalTitle}>Confirm Submission</TextCustom>
           <TextCustom style={styles.modalMessage}>
-            Are you sure you want to submit this record? It will be merged with existing data and cannot be undone.
+            Are you sure you want to submit this record? It will be merged with
+            existing data and cannot be undone.
           </TextCustom>
 
           <View style={styles.buttonContainer}>
@@ -36,39 +41,39 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ visible, onClose, onConfirm
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 15,
     padding: 20,
-    width: '80%',
+    width: "80%",
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: theme.colors.primary,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalMessage: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#F44336',
+    backgroundColor: "#F44336",
     borderRadius: 10,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginRight: 10,
   },
   confirmButton: {
@@ -76,12 +81,12 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.btnYellow,
     borderRadius: 10,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
 });
 

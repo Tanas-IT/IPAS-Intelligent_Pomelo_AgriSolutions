@@ -43,6 +43,7 @@ export interface plantSimulate {
 export interface GetPlantOfRowSelect {
   id: number;
   code: string;
+  name: string;
 }
 
 export interface Plant {
@@ -78,4 +79,16 @@ export interface GetPlantGrowthHistory {
   numberImage: number;
   numberVideos: number;
   resources: FileResource[];
+}
+
+export interface GetPlantRecord {
+  productHarvestHistoryId: number;
+  unit: string;
+  actualQuantity: number;
+  recordBy: string;
+  avartarRecord: string;
+  recordDate: string;
+  harvestDate: string;
+  productName: string;
+  cropName: string;
 }

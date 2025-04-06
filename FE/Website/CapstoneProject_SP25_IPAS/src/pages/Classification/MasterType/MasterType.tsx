@@ -7,6 +7,7 @@ import {
   SectionTitle,
   Table,
   TableTitle,
+  MasterTypesModal,
 } from "@/components";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 import {
@@ -24,7 +25,6 @@ import { masterTypeService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
 import { masterTypeColumns } from "./MasterTypeColumns";
 import MasterTypeFilter from "./MasterTypeFilter";
-import MasterTypeModel from "./MasterTypeModal";
 import { MASTER_TYPE_SHOW_TABLE } from "@/constants";
 
 function MasterType() {
@@ -197,7 +197,7 @@ function MasterType() {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </Flex>
-      <MasterTypeModel
+      <MasterTypesModal
         isOpen={formModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}

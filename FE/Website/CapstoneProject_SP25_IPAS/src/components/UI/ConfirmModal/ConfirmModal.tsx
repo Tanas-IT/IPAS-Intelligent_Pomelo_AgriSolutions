@@ -41,7 +41,8 @@ const generateMessages = (
   if (actionType === "warning") {
     return {
       title: "Warning",
-      description: "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
+      description:
+        "You have selected a target that overlaps with or is contained within a previously chosen target. Please select in the existing target.",
     };
   }
 
@@ -86,7 +87,7 @@ const generateButtonTexts = (actionType: "delete" | "update" | "unsaved" | "erro
     warning: {
       confirmText: "Ok",
       cancelText: "Cancel",
-    }
+    },
   };
 
   return buttonTexts[actionType] || buttonTexts.update;
@@ -105,7 +106,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isDanger,
   errorMessages,
   noCancel = false,
-  maskClosable
+  maskClosable,
 }) => {
   const { title: generatedTitle, description: generatedDescription } = generateMessages(
     actionType,

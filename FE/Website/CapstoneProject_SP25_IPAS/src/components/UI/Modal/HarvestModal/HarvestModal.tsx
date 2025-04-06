@@ -1,9 +1,9 @@
 import { Button, Flex, Form } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, formatTimeReq, getUserId, RulesManager } from "@/utils";
 import { harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
-import { AssignEmployee, HarvestRequest, GetHarvestDay, productHarvestHistory } from "@/payloads";
+import { AssignEmployee, HarvestRequest, GetHarvestDay } from "@/payloads";
 import style from "./HarvestModal.module.scss";
 import { useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
 import { Icons } from "@/assets";
@@ -27,6 +27,7 @@ const HarvestModal = ({
   isLoadingAction,
 }: HarvestModalProps) => {
   const [form] = Form.useForm();
+  const [modalSize, setModalSize] = useState<"large" | "largeXL">("largeXL");
   const isUpdate = harvestData !== undefined && Object.keys(harvestData).length > 0;
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const { options: employeeOptions } = useUserInFarmByRole([UserRole.Employee], true);
@@ -34,19 +35,39 @@ const HarvestModal = ({
   const { crop } = useCropStore();
   if (!crop) return;
 
-  const resetForm = () => form.resetFields();
+  const resetForm = () => {
+    setIsDirty(false);
+    form.resetFields();
+  };
 
   useEffect(() => {
     resetForm();
-    if (isOpen && harvestData) {
-      form.setFieldsValue({
-        ...harvestData,
-        [harvestFormFields.dateHarvest]: harvestData.dateHarvest
-          ? dayjs(harvestData.dateHarvest)
-          : undefined,
-      });
+    if (isOpen) {
+      setModalSize(isUpdate ? "large" : "largeXL");
+      if (harvestData) {
+        const schedule = harvestData.carePlanSchedules?.[0];
+        let scheduleDate = schedule?.customDates;
+        if (scheduleDate) {
+          scheduleDate = scheduleDate.replace(/"/g, ""); // Loại bỏ dấu "
+        }
+        form.setFieldsValue({
+          ...harvestData,
+          [harvestFormFields.dateHarvest]: harvestData.dateHarvest
+            ? dayjs(harvestData.dateHarvest)
+            : undefined,
+          addNewTask: {
+            timeRange:
+              schedule?.startTime && schedule?.endTime && scheduleDate
+                ? [
+                    dayjs(`${scheduleDate} ${schedule.startTime}`, "YYYY/MM/DD HH:mm:ss"),
+                    dayjs(`${scheduleDate} ${schedule.endTime}`, "YYYY/MM/DD HH:mm:ss"),
+                  ]
+                : undefined,
+          },
+        });
+      }
     }
-  }, [isOpen, harvestData]);
+  }, [isOpen]);
 
   const handleReporterChange = (selectedIndex: number) => {
     const currentValues = form.getFieldValue(["addNewTask", "listEmployee"]) || [];
@@ -61,25 +82,33 @@ const HarvestModal = ({
   };
 
   const getFormData = (): HarvestRequest => {
-    const productHarvestList: productHarvestHistory[] =
-      form.getFieldValue("productHarvestHistory") || [];
+    const isUpdating = isUpdate && harvestData;
     const taskData = form.getFieldValue("addNewTask") || {};
+    const timeRange = taskData.timeRange || [];
 
-    return {
-      ...(isUpdate ? { harvestHistoryId: harvestData.harvestHistoryId } : {}),
-      cropId: crop.cropId,
-      dateHarvest: formatDateReq(form.getFieldValue(harvestFormFields.dateHarvest)) || undefined,
-      totalPrice: form.getFieldValue(harvestFormFields.totalPrice),
-      harvestHistoryNote: form.getFieldValue(harvestFormFields.harvestHistoryNote),
-      productHarvestHistory: productHarvestList as productHarvestHistory[],
-      addNewTask: {
-        taskName: taskData.taskName,
-        assignorId: Number(getUserId()),
-        startTime: formatTimeReq(taskData.timeRange?.[0]) || undefined,
-        endTime: formatTimeReq(taskData.timeRange?.[1]) || undefined,
-        listEmployee: taskData.listEmployee as AssignEmployee[],
-      },
-    };
+    return isUpdating
+      ? {
+          harvestHistoryId: harvestData.harvestHistoryId,
+          dateHarvest:
+            formatDateReq(form.getFieldValue(harvestFormFields.dateHarvest)) || undefined,
+          harvestHistoryNote: form.getFieldValue(harvestFormFields.harvestHistoryNote),
+          startTime: formatTimeReq(timeRange[0]) || undefined,
+          endTime: formatTimeReq(timeRange[1]) || undefined,
+        }
+      : {
+          cropId: crop.cropId,
+          dateHarvest:
+            formatDateReq(form.getFieldValue(harvestFormFields.dateHarvest)) || undefined,
+          harvestHistoryNote: form.getFieldValue(harvestFormFields.harvestHistoryNote),
+          productHarvestHistory: form.getFieldValue("productHarvestHistory") || [],
+          addNewTask: {
+            taskName: taskData.taskName,
+            assignorId: Number(getUserId()),
+            startTime: formatTimeReq(timeRange[0]) || undefined,
+            endTime: formatTimeReq(timeRange[1]) || undefined,
+            listEmployee: taskData.listEmployee || [],
+          },
+        };
   };
 
   const handleOk = async () => {
@@ -132,6 +161,22 @@ const HarvestModal = ({
         toast.error(MESSAGES.REQUIRE_REPORTER);
         return;
       }
+      // Kiểm tra danh sách sản phẩm có trùng nhau không
+      const productList = values.productHarvestHistory || [];
+      const productIds = productList.map((prod: any) => prod.masterTypeId);
+      const uniqueProductIds = new Set(productIds);
+      if (uniqueProductIds.size !== productIds.length) {
+        toast.error(MESSAGES.PRODUCT_DUPLICATE);
+        return;
+      }
+      // Kiểm tra danh sách nhân viên có trùng nhau không
+      const employeeList = values.addNewTask?.listEmployee || [];
+      const employeeIds = employeeList.map((emp: any) => emp.userId);
+      const uniqueEmployeeIds = new Set(employeeIds);
+      if (uniqueEmployeeIds.size !== employeeIds.length) {
+        toast.error(MESSAGES.EMPLOYEE_DUPLICATE);
+        return;
+      }
     }
 
     // console.log(getFormData());
@@ -146,26 +191,18 @@ const HarvestModal = ({
       isUpdate={isUpdate}
       isLoading={isLoadingAction}
       title={isUpdate ? "Update Harvest" : "Add New Harvest"}
-      size={isUpdate ? "large" : "largeXL"}
+      size={modalSize}
     >
       <Form form={form} layout="vertical" className={style.harvestForm}>
         <Flex gap={20}>
           <fieldset className={style.formSection}>
             <legend>Harvest Information</legend>
-            <Flex gap={20}>
-              <FormFieldModal
-                type="date"
-                label="Harvest Date"
-                name={harvestFormFields.dateHarvest}
-                rules={RulesManager.getDateRules()}
-              />
-              <FormFieldModal
-                label="Total Price (VND)"
-                name={harvestFormFields.totalPrice}
-                placeholder="Enter price (e.g. 100.000)"
-                rules={RulesManager.getNumberRules("Price")}
-              />
-            </Flex>
+            <FormFieldModal
+              type="date"
+              label="Harvest Date"
+              name={harvestFormFields.dateHarvest}
+              rules={RulesManager.getDateRules()}
+            />
 
             <FormFieldModal
               type="textarea"
@@ -191,21 +228,23 @@ const HarvestModal = ({
                           options={productOptions}
                           rules={RulesManager.getRequiredRules("Product")}
                         />
-                        <FormFieldModal
-                          label="Unit"
-                          name={[name, "unit"]}
-                          rules={RulesManager.getRequiredRules("Unit")}
-                        />
-                        <FormFieldModal
-                          label="Sell Price"
-                          name={[name, "sellPrice"]}
-                          rules={RulesManager.getNumberRules("Price")}
-                        />
+                        <FormFieldModal label="Unit" name={[name, "unit"]} />
                         <FormFieldModal
                           label="Quantity Need"
                           name={[name, "quantityNeed"]}
                           rules={RulesManager.getNumberRules("Quantity")}
                         />
+                        <FormFieldModal
+                          label="Cost Price (VND)"
+                          name={[name, "costPrice"]}
+                          rules={RulesManager.getPriceRules("Price")}
+                        />
+                        <FormFieldModal
+                          label="Sell Price (VND)"
+                          name={[name, "sellPrice"]}
+                          // rules={RulesManager.getNumberRules("Price")}
+                        />
+
                         <Button
                           onClick={() => {
                             remove(name);
@@ -295,6 +334,20 @@ const HarvestModal = ({
                 </>
               )}
             </Form.List>
+          </fieldset>
+        )}
+
+        {/* Update Task Section */}
+        {isUpdate && (
+          <fieldset className={style.formSection}>
+            <legend>Update Task</legend>
+            <FormFieldModal
+              label="Start & End Time"
+              name={["addNewTask", "timeRange"]}
+              type="time"
+              rules={RulesManager.getRequiredRules("Time")}
+              onChange={() => setIsDirty(true)}
+            />
           </fieldset>
         )}
       </Form>

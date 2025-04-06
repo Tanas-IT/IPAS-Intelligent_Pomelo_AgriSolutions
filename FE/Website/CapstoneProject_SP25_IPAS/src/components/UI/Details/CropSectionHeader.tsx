@@ -18,6 +18,7 @@ const CropSectionHeader = ({
 }) => {
   const { crop } = useCropStore();
   if (!crop) return;
+
   return (
     <Flex className={style.contentSectionHeader}>
       <Flex className={style.contentSectionTitle}>

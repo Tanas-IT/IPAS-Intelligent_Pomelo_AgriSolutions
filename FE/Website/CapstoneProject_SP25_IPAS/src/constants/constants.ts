@@ -6,7 +6,6 @@ export const MASTER_TYPE_SHOW_TABLE = {
   DOCUMENT: "Document",
   CULTIVAR: "Cultivar",
   WORK: "Work",
-  PRODUCT: "Product",
 };
 
 export const MASTER_TYPE = {
@@ -18,6 +17,13 @@ export const MASTER_TYPE = {
   PRODUCT: "Product",
   NOTIFICATION: "Notification",
 };
+
+export const GRAFTED_STATUS = {
+  HEALTHY: "Healthy",
+  MINOR_ISSUE: "Minor Issues",
+  SERIOUS_ISSUE: "Serious Issues",
+  USED: "Used",
+} as const;
 
 export const HEALTH_STATUS = {
   HEALTHY: "Healthy",
@@ -88,6 +94,7 @@ export const ROUTES = {
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
     `/farm/plant-lots/${parentId}/additional/${id}/details`,
   FARM_GRAFTED_PLANT_DETAIL: (id: number) => `/farm/grafted-plants/${id}/details`,
+  PRODUCT_DETAIL: (id: number) => `/classification/products/${id}/details`,
 };
 
 export const PLAN_TARGET_TYPE = {
@@ -142,6 +149,16 @@ export const HARVEST_STATUS = {
 export const harvestStatusColors: Record<string, string> = {
   "Not Started": "blue",
   "In Progress": "orange",
-  Incomplete: "orange",
+  Incomplete: "red",
   Completed: "green",
+};
+
+export const LOT_STATUS = {
+  PENDING: "Pending",
+  USED: "Used",
+} as const;
+
+export const lotStatusColors: Record<string, string> = {
+  Pending: "orange",
+  Used: "green",
 };
