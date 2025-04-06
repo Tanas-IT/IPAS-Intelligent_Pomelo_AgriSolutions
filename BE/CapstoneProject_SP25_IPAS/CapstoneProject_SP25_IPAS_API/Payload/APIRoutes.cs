@@ -399,6 +399,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string PomeloQualityBreakdown = prefix + "/dashboard/pomelo-quality-breakdown";
             public const string SeasonYield = prefix + "/dashboard/season-yield";
             public const string WorkProgressOverview = prefix + "/dashboard/work-progress-overview";
+            public const string GetWeatherOfFarm = prefix + "/dashboard/get-weather-of-farm";
         }
 
         public static class TaskFeedback
