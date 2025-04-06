@@ -749,21 +749,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if(findWorkLog.Status.ToLower().Equals(WorkLogStatusConst.IN_PROGRESS.ToLower())) {
                         throw new Exception("WorkLog is in-progress. Can not update");
                     }
-                    if (updateWorkLogModel.DateWork <= DateTime.Now)
+                    if (updateWorkLogModel.DateWork.Value.Date < DateTime.Now.Date)
                     {
-                        throw new Exception("Date Work must be greater than or equal now");
+                        throw new Exception("Date Work must be today or a future date");
                     }
+
+                   
                     if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null)
                     {
                         if (TimeSpan.Parse(updateWorkLogModel.StartTime) >= TimeSpan.Parse(updateWorkLogModel.EndTime))
                         {
                             throw new Exception("Start time must be less than End Time");
                         }
+                        if (updateWorkLogModel.DateWork.Value.Date == DateTime.Now.Date)
+                        {
+                            if (TimeSpan.Parse(updateWorkLogModel.StartTime) <= DateTime.Now.TimeOfDay)
+                            {
+                                throw new Exception("Start time must be later than the current time");
+                            }
+
+                            if (TimeSpan.Parse(updateWorkLogModel.EndTime) <= TimeSpan.Parse(updateWorkLogModel.StartTime))
+                            {
+                                throw new Exception("End time must be greater than start time");
+                            }
+                        }
                     }
                     if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null)
                     {
                         var parseStartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
+                        
                         var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
