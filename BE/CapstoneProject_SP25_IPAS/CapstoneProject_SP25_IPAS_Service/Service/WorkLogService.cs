@@ -1696,12 +1696,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
                 }
+                if(changeEmployeeOfWorkLog.DateWork != null && changeEmployeeOfWorkLog.StartTime != null && changeEmployeeOfWorkLog.EndTime != null)
+                {
+                    if (TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime) >= TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime))
+                    {
+                        throw new Exception("Start time must be less than End Time");
+                    }
+                    if (changeEmployeeOfWorkLog.DateWork.Value.Date == DateTime.Now.Date)
+                    {
+                        if (TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime) <= DateTime.Now.TimeOfDay)
+                        {
+                            throw new Exception("Start time must be later than the current time");
+                        }
+
+                        if (TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime) <= TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime))
+                        {
+                            throw new Exception("End time must be greater than start time");
+                        }
+                    }
+                }
                 if (changeEmployeeOfWorkLog.DateWork != null)
                 {
                     if (changeEmployeeOfWorkLog.DateWork < DateTime.Now)
                     {
                         return new BusinessResult(400, "Date of Work must be greater than now");
                     }
+                   
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
 
                 }

@@ -591,6 +591,17 @@ const generationConfig = {
             try
             {
                 var parseTag = Guid.Parse(tagId);
+               
+                var getImageByTag =  await trainingClient.GetImagesAsync(
+                                                projectId
+                                            );
+                var result = getImageByTag
+                               .Where(img => img.Tags != null && img.Tags.Any(tag => parseTag == tag.TagId))
+                               .ToList();
+                if (result != null && result.Count() > 0 )
+                {
+                    return new BusinessResult(200, "Can not delete this tag, because another image assigned this tag", true);
+                }
                 await trainingClient.DeleteTagAsync(projectId, parseTag);
                 return new BusinessResult(200, "Delete Tag Success", true);
             }
@@ -661,7 +672,7 @@ const generationConfig = {
                 if(tagIds.Count > 0)
                 {
                     getAllImages = getAllImages
-                               .Where(img => img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
+                               .Where(img => img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
                                .ToList();
                 }
                
