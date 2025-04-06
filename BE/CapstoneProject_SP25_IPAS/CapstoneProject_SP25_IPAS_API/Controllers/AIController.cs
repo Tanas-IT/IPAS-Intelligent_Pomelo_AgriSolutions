@@ -204,7 +204,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
-        [HttpPost(APIRoutes.AI.deleteTag, Name = "deleteTag")]
+        [HttpDelete(APIRoutes.AI.deleteTag, Name = "deleteTag")]
         public async Task<IActionResult> DeleteTag([FromRoute] string tagId)
         {
             try
