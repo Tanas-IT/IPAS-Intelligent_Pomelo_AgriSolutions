@@ -287,6 +287,7 @@ function ProductDetail() {
         onConfirm={() => {
           cancelConfirmModal.hideModal();
           formModal.hideModal();
+          criteriaModal.hideModal();
         }}
         onCancel={cancelConfirmModal.hideModal}
       />

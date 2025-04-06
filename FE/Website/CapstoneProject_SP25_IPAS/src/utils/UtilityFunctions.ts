@@ -3,7 +3,7 @@ import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
-import { FILE_FORMAT, HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
+import { FILE_FORMAT, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
   growthStageService,
@@ -12,7 +12,7 @@ import {
   processService,
   userService,
 } from "@/services";
-import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
+import { PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
 import dayjs, { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
@@ -162,7 +162,7 @@ export const formatTimeReq = (time?: dayjs.ConfigType): string | null => {
   return time ? dayjs(time).format("HH:mm:ss") : null;
 };
 
-export const formatDateAndTime = (date: Date): string => {
+export const formatDateAndTime = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };
 

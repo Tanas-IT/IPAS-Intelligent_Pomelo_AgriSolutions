@@ -12,9 +12,10 @@ export interface HarvestStatisticInYearRequest {
   productId: number;
 }
 
-export interface productHarvestHistory {
+export interface productHarvestHistoryReq {
   masterTypeId: number;
   unit: string;
+  costPrice: number;
   sellPrice: number;
   quantityNeed: number;
 }
@@ -37,10 +38,9 @@ export interface HarvestRequest {
   cropId?: number;
   dateHarvest?: string;
   harvestHistoryNote: string;
-  totalPrice: number;
   startTime?: string;
   endTime?: string;
-  productHarvestHistory?: productHarvestHistory[];
+  productHarvestHistory?: productHarvestHistoryReq[];
   addNewTask?: addNewTask;
 }
 
@@ -54,4 +54,13 @@ export interface RecordHarvestRequest {
   harvestHistoryId: number;
   userId: number;
   plantHarvestRecords: plantHarvestRecords[];
+}
+
+export interface UpdateProductHarvestRequest {
+  productHarvestHistoryId: number;
+  unit?: string;
+  sellPrice?: number;
+  costPrice?: number;
+  quantity: number;
+  userId: number;
 }

@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist, StateStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from "zustand";
+import { persist, StateStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface FarmState {
   farmName: string;
@@ -25,17 +25,19 @@ const asyncStorageAdapter: StateStorage = {
 export const useFarmStore = create<FarmState>()(
   persist(
     (set) => ({
-      farmName: '',
-      farmLogo: '',
-      farmExpiredDate: '',
+      farmName: "",
+      farmLogo: "",
+      farmExpiredDate: "",
       isFarmExpired: false,
-      setFarmInfo: (name: string, logo: string, expiredDate = '') => {
-        const isExpired = expiredDate ? new Date(expiredDate) < new Date() : false;
+      setFarmInfo: (name: string, logo: string, expiredDate = "") => {
+        const isExpired = expiredDate
+          ? new Date(expiredDate) < new Date()
+          : false;
         set({ farmName: name, farmLogo: logo });
       },
     }),
     {
-      name: 'farm',
+      name: "farm",
       storage: {
         getItem: async (name) => {
           const value = await asyncStorageAdapter.getItem(name);

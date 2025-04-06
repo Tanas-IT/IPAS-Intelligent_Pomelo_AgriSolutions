@@ -157,8 +157,8 @@ export const getPlantRecordHarvest = async (
       dateHarvestFrom,
       dateHarvestTo,
       productIds,
-      totalQuantityFrom: totalQuantityFrom ?? undefined, 
-      totalQuantityTo: totalQuantityTo ?? undefined, 
+      totalQuantityFrom: totalQuantityFrom ?? undefined,
+      totalQuantityTo: totalQuantityTo ?? undefined,
     },
   });
   const apiResponse = res.data as ApiResponse<GetData<GetPlantRecord>>;

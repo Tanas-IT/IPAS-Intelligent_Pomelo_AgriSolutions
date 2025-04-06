@@ -1,35 +1,36 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import Toast from "react-native-toast-message";
 
-const BASE_URL = 'http://192.168.100.78:5242/ipas';
+const API_HOST = process.env.EXPO_PUBLIC_API_HOST;
+const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
-export const axiosNoAuth: AxiosInstance = axios.create({
+const BASE_URL = `${API_HOST}:${API_PORT}/ipas`;
+
+const axiosNoAuth: AxiosInstance = axios.create({
   baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const axiosAuth: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-axiosAuth.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    const token = await AsyncStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn('No token found');
-    }
+axiosNoAuth.interceptors.request.use(
+  function (config: InternalAxiosRequestConfig) {
     return config;
   },
-  (error) => Promise.reject(error),
+  function (error) {
+    return Promise.reject(error);
+  }
 );
 
-const handleApiError = (error: any) => {
-  console.error('API Error:', error);
-  return Promise.reject(error);
-};
+// Add Response interceptor
+axiosNoAuth.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+    });
+  }
+);
 
-axiosNoAuth.interceptors.response.use((response) => response, handleApiError);
-axiosAuth.interceptors.response.use((response) => response, handleApiError);
+export default axiosNoAuth;

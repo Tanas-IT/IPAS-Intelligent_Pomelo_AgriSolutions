@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, formatTimeReq, getUserId, RulesManager } from "@/utils";
 import { harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
-import { AssignEmployee, HarvestRequest, GetHarvestDay, productHarvestHistory } from "@/payloads";
+import { AssignEmployee, HarvestRequest, GetHarvestDay } from "@/payloads";
 import style from "./HarvestModal.module.scss";
 import { useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
 import { Icons } from "@/assets";
@@ -91,7 +91,6 @@ const HarvestModal = ({
           harvestHistoryId: harvestData.harvestHistoryId,
           dateHarvest:
             formatDateReq(form.getFieldValue(harvestFormFields.dateHarvest)) || undefined,
-          totalPrice: form.getFieldValue(harvestFormFields.totalPrice),
           harvestHistoryNote: form.getFieldValue(harvestFormFields.harvestHistoryNote),
           startTime: formatTimeReq(timeRange[0]) || undefined,
           endTime: formatTimeReq(timeRange[1]) || undefined,
@@ -100,7 +99,6 @@ const HarvestModal = ({
           cropId: crop.cropId,
           dateHarvest:
             formatDateReq(form.getFieldValue(harvestFormFields.dateHarvest)) || undefined,
-          totalPrice: form.getFieldValue(harvestFormFields.totalPrice),
           harvestHistoryNote: form.getFieldValue(harvestFormFields.harvestHistoryNote),
           productHarvestHistory: form.getFieldValue("productHarvestHistory") || [],
           addNewTask: {
@@ -199,20 +197,12 @@ const HarvestModal = ({
         <Flex gap={20}>
           <fieldset className={style.formSection}>
             <legend>Harvest Information</legend>
-            <Flex gap={20}>
-              <FormFieldModal
-                type="date"
-                label="Harvest Date"
-                name={harvestFormFields.dateHarvest}
-                rules={RulesManager.getDateRules()}
-              />
-              <FormFieldModal
-                label="Total Price (VND)"
-                name={harvestFormFields.totalPrice}
-                placeholder="Enter price (e.g. 100.000)"
-                rules={RulesManager.getNumberRules("Price")}
-              />
-            </Flex>
+            <FormFieldModal
+              type="date"
+              label="Harvest Date"
+              name={harvestFormFields.dateHarvest}
+              rules={RulesManager.getDateRules()}
+            />
 
             <FormFieldModal
               type="textarea"
@@ -245,9 +235,14 @@ const HarvestModal = ({
                           rules={RulesManager.getNumberRules("Quantity")}
                         />
                         <FormFieldModal
+                          label="Cost Price (VND)"
+                          name={[name, "costPrice"]}
+                          rules={RulesManager.getPriceRules("Price")}
+                        />
+                        <FormFieldModal
                           label="Sell Price (VND)"
                           name={[name, "sellPrice"]}
-                          rules={RulesManager.getNumberRules("Price")}
+                          // rules={RulesManager.getNumberRules("Price")}
                         />
 
                         <Button

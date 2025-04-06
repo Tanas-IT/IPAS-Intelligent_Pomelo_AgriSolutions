@@ -7,12 +7,14 @@ import {
   GetHarvestSelected,
   GetHarvestStatisticOfPlant,
   GetHarvestStatisticPlants,
+  GetPlantHasHarvest,
   HarvestRequest,
   HarvestStatisticInYearRequest,
   HarvestStatisticOfPlantRequest,
   RecordHarvestRequest,
+  UpdateProductHarvestRequest,
 } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, getUserId } from "@/utils";
 
 export const getHarvests = async (
   currentPage?: number,
@@ -39,6 +41,17 @@ export const getHarvest = async (id: number): Promise<ApiResponse<GetHarvestDayD
   return apiResponse;
 };
 
+export const getPlantHasHarvest = async (
+  harvestId: number,
+  masterTypeId: number,
+): Promise<ApiResponse<GetPlantHasHarvest[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/get-plant-has-harvest?harvestId=${harvestId}&masterTypeId=${masterTypeId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantHasHarvest[]>;
+  return apiResponse;
+};
+
 export const deleteHarvest = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const harvestIds = ids;
   const res = await axiosAuth.axiosJsonRequest.put(
@@ -55,7 +68,6 @@ export const updateHarvest = async (
     harvestHistoryId: harvest.harvestHistoryId,
     dateHarvest: harvest.dateHarvest,
     harvestHistoryNote: harvest.harvestHistoryNote,
-    totalPrice: harvest.totalPrice,
     startTime: harvest.startTime,
     endTime: harvest.endTime,
   };
@@ -86,6 +98,31 @@ export const createRecordHarvest = async (
   record: RecordHarvestRequest,
 ): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.post(`harvests/plants/record`, record);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const importRecordHarvest = async (
+  file: File,
+  harvestId: number,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("fileExcel", file);
+  formData.append("harvestId", harvestId.toString());
+  formData.append("userId", getUserId());
+
+  const res = await axiosAuth.axiosMultipartForm.post(
+    `harvests/plant/record/import-excel`,
+    formData,
+  );
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const UpdateProductHarvest = async (
+  req: UpdateProductHarvestRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`harvests/update-product-harvest`, req);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

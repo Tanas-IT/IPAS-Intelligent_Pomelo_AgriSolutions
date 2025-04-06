@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,11 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-} from 'react-native';
-import CustomIcon from 'components/CustomIcon';
-import { PlantGrowthHistory } from '@/types/plant';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import TextCustom from 'components/TextCustom';
-import theme from '@/theme';
+} from "react-native";
+import { PlantGrowthHistory } from "@/types/plant";
+import { useVideoPlayer, VideoView } from "expo-video";
+import theme from "@/theme";
+import { CustomIcon, TextCustom } from "@/components";
 
 interface ExtendedPlantGrowthHistory extends PlantGrowthHistory {
   images?: string[];
@@ -26,47 +25,56 @@ interface NoteDetailModalProps {
   onClose: () => void;
 }
 
-const VideoThumbnail: React.FC<{ videoUrl: string; onSelect: (url: string) => void }> = ({
-    videoUrl,
-    onSelect,
-  }) => {
-    const player = useVideoPlayer(videoUrl, (player) => {
-      player.loop = false;
-      player.muted = true;
-    });
-  
-    return (
-      <TouchableOpacity onPress={() => onSelect(videoUrl)} style={styles.thumbnailContainer}>
-        <VideoView
-          player={player}
-          style={styles.videoThumbnail}
-          nativeControls={false}
-        />
-        <CustomIcon
-          name="play-circle"
-          size={30}
-          color="#fff"
-          type="MaterialCommunityIcons"
-        />
-      </TouchableOpacity>
-    );
-  };
+const VideoThumbnail: React.FC<{
+  videoUrl: string;
+  onSelect: (url: string) => void;
+}> = ({ videoUrl, onSelect }) => {
+  const player = useVideoPlayer(videoUrl, (player) => {
+    player.loop = false;
+    player.muted = true;
+  });
 
-const NoteDetailModal: React.FC<NoteDetailModalProps> = ({ visible, history, onClose }) => {
+  return (
+    <TouchableOpacity
+      onPress={() => onSelect(videoUrl)}
+      style={styles.thumbnailContainer}
+    >
+      <VideoView
+        player={player}
+        style={styles.videoThumbnail}
+        nativeControls={false}
+      />
+      <CustomIcon
+        name="play-circle"
+        size={30}
+        color="#fff"
+        type="MaterialCommunityIcons"
+      />
+    </TouchableOpacity>
+  );
+};
+
+const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
+  visible,
+  history,
+  onClose,
+}) => {
   const flatListRef = useRef<FlatList>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   const processResources = (resources?: string[]) => {
     if (!resources) return { images: [], videos: [] };
-    const images = resources.filter((url) => /\.(jpg|jpeg|png|gif)$/i.test(url));
+    const images = resources.filter((url) =>
+      /\.(jpg|jpeg|png|gif)$/i.test(url)
+    );
     const videos = resources.filter((url) => /\.(mp4|mov|avi)$/i.test(url));
     return { images, videos };
   };
 
   const { images, videos } = processResources(history?.plantResources);
 
-  const player = useVideoPlayer(selectedVideoUrl || '', (player) => {
+  const player = useVideoPlayer(selectedVideoUrl || "", (player) => {
     player.loop = false;
     if (selectedVideoUrl) player.play();
   });
@@ -85,7 +93,7 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({ visible, history, onC
   const renderImageItem = ({ item }: { item: string }) => (
     <Image source={{ uri: item }} style={styles.modalImage} />
   );
-const renderVideoThumbnail = ({ item }: { item: string }) => (
+  const renderVideoThumbnail = ({ item }: { item: string }) => (
     <VideoThumbnail videoUrl={item} onSelect={setSelectedVideoUrl} />
   );
 
@@ -110,14 +118,19 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
             {images.length > 0 ? (
               <View style={styles.carouselContainer}>
                 <TouchableOpacity
-                  style={[styles.arrowButton, currentImageIndex === 0 && styles.arrowButtonDisabled]}
+                  style={[
+                    styles.arrowButton,
+                    currentImageIndex === 0 && styles.arrowButtonDisabled,
+                  ]}
                   onPress={handlePrevious}
                   disabled={currentImageIndex === 0}
                 >
                   <CustomIcon
                     name="chevron-left"
                     size={30}
-                    color={currentImageIndex === 0 ? '#ccc' : theme.colors.primary}
+                    color={
+                      currentImageIndex === 0 ? "#ccc" : theme.colors.primary
+                    }
                     type="MaterialCommunityIcons"
                   />
                 </TouchableOpacity>
@@ -132,7 +145,8 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   renderItem={renderImageItem}
                   onMomentumScrollEnd={(event) => {
                     const index = Math.round(
-                      event.nativeEvent.contentOffset.x / styles.modalImage.width
+                      event.nativeEvent.contentOffset.x /
+                        styles.modalImage.width
                     );
                     setCurrentImageIndex(index);
                   }}
@@ -141,7 +155,8 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                 <TouchableOpacity
                   style={[
                     styles.arrowButton,
-                    currentImageIndex === images.length - 1 && styles.arrowButtonDisabled,
+                    currentImageIndex === images.length - 1 &&
+                      styles.arrowButtonDisabled,
                   ]}
                   onPress={handleNext}
                   disabled={currentImageIndex === images.length - 1}
@@ -149,13 +164,19 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   <CustomIcon
                     name="chevron-right"
                     size={30}
-                    color={currentImageIndex === images.length - 1 ? '#ccc' : theme.colors.primary}
+                    color={
+                      currentImageIndex === images.length - 1
+                        ? "#ccc"
+                        : theme.colors.primary
+                    }
                     type="MaterialCommunityIcons"
                   />
                 </TouchableOpacity>
               </View>
             ) : (
-              <TextCustom style={styles.noMediaText}>No images available</TextCustom>
+              <TextCustom style={styles.noMediaText}>
+                No images available
+              </TextCustom>
             )}
 
             {/* Video section */}
@@ -171,7 +192,9 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
                   contentContainerStyle={styles.videoList}
                 />
               ) : (
-                <TextCustom style={styles.noMediaText}>No videos available</TextCustom>
+                <TextCustom style={styles.noMediaText}>
+                  No videos available
+                </TextCustom>
               )}
             </View>
 
@@ -198,7 +221,10 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
               allowsPictureInPicture
               nativeControls
             />
-            <TouchableOpacity style={styles.fullscreenCloseButton} onPress={closeFullscreen}>
+            <TouchableOpacity
+              style={styles.fullscreenCloseButton}
+              onPress={closeFullscreen}
+            >
               <CustomIcon
                 name="close"
                 size={30}
@@ -216,27 +242,27 @@ const renderVideoThumbnail = ({ item }: { item: string }) => (
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 20,
-    width: '90%',
-    maxHeight: '80%',
-    alignItems: 'center',
+    width: "90%",
+    maxHeight: "80%",
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.primary,
     marginBottom: 15,
   },
   carouselContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   modalImage: {
@@ -251,12 +277,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   videoSection: {
-    width: '100%',
+    width: "100%",
     marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     color: theme.colors.primary,
     marginBottom: 10,
   },
@@ -264,7 +290,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   thumbnailContainer: {
-    position: 'relative',
+    position: "relative",
     marginRight: 10,
   },
   videoThumbnail: {
@@ -273,18 +299,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   playIcon: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
     transform: [{ translateX: -15 }, { translateY: -15 }],
   },
   noMediaText: {
-    color: '#999',
+    color: "#999",
     fontSize: 14,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   closeButton: {
-    backgroundColor: '#BCD379',
+    backgroundColor: "#BCD379",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 6,
@@ -292,23 +318,23 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: theme.colors.primary,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   fullscreenContainer: {
     flex: 1,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
   },
   fullscreenVideo: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   fullscreenCloseButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 20,
     padding: 5,
   },

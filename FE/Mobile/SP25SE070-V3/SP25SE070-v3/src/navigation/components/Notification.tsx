@@ -1,8 +1,8 @@
-import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import CustomIcon from 'components/CustomIcon';
-import theme from '@/theme';
+import React from "react";
+import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import theme from "@/theme";
+import { CustomIcon } from "@/components";
 
 interface NotificationIconProps {
   unreadCount?: number;
@@ -15,7 +15,7 @@ interface NotificationIconProps {
 export const Notification: React.FC<NotificationIconProps> = ({
   unreadCount = 0,
   iconSize = 24,
-  badgeColor = '#FF6B6B',
+  badgeColor = "#FF6B6B",
   iconColor = theme.colors.primary,
   onPress,
 }) => {
@@ -30,13 +30,17 @@ export const Notification: React.FC<NotificationIconProps> = ({
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={handlePress}
       style={styles.container}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
-      <CustomIcon name='bell-ring' color={iconColor} type='MaterialCommunityIcons' />
-      
+      <CustomIcon
+        name="bell-ring"
+        color={iconColor}
+        type="MaterialCommunityIcons"
+      />
+
       {unreadCount > 0 && (
         <View style={[styles.badge, { backgroundColor: badgeColor }]}>
           {unreadCount <= 9 ? (
@@ -52,23 +56,23 @@ export const Notification: React.FC<NotificationIconProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
+    position: "relative",
     marginRight: 16,
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
     right: -6,
     top: -6,
     minWidth: 18,
     height: 18,
     borderRadius: 9,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: 'white',
+    color: "white",
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

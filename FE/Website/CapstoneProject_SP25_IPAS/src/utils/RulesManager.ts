@@ -11,6 +11,15 @@ export class RulesManager {
       },
     ];
   }
+  static getPriceRules(fieldName: string) {
+    return [
+      { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },
+      {
+        pattern: /^(?:[1-9]\d{3,}|1000)(?:\.\d+)?$/,
+        message: `${fieldName} must be a valid number greater than or equal to 1000!`,
+      },
+    ];
+  }
   static getNumberNotRequiredRules(fieldName: string) {
     return [
       {

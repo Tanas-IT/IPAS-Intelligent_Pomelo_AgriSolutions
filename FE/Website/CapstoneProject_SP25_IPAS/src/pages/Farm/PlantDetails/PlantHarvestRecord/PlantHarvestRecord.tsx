@@ -4,6 +4,7 @@ import {
   LoadingSkeleton,
   PlantSectionHeader,
   TimelineFilter,
+  UpdateProductHarvestModal,
   UserAvatar,
 } from "@/components";
 import { Button, Divider, Empty, Flex, InputNumber, Select, Typography } from "antd";
@@ -11,7 +12,7 @@ import style from "./PlantHarvestRecord.module.scss";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
 import { formatDate, formatDayMonthAndTime } from "@/utils";
-import { GetPlantRecord } from "@/payloads";
+import { GetPlantRecord, productHarvestHistoryRes, UpdateProductHarvestRequest } from "@/payloads";
 import { DEFAULT_RECORDS_IN_DETAIL, MASTER_TYPE } from "@/constants";
 import { useDirtyStore, usePlantStore } from "@/stores";
 import { harvestService, plantService } from "@/services";
@@ -34,6 +35,7 @@ function PlantHarvestRecord() {
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const deleteConfirmModal = useModal<{ id: number }>();
+  const formModal = useModal<{ id: number; quantity: number }>();
   if (!plant) return;
 
   const fetchData = async () => {
@@ -99,6 +101,17 @@ function PlantHarvestRecord() {
       }
     } finally {
       deleteConfirmModal.hideModal();
+    }
+  };
+
+  const handleUpdateProductHarvest = async (values: UpdateProductHarvestRequest) => {
+    const res = await harvestService.UpdateProductHarvest(values);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      formModal.hideModal();
+      await handleResetData();
+    } else {
+      toast.error(res.message);
     }
   };
 
@@ -187,7 +200,12 @@ function PlantHarvestRecord() {
                         </span>
                       </Flex>
                       <ActionMenuRecord
-                        onEdit={() => {}}
+                        onEdit={() =>
+                          formModal.showModal({
+                            id: record.productHarvestHistoryId,
+                            quantity: record.actualQuantity,
+                          })
+                        }
                         onDelete={() =>
                           deleteConfirmModal.showModal({ id: record.productHarvestHistoryId })
                         }
@@ -209,6 +227,15 @@ function PlantHarvestRecord() {
         )}
       </Flex>
 
+      <UpdateProductHarvestModal
+        isPlant
+        isOpen={formModal.modalState.visible}
+        onClose={formModal.hideModal}
+        onSave={(value) => handleUpdateProductHarvest(value)}
+        quantity={formModal.modalState.data?.quantity}
+        productHarvestId={formModal.modalState.data?.id}
+        isLoadingAction={false}
+      />
       {/* Confirm Delete Modal */}
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}

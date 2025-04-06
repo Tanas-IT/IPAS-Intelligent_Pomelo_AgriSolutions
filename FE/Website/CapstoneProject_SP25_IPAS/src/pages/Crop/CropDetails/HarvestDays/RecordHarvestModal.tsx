@@ -150,7 +150,7 @@ const RecordHarvestModal = ({
       toast.error(`Duplicate plants found: ${duplicatePlants.join(", ")}`);
       return;
     }
-    console.log(getFormData());
+    // console.log(getFormData());
     onSave(getFormData());
   };
 
@@ -208,7 +208,7 @@ const RecordHarvestModal = ({
                       isLoading={loading.plants}
                     />
                     <FormFieldModal
-                      label="Quantity"
+                      label="Yield"
                       name={[name, "quantity"]}
                       rules={RulesManager.getNumberRules("Quantity")}
                     />

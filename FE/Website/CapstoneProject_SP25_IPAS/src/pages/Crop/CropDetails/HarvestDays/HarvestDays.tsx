@@ -35,6 +35,7 @@ import HarvestDayDetail from "./HarvestDayDetail";
 import { CROP_STATUS } from "@/constants";
 import RecordHarvestModal from "./RecordHarvestModal";
 import { toast } from "react-toastify";
+import RecordImportModal from "./RecordImportModal";
 
 function HarvestDays() {
   const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
@@ -44,6 +45,8 @@ function HarvestDays() {
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ harvest: HarvestRequest }>();
   const recordConfirmModal = useModal<{ record: RecordHarvestRequest }>();
+  const importModal = useModal<{ harvestId: number }>();
+  const importErrorModal = useModal<{ errors: string[] }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
   const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
@@ -201,6 +204,32 @@ function HarvestDays() {
     }
   };
 
+  const handleImportClose = (file: File | null) => {
+    if (file) {
+      cancelConfirmModal.showModal();
+    } else {
+      importModal.hideModal();
+    }
+  };
+
+  const handleImport = async (file: File, harvestId?: number) => {
+    if (!harvestId) return;
+    try {
+      setIsActionLoading(true);
+      var res = await harvestService.importRecordHarvest(file, harvestId);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        importModal.hideModal();
+        await fetchData();
+      } else {
+        const errorList = res.message.split("\n").filter((error) => error.trim() !== "");
+        importErrorModal.showModal({ errors: errorList });
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
   const filterContent = (
     <HarvestDayFilter
       filters={filters}
@@ -225,6 +254,9 @@ function HarvestDays() {
                 deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
               }
               onOpenRecordModal={() => recordModal.showModal(selectedHarvest)}
+              onImport={() =>
+                importModal.showModal({ harvestId: selectedHarvest.harvestHistoryId })
+              }
             />
           }
         />
@@ -254,6 +286,7 @@ function HarvestDays() {
                   onEdit={() => formModal.showModal(harvest)}
                   onDelete={() => deleteConfirmModal.showModal({ ids: [harvest.harvestHistoryId] })}
                   onOpenRecordModal={() => recordModal.showModal(harvest)}
+                  onImport={() => importModal.showModal({ harvestId: harvest.harvestHistoryId })}
                 />
               )}
             />
@@ -283,6 +316,12 @@ function HarvestDays() {
         onSave={handleRecordConfirm}
         isLoadingAction={isActionLoading}
         harvestData={recordModal.modalState.data}
+      />
+      <RecordImportModal
+        isOpen={importModal.modalState.visible}
+        onClose={handleImportClose}
+        onSave={(value) => handleImport(value, importModal.modalState.data?.harvestId)}
+        isLoadingAction={isActionLoading}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
@@ -318,6 +357,17 @@ function HarvestDays() {
           recordModal.hideModal();
         }}
         onCancel={cancelConfirmModal.hideModal}
+      />
+      {/* Confirm Error Modal */}
+      <ConfirmModal
+        visible={importErrorModal.modalState.visible}
+        onConfirm={importErrorModal.hideModal}
+        onCancel={importErrorModal.hideModal}
+        actionType="error"
+        title="Import Failed"
+        noCancel={true}
+        description="There were errors in your imported file. Please review the details below."
+        errorMessages={importErrorModal.modalState.data?.errors}
       />
     </Flex>
   );

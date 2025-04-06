@@ -36,13 +36,14 @@ export interface GetHarvestDay {
   carePlanSchedules: carePlanSchedules[];
 }
 
-export interface productHarvestHistory {
+export interface productHarvestHistoryRes {
   productHarvestHistoryId: number;
   masterTypeId: number;
   unit: string;
-  sellPrice: number;
+  costPrice?: number;
+  sellPrice?: number;
   quantityNeed: number;
-  productName: string;
+  productName?: string;
 }
 export interface UserWorkLog {
   userWorklogId: number;
@@ -78,8 +79,24 @@ export interface CarePlanSchedulesDetail {
 }
 
 export interface GetHarvestDayDetail extends GetHarvestDay {
-  productHarvestHistory: productHarvestHistory[];
+  productHarvestHistory: productHarvestHistoryRes[];
   carePlanSchedules: CarePlanSchedulesDetail[];
+}
+
+export interface GetPlantHasHarvest {
+  productHarvestHistoryId: number;
+  masterTypeId: number;
+  plantId: number;
+  unit: string;
+  actualQuantity: number;
+  recordDate: string;
+  harvestHistoryId: number;
+  productName: string;
+  harvestHistoryCode: string;
+  plantName: string;
+  plantIndex: number;
+  landRowIndex: number;
+  lantPlotName: string;
 }
 
 export interface GetHarvestSelected {

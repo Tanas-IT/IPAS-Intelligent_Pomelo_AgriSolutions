@@ -1,14 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Image, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import theme from '@/theme';
-import TextCustom from 'components/TextCustom';
-import { ROUTE_NAMES } from '@/navigation/RouteNames';
-import { RootStackNavigationProp } from '@/navigation/Types';
-import { AI2 } from 'assets/images';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Image,
+  Dimensions,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import theme from "@/theme";
+import { ROUTE_NAMES } from "@/constants/RouteNames";
+import { RootStackNavigationProp } from "@/constants/Types";
+import { LinearGradient } from "expo-linear-gradient";
+import { AI2 } from "@/assets/images";
+import { TextCustom } from "@/components";
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 
 const SplashScreen = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -81,9 +89,7 @@ const SplashScreen = () => {
           },
         ]}
       >
-        {!imageLoaded && (
-          <View style={stylesSplash.imagePlaceholder} />
-        )}
+        {!imageLoaded && <View style={stylesSplash.imagePlaceholder} />}
         <Animated.View style={{ opacity: fadeAnim }}>
           <Image
             source={AI2}
@@ -97,17 +103,23 @@ const SplashScreen = () => {
 
       <TextCustom style={stylesSplash.title}>AI Pest Detectionn</TextCustom>
       <TextCustom style={stylesSplash.description}>
-      Identify diseases on grapefruit trees quickly and accurately.
+        Identify diseases on grapefruit trees quickly and accurately.
       </TextCustom>
 
       <TouchableOpacity onPress={handleGetStarted}>
         <LinearGradient
-          colors={[theme.colors.secondary, `${theme.colors.primary}80`, theme.colors.secondary]} // Gradient: secondary -> primary nhạt -> secondary
+          colors={[
+            theme.colors.secondary,
+            `${theme.colors.primary}80`,
+            theme.colors.secondary,
+          ]} // Gradient: secondary -> primary nhạt -> secondary
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={stylesSplash.getStartedButton}
         >
-          <TextCustom style={stylesSplash.getStartedText}>Get Started</TextCustom>
+          <TextCustom style={stylesSplash.getStartedText}>
+            Get Started
+          </TextCustom>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -117,31 +129,31 @@ const SplashScreen = () => {
 const stylesSplash = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0A1A2A',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#0A1A2A",
   },
   backgroundGradient: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0A1A2A',
+    backgroundColor: "#0A1A2A",
     opacity: 0.8,
   },
   robotContainer: {
     marginBottom: 30,
-    position: 'relative',
+    position: "relative",
     elevation: 5,
-    marginTop: -200
+    marginTop: -200,
   },
   robotImage: {
     width: screenWidth * 0.6,
     borderRadius: 75,
   },
   glowEffect: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     left: -10,
     right: -10,
@@ -153,19 +165,19 @@ const stylesSplash = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 10,
-    fontFamily: 'BalsamiqSans-Bold',
-    textShadowColor: 'rgba(0, 255, 255, 0.5)',
+    fontFamily: "BalsamiqSans-Bold",
+    textShadowColor: "rgba(0, 255, 255, 0.5)",
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
-    marginTop: -150
+    marginTop: -150,
   },
   description: {
     fontSize: 16,
-    color: '#B0C4DE',
-    textAlign: 'center',
+    color: "#B0C4DE",
+    textAlign: "center",
     marginHorizontal: 30,
     marginBottom: 40,
   },
@@ -182,15 +194,15 @@ const stylesSplash = StyleSheet.create({
   },
   getStartedText: {
     fontSize: 18,
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   imagePlaceholder: {
-    position: 'absolute',
+    position: "absolute",
     marginTop: 150,
     width: screenWidth * 0.6,
     height: screenWidth * 0.6,
-    backgroundColor: '#1E2A3A'
+    backgroundColor: "#1E2A3A",
   },
 });
 

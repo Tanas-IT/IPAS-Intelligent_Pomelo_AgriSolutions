@@ -1,13 +1,27 @@
-import { Flex, Button, Empty, Table, Tag } from "antd";
+import { Flex, Button, Empty, Table, Tag, Select } from "antd";
 import { Icons } from "@/assets";
 import style from "./HarvestDays.module.scss";
 import { useEffect, useState } from "react";
-import { GetHarvestDay, GetHarvestDayDetail } from "@/payloads";
+import {
+  GetHarvestDay,
+  GetHarvestDayDetail,
+  GetPlantHasHarvest,
+  productHarvestHistoryRes,
+  UpdateProductHarvestRequest,
+} from "@/payloads";
 import { harvestService } from "@/services";
-import { ActionMenuHarvest, LoadingSkeleton, UserAvatar } from "@/components";
-import { formatCurrencyVND, formatDate } from "@/utils";
-import { harvestStatusColors } from "@/constants";
+import {
+  ActionMenuHarvest,
+  LoadingSkeleton,
+  UpdateProductHarvestModal,
+  UserAvatar,
+} from "@/components";
+import { formatCurrencyVND, formatDate, formatDateAndTime } from "@/utils";
+import { harvestStatusColors, ROUTES } from "@/constants";
 import { useCropStore } from "@/stores";
+import { useNavigate } from "react-router-dom";
+import { useModal } from "@/hooks";
+import { toast } from "react-toastify";
 
 interface HarvestDayDetailProps {
   selectedHarvest: GetHarvestDay | null;
@@ -16,26 +30,62 @@ interface HarvestDayDetailProps {
 }
 
 function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDetailProps) {
+  const navigate = useNavigate();
   const [harvestData, setHarvestData] = useState<GetHarvestDayDetail | null>(null);
+  const [productId, setProductId] = useState<number | null>(null);
+  const [plantsHarvested, setPlantsHarvested] = useState<GetPlantHasHarvest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { shouldRefetch } = useCropStore();
+  const formModal = useModal<productHarvestHistoryRes>();
+
   if (!selectedHarvest) return null;
+  const resetData = () => {
+    setProductId(null);
+    setPlantsHarvested([]);
+  };
+
+  const fetchHarvest = async () => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const res = await harvestService.getHarvest(selectedHarvest.harvestHistoryId);
+      if (res.statusCode === 200) {
+        setHarvestData(res.data);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchHarvest();
+  }, [selectedHarvest, shouldRefetch]);
 
   useEffect(() => {
-    const fetchHarvest = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const res = await harvestService.getHarvest(selectedHarvest.harvestHistoryId);
-        if (res.statusCode === 200) {
-          setHarvestData(res.data);
-        }
-      } finally {
-        setLoading(false);
+    if (!productId) return;
+
+    const fetchPlants = async () => {
+      const res = await harvestService.getPlantHasHarvest(
+        selectedHarvest.harvestHistoryId,
+        productId,
+      );
+      if (res.statusCode === 200) {
+        setPlantsHarvested(res.data);
       }
     };
 
-    fetchHarvest();
-  }, [selectedHarvest, shouldRefetch]);
+    fetchPlants();
+  }, [productId]);
+
+  const handleUpdateProductHarvest = async (values: UpdateProductHarvestRequest) => {
+    const res = await harvestService.UpdateProductHarvest(values);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      formModal.hideModal();
+      await fetchHarvest();
+      resetData();
+    } else {
+      toast.error(res.message);
+    }
+  };
 
   if (loading) return <LoadingSkeleton rows={10} />;
   if (!harvestData)
@@ -60,7 +110,6 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
     harvestHistoryNote,
     totalPrice,
     harvestStatus,
-    yieldHasRecord,
     productHarvestHistory,
     carePlanSchedules,
   } = harvestData;
@@ -110,7 +159,7 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
           <Icons.money />
           <span className={style.label}>Total Price:</span>
         </Flex>
-        <p>{formatCurrencyVND(totalPrice)}</p>
+        <p>{totalPrice ? formatCurrencyVND(totalPrice) : "N/A"}</p>
       </Flex>
 
       <Flex className={style.modalInfoRow}>
@@ -122,46 +171,11 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
       </Flex>
 
       <Flex className={style.sectionDetails}>
-        {/* Product Harvest History */}
-        <div className={style.detailWrapper}>
-          <p className={style.title}>Products Harvested</p>
-          <Table
-            dataSource={productHarvestHistory}
-            rowKey="productHarvestHistoryId"
-            pagination={false}
-            columns={[
-              {
-                title: "Product",
-                dataIndex: "productName",
-                key: "productName",
-                align: "center",
-              },
-              {
-                title: "Quantity Needed",
-                dataIndex: "quantityNeed",
-                key: "quantityNeed",
-                align: "center",
-              },
-              {
-                title: "Sell Price",
-                dataIndex: "sellPrice",
-                key: "sellPrice",
-                render: (price) => `${formatCurrencyVND(price)}`,
-                align: "center",
-              },
-              {
-                title: "Unit",
-                dataIndex: "unit",
-                key: "unit",
-                align: "center",
-              },
-            ]}
-          />
-        </div>
-
         {/* Employees Involved */}
         <div className={style.detailWrapper}>
-          <p className={style.title}>Employees Involved</p>
+          <Flex className={style.titleWrapper}>
+            <p className={style.title}>Employees Involved</p>
+          </Flex>
           {employeesInHarvest.length > 0 ? (
             <Flex wrap="wrap" gap={20}>
               {employeesInHarvest.map((employee) => (
@@ -186,7 +200,141 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
             <Empty description="No employees involved" />
           )}
         </div>
+
+        {/* Product Harvest History */}
+        <div className={style.detailWrapper}>
+          <Flex className={style.titleWrapper}>
+            <p className={style.title}>Products Harvested</p>
+          </Flex>
+          <div className={style.tableWrapper}>
+            <Table
+              className={style.table}
+              dataSource={productHarvestHistory}
+              rowKey="productHarvestHistoryId"
+              pagination={false}
+              columns={[
+                {
+                  title: "Product",
+                  dataIndex: "productName",
+                  key: "productName",
+                  align: "center",
+                },
+                {
+                  title: "Yield Needed",
+                  dataIndex: "quantityNeed",
+                  key: "quantityNeed",
+                  align: "center",
+                  render: (_: any, record: any) => `${record.quantityNeed} ${record.unit}`,
+                },
+                {
+                  title: "Cost Price",
+                  dataIndex: "costPrice",
+                  key: "costPrice",
+                  align: "center",
+                  render: (price, record) => `${formatCurrencyVND(price)}/${record.unit}`,
+                },
+                {
+                  title: "Sell Price",
+                  dataIndex: "sellPrice",
+                  key: "sellPrice",
+                  render: (price) => `${price ? formatCurrencyVND(price) : "N/A"}`,
+                  align: "center",
+                },
+                {
+                  title: "Action",
+                  key: "action",
+                  align: "center",
+                  render: (item: productHarvestHistoryRes) => (
+                    <Button type="dashed" onClick={() => formModal.showModal(item)}>
+                      Update
+                    </Button>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className={style.detailWrapper}>
+          <Flex align="center" gap={20} className={style.titleWrapper}>
+            <p className={style.title}>Plants Harvested</p>
+            <Select
+              placeholder="Select Product"
+              style={{ width: 240 }}
+              options={productHarvestHistory?.map((product) => ({
+                value: product.masterTypeId,
+                label: product.productName,
+              }))}
+              value={productId}
+              onChange={(value) => setProductId(value)}
+              allowClear
+            />
+          </Flex>
+
+          <div className={style.tableWrapper}>
+            <Table
+              className={style.table}
+              dataSource={plantsHarvested}
+              rowKey="productHarvestHistoryId"
+              pagination={{
+                pageSize: 5,
+                showSizeChanger: false,
+              }}
+              columns={[
+                {
+                  title: "Plant Name",
+                  dataIndex: "plantName",
+                  key: "plantName",
+                  align: "center",
+                },
+                {
+                  title: "Plant Location",
+                  key: "plantIndex",
+                  render: (item: GetPlantHasHarvest) =>
+                    `${item.lantPlotName} - Row ${item.landRowIndex} - Plant #${item.plantIndex}`,
+                  align: "center",
+                },
+
+                {
+                  title: "Yield",
+                  dataIndex: "actualQuantity",
+                  key: "actualQuantity",
+                  align: "center",
+                  render: (_: any, record: { actualQuantity: number; unit: string }) =>
+                    `${record.actualQuantity} ${record.unit}`,
+                },
+                {
+                  title: "Record Date",
+                  dataIndex: "recordDate",
+                  key: "recordDate",
+                  align: "center",
+                  render: (date: string) => formatDateAndTime(date),
+                },
+                {
+                  title: "Action",
+                  key: "action",
+                  align: "center",
+                  render: (item: GetPlantHasHarvest) => (
+                    <Button
+                      type="dashed"
+                      onClick={() => navigate(ROUTES.FARM_PLANT_DETAIL(item.plantId))}
+                    >
+                      View Details
+                    </Button>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </div>
       </Flex>
+      <UpdateProductHarvestModal
+        isOpen={formModal.modalState.visible}
+        onClose={formModal.hideModal}
+        onSave={(value) => handleUpdateProductHarvest(value)}
+        isLoadingAction={loading}
+        productHarvest={formModal.modalState.data}
+      />
     </Flex>
   );
 }

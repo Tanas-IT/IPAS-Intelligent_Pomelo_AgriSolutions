@@ -91,3 +91,4 @@ export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlant
 export { default as NewIssueModal } from "@/components/UI/Modal/NewIssueModal/NewIssueModal";
 export { default as CuttingGraftedModal } from "@/components/UI/Modal/CuttingGraftedModal";
 export { default as ConvertToPlantModal } from "@/components/UI/Modal/ConvertToPlantModal";
+export { default as UpdateProductHarvestModal } from "@/components/UI/Modal/UpdateProductHarvestModal";
