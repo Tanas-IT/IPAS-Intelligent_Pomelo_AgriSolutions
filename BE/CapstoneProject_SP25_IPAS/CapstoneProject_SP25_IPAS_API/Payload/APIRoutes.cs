@@ -384,6 +384,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string GetWorkLogByStatusAndUserId = prefix + "/get-by-status-and-userId";
             public const string GetAttendanceList = prefix + "/get-attendance-list";
             public const string CancelReplacement = prefix + "/cancel-replacment";
+            public const string GetListEmployeeToUpdate = prefix + "/get-list-employee-to-update";
+            public const string CanTakeAttendance = prefix + "/can-take-attendance";
+
         }
 
         public static class Report

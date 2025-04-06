@@ -16,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<WorkLog>> GetListWorkLogByScheduelId(int scheduleId);
         public Task<double> CalculatePlanProgress(int planId);
         public Task<bool> DeleteWorkLogAndUserWorkLog(WorkLog deleteWorkLog);
-        public Task<bool> AssignTaskForUser(int employeeId, int workLogId);
+        public Task<bool> AssignTaskForUser(int employeeId, int workLogId, bool? isRepoter);
         public Task<List<WorkLog>> GetListWorkLogByYearAndMonth(int year, int month, int? farmId);
         public Task<List<WorkLog>> GetListWorkLogByPlanId(int planId);
 
