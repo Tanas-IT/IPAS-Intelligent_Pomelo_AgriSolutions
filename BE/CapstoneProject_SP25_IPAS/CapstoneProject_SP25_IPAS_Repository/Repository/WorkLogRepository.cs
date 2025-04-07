@@ -362,9 +362,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             if (userConflicts.Any())
             {
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
-                    $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
+                    $"{uwl.FullName}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
+                throw new Exception($"{conflictDetails} have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")} from {newStartTime} to {newEndTime}");
             }
         }
 
