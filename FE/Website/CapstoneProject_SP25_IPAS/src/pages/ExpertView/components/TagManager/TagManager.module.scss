@@ -1,0 +1,105 @@
+.tag-manager-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .tag-manager-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    width: 500px;
+  
+    h3 {
+      margin: 0 0 10px;
+      color: #2E7D32;
+    }
+  
+    .tag-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+  
+    .add-button {
+      background: #2E7D32;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+  
+      &:hover {
+        background: #1B5E20;
+      }
+    }
+  
+    .tag-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 10px 0;
+  
+      .tag-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+  
+        span {
+          cursor: pointer;
+          color: #333;
+          font-size: 14px;
+  
+          &:hover {
+            color: #2E7D32;
+          }
+  
+          &.selected {
+            color: #FFB300;
+            font-weight: bold;
+          }
+        }
+  
+        .tag-actions {
+          display: flex;
+          gap: 10px;
+  
+          button {
+            background: none;
+            border: none;
+            color: #2E7D32;
+            cursor: pointer;
+            font-size: 12px;
+  
+            &:hover {
+              color: #1B5E20;
+            }
+          }
+        }
+      }
+    }
+  
+    .close-button {
+      background: #888;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+  
+      &:hover {
+        background: #666;
+      }
+    }
+  }

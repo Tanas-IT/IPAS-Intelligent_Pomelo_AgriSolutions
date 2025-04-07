@@ -1,6 +1,7 @@
 import { Table } from "antd";
 import style from "./Criteria.module.scss";
 import { GetCriteria } from "@/payloads";
+import { CRITERIA_TARGETS } from "@/constants";
 
 const columns = [
   {
@@ -54,19 +55,28 @@ const columns = [
     align: "center" as const,
   },
   {
-    title: "Check Interval Days ",
+    title: "Check Interval Days",
     dataIndex: "frequencyDate",
     key: "frequencyDate",
     align: "center" as const,
   },
 ];
 
-const CriteriaTable = ({ criteria }: { criteria: GetCriteria[] }) => {
+const CriteriaTable = ({ criteria, target }: { criteria: GetCriteria[]; target: string }) => {
+  const filteredColumns = columns.filter((col) => {
+    if (
+      target === CRITERIA_TARGETS.Product &&
+      ["minValue", "maxValue", "unit"].includes(col.dataIndex)
+    ) {
+      return false;
+    }
+    return true;
+  });
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
         className={style.criteriaTable}
-        columns={columns}
+        columns={filteredColumns}
         dataSource={criteria.map((c) => ({ ...c, key: c.criteriaId }))}
         pagination={false}
         bordered

@@ -3,7 +3,7 @@ import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken, FileType } from "@/types";
-import { FILE_FORMAT, HEALTH_STATUS, LOCAL_STORAGE_KEYS } from "@/constants";
+import { FILE_FORMAT, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
   growthStageService,
@@ -12,7 +12,7 @@ import {
   processService,
   userService,
 } from "@/services";
-import { landRowSimulate, PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
+import { PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
 import dayjs, { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
 
@@ -132,24 +132,16 @@ export const getCriteriaOptions = (total: number): number[] => {
   return [3];
 };
 
-export const formatCurrencyVND = (amount: number): string => {
+export const formatCurrencyVND_KG = (amount: number): string => {
   if (isNaN(amount)) return "";
 
   return new Intl.NumberFormat("vi-VN").format(amount) + " VND/kg";
 };
 
-export const formatCurrency = (amount: string): string => {
-  const number = parseFloat(amount.replace(/,/g, ""));
-  if (isNaN(number)) {
-    return amount;
-  }
+export const formatCurrencyVND = (amount: number): string => {
+  if (isNaN(amount)) return "";
 
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  })
-    .format(number)
-    .trim();
+  return new Intl.NumberFormat("vi-VN").format(amount) + " VND";
 };
 
 export const DATE_FORMAT = "DD/MM/YYYY";
@@ -170,7 +162,7 @@ export const formatTimeReq = (time?: dayjs.ConfigType): string | null => {
   return time ? dayjs(time).format("HH:mm:ss") : null;
 };
 
-export const formatDateAndTime = (date: Date): string => {
+export const formatDateAndTime = (date: Date | string): string => {
   return moment(date).format("DD/MM/YYYY HH:mm:ss");
 };
 

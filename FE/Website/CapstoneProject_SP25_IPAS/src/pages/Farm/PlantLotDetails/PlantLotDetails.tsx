@@ -3,16 +3,13 @@ import style from "./PlantLotDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-
-import { ROUTES } from "@/constants";
 import { PlantLotCriteria, PlantLotDetail } from "@/pages";
 
 function PlantLotDetails() {
   const navigate = useNavigate();
   const { styles } = useStyle();
-  const { parentId, id } = useParams<{ parentId: string; id: string }>();
 
   const items: TabsProps["items"] = [
     {
@@ -29,13 +26,7 @@ function PlantLotDetails() {
     },
   ];
 
-  const handleBack = () => {
-    if (parentId) {
-      navigate(ROUTES.FARM_PLANT_LOT_DETAIL(Number(parentId)));
-    } else {
-      navigate(PATHS.FARM.FARM_PLANT_LOT_LIST);
-    }
-  };
+  const handleBack = () => navigate(PATHS.FARM.FARM_PLANT_LOT_LIST);
 
   return (
     <Flex className={style.detailContainer}>

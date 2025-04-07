@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { LOCAL_STORAGE_KEYS, MASTER_TYPE } from "@/constants";
+import { CRITERIA_TARGETS, LOCAL_STORAGE_KEYS, MASTER_TYPE } from "@/constants";
 import {
   ApiResponse,
   CriteriaApplyRequest,
@@ -116,6 +116,16 @@ export const getPlantCriteriaTypeSelect = async (
 ): Promise<ApiResponse<GetCriteriaSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `criterias/plant/get-for-selected/except?plantId=${plantId}&target=${target}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
+  return apiResponse;
+};
+
+export const getProductCriteriaTypeSelect = async (
+  productId: number,
+): Promise<ApiResponse<GetCriteriaSelect[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `criterias/product/get-for-selected/except?productId=${productId}&target=${CRITERIA_TARGETS.Product}`,
   );
   const apiResponse = res.data as ApiResponse<GetCriteriaSelect[]>;
   return apiResponse;

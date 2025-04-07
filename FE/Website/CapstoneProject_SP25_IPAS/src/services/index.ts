@@ -23,6 +23,9 @@ export * as partnerService from "./PartnerService";
 export * as criteriaService from "./CriteriaService";
 export * as harvestService from "./HarvestService";
 export * as orderService from "./OrderService";
+export * as productService from "./ProductService";
+export * as expertService from "./ExpertService";
+
 
 
 

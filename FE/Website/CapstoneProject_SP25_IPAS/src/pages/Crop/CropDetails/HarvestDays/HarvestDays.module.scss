@@ -12,3 +12,160 @@
 .filterContent {
   @include shared.filterContent;
 }
+
+.detailContainer {
+  width: 100%;
+  min-height: 60vh;
+  .modalHeader {
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modalInfoRow {
+    width: 100%;
+    margin-top: 10px;
+
+    .iconLabelContainer {
+      align-items: center;
+      gap: 6px;
+      min-width: 12rem;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        color: vars.$color_text_detail;
+        margin-bottom: 4px;
+      }
+
+      .label {
+        font-weight: bold;
+        color: vars.$color_text_detail;
+      }
+    }
+
+    .label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+  }
+
+  .sectionDetails {
+    margin-top: 12px;
+    flex-direction: column;
+    gap: 40px;
+    .detailWrapper {
+      margin-top: 12px;
+      padding: 16px;
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+
+      .titleWrapper {
+        margin-bottom: 14px;
+        .title {
+          font-size: 1rem;
+          font-weight: bold;
+          color: #333;
+          padding-left: 16px;
+          position: relative;
+        }
+      }
+    }
+  }
+}
+
+.harvestForm {
+  .formSection {
+    width: 100%;
+    max-height: 30rem;
+    border: 1px solid #d9d9d9;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow-y: auto;
+    flex: 2;
+    &.larger {
+      flex: 3;
+    }
+
+    legend {
+      font-weight: bold;
+      font-size: 14px;
+      padding: 0 8px;
+      margin-bottom: 0;
+    }
+
+    .minus {
+      font-size: 20px;
+    }
+  }
+}
+
+.tableWrapper {
+  width: 100%;
+  margin-top: 20px;
+  max-height: 28rem;
+  overflow: auto;
+
+  .table {
+    th {
+      background: vars.$color_second !important;
+      color: vars.$color_primary !important;
+      font-weight: bold;
+      text-align: center;
+    }
+    td {
+      padding: 4px 0;
+    }
+    input {
+      text-align: center;
+    }
+  }
+}
+
+.importModal {
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 16px 16px;
+
+  .titleSection {
+    padding-bottom: 10px;
+    border-bottom: 2px solid #bfbfbf;
+    label {
+      font-size: 18px;
+    }
+  }
+
+  .importSection {
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+
+    label {
+      font-size: 16px;
+      min-width: 10rem;
+      font-weight: bold;
+    }
+
+    .fileDisplay {
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fileName {
+      font-weight: bold;
+      color: vars.$color_primary;
+    }
+
+    .downloadLink {
+      font-weight: bold;
+      color: vars.$color_primary;
+      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}

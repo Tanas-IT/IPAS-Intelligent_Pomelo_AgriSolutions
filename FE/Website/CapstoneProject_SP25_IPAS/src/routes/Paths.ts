@@ -30,8 +30,10 @@ export const PATHS = {
   },
 
   CLASSIFICATION: {
-    MASTER_TYPE: "/classification/master-types",
     GROWTH_STAGE: "/classification/growth-stages",
+    MASTER_TYPE: "/classification/master-types",
+    PRODUCT: "/classification/products",
+    PRODUCT_DETAIL: "/classification/products/:id/details",
   },
 
   // Farm Management
@@ -107,4 +109,11 @@ export const PATHS = {
     PLANTS: "/employee/plants",
     AI_CONSULTING: "/employee/ai-consulting",
   },
+
+  EXPERT: {
+    REPORT_LIST: "/expert/report-list",
+    REPORT_DETAIL: "/expert/report-list/:id",
+    IMAGE_LIST: "/expert/image-list",
+    IMAGE_DETAIL: "/expert/image-list/:id",
+  }
 };

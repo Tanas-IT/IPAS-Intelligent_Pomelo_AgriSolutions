@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need access to your camera to take photos or record video.",
+        "NSMicrophoneUsageDescription": "We need access to your microphone to record audio."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,9 +37,7 @@
       [
         "expo-font",
         {
-          "fonts": [
-            "./assets/fonts/BalsamiqSans-Regular.ttf"
-          ]
+          "fonts": ["./assets/fonts/BalsamiqSans-Regular.ttf"]
         }
       ],
       [

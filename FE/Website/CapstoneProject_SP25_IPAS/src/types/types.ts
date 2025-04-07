@@ -57,6 +57,7 @@ export type FilterPlantLotState = {
   importedDateFrom: string;
   importedDateTo: string;
   partnerId: string[];
+  status: string[];
   previousQuantityFrom: number | undefined;
   previousQuantityTo: number | undefined;
   isFromGrafted: boolean | null;

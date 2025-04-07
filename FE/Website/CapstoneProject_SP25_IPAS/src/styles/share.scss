@@ -450,7 +450,8 @@
 
       .label {
         font-weight: 700;
-        width: 80px;
+        min-width: 80px;
+        max-width: 100px;
       }
 
       .noteContent {

@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { HarvestRecord } from '@/types/harvest';
-import TextCustom from 'components/TextCustom';
-import CustomIcon from 'components/CustomIcon';
-import { avt } from 'assets/images';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackNavigationProp } from '@/navigation/Types';
-import { ROUTE_NAMES } from '@/navigation/RouteNames';
-import theme from '@/theme';
+import React from "react";
+import { View, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { HarvestRecord } from "@/types/harvest";
+
+import { useNavigation } from "@react-navigation/native";
+import { RootStackNavigationProp } from "@/constants/Types";
+import { ROUTE_NAMES } from "@/constants/RouteNames";
+import theme from "@/theme";
+import { avt } from "@/assets/images";
+import { CustomIcon, TextCustom } from "@/components";
 
 interface TimelineItemProps {
   record: HarvestRecord;
@@ -29,9 +29,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
             <View style={styles.dateContainer}>
               <Image source={avt} style={styles.avatar} />
               <View>
-                <TextCustom style={styles.recordDate}>
-                  Recorder
-                </TextCustom>
+                <TextCustom style={styles.recordDate}>Recorder</TextCustom>
               </View>
             </View>
             <TouchableOpacity
@@ -47,7 +45,12 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
             //     })
             //   }
             >
-              <CustomIcon name="pencil" size={20} color={theme.colors.primary} type="MaterialCommunityIcons" />
+              <CustomIcon
+                name="pencil"
+                size={20}
+                color={theme.colors.primary}
+                type="MaterialCommunityIcons"
+              />
             </TouchableOpacity>
           </View>
 
@@ -70,7 +73,9 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
             <View style={styles.row}>
               <View style={styles.column}>
                 <TextCustom style={styles.label}>Product Type:</TextCustom>
-                <TextCustom style={styles.value}>{record.productName}</TextCustom>
+                <TextCustom style={styles.value}>
+                  {record.productName}
+                </TextCustom>
               </View>
               <View style={styles.column}>
                 <TextCustom style={styles.label}>Crop:</TextCustom>
@@ -78,7 +83,6 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
               </View>
             </View>
           </View>
-
         </View>
       </View>
     </View>
@@ -87,12 +91,12 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
 
 const styles = StyleSheet.create({
   timelineItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 20,
   },
   timelineLeft: {
     width: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   timelineDot: {
     width: 16,
@@ -100,31 +104,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: theme.colors.primary,
     borderWidth: 3,
-    borderColor: '#E8F5E9',
+    borderColor: "#E8F5E9",
   },
   timelineLine: {
     flex: 1,
     width: 2,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     marginTop: 5,
   },
   timelineContent: {
     flex: 1,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 10,
     padding: 15,
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
   dateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   avatar: {
     width: 30,
@@ -135,30 +139,29 @@ const styles = StyleSheet.create({
   recordDate: {
     fontSize: 14,
     color: theme.colors.primary,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   cardContent: {
     marginTop: 5,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   column: {
-    width: '48%',
+    width: "48%",
   },
   label: {
     fontSize: 14,
     color: theme.colors.primary,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 2,
   },
   value: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 8,
   },
-
 });
 
 export default TimelineItem;

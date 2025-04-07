@@ -1,0 +1,60 @@
+.report-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  
+    &.pending {
+      border-left: 6px solid #FFB300;
+    }
+  
+    &.answered {
+      border-left: 6px solid #2E7D32;
+    }
+  
+    .content {
+      flex: 1;
+    }
+  
+    .question {
+      font-size: 16px;
+      color: #333;
+      margin: 0 0 10px;
+    }
+  
+    .questioner {
+      font-size: 14px;
+      color: #666;
+    }
+  
+    .status {
+      font-size: 14px;
+      font-weight: bold;
+  
+      &.pending {
+        color: #FFB300;
+      }
+  
+      &.answered {
+        color: #2E7D32;
+      }
+    }
+  
+    .reply-button {
+      background: #2E7D32;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+  
+      &:hover {
+        background: #1B5E20;
+      }
+    }
+  }

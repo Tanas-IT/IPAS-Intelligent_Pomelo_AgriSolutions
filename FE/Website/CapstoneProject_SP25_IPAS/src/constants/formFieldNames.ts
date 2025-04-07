@@ -7,6 +7,7 @@ import {
   GetPlantGrowthHistory,
   GetPlantLot2,
   MasterTypeDetail,
+  UpdateProductHarvestRequest,
 } from "@/payloads";
 
 export const farmFormFields = {
@@ -115,7 +116,18 @@ export const harvestFormFields = {
   cropId: "cropId",
   dateHarvest: "dateHarvest",
   harvestHistoryNote: "harvestHistoryNote",
-  totalPrice: "totalPrice",
+};
+
+export const updateProductHarvestFormFields: Record<
+  keyof UpdateProductHarvestRequest,
+  keyof UpdateProductHarvestRequest
+> = {
+  productHarvestHistoryId: "productHarvestHistoryId",
+  unit: "unit",
+  sellPrice: "sellPrice",
+  costPrice: "costPrice",
+  quantity: "quantity",
+  userId: "userId",
 };
 
 export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraftedPlant> = {
@@ -133,6 +145,7 @@ export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraf
   plantCode: "plantCode",
   plantLotName: "plantLotName",
   plantName: "plantName",
+  isDead: "isDead",
 };
 
 export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {

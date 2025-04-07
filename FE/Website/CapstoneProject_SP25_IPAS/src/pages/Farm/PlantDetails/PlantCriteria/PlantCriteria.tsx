@@ -29,7 +29,7 @@ function PlantCriteria() {
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { plant, setPlant, shouldRefetch } = usePlantStore();
+  const { plant, setPlant } = usePlantStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();

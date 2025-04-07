@@ -18,3 +18,5 @@ export * from "./payment";
 export * from "./crop";
 export * from "./plan";
 export * from "./harvest";
+export * from "./product";
+export * from "./expert";

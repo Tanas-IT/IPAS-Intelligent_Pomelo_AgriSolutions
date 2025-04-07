@@ -19,14 +19,12 @@ import {
   useTableDelete,
   useTableUpdate,
 } from "@/hooks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { DEFAULT_CROP_FILTERS, getOptions } from "@/utils";
 import { cropService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants";
 import { FilterCropState } from "@/types";
-import { useDirtyStore } from "@/stores";
-import { toast } from "react-toastify";
 import CropFilter from "./CropFilter";
 import { CropColumns } from "./CropColumns";
 

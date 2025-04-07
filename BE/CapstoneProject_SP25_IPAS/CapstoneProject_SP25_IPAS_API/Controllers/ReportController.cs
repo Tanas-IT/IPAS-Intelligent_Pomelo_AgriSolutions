@@ -150,14 +150,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        [HttpGet(APIRoutes.Report.WorkProgressOverview, Name = "WorkProgressOverview")]
-        public async Task<IActionResult> WorkProgressOverview([FromQuery] int? farmId, [FromQuery] int year, [FromQuery] int month)
+        [HttpGet(APIRoutes.Report.GetWeatherOfFarm, Name = "GetWeatherOfFarm")]
+        public async Task<IActionResult> GetWeatherOfFarm([FromQuery] int? farmId)
         {
             try
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _reportService.WorkProgressOverview(farmId: farmId, year: year, month: month);
+                var result = await _reportService.GetWeatherOfFarm(farmId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

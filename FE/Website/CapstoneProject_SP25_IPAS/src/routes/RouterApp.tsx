@@ -46,6 +46,8 @@ import {
   CropDetails,
   ChatBox,
   HarvestDays,
+  Product,
+  ProductDetails,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -56,6 +58,8 @@ import {
   PaymentLayout,
 } from "@/layouts";
 import { PATHS } from "./Paths";
+import ReportManagementScreen from "@/pages/ExpertView/ReportManagement/ReportManagement";
+import ImageManagement from "@/pages/ExpertView/ImageManagement/ImageManagement";
 
 interface RouteItem {
   path: string;
@@ -104,6 +108,12 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.CROP.PLANT_YIELD, component: PlantYield, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.GROWTH_STAGE, component: GrowthStage, layout: ManagementLayout },
+  { path: PATHS.CLASSIFICATION.PRODUCT, component: Product, layout: ManagementLayout },
+  {
+    path: PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+    component: ProductDetails,
+    layout: ManagementLayout,
+  },
   { path: PATHS.FARM.FARM_INFO, component: FarmInfo, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_LIST, component: PlantList, layout: ManagementLayout },
   { path: PATHS.FARM.FARM_PLANT_DETAIL, component: PlantDetails, layout: ManagementLayout },
@@ -143,6 +153,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
+  { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
+  { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

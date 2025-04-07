@@ -105,6 +105,7 @@ export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   importedDateFrom: "",
   importedDateTo: "",
   partnerId: [] as string[],
+  status: [] as string[],
   previousQuantityFrom: undefined,
   previousQuantityTo: undefined,
   isFromGrafted: null,

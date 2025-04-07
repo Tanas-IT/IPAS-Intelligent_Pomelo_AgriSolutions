@@ -14,15 +14,19 @@ const GraftedPlantSectionHeader = ({
   onApplyCriteria,
   formModal,
   deleteConfirmModal,
+  markAsDeadModal,
   onAddToLot,
   removeFromLotConfirm,
+  convertToPlantModal,
   onAddNewIssue,
 }: {
   onApplyCriteria?: () => void;
   formModal?: ReturnType<typeof useModal<GetGraftedPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
+  markAsDeadModal?: ReturnType<typeof useModal<{ id: number }>>;
   onAddToLot?: ReturnType<typeof useModal<{ id: number }>>;
   removeFromLotConfirm?: ReturnType<typeof useModal<{ id: number }>>;
+  convertToPlantModal?: ReturnType<typeof useModal<{ id: number }>>;
   onAddNewIssue?: () => void;
 }) => {
   const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
@@ -65,21 +69,22 @@ const GraftedPlantSectionHeader = ({
             {graftedPlant.status || "Unknown"}
           </Tag>
           <Flex className={style.actionButtons} gap={20}>
-            {!graftedPlant.isCompleted ? (
-              <Button type="primary" onClick={cuttingGraftedModal.showModal} ghost>
-                <Icons.check /> Complete & Move to Lot
-              </Button>
-            ) : (
-              <Flex gap={10}>
-                <Tag color="green" className={style.passedTag}>
-                  ✅ Grafted Plant Completed
-                </Tag>
-              </Flex>
-            )}
+            {!graftedPlant.isDead &&
+              (!graftedPlant.isCompleted ? (
+                <Button type="primary" onClick={cuttingGraftedModal.showModal} ghost>
+                  <Icons.check /> Complete & Move to Lot
+                </Button>
+              ) : (
+                <Flex gap={10}>
+                  <Tag color="green" className={style.passedTag}>
+                    ✅ Grafted Plant Completed
+                  </Tag>
+                </Flex>
+              ))}
           </Flex>
         </Flex>
 
-        {onApplyCriteria && (
+        {onApplyCriteria && !graftedPlant.isDead && (
           <Flex>
             <CustomButton
               label="Add New Criteria"
@@ -92,24 +97,21 @@ const GraftedPlantSectionHeader = ({
         {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuGraftedPlant
-              isCompleted={graftedPlant.isCompleted}
+              graftedPlant={graftedPlant}
               onEdit={() => formModal?.showModal(graftedPlant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: graftedPlant.graftedPlantId })}
-              {...(onAddToLot
-                ? {
-                    onAddToLot: () => onAddToLot?.showModal({ id: graftedPlant.graftedPlantId }),
-                  }
-                : {})}
-              {...(removeFromLotConfirm
-                ? {
-                    onRemoveFromLot: () =>
-                      removeFromLotConfirm.showModal({ id: graftedPlant.graftedPlantId }),
-                  }
-                : {})}
+              onMarkAsDead={() => markAsDeadModal?.showModal({ id: graftedPlant.graftedPlantId })}
+              onAddToLot={() => onAddToLot?.showModal({ id: graftedPlant.graftedPlantId })}
+              onRemoveFromLot={() =>
+                removeFromLotConfirm?.showModal({ id: graftedPlant.graftedPlantId })
+              }
+              onConvertToPlant={() =>
+                convertToPlantModal?.showModal({ id: graftedPlant.graftedPlantId })
+              }
             />
           </Flex>
         )}
-        {onAddNewIssue && (
+        {onAddNewIssue && !graftedPlant.isDead && (
           <Flex>
             <CustomButton
               label="Add New Issue"

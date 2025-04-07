@@ -3,13 +3,18 @@ import {
   ApiResponse,
   GetData,
   GetHarvestDay,
+  GetHarvestDayDetail,
+  GetHarvestSelected,
   GetHarvestStatisticOfPlant,
   GetHarvestStatisticPlants,
+  GetPlantHasHarvest,
   HarvestRequest,
   HarvestStatisticInYearRequest,
   HarvestStatisticOfPlantRequest,
+  RecordHarvestRequest,
+  UpdateProductHarvestRequest,
 } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, getUserId } from "@/utils";
 
 export const getHarvests = async (
   currentPage?: number,
@@ -30,11 +35,27 @@ export const getHarvests = async (
   return apiResponse.data as GetData<GetHarvestDay>;
 };
 
+export const getHarvest = async (id: number): Promise<ApiResponse<GetHarvestDayDetail>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`harvests/${id}`);
+  const apiResponse = res.data as ApiResponse<GetHarvestDayDetail>;
+  return apiResponse;
+};
+
+export const getPlantHasHarvest = async (
+  harvestId: number,
+  masterTypeId: number,
+): Promise<ApiResponse<GetPlantHasHarvest[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/get-plant-has-harvest?harvestId=${harvestId}&masterTypeId=${masterTypeId}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetPlantHasHarvest[]>;
+  return apiResponse;
+};
+
 export const deleteHarvest = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const harvestIds = ids;
   const res = await axiosAuth.axiosJsonRequest.put(
     `harvests/softed-delete?harvestIds=${harvestIds[0]}`,
-    harvestIds,
   );
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -47,7 +68,8 @@ export const updateHarvest = async (
     harvestHistoryId: harvest.harvestHistoryId,
     dateHarvest: harvest.dateHarvest,
     harvestHistoryNote: harvest.harvestHistoryNote,
-    totalPrice: harvest.totalPrice,
+    startTime: harvest.startTime,
+    endTime: harvest.endTime,
   };
   const res = await axiosAuth.axiosJsonRequest.put("harvests", payload);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
@@ -57,10 +79,59 @@ export const updateHarvest = async (
 export const createHarvest = async (
   harvest: HarvestRequest,
 ): Promise<ApiResponse<GetHarvestDay>> => {
-  console.log(harvest);
-
   const res = await axiosAuth.axiosJsonRequest.post(`harvests`, harvest);
   const apiResponse = res.data as ApiResponse<GetHarvestDay>;
+  return apiResponse;
+};
+
+export const getProductInHarvest = async (
+  id: number,
+): Promise<ApiResponse<GetHarvestSelected[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/for-selected/product-in-harvest?harvestId=${id}`,
+  );
+  const apiResponse = res.data as ApiResponse<GetHarvestSelected[]>;
+  return apiResponse;
+};
+
+export const createRecordHarvest = async (
+  record: RecordHarvestRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`harvests/plants/record`, record);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const importRecordHarvest = async (
+  file: File,
+  harvestId: number,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("fileExcel", file);
+  formData.append("harvestId", harvestId.toString());
+  formData.append("userId", getUserId());
+
+  const res = await axiosAuth.axiosMultipartForm.post(
+    `harvests/plant/record/import-excel`,
+    formData,
+  );
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const UpdateProductHarvest = async (
+  req: UpdateProductHarvestRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`harvests/update-product-harvest`, req);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteRecordHarvest = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`harvests/delete-plant-record`, {
+    data: { productHarvestHistoryId: [id] },
+  });
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
 

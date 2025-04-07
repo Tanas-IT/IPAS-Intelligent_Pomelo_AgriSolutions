@@ -151,6 +151,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           to: PATHS.CLASSIFICATION.MASTER_TYPE,
           activePaths: [PATHS.CLASSIFICATION.MASTER_TYPE],
         },
+        {
+          key: "Manage Product",
+          label: "Manage Product",
+          icon: Images.radius,
+          to: PATHS.CLASSIFICATION.PRODUCT,
+          activePaths: [PATHS.CLASSIFICATION.PRODUCT],
+        },
       ],
     },
     {
@@ -271,6 +278,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.PACKAGE.PACKAGE_LIST,
       category: "Main",
       isView: !isDefault,
+    },
+    {
+      key: "Report Management",
+      label: "Report Management",
+      icon: <Icons.process />,
+      to: PATHS.EXPERT.REPORT_LIST,
+      activePaths: [PATHS.EXPERT.REPORT_LIST],
+      category: "Main",
+      isView: isDefault,
+    },
+    {
+      key: "Dataset Management",
+      label: "Dataset Management",
+      icon: <Icons.process />,
+      to: PATHS.EXPERT.IMAGE_LIST,
+      activePaths: [PATHS.EXPERT.IMAGE_LIST],
+      category: "Main",
+      isView: isDefault,
     },
     {
       key: "Setting",

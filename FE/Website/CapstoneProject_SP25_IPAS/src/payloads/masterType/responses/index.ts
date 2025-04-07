@@ -1,2 +1,2 @@
 export * from "./GetType";
-export * from "./MasterTypeResponse";
+export * from "./MasterTypeResponses";

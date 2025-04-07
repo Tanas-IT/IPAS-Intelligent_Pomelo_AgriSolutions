@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,18 +8,18 @@ import {
   TouchableOpacity,
   Animated,
   Image,
-} from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import CustomIcon from 'components/CustomIcon';
-import { RootStackNavigationProp } from '@/navigation/Types';
-import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { addNoteSchema } from '@/validations/noteSchemas';
-import { NoteFormData } from '@/types/plant';
-import { styles } from './NoteFormScreen.styles';
-import theme from '@/theme';
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { RootStackNavigationProp } from "@/constants/Types";
+import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { addNoteSchema } from "@/validations/noteSchemas";
+import { NoteFormData } from "@/types/plant";
+import { styles } from "./NoteFormScreen.styles";
+import theme from "@/theme";
+import { CustomIcon } from "@/components";
 
 const NoteFormScreen: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -40,11 +40,14 @@ const NoteFormScreen: React.FC = () => {
     setValue,
   } = useForm<NoteFormData>({
     resolver: yupResolver(addNoteSchema),
-    defaultValues: isEditMode && initialData ? initialData : {
-      content: '',
-      issueName: '',
-      images: [],
-    },
+    defaultValues:
+      isEditMode && initialData
+        ? initialData
+        : {
+            content: "",
+            issueName: "",
+            images: [],
+          },
   });
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -67,17 +70,17 @@ const NoteFormScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets) {
-      const currentImages = watch('images') || [];
+      const currentImages = watch("images") || [];
       const newImages = [...currentImages, result.assets[0].uri];
-      setValue('images', newImages, { shouldValidate: true });
+      setValue("images", newImages, { shouldValidate: true });
     }
   };
 
   const removeImage = (index: number) => {
-    const currentImages = watch('images') || [];
+    const currentImages = watch("images") || [];
     const newImages = [...currentImages];
     newImages.splice(index, 1);
-    setValue('images', newImages, { shouldValidate: true });
+    setValue("images", newImages, { shouldValidate: true });
   };
 
   const onSubmit = async (data: NoteFormData) => {
@@ -86,38 +89,42 @@ const NoteFormScreen: React.FC = () => {
     const payload = {
       ...data,
       plantId,
-      noteTaker: 'Current User', // tạm
+      noteTaker: "Current User", // tạm
     };
 
-    console.log(isEditMode ? 'Updating Note:' : 'Adding Note:', payload);
+    console.log(isEditMode ? "Updating Note:" : "Adding Note:", payload);
 
     setTimeout(() => {
       setIsSubmitting(false);
       navigation.goBack();
     }, 1500);
-
   };
 
   const handlePress = () => {
     handleSubmit(onSubmit)();
     if (Object.keys(errors).length > 0) {
-      console.log('Form Errors:', errors);
+      console.log("Form Errors:", errors);
     }
   };
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <LinearGradient
-        colors={['#fffcee', '#fffcee']}
+        colors={["#fffcee", "#fffcee"]}
         style={styles.gradientBackground}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <CustomIcon name="arrow-left" size={24} color="#064944" type="MaterialCommunityIcons" />
+              <CustomIcon
+                name="arrow-left"
+                size={24}
+                color="#064944"
+                type="MaterialCommunityIcons"
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
-              {isEditMode ? 'Edit Growth Note' : 'Add Growth Note'}
+              {isEditMode ? "Edit Growth Note" : "Add Growth Note"}
             </Text>
             <View style={{ width: 24 }} />
           </View>
@@ -137,7 +144,9 @@ const NoteFormScreen: React.FC = () => {
                   onBlur={onBlur}
                 />
                 {errors.issueName && (
-                  <Text style={styles.errorText}>{errors.issueName.message}</Text>
+                  <Text style={styles.errorText}>
+                    {errors.issueName.message}
+                  </Text>
                 )}
               </View>
             )}
@@ -173,8 +182,16 @@ const NoteFormScreen: React.FC = () => {
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitle}>Attachments</Text>
-                  <TouchableOpacity style={styles.addPhotoButton} onPress={pickImage}>
-                    <CustomIcon name="camera" size={18} color="#064944" type="MaterialCommunityIcons" />
+                  <TouchableOpacity
+                    style={styles.addPhotoButton}
+                    onPress={pickImage}
+                  >
+                    <CustomIcon
+                      name="camera"
+                      size={18}
+                      color="#064944"
+                      type="MaterialCommunityIcons"
+                    />
                     <Text style={styles.addPhotoText}>Add Photo</Text>
                   </TouchableOpacity>
                 </View>
@@ -188,7 +205,12 @@ const NoteFormScreen: React.FC = () => {
                           style={styles.removeImageButton}
                           onPress={() => removeImage(index)}
                         >
-                          <CustomIcon name="close" size={16} color="white" type="MaterialCommunityIcons" />
+                          <CustomIcon
+                            name="close"
+                            size={16}
+                            color="white"
+                            type="MaterialCommunityIcons"
+                          />
                         </TouchableOpacity>
                       </View>
                     ))}
@@ -203,7 +225,10 @@ const NoteFormScreen: React.FC = () => {
         </ScrollView>
 
         <TouchableOpacity
-          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          style={[
+            styles.submitButton,
+            isSubmitting && styles.submitButtonDisabled,
+          ]}
           onPress={handlePress}
           disabled={isSubmitting}
         >
@@ -214,10 +239,15 @@ const NoteFormScreen: React.FC = () => {
             end={{ x: 1, y: 0 }}
           >
             {isSubmitting ? (
-              <CustomIcon name="loading" size={24} color="white" type="MaterialCommunityIcons" />
+              <CustomIcon
+                name="loading"
+                size={24}
+                color="white"
+                type="MaterialCommunityIcons"
+              />
             ) : (
               <Text style={styles.submitButtonText}>
-                {isEditMode ? 'Update Note' : 'Save Note'}
+                {isEditMode ? "Update Note" : "Save Note"}
               </Text>
             )}
           </LinearGradient>
@@ -226,7 +256,5 @@ const NoteFormScreen: React.FC = () => {
     </Animated.View>
   );
 };
-
-
 
 export default NoteFormScreen;

@@ -18,12 +18,8 @@ import { useHasChanges, useModal, useTableAdd } from "@/hooks";
 import { toast } from "react-toastify";
 import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
 
-interface PlantGrowthHistoryProps {
-  activeTab: string;
-}
-
-function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
-  const { plant } = usePlantStore();
+function PlantGrowthHistory() {
+  const { plant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -32,17 +28,12 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
   const [data, setData] = useState<GetPlantGrowthHistory[]>([]);
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDetailView, setIsDetailView] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState<GetPlantGrowthHistory | null>(null);
   const addIssueModal = useModal<GetPlantGrowthHistory>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
 
   if (!plant) return;
-
-  useEffect(() => {
-    setIsDetailView(false);
-  }, [activeTab]);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -87,7 +78,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
       if (result.statusCode === 200) {
         toast.success(result.message);
         await handleResetData();
-        if (isDetailView) setIsDetailView(false);
+        if (isGrowthDetailView) setIsGrowthDetailView(false);
       } else {
         toast.error(result.message);
       }
@@ -115,17 +106,17 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
     fetchData: handleResetData,
     onSuccess: () => {
       addIssueModal.hideModal();
-      setIsDetailView(false);
+      setIsGrowthDetailView(false);
     },
   });
 
   const handleViewDetail = (item: GetPlantGrowthHistory) => {
     setSelectedHistory(item);
-    setIsDetailView(true);
+    setIsGrowthDetailView(true);
   };
 
   const handleBackToList = () => {
-    setIsDetailView(false);
+    setIsGrowthDetailView(false);
     setSelectedHistory(null);
   };
 
@@ -135,7 +126,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
     <Flex className={style.contentDetailWrapper}>
       <PlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
       <Divider className={style.divider} />
-      {isDetailView ? (
+      {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
           idKey="plantGrowthHistoryId"
@@ -161,6 +152,7 @@ function PlantGrowthHistory({ activeTab }: PlantGrowthHistoryProps) {
       <NewIssueModal
         data={data[0]}
         idKey="plantId"
+        id={plant.plantId}
         isOpen={addIssueModal.modalState.visible}
         onClose={handleCancelConfirm}
         onSave={handleAddNewIssue}

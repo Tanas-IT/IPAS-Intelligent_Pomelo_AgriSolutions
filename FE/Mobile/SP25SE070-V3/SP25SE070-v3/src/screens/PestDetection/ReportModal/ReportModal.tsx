@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Modal, TouchableOpacity, TextInput } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import TextCustom from 'components/TextCustom';
-import { PestReportRequest } from '@/types/pestDetection';
-import { styles } from '../PestDetection.styles';
-import { reportSchema } from '@/validations/reportSchema';
+import React from "react";
+import { View, Modal, TouchableOpacity, TextInput } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { PestReportRequest } from "@/types/pestDetection";
+import { styles } from "../PestDetection.styles";
+import { reportSchema } from "@/validations/reportSchema";
+import { TextCustom } from "@/components";
 
 interface ReportModalProps {
   visible: boolean;
@@ -18,7 +18,11 @@ interface FormData {
   questionOfUser: string;
 }
 
-const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit }) => {
+const ReportModal: React.FC<ReportModalProps> = ({
+  visible,
+  onClose,
+  onSubmit,
+}) => {
   const {
     control,
     handleSubmit,
@@ -27,17 +31,17 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
   } = useForm<FormData>({
     resolver: yupResolver(reportSchema),
     defaultValues: {
-      description: '',
-      questionOfUser: ''
+      description: "",
+      questionOfUser: "",
     },
   });
 
   const handleFormSubmit = (data: FormData) => {
     const reportData: PestReportRequest = {
       description: data.description,
-      imageFile: '',
+      imageFile: "",
       questionerID: 0,
-      questionOfUser: data.questionOfUser
+      questionOfUser: data.questionOfUser,
     };
     onSubmit(reportData);
     reset();
@@ -45,20 +49,28 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <TextCustom style={styles.modalTitle}>Your Report</TextCustom>
           <Controller
             control={control}
             name="questionOfUser"
-            render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+            render={({
+              field: { onChange, onBlur, value },
+              fieldState: { error },
+            }) => (
               <View>
                 <TextCustom style={styles.inputLabel}>
-                  Question <TextCustom style={{ color: 'red' }}>*</TextCustom>
+                  Question <TextCustom style={{ color: "red" }}>*</TextCustom>
                 </TextCustom>
                 <TextInput
-                  style={[styles.input, error && { borderColor: 'red' }]}
+                  style={[styles.input, error && { borderColor: "red" }]}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -66,7 +78,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
                   multiline
                 />
                 {error && (
-                  <TextCustom style={styles.errorText}>{error.message}</TextCustom>
+                  <TextCustom style={styles.errorText}>
+                    {error.message}
+                  </TextCustom>
                 )}
               </View>
             )}
@@ -74,13 +88,17 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
           <Controller
             control={control}
             name="description"
-            render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+            render={({
+              field: { onChange, onBlur, value },
+              fieldState: { error },
+            }) => (
               <View>
                 <TextCustom style={styles.inputLabel}>
-                  Description <TextCustom style={{ color: 'red' }}>*</TextCustom>
+                  Description{" "}
+                  <TextCustom style={{ color: "red" }}>*</TextCustom>
                 </TextCustom>
                 <TextInput
-                  style={[styles.input, error && { borderColor: 'red' }]}
+                  style={[styles.input, error && { borderColor: "red" }]}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -88,7 +106,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
                   multiline
                 />
                 {error && (
-                  <TextCustom style={styles.errorText}>{error.message}</TextCustom>
+                  <TextCustom style={styles.errorText}>
+                    {error.message}
+                  </TextCustom>
                 )}
               </View>
             )}
@@ -96,12 +116,24 @@ const ReportModal: React.FC<ReportModalProps> = ({ visible, onClose, onSubmit })
 
           <View style={styles.modalButtons}>
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: 'white', borderWidth: 1, borderColor: '#888' }]}
+              style={[
+                styles.modalButton,
+                {
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                  borderColor: "#888",
+                },
+              ]}
               onPress={onClose}
             >
-              <TextCustom style={[styles.modalButtonText, { color: '#888' }]}>Cancel</TextCustom>
+              <TextCustom style={[styles.modalButtonText, { color: "#888" }]}>
+                Cancel
+              </TextCustom>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={handleSubmit(handleFormSubmit)}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleSubmit(handleFormSubmit)}
+            >
               <TextCustom style={styles.modalButtonText}>Send</TextCustom>
             </TouchableOpacity>
           </View>

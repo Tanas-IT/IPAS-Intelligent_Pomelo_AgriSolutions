@@ -1,16 +1,25 @@
-import { create } from 'zustand';
-import { persist, StateStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LoginResponse, TokenInFarm } from '@/types/auth';
+import { create } from "zustand";
+import { persist, StateStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/constants";
+import { LoginResponse, TokenInFarm } from "@/payloads";
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  role: 'User' | 'Admin' | null;
+  userId: string | null;
+  roleId: string | null;
   fullName: string | null;
-  avatar: string | null;
-  setAuth: (data: LoginResponse) => void;
-  updateRoleInFarm: (data: TokenInFarm) => void;
+  avatarUrl: string | null;
+  farmName: string | null;
+  farmLogo: string | null;
+  setAuth: (data: LoginResponse, userId: string, roleId: string) => void; // Updated definition here
+  updateRoleInFarm: (data: TokenInFarm, userId: string, roleId: string) => void;
+  updateRoleOutFarm: (
+    data: LoginResponse,
+    userId: string,
+    roleId: string
+  ) => void;
   logout: () => void;
 }
 
@@ -31,27 +40,53 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       accessToken: null,
       refreshToken: null,
-      role: null,
+      userId: null,
+      roleId: null,
       fullName: null,
-      avatar: null,
-      setAuth: (data) =>
+      avatarUrl: null,
+      farmName: null,
+      farmLogo: null,
+      setAuth: (data, userId, roleId) =>
         set({
           accessToken: data.authenModel.accessToken,
           refreshToken: data.authenModel.refreshToken,
-          role: 'User',
+          userId: userId,
+          roleId: roleId,
           fullName: data.fullname,
-          avatar: data.avatar,
+          avatarUrl: data.avatar,
         }),
-      updateRoleInFarm: (data) =>
+      updateRoleInFarm: (data, userId, roleId) =>
         set({
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,
-          role: data.role,
+          userId: userId,
+          roleId: roleId,
+          farmName: data.farmName,
+          farmLogo: data.farmLogo,
         }),
-      logout: () => set({ accessToken: null, refreshToken: null, role: null, fullName: null, avatar: null }),
+      updateRoleOutFarm: (data, userId, roleId) =>
+        set({
+          accessToken: data.authenModel.accessToken,
+          refreshToken: data.authenModel.refreshToken,
+          userId: userId,
+          roleId: roleId,
+          farmName: null,
+          farmLogo: null,
+        }),
+      logout: () =>
+        set({
+          accessToken: null,
+          refreshToken: null,
+          userId: null,
+          roleId: null,
+          fullName: null,
+          avatarUrl: null,
+          farmName: null,
+          farmLogo: null,
+        }),
     }),
     {
-      name: 'auth',
+      name: "auth",
       storage: {
         getItem: async (name) => {
           const value = await asyncStorageAdapter.getItem(name);
@@ -70,10 +105,10 @@ export const useAuthStore = create<AuthState>()(
 
 useAuthStore.subscribe((state) => {
   if (state.accessToken) {
-    AsyncStorage.setItem('accessToken', state.accessToken);
-    AsyncStorage.setItem('refreshToken', state.refreshToken || '');
+    AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, state.accessToken);
+    AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, state.refreshToken || "");
   } else {
-    AsyncStorage.removeItem('accessToken');
-    AsyncStorage.removeItem('refreshToken');
+    AsyncStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   }
 });

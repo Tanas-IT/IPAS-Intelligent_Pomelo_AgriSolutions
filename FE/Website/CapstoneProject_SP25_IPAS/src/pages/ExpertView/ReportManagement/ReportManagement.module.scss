@@ -1,0 +1,51 @@
+.reportManagementScreen {
+  min-height: 100vh;
+
+  .headerCard {
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: #fff;
+
+    .title {
+      font-size: 28px;
+      color: #2e7d32;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    :global(.ant-input-search) {
+      .searchInput {
+        border-radius: 25px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    :global(.ant-select) {
+      .filterSelect {
+        width: 100%;
+        border-radius: 25px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        .ant-select-selector {
+          border-radius: 25px !important;
+          border-color: #ccc !important;
+          &:focus {
+            border-color: #2e7d32 !important;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.2) !important;
+          }
+        }
+      }
+    }
+  }
+
+  .reportGrid {
+    margin-top: 20px;
+  }
+
+  .noReports {
+    margin-top: 50px;
+  }
+}

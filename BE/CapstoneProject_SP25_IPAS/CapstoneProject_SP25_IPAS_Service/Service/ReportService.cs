@@ -461,5 +461,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _ => "Winter"
             };
         }
+
+        public async Task<BusinessResult> GetWeatherOfFarm(int farmId)
+        {
+            try
+            {
+                var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+                string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                JObject weatherData = JObject.Parse(responseBody);
+
+                return new BusinessResult(200, "Get Weather Of Farm Success", weatherData);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
