@@ -108,8 +108,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 filter = filter.And(x => x.IsTrainned == getAllReportOfUserModel.IsTrainned);
             }
+            if (getAllReportOfUserModel.isUnanswered != null)
+            {
+                if(getAllReportOfUserModel.isUnanswered == true)
+                {
+                    filter = filter.And(x => x.AnswererID == null);
+                }
+                else
+                {
+                    filter = filter.And(x => x.AnswererID != null);
+                }
+            }
 
-          
+
             switch (getAllReportOfUserModel.SortBy != null ? getAllReportOfUserModel.SortBy.ToLower() : "defaultSortBy")
             {
                 case "reportid":

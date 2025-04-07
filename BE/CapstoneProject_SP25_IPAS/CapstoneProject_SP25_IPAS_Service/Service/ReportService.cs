@@ -474,18 +474,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 JObject weatherData = JObject.Parse(responseBody);
-                var weatherProperty = new WeatherPropertyModel
-                {
-                    CurrentTemp = weatherData["main"]["temp"].Value<double>(),
-                    TempMax = weatherData["main"]["temp_max"].Value<double>(),
-                    TempMin = weatherData["main"]["temp_min"].Value<double>(),
-                    Status = weatherData["weather"][0]["main"].Value<string>(),
-                    Description = weatherData["weather"][0]["description"].Value<string>(),
-                    Humidity = weatherData["main"]["humidity"].Value<double>(),
-                    Visibility = weatherData["visibility"].Value<int>(),
-                    Clouds = weatherData["clouds"]["all"].Value<double>(),
-                    WindSpeed = weatherData["wind"]["speed"].Value<double>() + " m/s",
-                };
 
                 return new BusinessResult(200, "Get Weather Of Farm Success", weatherData);
             }
