@@ -185,7 +185,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.uploadImageByLink, Name = "uploadImageByLink")]
-        public async Task<IActionResult> UploadImageByLink([FromForm] UploadImageModel uploadImageModel)
+        public async Task<IActionResult> UploadImageByLink([FromBody] UploadImageModel uploadImageModel)
         {
             try
             {
