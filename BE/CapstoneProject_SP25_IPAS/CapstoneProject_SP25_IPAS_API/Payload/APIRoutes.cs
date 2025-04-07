@@ -469,6 +469,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateTag = prefix + "/update-tag";
             public const string trainedProject = prefix + "/trained-project";
             public const string publishIteration = prefix + "/publish-iteration";
+            public const string getAllRoom = prefix + "/get-all-room";
+            public const string changeNameOfRoom = prefix + "/change-name-of-room";
+            public const string deleteRoom = prefix + "/delete-room";
         }
 
 
