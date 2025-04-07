@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest
 {
-    public class GetAllReportOfUserModel
+    public class FilterGetAllRepoterPagin
     {
-        public string? Search { get; set; }
-        public string? SortBy { get; set; }
-        public string? Direction { get; set; }
-        public bool? IsTrainned { get; set; }
+        public bool? isTrainned {  get; set; }
         public bool? isUnanswered { get; set; }
     }
 }

@@ -15,10 +15,10 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 {
     public interface IAIService
     {
-        public Task<BusinessResult> GetAnswerAsync(string question, int? farmId, int? userId);
+        public Task<BusinessResult> GetAnswerAsync(int? roomId, string question, int? farmId, int? userId);
         public Task<BusinessResult> PredictDiseaseByFile(IFormFile image);
         public Task<BusinessResult> PredictDiseaseByURL(string imageURL);
-        public Task<BusinessResult> GetHistoryChat(PaginationParameter paginationParameter, int? farmId, int? userId);
+        public Task<BusinessResult> GetHistoryChat(GetAllRoomModel paginationParameter, int? farmId, int? userId, int roomId);
         public Task<BusinessResult> GetTags();
         public Task<BusinessResult> CreateTag(string tagName);
         public Task<BusinessResult> UploadImageByURLToCustomVision(UploadImageModel uploadImageModel);
@@ -31,6 +31,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetImagesTagged(GetImagesWithTagged getImagesTagged);
         public Task<BusinessResult> TrainedProject();
         public Task<BusinessResult> PublishIterations();
-
+        public Task<BusinessResult> ChangeNameOfRoom(int roomId, string newRoomName);
+        public Task<BusinessResult> GetAllRoomChat(GetAllRoomModel getAllRoomModel, int? farmId, int? userId);
+        public Task<BusinessResult> DeleteRoom(int roomId);
     }
 }

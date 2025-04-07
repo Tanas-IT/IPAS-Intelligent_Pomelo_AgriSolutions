@@ -469,6 +469,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateTag = prefix + "/update-tag";
             public const string trainedProject = prefix + "/trained-project";
             public const string publishIteration = prefix + "/publish-iteration";
+            public const string getAllRoom = prefix + "/get-all-room";
+            public const string changeNameOfRoom = prefix + "/change-name-of-room";
+            public const string deleteRoom = prefix + "/delete-room";
         }
 
 
@@ -519,6 +522,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         {
             public const string prefix = Base + "/report-of-user";
             public const string getAllReportOfUser = prefix + "/get-all";
+            public const string getAllReportOfUserWithPagin = prefix + "/get-all-with-pagin";
             public const string createReportOfUser = prefix + "/create";
             public const string DeleteReportOfUser = prefix + "/delete";
             public const string UpdateReportOfUser = prefix + "/update";

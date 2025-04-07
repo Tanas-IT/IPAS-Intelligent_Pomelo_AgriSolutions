@@ -11,8 +11,9 @@ const useLogout = () => {
     const { accessToken, refreshToken } = useAuthStore.getState();
 
     if (accessToken && refreshToken) {
-      await AuthService.logout(refreshToken);
+      await AuthService.logout();
     }
+    await useAuthStore.getState().logout();
     await AsyncStorage.clear();
     navigation.reset({
       index: 0,

@@ -1,3 +1,4 @@
+import { handleApiError } from "@/utils";
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import Toast from "react-native-toast-message";
 
@@ -25,12 +26,7 @@ axiosNoAuth.interceptors.request.use(
 // Add Response interceptor
 axiosNoAuth.interceptors.response.use(
   (response) => response,
-  (error) => {
-    Toast.show({
-      type: "error",
-      text1: "Error",
-    });
-  }
+  (error) => handleApiError(error)
 );
 
 export default axiosNoAuth;

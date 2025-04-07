@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel
 {
+    public class ChatRoomModel
+    {
+        public int? RoomId { get; set; }
+        public string? RoomName { get; set; }
+        public List<ChatMessageModel>? ChatMessages { get; set; }
+    }
     public class ChatMessageModel
     {
         public int MessageId { get; set; }
 
-        public string? MessageCode { get; set; }
+        public string? Question { get; set; }
 
-        public string? MessageContent { get; set; }
+        public string? Answer { get; set; }
 
         public DateTime? CreateDate { get; set; }
 
@@ -24,8 +30,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel
 
         public string? MessageType { get; set; }
 
-        public int? RoomId { get; set; }
-        public int? UserId { get; set; }
-        public int? FarmId { get; set; }
+        
     }
 }

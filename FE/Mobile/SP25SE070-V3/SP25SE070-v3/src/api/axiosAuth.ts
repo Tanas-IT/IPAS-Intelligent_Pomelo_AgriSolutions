@@ -1,5 +1,7 @@
+import { STORAGE_KEYS } from "@/constants";
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { handleApiError } from "@/utils";
 
 const API_HOST = process.env.EXPO_PUBLIC_API_HOST;
 const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
@@ -16,7 +18,7 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
 
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      const accessToken = await AsyncStorage.getItem("accessToken");
+      const accessToken = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -30,10 +32,7 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
 
   instance.interceptors.response.use(
     (response) => response,
-    (error) => {
-      console.error("API Error:", error.response?.data || error.message);
-      return Promise.reject(error);
-    }
+    (error) => handleApiError(error)
   );
 
   return instance;

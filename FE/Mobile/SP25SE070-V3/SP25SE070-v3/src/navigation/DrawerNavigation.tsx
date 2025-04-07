@@ -3,21 +3,27 @@ import {
   createDrawerNavigator,
   DrawerContentComponentProps,
 } from "@react-navigation/drawer";
-import { DrawerParamList, RootStackNavigationProp } from "../constants/Types";
 import MainTabs from "./MainTabs";
 import FarmPickerScreen from "@/screens/FarmPicker/FarmPickerScreen";
 import ProfileScreen from "@/screens/Profile/ProfileScreen";
 import { Notification } from "./components/Notification";
-import { ROUTE_NAMES } from "../constants/RouteNames";
-import { DrawerActions, useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import theme from "@/theme";
 import CustomDrawerContent from "./CustomDrawerContent";
+import { useAuthStore } from "@/store";
+import {
+  DrawerParamList,
+  RootStackNavigationProp,
+  ROUTE_NAMES,
+  UserRole,
+} from "@/constants";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export default function DrawerNavigation() {
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { roleId } = useAuthStore();
+  const isUser = roleId === UserRole.User.toString();
   return (
     <Drawer.Navigator
       drawerContent={(props: DrawerContentComponentProps) => (
@@ -32,12 +38,14 @@ export default function DrawerNavigation() {
         },
         swipeEnabled: true,
         headerTintColor: theme.colors.primary,
-        headerRight: () => (
-          <Notification
-            unreadCount={5}
-            onPress={() => navigation.navigate(ROUTE_NAMES.NOTIFICATION)}
-          />
-        ),
+        headerRight: !isUser
+          ? () => (
+              <Notification
+                unreadCount={5}
+                onPress={() => navigation.navigate(ROUTE_NAMES.NOTIFICATION)}
+              />
+            )
+          : undefined,
         headerRightContainerStyle: {
           paddingRight: 16,
         },
