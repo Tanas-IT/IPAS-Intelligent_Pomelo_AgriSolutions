@@ -4,15 +4,9 @@
     "strict": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-    "jsx": "react-native",
+    "jsx": "react-native"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "src"]
 }

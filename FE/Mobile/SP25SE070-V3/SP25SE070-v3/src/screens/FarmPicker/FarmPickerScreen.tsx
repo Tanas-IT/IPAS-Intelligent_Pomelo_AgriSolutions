@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { formatDate, getRoleId, getUserId } from "@/utils/UtilFunction";
 import { Tag } from "native-base";
 import { styles } from "./FarmPickerScreen.styles";
-import { Loading } from "@/components";
+import { Loading, TextCustom } from "@/components";
 import { useAuthStore } from "@/store";
 import { GetFarmPicker } from "@/payloads";
 import { AuthService, FarmService } from "@/services";
@@ -128,12 +128,12 @@ const FarmPickerScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>Select Your Farm</Text>
+      <TextCustom style={styles.headerTitle}>Select Your Farm</TextCustom>
       {farmsData.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
+          <TextCustom style={styles.emptyText}>
             You have not been assigned to any farms yet.
-          </Text>
+          </TextCustom>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -161,40 +161,50 @@ const FarmPickerScreen = () => {
                     }
                   >
                     <View style={styles.cardContent}>
-                      <Text style={styles.farmName}>{farm.farm.farmName}</Text>
+                      <TextCustom style={styles.farmName}>
+                        {farm.farm.farmName}
+                      </TextCustom>
 
                       <View style={styles.addressContainer}>
-                        <Text style={styles.addressText}>
-                          {farm.farm.address}
-                        </Text>
-                        <Text style={styles.addressText}>
-                          {farm.farm.ward}, {farm.farm.district}
-                        </Text>
-                        <Text style={styles.addressText}>
-                          {farm.farm.province}
-                        </Text>
+                        <TextCustom style={styles.addressText}>
+                          {farm.farm.address}, {farm.farm.ward},{" "}
+                          {farm.farm.district}, {farm.farm.province}
+                        </TextCustom>
                       </View>
 
                       {/* Farm Info */}
                       <View style={styles.infoContainer}>
                         <View style={styles.infoItem}>
-                          <Text style={styles.infoLabel}>Expired Date</Text>
-                          <Text style={styles.infoValue}>
+                          <TextCustom style={styles.infoLabel}>
+                            Created Date
+                          </TextCustom>
+                          <TextCustom style={styles.infoValue}>
                             {formatDate(farm.farm.createDate)}
-                          </Text>
+                          </TextCustom>
                         </View>
                         <View style={styles.infoItem}>
-                          <Text style={styles.infoLabel}>Status</Text>
-                          <Text
+                          <TextCustom style={styles.infoLabel}>
+                            Status
+                          </TextCustom>
+                          <View
                             style={[
-                              styles.statusText,
+                              styles.statusTag,
                               isInactive
-                                ? styles.inactiveStatus
-                                : styles.activeStatus,
+                                ? styles.inactiveTag
+                                : styles.activeTag,
                             ]}
                           >
-                            {farm.farm.status}
-                          </Text>
+                            <TextCustom
+                              style={[
+                                styles.statusText,
+                                isInactive
+                                  ? styles.inactiveText
+                                  : styles.activeText,
+                              ]}
+                            >
+                              {farm.farm.status}
+                            </TextCustom>
+                          </View>
                         </View>
                       </View>
 
@@ -203,18 +213,23 @@ const FarmPickerScreen = () => {
                         <Tag
                           style={[
                             styles.statusTag,
-                            farm.roleId === "1"
+                            farm.roleId == UserRole.Owner.toString()
                               ? styles.owner
-                              : farm.roleId === "2"
-                              ? styles.manager
-                              : farm.roleId === "3"
-                              ? styles.employee
                               : styles.other,
                           ]}
                         >
-                          {farm.roleName}
+                          <TextCustom
+                            style={[
+                              styles.statusTag,
+                              farm.roleId == UserRole.Owner.toString()
+                                ? styles.ownerText
+                                : styles.otherText,
+                            ]}
+                          >
+                            {farm.roleName}
+                          </TextCustom>
                         </Tag>
-                        <Text style={styles.dateText}>
+                        <TextCustom style={styles.dateText}>
                           Since{" "}
                           {new Date(farm.farm.createDate).toLocaleDateString(
                             "en-US",
@@ -223,7 +238,7 @@ const FarmPickerScreen = () => {
                               year: "numeric",
                             }
                           )}
-                        </Text>
+                        </TextCustom>
                       </View>
                     </View>
                   </TouchableOpacity>

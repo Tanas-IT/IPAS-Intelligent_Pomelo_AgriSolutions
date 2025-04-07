@@ -1,14 +1,11 @@
 import React, { useEffect } from "react";
 import { LoginScreen } from "@/screens/Auth/LoginScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import MainTabs from "./MainTabs";
 import DrawerNavigation from "./DrawerNavigation";
 import { ROUTE_NAMES } from "../constants/RouteNames";
 import PlantDetailScreen from "@/screens/Plant/PlantDetail/PlantDetailScreen";
 import NoteFormScreen from "@/screens/Plant/PlantDetail/NoteFormScreen/NoteFormScreen";
 import { useAuthStore } from "@/store/authStore";
-import { useFarmStore } from "@/store/farmStore";
-import FarmPickerScreen from "@/screens/FarmPicker/FarmPickerScreen";
 import WorklogDetailScreen from "@/screens/Worklog/WorklogDetailScreen/WorklogDetailScreen";
 import { AuthNavigationProp, RootStackParamList } from "../constants/Types";
 import NotificationScreen from "@/screens/Notification/Notification";
@@ -17,7 +14,6 @@ import PestDetectionScreen from "@/screens/PestDetection/PestDetection";
 import { useNavigation } from "@react-navigation/native";
 import { UserRole } from "@/constants";
 
-// const Stack = createNativeStackNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigation() {
