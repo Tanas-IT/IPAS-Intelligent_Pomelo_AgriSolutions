@@ -251,8 +251,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 // Lưu lại tất cả PlantID đã có trong các LandRow để loại bỏ khỏi ListPlant bên ngoài
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
-
-                            if (plantTarget.LandPlotID.HasValue)
+                           
+                            if (plantTarget.LandPlotID.HasValue && plantTarget.Unit.ToLower().Equals("landplot"))
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                 foreach (var row in rowToPlants)
@@ -280,30 +280,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             else
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
-                                foreach (var row in rowToPlants)
+                                if(plantTarget.Unit.ToLower().Equals("row"))
                                 {
-                                    foreach (var plantId in row.Value)
+                                    foreach (var row in rowToPlants)
                                     {
-                                        if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                        foreach (var plantId in row.Value)
                                         {
-                                            var newPlantTarget = new PlanTarget()
+                                            if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
                                             {
-                                                LandPlotID = plantTarget.LandPlotID,
-                                                LandRowID = row.Key,
-                                                PlantID = plantId,
-                                                PlantLotID = null,
-                                                Unit = "Row",
-                                                GraftedPlantID = null,
-                                            };
+                                                var newPlantTarget = new PlanTarget()
+                                                {
+                                                    LandPlotID = plantTarget.LandPlotID,
+                                                    LandRowID = row.Key,
+                                                    PlantID = plantId,
+                                                    PlantLotID = null,
+                                                    Unit = "Row",
+                                                    GraftedPlantID = null,
+                                                };
 
-                                            newPlan.PlanTargets.Add(newPlantTarget);
-                                            addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                                newPlan.PlanTargets.Add(newPlantTarget);
+                                                addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                            }
                                         }
                                     }
                                 }
-
+                                
                                 // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
                                 var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
+                                if(plantTarget.Unit.ToLower().Equals("plant"))
+                                {
+                                    plantsToInsert = inputPlantIDs
+                                            .Where(id => !addedPlanTargets.Any(t => t.Item1 == id))
+                                            .ToList();
+                                }
                                 foreach (var plantId in plantsToInsert)
                                 {
                                     if (!addedPlanTargets.Contains((plantId, null, null)))
@@ -1656,7 +1665,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
             }
             result += await _unitOfWork.SaveAsync();
-            while (currentDate <= plan.EndDate && plan.Frequency.ToLower() != "none")
+            while (currentDate.Date <= plan.EndDate!.Value.Date && plan.Frequency.ToLower() != "none")
             {
                 if (plan.Frequency != null && plan.Frequency.ToLower() == "weekly" && createPlanModel.DayOfWeek != null)
                 {
@@ -2306,7 +2315,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (conflictedUsers.Any())
                 {
                     var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+                    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date.Value.ToString("dd/MM/yyyy")} from {workLog.ActualStartTime} to {workLog.ActualEndTime}");
                 }
 
                 foreach (var user in userIds)
