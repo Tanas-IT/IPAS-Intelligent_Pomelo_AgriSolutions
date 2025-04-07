@@ -47,9 +47,8 @@ export const refreshTokenOutFarm = async (): Promise<
   return apiResponse;
 };
 
-export const logout = async (
-  refreshToken: string
-): Promise<ApiResponse<object>> => {
+export const logout = async (): Promise<ApiResponse<object>> => {
+  const refreshToken = await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
   const res = await axiosNoAuth.post("logout", { refreshToken });
   const apiResponse = res.data as ApiResponse<object>;
   return apiResponse;
