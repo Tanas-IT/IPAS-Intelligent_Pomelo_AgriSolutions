@@ -183,7 +183,7 @@ function FarmPicker() {
                           >{`${farm.farm.address}, ${farm.farm.ward}, ${farm.farm.district}, ${farm.farm.province}`}</Text>
                         </Flex>
                         <Flex className={style.creationInfo}>
-                          <Text className={style.label}>Created at:</Text>
+                          <Text className={style.label}>Created Date:</Text>
                           <Text className={style.date}>{formatDate(farm.farm.createDate)}</Text>
                           <Tag
                             className={`${style.statusTag} ${

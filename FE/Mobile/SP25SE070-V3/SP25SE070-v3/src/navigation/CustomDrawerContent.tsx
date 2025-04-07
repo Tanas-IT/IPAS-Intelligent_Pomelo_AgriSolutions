@@ -30,9 +30,6 @@ export default function CustomDrawerContent(
   const theme = useTheme();
   const STATUS_BAR_HEIGHT =
     Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
-  // const handleLogout = () => {
-  //   props.navigation.navigate(ROUTE_NAMES.AUTH.LOGIN);
-  // };
   const handleLogout = useLogout();
 
   const menuItems = [

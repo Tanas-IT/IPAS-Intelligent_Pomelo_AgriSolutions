@@ -4,29 +4,34 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    flexGrow: 1,
+    backgroundColor: theme.colors.background,
   },
   headerGradient: {
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 24,
   },
-  hello: {
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 50,
     marginBottom: 30,
-    marginTop: 30,
-    marginLeft: 10,
+    gap: 12,
   },
-  header: {
+  logo: {
+    width: 60,
+    height: 60,
+  },
+  headerText: {
+    fontSize: 34,
+    color: "#fff",
     fontWeight: "bold",
     marginBottom: 4,
-    color: "white",
-    fontSize: 37,
   },
-  subHeader: {
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "white",
-    fontSize: 37,
+  subHeaderText: {
+    fontSize: 20,
+    color: "#f5f5f5",
   },
   formContainer: {
     flex: 1,
@@ -40,7 +45,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   label: {
     marginBottom: 0,
@@ -59,16 +64,6 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 0,
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 24,
-    color: "#000000",
-  },
-  forgotPasswordText: {
-    color: "#064944",
-    fontSize: 14,
-    fontWeight: "500",
   },
   signInButton: {
     borderRadius: 8,

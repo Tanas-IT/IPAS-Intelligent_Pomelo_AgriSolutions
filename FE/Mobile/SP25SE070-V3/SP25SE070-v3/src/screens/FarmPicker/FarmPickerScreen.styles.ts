@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fffcee",
+    backgroundColor: theme.colors.background,
     padding: 16,
   },
   emptyContainer: {
@@ -83,17 +83,20 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
     color: theme.colors.primary,
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
   addressContainer: {
+    alignItems: "center",
     marginBottom: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#ecf0f1",
   },
   addressText: {
+    maxWidth: 220,
+    flexWrap: "wrap",
     fontSize: 14,
-    color: "#7f8c8d",
+    color: theme.colors.primary,
     textAlign: "center",
     marginBottom: 4,
   },
@@ -133,15 +136,32 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#2c3e50",
   },
+  statusTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    fontWeight: "bold",
+    alignSelf: "flex-start",
+    overflow: "hidden",
+  },
+  activeTag: {
+    backgroundColor: theme.colors.activeTagBackground,
+    borderColor: theme.colors.activeTagBorder,
+  },
+  inactiveTag: {
+    backgroundColor: theme.colors.inactiveTagBackground,
+    borderColor: theme.colors.inactiveTagBorder,
+  },
   statusText: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "bold",
+    fontSize: 12,
   },
-  activeStatus: {
-    color: "#27ae60",
+  activeText: {
+    color: theme.colors.activeTextColor,
   },
-  inactiveStatus: {
-    color: "#e74c3c",
+  inactiveText: {
+    color: theme.colors.inactiveTextColor,
   },
   footer: {
     flexDirection: "row",
@@ -157,36 +177,19 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: "#7f8c8d",
   },
-  statusTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    fontSize: 12,
-    overflow: "hidden",
-    alignSelf: "flex-start",
-  },
+
   owner: {
-    backgroundColor: "#E6F7FF",
-    color: "#1890FF",
-    borderWidth: 1,
-    borderColor: "#91D5FF",
+    backgroundColor: theme.colors.color_bg_tag_owner,
   },
-  manager: {
-    backgroundColor: "#F9F0FF",
-    color: "#722ED1",
-    borderWidth: 1,
-    borderColor: "#D3ADF7",
-  },
-  employee: {
-    backgroundColor: "#F6FFED",
-    color: "#52C41A",
-    borderWidth: 1,
-    borderColor: "#B7EB8F",
+  ownerText: {
+    color: theme.colors.color_tag_owner,
+    borderColor: "transparent",
   },
   other: {
-    backgroundColor: "#FAFAFA",
-    color: "#666666",
-    borderWidth: 1,
-    borderColor: "#D9D9D9",
+    backgroundColor: theme.colors.color_bg_tag_other,
+  },
+  otherText: {
+    color: theme.colors.color_tag_other,
+    borderColor: "transparent",
   },
 });
