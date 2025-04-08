@@ -530,6 +530,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantCode = x.Plant.PlantCode,
                         ActualQuantity = x.ActualQuantity
                     }).ToList();
+
+                product.YieldHasRecord = product.plantLogHarvest.Sum(x => x.ActualQuantity);
             }
             return new BusinessResult(Const.SUCCESS_GET_HARVEST_HISTORY_CODE, Const.SUCCESS_GET_HARVEST_HISTORY_MSG, mappedResult);
 
