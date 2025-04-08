@@ -41,6 +41,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels
 using System.Text.Json;
 using Newtonsoft.Json;
 using Azure;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_Common.Upload;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -50,6 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
         private ChatSession _chatSession;
+        private readonly ICloudinaryService _cloudinaryService;
 
         private readonly string predictionEndpoint;
         private readonly string predictionKey;
@@ -57,11 +60,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly string trainingKey;
         private readonly string predictionResourceId;
         private readonly Guid projectId;
-
         private readonly CustomVisionTrainingClient trainingClient;
         private readonly CustomVisionPredictionClient predictionClient;
 
-        public AIService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration cofig)
+        public AIService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration cofig, ICloudinaryService cloudinaryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -84,20 +86,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 Endpoint = predictionEndpoint
             };
+            _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<BusinessResult> GetAnswerAsync(int? roomId, string question, int? farmId, int? userId)
+        public async Task<BusinessResult> GetAnswerAsync(ChatRequest chatRequest, int? farmId, int? userId)
         {
             try
             {
                 var getFarmInfo = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
-                var checkRoomExist = await _unitOfWork.ChatRoomRepository.GetByCondition(x => x.RoomId == roomId);
+                var checkRoomExist = await _unitOfWork.ChatRoomRepository.GetByCondition(x => x.RoomId == chatRequest.RoomId);
                 if (checkRoomExist == null)
                 {
                     checkRoomExist = new ChatRoom()
                     {
                         RoomCode = "IPAS_" + getFarmInfo.FarmName + "_ChatIPAS_" + DateTime.Now.Date,
-                        RoomName = question.Length > 10 ? question.Substring(0, 10) + "..." : question,
+                        RoomName = chatRequest.Question.Length > 10 ? chatRequest.Question.Substring(0, 10) + "..." : chatRequest.Question,
                         CreateDate = DateTime.Now,
                         FarmID = farmId,
                         UserID = userId > 0 ? userId.Value : null,
@@ -105,11 +108,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.ChatRoomRepository.Insert(checkRoomExist);
                     await _unitOfWork.SaveAsync();
                 }
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo, checkRoomExist.RoomId);
+                var promptBuilder = new StringBuilder();
+                if (chatRequest.Resource != null)
+                {
+                    var newResource = new List<Resource>();
+                    foreach (var resource in chatRequest.Resource)
+                    {
+                        if (resource != null)
+                        {
+                            var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource, CloudinaryPath.AI_RESOURCE);
+                            if (cloudinaryUrl.Data == null) continue;
+                            string fileFormat;
+                            if (Util.IsVideo(Path.GetExtension(resource.FileName)?.TrimStart('.').ToLower()))
+                                fileFormat = FileFormatConst.VIDEO.ToLower();
+                            else fileFormat = FileFormatConst.IMAGE.ToLower();
+                            var aiResource = new Resource()
+                            {
+                                ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
+                                ResourceURL = (string)cloudinaryUrl.Data,
+                                ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
+                                FileFormat = fileFormat,
+                                CreateDate = DateTime.Now,
+                                Description = resource.FileName,
+                            };
+                            newResource.Add(aiResource);
+                        }
+                    }
+                    if (newResource.Any())
+                    {
+                        await _unitOfWork.ResourceRepository.InsertRangeAsync(newResource);
+                        promptBuilder.AppendLine("Người dùng đã gửi kèm các tài nguyên sau (User has upload some resource after):");
+                        foreach (var url in newResource)
+                        {
+                            promptBuilder.AppendLine($"- {url.ResourceURL}");
+                        }
+                    }
+                }
+                promptBuilder.AppendLine($"Câu hỏi(Question is): {chatRequest.Question}");
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), getFarmInfo, checkRoomExist.RoomId);
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
-                    Question = question,
+                    Question = chatRequest.Question,
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     SenderId = userId > 0 ? userId.Value : null,
@@ -129,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 await _unitOfWork.SaveAsync();
                 var result = new ChatResponse()
                 {
-                    Question = question,
+                    Question = chatRequest.Question,
                     Answer = jsonCheck! /*?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"*/
                 };
                 if (result != null)
@@ -569,7 +609,7 @@ const generationConfig = {
                     }
                 }
                 var entities = await _unitOfWork.ChatRoomRepository.Get(filter, orderBy);
-               
+
                 if (entities.Any())
                 {
                     var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, "Get all room chat success", entities);
