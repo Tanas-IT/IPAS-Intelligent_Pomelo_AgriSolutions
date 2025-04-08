@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +55,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 return defaultValue; // Nếu lỗi khi parse, trả về giá trị mặc định
             }
+        }
+
+        public async Task<List<SystemConfiguration>> GetAllConfigsByGroupNameAsync(string groupName)
+        {
+            return await _context.SystemConfigurations
+                .Where(c => c.ConfigGroup.Trim().ToLower().Equals(groupName.Trim().ToLower()))
+                .Where(c => c.IsActive)
+                .ToListAsync();
         }
     }
 }

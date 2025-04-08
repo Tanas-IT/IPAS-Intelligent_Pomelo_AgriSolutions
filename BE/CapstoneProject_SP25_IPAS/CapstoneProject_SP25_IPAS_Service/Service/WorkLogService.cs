@@ -2,6 +2,7 @@
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -142,7 +143,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var newWorkLog = new WorkLog()
                 {
-                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                    WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
                     ScheduleId = newSchedule.ScheduleId,
                     Status = "Not Started",
                     ActualStartTime = newSchedule.StartTime,
@@ -338,6 +339,31 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+                var redoWorkLog = getDetailWorkLog.RedoWorkLogID.HasValue
+                    ? await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == getDetailWorkLog.RedoWorkLogID)
+                    : null;
+
+                var originalRedo = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.RedoWorkLogID == getDetailWorkLog.WorkLogId);
+                result.RedoWorkLog = redoWorkLog != null
+                   ? new WorkLogBasicModel
+                   {
+                       WorkLogId = redoWorkLog.WorkLogId,
+                       WorkLogName = redoWorkLog.WorkLogName,
+                       Date = redoWorkLog.Date,
+                       ReasonDelay = redoWorkLog.ReasonDelay,
+                       Status = redoWorkLog.Status
+                   }
+                   : null;
+                result.OriginalWorkLog = originalRedo != null
+                   ? new WorkLogBasicModel
+                   {
+                       WorkLogId = originalRedo.WorkLogId,
+                       WorkLogName = originalRedo.WorkLogName,
+                       Date = originalRedo.Date,
+                       ReasonDelay = originalRedo.ReasonDelay,
+                       Status = originalRedo.Status
+                   }
+                   : null;
 
                 if (result != null)
                 {
@@ -909,7 +935,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         existingPlantIDs.UnionWith(plantsInRow);
                                     }
 
-                                    if (plantTarget.LandPlotID.HasValue && plantTarget.LandRowID == null && plantTarget.PlantID == null)
+                                    if (plantTarget.LandPlotID.HasValue && plantTarget.Unit.ToLower().Equals("landplot"))
                                     {
                                         // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
                                         foreach (var row in rowToPlants)
@@ -937,30 +963,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     else
                                     {
                                         // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
-                                        foreach (var row in rowToPlants)
+                                        if (plantTarget.Unit.ToLower().Equals("row"))
                                         {
-                                            foreach (var plantId in row.Value)
+                                            foreach (var row in rowToPlants)
                                             {
-                                                if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
+                                                foreach (var plantId in row.Value)
                                                 {
-                                                    var newPlantTarget = new PlanTarget()
+                                                    if (!addedPlanTargets.Contains((plantId, plantTarget.LandPlotID, row.Key)))
                                                     {
-                                                        LandPlotID = plantTarget.LandPlotID,
-                                                        LandRowID = row.Key,
-                                                        PlantID = plantId,
-                                                        PlantLotID = null,
-                                                        Unit = "Row",
-                                                        GraftedPlantID = null,
-                                                    };
+                                                        var newPlantTarget = new PlanTarget()
+                                                        {
+                                                            LandPlotID = plantTarget.LandPlotID,
+                                                            LandRowID = row.Key,
+                                                            PlantID = plantId,
+                                                            PlantLotID = null,
+                                                            Unit = "Row",
+                                                            GraftedPlantID = null,
+                                                        };
 
-                                                    findWorkLog.Schedule.CarePlan.PlanTargets.Add(newPlantTarget);
-                                                    addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                                        findWorkLog.Schedule.CarePlan.PlanTargets.Add(newPlantTarget);
+                                                        addedPlanTargets.Add((plantId, plantTarget.LandPlotID, row.Key)); // Đánh dấu đã thêm
+                                                    }
                                                 }
                                             }
                                         }
 
                                         // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
                                         var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
+                                        if (plantTarget.Unit.ToLower().Equals("plant"))
+                                        {
+                                            plantsToInsert = inputPlantIDs
+                                                    .Where(id => !addedPlanTargets.Any(t => t.Item1 == id))
+                                                    .ToList();
+                                        }
                                         foreach (var plantId in plantsToInsert)
                                         {
                                             if (!addedPlanTargets.Contains((plantId, null, null)))
@@ -1310,7 +1345,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var addNewWorkLog = new WorkLog()
                 {
-                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                    WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
                     Date = addNewTaskModel.DateWork,
                     WorkLogName = addNewTaskModel.WorkLogName,
                     ActualStartTime = startTime,
@@ -2156,7 +2191,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
-                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted != true);
+                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted == true);
 
                     // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
                     // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
@@ -2180,18 +2215,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Nếu có người thay thế mình sau khi điểm danh => trường hợp 2
                     if (replacement != null)
-                    {
-                        result.Add(new GetListEmployeeToCheckAttendance
-                        {
-                            UserWorkLogId = uwl.UserWorkLogID,
-                            UserId = uwl.UserId,
-                            FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog,
-                            AvatarURL = uwl.User.AvatarURL,
-                            IsReporter = uwl.IsReporter,
-                        });
-                    }
-                    else
                     {
                         result.Add(new GetListEmployeeToCheckAttendance
                         {
@@ -2372,7 +2395,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                 var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getFailedOrRedoWorkLog.Schedule.CarePlanId && x.FarmID == farmId);
-
+                if(getExistPlan == null)
+                {
+                    return new BusinessResult(400, "Plan does not exist");
+                }
                 if (addNewTaskModel.NewStartTime != null && addNewTaskModel.NewEndTime != null)
                 {
                     var checkTime = (int)(endTime - startTime).TotalMinutes; // Chuyển TimeSpan sang số phút
@@ -2410,23 +2436,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     FarmID = farmId,
                 };
 
-                if (getExistPlan != null)
-                {
-                    getExistPlan.CarePlanSchedule = newSchedule;
-                }
+               
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
-                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
-                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                var getStatusRedo = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
                 var addNewWorkLog = new WorkLog()
                 {
-                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                    WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
                     Date = addNewTaskModel.NewDateWork,
                     WorkLogName = addNewTaskModel.NewWorkLogName,
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
                     IsDeleted = false,
-                    Status = getStatusNotStarted,
+                    Status = getStatusRedo,
                     ScheduleId = newSchedule.ScheduleId,
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);
@@ -2541,9 +2564,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
 
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); ;
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); 
             }
         }
 
+        public async Task<BusinessResult> GetStatusOfWorkLogForManager()
+        {
+            try
+            {
+                var getStatusOfWorkLogForManager = await _unitOfWork.SystemConfigRepository
+                        .GetAllConfigsByGroupNameAsync(SystemConfigConst.WORKLOGFORMANAGER.Trim());
+                if(getStatusOfWorkLogForManager != null)
+                {
+                    var result = new GetStatusOfWorkLogForManagerModel() {
+                        Status = getStatusOfWorkLogForManager.Select(x => x.ConfigValue).ToList()
+                    }; 
+                    return new BusinessResult(200, "Get status of workLog for manager success", result);
+                }
+                return new BusinessResult(404, "Do not have any status of worklog for manager");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); 
+            }
+        }
     }
 }

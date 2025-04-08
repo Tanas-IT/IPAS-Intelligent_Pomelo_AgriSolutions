@@ -11,6 +11,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         Task<List<SystemConfiguration>> GetAllActiveConfigsAsync(string key);
         public Task<T> GetConfigValue<T>(string configKey, T defaultValue);
+        public Task<List<SystemConfiguration>> GetAllConfigsByGroupNameAsync(string groupName);
+       
 
     }
 }

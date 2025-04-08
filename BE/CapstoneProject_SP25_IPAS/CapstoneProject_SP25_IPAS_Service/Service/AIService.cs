@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
-                    MessageCode = question,
+                    Question = question,
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     IsUser = false,
@@ -385,7 +385,7 @@ const generationConfig = {
         {
             try
             {
-                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId;
+                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId && x.RoomId == roomId;
                 Func<IQueryable<ChatRoom>, IOrderedQueryable<ChatRoom>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {

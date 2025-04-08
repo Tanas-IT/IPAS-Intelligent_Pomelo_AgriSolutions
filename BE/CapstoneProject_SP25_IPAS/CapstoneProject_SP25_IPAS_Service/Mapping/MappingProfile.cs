@@ -468,10 +468,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<ChatMessage, ChatMessageModel>()
                  .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.MessageCode))
+                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
                  .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.MessageType))
                  .ForMember(dest => dest.Answer, opt => opt.MapFrom(src => src.MessageContent))
-                 .ForMember(dest => dest.IsUser, opt => opt.MapFrom(src => src.IsUser))
                  .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
@@ -502,7 +501,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<WorkLog, WorkLogDetailModel>()
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
-            .ForMember(dest => dest.RedoWorkLogId, opt => opt.MapFrom(src => src.RedoWorkLogID))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
