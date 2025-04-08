@@ -1302,6 +1302,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.WorkLogId).HasColumnName("WorkLogID");
             entity.Property(e => e.Date).HasColumnType("datetime");
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
+            entity.Property(e => e.RedoWorkLogID).HasColumnName("RedoWorkLogID");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");

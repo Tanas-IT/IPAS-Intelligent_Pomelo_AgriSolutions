@@ -937,6 +937,7 @@ CREATE TABLE ipas.dbo.WorkLog (
 	ActualEndTime time(7) NULL,
 	ScheduleID int NULL,
 	WarningID int NULL,
+	RedoWorkLogID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
