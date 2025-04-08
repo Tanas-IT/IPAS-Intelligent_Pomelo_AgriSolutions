@@ -140,7 +140,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         promptBuilder.AppendLine("Người dùng đã gửi kèm các tài nguyên sau (User has upload some resource after):");
                         foreach (var url in newResource)
                         {
-                            promptBuilder.AppendLine($"- {url}");
+                            promptBuilder.AppendLine($"- {url.ResourceURL}");
                         }
                     }
                 }
