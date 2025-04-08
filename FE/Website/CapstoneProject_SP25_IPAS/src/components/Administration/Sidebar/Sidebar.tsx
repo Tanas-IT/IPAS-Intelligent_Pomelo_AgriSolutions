@@ -151,6 +151,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           to: PATHS.CLASSIFICATION.MASTER_TYPE,
           activePaths: [PATHS.CLASSIFICATION.MASTER_TYPE],
         },
+        {
+          key: "Manage Product",
+          label: "Manage Product",
+          icon: Images.radius,
+          to: PATHS.CLASSIFICATION.PRODUCT,
+          activePaths: [PATHS.CLASSIFICATION.PRODUCT],
+        },
       ],
     },
     {

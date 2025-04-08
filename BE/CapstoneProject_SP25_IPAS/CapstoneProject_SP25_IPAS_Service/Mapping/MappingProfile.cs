@@ -467,9 +467,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ReverseMap();
 
             CreateMap<ChatMessage, ChatMessageModel>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Room.UserID))
-                .ForMember(dest => dest.FarmId, opt => opt.MapFrom(src => src.Room.FarmID))
+                 .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
+                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.MessageCode))
+                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.MessageType))
+                 .ForMember(dest => dest.Answer, opt => opt.MapFrom(src => src.MessageContent))
+                 .ForMember(dest => dest.IsUser, opt => opt.MapFrom(src => src.IsUser))
+                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
                 .ReverseMap();
+
+            CreateMap<ChatRoom, ChatRoomModel>()
+                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(src => src.RoomId))
+                .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.RoomName))
+                .ForMember(dest => dest.ChatMessages, opt => opt.MapFrom(src => src.ChatMessages))
+               .ReverseMap();
 
             CreateMap<Resource, ResourceOfWorkLogModel>()
                 .ReverseMap();
@@ -534,23 +546,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                             .FirstOrDefault()
                                                                     })
                                                                     .ToList()))
-            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REJECTED)
+            .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == false && x.StatusOfUserWorkLog != WorkLogStatusConst.REPLACED)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
                                                                         UserId = group.First().User.UserId,
                                                                         FullName = group.First().User.FullName,
                                                                         avatarURL = group.First().User.AvatarURL,
-                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
+                                                                        IsReporter = group.First().IsReporter
                                                                     }).ToList()))
-            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
+            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true && x.StatusOfUserWorkLog != WorkLogStatusConst.REPLACED)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
                                                                         UserId = group.First().User.UserId,
                                                                         FullName = group.First().User.FullName,
                                                                         avatarURL = group.First().User.AvatarURL,
-                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog
+                                                                        StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
+                                                                        IsReporter = group.First().IsReporter
                                                                     })
                                                                     .ToList()))
             .ForMember(dest => dest.ListGrowthStageName, opt =>

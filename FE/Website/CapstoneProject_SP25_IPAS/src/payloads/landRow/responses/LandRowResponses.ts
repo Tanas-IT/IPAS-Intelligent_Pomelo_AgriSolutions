@@ -12,6 +12,7 @@ export interface GetLandRow {
   landRowName: string;
   rowIndex: number;
   treeAmount: number;
+  indexUsed: number;
   distance: number;
   length: number;
   width: number;

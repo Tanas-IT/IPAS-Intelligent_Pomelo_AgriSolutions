@@ -6,12 +6,12 @@ import { Tooltip } from "@/components";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { GraftedGrowthHistory, GraftedPlantCriteria, GraftedPlantDetail } from "@/pages";
-import { useState } from "react";
+import { useGraftedPlantStore } from "@/stores";
 
 function GraftedPlantDetails() {
   const navigate = useNavigate();
   const { styles } = useStyle();
-  const [activeTab, setActiveTab] = useState("1");
+  const { isGrowthDetailView, setIsGrowthDetailView } = useGraftedPlantStore();
 
   const items: TabsProps["items"] = [
     {
@@ -30,11 +30,18 @@ function GraftedPlantDetails() {
       key: "3",
       icon: <Icons.history className={style.iconTab} />,
       label: <label className={style.titleTab}>Growth History</label>,
-      children: <GraftedGrowthHistory activeTab={activeTab} />,
+      children: <GraftedGrowthHistory />,
     },
   ];
 
-  const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
+  // const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
+  const handleBack = () => {
+    if (isGrowthDetailView) {
+      setIsGrowthDetailView(false);
+    } else {
+      navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
+    }
+  };
 
   return (
     <Flex className={style.detailContainer}>
@@ -42,12 +49,12 @@ function GraftedPlantDetails() {
         className={`${style.containerWrapper} ${styles.customTab}`}
         defaultActiveKey="1"
         items={items}
-        onChange={setActiveTab}
+        onChange={() => setIsGrowthDetailView(false)}
         tabBarExtraContent={{
           left: (
             <Flex className={style.extraContent}>
               <Tooltip
-                title="Back to List"
+                title={isGrowthDetailView ? "Back to Growth History" : "Back to List"}
                 children={<Icons.back className={style.backIcon} onClick={handleBack} />}
               />
             </Flex>

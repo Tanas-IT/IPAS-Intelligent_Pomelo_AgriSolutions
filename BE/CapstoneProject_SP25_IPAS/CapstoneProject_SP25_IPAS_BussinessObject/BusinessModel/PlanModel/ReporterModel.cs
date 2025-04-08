@@ -12,5 +12,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public string? FullName { get; set; }
         public string? avatarURL { get; set; }
         public string? StatusOfUserWorkLog { get; set; }
+        public bool? IsReporter { get; set; }
     }
 }

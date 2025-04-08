@@ -71,7 +71,8 @@ const UpdateQuantityModal = ({
         inputQuantity < lot.previousQuantity &&
         isNaN(supplementQuantity) &&
         lot.additionalPlantLots.length === 0 &&
-        !hasConfirmedNoSupplement
+        !hasConfirmedNoSupplement &&
+        !lot.isFromGrafted
       ) {
         setWarningMessage(
           `The current quantity is lower than expected by ${requiredSupplement}. Would you like to add a supplementary lot?`,

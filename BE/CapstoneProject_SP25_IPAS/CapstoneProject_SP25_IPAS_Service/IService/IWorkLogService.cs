@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     public interface IWorkLogService
     {
         public Task<BusinessResult> GetScheduleEvents(ParamScheduleModel paramCalendarModel);
-        public Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId, int farmId);
+        public Task<BusinessResult> AssignTaskForEmployee(int employeeId, int worklogId, int farmId, bool? isReporter);
         public Task<BusinessResult> GetScheduleWithFilters(ScheduleFilter scheduleFilter, int? farmId);
         public Task<BusinessResult> AddNewTask(AddNewTaskModel addNewTaskModel, int? farmId);
         public Task<BusinessResult> AddNewWorkLog(AddWorkLogModel addNewTaskModel, int? farmId);
@@ -31,5 +31,9 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CheckAttendance(CheckAttendanceModel checkAttendanceModel, int farmId);
         public Task<BusinessResult> TaskStatics(int farmId);
         public Task<BusinessResult> GetWorkLogbyStatus(GetWorkLogByStatusParam getWorkLogByStatusModel);
+        public Task<BusinessResult> GetAttendanceList(int workLogId);
+        public Task<BusinessResult> CancelReplacement(CancelledWorkLogModel cancelledWorkLogModel);
+        public Task<BusinessResult> GetListEmployeeToUpdateWorkLog(int workLogId);
+        public Task<BusinessResult> CanTakeAttendance(int workLogId);
     }
 }

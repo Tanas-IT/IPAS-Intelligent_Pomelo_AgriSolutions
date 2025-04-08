@@ -2,6 +2,7 @@ export {
   AiOutlineCheckCircle as checkSuccuss,
   AiOutlineCloseCircle as closeFail,
   AiOutlineAreaChart as area,
+  AiOutlineFileAdd as fileAdd
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
 export { CiTimer as timer, CiBoxes as box, CiMail as mail } from "react-icons/ci";

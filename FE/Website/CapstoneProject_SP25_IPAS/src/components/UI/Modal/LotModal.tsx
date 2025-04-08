@@ -40,7 +40,10 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
     fetchPartners();
   }, []);
 
-  const resetForm = () => form.resetFields();
+  const resetForm = () => {
+    form.resetFields();
+    setIsFromGrafted(false);
+  };
 
   useEffect(() => {
     resetForm();

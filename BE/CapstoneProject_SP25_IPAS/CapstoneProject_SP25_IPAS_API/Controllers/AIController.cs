@@ -44,7 +44,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 if (!userId.HasValue)
                     userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
-                var result = await _aiService.GetAnswerAsync(request.Question, farmId, userId);
+                var result = await _aiService.GetAnswerAsync(request.RoomId, request.Question, farmId, userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -100,7 +100,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.AI.getHistoryOfChat, Name = "getHistoryOfChat")]
-        public async Task<IActionResult> HistoryOfChat(PaginationParameter paginationParameter, int? farmId, int? userId)
+        public async Task<IActionResult> HistoryOfChat([FromQuery] GetAllRoomModel paginationParameter, int? farmId, int? userId, int roomId)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 if (!userId.HasValue)
                     userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
-                var result = await _aiService.GetHistoryChat(paginationParameter, farmId, userId);
+                var result = await _aiService.GetHistoryChat(paginationParameter, farmId, userId, roomId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
         [HttpPost(APIRoutes.AI.uploadImageByLink, Name = "uploadImageByLink")]
-        public async Task<IActionResult> UploadImageByLink([FromForm] UploadImageModel uploadImageModel)
+        public async Task<IActionResult> UploadImageByLink([FromBody] UploadImageModel uploadImageModel)
         {
             try
             {
@@ -204,7 +204,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.EXPERT)}")]
-        [HttpPost(APIRoutes.AI.deleteTag, Name = "deleteTag")]
+        [HttpDelete(APIRoutes.AI.deleteTag, Name = "deleteTag")]
         public async Task<IActionResult> DeleteTag([FromRoute] string tagId)
         {
             try
@@ -378,6 +378,70 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             var value = await _distributedCache.GetStringAsync("test_key");
             return Ok(!string.IsNullOrEmpty(value) ? value.ToString() : "Cache không tồn tại!");
+        }
+
+        [HttpGet(APIRoutes.AI.getAllRoom, Name = "getAllRoom")]
+        public async Task<IActionResult> GetAllRoomAsync([FromQuery] GetAllRoomModel getAllRoomModel, int? farmId, int? userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetAllRoomChat(getAllRoomModel, farmId, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPatch(APIRoutes.AI.changeNameOfRoom, Name = "changeNameOfRoom")]
+        public async Task<IActionResult> ChangeNameOfRoom([FromBody] ChangeNameOfRoomModel changeNameOfRoomModel)
+        {
+            try
+            {
+                var result = await _aiService.ChangeNameOfRoom(changeNameOfRoomModel.RoomID, changeNameOfRoomModel.NewRoomName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpDelete(APIRoutes.AI.deleteRoom, Name = "deleteRoom")]
+        public async Task<IActionResult> deleteRoom([FromQuery] int roomid)
+        {
+            try
+            {
+                var result = await _aiService.DeleteRoom(roomid);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
         }
     }
 }

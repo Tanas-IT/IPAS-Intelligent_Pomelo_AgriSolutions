@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
@@ -162,6 +163,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     answererId = _jwtTokenService.GetUserIdFromToken();
                 }
                 var result = await _reportOfUserService.AnswerReport(answerReportModel, answererId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.ReportOfUser.getAllReportOfUserWithPagin, Name = "getAllReportOfUserWithPagin")]
+        public async Task<IActionResult> GetAllReportOfUserWithPaginAsync([FromQuery] PaginationParameter paginationParameter, [FromQuery] FilterGetAllRepoterPagin filterGetAllRepoter)
+        {
+            try
+            {
+                var result = await _reportOfUserService.GetAllReportOfCustomerWithPagin(paginationParameter, filterGetAllRepoter);
                 return Ok(result);
             }
             catch (Exception ex)

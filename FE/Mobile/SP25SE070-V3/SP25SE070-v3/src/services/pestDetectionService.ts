@@ -1,5 +1,5 @@
 import axiosAuth from "@/api/axiosAuth";
-import { ApiResponse } from "@/types/apiBase/responses/ApiResponse";
+import { ApiResponse } from "@/payloads/ApiBase/ApiResponse";
 import { PestDetectionResult, PestReportRequest, PestReportResponse } from "@/types/pestDetection";
 
 export const predictDisease= async (image: File): Promise<ApiResponse<PestDetectionResult[]>> => {

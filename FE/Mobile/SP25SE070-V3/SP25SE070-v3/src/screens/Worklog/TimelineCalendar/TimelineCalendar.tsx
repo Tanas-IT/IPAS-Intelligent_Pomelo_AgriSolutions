@@ -1,8 +1,16 @@
-import { ROUTE_NAMES } from '@/navigation/RouteNames';
-import { RootStackNavigationProp } from '@/navigation/Types';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ROUTE_NAMES } from "@/constants/RouteNames";
+import { RootStackNavigationProp } from "@/constants/Types";
+import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   ExpandableCalendar,
   TimelineList as BaseTimelineList,
@@ -10,13 +18,15 @@ import {
   TimelineEventProps,
   TimelineProps,
   TimelineListProps,
-} from 'react-native-calendars';
-import { styles } from './TimelineCalendar.styles';
-import TextCustom from 'components/TextCustom';
-import theme from '@/theme';
+} from "react-native-calendars";
+import { styles } from "./TimelineCalendar.styles";
+import theme from "@/theme";
+import { TextCustom } from "@/components";
 
 interface ExtendedTimelineProps extends TimelineProps {
-  renderEvent?: (event: TimelineEventProps & { status?: string; avatars?: string[] }) => JSX.Element;
+  renderEvent?: (
+    event: TimelineEventProps & { status?: string; avatars?: string[] }
+  ) => JSX.Element;
 }
 
 interface TimelineCalendarProps {
@@ -25,51 +35,76 @@ interface TimelineCalendarProps {
 }
 
 const statusStyles = {
-  notStarted: { backgroundColor: '#E1BEE7', textColor: '#880E4F', borderColor: '#880E4F' },
-  inProgress: { backgroundColor: '#BBDEFB', textColor: '#0D47A1', borderColor: '#0D47A1' },
-  overdue: { backgroundColor: '#FFCDD2', textColor: '#B71C1C', borderColor: '#B71C1C' },
-  reviewing: { backgroundColor: '#FFECB3', textColor: '#FF6F00', borderColor: '#FF6F00' },
-  done: { backgroundColor: '#C8E6C9', textColor: '#1B5E20', borderColor: '#1B5E20' },
+  notStarted: {
+    backgroundColor: "#E1BEE7",
+    textColor: "#880E4F",
+    borderColor: "#880E4F",
+  },
+  inProgress: {
+    backgroundColor: "#BBDEFB",
+    textColor: "#0D47A1",
+    borderColor: "#0D47A1",
+  },
+  overdue: {
+    backgroundColor: "#FFCDD2",
+    textColor: "#B71C1C",
+    borderColor: "#B71C1C",
+  },
+  reviewing: {
+    backgroundColor: "#FFECB3",
+    textColor: "#FF6F00",
+    borderColor: "#FF6F00",
+  },
+  done: {
+    backgroundColor: "#C8E6C9",
+    textColor: "#1B5E20",
+    borderColor: "#1B5E20",
+  },
 };
 
 const SafeTimelineList = (props: any) => {
-    // tách key
-    const { key: _, ...safeTimelineProps } = props.timelineProps || {};
-    
-    return (
-      <BaseTimelineList
-        {...props}
-        timelineProps={safeTimelineProps} // k chứa key
-      />
-    );
-  };
+  // tách key
+  const { key: _, ...safeTimelineProps } = props.timelineProps || {};
 
-interface TimelineListSafeProps extends Omit<TimelineListProps, 'timelineProps'> {
-    timelineKey?: string;
-    timelineProps: Omit<TimelineProps, 'key'>;
-  }
-  
-  const TimelineListSafe: React.FC<TimelineListSafeProps> = (props) => {
-    const { timelineKey, timelineProps, ...rest } = props;
-    
-    return (
-      <BaseTimelineList
-        key={timelineKey}
-        {...rest}
-        timelineProps={timelineProps}
-      />
-    );
-  };
+  return (
+    <BaseTimelineList
+      {...props}
+      timelineProps={safeTimelineProps} // k chứa key
+    />
+  );
+};
 
-export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate, markedDates }) => {
-  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
+interface TimelineListSafeProps
+  extends Omit<TimelineListProps, "timelineProps"> {
+  timelineKey?: string;
+  timelineProps: Omit<TimelineProps, "key">;
+}
+
+const TimelineListSafe: React.FC<TimelineListSafeProps> = (props) => {
+  const { timelineKey, timelineProps, ...rest } = props;
+
+  return (
+    <BaseTimelineList
+      key={timelineKey}
+      {...rest}
+      timelineProps={timelineProps}
+    />
+  );
+};
+
+export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
+  eventsByDate,
+  markedDates,
+}) => {
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [timelineEvents, setTimelineEvents] = useState(eventsByDate);
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const onDateChanged = (date: string) => {
     setCurrentDate(date);
   };
-  
 
   const getEventsForTimeline = () => {
     return Object.entries(eventsByDate).reduce((acc, [date, events]) => {
@@ -77,14 +112,17 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate
     }, [] as TimelineEventProps[]);
   };
 
-  const createNewEvent: TimelineProps['onBackgroundLongPress'] = (timeString, timeObject) => {
-    const hourString = `${(timeObject.hour + 1).toString().padStart(2, '0')}`;
-    const minutesString = `${timeObject.minutes.toString().padStart(2, '0')}`;
+  const createNewEvent: TimelineProps["onBackgroundLongPress"] = (
+    timeString,
+    timeObject
+  ) => {
+    const hourString = `${(timeObject.hour + 1).toString().padStart(2, "0")}`;
+    const minutesString = `${timeObject.minutes.toString().padStart(2, "0")}`;
     const newEvent: TimelineEventProps = {
-      id: 'draft',
+      id: "draft",
       start: `${timeString}`,
       end: `${timeObject.date} ${hourString}:${minutesString}:00`,
-      title: 'New Event',
+      title: "New Event",
     };
 
     if (timeObject.date) {
@@ -98,29 +136,36 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate
     }
   };
 
-  const approveNewEvent: TimelineProps['onBackgroundLongPressOut'] = (_timeString, timeObject) => {
-    Alert.prompt('New Event', 'Enter event title', [
+  const approveNewEvent: TimelineProps["onBackgroundLongPressOut"] = (
+    _timeString,
+    timeObject
+  ) => {
+    Alert.prompt("New Event", "Enter event title", [
       {
-        text: 'Cancel',
+        text: "Cancel",
         onPress: () => {
           if (timeObject.date) {
             const updatedEvents = {
               ...timelineEvents,
-              [timeObject.date]: timelineEvents[timeObject.date].filter((e) => e.id !== 'draft'),
+              [timeObject.date]: timelineEvents[timeObject.date].filter(
+                (e) => e.id !== "draft"
+              ),
             };
             setTimelineEvents(updatedEvents);
           }
         },
       },
       {
-        text: 'Create',
+        text: "Create",
         onPress: (eventTitle) => {
           if (timeObject.date) {
             const updatedEvents = { ...timelineEvents };
-            const draftEvent = updatedEvents[timeObject.date].find((e) => e.id === 'draft');
+            const draftEvent = updatedEvents[timeObject.date].find(
+              (e) => e.id === "draft"
+            );
             if (draftEvent) {
               draftEvent.id = `${Date.now()}`;
-              draftEvent.title = eventTitle ?? 'New Event';
+              draftEvent.title = eventTitle ?? "New Event";
               setTimelineEvents(updatedEvents);
             }
           }
@@ -129,15 +174,21 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate
     ]);
   };
 
-  const renderEvent = (event: TimelineEventProps & { status?: string; avatars?: string[] }) => {
-    const status = (event.status || 'notStarted').toLowerCase().replace(' ', '') as keyof typeof statusStyles;
+  const renderEvent = (
+    event: TimelineEventProps & { status?: string; avatars?: string[] }
+  ) => {
+    const status = (event.status || "notStarted")
+      .toLowerCase()
+      .replace(" ", "") as keyof typeof statusStyles;
     const style = statusStyles[status] || statusStyles.notStarted;
 
     return (
       <TouchableOpacity
         onPress={() => {
-          if (event.id && event.id !== 'draft') {
-            navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, { worklogId: event.id });
+          if (event.id && event.id !== "draft") {
+            navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, {
+              worklogId: event.id,
+            });
           }
         }}
         style={[
@@ -145,19 +196,24 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate
           {
             backgroundColor: style.backgroundColor,
             borderLeftColor: style.borderColor,
-            width: '100%',
-            height: '100%',
+            width: "100%",
+            height: "100%",
           },
         ]}
       >
         <View style={styles.eventHeader}>
-          <TextCustom style={[styles.eventTitle, { color: style.textColor }]}>{event.title}</TextCustom>
+          <TextCustom style={[styles.eventTitle, { color: style.textColor }]}>
+            {event.title}
+          </TextCustom>
           <View style={styles.statusBadge}>
-            <TextCustom style={[styles.statusText, { color: style.textColor }]}>{event.status}</TextCustom>
+            <TextCustom style={[styles.statusText, { color: style.textColor }]}>
+              {event.status}
+            </TextCustom>
           </View>
         </View>
         <TextCustom style={styles.eventTime}>
-          {event.start.split(' ')[1].substring(0, 5)} - {event.end.split(' ')[1].substring(0, 5)}
+          {event.start.split(" ")[1].substring(0, 5)} -{" "}
+          {event.end.split(" ")[1].substring(0, 5)}
         </TextCustom>
         {event.avatars && event.avatars.length > 0 && (
           <FlatList
@@ -174,19 +230,21 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({ eventsByDate
     );
   };
 
-const timelineProps: Omit<TimelineProps, 'key'> = {
+  const timelineProps: Omit<TimelineProps, "key"> = {
     events: timelineEvents[currentDate] || [],
     format24h: true,
     // onBackgroundLongPress: createNewEvent,
     // onBackgroundLongPressOut: approveNewEvent,
-    unavailableHours: [{ start: 0, end: 6 }, { start: 22, end: 24 }],
+    unavailableHours: [
+      { start: 0, end: 6 },
+      { start: 22, end: 24 },
+    ],
     overlapEventsSpacing: 8,
     rightEdgeSpacing: 24,
     renderEvent,
   };
   console.log("timelineProps", timelineProps);
   console.log("timelineEvents", timelineEvents);
-  
 
   return (
     <View style={styles.container}>
@@ -200,9 +258,9 @@ const timelineProps: Omit<TimelineProps, 'key'> = {
           firstDay={1}
           markedDates={markedDates}
           theme={{
-            calendarBackground: 'white',
+            calendarBackground: "white",
             selectedDayBackgroundColor: theme.colors.primary,
-            selectedDayTextColor: 'white',
+            selectedDayTextColor: "white",
             todayTextColor: theme.colors.primary,
             dotColor: theme.colors.primary,
           }}
@@ -219,4 +277,3 @@ const timelineProps: Omit<TimelineProps, 'key'> = {
     </View>
   );
 };
-

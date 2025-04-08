@@ -126,7 +126,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
         {/* Biểu đồ */}
         <div className={style.chartContainer}>
           {chartData && chartData.length > 0 ? (
-            <ResponsiveContainer>
+            <ResponsiveContainer width="100%" minHeight={380}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis

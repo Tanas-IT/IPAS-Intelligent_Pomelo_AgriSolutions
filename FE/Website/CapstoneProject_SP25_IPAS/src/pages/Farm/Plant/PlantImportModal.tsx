@@ -79,7 +79,7 @@ const PlantImportModal = ({ isOpen, onClose, onSave, isLoadingAction }: PlantImp
         <Flex className={style.importSection}>
           <label>Import Template</label>
           <a
-            href="https://res.cloudinary.com/dgshx4n2c/raw/upload/v1740905615/PlantCSVRecord1_pxgx7f.csv"
+            href="https://res.cloudinary.com/dgshx4n2c/raw/upload/v1743843677/ImportFile/PlantImportTemplate.csv"
             download
             className={style.downloadLink}
           >

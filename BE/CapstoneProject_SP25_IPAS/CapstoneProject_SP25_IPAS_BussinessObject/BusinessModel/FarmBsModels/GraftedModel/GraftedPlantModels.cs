@@ -25,6 +25,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
 
         public string? Note { get; set; }
         public bool? IsCompleted { get; set; }
+        public bool? IsDead { get; set; }
+
         public int? PlantLotId { get; set; }
 
         public int? PlantId { get; set; }

@@ -23,6 +23,12 @@ export const plantColumns: TableColumn<GetPlant>[] = [
     width: 200,
   },
   {
+    header: "Name",
+    field: "plantName",
+    accessor: (item) => <TableCell value={item.plantName} />,
+    width: 180,
+  },
+  {
     header: "Cultivar",
     field: "masterTypeName",
     accessor: (item) => <TableCell value={item.masterTypeName} />,
@@ -39,7 +45,6 @@ export const plantColumns: TableColumn<GetPlant>[] = [
     },
     width: 180,
   },
-
   {
     header: "Planting Date",
     field: "plantingDate",
@@ -65,23 +70,5 @@ export const plantColumns: TableColumn<GetPlant>[] = [
       />
     ),
     width: 200,
-  },
-  {
-    header: "Mother Plant",
-    field: "plantReferenceCode",
-    accessor: (item) => <TableCell value={item.plantReferenceCode} />,
-    width: 200,
-  },
-  {
-    header: "Description",
-    field: "description",
-    accessor: (item) => <TableCell value={item.description} />,
-    width: 300,
-  },
-  {
-    header: "Created Date",
-    field: "createDate",
-    accessor: (item) => <TableCell value={formatDate(item.createDate)} />,
-    width: 150,
   },
 ];

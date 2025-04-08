@@ -2,38 +2,44 @@ import { FC } from "react";
 import { Icons } from "@/assets";
 import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/constants";
+import { GRAFTED_STATUS, ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
+import { GetGraftedPlant } from "@/payloads";
 
 interface ActionMenuProps {
-  id?: number;
-  isCompleted: boolean;
+  graftedPlant: GetGraftedPlant;
   onEdit: () => void;
   onDelete: () => void;
   onApplyCriteria?: () => void;
-  onAddToLot?: () => void;
-  onRemoveFromLot?: () => void;
+  onAddToLot: () => void;
+  onRemoveFromLot: () => void;
+  onMarkAsDead: () => void;
+  onConvertToPlant: () => void;
 }
 
 const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
-  id,
-  isCompleted,
+  graftedPlant,
   onEdit,
   onDelete,
   onApplyCriteria,
   onAddToLot,
   onRemoveFromLot,
+  onMarkAsDead,
+  onConvertToPlant,
 }) => {
   const navigate = useNavigate();
+  const { graftedPlantId, isCompleted, isDead, plantLotId, status } = graftedPlant;
+  const isUsed = status === GRAFTED_STATUS.USED;
+
   const actionItems = [
-    id !== undefined
+    graftedPlantId !== undefined
       ? {
           icon: <Icons.eye />,
           label: "View Details",
-          onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(id)),
+          onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(graftedPlantId)),
         }
       : null,
-    !isCompleted && onApplyCriteria
+    !isCompleted && onApplyCriteria && !isDead
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",
@@ -50,18 +56,32 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
       label: "Delete Grafted Plant",
       onClick: () => onDelete(),
     },
-    onAddToLot
+    !isDead && !isUsed
+      ? {
+          icon: <Icons.warning />,
+          label: "Mark as Dead",
+          onClick: () => onMarkAsDead(),
+        }
+      : null,
+    !isDead && isCompleted && plantLotId === undefined && !isUsed
       ? {
           icon: <Icons.box />,
           label: "Add to Lot",
-          onClick: () => onAddToLot?.(),
+          onClick: () => onAddToLot(),
         }
       : null,
-    onRemoveFromLot
+    plantLotId !== undefined && !isUsed
       ? {
           icon: <Icons.delete />,
           label: "Remove from Lot",
-          onClick: () => onRemoveFromLot?.(), // Gọi hàm xử lý khi nhấn vào
+          onClick: () => onRemoveFromLot(),
+        }
+      : null,
+    !isDead && isCompleted && !isUsed
+      ? {
+          icon: <Icons.plant />,
+          label: "Convert to Plant",
+          onClick: () => onConvertToPlant?.(),
         }
       : null,
   ].filter(Boolean) as ActionMenuItem[];

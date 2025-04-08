@@ -5,9 +5,16 @@ import ActionMenu from "./ActionMenu/ActionMenu";
 interface ActionMenuProps {
   onEdit: () => void;
   onDelete: () => void;
+  onOpenRecordModal: () => void;
+  onImport: () => void;
 }
 
-const ActionMenuHarvest: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
+const ActionMenuHarvest: FC<ActionMenuProps> = ({
+  onEdit,
+  onDelete,
+  onOpenRecordModal,
+  onImport,
+}) => {
   const actionItems = [
     {
       icon: <Icons.edit />,
@@ -18,6 +25,16 @@ const ActionMenuHarvest: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
       icon: <Icons.delete />,
       label: "Delete Harvest",
       onClick: () => onDelete(),
+    },
+    {
+      icon: <Icons.fileAdd />,
+      label: "Record Harvest",
+      onClick: () => onOpenRecordModal(),
+    },
+    {
+      icon: <Icons.upload />,
+      label: "Import Harvest",
+      onClick: onImport,
     },
   ];
 

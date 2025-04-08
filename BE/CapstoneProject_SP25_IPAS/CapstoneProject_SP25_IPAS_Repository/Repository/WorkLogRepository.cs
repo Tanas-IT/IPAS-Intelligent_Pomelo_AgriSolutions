@@ -19,7 +19,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<bool> AssignTaskForUser(int employeeId, int workLogId)
+        public async Task<bool> AssignTaskForUser(int employeeId, int workLogId, bool? isRepoter)
         {
             var workLog = await _context.WorkLogs
                .Include(wl => wl.Schedule)
@@ -30,34 +30,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 throw new Exception("Work Log does not exist");
             }
 
-            // Lấy thời gian bắt đầu và kết thúc của công việc này
-            var startTime = workLog.Schedule.StartTime;
-            var endTime = workLog.Schedule.EndTime;
-            var workLogDate = workLog.Date;
-
-            // Kiểm tra xem user này có bị trùng lịch không
-            bool isConflicted = await _context.UserWorkLogs
-                .Include(uwl => uwl.WorkLog)
-                .ThenInclude(wl => wl.Schedule)
-                .AnyAsync(uwl => uwl.UserId == employeeId &&
-                    uwl.WorkLog.Date == workLogDate && // Cùng ngày
-                    (
-                        (uwl.WorkLog.Schedule.StartTime < endTime && uwl.WorkLog.Schedule.EndTime > startTime) ||  // TH1: Trùng giờ trong cùng ngày
-                        (uwl.WorkLog.Schedule.StartTime > uwl.WorkLog.Schedule.EndTime && // TH2: Công việc kéo dài qua ngày
-                            (startTime >= uwl.WorkLog.Schedule.StartTime || endTime <= uwl.WorkLog.Schedule.EndTime))
-                    ));
-
-            if (isConflicted)
-            {
-                throw new Exception("User has conflict schedule");
-            }
 
             // Nếu không trùng, tiến hành gán công việc cho user
             var newUserWorkLog = new UserWorkLog
             {
                 WorkLogId = workLogId,
                 UserId = employeeId,
-                IsReporter = false // Có thể cập nhật giá trị này nếu cần
+                IsReporter = isRepoter // Có thể cập nhật giá trị này nếu cần
             };
 
             _context.UserWorkLogs.Add(newUserWorkLog);
@@ -383,9 +362,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             if (userConflicts.Any())
             {
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
-                    $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
+                    $"{uwl.FullName}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
+                throw new Exception($"{conflictDetails} have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")} from {newStartTime} to {newEndTime}");
             }
         }
 

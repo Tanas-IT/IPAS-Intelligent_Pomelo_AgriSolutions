@@ -9,6 +9,9 @@ export { default as User } from "@/pages/User/User";
 export { default as PlantYield } from "@/pages/Crop/PlantYield/PlantYield";
 export { default as MasterType } from "@/pages/Classification/MasterType/MasterType";
 export { default as GrowthStage } from "@/pages/Classification/GrowthStage/GrowthStage";
+export { default as Product } from "@/pages/Classification/Product/Product";
+export { default as ProductDetails } from "@/pages/Classification/ProductDetails/ProductDetails";
+export { default as ProductDetail } from "@/pages/Classification/ProductDetails/ProductDetail/ProductDetail";
 export { default as CreateFarm } from "@/pages/Farm/CreateFarm/CreateFarm";
 export { default as FarmInfo } from "@/pages/Farm/FarmInfo/FarmInfo";
 export { default as LandPlot } from "@/pages/Farm/LandPlot/LandPlot";
@@ -31,6 +34,7 @@ export { default as PlantGrowthHistory } from "@/pages/Farm/PlantDetails/PlantGr
 export { default as PlantCriteria } from "@/pages/Farm/PlantDetails/PlantCriteria/PlantCriteria";
 export { default as PlantGraftedHistory } from "@/pages/Farm/PlantDetails/PlantGraftedHistory/PlantGraftedHistory";
 export { default as PlantCareHistory } from "@/pages/Farm/PlantDetails/PlantCareHistory/PlantCareHistory";
+export { default as PlantHarvestRecord } from "@/pages/Farm/PlantDetails/PlantHarvestRecord/PlantHarvestRecord";
 
 export { default as PlantLot } from "@/pages/Farm/PlantLot/PlantLot";
 export { default as PlantLotDetails } from "@/pages/Farm/PlantLotDetails/PlantLotDetails";

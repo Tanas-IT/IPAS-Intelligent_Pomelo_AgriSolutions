@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/apiBase/responses/ApiResponse";
+import { ApiResponse } from "@/payloads/ApiBase/ApiResponse";
 import { GetNotification } from "@/types/notification";
 import axiosAuth from '@/api/axiosAuth';
 

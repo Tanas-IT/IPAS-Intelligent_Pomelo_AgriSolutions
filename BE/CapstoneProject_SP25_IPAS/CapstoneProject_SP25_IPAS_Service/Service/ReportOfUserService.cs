@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
@@ -108,8 +109,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 filter = filter.And(x => x.IsTrainned == getAllReportOfUserModel.IsTrainned);
             }
+            if (getAllReportOfUserModel.isUnanswered != null)
+            {
+                if(getAllReportOfUserModel.isUnanswered == true)
+                {
+                    filter = filter.And(x => x.AnswererID == null);
+                }
+                else
+                {
+                    filter = filter.And(x => x.AnswererID != null);
+                }
+            }
 
-          
+
             switch (getAllReportOfUserModel.SortBy != null ? getAllReportOfUserModel.SortBy.ToLower() : "defaultSortBy")
             {
                 case "reportid":
@@ -160,6 +172,106 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> GetAllReportOfCustomerWithPagin(PaginationParameter paginationParameter, FilterGetAllRepoterPagin filterGetAllRepoterPagin)
+        {
+            Expression<Func<Report, bool>> filter = null!;
+            Func<IQueryable<Report>, IOrderedQueryable<Report>> orderBy = null!;
+            if (!string.IsNullOrEmpty(paginationParameter.Search))
+            {
+                int validInt = 0;
+                var checkInt = int.TryParse(paginationParameter.Search, out validInt);
+                DateTime validDate = DateTime.Now;
+                bool validBool = false;
+                if (checkInt)
+                {
+                    filter = filter.And(x => x.ReportID == validInt);
+                }
+                else if (DateTime.TryParse(paginationParameter.Search, out validDate))
+                {
+                    filter = filter.And(x => x.CreatedDate == validDate);
+                }
+                else if (Boolean.TryParse(paginationParameter.Search, out validBool))
+                {
+                    filter = filter.And(x => x.IsTrainned == validBool);
+                }
+                else
+                {
+                    filter = filter.And(x => x.ReportCode.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.ImageURL.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Answerer.FullName.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Questioner.FullName.ToLower().Contains(paginationParameter.Search.ToLower()));
+                }
+            }
+
+            if (filterGetAllRepoterPagin.isTrainned != null)
+            {
+                filter = filter.And(x => x.IsTrainned == filterGetAllRepoterPagin.isTrainned);
+            }
+            if (filterGetAllRepoterPagin.isUnanswered != null)
+            {
+                if (filterGetAllRepoterPagin.isUnanswered == true)
+                {
+                    filter = filter.And(x => x.AnswererID == null);
+                }
+                else
+                {
+                    filter = filter.And(x => x.AnswererID != null);
+                }
+            }
+
+
+            switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
+            {
+                case "reportid":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                               ? x => x.OrderByDescending(x => x.ReportID)
+                               : x => x.OrderBy(x => x.ReportID)) : x => x.OrderBy(x => x.ReportID);
+                    break;
+                case "reportcode":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                               ? x => x.OrderByDescending(x => x.ReportCode)
+                               : x => x.OrderBy(x => x.ReportCode)) : x => x.OrderBy(x => x.ReportCode);
+                    break;
+
+                case "istrained":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                               ? x => x.OrderByDescending(x => x.IsTrainned)
+                               : x => x.OrderBy(x => x.IsTrainned)) : x => x.OrderBy(x => x.IsTrainned);
+                    break;
+                case "createdate":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                               ? x => x.OrderByDescending(x => x.CreatedDate)
+                               : x => x.OrderBy(x => x.CreatedDate)) : x => x.OrderBy(x => x.CreatedDate);
+                    break;
+                case "answerer":
+                    orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                ? (paginationParameter.Direction.ToLower().Equals("desc")
+                               ? x => x.OrderByDescending(x => x.Answerer.FullName)
+                               : x => x.OrderBy(x => x.Answerer.FullName)) : x => x.OrderBy(x => x.Answerer.FullName);
+                    break;
+                default:
+                    orderBy = x => x.OrderByDescending(x => x.ReportID);
+                    break;
+            }
+            string includeProperties = "Answerer,Questioner";
+            var entities = await _unitOfWork.ReportRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+            var pagin = new PageEntity<ReportOfUserModel>();
+            pagin.List = _mapper.Map<IEnumerable<ReportOfUserModel>>(entities).ToList();
+            pagin.TotalRecord = await _unitOfWork.ReportRepository.Count(filter);
+            pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+            if (pagin.List.Any())
+            {
+                return new BusinessResult(200, "Get all report of user success", pagin);
+            }
+            else
+            {
+                return new BusinessResult(200, "Do not have any report of user");
+            }
+        }
         public async Task<BusinessResult> PermantlyDeleteReportOfCustomer(DeleteReportOfUserModel PermentlyDeleteReportOfUserModel)
         {
             try

@@ -19,7 +19,15 @@ export const LandRowColumns: TableColumn<GetLandRow>[] = [
   {
     header: "Plants Per Row",
     field: "treeAmount",
-    accessor: (item) => <TableCell value={<span>🌳 {item.treeAmount}</span>} />,
+    accessor: (item) => (
+      <TableCell
+        value={
+          <span>
+            🌳 {item.indexUsed}/{item.treeAmount}
+          </span>
+        }
+      />
+    ),
     width: 180,
   },
   {

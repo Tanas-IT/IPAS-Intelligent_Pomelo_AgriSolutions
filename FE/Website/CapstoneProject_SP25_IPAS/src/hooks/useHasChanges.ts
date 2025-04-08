@@ -1,4 +1,5 @@
 import { GROWTH_ACTIONS, growthStageFormFields } from "@/constants";
+import { carePlanSchedules } from "@/payloads";
 import { useCallback } from "react";
 
 function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
@@ -14,8 +15,8 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
 
         if (!oldData) return false;
-        console.log(oldData);
-        console.log(newData);
+        // console.log(oldData);
+        // console.log(newData);
 
         return Object.keys(newData).some((key) => {
           const typedKey = key as keyof T;

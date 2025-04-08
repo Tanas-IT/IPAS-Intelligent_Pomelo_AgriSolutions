@@ -13,6 +13,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string VALIDATION_VARIABLE = "Validation Variable";
         public const string MASTER_TYPE = "Master Type";
         public const string CRITERIA_APPLY = "Criteria Apply";
+        public const string WORKLOG = "WorkLog";
+        public const string AI = "AI";
         #endregion
 
         #region CONFIG FOR PLANT IN GRAFTED
@@ -51,6 +53,9 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #region AI
         public const string PREDICT_PERCENT = "Predict Percent";
+        #endregion
+        #region CONFIG TIME TO TAKE ATTENDANCE
+        public const string TIME_TO_TAKE_ATTEDANCE = "TimeToTakeAttendance";
         #endregion
         #endregion
 

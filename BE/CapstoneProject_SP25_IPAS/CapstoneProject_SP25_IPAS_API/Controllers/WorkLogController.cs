@@ -81,13 +81,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.WorkLog.assignTask, Name = "AssignTask")]
-        public async Task<IActionResult> AssignTask(int employeeId, int workLogId, int? farmId)
+        public async Task<IActionResult> AssignTask(AssignTaskForEmployeeModel assignTaskForEmployeeModel, int? farmId)
         {
             try
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _workLogService.AssignTaskForEmployee(employeeId, workLogId, farmId.Value);
+                var result = await _workLogService.AssignTaskForEmployee(assignTaskForEmployeeModel.userId, assignTaskForEmployeeModel.workLogId, farmId.Value, assignTaskForEmployeeModel.isRepoter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -382,6 +382,86 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     UserId = userId.Value
                 };
                 var result = await _workLogService.GetWorkLogbyStatus(workLogParam);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.GetAttendanceList, Name = "GetAttendanceList")]
+        public async Task<IActionResult> GetAttendanceList([FromQuery] int workLogId)
+        {
+            try
+            {
+                var result = await _workLogService.GetAttendanceList(workLogId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.WorkLog.CancelReplacement, Name = "CancelReplacement")]
+        public async Task<IActionResult> CancelReplacement([FromBody] CancelledWorkLogModel cancelledWorkLogModel)
+        {
+            try
+            {
+                var result = await _workLogService.CancelReplacement(cancelledWorkLogModel);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.GetListEmployeeToUpdate, Name = "GetListEmployeeToUpdate")]
+        public async Task<IActionResult> GetListEmployeeToUpdate([FromQuery] int workLogId)
+        {
+            try
+            {
+                var result = await _workLogService.GetListEmployeeToUpdateWorkLog(workLogId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.WorkLog.CanTakeAttendance, Name = "CanTakeAttendance")]
+        public async Task<IActionResult> CanTakeAttendance([FromBody] CanCheckAttedanceModel canCheckAttedanceModel)
+        {
+            try
+            {
+                var result = await _workLogService.CanTakeAttendance(canCheckAttedanceModel.WorkLogId);
                 return Ok(result);
             }
             catch (Exception ex)
