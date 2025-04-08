@@ -474,6 +474,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
+                 .ForMember(dest => dest.resources, opt => opt.MapFrom(src => src.Resources))
                 .ReverseMap();
 
             CreateMap<ChatRoom, ChatRoomModel>()

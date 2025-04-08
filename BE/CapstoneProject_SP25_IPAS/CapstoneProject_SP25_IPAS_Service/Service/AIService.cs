@@ -109,9 +109,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.SaveAsync();
                 }
                 var promptBuilder = new StringBuilder();
+                var newResource = new List<Resource>();
                 if (chatRequest.Resource != null)
                 {
-                    var newResource = new List<Resource>();
                     foreach (var resource in chatRequest.Resource)
                     {
                         if (resource != null)
@@ -136,7 +136,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (newResource.Any())
                     {
-                        await _unitOfWork.ResourceRepository.InsertRangeAsync(newResource);
                         promptBuilder.AppendLine("Người dùng đã gửi kèm các tài nguyên sau (User has upload some resource after):");
                         foreach (var url in newResource)
                         {
@@ -153,7 +152,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     SenderId = userId > 0 ? userId.Value : null,
-                    RoomId = checkRoomExist.RoomId
+                    RoomId = checkRoomExist.RoomId,
+                    Resources = newResource
                 };
                 var jsonCheck = new GeminiAnswerFormat();
                 try
@@ -504,8 +504,8 @@ const generationConfig = {
                             break;
                     }
                 }
-                string includeProperties = "ChatMessages";
-                var entities = await _unitOfWork.ChatRoomRepository.Get(filter, orderBy, includeProperties);
+                //string includeProperties = "ChatMessages";
+                var entities = await _unitOfWork.ChatRoomRepository.Get(filter, orderBy);
                 var listChatMessage = _mapper.Map<IEnumerable<ChatRoomModel>>(entities).ToList();
                 if (listChatMessage.Any())
                 {
