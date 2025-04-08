@@ -14,6 +14,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MASTER_TYPE = "Master Type";
         public const string CRITERIA_APPLY = "Criteria Apply";
         public const string WORKLOG = "WorkLog";
+        public const string WORKLOGFORMANAGER = "WorkLog For Manager";
         public const string AI = "AI";
         #endregion
 

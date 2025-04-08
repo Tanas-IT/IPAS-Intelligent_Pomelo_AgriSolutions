@@ -475,5 +475,47 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.WorkLog.RedoWorkLog, Name = "RedoWorkLog")]
+        public async Task<IActionResult> RedoWorkLog([FromBody] RedoWorkLogModel redoWorkLogModel, int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.RedoAssignWorkLog(redoWorkLogModel, farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.WorkLog.GetStatusOfWorkLogForManager, Name = "GetStatusOfWorkLogForManager")]
+        public async Task<IActionResult> GetStatusOfWorkLogForManager()
+        {
+            try
+            {
+                var result = await _workLogService.GetStatusOfWorkLogForManager();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

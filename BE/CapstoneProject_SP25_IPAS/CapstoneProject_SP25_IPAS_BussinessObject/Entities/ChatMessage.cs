@@ -7,7 +7,7 @@ public partial class ChatMessage
 {
     public int MessageId { get; set; }
 
-    public string? MessageCode { get; set; }
+    public string? Question { get; set; }
 
     public string? MessageContent { get; set; }
 
