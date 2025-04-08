@@ -2216,7 +2216,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
                     }
                     getUserWorkLog.ReplaceUserId = null;
-                    getUserWorkLog.StatusOfUserWorkLog = null;
+                    if(getUserWorkLog.IsDeleted == true)
+                    {
+                        getUserWorkLog.StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED;
+                    }
+                    else
+                    {
+                       getUserWorkLog.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    }
                     getUserWorkLog.IsDeleted = false;
                     _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
                 }
@@ -2243,9 +2250,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
                 {
-                    // Bỏ qua trường hợp bị hủy trước điểm danh (Trường hợp 1)
-                    if (uwl.StatusOfUserWorkLog != null && uwl.StatusOfUserWorkLog.ToLower().Equals(WorkLogStatusConst.REJECTED.ToLower()))
-                        continue;
 
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog

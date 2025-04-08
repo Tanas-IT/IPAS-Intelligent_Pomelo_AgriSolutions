@@ -9,5 +9,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request
     public class ChatRequest
     {
         public string Question { get; set; }
+        public int? RoomId { get; set; }
     }
 }
