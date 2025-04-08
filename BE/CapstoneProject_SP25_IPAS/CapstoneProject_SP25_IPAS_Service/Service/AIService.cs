@@ -40,6 +40,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Migrations;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Azure;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -105,7 +106,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.SaveAsync();
                 }
                 var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo, checkRoomExist.RoomId);
-
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
@@ -116,12 +116,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     SenderId = userId > 0 ? userId.Value : null,
                     RoomId = checkRoomExist.RoomId
                 };
+                var jsonCheck = new GeminiAnswerFormat();
+                try
+                {
+                    geminiApiResponse = Util.ExtractJson(geminiApiResponse);
+                    jsonCheck = JsonConvert.DeserializeObject<GeminiAnswerFormat>(geminiApiResponse); //không phải JSON
+                }
+                catch
+                {
+                    return new BusinessResult(500, "AI response not correct format");
+                }
                 await _unitOfWork.ChatMessageRepository.Insert(newChatMessage);
                 await _unitOfWork.SaveAsync();
                 var result = new ChatResponse()
                 {
                     Question = question,
-                    Answer = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"
+                    Answer = jsonCheck! /*?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"*/
                 };
                 if (result != null)
                 {
@@ -361,18 +371,7 @@ const generationConfig = {
                 {
                     return null!;
                 }
-                else
-                {
-                    response = Util.ExtractJson(response);
-                }
-                try
-                {
-                    var jsonCheck = JsonConvert.DeserializeObject<GeminiAnswerFormat>(response); //không phải JSON
-                }
-                catch
-                {
-                    return "AI answer not corect format";
-                }
+
                 return response;
             }
             catch (Exception ex)

@@ -34,6 +34,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         public int? PlantIndex { get; set; }
         public int? LandRowIndex { get; set; }
         public string? LantPlotName { get; set; }
+        public double? YieldHasRecord { get; set; }
 
         //public string? ProcessName { get; set; }
 
