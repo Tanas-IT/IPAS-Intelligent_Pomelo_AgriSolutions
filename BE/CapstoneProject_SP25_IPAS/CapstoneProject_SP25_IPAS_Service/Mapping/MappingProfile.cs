@@ -502,6 +502,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<WorkLog, WorkLogDetailModel>()
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
+            .ForMember(dest => dest.RedoWorkLogId, opt => opt.MapFrom(src => src.RedoWorkLogID))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))

@@ -569,6 +569,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
+                var getStatusReceived = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
                 var result = entities
                        .Select(wl => new ScheduleModel()
                        {
@@ -579,7 +581,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                            Status = wl.Status,
                            ScheduleId = wl.ScheduleId,
                            StartTime = wl.ActualStartTime,
-                           IsTakeAttendance = wl.UserWorkLogs.Any(uwl => uwl.StatusOfUserWorkLog == WorkLogStatusConst.RECEIVED),
+                           IsTakeAttendance = wl.UserWorkLogs.Any(uwl => uwl.StatusOfUserWorkLog == getStatusReceived),
                            EndTime = wl.ActualEndTime,
                            PlanId = wl.Schedule?.CarePlan?.PlanId,
                            PlanName = wl.Schedule?.CarePlan?.PlanName,
@@ -746,7 +748,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         throw new Exception("Update failed because nothing was process");
                     }
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
-                    if(findWorkLog.Status.ToLower().Equals(WorkLogStatusConst.IN_PROGRESS.ToLower())) {
+                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                    if (findWorkLog.Status.ToLower().Equals(getStatusInProgress.ToLower())) {
                         throw new Exception("WorkLog is in-progress. Can not update");
                     }
                     if (updateWorkLogModel.DateWork.Value.Date < DateTime.Now.Date)
@@ -1302,7 +1306,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
-
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var addNewWorkLog = new WorkLog()
                 {
                     WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
@@ -1311,7 +1316,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
                     IsDeleted = false,
-                    Status = WorkLogStatusConst.NOT_STARTED,
+                    Status = getStatusNotStarted,
                     ScheduleId = newSchedule.ScheduleId
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);
@@ -1436,6 +1441,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
 
+               
                 var validStatuses = typeof(WorkLogStatusConst)
                     .GetFields(BindingFlags.Public | BindingFlags.Static)
                     .Select(f => f.GetValue(null)?.ToString().ToLower()) // Chuyển tất cả về chữ thường
@@ -1683,6 +1689,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId);
+                var getStatusRejected = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
+                var getStatusReplaced = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.REPLACED.Trim(), "Replaced");
+                var getStatusBeReplaced = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.BEREPLACED.Trim(), "BeReplaced");
                 if (getWorkLog == null)
                 {
                     return new BusinessResult(404, "Can not find any worklog");
@@ -1757,7 +1769,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                             else
                             {
-                                getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                                getUserToUpdate.StatusOfUserWorkLog = getStatusRejected;
                                 getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
                             }
 
@@ -1772,7 +1784,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsReporter = changeEmployee.IsReporter,
                                 WorkLogId = getUserToUpdate.WorkLogId,
                                 IsDeleted = false,
-                                StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
+                                StatusOfUserWorkLog = getStatusReplaced,
                             };
 
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
@@ -1787,7 +1799,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             // Nếu thực sự đổi người mới
-                            getUserToUpdate.StatusOfUserWorkLog = WorkLogStatusConst.BEREPLACED;
+                            getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
                             getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
                             getUserToUpdate.IsDeleted = true;
                             _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
@@ -1800,7 +1812,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsReporter = changeEmployee.IsReporter,
                                 WorkLogId = getUserToUpdate.WorkLogId,
                                 IsDeleted = false,
-                                StatusOfUserWorkLog = WorkLogStatusConst.REPLACED,
+                                StatusOfUserWorkLog = getStatusReplaced,
                             };
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
@@ -1833,9 +1845,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getWorkLogToCancelled = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId && x.UserId == userId);
+                var getStatusRejected = await _unitOfWork.SystemConfigRepository
+                       .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 if (getWorkLogToCancelled != null)
                 {
-                    getWorkLogToCancelled.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    getWorkLogToCancelled.StatusOfUserWorkLog = getStatusRejected;
                     getWorkLogToCancelled.IsDeleted = true;
                     _unitOfWork.UserWorkLogRepository.Update(getWorkLogToCancelled);
                 }
@@ -2208,6 +2222,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == cancelledWorkLogModel.UserId);
+                var getStatusRejected = await _unitOfWork.SystemConfigRepository
+        .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
+                var getStatusReceived = await _unitOfWork.SystemConfigRepository
+       .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Rejected");
                 if (getUserWorkLog != null)
                 {
                     var getReplacementWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == getUserWorkLog.ReplaceUserId);
@@ -2216,7 +2234,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
                     }
                     getUserWorkLog.ReplaceUserId = null;
-                    getUserWorkLog.StatusOfUserWorkLog = null;
+                    if(getUserWorkLog.IsDeleted == true)
+                    {
+                        getUserWorkLog.StatusOfUserWorkLog = getStatusReceived;
+                    }
+                    else
+                    {
+                       getUserWorkLog.StatusOfUserWorkLog = getStatusRejected;
+                    }
                     getUserWorkLog.IsDeleted = false;
                     _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
                 }
@@ -2243,9 +2268,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
                 {
-                    // Bỏ qua trường hợp bị hủy trước điểm danh (Trường hợp 1)
-                    if (uwl.StatusOfUserWorkLog != null && uwl.StatusOfUserWorkLog.ToLower().Equals(WorkLogStatusConst.REJECTED.ToLower()))
-                        continue;
 
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
@@ -2331,6 +2353,195 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> RedoAssignWorkLog(RedoWorkLogModel addNewTaskModel, int? farmId)
+        {
+            try
+            {
+                var getFailedOrRedoWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogByIdWithPlan(addNewTaskModel.FailedOrRedoWorkLogId);
+                if(getFailedOrRedoWorkLog == null)
+                {
+                    return new BusinessResult(400, "Do not find any workLog");
+                }
+
+
+                var parseStartTime = TimeSpan.TryParse(addNewTaskModel.NewStartTime, out var startTime);
+                var parseEndTime = TimeSpan.TryParse(addNewTaskModel.NewEndTime, out var endTime);
+
+
+                var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getFailedOrRedoWorkLog.Schedule.CarePlanId && x.FarmID == farmId);
+
+                if (addNewTaskModel.NewStartTime != null && addNewTaskModel.NewEndTime != null)
+                {
+                    var checkTime = (int)(endTime - startTime).TotalMinutes; // Chuyển TimeSpan sang số phút
+
+                    var masterType = await _unitOfWork.MasterTypeRepository
+                        .GetByCondition(x => x.MasterTypeId == getExistPlan.MasterTypeId);
+
+                    if (masterType != null)
+                    {
+                        var minTime = masterType.MinTime;
+                        var maxTime = masterType.MaxTime;
+
+                        if (checkTime < minTime || checkTime > maxTime)
+                        {
+                            throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                        }
+                    }
+                }
+
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                      startTime,
+                                                                       endTime,
+                                                                       addNewTaskModel.NewDateWork,
+                                                                       getExistPlan.MasterTypeId,
+                                                                        addNewTaskModel.NewListEmployee.Select(x => x.UserId).ToList()
+                                                                   );
+                var newSchedule = new CarePlanSchedule()
+                {
+                    Status = "Active",
+                    CarePlanId = getExistPlan.PlanId,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    IsDeleted = false,
+                    CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.NewDateWork.ToString("yyyy/MM/dd")) + "]",
+                    FarmID = farmId,
+                };
+
+                if (getExistPlan != null)
+                {
+                    getExistPlan.CarePlanSchedule = newSchedule;
+                }
+                await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
+                await _unitOfWork.SaveAsync();
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                var addNewWorkLog = new WorkLog()
+                {
+                    WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                    Date = addNewTaskModel.NewDateWork,
+                    WorkLogName = addNewTaskModel.NewWorkLogName,
+                    ActualStartTime = startTime,
+                    ActualEndTime = endTime,
+                    IsDeleted = false,
+                    Status = getStatusNotStarted,
+                    ScheduleId = newSchedule.ScheduleId,
+                };
+                newSchedule.WorkLogs.Add(addNewWorkLog);
+                await _unitOfWork.WorkLogRepository.Insert(addNewWorkLog);
+                await _unitOfWork.SaveAsync();
+
+                getFailedOrRedoWorkLog.RedoWorkLogID = addNewWorkLog.WorkLogId;
+                _unitOfWork.WorkLogRepository.Update(getFailedOrRedoWorkLog);
+                await _unitOfWork.SaveAsync();
+
+                var conflictDetailsSet = new HashSet<string>();
+                if (addNewTaskModel.NewListEmployee != null)
+                {
+                    List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
+                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(addNewWorkLog);
+
+                    foreach (var workLog in savedWorkLogs)
+                    {
+                        var conflictedUsers = new List<string>();
+                        foreach (EmployeeModel user in addNewTaskModel.NewListEmployee)
+                        {
+                            // Kiểm tra User có bị trùng lịch không?
+                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                            if (conflictedUser != null)
+                            {
+                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
+                            }
+                        }
+
+                        if (conflictedUsers.Any())
+                        {
+                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+                        }
+                    }
+
+
+                    foreach (EmployeeModel user in addNewTaskModel.NewListEmployee)
+                    {
+                        userWorkLogs.Add(new UserWorkLog
+                        {
+                            WorkLogId = addNewWorkLog.WorkLogId,
+                            UserId = user.UserId,
+                            IsReporter = user.isReporter,
+                            IsDeleted = false
+                        });
+
+                    }
+
+
+                    // 🔹 Lưu UserWorkLogs vào DB
+                    await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+
+                    var addNotification = new Notification()
+                    {
+                        Content = "Work " + addNewTaskModel.NewWorkLogName + " has just been created",
+                        Title = "WorkLog",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    foreach (var employee in addNewTaskModel.NewListEmployee)
+                    {
+                        var addPlanNotification = new PlanNotification()
+                        {
+                            NotificationID = addNotification.NotificationId,
+                            CreatedDate = DateTime.Now,
+                            UserID = employee.UserId,
+                            isRead = false,
+                        };
+
+                        await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                    }
+
+                    var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
+
+                    foreach (var employee in getListManagerOfFarm)
+                    {
+                        var addPlanNotificationForManager = new PlanNotification()
+                        {
+                            NotificationID = addNotification.NotificationId,
+                            CreatedDate = DateTime.Now,
+                            UserID = employee.UserId,
+                            isRead = false,
+                        };
+                        await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotificationForManager);
+                        await _webSocketService.SendToUser(employee.UserId, addNotification);
+
+                    }
+                    foreach (var employeeModel in addNewTaskModel.NewListEmployee)
+                    {
+                        await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                    }
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}");
+                        return new BusinessResult(200, "Add WorkLog Success", result > 0);
+                    }
+                    return new BusinessResult(400, "Add WorkLog Failed");
+                }
+                else
+                {
+                    return new BusinessResult(400, "List Employee is empty");
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); ;
             }
         }
 

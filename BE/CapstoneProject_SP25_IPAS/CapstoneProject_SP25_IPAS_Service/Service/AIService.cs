@@ -537,18 +537,15 @@ const generationConfig = {
                     }
                 }
                 var entities = await _unitOfWork.ChatRoomRepository.Get(filter, orderBy);
-                var groupedRooms = entities
-                                 .OrderByDescending(c => c.CreateDate)
-                                 .GroupBy(c => c.CreateDate.Value.Date.ToString("dd/MM/yyyy"))
-                                 .ToDictionary(g => g.Key, g => g.ToList());
-                if (groupedRooms.Any())
+               
+                if (entities.Any())
                 {
-                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, groupedRooms);
+                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, "Get all room chat success", entities);
                     return result;
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_HISTORY_CHAT_CODE, Const.WARNIN_GET_HISTORY_CHAT_MSG, new List<GetAllRoomMapping>());
+                    return new BusinessResult(Const.WARNING_GET_HISTORY_CHAT_CODE, "Do not have any room chat", new List<GetAllRoomMapping>());
                 }
             }
             catch (Exception ex)
