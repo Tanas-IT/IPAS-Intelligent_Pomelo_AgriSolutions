@@ -1269,7 +1269,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
                                 {
                                     var getRoleOfUserInFarm = await _unitOfWork.UserFarmRepository.getRoleOfUserInFarm(existUser.UserId, farmId);
-
+                                    if (getRoleOfUserInFarm == -1)
+                                        return new BusinessResult(400, "You are not in this orgination");
                                     var newAccessToken = await GenerateAccessToken(email, existUser, getRoleOfUserInFarm, farmId);
                                     _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int newTokenValidityInMinutes);
 
