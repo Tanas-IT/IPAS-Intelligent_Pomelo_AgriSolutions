@@ -17,7 +17,7 @@ public partial class ChatMessage
 
     public int? SenderId { get; set; }
 
-    public bool? IsUser { get; set; }
+    //public bool? IsUser { get; set; }
 
     public string? MessageType { get; set; }
 

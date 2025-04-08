@@ -112,7 +112,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Question = question,
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
-                    IsUser = false,
                     SenderId = userId > 0 ? userId.Value : null,
                     RoomId = checkRoomExist.RoomId
                 };
@@ -343,7 +342,7 @@ const generationConfig = {
                     {
                         history.Add(new InputContent
                         {
-                            Role = msg.IsUser == true ? "user" : "model",
+                            Role = "user",
                             Parts = msg.MessageContent
                         });
                     }
