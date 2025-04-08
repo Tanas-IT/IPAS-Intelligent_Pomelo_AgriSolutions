@@ -447,20 +447,27 @@ function WorklogDetail() {
 
   const handleSaveAttendance = async () => {
     console.log("...........................");
-
     const allUsers = [
-      ...(worklogDetail?.listEmployee || []), // Employee
-      ...(worklogDetail?.reporter || [])      // Reporter
+      ...(worklogDetail?.listEmployee || []),
+      ...(worklogDetail?.reporter || [])
     ];
 
     const listEmployee = allUsers.map(user => ({
       userId: user.userId,
-      status: attendanceStatus[user.userId] || "Rejected", // Mặc định vắng mặt nếu không chọn
+      status: attendanceStatus[user.userId] || "Rejected",
     }));
     console.log('payloadđ', listEmployee);
 
 
     try {
+      // const canCheck = await worklogService.canTakeAttendance(Number(id));
+      // console.log("canCheck", canCheck);
+      
+      // if (canCheck.statusCode !== 200 || !canCheck.data) {
+      //   toast.error(canCheck.message);
+      //   return;
+      // }
+
       const resultAttendance = await worklogService.saveAttendance(Number(id), listEmployee);
       if (resultAttendance && resultAttendance.statusCode === 200) {
         toast.success(resultAttendance.message);
@@ -485,7 +492,7 @@ function WorklogDetail() {
     if (!worklogDetail) return;
     const updatedEmployees = worklogDetail.listEmployee.map((employee) => ({
       ...employee,
-      isReporter: employee.userId === userId ? isReporter : false, // Chỉ có một reporter duy nhất
+      isReporter: employee.userId === userId ? isReporter : false,
     }));
 
     setWorklogDetail({
@@ -581,7 +588,7 @@ function WorklogDetail() {
                         width={25}
                         className={style.avt}
                         crossOrigin="anonymous"
-                        style={{ border: `2px solid ${borderColor}` }}
+                        // style={{ border: `2px solid ${borderColor}` }}
                       />
                       <label className={style.createdBy} style={{ color: textColor }}>
                         {employee.fullName || "Unknown"}
@@ -655,14 +662,14 @@ function WorklogDetail() {
                     width={25}
                     className={style.avt}
                     crossOrigin="anonymous"
-                    style={{
-                      border:
-                        worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
-                          ? "2px solid red"
-                          : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                            ? "2px solid goldenrod"
-                            : "none",
-                    }}
+                    // style={{
+                    //   border:
+                    //     worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
+                    //       ? "2px solid red"
+                    //       : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
+                    //         ? "2px solid goldenrod"
+                    //         : "none",
+                    // }}
                   />
                   <label
                     style={{

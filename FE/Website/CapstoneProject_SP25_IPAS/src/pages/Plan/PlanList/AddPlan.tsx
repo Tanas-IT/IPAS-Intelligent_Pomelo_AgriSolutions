@@ -873,8 +873,8 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
         <PlanTarget
-          landPlotOptions={landPlots}
-          landRows={landRowOptions}
+          // landPlotOptions={landPlots}
+          // landRows={landRowOptions}
           plants={plantsOptions}
           plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}

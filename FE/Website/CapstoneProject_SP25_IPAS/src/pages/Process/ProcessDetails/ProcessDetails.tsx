@@ -381,7 +381,7 @@ function ProcessDetails() {
 
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
-      ProcessName: processName || "New Process",
+      ProcessName: processName || processDetail?.processName,
       IsActive: form.getFieldValue(processFormFields.isActive),
       IsDefault: processDetail?.isDefault ?? false,
       IsDeleted: processDetail?.isDeleted ?? false,

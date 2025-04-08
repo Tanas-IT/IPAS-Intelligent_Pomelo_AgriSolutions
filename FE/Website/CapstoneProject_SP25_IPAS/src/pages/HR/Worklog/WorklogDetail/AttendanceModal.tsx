@@ -41,8 +41,10 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
     }
   }
   useEffect(() => {
+    if (visible) {
     fetchListAttendance();
-  }, [])
+    }
+  }, [visible])
 
   // const combinedEmployees = [
   //   ...reporter.map((rep) => ({

@@ -133,3 +133,12 @@ export interface GetAttendanceList {
   fullName: string;
   isReporter: boolean;
 }
+
+export interface GetEmpListForUpdate {
+  userWorkLogId: number;
+  userId: number;
+  avatarURL: string;
+  fullName: string;
+  isReporter: boolean;
+  statusOfUser: string;
+}

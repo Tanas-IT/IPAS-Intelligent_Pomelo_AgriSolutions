@@ -44,7 +44,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   const [list, setList] = useState<GetAttendanceList[]>([]);
   const fetchListAttendance = async () => {
       try {
-        const result = await worklogService.getAttendanceList(Number(id));
+        const result = await worklogService.getEmpListForUpdate(Number(id));
         if (result.statusCode === 200) {
           setList(result.data);
         }

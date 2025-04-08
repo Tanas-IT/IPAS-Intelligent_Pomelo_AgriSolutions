@@ -28,6 +28,8 @@ export const getAllReports = async (
     if (isTrainned !== undefined) params.append("IsTrainned", isTrainned.toString());
     if (isUnanswered !== undefined) params.append("IsUnanswered", isUnanswered.toString());
     const res = await axiosAuth.axiosJsonRequest.get(`report-of-user/get-all?${params.toString()}`);
+    console.log('Responseeeee:', res);
+    
     return res.data as ApiResponse<GetData<GetReportResponse>>;
 };
 

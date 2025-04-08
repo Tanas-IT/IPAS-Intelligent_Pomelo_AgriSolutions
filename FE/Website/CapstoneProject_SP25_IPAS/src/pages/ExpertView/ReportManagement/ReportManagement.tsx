@@ -24,7 +24,7 @@ const ReportManagementScreen: React.FC = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10); // Mặc định 10 report mỗi trang
+  const [pageSize] = useState<number>(10);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -35,11 +35,13 @@ const ReportManagementScreen: React.FC = () => {
       isTrainned,
       isUnanswered
     );
+    console.log('Response:', response);
+    
     if (response.statusCode === 200) {
-      setReports(response.data.list);
+      setReports(response.data);
       setTotalReports(response.data.totalRecord);
       setTotalUnanswered(
-        response.data.list.filter(r => !r.answerFromExpert).length // Tính thủ công nếu BE không trả
+        response.data.list.filter(r => !r.answerFromExpert).length
       );
     }
     setLoading(false);
