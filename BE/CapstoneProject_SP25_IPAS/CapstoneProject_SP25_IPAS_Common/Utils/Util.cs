@@ -66,5 +66,18 @@ namespace CapstoneProject_SP25_IPAS_Common.Utils
 
         public static bool IsVideo(string? fileFormat)
             => !string.IsNullOrEmpty(fileFormat) && FileFormatConst.VIDEO_EXTENSIONS.Contains(fileFormat.ToLower());
+
+        public static string ExtractJson(string response)
+        {
+            var startIndex = response.IndexOf('{');
+            var endIndex = response.LastIndexOf('}');
+
+            if (startIndex >= 0 && endIndex > startIndex)
+            {
+                return response.Substring(startIndex, endIndex - startIndex + 1);
+            }
+
+            return null!; 
+        }
     }
 }

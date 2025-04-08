@@ -144,7 +144,7 @@ app.UseWebSockets(webSocketOptions);
 app.UseMiddleware<WebSocketMiddleware>();
 
 //app.UseMiddleware<AuthorizeMiddleware>();
-//app.UseMiddleware<FarmExpiredMiddlewfare>();
+//app.UseMiddleware<FarmExpiredMiddleware>();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

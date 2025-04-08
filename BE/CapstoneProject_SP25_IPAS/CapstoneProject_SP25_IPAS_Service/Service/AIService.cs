@@ -38,6 +38,9 @@ using CapstoneProject_SP25_IPAS_Common.Constants;
 using System.Numerics;
 using CapstoneProject_SP25_IPAS_BussinessObject.Migrations;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
+using System.Text.Json;
+using Newtonsoft.Json;
+using Azure;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -94,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     checkRoomExist = new ChatRoom()
                     {
                         RoomCode = "IPAS_" + getFarmInfo.FarmName + "_ChatIPAS_" + DateTime.Now.Date,
-                        RoomName =  question.Length > 10 ? question.Substring(0, 10) + "..." : question,
+                        RoomName = question.Length > 10 ? question.Substring(0, 10) + "..." : question,
                         CreateDate = DateTime.Now,
                         FarmID = farmId,
                         UserID = userId > 0 ? userId.Value : null,
@@ -102,24 +105,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.ChatRoomRepository.Insert(checkRoomExist);
                     await _unitOfWork.SaveAsync();
                 }
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo);
-
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(question, getFarmInfo, checkRoomExist.RoomId);
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
-                    MessageCode = question,
+                    Question = question,
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     IsUser = false,
                     SenderId = userId > 0 ? userId.Value : null,
                     RoomId = checkRoomExist.RoomId
                 };
+                var jsonCheck = new GeminiAnswerFormat();
+                try
+                {
+                    geminiApiResponse = Util.ExtractJson(geminiApiResponse);
+                    jsonCheck = JsonConvert.DeserializeObject<GeminiAnswerFormat>(geminiApiResponse); //không phải JSON
+                }
+                catch
+                {
+                    return new BusinessResult(500, "AI response not correct format");
+                }
                 await _unitOfWork.ChatMessageRepository.Insert(newChatMessage);
                 await _unitOfWork.SaveAsync();
                 var result = new ChatResponse()
                 {
                     Question = question,
-                    Answer = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"
+                    Answer = jsonCheck! /*?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"*/
                 };
                 if (result != null)
                 {
@@ -193,7 +205,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             try
             {
-                if(!IsImageLink(imageURL))
+                if (!IsImageLink(imageURL))
                 {
                     return new BusinessResult(Const.ERROR_EXCEPTION, "Pick images with these formats: png, jpg, bmp or gif.");
                 }
@@ -246,7 +258,7 @@ const generationConfig = {
      responseMimeType: "text/plain",
    };
 */
-        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm getFarmInfo)
+        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm getFarmInfo, int roomId)
         {
             try
             {
@@ -255,88 +267,109 @@ const generationConfig = {
 
                 var generationConfig = new GenerationConfig
                 {
-                    Temperature = 0.6,
-                    TopP = 0.5,
-                    TopK = 40,
-                    MaxOutputTokens = 8192
+                    Temperature = double.TryParse(_config["GeminiSettings:Temperature"], out var temp) ? temp : 0.6,
+                    TopP = double.TryParse(_config["GeminiSettings:TopP"], out var topP) ? topP : 0.5,
+                    TopK = int.TryParse(_config["GeminiSettings:TopK"], out var topK) ? topK : 40,
+                    MaxOutputTokens = int.TryParse(_config["GeminiSettings:MaxOutputTokens"], out var maxTokens) ? maxTokens : 8192,
                 };
 
                 // Tạo lịch sử hội thoại (history)
-                var history = new[]
-       {
-            new InputContent
-            {
-                Role = "user",
-                Parts = "Bạn là chuyên gia trong lĩnh vực trồng và chăm sóc cây bưởi ..."
-            },
-            new InputContent
-            {
-                Role = "user",
-                Parts = "You are an expert in the field of planting and caring for grapefruit trees..."
-            },
-            new InputContent
-            {
-                Role = "user",
-                Parts = "Bạn là IPAS (Intelligent Pomelo AgriSolutions), một chuyên gia về cây bưởi..."
-            },
-             new InputContent
-            {
-                Role = "user",
-                Parts = "You are IPAS (Intelligent Pomelo AgriSolutions), a grapefruit expert..."
-            },
-            new InputContent
-            {
-                Role = "model",
-                Parts = $"Xin chào! Tôi là IPAS, chuyên gia về cây bưởi, tôi có thể giúp gì cho bạn... "
-            },
-            new InputContent
-            {
-                Role = "model",
-                Parts = $"Hello! I'm IPAS, grapefruit expert, how can I help you... "
-            },
-            new InputContent
-            {
-                Role = "model",
-                Parts = "Đã hiểu. Tôi là IPAS, tôi sẽ cung cấp lời khuyên chuyên môn cho..."
-            },
-             new InputContent
-            {
-                Role = "model",
-                Parts = "Got it. I'm IPAS, I'll provide professional advice for..."
-            },
-            new InputContent
-            {
-                Role = "model",
-                Parts = $"Dựa vào đặc tính đất đai của trang trại của bạn là {getFarmInfo.SoilType}, tôi có thể đưa ra lời khuyên như sau..."
-            },
-             new InputContent
-            {
-                Role = "model",
-                Parts = $"Based on your farm's soil characteristics {getFarmInfo.SoilType}, I can give you the following advice..."
-            },
-            new InputContent
-            {
-                Role = "user",
-                Parts = "Bạn chỉ được trả lời các câu hỏi liên quan đến cây bưởi. Nếu người dùng hỏi về chủ đề khác, hãy từ chối trả lời."
-            },
-            new InputContent
-            {
-                Role = "user",
-                Parts = "You may only answer questions related to pomelo trees. If a user asks about another topic, decline to answer."
-            }
-        };
+                //         var history = new[]
+                //{
+                //     new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "Bạn là chuyên gia trong lĩnh vực trồng và chăm sóc cây bưởi ..."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "You are an expert in the field of planting and caring for grapefruit trees..."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "Bạn là IPAS (Intelligent Pomelo AgriSolutions), một chuyên gia về cây bưởi..."
+                //     },
+                //      new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "You are IPAS (Intelligent Pomelo AgriSolutions), a grapefruit expert..."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = $"Xin chào! Tôi là IPAS, chuyên gia về cây bưởi, tôi có thể giúp gì cho bạn... "
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = $"Hello! I'm IPAS, grapefruit expert, how can I help you... "
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = "Đã hiểu. Tôi là IPAS, tôi sẽ cung cấp lời khuyên chuyên môn cho..."
+                //     },
+                //      new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = "Got it. I'm IPAS, I'll provide professional advice for..."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = $"Dựa vào đặc tính đất đai của trang trại của bạn là {getFarmInfo.SoilType}, tôi có thể đưa ra lời khuyên như sau..."
+                //     },
+                //      new InputContent
+                //     {
+                //         Role = "model",
+                //         Parts = $"Based on your farm's soil characteristics {getFarmInfo.SoilType}, I can give you the following advice..."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "Bạn chỉ được trả lời các câu hỏi liên quan đến cây bưởi. Nếu người dùng hỏi về chủ đề khác, hãy từ chối trả lời."
+                //     },
+                //     new InputContent
+                //     {
+                //         Role = "user",
+                //         Parts = "You may only answer questions related to pomelo trees. If a user asks about another topic, decline to answer."
+                //     }
+                // };
+                var promptSections = _config.GetSection("GeminiSettings:PromptContext").Get<List<GeminiPrompt>>() ?? new();
+                // Tạo lịch sử hội thoại (history)
+                var history = promptSections.Select(p => new InputContent
+                {
+                    Role = p.Role,
+                    Parts = p.Parts.Replace("{soilType}", getFarmInfo.SoilType ?? "")
+                }).ToList();
+                if (roomId > 0)
+                {
+                    var recentMessages = await _unitOfWork.ChatMessageRepository
+                        .Get(m => m.RoomId == roomId && m.MessageContent != null, x => x.OrderByDescending(m => m.CreateDate), pageIndex: 1, pageSize: 10);
+
+                    foreach (var msg in recentMessages)
+                    {
+                        history.Add(new InputContent
+                        {
+                            Role = msg.IsUser == true ? "user" : "model",
+                            Parts = msg.MessageContent
+                        });
+                    }
+                }
                 var startChatParams = new StartChatParams
                 {
                     GenerationConfig = generationConfig,
-                    History = history
+                    History = history.ToArray()
                 };
-                var model = new GenerativeModel(geminiKey, "gemini-2.0-flash");
+                var model = new GenerativeModel(geminiKey!, _config["GeminiSettings:Model"]!);
                 var
                 _chatSession = model.StartChat(startChatParams);
                 var response = await _chatSession.SendMessageAsync(question);
                 if (string.IsNullOrEmpty(response))
                 {
-                    return null;
+                    return null!;
                 }
 
                 return response;
@@ -351,7 +384,7 @@ const generationConfig = {
         {
             try
             {
-                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId;
+                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId && x.RoomId == roomId;
                 Func<IQueryable<ChatRoom>, IOrderedQueryable<ChatRoom>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -367,7 +400,7 @@ const generationConfig = {
                     {
                         filter = filter.And(x => x.CreateDate == validDate);
                     }
-                   
+
                     else
                     {
                         filter = x => x.RoomCode.ToLower().Contains(paginationParameter.Search.ToLower())
@@ -559,14 +592,14 @@ const generationConfig = {
             try
             {
                 var getRoom = await _unitOfWork.ChatRoomRepository.GetByCondition(x => x.RoomId == roomId);
-                if(getRoom == null)
+                if (getRoom == null)
                 {
                     return new BusinessResult(400, "Room does not exist");
                 }
                 getRoom.RoomName = newRoomName;
                 _unitOfWork.ChatRoomRepository.Update(getRoom);
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Change Room Name Success");
                 }
@@ -586,12 +619,12 @@ const generationConfig = {
             try
             {
                 var getListMessage = await _unitOfWork.ChatMessageRepository.GetChatMessagesByRoomId(roomId);
-                 _unitOfWork.ChatMessageRepository.RemoveRange(getListMessage);
-                 await _unitOfWork.SaveAsync();
+                _unitOfWork.ChatMessageRepository.RemoveRange(getListMessage);
+                await _unitOfWork.SaveAsync();
                 var getRoom = await _unitOfWork.ChatRoomRepository.GetByCondition(x => x.RoomId == roomId);
                 _unitOfWork.ChatRoomRepository.Delete(getRoom);
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Delete Room Success");
                 }
@@ -741,14 +774,14 @@ const generationConfig = {
             try
             {
                 var parseTag = Guid.Parse(tagId);
-               
-                var getImageByTag =  await trainingClient.GetImagesAsync(
+
+                var getImageByTag = await trainingClient.GetImagesAsync(
                                                 projectId
                                             );
                 var result = getImageByTag
                                .Where(img => img.Tags != null && img.Tags.Any(tag => parseTag == tag.TagId))
                                .ToList();
-                if (result != null && result.Count() > 0 )
+                if (result != null && result.Count() > 0)
                 {
                     return new BusinessResult(200, "Can not delete this tag, because another image assigned this tag", true);
                 }
@@ -819,13 +852,13 @@ const generationConfig = {
                                                 take: getImagesModelWithPagination.PageSize,
                                                 skip: calculateTakeIndex
                                             );
-                if(tagIds.Count > 0)
+                if (tagIds.Count > 0)
                 {
                     getAllImages = getAllImages
                                .Where(img => img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
                                .ToList();
                 }
-               
+
                 if (getAllImages != null && getAllImages.Count() > 0)
                 {
                     return new BusinessResult(200, "Get All Images From Custom Vision Success", getAllImages);
@@ -925,7 +958,7 @@ const generationConfig = {
                 {
                     await Task.Delay(3000); // Chờ 3 giây trước khi kiểm tra lại
                     iteration = await trainingClient.GetIterationAsync(projectId, iteration.Id);
-                   
+
                 }
 
                 if (iteration.Status != "Completed")
@@ -933,7 +966,7 @@ const generationConfig = {
                     return new BusinessResult(500, $"Training failed with status: {iteration.Status}");
                 }
 
-                
+
                 await trainingClient.UpdateIterationAsync(projectId, iteration.Id, iteration);
                 // Kiểm tra nếu đã có iteration được publish với cùng tên
                 var existingIteration = iterations.FirstOrDefault(i => i.PublishName == "AgricultureAIPomelo");

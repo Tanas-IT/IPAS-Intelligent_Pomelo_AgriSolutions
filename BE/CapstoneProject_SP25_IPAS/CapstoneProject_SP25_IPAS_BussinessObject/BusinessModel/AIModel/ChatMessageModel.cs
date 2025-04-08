@@ -26,8 +26,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel
 
         public int? SenderId { get; set; }
 
-        public bool? IsUser { get; set; }
-
         public string? MessageType { get; set; }
 
         

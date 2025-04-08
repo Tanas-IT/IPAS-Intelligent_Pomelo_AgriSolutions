@@ -153,10 +153,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task CheckAndProcessWeatherWarning(WorkLog workLog, WeatherForecastResponse forecastData)
         {
             var workType = "";
-            if (!string.IsNullOrEmpty(workLog.Schedule.CarePlan.MasterType?.Target))
-                workType = workLog.Schedule.CarePlan.MasterType?.Target;
-            else if (workLog.Schedule.HarvestHistoryID.HasValue)
-                workType = "Harvest";
+            if(workLog.Schedule.CarePlan != null)
+            {
+                if (!string.IsNullOrEmpty(workLog.Schedule.CarePlan.MasterType?.Target))
+                    workType = workLog.Schedule.CarePlan.MasterType?.Target;
+                else if (workLog.Schedule.HarvestHistoryID.HasValue)
+                    workType = "Harvest";
+            }
             var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
             if (string.IsNullOrEmpty(workType) || !rules.ContainsKey(workType)) return;
 

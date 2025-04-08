@@ -156,12 +156,10 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.MessageId).HasColumnName("MessageID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.MessageCode)
-                .HasMaxLength(50)
+            entity.Property(e => e.Question)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.MessageContent).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.MessageType)
-                .HasMaxLength(1)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.RoomId).HasColumnName("RoomID");
             entity.Property(e => e.SenderId).HasColumnName("SenderID");
