@@ -855,6 +855,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkResult.StatusCode == 200)
                     {
                         pl.IsPassed = true;
+                        pl.PassedDate = DateTime.Now;
                     }
                     else if (checkResult.StatusCode == 250)
                     {
