@@ -2093,7 +2093,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(landPlotId);
                     if (count > 0)
                     {
-                        plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
+                        plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
                     }
                     else
                     {
@@ -2110,7 +2110,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
                         if (count > 0)
                         {
-                            plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
+                            plantLotName =  plantLotName + "_" + getLandPlot.LandPlotName;
                         }
                         else
                         {
