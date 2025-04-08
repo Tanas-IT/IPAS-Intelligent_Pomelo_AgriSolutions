@@ -1,5 +1,15 @@
+import { UserRole } from "./Enum";
+
 export const DEFAULT_ROWS_PER_PAGE = 5;
 export const DEFAULT_RECORDS_IN_DETAIL = 3;
+
+export const UserRolesStr = {
+  Admin: UserRole.Admin.toString(),
+  User: UserRole.User.toString(),
+  Owner: UserRole.Owner.toString(),
+  Manager: UserRole.Manager.toString(),
+  Employee: UserRole.Employee.toString(),
+};
 
 export const MASTER_TYPE_SHOW_TABLE = {
   PROCESS: "Process",
@@ -91,10 +101,14 @@ export const ROUTES = {
   CROP_DETAIL: (id: number) => `/crop/${id}/details`,
   FARM_PLANT_LOT_DETAIL: (id: number) => `/farm/plant-lots/${id}/details`,
   FARM_PLANT_DETAIL: (id: number) => `/farm/plants/${id}/details`,
+  FARM_PLANT_DETAIL_FROM_ROW: (plotId: number, plantId: number) =>
+    `/farm/land-rows/${plotId}/plants/${plantId}/details`,
   FARM_PLANT_LOT_ADDITIONAL: (parentId: number, id: number) =>
     `/farm/plant-lots/${parentId}/additional/${id}/details`,
   FARM_GRAFTED_PLANT_DETAIL: (id: number) => `/farm/grafted-plants/${id}/details`,
   PRODUCT_DETAIL: (id: number) => `/classification/products/${id}/details`,
+  PRODUCT_DETAIL_FROM_CROP: (cropId: number, productId: number) =>
+    `/crop/${cropId}/classification/products/${productId}/details`,
 };
 
 export const PLAN_TARGET_TYPE = {
@@ -162,3 +176,11 @@ export const lotStatusColors: Record<string, string> = {
   Pending: "orange",
   Used: "green",
 };
+
+export const ROOM_GROUPS = [
+  "Today",
+  "Yesterday",
+  "Previous 7 Days",
+  "Previous 30 Days",
+  "Earlier",
+] as const;

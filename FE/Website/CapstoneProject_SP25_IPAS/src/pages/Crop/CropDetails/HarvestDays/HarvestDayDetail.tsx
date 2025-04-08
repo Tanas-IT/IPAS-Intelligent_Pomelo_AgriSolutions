@@ -35,10 +35,10 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
   const [productId, setProductId] = useState<number | null>(null);
   const [plantsHarvested, setPlantsHarvested] = useState<GetPlantHasHarvest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { shouldRefetch } = useCropStore();
+  const { crop, shouldRefetch } = useCropStore();
   const formModal = useModal<productHarvestHistoryRes>();
 
-  if (!selectedHarvest) return null;
+  if (!selectedHarvest || !crop) return null;
   const resetData = () => {
     setProductId(null);
     setPlantsHarvested([]);
@@ -212,6 +212,11 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
               dataSource={productHarvestHistory}
               rowKey="productHarvestHistoryId"
               pagination={false}
+              onRow={(record: productHarvestHistoryRes) => ({
+                onDoubleClick: () => {
+                  navigate(ROUTES.PRODUCT_DETAIL_FROM_CROP(crop?.cropId, record.masterTypeId));
+                },
+              })}
               columns={[
                 {
                   title: "Product",
@@ -234,7 +239,7 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
                   render: (price, record) => `${formatCurrencyVND(price)}/${record.unit}`,
                 },
                 {
-                  title: "Sell Price",
+                  title: "Revenue Price",
                   dataIndex: "sellPrice",
                   key: "sellPrice",
                   render: (price) => `${price ? formatCurrencyVND(price) : "N/A"}`,

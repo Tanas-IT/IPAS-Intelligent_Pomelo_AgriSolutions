@@ -48,14 +48,6 @@ const UpdateProductHarvestModal = ({
     }
   }, [isOpen]);
 
-  // const getFormData = (): UpdateProductHarvestRequest =>
-  //   Object.fromEntries(
-  //     Object.values(updateProductHarvestFormFields).map((field) => [
-  //       field,
-  //       form.getFieldValue(field),
-  //     ]),
-  //   ) as UpdateProductHarvestRequest;
-
   const getFormData = (): UpdateProductHarvestRequest => {
     const harvestId = form.getFieldValue(updateProductHarvestFormFields.productHarvestHistoryId);
     const quantity = form.getFieldValue(updateProductHarvestFormFields.quantity);
@@ -81,7 +73,7 @@ const UpdateProductHarvestModal = ({
 
   const handleOk = async () => {
     await form.validateFields();
-    // console.log(getFormData());
+    console.log(getFormData());
     onSave(getFormData());
   };
 
@@ -102,7 +94,7 @@ const UpdateProductHarvestModal = ({
           <FormFieldModal
             label="Yield"
             name={updateProductHarvestFormFields.quantity}
-            rules={RulesManager.getNumberRules("Yield")}
+            rules={RulesManager.getNumberRulesAllowZero("Yield")}
           />
         ) : (
           <>
@@ -125,7 +117,7 @@ const UpdateProductHarvestModal = ({
                 rules={RulesManager.getPriceRules("Cost Price")}
               />
               <FormFieldModal
-                label="Sell Price (VND)"
+                label="Revenue Price (VND)"
                 name={updateProductHarvestFormFields.sellPrice}
                 // rules={RulesManager.getPriceRules("Sell Price")}
               />

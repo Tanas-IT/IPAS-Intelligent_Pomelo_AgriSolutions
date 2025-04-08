@@ -210,7 +210,7 @@ const RecordHarvestModal = ({
                     <FormFieldModal
                       label="Yield"
                       name={[name, "quantity"]}
-                      rules={RulesManager.getNumberRules("Quantity")}
+                      rules={RulesManager.getNumberRulesAllowZero("Quantity")}
                     />
 
                     <Button

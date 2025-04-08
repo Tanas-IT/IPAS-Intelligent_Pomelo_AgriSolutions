@@ -2,134 +2,123 @@ import { Input, Avatar, Button, Flex, Empty } from "antd";
 import { SendOutlined, PlusOutlined, SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 import style from "./ChatBox.module.scss";
 import { Images } from "@/assets";
-import { ActionMenuChat } from "@/components";
+import { ActionMenuChat, ConfirmModal, UserAvatar } from "@/components";
 import { useEffect, useRef, useState } from "react";
+import { chatMessage, GetMessageOfRoom, GetRooms } from "@/payloads";
+import { ChatBoxService } from "@/services";
+import dayjs from "dayjs";
+import isToday from "dayjs/plugin/isToday";
+import isYesterday from "dayjs/plugin/isYesterday";
+import { LOCAL_STORAGE_KEYS, ROOM_GROUPS } from "@/constants";
+import { useModal } from "@/hooks";
+import ChangeNameModal from "./ChangeNameModal";
+import { toast } from "react-toastify";
 
-const initialMessages = Array.from({ length: 60 }, (_, i) => ({
-  id: i + 1,
-  type: (i + 1) % 2 === 0 ? "received" : "sent",
-  text: (i + 1) % 2 === 0 ? "Tin nhắn giả lập từ bot..." : "Tin nhắn giả lập từ người dùng...",
-  time: `Fri, May 08, 2020 5:${13 + i} PM`,
-  avatar: (i + 1) % 2 === 0 ? Images.logo : Images.avatar,
-}));
-
-const initialChatLists = [
-  {
-    title: "Today",
-    chats: [
-      { id: 1, text: "Lorem ipsum dolor sit amet...", active: true },
-      { id: 2, text: "Lorem, ipsum dolor sit amet consectetur...", active: false },
-    ],
-  },
-  {
-    title: "Yesterday",
-    chats: [
-      { id: 3, text: "Earum amet sint deleniti...", active: false },
-      { id: 4, text: "Earum amet sint deleniti...", active: false },
-    ],
-  },
-];
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
 
 const ChatBox = () => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  const [chatLists, setChatLists] = useState(initialChatLists);
-  const [activeChatId, setActiveChatId] = useState(1);
-  const [messages, setMessages] = useState(initialMessages.slice(0, 6)); // Hiển thị 6 tin nhắn đầu tiên
+  const [rooms, setRooms] = useState<GetRooms[]>([]);
+  const [activeChatId, setActiveChatId] = useState(0);
+  const [messages, setMessages] = useState<chatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const changeNameModal = useModal<{ roomId: number }>();
+  const deleteConfirmModal = useModal<{ id: number }>();
 
-  const handleSendMessage = () => {
-    if (isWaitingForResponse || !messageInput.trim()) return;
-    scrollToBottom();
-    const newMessage = {
-      id: messages.length + 1,
-      type: "sent",
-      text: messageInput,
-      time: new Date().toLocaleTimeString(),
-      avatar: Images.avatar,
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setMessageInput("");
-    setIsWaitingForResponse(true);
-
-    // Giả lập phản hồi sau 1s
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          type: "received",
-          text: "Bot is typing...",
-          time: new Date().toLocaleTimeString(),
-          avatar: Images.logo,
-        },
-      ]);
-    }, 1000);
-
-    // Sau 3s nhận phản hồi thực tế
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev.slice(0, -1), // Xóa "Bot is typing..."
-        {
-          id: prev.length + 1,
-          type: "received",
-          text: "This is a response!",
-          time: new Date().toLocaleTimeString(),
-          avatar: Images.logo,
-        },
-      ]);
-      setIsWaitingForResponse(false);
-    }, 7000);
-  };
-
-  const handleScroll = () => {
-    if (
-      chatBoxRef.current &&
-      !isLoading &&
-      chatBoxRef.current.scrollTop === 0 &&
-      messages.length > 0
-    ) {
+  const fetchRooms = async () => {
+    try {
       setIsLoading(true);
-
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...Array.from({ length: 6 }, (_, i) => ({
-            id: prev.length + i + 1,
-            type: (prev.length + i + 1) % 2 === 0 ? "received" : "sent",
-            text:
-              (prev.length + i + 1) % 2 === 0
-                ? "Tin nhắn giả lập từ bot..."
-                : "Tin nhắn giả lập từ người dùng...",
-            time: `Fri, May 08, 2020 5:${13 + prev.length + i} PM`,
-            avatar: (prev.length + i + 1) % 2 === 0 ? Images.logo : Images.avatar,
-          })),
-          ...prev,
-        ]);
-
-        setIsLoading(false);
-      }, 3000); // Giả lập delay khi tải thêm
+      const res = await ChatBoxService.getRooms();
+      if (res.statusCode === 200) {
+        setRooms(res.data ?? []);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleNewChat = () => {
-    const newChatId = chatLists.flatMap((item) => item.chats).length + 1;
-
-    setActiveChatId(newChatId); // Đặt chat mới là active
-    setMessages([]); // Xóa tin nhắn cũ khi tạo cuộc trò chuyện mới
-  };
-
-  const scrollToBottom = () => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    }
-  };
-
-  // Khi tin nhắn thay đổi, cuộn xuống cuối cùng
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    fetchRooms();
+  }, []);
+
+  const handleGetHistoryMessage = async (roomId: number) => {
+    try {
+      setIsLoadingMessages(true);
+      const res = await ChatBoxService.getHistoryChat(roomId);
+      console.log(res);
+      
+      if (res.statusCode === 200) setMessages(res.data.chatMessages || []);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  };
+
+  const handleChangeName = async (roomName: string, roomId?: number) => {
+    if (!roomId) return;
+    try {
+      setIsLoading(true);
+      const res = await ChatBoxService.updateRoomName(roomId, roomName);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        changeNameModal.hideModal();
+        await fetchRooms();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteRoom = async (roomId?: number) => {
+    if (!roomId) return;
+    try {
+      setIsLoading(true);
+      const res = await ChatBoxService.deleteRoom(roomId);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        deleteConfirmModal.hideModal();
+        await fetchRooms();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const groupRoomsByDate = (rooms: GetRooms[]) => {
+    const grouped: Record<(typeof ROOM_GROUPS)[number], GetRooms[]> = {
+      Today: [],
+      Yesterday: [],
+      "Previous 7 Days": [],
+      "Previous 30 Days": [],
+      Earlier: [],
+    };
+    const now = dayjs();
+    rooms.forEach((room) => {
+      const date = dayjs(room.createDate);
+      if (date.isToday()) {
+        grouped.Today.push(room);
+      } else if (date.isYesterday()) {
+        grouped.Yesterday.push(room);
+      } else if (date.isAfter(now.subtract(7, "day"))) {
+        grouped["Previous 7 Days"].push(room);
+      } else if (date.isAfter(now.subtract(30, "day"))) {
+        grouped["Previous 30 Days"].push(room);
+      } else {
+        grouped.Earlier.push(room);
+      }
+    });
+
+    return grouped;
+  };
+
+  const groupedRooms = groupRoomsByDate(rooms);
 
   return (
     <Flex className={style.chatBoxContainer}>
@@ -139,68 +128,82 @@ const ChatBox = () => {
             <Avatar src={Images.logo} size={40} />
             <h2>ChatBox Ai</h2>
           </Flex>
-          <Button icon={<PlusOutlined />} className={style.newChatBtn} onClick={handleNewChat}>
+          <Button icon={<PlusOutlined />} className={style.newChatBtn}>
             New Chat
           </Button>
           <Input prefix={<SearchOutlined />} placeholder="Search.." className={style.searchInput} />
         </Flex>
         <Flex className={style.chatBoxSidebarList}>
-          {chatLists.map(({ title, chats }, index) => (
-            <Flex key={index} className={style.listWrapper}>
-              <h3>{title}</h3>
-              {chats.map(({ id, text, active }) => (
-                <Flex
-                  key={id}
-                  className={`${style.chatBoxSidebarListItem} ${active ? style.active : ""}`}
-                  onClick={() => setActiveChatId(id)}
-                >
-                  <span>{text}</span>
-                  <ActionMenuChat onEdit={() => {}} onDelete={() => {}} />
-                </Flex>
-              ))}
-            </Flex>
-          ))}
+          {ROOM_GROUPS.map((label) => {
+            const group = groupedRooms[label];
+            if (!group.length) return null;
+
+            return (
+              <div key={label}>
+                <h4 className={style.groupLabel}>{label}</h4>
+                {group.map((room) => (
+                  <Flex
+                    key={room.roomId}
+                    className={`${style.chatBoxSidebarListItem} ${
+                      activeChatId === room.roomId ? style.active : ""
+                    }`}
+                    onClick={async () => {
+                      setActiveChatId(room.roomId);
+                      await handleGetHistoryMessage(room.roomId);
+                    }}
+                    justify="space-between"
+                  >
+                    <span>{room.roomName}</span>
+                    <ActionMenuChat
+                      onEdit={() => changeNameModal.showModal({ roomId: room.roomId })}
+                      onDelete={() => deleteConfirmModal.showModal({ id: room.roomId })}
+                    />
+                  </Flex>
+                ))}
+              </div>
+            );
+          })}
         </Flex>
       </Flex>
 
       <Flex className={style.chatBoxContent}>
         <Flex className={style.chatBoxContentHeader}>
-          <h3>Lorem ipsum dolor sit amet...</h3>
+          <h3>New Chat</h3>
         </Flex>
-
-        <Flex className={style.chatBoxContentMessages} ref={chatBoxRef} onScroll={handleScroll}>
-          {messages.length === 0 ? (
-            <Flex justify="center" align="center">
-              <span>What can I help with?</span>
+        <Flex className={style.chatBoxContentMessages} ref={chatBoxRef}>
+          {isLoadingMessages ? (
+            <Flex justify="center" align="center" className={style.welcomeMessage}>
+              <LoadingOutlined spin />
+              <span style={{ marginLeft: 8 }}>Loading messages...</span>
+            </Flex>
+          ) : messages.length === 0 ? (
+            <Flex justify="center" align="center" className={style.welcomeMessage}>
+              <span>
+                👋 Hi there! How can I assist you today? Just type your question below to get
+                started.
+              </span>
             </Flex>
           ) : (
-            messages.map(({ id, type, text, time, avatar }) => {
+            messages.map((mess) => {
               const lastMessage = messages[messages.length - 1];
               return (
-                <Flex
-                  key={id}
-                  className={`${style.message} ${
-                    type === "sent" ? style.messageSent : style.messageReceived
-                  }`}
-                >
-                  {type === "received" && <Avatar src={avatar} />}
+                <Flex key={mess.messageId} className={`${style.message} ${style.messageSent}`}>
+                  <UserAvatar avatarURL={localStorage.getItem(LOCAL_STORAGE_KEYS.AVATAR) || ""} />
                   <Flex className={style.messageWrapper}>
-                    <span
-                      className={`${style.messageTimestamp} ${type === "sent" ? style.right : ""}`}
-                    >
-                      {time}
+                    <span className={`${style.messageTimestamp} ${style.right}`}>
+                      {mess.createDate}
                     </span>
-                    <div className={style.messageBubble}>
-                      {text === "Bot is typing..." && lastMessage.id === id ? (
+                    {/* <div className={style.messageBubble}>
+                      {text === "Bot is typing..." && lastMessage.messageId === id ? (
                         <>
                           <LoadingOutlined /> Bot is typing...
                         </>
                       ) : (
                         text
                       )}
-                    </div>
+                    </div> */}
                   </Flex>
-                  {type === "sent" && <Avatar src={avatar} />}
+                  {/* {type === "sent" && <Avatar src={avatar} />} */}
                 </Flex>
               );
             })
@@ -222,18 +225,32 @@ const ChatBox = () => {
             onChange={(e) => setMessageInput(e.target.value)}
             onPressEnter={(e) => {
               e.preventDefault(); // Tránh xuống dòng
-              handleSendMessage();
+              // handleSendMessage();
             }}
           />
           <Button
             type="primary"
             icon={<SendOutlined />}
             className={style.sendBtn}
-            onClick={handleSendMessage}
+            // onClick={handleSendMessage}
             disabled={isWaitingForResponse}
           />
         </Flex>
       </Flex>
+      <ChangeNameModal
+        isOpen={changeNameModal.modalState.visible}
+        onClose={changeNameModal.hideModal}
+        onSave={(value) => handleChangeName(value, changeNameModal.modalState.data?.roomId)}
+        isLoadingAction={isLoading}
+      />
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        visible={deleteConfirmModal.modalState.visible}
+        onConfirm={() => handleDeleteRoom(deleteConfirmModal.modalState.data?.id)}
+        onCancel={deleteConfirmModal.hideModal}
+        itemName="Chat"
+        actionType="delete"
+      />
     </Flex>
   );
 };

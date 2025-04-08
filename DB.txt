@@ -1994,3 +1994,75 @@ INSERT INTO [dbo].[UserWorkLog]
 		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
+
+DECLARE @i INT = 0;
+WHILE @i < 10
+BEGIN
+    INSERT INTO ipas.dbo.ChatRoom (RoomCode, RoomName, CreateDate, AIResponseID, FarmID, UserID, CreateBy)
+    VALUES (
+        CONCAT('ROOM', FORMAT(@i + 1, '000')),
+        CONCAT(N'Phòng Chat ', @i + 1),
+        DATEADD(DAY, -@i, GETDATE()), -- Ngày tạo giảm dần từ hôm nay
+        NULL,
+        1,
+        3,
+        3
+    );
+
+    SET @i = @i + 1;
+END;
+
+DECLARE @roomId INT = 1;
+
+WHILE @roomId <= 10
+BEGIN
+    -- Giả lập câu hỏi - trả lời thứ 1
+    INSERT INTO ipas.dbo.ChatMessage (
+        MessageCode, MessageContent, CreateDate, UpdateDate,
+        SenderID, IsUser, MessageType, RoomID
+    )
+    VALUES (
+        N'Tôi cần thông tin về phân bón cho phòng ' + CAST(@roomId AS NVARCHAR),
+        N'Phân bón NPK là lựa chọn phù hợp với giai đoạn phát triển hiện tại của cây.',
+        DATEADD(MINUTE, 5, GETDATE()),
+        NULL,
+        3,
+        0,
+        'A',
+        @roomId
+    );
+
+    -- Giả lập câu hỏi - trả lời thứ 2
+    INSERT INTO ipas.dbo.ChatMessage (
+        MessageCode, MessageContent, CreateDate, UpdateDate,
+        SenderID, IsUser, MessageType, RoomID
+    )
+    VALUES (
+        N'Tôi muốn biết độ ẩm đất ở khu vực này.',
+        N'Độ ẩm đất hiện tại là 65%, rất phù hợp để bón phân hữu cơ.',
+        DATEADD(MINUTE, 6, GETDATE()),
+        NULL,
+        3,
+        0,
+        'A',
+        @roomId
+    );
+
+    -- Giả lập câu hỏi - trả lời thứ 3
+    INSERT INTO ipas.dbo.ChatMessage (
+        MessageCode, MessageContent, CreateDate, UpdateDate,
+        SenderID, IsUser, MessageType, RoomID
+    )
+    VALUES (
+        N'Thời điểm nào là tốt nhất để tưới nước?',
+        N'Tưới vào sáng sớm hoặc chiều mát sẽ giúp cây hấp thu nước hiệu quả hơn.',
+        DATEADD(MINUTE, 7, GETDATE()),
+        NULL,
+        3,
+        0,
+        'A',
+        @roomId
+    );
+
+    SET @roomId = @roomId + 1;
+END;
