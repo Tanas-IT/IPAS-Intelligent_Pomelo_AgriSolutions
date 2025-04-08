@@ -10,10 +10,10 @@ import {
   Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { PlantDetailData } from "@/types/plant";
 import { styles } from "./HarvestHistoryTab.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
+import { GetPlantDetail } from "@/payloads";
 
 type OptionType = {
   id: number;
@@ -22,7 +22,7 @@ type OptionType = {
 
 type DropdownType = "yearFrom" | "yearTo" | "product";
 
-const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
+const HarvestHistoryTab: React.FC<{ plant: GetPlantDetail }> = ({ plant }) => {
   const [yearFrom, setYearFrom] = useState<number>(2024);
   const [yearTo, setYearTo] = useState<number>(2025);
   const [productId, setProductId] = useState<number>(31);

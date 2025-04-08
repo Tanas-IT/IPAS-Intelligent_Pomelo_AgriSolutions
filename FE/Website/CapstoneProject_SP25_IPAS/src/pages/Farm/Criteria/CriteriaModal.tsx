@@ -251,12 +251,7 @@ const CriteriaModel = ({
           <div className={style.criteriaTableWrapper}>
             <Table
               className={style.criteriaTable}
-              columns={columns.filter((col) =>
-                // Kiểm tra nếu cột có dataIndex và chắc chắn dataIndex là một chuỗi
-                "dataIndex" in col && typeof col.dataIndex === "string" && target === "Product"
-                  ? !["minValue", "maxValue", "unit"].includes(col.dataIndex)
-                  : true,
-              )}
+              columns={columns}
               // columns={columns}
               dataSource={form.getFieldValue("criteriaList") || []}
               rowKey="criteriaId"

@@ -139,7 +139,7 @@ function PlantDetail() {
 
   const infoFieldsLeft = [
     { label: "Growth Stage", value: plant?.growthStageName, icon: Icons.growth },
-    { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
+    // { label: "Plant Lot", value: "Green Pomelo Lot 1", icon: Icons.box },
     { label: "Mother Plant", value: plant?.plantReferenceCode ?? "N/A", icon: Icons.plant },
     {
       label: "Create Date",

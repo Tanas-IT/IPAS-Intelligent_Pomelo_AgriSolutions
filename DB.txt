@@ -1349,6 +1349,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 1.2 -- Branch Strength (cm diameter)
         WHEN CriteriaCode = 'CR029' THEN 5   -- Rooting Potential (cm root length)
         WHEN CriteriaCode = 'CR030' THEN 85  -- Disease Resistance (% healthy)
+		WHEN CriteriaCode = 'CR031' THEN 1.0
+        WHEN CriteriaCode = 'CR032' THEN 70
+        WHEN CriteriaCode = 'CR033' THEN 7.0
+        WHEN CriteriaCode = 'CR034' THEN 0.8
+        WHEN CriteriaCode = 'CR035' THEN 60
+        WHEN CriteriaCode = 'CR036' THEN 6.5
+        WHEN CriteriaCode = 'CR037' THEN 1.2
+        WHEN CriteriaCode = 'CR038' THEN 80
+        WHEN CriteriaCode = 'CR039' THEN 8.0
         ELSE MinValue
     END,
     MaxValue = CASE 
@@ -1388,6 +1397,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 2.5 -- Branch Strength (cm diameter)
         WHEN CriteriaCode = 'CR029' THEN 15  -- Rooting Potential (cm root length)
         WHEN CriteriaCode = 'CR030' THEN 100 -- Disease Resistance (% healthy)
+		WHEN CriteriaCode = 'CR031' THEN 1.5
+        WHEN CriteriaCode = 'CR032' THEN 100
+        WHEN CriteriaCode = 'CR033' THEN 10.0
+        WHEN CriteriaCode = 'CR034' THEN 1.2
+        WHEN CriteriaCode = 'CR035' THEN 90
+        WHEN CriteriaCode = 'CR036' THEN 9.0
+        WHEN CriteriaCode = 'CR037' THEN 1.6
+        WHEN CriteriaCode = 'CR038' THEN 100
+        WHEN CriteriaCode = 'CR039' THEN 10.0
         ELSE MaxValue
     END,
     Unit = CASE 
@@ -1427,11 +1445,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 'cm'
         WHEN CriteriaCode = 'CR029' THEN 'cm'
         WHEN CriteriaCode = 'CR030' THEN '%'
+		WHEN CriteriaCode IN ('CR031', 'CR034', 'CR037') THEN 'kg'
+        WHEN CriteriaCode IN ('CR032', 'CR035', 'CR038') THEN '%'
+        WHEN CriteriaCode IN ('CR033', 'CR036', 'CR039') THEN 'score'
         ELSE Unit
     END
 WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR007', 'CR008', 'CR009', 'CR010',
                        'CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR016', 'CR017', 'CR018', 'CR019', 'CR020',
-                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030');
+                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030',
+					   'CR031', 'CR032', 'CR033',  'CR034', 'CR035', 'CR036',  'CR037', 'CR038', 'CR039');
 
 GO
 INSERT INTO ipas.dbo.LandPlot (

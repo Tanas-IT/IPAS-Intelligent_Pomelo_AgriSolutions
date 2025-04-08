@@ -29,6 +29,26 @@ const CriteriaProductTable: React.FC<CriteriaProductTableProps> = ({ data }) => 
       width: 300,
     },
     {
+      title: "Min Value",
+      dataIndex: "minValue",
+      key: "minValue",
+      align: "center" as const,
+      width: 120,
+    },
+    {
+      title: "Max Value",
+      dataIndex: "maxValue",
+      key: "maxValue",
+      align: "center" as const,
+      width: 120,
+    },
+    {
+      title: "Unit",
+      dataIndex: "unit",
+      key: "unit",
+      align: "center" as const,
+    },
+    {
       title: "Check Interval Days ",
       dataIndex: "frequencyDate",
       key: "frequencyDate",
