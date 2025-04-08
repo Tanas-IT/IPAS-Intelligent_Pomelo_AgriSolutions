@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel
         public int? SenderId { get; set; }
 
         public string? MessageType { get; set; }
+
+        public List<ResourceModel> resources { get; set; } = new List<ResourceModel>();
 
         
     }
