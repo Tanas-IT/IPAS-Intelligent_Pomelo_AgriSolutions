@@ -2216,7 +2216,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
                     }
                     getUserWorkLog.ReplaceUserId = null;
-                    getUserWorkLog.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    if(getUserWorkLog.IsDeleted == true)
+                    {
+                        getUserWorkLog.StatusOfUserWorkLog = WorkLogStatusConst.RECEIVED;
+                    }
+                    else
+                    {
+                       getUserWorkLog.StatusOfUserWorkLog = WorkLogStatusConst.REJECTED;
+                    }
                     getUserWorkLog.IsDeleted = false;
                     _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
                 }
