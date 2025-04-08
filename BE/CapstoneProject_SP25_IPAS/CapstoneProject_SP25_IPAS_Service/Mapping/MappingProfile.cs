@@ -468,10 +468,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<ChatMessage, ChatMessageModel>()
                  .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId))
-                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.MessageCode))
+                 .ForMember(dest => dest.Question, opt => opt.MapFrom(src => src.Question))
                  .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.MessageType))
                  .ForMember(dest => dest.Answer, opt => opt.MapFrom(src => src.MessageContent))
-                 .ForMember(dest => dest.IsUser, opt => opt.MapFrom(src => src.IsUser))
                  .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))

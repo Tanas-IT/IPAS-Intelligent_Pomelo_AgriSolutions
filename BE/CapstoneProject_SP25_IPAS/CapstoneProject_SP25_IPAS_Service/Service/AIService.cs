@@ -109,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
-                    MessageCode = question,
+                    Question = question,
                     MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     IsUser = false,
@@ -384,7 +384,7 @@ const generationConfig = {
         {
             try
             {
-                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId;
+                Expression<Func<ChatRoom, bool>> filter = x => x.UserID == userId && x.FarmID == farmId && x.RoomId == roomId;
                 Func<IQueryable<ChatRoom>, IOrderedQueryable<ChatRoom>> orderBy = x => x.OrderByDescending(x => x.CreateDate);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -570,18 +570,15 @@ const generationConfig = {
                     }
                 }
                 var entities = await _unitOfWork.ChatRoomRepository.Get(filter, orderBy);
-                var groupedRooms = entities
-                                 .OrderByDescending(c => c.CreateDate)
-                                 .GroupBy(c => c.CreateDate.Value.Date.ToString("dd/MM/yyyy"))
-                                 .ToDictionary(g => g.Key, g => g.ToList());
-                if (groupedRooms.Any())
+               
+                if (entities.Any())
                 {
-                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, Const.SUCCESS_GET_HISTORY_CHAT_MSG, groupedRooms);
+                    var result = new BusinessResult(Const.SUCCESS_GET_HISTORY_CHAT_CODE, "Get all room chat success", entities);
                     return result;
                 }
                 else
                 {
-                    return new BusinessResult(Const.WARNING_GET_HISTORY_CHAT_CODE, Const.WARNIN_GET_HISTORY_CHAT_MSG, new List<GetAllRoomMapping>());
+                    return new BusinessResult(Const.WARNING_GET_HISTORY_CHAT_CODE, "Do not have any room chat", new List<GetAllRoomMapping>());
                 }
             }
             catch (Exception ex)

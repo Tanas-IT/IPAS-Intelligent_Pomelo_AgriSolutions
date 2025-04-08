@@ -35,5 +35,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CancelReplacement(CancelledWorkLogModel cancelledWorkLogModel);
         public Task<BusinessResult> GetListEmployeeToUpdateWorkLog(int workLogId);
         public Task<BusinessResult> CanTakeAttendance(int workLogId);
+        public Task<BusinessResult> RedoAssignWorkLog(RedoWorkLogModel addNewTaskModel, int? farmId);
+        public Task<BusinessResult> GetStatusOfWorkLogForManager();
     }
 }
