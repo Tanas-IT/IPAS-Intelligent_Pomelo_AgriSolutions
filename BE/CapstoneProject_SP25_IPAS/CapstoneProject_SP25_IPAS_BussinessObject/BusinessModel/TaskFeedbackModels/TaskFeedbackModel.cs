@@ -14,6 +14,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackMo
         public string? AvatarURL { get; set; }
 
         public string? TaskFeedbackCode { get; set; }
+        public string? ReasonDelay { get; set; }
 
         public string? Content { get; set; }
 
