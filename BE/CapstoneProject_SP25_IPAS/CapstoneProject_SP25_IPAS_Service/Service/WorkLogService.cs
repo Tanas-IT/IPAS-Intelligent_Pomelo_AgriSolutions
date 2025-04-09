@@ -2250,9 +2250,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getStatusRejected = await _unitOfWork.SystemConfigRepository
         .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 var getStatusReceived = await _unitOfWork.SystemConfigRepository
-       .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Rejected");
+       .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
+                var getStatusFailed = await _unitOfWork.SystemConfigRepository
+       .GetConfigValue(SystemConfigConst.FAILED.Trim(), "Failed");
+                var getStatusRedo = await _unitOfWork.SystemConfigRepository
+      .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
                 if (getUserWorkLog != null)
                 {
+                    if(getUserWorkLog.StatusOfUserWorkLog != null)
+                    {
+                        if(getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusFailed) || getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusRedo))
+                        {
+                            return new BusinessResult(400, "WorkLog has status failed or redo. Can not cancelled");
+                        }
+                    }
                     var getReplacementWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == getUserWorkLog.ReplaceUserId);
                     if (getReplacementWorkLog != null)
                     {
