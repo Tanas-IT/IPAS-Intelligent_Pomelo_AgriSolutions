@@ -67,6 +67,8 @@ export interface TaskFeedback {
   workLogName: string;
   reason?: string;
   status?: string;
+  avatarURL: string;
+  fullName: string;
 }
 
 export interface Resource {
@@ -108,6 +110,14 @@ export interface GetWorklogDetail {
   processId: number;
   isHarvest: boolean;
   isTakeAttendance: boolean;
+  redoWorkLog: RedoWorkLog;
+}
+
+interface RedoWorkLog {
+  workLogId: number
+  status: string
+  workLogName: string
+  date: string
 }
 
 export interface ReplacementEmployee {

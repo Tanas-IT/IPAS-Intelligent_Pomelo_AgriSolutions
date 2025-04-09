@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { CancelReplacementRequest, CreateWorklogRequest, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
+import { CancelReplacementRequest, CreateRedoWorklogRequest, CreateWorklogRequest, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -88,6 +88,12 @@ export const addWorklogNote = async (
     return apiResponse;
   }
 
+  export const addRedoWorklog = async (payload: CreateRedoWorklogRequest): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(`work-log/redo-work-log`, payload);
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  }
+
   export const getAttendanceList = async (worklogId: number): Promise<ApiResponse<GetAttendanceList[]>> => {
     const res = await axiosAuth.axiosJsonRequest.get(`work-log/get-attendance-list?workLogId=${worklogId}`);
     const apiResponse = res.data as ApiResponse<GetAttendanceList[]>;
@@ -108,7 +114,7 @@ export const addWorklogNote = async (
   export const canTakeAttendance = async (workLogId: number): Promise<ApiResponse<Object>> => {
     console.log('ảo nữa');
     
-    const res = await axiosAuth.axiosJsonRequest.post(`work-log/can-take-attendance`, workLogId);
+    const res = await axiosAuth.axiosJsonRequest.post(`work-log/can-take-attendance`, {workLogId});
     console.log("res1111111111111111111111", res);
     
     const apiResponse = res.data as ApiResponse<Object>;

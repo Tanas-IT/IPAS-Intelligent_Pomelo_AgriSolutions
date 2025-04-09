@@ -8,6 +8,16 @@ export interface CreateWorklogRequest {
   masterTypeId: number;
 }
 
+export interface CreateRedoWorklogRequest {
+  failedOrRedoWorkLogId: number;
+  newWorkLogName: string;
+  newDateWork: string;
+  newStartTime: string;
+  newEndTime: string;
+  newListEmployee: ListEmployee[];
+  newAssignorId: number;
+}
+
 interface ListEmployee {
   userId: number;
     isReporter: boolean;

@@ -15,7 +15,7 @@ import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmpl
 import { formatDate, formatDateW, getUserId } from "@/utils";
 import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
-import { ConfirmModal, Loading, Tooltip } from "@/components";
+import { ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import EmployeeDropdown from "./EmployeeDropdown";
 import moment from "moment";
@@ -23,6 +23,8 @@ import EditableTimeRangeField from "./EditableTimeField";
 import AttendanceModal from "./AttendanceModal";
 import EditWorklogModal from "./EditWorklogModal";
 import { Dayjs } from "dayjs";
+import RedoWorklogModal from "./RedoWorklogModal";
+import { statusIconMap } from "@/constants/statusMap";
 
 const InfoField = ({
   icon: Icon,
@@ -88,6 +90,7 @@ function WorklogDetail() {
   const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: string | null }>({});
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRedoModalOpen, setIsRedoModalOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>([
     worklogDetail?.actualStartTime || "",
     worklogDetail?.actualEndTime || "",
@@ -96,6 +99,12 @@ function WorklogDetail() {
   const [replacementEmployees, setReplacementEmployees] = useState<
     { replacedUserId: number; replacementUserId: number }[]
   >([]);
+
+  const rawStatus = worklogDetail?.status || 'Not Started';
+  const normalizedStatus = rawStatus.toLowerCase();
+  const classKey = normalizedStatus.replace(/\s+/g, ''); // dùng cho SCSS
+  const statusClass = style[classKey] || style.default;
+  const icon = statusIconMap[normalizedStatus] || '❓';
 
   const handleUpdateFeedback = (feedback: TaskFeedback) => {
     setSelectedFeedback(feedback);
@@ -359,26 +368,26 @@ function WorklogDetail() {
 
   const checkAndNotifyReassignment = async (workLog: GetWorklogDetail) => {
     const rejectedEmployees = [
-        ...workLog.listEmployee.filter(emp => emp.statusOfUserWorkLog === "Rejected"),
-        ...workLog.reporter.filter(rep => rep.statusOfUserWorkLog === "Rejected")
+      ...workLog.listEmployee.filter(emp => emp.statusOfUserWorkLog === "Rejected"),
+      ...workLog.reporter.filter(rep => rep.statusOfUserWorkLog === "Rejected")
     ];
 
     const replacedUserIds = workLog.replacementEmployee.map(replacement => replacement.userId);
 
     const employeesNeedingReassignment = rejectedEmployees.filter(
-        emp => !replacedUserIds.includes(emp.userId)
+      emp => !replacedUserIds.includes(emp.userId)
     );
 
     if (employeesNeedingReassignment.length > 0) {
-        const namesNeedingReassignment = employeesNeedingReassignment.map(emp => emp.fullName);
-        const message = "Need to re-assign because there are rejected employees:";
-        setWarning({ message, names: namesNeedingReassignment });
-        return message;
+      const namesNeedingReassignment = employeesNeedingReassignment.map(emp => emp.fullName);
+      const message = "Need to re-assign because there are rejected employees:";
+      setWarning({ message, names: namesNeedingReassignment });
+      return message;
     } else {
-        setWarning(null);
-        return null;
+      setWarning(null);
+      return null;
     }
-};
+  };
 
 
 
@@ -486,13 +495,13 @@ function WorklogDetail() {
 
 
     try {
-      // const canCheck = await worklogService.canTakeAttendance(Number(id));
-      // console.log("canCheck", canCheck);
+      const canCheck = await worklogService.canTakeAttendance(Number(id));
+      console.log("canCheck", canCheck);
 
-      // if (canCheck.statusCode !== 200 || !canCheck.data) {
-      //   toast.error(canCheck.message);
-      //   return;
-      // }
+      if (canCheck.statusCode !== 200 || !canCheck.data) {
+        toast.error(canCheck.message);
+        return;
+      }
 
       const resultAttendance = await worklogService.saveAttendance(Number(id), listEmployee);
       if (resultAttendance && resultAttendance.statusCode === 200) {
@@ -570,7 +579,11 @@ function WorklogDetail() {
         <Tooltip title="Hello">
           <Icons.tag className={style.iconTag} />
         </Tooltip>
-        <Tag className={`${style.statusTag} ${style.normal}`}>{worklogDetail?.status || "Pending"}</Tag>
+        {/* <Tag className={`${style.statusTag} ${style.normal}`}>{worklogDetail?.status || "Pending"}</Tag> */}
+        <Tag className={`${style.statusTag} ${statusClass}`}>
+          <span style={{ marginRight: 6 }}>{icon}</span>
+          {rawStatus}
+        </Tag>
         <Flex gap={15}>
           <Button onClick={handleTakeAttendance}>Take Attendance</Button>
         </Flex>
@@ -726,6 +739,15 @@ function WorklogDetail() {
               <label className={style.textUpdated}>Date:</label>
               <label className={style.actualTime}>{formatDate(worklogDetail?.date || "") || "N/A"}</label>
             </Flex>
+            <Flex gap={15}>
+              <label className={style.textUpdated}>Supplementary Worklog:</label>
+              {worklogDetail?.redoWorkLog ? (
+
+                <CustomButton label="View Detail" handleOnClick={() => navigate(`/hr-management/worklogs/${worklogDetail?.redoWorkLog.workLogId}`)}/>
+              ) : (
+                <label className={style.actualTime}>N/A</label>
+              )}
+            </Flex>
           </Flex>
         </Flex>
         <Flex justify="flex-end" gap={25}>
@@ -811,23 +833,24 @@ function WorklogDetail() {
 
       <Divider className={style.divider} />
 
-      <WeatherAlerts />
+      {/* <WeatherAlerts /> */}
 
       <Divider className={style.divider} />
 
       {/* Feedback */}
 
       <Flex vertical justify="space-between" align="center" className={style.feedbackSection}>
+        <h2 className={style.feedbackTitle}>Feedback</h2>
         {feedbackList.length > 0 ? (
           <div className={style.feedbackContent}>
             {feedbackList.map((item, index) => (
               <div
                 key={index}
-                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" ? style.redoBackground : style.doneBackground
+                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed" ? style.redoBackground : style.doneBackground
                   }`}
               >
                 <Image
-                  src={"https://via.placeholder.com/40"}
+                  src={item.avatarURL}
                   width={40}
                   height={40}
                   className={style.avt}
@@ -836,17 +859,23 @@ function WorklogDetail() {
                 />
                 <div className={style.feedbackText}>
                   <Flex vertical>
-                    <div className={style.feedbackName}>{manager?.fullName}</div>
+                    <Flex gap={20} align="center">
+                      <div className={style.feedbackName}>{item.fullName}</div>
+                      <div className={style.feedbackDate}>{formatDateW(item.createDate)}</div>
+                    </Flex>
                     <div className={style.feedbackMessage}>{item.content}</div>
                   </Flex>
                   {worklogDetail && ["Redo", "Failed"].includes(worklogDetail.status) && (
                     <Flex vertical={false}>
-                      <Button
-                        className={style.updateButton}
-                        onClick={() => handleUpdateFeedback(item)}
-                      >
-                        Update
-                      </Button>
+                      {["Redo", "Failed"].includes(worklogDetail.status) && !worklogDetail.redoWorkLog && (
+                        <Button
+                          className={style.updateButton}
+                          onClick={() => handleUpdateFeedback(item)}
+                        >
+                          Update
+                        </Button>
+                      )}
+
                       <Button
                         className={style.deleteButton}
                         onClick={() => handleOpenDeleteModal(item)}
@@ -854,12 +883,15 @@ function WorklogDetail() {
                       >
                         Delete
                       </Button>
-                      <Button
-                        className={style.reassignButton}
-                        onClick={() => navigate("/hr-management/worklogs")}
-                      >
-                        Re-assign
-                      </Button>
+                      {["Redo", "Failed"].includes(worklogDetail.status) && !worklogDetail.redoWorkLog && (
+                        <Button
+                          className={style.reassignButton}
+                          onClick={() => setIsRedoModalOpen(true)}
+                        >
+                          Re-assign
+                        </Button>
+                      )}
+
                     </Flex>
                   )}
                 </div>
@@ -908,6 +940,12 @@ function WorklogDetail() {
         confirmText="Delete"
         cancelText="Cancel"
         isDanger={true}
+      />
+      <RedoWorklogModal
+        isOpen={isRedoModalOpen}
+        onClose={() => setIsRedoModalOpen(false)}
+        onSuccess={() => setIsRedoModalOpen(false)}
+        failedOrRedoWorkLogId={worklogDetail?.workLogId || 0}
       />
       <ToastContainer />
     </div>

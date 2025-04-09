@@ -30,7 +30,7 @@ const PlanTargetTable: React.FC<PlanTargetTableProps> = ({ data }) => {
     return (
         <div>
             <h3 className={style.planTargetTitle}>Plan Target</h3>
-            <Table className={`${style.tbl} ${styles.customeTable2}`} columns={columns} dataSource={data} rowKey={(record) => record.type} />;
+            <Table className={`${style.tbl} ${styles.customeTable2}`} columns={columns} dataSource={data} rowKey={(record) => record.type} />
         </div>
     )
 };
