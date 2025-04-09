@@ -17,6 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> updateGraftedNote(UpdateGraftedNoteRequest historyUpdateRequest);
         public Task<BusinessResult> createGraftedNote(CreateGraftedNoteRequest historyCreateRequest);
         public Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest fitlerRequest, PaginationParameter paginationParameter);
+        public Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByGraftedPlantId(int graftedPlantId);
 
 
     }
