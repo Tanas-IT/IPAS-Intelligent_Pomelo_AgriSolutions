@@ -690,27 +690,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //if (updateRequest.PlantId.HasValue)
                     //    filter.And(x => x.PlantId == updateRequest.PlantId);
                     string includeProperties = "HarvestHistory,Product";
-                    var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
-                    if (harvestHistory == null)
+                    var productHarvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
+                    if (productHarvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
-                    if (harvestHistory.PlantId.HasValue) // la record da them vao
+                    if (productHarvestHistory.PlantId.HasValue) // la record da them vao
                     {
                         if (updateRequest.Quantity.HasValue && updateRequest.Quantity.Value > 0)
-                            harvestHistory.ActualQuantity = updateRequest.Quantity;
-                        harvestHistory.UserID = checkUserExist.UserId;
-                        harvestHistory.RecordDate = DateTime.Now;
+                            productHarvestHistory.ActualQuantity = updateRequest.Quantity;
+                        productHarvestHistory.UserID = checkUserExist.UserId;
+                        productHarvestHistory.RecordDate = DateTime.Now;
                     }
-                    else if (!harvestHistory.PlantId.HasValue) // la cac san pham can thu hoach
+                    else if (!productHarvestHistory.PlantId.HasValue) // la cac san pham can thu hoach
                     {
-                        if (harvestHistory.QuantityNeed.HasValue && updateRequest.Quantity > 0)
-                            harvestHistory.QuantityNeed = updateRequest.Quantity;
+                        if (productHarvestHistory.QuantityNeed.HasValue && updateRequest.Quantity > 0)
+                            productHarvestHistory.QuantityNeed = updateRequest.Quantity;
                         if (!string.IsNullOrEmpty(updateRequest.Unit))
                         {
-                            harvestHistory.Unit = updateRequest.Unit;
+                            productHarvestHistory.Unit = updateRequest.Unit;
                             // Cập nhật tất cả các bản ghi cùng MasterTypeId
                             var relatedHarvestHistories = await _unitOfWork.ProductHarvestHistoryRepository
-                                .GetAllNoPaging(x => x.MasterTypeId == harvestHistory.MasterTypeId && x.HarvestHistoryId == harvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId);
-                            var recordsToUpdate = relatedHarvestHistories.Where(x => x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId).ToList();
+                                .GetAllNoPaging(x => x.MasterTypeId == productHarvestHistory.MasterTypeId && x.HarvestHistoryId == productHarvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != productHarvestHistory.ProductHarvestHistoryId);
+                            var recordsToUpdate = relatedHarvestHistories.Where(x => x.ProductHarvestHistoryId != productHarvestHistory.ProductHarvestHistoryId).ToList();
 
                             foreach (var item in relatedHarvestHistories)
                             {
@@ -719,18 +719,38 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(relatedHarvestHistories);
                         }
                         if (updateRequest.SellPrice.HasValue)
-                            harvestHistory.Revenue = updateRequest.SellPrice;
+                        {
+                            var harvestHistory = await _unitOfWork.HarvestHistoryRepository.GetByCondition(x => x.HarvestHistoryId == productHarvestHistory.HarvestHistoryId, includeProperties: null);
+
+                            // Lấy revenue cũ trước khi gán mới
+                            var oldRevenue = productHarvestHistory.Revenue ?? 0;
+
+                            // Gán revenue mới
+                            productHarvestHistory.Revenue = updateRequest.SellPrice;
+
+                            // Tính toán lại TotalPrice
+                            if (harvestHistory.TotalPrice == null)
+                            {
+                                harvestHistory.TotalPrice = updateRequest.SellPrice;
+                            }
+                            else
+                            {
+                                harvestHistory.TotalPrice = harvestHistory.TotalPrice - oldRevenue + updateRequest.SellPrice;
+                            }
+
+                            productHarvestHistory.Revenue = updateRequest.SellPrice;
+                        }
                         if (updateRequest.CostPrice.HasValue)
-                            harvestHistory.CostPrice = updateRequest.CostPrice;
+                            productHarvestHistory.CostPrice = updateRequest.CostPrice;
                     }
-                    _unitOfWork.ProductHarvestHistoryRepository.Update(harvestHistory);
+                    _unitOfWork.ProductHarvestHistoryRepository.Update(productHarvestHistory);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
+                        var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(productHarvestHistory);
                         var productHasUpdate = await _unitOfWork.ProductHarvestHistoryRepository
-                            .GetAllNoPaging(x => x.MasterTypeId == harvestHistory.MasterTypeId && x.HarvestHistoryId == harvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId);
+                            .GetAllNoPaging(x => x.MasterTypeId == productHarvestHistory.MasterTypeId && x.HarvestHistoryId == productHarvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != productHarvestHistory.ProductHarvestHistoryId);
                         mappedResult.YieldHasRecord = productHasUpdate.Sum(x => x.ActualQuantity);
                         return new BusinessResult(200, Const.SUCCESS_UPDATE_HARVEST_HISTORY_MSG, mappedResult);
                     }

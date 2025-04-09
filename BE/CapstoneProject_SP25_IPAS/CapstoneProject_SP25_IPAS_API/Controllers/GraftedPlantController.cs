@@ -130,6 +130,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.GraftedPlant.CreatePlantFromGrafted, Name = "CreatePlantFromGrafted")]
         public async Task<IActionResult> CreatePlantFromGrafted([FromBody] CreatePlantFromGraftedRequest createRequest)
         {
+            if (!createRequest.FarmId.HasValue)
+                createRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
             var result = await _graftedPlantService.CreatePlantFromGrafted(createRequest);
             return Ok(result);
         }

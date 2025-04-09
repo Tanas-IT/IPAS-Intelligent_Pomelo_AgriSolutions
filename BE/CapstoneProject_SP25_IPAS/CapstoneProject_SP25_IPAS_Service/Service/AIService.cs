@@ -145,33 +145,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 promptBuilder.AppendLine($"Câu hỏi(Question is): {chatRequest.Question}");
                 var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), getFarmInfo, checkRoomExist.RoomId);
+                var jsonCheck = Util.ExtractJson(geminiApiResponse!);
                 var newChatMessage = new ChatMessage()
                 {
                     CreateDate = DateTime.Now,
                     Question = chatRequest.Question,
-                    MessageContent = geminiApiResponse ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
+                    MessageContent = jsonCheck ?? "Xin lỗi, tôi không thề tìm thấy câu trả lời",
                     UpdateDate = DateTime.Now,
                     SenderId = userId > 0 ? userId.Value : null,
                     RoomId = checkRoomExist.RoomId,
                     Resources = newResource
                 };
-                var jsonCheck = new GeminiAnswerFormat();
-                try
-                {
-                    geminiApiResponse = Util.ExtractJson(geminiApiResponse);
-                    jsonCheck = JsonConvert.DeserializeObject<GeminiAnswerFormat>(geminiApiResponse); //không phải JSON
-                }
-                catch
-                {
-                    return new BusinessResult(500, "AI response not correct format");
-                }
+                //try
+                //{
+                //    geminiApiResponse = Util.ExtractJson(geminiApiResponse);
+                //    jsonCheck = JsonConvert.DeserializeObject<GeminiAnswerFormat>(geminiApiResponse); //không phải JSON
+                //}
+                //catch
+                //{
+                //    return new BusinessResult(500, "AI response not correct format");
+                //}
                 await _unitOfWork.ChatMessageRepository.Insert(newChatMessage);
                 await _unitOfWork.SaveAsync();
-                var result = new ChatResponse()
-                {
-                    Question = chatRequest.Question,
-                    Answer = jsonCheck! /*?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"*/
-                };
+                //var result = new ChatResponse()
+                //{
+                //    Question = chatRequest.Question,
+                //    Answer = jsonCheck! /*?? "Xin lỗi, tôi không thề tìm thấy câu trả lời"*/
+                //};
+                var result = _mapper.Map<ChatMessageModel>(newChatMessage);
                 if (result != null)
                 {
                     return new BusinessResult(Const.SUCCESS_ASK_AI_CODE, Const.SUCCESS_ASK_AI_MSG, result);
