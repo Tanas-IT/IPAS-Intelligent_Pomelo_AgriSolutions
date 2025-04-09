@@ -2474,8 +2474,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
-                var getStatusRedo = await _unitOfWork.SystemConfigRepository
-                        .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var addNewWorkLog = new WorkLog()
                 {
                     WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
@@ -2484,7 +2484,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
                     IsDeleted = false,
-                    Status = getStatusRedo,
+                    Status = getStatusNotStarted,
                     ScheduleId = newSchedule.ScheduleId,
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);
