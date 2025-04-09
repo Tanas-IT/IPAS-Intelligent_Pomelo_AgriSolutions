@@ -1763,16 +1763,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception("End time must be greater than start time");
                         }
                     }
-                }
-                if (changeEmployeeOfWorkLog.DateWork != null)
-                {
-                    if (changeEmployeeOfWorkLog.DateWork < DateTime.Now)
-                    {
-                        return new BusinessResult(400, "Date of Work must be greater than now");
-                    }
-                   
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
-
                 }
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
 
@@ -2393,7 +2384,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Can check attendance", true);
                 }
-                return new BusinessResult(200, "Can not check attendance", false);
+                return new BusinessResult(200, $"Can not check attendance. Please waiting to {minCheckIn}", false);
             }
             catch (Exception ex)
             {
