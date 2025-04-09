@@ -1823,7 +1823,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = getStatusReplaced,
                             };
-
+                            var addNotification = new Notification()
+                            {
+                                Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                                Title = "WorkLog",
+                                IsRead = false,
+                                MasterTypeId = 36,
+                                CreateDate = DateTime.Now,
+                                NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                            };
+                            await _unitOfWork.NotificationRepository.Insert(addNotification);
+                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
 
@@ -1851,6 +1861,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = getStatusReplaced,
                             };
+                            var addNotification = new Notification()
+                            {
+                                Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                                Title = "WorkLog",
+                                IsRead = false,
+                                MasterTypeId = 36,
+                                CreateDate = DateTime.Now,
+                                NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                            };
+                            await _unitOfWork.NotificationRepository.Insert(addNotification);
+                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
 
