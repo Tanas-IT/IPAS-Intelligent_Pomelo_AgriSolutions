@@ -2480,19 +2480,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
-                var getListPlan = new List<Plan>();
-                foreach (var planTarget in getListPlanTarget)
-                {
-                    if (planTarget.PlanID != null)
-                    {
-                        var getPlan = await _unitOfWork.PlanRepository.GetByID(planTarget.PlanID.Value);
-                        if (getPlan != null && getPlan.IsDeleted == false && getPlan.IsSample == false)
-                        {
-                            getListPlan.Add(getPlan);
-                        }
-                    }
-                }
-                var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlan).ToList();
+                
+                var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlanTarget).ToList();
                 //foreach (var planTemp in listTemp)
                 //{
                 //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
