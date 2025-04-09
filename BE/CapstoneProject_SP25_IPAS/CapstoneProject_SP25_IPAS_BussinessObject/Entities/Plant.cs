@@ -37,6 +37,7 @@ public partial class Plant
 
     public int? FarmId { get; set; }
     public int? GrowthStageID { get; set; }
+    public int? PlantLotID { get; set; }
 
     public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
@@ -46,6 +47,7 @@ public partial class Plant
     public virtual GrowthStage? GrowthStage { get; set; }
 
     public virtual Plant? PlantReference { get; set; }
+    public virtual PlantLot? PlantLot { get; set; }
     public virtual ICollection<Plant> ChildPlants { get; set; } = new List<Plant>();
     public virtual ICollection<PlantGrowthHistory> PlantGrowthHistories { get; set; } = new List<PlantGrowthHistory>();
 

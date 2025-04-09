@@ -50,7 +50,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if(createTaskFeedbackModel.Status.ToLower().Equals("redo") || createTaskFeedbackModel.Status.ToLower().Equals("failed"))
                         {
-                            getWorkLog.Status = "Redo";
+                            getWorkLog.Status = createTaskFeedbackModel.Status ;
                             getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
                         }
                         else

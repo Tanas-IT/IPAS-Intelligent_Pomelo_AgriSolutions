@@ -971,7 +971,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (graftedPlant.Status == GraftedPlantStatusConst.IS_USED)
                         return new BusinessResult(400, $"GraftedPlant {graftedPlant.GraftedPlantCode} is already used.");
 
-
                     if (graftedPlant.Status != GraftedPlantStatusConst.HEALTHY)
                         return new BusinessResult(400, $"GraftedPlant {graftedPlant.GraftedPlantCode} is not in a healthy condition for planting.");
 
@@ -983,7 +982,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
                     if (landrowExist.Plants.Any(x => x.PlantIndex == request.PlantIndex && x.IsDead == false && x.IsDeleted == false))
                         return new BusinessResult(400, $"Index {request.PlantIndex} in row {landrowExist.RowIndex} has exist plant");
-
+                    var growthStage = (await _unitOfWork.GrowthStageRepository
+                    .GetGrowthStagesByFarmId(request.FarmId))
+                    .OrderBy(x => x.MonthAgeStart)
+                    .FirstOrDefault() ;
                     if (graftedPlant.PlantLotId.HasValue)
                     {
                         var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == graftedPlant.PlantLotId);
@@ -1014,7 +1016,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDeleted = false,
                         IsPassed = false,
                         IsDead = false,
-                        PlantIndex = request.PlantIndex
+                        PlantIndex = request.PlantIndex,
+                        GrowthStageID = growthStage != null ? growthStage!.GrowthStageID  : null
                     };
                     newPlant.PlantName = $"Plant {newPlant.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
                     //  5️ Cập nhật trạng thái của GraftedPlant thành IS_USED

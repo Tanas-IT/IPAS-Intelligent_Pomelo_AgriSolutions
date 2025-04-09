@@ -414,9 +414,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         TagIds = new List<string> { tagId }
                     };
                     var uploadImage =  await _aIService.UploadImageByURLToCustomVision(uploadImageModel);
-                    if(uploadImage.StatusCode == 200)
+                    var getAllTags =  await _aIService.GetTags();
+                    var getTag = (List<Tag>)getAllTags.Data;
+
+                    if (uploadImage.StatusCode == 200)
                     {
                         getReportOfUserByImageURL.IsTrainned = true;
+                        getReportOfUserByImageURL.TagID = tagId;
+                        var getUploadImage = (ImageCreateSummary)uploadImage.Data;
+                        var getTagName = getTag.FirstOrDefault(x => x.Id == Guid.Parse(tagId));
+                        getReportOfUserByImageURL.TagName = getTagName.Name;
+                        getReportOfUserByImageURL.ImageID = getUploadImage.Images.Select(x => x.Image.Id.ToString()).FirstOrDefault();
                         _unitOfWork.ReportRepository.Update(getReportOfUserByImageURL);
                         var result = await _unitOfWork.SaveAsync();
                         if(result > 0)
