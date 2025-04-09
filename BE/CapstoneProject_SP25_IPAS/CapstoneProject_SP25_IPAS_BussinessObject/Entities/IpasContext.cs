@@ -914,6 +914,11 @@ public partial class IpasContext : DbContext
                     .WithMany(p => p.ChildPlants)    // Một cây mẹ có nhiều cây con
                     .HasForeignKey(p => p.PlantReferenceId)   // Khóa ngoại
                     .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.PlantLot)   
+                   .WithMany(p => p.Plants)    
+                   .HasForeignKey(p => p.PlantLotID)   
+                   .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PlantGrowthHistory>(entity =>
