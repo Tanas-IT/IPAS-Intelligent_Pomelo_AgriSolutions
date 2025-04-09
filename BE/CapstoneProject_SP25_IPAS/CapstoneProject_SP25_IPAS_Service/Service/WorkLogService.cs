@@ -2384,7 +2384,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Can check attendance", true);
                 }
-                return new BusinessResult(200, "Can not check attendance", false);
+                return new BusinessResult(200, $"Can not check attendance. Please waiting to {minCheckIn}", false);
             }
             catch (Exception ex)
             {
