@@ -7,6 +7,7 @@ export interface MenuItem {
   activePaths: string[];
   category: string;
   isView?: boolean;
+  roles?: string[];
 }
 
 interface SubMenuItem {
@@ -15,6 +16,7 @@ interface SubMenuItem {
   icon: string;
   to?: string;
   activePaths: string[];
+  roles?: string[];
 }
 
 export interface ActiveMenu {

@@ -181,7 +181,7 @@ function CriteriaList() {
 
               <Collapse>
                 <Panel header="View Criteria" key="1">
-                  <CriteriaTable criteria={item.criterias} target={item.target} />
+                  <CriteriaTable criteria={item.criterias}  />
                 </Panel>
               </Collapse>
             </List.Item>

@@ -47,6 +47,7 @@ const LotSectionHeader = ({
       if (res.statusCode === 200) {
         setLot({ ...lot, status: LOT_STATUS.USED });
         toast.success(res.message);
+        updateUsedConfirmModal.hideModal();
       } else {
         toast.error(res.message);
       }

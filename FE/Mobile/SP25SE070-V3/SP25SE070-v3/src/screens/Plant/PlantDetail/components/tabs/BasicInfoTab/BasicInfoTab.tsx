@@ -1,13 +1,36 @@
-import React, { FC } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { PlantDetailData } from "@/types/plant";
+import React, { FC, useEffect, useState } from "react";
+import { View, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import RNPickerSelect from "react-native-picker-select";
 import { styles } from "./BasicInfoTab.styles";
 import theme from "@/theme";
-import { CustomIcon, TextCustom } from "@/components";
+import { CustomIcon, Loading, TextCustom } from "@/components";
+import { PlantService } from "@/services";
+import { usePlantStore } from "@/store";
+import { formatDayMonth } from "@/utils";
 
-const BasicInfoTab: FC<{ plant: PlantDetailData }> = ({ plant }) => {
+const BasicInfoTab: FC<{ plantId: number }> = ({ plantId }) => {
+  const { plant, setPlant } = usePlantStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchPlant = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
+    try {
+      const res = await PlantService.getPlant(plantId);
+      if (res.statusCode === 200) {
+        setPlant(res.data);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlant();
+  }, []);
+
+  if (isLoading) return <Loading />;
+  if (!plant) return;
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.tagContainer}>
@@ -22,21 +45,32 @@ const BasicInfoTab: FC<{ plant: PlantDetailData }> = ({ plant }) => {
       </View>
 
       <View style={styles.card}>
-        <InfoRow icon="seed" label="Plant Type" value={plant.masterTypeName} />
+        <InfoRow
+          icon="calendar"
+          label="Create Date"
+          value={plant.createDate ? formatDayMonth(plant.createDate) : "N/A"}
+        />
         <InfoRow
           icon="calendar"
           label="Planting Date"
-          value={new Date(plant.plantingDate).toLocaleDateString()}
+          value={
+            plant.plantingDate ? formatDayMonth(plant.plantingDate) : "N/A"
+          }
+        />
+        <InfoRow
+          icon="seed"
+          label="Cultivar"
+          value={`${plant.masterTypeName} - ${plant.characteristic}`}
         />
         <InfoRow
           icon="map-marker"
-          label="Location"
-          value={`${plant.landPlotName}, Row ${plant.rowIndex}`}
+          label="Plant Location"
+          value={`${plant.landPlotName} - Row ${plant.rowIndex} - Plant #${plant.plantIndex}`}
         />
         <InfoRow
-          icon="chart-line"
-          label="Current Stage"
-          value={plant.growthStageName}
+          icon="tree"
+          label="Mother Plan"
+          value={plant?.plantReferenceCode ? plant.plantReferenceCode : "N/A"}
         />
       </View>
 

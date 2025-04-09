@@ -35,10 +35,10 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
   const [productId, setProductId] = useState<number | null>(null);
   const [plantsHarvested, setPlantsHarvested] = useState<GetPlantHasHarvest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { shouldRefetch } = useCropStore();
+  const { crop, shouldRefetch } = useCropStore();
   const formModal = useModal<productHarvestHistoryRes>();
 
-  if (!selectedHarvest) return null;
+  if (!selectedHarvest || !crop) return null;
   const resetData = () => {
     setProductId(null);
     setPlantsHarvested([]);
@@ -80,7 +80,18 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
     if (res.statusCode === 200) {
       toast.success(res.message);
       formModal.hideModal();
-      await fetchHarvest();
+      setHarvestData((prev) => {
+        if (!prev) return prev;
+
+        const updatedProductHarvestHistory = prev.productHarvestHistory.map((item) =>
+          item.productHarvestHistoryId === res.data?.productHarvestHistoryId ? res.data! : item,
+        );
+
+        return {
+          ...prev,
+          productHarvestHistory: updatedProductHarvestHistory,
+        };
+      });
       resetData();
     } else {
       toast.error(res.message);
@@ -212,6 +223,11 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
               dataSource={productHarvestHistory}
               rowKey="productHarvestHistoryId"
               pagination={false}
+              onRow={(record: productHarvestHistoryRes) => ({
+                onDoubleClick: () => {
+                  navigate(ROUTES.PRODUCT_DETAIL_FROM_CROP(crop?.cropId, record.masterTypeId));
+                },
+              })}
               columns={[
                 {
                   title: "Product",
@@ -227,14 +243,21 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
                   render: (_: any, record: any) => `${record.quantityNeed} ${record.unit}`,
                 },
                 {
+                  title: "Actual Yield",
+                  dataIndex: "yieldHasRecord",
+                  key: "yieldHasRecord",
+                  align: "center",
+                  render: (_: any, record: any) => `${record.yieldHasRecord} ${record.unit}`,
+                },
+                {
                   title: "Cost Price",
                   dataIndex: "costPrice",
                   key: "costPrice",
                   align: "center",
-                  render: (price, record) => `${formatCurrencyVND(price)}/${record.unit}`,
+                  render: (price) => `${price ? formatCurrencyVND(price) : "N/A"}`,
                 },
                 {
-                  title: "Sell Price",
+                  title: "Revenue Price",
                   dataIndex: "sellPrice",
                   key: "sellPrice",
                   render: (price) => `${price ? formatCurrencyVND(price) : "N/A"}`,

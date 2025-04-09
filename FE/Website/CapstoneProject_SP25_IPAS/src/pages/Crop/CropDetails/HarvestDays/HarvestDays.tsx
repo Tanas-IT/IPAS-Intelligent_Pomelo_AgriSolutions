@@ -21,12 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import { DEFAULT_HARVEST_DAY_FILTERS, getOptions, getUserId } from "@/utils";
 import { FilterHarvestDayState } from "@/types";
-import {
-  HarvestRequest,
-  GetHarvestDay,
-  GetHarvestDayDetail,
-  RecordHarvestRequest,
-} from "@/payloads";
+import { HarvestRequest, GetHarvestDay, RecordHarvestRequest } from "@/payloads";
 import { harvestService } from "@/services";
 import HarvestDayFilter from "./HarvestDayFilter";
 import { HarvestDayColumns } from "./HarvestDayColumns";
@@ -194,7 +189,7 @@ function HarvestDays() {
       if (res.statusCode === 200) {
         recordModal.hideModal();
         recordConfirmModal.hideModal();
-        isHarvestDetailView && markForRefetch;
+        isHarvestDetailView && markForRefetch();
         toast.success(res.message);
       } else {
         toast.error(res.message);
@@ -220,7 +215,7 @@ function HarvestDays() {
       if (res.statusCode === 200) {
         toast.success(res.message);
         importModal.hideModal();
-        await fetchData();
+        isHarvestDetailView && markForRefetch();
       } else {
         const errorList = res.message.split("\n").filter((error) => error.trim() !== "");
         importErrorModal.showModal({ errors: errorList });

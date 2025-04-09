@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,23 +7,111 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { PlantDetailData, PlantGrowthHistory } from "@/types/plant";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackNavigationProp } from "@/constants/Types";
-import NoteDetailModal from "../../NoteDetailModal";
-import { ROUTE_NAMES } from "@/constants/RouteNames";
+// import NoteDetailModal from "../../NoteDetailModal";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { styles } from "./GrowthHistoryTab.styles";
-import { CustomIcon, TextCustom } from "@/components";
+import { CustomIcon, Loading, TextCustom } from "@/components";
 import { avt } from "@/assets/images";
+import { usePlantStore } from "@/store";
+import { GetPlantGrowthHistory } from "@/payloads";
+import { DEFAULT_RECORDS_IN_DETAIL, ROUTE_NAMES } from "@/constants";
+import { PlantService } from "@/services";
+import { Dayjs } from "dayjs";
 
 const currentUser = "John Doe";
 
-const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
+const GrowthHistoryTab: React.FC = () => {
+  const [data, setData] = useState<GetPlantGrowthHistory[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
+  const visibleCount = DEFAULT_RECORDS_IN_DETAIL;
+  const [totalIssues, setTotalIssues] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    null,
+    null,
+  ]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedHistory, setSelectedHistory] =
-    useState<PlantGrowthHistory | null>(null);
+    useState<GetPlantGrowthHistory | null>(null);
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { plant, setPlant } = usePlantStore();
+  if (!plant) return;
+
+  const fetchData = async () => {
+    if (isFirstLoad || isLoading)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const start = dateRange[0];
+      const end = dateRange[1];
+
+      const startDateParam =
+        start && end && start <= end
+          ? start.toISOString().split("T")[0]
+          : undefined;
+      const endDateParam =
+        start && end && start <= end
+          ? end.toISOString().split("T")[0]
+          : undefined;
+
+      const res = await PlantService.getPlantGrowthHistory(
+        plant.plantId,
+        visibleCount,
+        currentPage,
+        startDateParam,
+        endDateParam
+      );
+      if (res.statusCode === 200) {
+        setData((prevData) =>
+          currentPage > 1 ? [...prevData, ...res.data.list] : res.data.list
+        );
+        setTotalIssues(res.data.totalRecord);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsFirstLoad(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [currentPage, dateRange, isLoading]);
+
+  const handleResetData = async () => {
+    setData([]);
+    setIsLoading(true);
+    setCurrentPage(1);
+  };
+
+  const handleDateChange = (index: 0 | 1, date: Date | undefined) => {
+    if (!date) return;
+    const updatedRange: [Date | null, Date | null] = [...dateRange];
+    // Kiểm tra điều kiện: End phải sau Start
+    if (index === 1 && updatedRange[0] && date < updatedRange[0]) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Date Range",
+        text2: "End date must be after the start date.",
+      });
+      return;
+    }
+
+    if (index === 0 && updatedRange[1] && date > updatedRange[1]) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Date Range",
+        text2: "Start date must be before the end date.",
+      });
+      return;
+    }
+
+    updatedRange[index] = date;
+    setDateRange(updatedRange);
+    handleResetData();
+  };
 
   const handleDelete = (historyId: number) => {
     Toast.show({
@@ -42,13 +130,15 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
     return { images, videos };
   };
 
-  const showDetailModal = (history: PlantGrowthHistory) => {
+  const showDetailModal = (history: GetPlantGrowthHistory) => {
     setSelectedHistory({
       ...history,
-      ...processResources(history.plantResources),
+      // ...processResources(history.resources),
     });
     setModalVisible(true);
   };
+
+  if (isFirstLoad) return <Loading />;
 
   return (
     <View style={styles.container}>
@@ -68,16 +158,44 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
         />
       </TouchableOpacity>
 
+      {/* <View style={{ padding: 16 }}>
+        <Text style={{ fontWeight: "bold" }}>Timeline filter:</Text>
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+          <View>
+            <Text>Start date</Text>
+            <DateTimePicker
+              value={dateRange[0] ?? new Date()}
+              mode="date"
+              display="default"
+              onChange={(_, selectedDate) => {
+                if (selectedDate) handleDateChange(0, selectedDate);
+              }}
+            />
+          </View>
+          <View>
+            <Text>End date</Text>
+            <DateTimePicker
+              value={dateRange[1] ?? new Date()}
+              mode="date"
+              display="default"
+              onChange={(_, selectedDate) => {
+                if (selectedDate) handleDateChange(1, selectedDate);
+              }}
+            />
+          </View>
+        </View>
+      </View> */}
+
       <ScrollView contentContainerStyle={styles.content}>
-        {plant.growthHistory.length > 0 ? (
-          plant.growthHistory.map((history, index) => (
+        {data.length > 0 ? (
+          data.map((history, index) => (
             <View
               key={history.plantGrowthHistoryId}
               style={styles.timelineItem}
             >
               <View style={styles.timelineLeft}>
                 <View style={styles.timelineDot} />
-                {index < plant.growthHistory.length - 1 && (
+                {index < data.length - 1 && (
                   <View style={styles.timelineLine} />
                 )}
               </View>
@@ -89,7 +207,7 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                     <View style={{ flexDirection: "column" }}>
                       <View style={{ flexDirection: "row", gap: 10 }}>
                         <TextCustom style={styles.timelineAuthor}>
-                          {history.noteTaker}
+                          {history.noteTakerName}
                         </TextCustom>
                         <TextCustom style={styles.createText}>
                           created this note
@@ -102,7 +220,7 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                   </View>
 
                   {/* edit/delete nếu là note của user */}
-                  {history.noteTaker === currentUser && (
+                  {history.noteTakerName === currentUser && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         onPress={() =>
@@ -112,7 +230,7 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                             initialData: {
                               content: history.content,
                               issueName: history.issueName,
-                              images: history.plantResources,
+                              // images: history.resources[0],
                             },
                           })
                         }
@@ -165,7 +283,7 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                   )}
 
                   {/* nếu có hình ảnh -> nút detail */}
-                  {history.plantResources &&
+                  {/* {history.plantResources &&
                     history.plantResources.length > 0 && (
                       <TouchableOpacity
                         style={styles.detailButton}
@@ -175,7 +293,7 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
                           View Details
                         </TextCustom>
                       </TouchableOpacity>
-                    )}
+                    )} */}
                 </View>
               </View>
             </View>
@@ -195,11 +313,11 @@ const GrowthHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
         )}
       </ScrollView>
 
-      <NoteDetailModal
+      {/* <NoteDetailModal
         visible={modalVisible}
         history={selectedHistory}
         onClose={() => setModalVisible(false)}
-      />
+      /> */}
     </View>
   );
 };

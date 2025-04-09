@@ -16,10 +16,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { addNoteSchema } from "@/validations/noteSchemas";
-import { NoteFormData } from "@/types/plant";
 import { styles } from "./NoteFormScreen.styles";
 import theme from "@/theme";
 import { CustomIcon } from "@/components";
+import { NoteFormData } from "@/types";
 
 const NoteFormScreen: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();

@@ -4,7 +4,7 @@ import { landRowSimulate, plantSimulate } from "@/payloads";
 import { Tooltip } from "@/components";
 import style from "./RowItem.module.scss";
 import { useNavigate } from "react-router-dom";
-import { DEAD_STATUS, HEALTH_STATUS, healthStatusColors } from "@/constants";
+import { DEAD_STATUS, HEALTH_STATUS, healthStatusColors, ROUTES } from "@/constants";
 
 interface RowItemViewProps {
   plotId: number;
@@ -91,9 +91,7 @@ const RowItemView: React.FC<RowItemViewProps> = ({
                 onClick={
                   displayedPlant
                     ? () =>
-                        navigate(
-                          `/farm/land-rows/${plotId}/plants/${displayedPlant.plantId}/details`,
-                        )
+                        navigate(ROUTES.FARM_PLANT_DETAIL_FROM_ROW(plotId, displayedPlant.plantId))
                     : undefined
                 }
               >
