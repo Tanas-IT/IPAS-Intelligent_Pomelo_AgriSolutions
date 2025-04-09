@@ -13,5 +13,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest
         public int graftedId { get; set; }
         public int PlantIndex { get; set; }
         public int LandRowId { get; set; }
+        public int? FarmId { get; set; }
     }
 }
