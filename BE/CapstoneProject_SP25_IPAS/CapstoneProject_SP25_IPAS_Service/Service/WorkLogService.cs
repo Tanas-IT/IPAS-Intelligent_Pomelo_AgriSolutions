@@ -1763,16 +1763,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception("End time must be greater than start time");
                         }
                     }
-                }
-                if (changeEmployeeOfWorkLog.DateWork != null)
-                {
-                    if (changeEmployeeOfWorkLog.DateWork < DateTime.Now)
-                    {
-                        return new BusinessResult(400, "Date of Work must be greater than now");
-                    }
-                   
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
-
                 }
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
 
@@ -1823,7 +1814,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = getStatusReplaced,
                             };
-
+                            var addNotification = new Notification()
+                            {
+                                Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                                Title = "WorkLog",
+                                IsRead = false,
+                                MasterTypeId = 36,
+                                CreateDate = DateTime.Now,
+                                NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                            };
+                            await _unitOfWork.NotificationRepository.Insert(addNotification);
+                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
 
@@ -1851,6 +1852,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = getStatusReplaced,
                             };
+                            var addNotification = new Notification()
+                            {
+                                Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                                Title = "WorkLog",
+                                IsRead = false,
+                                MasterTypeId = 36,
+                                CreateDate = DateTime.Now,
+                                NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                            };
+                            await _unitOfWork.NotificationRepository.Insert(addNotification);
+                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                             await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
 
@@ -2250,9 +2262,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getStatusRejected = await _unitOfWork.SystemConfigRepository
         .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 var getStatusReceived = await _unitOfWork.SystemConfigRepository
-       .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Rejected");
+       .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
+                var getStatusFailed = await _unitOfWork.SystemConfigRepository
+       .GetConfigValue(SystemConfigConst.FAILED.Trim(), "Failed");
+                var getStatusRedo = await _unitOfWork.SystemConfigRepository
+      .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
                 if (getUserWorkLog != null)
                 {
+                    if(getUserWorkLog.StatusOfUserWorkLog != null)
+                    {
+                        if(getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusFailed) || getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusRedo))
+                        {
+                            return new BusinessResult(400, "WorkLog has status failed or redo. Can not cancelled");
+                        }
+                    }
                     var getReplacementWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == cancelledWorkLogModel.WorkLogId && x.UserId == getUserWorkLog.ReplaceUserId);
                     if (getReplacementWorkLog != null)
                     {
@@ -2361,7 +2384,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, "Can check attendance", true);
                 }
-                return new BusinessResult(200, "Can not check attendance", false);
+                return new BusinessResult(200, $"Can not check attendance. Please waiting to {minCheckIn}", false);
             }
             catch (Exception ex)
             {
@@ -2474,8 +2497,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
-                var getStatusRedo = await _unitOfWork.SystemConfigRepository
-                        .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var addNewWorkLog = new WorkLog()
                 {
                     WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
@@ -2484,7 +2507,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ActualStartTime = startTime,
                     ActualEndTime = endTime,
                     IsDeleted = false,
-                    Status = getStatusRedo,
+                    Status = getStatusNotStarted,
                     ScheduleId = newSchedule.ScheduleId,
                 };
                 newSchedule.WorkLogs.Add(addNewWorkLog);

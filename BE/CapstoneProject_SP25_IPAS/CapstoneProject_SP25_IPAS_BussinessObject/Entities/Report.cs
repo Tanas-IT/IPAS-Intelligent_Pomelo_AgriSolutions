@@ -18,6 +18,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
         public bool? IsTrainned { get; set; }
         public int? AnswererID { get; set; }
         public int? QuestionerID { get; set ; }
+        public string? TagID { get; set ; }
+        public string? TagName { get; set ; }
+        public string? ImageID { get; set ; }
 
         public virtual User? Answerer { get; set; }
         public virtual User? Questioner { get; set; }
