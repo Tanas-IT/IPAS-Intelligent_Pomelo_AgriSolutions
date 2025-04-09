@@ -2,7 +2,7 @@ import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
-import { DecodedToken, FileType } from "@/types";
+import { AnswerData, DecodedToken, FileType } from "@/types";
 import { FILE_FORMAT, LOCAL_STORAGE_KEYS } from "@/constants";
 import {
   cropService,
@@ -172,6 +172,10 @@ export const formatDayMonthAndTime = (date: Date | string): string => {
 
 export const formatDayMonth = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY");
+};
+
+export const formatDateTimeChat = (dateString: string) => {
+  return dayjs(dateString).format("ddd, MMM DD, YYYY h:mm A");
 };
 
 export const formatDateRange = (startDate: string | Date, endDate?: string | Date): string => {
@@ -762,4 +766,23 @@ export const transformPlanTargetData = (planTargetModels: PlanTargetModel[]): Pl
 
     return data;
   });
+};
+
+function textFromHTML(html: string) {
+  const el = document.createElement("div");
+  el.innerHTML = html;
+  return el.textContent || el.innerText || "";
+}
+
+export const getAnswerParts = (parsed: AnswerData) => {
+  return [
+    { key: "summary", label: "Tóm tắt", value: parsed.summary },
+    { key: "details", label: "", value: textFromHTML(parsed.details) },
+    { key: "note", label: "Lưu ý", value: parsed.note },
+    {
+      key: "confidence",
+      label: "",
+      value: parsed.confidence ? `Độ tin cậy: ${parsed.confidence}` : "",
+    },
+  ].filter((p) => !!p.value);
 };

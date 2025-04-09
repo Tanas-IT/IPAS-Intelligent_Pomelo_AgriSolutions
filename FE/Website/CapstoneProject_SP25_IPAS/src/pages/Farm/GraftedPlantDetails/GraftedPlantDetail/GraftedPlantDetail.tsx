@@ -262,7 +262,7 @@ function GraftedPlantDetail() {
         <QRCode
           id="myqrcode"
           type="svg"
-          value={`${baseUrl}/farm/grafted-plants/${graftedPlant?.graftedPlantId}/details`}
+          value={`graftedPlantId:${graftedPlant?.graftedPlantId}`}
           size={180}
         />
         <CustomButton label="Download" handleOnClick={downloadSvgQRCode} />

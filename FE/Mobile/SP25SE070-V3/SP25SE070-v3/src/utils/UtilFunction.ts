@@ -1,11 +1,15 @@
-import { STORAGE_KEYS, UserRole } from "@/constants";
+import { UserRole } from "@/constants";
 import { DecodedToken } from "@/types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { format } from "date-fns";
 import { jwtDecode } from "jwt-decode";
+import moment from "moment";
 
 export const formatDate = (date: Date | string): string => {
   return format(new Date(date), "dd/MM/yyyy");
+};
+
+export const formatDayMonth = (date: Date | string): string => {
+  return moment(date).format("dddd, Do MMMM YYYY");
 };
 
 export const formatTime = (time: string) => {

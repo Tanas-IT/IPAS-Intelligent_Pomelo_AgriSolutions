@@ -20,3 +20,4 @@ export * from "./plan";
 export * from "./harvest";
 export * from "./product";
 export * from "./expert";
+export * from "./chatBox";

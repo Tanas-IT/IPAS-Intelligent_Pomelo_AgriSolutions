@@ -24,21 +24,35 @@ export default function ScanScreen() {
     if (scanned) return;
     setScanned(true);
 
-    // Validate and parse QR data
+    let id = "";
+    let type = "";
+
     if (data.startsWith("plantId:")) {
-      const plantId = data.split(":")[1];
-      if (plantId) {
-        navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, { plantId });
-      } else {
-        Toast.show({
-          type: "success",
-          text1: "thành công",
-        });
-      }
+      id = data.split("plantId:")[1];
+      type = "PLANT";
+    } else if (data.startsWith("graftedPlantId:")) {
+      id = data.split("graftedPlantId:")[1];
+      type = "GRAFTED";
+    }
+
+    if (!id) {
+      Toast.show({
+        type: "error",
+        text1: "QR không hợp lệ hoặc thiếu ID",
+      });
+      return;
+    }
+
+    if (type === "PLANT") {
+      navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, { plantId: id });
+      // console.log("Scanned QR:", { type, id });
+    } else if (type === "GRAFTED") {
+      console.log("Scanned QR:", { type, id });
+      // navigation.navigate(ROUTE_NAMES.PLANT.GRAFTED_PLANT_DETAIL, { plantId });
     } else {
       Toast.show({
         type: "error",
-        text1: "thất bại",
+        text1: "Loại QR không xác định",
       });
     }
   };

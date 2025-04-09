@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useCropStore, useDirtyStore } from "@/stores";
 import { harvestService, landRowService, plantService } from "@/services";
 import { SelectOption } from "@/types";
+import { GROWTH_ACTIONS } from "@/constants";
 
 type RecordHarvestModalProps = {
   isOpen: boolean;
@@ -94,7 +95,7 @@ const RecordHarvestModal = ({
 
     setLoading((prev) => ({ ...prev, plants: true }));
     try {
-      const res = await plantService.getPlantOfRow(rowId);
+      const res = await plantService.getPlantOfActiveFunction(GROWTH_ACTIONS.HARVEST, rowId);
 
       if (res.statusCode === 200) {
         setPlants((prev) => ({
@@ -210,7 +211,7 @@ const RecordHarvestModal = ({
                     <FormFieldModal
                       label="Yield"
                       name={[name, "quantity"]}
-                      rules={RulesManager.getNumberRules("Quantity")}
+                      rules={RulesManager.getNumberRulesAllowZero("Quantity")}
                     />
 
                     <Button

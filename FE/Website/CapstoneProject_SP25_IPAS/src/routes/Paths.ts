@@ -34,6 +34,7 @@ export const PATHS = {
     MASTER_TYPE: "/classification/master-types",
     PRODUCT: "/classification/products",
     PRODUCT_DETAIL: "/classification/products/:id/details",
+    PRODUCT_DETAIL_FROM_CROP: "/crop/:cropId/classification/products/:productId/details",
   },
 
   // Farm Management

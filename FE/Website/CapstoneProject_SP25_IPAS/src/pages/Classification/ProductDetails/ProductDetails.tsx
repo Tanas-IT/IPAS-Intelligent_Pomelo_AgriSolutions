@@ -3,12 +3,14 @@ import style from "./ProductDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { ProductDetail } from "@/pages";
+import { ROUTES } from "@/constants";
 
 function ProductDetails() {
   const navigate = useNavigate();
+  const { cropId } = useParams();
   const { styles } = useStyle();
 
   const items: TabsProps["items"] = [
@@ -20,7 +22,13 @@ function ProductDetails() {
     },
   ];
 
-  const handleBack = () => navigate(PATHS.CLASSIFICATION.PRODUCT);
+  const handleBack = () => {
+    if (cropId) {
+      navigate(ROUTES.CROP_DETAIL(Number(cropId)));
+    } else {
+      navigate(PATHS.CLASSIFICATION.PRODUCT);
+    }
+  };
 
   return (
     <Flex className={style.detailContainer}>
@@ -32,7 +40,7 @@ function ProductDetails() {
           left: (
             <Flex className={style.extraContent}>
               <Tooltip
-                title="Back to List"
+                title={cropId ? "Back To Harvest" : "Back to List"}
                 children={<Icons.back className={style.backIcon} onClick={handleBack} />}
               />
             </Flex>

@@ -22,6 +22,21 @@ const colors = {
   color_tag_owner: "#fff",
   color_bg_tag_other: "#f6f9b5",
   color_tag_other: "#333",
+
+  statusHealthyBg: "#f6ffed",
+  statusHealthyBorder: "#b7eb8f",
+  statusHealthyText: "#389e0d",
+
+  statusMinorIssueBg: "#fff7e6",
+  statusMinorIssueBorder: "#ffd591",
+  statusMinorIssueText: "#d46b08",
+
+  statusSeriousIssueBg: "#fff1f0",
+  statusSeriousIssueBorder: "#ffa39e",
+  statusSeriousIssueText: "#cf1322",
+
+  statusDeadBg: "gray",
+  statusDeadText: "#ffffff",
 };
 
 export default colors;
