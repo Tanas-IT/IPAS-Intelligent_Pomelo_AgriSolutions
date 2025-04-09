@@ -559,6 +559,11 @@ function WorklogDetail() {
     fetchPlanDetail();
   };
 
+  const handleCloseAttendanceModal = async () => {
+    setIsAttendanceModalVisible(false);
+    fetchPlanDetail();
+  }
+
   if (isLoading)
     return (
       <Flex justify="center" align="center" style={{ width: "100%" }}>
@@ -767,7 +772,7 @@ function WorklogDetail() {
       <AttendanceModal
         visible={isAttendanceModalVisible}
         worklogId={Number(id) || 0}
-        onClose={() => setIsAttendanceModalVisible(false)}
+        onClose={handleCloseAttendanceModal}
         employees={worklogDetail?.listEmployee || []}
         reporter={worklogDetail?.reporter || []}
         attendanceStatus={attendanceStatus}
