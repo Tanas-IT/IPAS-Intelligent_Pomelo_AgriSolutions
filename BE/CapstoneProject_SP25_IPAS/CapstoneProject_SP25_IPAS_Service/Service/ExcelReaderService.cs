@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Attributes;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -9,6 +10,8 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -124,7 +127,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return records;
         }
 
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportToCsvAsync<T>(List<T> data, string fileName = "export.csv")
+        {
+            if (!fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            {
+                fileName += ".csv";
+            }
+            using var memoryStream = new MemoryStream();
+            using var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8);
+            using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
+            var properties = typeof(T).GetProperties()
+                .Where(p => Attribute.IsDefined(p, typeof(CsvExportAttribute)))
+                .Select(p => new
+                {
+                    Property = p,
+                    DisplayName = p.GetCustomAttribute<CsvExportAttribute>()!.DisplayName
+                })
+                .ToList();
 
+            // Ghi header
+            foreach (var prop in properties)
+            {
+                csvWriter.WriteField(prop.DisplayName);
+            }
+            await csvWriter.NextRecordAsync();
+
+            // Ghi dữ liệu
+            foreach (var item in data)
+            {
+                foreach (var prop in properties)
+                {
+                    var value = prop.Property.GetValue(item);
+                    csvWriter.WriteField(value);
+                }
+                await csvWriter.NextRecordAsync();
+            }
+
+            await streamWriter.FlushAsync();
+            var fileBytes = memoryStream.ToArray();
+
+            return (fileBytes, fileName, "text/csv");
+        }
 
         //   public async Task<(List<DuplicateError<T>> DuplicateErrors, List<T> ValidItems)>
         //FindDuplicatesWithErrorsAsync<T>(

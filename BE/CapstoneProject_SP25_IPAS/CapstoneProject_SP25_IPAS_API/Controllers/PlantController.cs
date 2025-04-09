@@ -324,7 +324,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Plant.getForSelectedActFunc)]
-        public async Task<IActionResult> getForSelectedActFunc([FromQuery] int plotId, int rowId, string actFunction)
+        public async Task<IActionResult> getForSelectedActFunc([FromQuery]int farmId ,int? plotId, int rowId, string actFunction)
         {
             if (!ModelState.IsValid)
             {
@@ -333,7 +333,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     StatusCode = StatusCodes.Status400BadRequest,
                 });
             }
-            var result = await _plantService.getPlantActFuncionForSelected(plotId,rowId, actFunction);
+            var result = await _plantService.getPlantActFuncionForSelected(farmId,plotId,rowId, actFunction);
             return Ok(result);
         }
 
