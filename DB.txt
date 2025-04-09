@@ -1013,7 +1013,7 @@ CREATE TABLE ipas.dbo.Resource (
 	CONSTRAINT Resource_GraftedPlantNote_FK FOREIGN KEY (GraftedPlantNoteID) REFERENCES ipas.dbo.GraftedPlantNote(GraftedPlantNoteID),
 	CONSTRAINT Resource_LegalDocument_FK FOREIGN KEY (LegalDocumentID) REFERENCES ipas.dbo.LegalDocument(LegalDocumentID),
 	CONSTRAINT Resource_PlantGrowthHistory_FK FOREIGN KEY (PlantGrowthHistoryID) REFERENCES ipas.dbo.PlantGrowthHistory(PlantGrowthHistoryID),
-	CONSTRAINT Resource_UserWorkLog_FK FOREIGN KEY (UserWorkLogID) REFERENCES ipas.dbo.UserWorkLog(UserWorkLogID)
+	CONSTRAINT Resource_UserWorkLog_FK FOREIGN KEY (UserWorkLogID) REFERENCES ipas.dbo.UserWorkLog(UserWorkLogID),
 	CONSTRAINT FK_Resource_ChatMessage FOREIGN KEY (MessageId) REFERENCES ipas.dbo.ChatMessage(MessageID)
 );
 
@@ -1571,7 +1571,7 @@ VALUES
 
 GO
 INSERT INTO [ipas].dbo.ProductHarvestHistory 
-    (MasterTypeID, PlantID, Unit, SellPrice, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
+    (MasterTypeID, PlantID, Unit, Revenue, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
 VALUES 
     -- PlantID 9
     (31, 9, N'kg', 9000.0, 8500.0, 120, 150, 1),  -- HarvestHistoryID 1
