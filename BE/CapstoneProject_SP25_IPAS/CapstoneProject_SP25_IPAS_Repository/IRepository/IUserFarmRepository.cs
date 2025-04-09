@@ -13,6 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<int> updateRoleOfUserInFarm(int userId, int newRoleId, int farmId);
         public Task<List<UserFarm>> GetFarmOfUser(int userId);
         public Task<List<UserFarm>> GetManagerOffarm(int? farmId);
+        public Task<List<User>> GetExpertOffarm();
 
     }
 }
