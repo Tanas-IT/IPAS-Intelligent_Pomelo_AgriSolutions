@@ -2193,7 +2193,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
-                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted == true);
+                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted != true);
 
                     // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
                     // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
@@ -2216,7 +2216,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Nếu có người thay thế mình sau khi điểm danh => trường hợp 2
-                    if (replacement != null)
+                    if (replacement == null)
                     {
                         result.Add(new GetListEmployeeToCheckAttendance
                         {
