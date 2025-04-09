@@ -776,10 +776,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         throw new Exception("Update failed because nothing was process");
                     }
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
-                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
-                                        .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
-                    if (findWorkLog.Status.ToLower().Equals(getStatusInProgress.ToLower())) {
-                        throw new Exception("WorkLog is in-progress. Can not update");
+                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower())) {
+                        throw new Exception("WorkLog is happended. Can not update");
                     }
                     if (updateWorkLogModel.DateWork.Value.Date < DateTime.Now.Date)
                     {
