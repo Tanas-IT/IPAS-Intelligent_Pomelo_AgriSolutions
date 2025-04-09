@@ -424,6 +424,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpDelete(APIRoutes.AI.deleteRoom, Name = "deleteRoom")]
+        public async Task<IActionResult> DeleteRoom([FromQuery] int roomId)
+        {
+            try
+            {
+                var result = await _aiService.DeleteRoom(roomId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
         [HttpPut(APIRoutes.AI.updateTagOfImage, Name = "updateTagOfImage")]
         public async Task<IActionResult> UpdateTagOfImage([FromBody] UpdateTagOfImageModel updateTagOfImageModel)
         {
