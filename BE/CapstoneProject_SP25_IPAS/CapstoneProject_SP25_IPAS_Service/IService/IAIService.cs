@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -15,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 {
     public interface IAIService
     {
-        public Task<BusinessResult> GetAnswerAsync(int? roomId, string question, int? farmId, int? userId);
+        public Task<BusinessResult> GetAnswerAsync(ChatRequest chatRequest ,int? farmId, int? userId);
         public Task<BusinessResult> PredictDiseaseByFile(IFormFile image);
         public Task<BusinessResult> PredictDiseaseByURL(string imageURL);
         public Task<BusinessResult> GetHistoryChat(GetAllRoomModel paginationParameter, int? farmId, int? userId, int roomId);

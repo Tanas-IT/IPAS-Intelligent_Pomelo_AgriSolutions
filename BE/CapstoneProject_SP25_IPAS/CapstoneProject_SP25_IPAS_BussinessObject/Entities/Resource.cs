@@ -29,10 +29,11 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
         public int? GraftedPlantNoteID { get; set; }
         public int? PlantGrowthHistoryID { get; set; }
         public int? UserID { get; set; }
-
+        public int? MessageId { get; set; }
         public virtual UserWorkLog? UserWorkLog { get; set; }
         public virtual LegalDocument? LegalDocument { get; set; }
         public virtual GraftedPlantNote? GraftedPlantNote { get; set; }
         public virtual PlantGrowthHistory? PlantGrowthHistory { get; set; }
+        public virtual ChatMessage? ChatMessage { get; set; }
     }
 }

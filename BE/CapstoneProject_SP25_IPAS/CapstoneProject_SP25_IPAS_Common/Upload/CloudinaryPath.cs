@@ -30,5 +30,9 @@ namespace CapstoneProject_SP25_IPAS_Common.Upload
         public static string GRAFTED_PLANT_NOTE = GRAFTED_PLANT + "/note";
         #endregion
 
+        #region ChatAI
+        public static string AI_RESOURCE = "chat-ai/resource";
+
+        #endregion
     }
 }

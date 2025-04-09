@@ -24,4 +24,6 @@ public partial class ChatMessage
     public int? RoomId { get; set; }
 
     public virtual ChatRoom? Room { get; set; }
+
+    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }
