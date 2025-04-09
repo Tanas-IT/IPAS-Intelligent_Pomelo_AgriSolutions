@@ -25,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<(List<DuplicateError<T>> DuplicateErrors, List<T> ValidItems)>
 FindDuplicatesInFileAsync<T>(List<T> importList);
-        
+        public Task<(byte[] FileBytes, string FileName, string ContentType)> ExportToCsvAsync<T>(List<T> data, string fileName = "export.csv");
 
     }
 }
