@@ -156,12 +156,10 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.MessageId).HasColumnName("MessageID");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.MessageCode)
-                .HasMaxLength(50)
+            entity.Property(e => e.Question)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.MessageContent).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.MessageType)
-                .HasMaxLength(1)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.RoomId).HasColumnName("RoomID");
             entity.Property(e => e.SenderId).HasColumnName("SenderID");
@@ -1036,6 +1034,10 @@ public partial class IpasContext : DbContext
             entity.HasOne(d => d.PlantGrowthHistory).WithMany(p => p.Resources)
               .HasForeignKey(d => d.PlantGrowthHistoryID)
               .HasConstraintName("FK_Resource_PlantGrowthHistory");
+
+            entity.HasOne(d => d.ChatMessage).WithMany(p => p.Resources)
+              .HasForeignKey(d => d.MessageId)
+              .HasConstraintName("FK_Resource_ChatMessage");
         });
 
         modelBuilder.Entity<Process>(entity =>

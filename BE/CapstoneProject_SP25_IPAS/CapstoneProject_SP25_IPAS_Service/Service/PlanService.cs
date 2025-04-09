@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var newPlan = new Plan()
                     {
-                        PlanCode = $"PLAN{DateTime.Now:ddHHmmss}",
+                        PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -1618,7 +1618,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     IsDeleted = false,
                     FarmID = plan.FarmID,
-                    DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
+                    DayOfWeek = null,
                     DayOfMonth = null,
                     CustomDates = null,
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
@@ -2163,7 +2163,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,
@@ -2268,7 +2268,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo WorkLog mới
             var newWorkLog = new WorkLog
             {
-                WorkLogCode = $"WL{DateTime.Now:ddHHmmss}",
+                WorkLogCode = $"WL{DateTime.Now:yyMMddHHmmssfff}",
                 Status = "Not Started",
                 IsDeleted = false,
                 ActualStartTime = schedule.StartTime,

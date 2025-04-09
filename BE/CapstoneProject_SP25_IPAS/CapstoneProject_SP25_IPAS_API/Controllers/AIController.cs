@@ -32,7 +32,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.AI.chatbox, Name = "askQuestion")]
-        public async Task<IActionResult> GetAnswerAsync([FromBody] ChatRequest request, int? farmId, int? userId)
+        public async Task<IActionResult> GetAnswerAsync([FromForm] ChatRequest request)
         {
             try
             {
@@ -40,11 +40,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(new { Message = "Câu hỏi không được để trống." });
                 }
-                if (!farmId.HasValue)
-                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                if (!userId.HasValue)
-                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
-                var result = await _aiService.GetAnswerAsync(request.RoomId, request.Question, farmId, userId);
+                if (!request.farmId.HasValue)
+                    request.farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!request.userId.HasValue)
+                    request.userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _aiService.GetAnswerAsync(chatRequest: request, request.farmId, request.userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -424,12 +424,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.AI.deleteRoom, Name = "deleteRoom")]
-        public async Task<IActionResult> deleteRoom([FromQuery] int roomid)
+        [HttpPut(APIRoutes.AI.updateTagOfImage, Name = "updateTagOfImage")]
+        public async Task<IActionResult> UpdateTagOfImage([FromBody] UpdateTagOfImageModel updateTagOfImageModel)
         {
             try
             {
-                var result = await _aiService.DeleteRoom(roomid);
+                var result = await _aiService.UpdateTagOfImage(updateTagOfImageModel.imageId, updateTagOfImageModel.tagId);
                 return Ok(result);
             }
             catch (Exception ex)

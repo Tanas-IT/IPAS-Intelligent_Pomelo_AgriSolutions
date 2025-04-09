@@ -7,7 +7,7 @@ public partial class ChatMessage
 {
     public int MessageId { get; set; }
 
-    public string? MessageCode { get; set; }
+    public string? Question { get; set; }
 
     public string? MessageContent { get; set; }
 
@@ -17,11 +17,13 @@ public partial class ChatMessage
 
     public int? SenderId { get; set; }
 
-    public bool? IsUser { get; set; }
+    //public bool? IsUser { get; set; }
 
     public string? MessageType { get; set; }
 
     public int? RoomId { get; set; }
 
     public virtual ChatRoom? Room { get; set; }
+
+    public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
 }

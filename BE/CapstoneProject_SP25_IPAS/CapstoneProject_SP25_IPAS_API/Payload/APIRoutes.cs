@@ -386,6 +386,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string CancelReplacement = prefix + "/cancel-replacment";
             public const string GetListEmployeeToUpdate = prefix + "/get-list-employee-to-update";
             public const string CanTakeAttendance = prefix + "/can-take-attendance";
+            public const string RedoWorkLog = prefix + "/redo-work-log";
+            public const string GetStatusOfWorkLogForManager = prefix + "/status-work-log-for-manager";
+            public const string GetStatisticForEmployee = prefix + "/statistic-employee";
 
         }
 
@@ -472,6 +475,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllRoom = prefix + "/get-all-room";
             public const string changeNameOfRoom = prefix + "/change-name-of-room";
             public const string deleteRoom = prefix + "/delete-room";
+            public const string updateTagOfImage = prefix + "/update-tag-of-image";
         }
 
 
