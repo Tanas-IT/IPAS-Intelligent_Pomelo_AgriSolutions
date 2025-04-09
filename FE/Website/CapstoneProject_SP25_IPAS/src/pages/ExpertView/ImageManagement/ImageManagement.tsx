@@ -1,181 +1,260 @@
 import React, { useState, useEffect } from 'react';
-import './ImageManagement.module.scss';
+import { Segmented, Spin, Empty, Pagination, Select, Input, Button } from 'antd';
 import { expertService } from '@/services';
-import { AssignTagRequest, GetImageRequest, GetImageResponse, GetTagResponse } from '@/payloads';
+import { GetImageResponse, GetReportResponse, GetTagResponse, GetImageRequest } from '@/payloads';
+import { toast } from 'react-toastify';
+import style from './ImageManagement.module.scss';
 import ImageCard from '../components/ImageCard/ImageCard';
-import TrainingButton from '../components/TrainingButton/TrainingButton';
-import TagManager from '../components/TagManager/TagManager';
+import UntaggedImageCard from '../components/UntaggedImageCard/UntaggedImageCard';
+import { FilterOutlined, TagsOutlined } from '@ant-design/icons';
+import TagManagementModal from '../components/TagManager/TagManager';
 
-const ImageManagement = () => {
-  const [taggedImages, setTaggedImages] = useState<(GetImageResponse & { tags: GetTagResponse[] })[]>([]);
-  const [untaggedImages, setUntaggedImages] = useState<(GetImageResponse & { tags: GetTagResponse[] })[]>([]);
+const { Search } = Input;
+const { Option } = Select;
+
+const ImageManagementScreen: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'tagged' | 'untagged'>('tagged');
+  const [taggedImages, setTaggedImages] = useState<GetImageResponse[]>([]);
+  const [untaggedReports, setUntaggedReports] = useState<GetReportResponse[]>([]);
   const [tags, setTags] = useState<GetTagResponse[]>([]);
-  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
-  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
-  
-  // Filter states
-  const [tagNameFilter, setTagNameFilter] = useState<string>('');
-  const [orderBy, setOrderBy] = useState<string>('created'); // Mặc định sắp xếp theo ngày tạo
-  const [pageIndex, setPageIndex] = useState<number>(1);
-  const [pageSize] = useState<number>(50); // Mặc định 50 theo BE
-  const [totalImages, setTotalImages] = useState<number>(0); // Để tính tổng số trang
+  const [loading, setLoading] = useState(false);
+  const [tagFilter, setTagFilter] = useState<string | undefined>(undefined);
+  const [searchKey, setSearchKey] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize] = useState<number>(50);
+  const [totalImages, setTotalImages] = useState<number>(0);
+  const [showTagModal, setShowTagModal] = useState(false);
+
+  const fetchTaggedImages = async () => {
+    setLoading(true);
+    try {
+      const req: GetImageRequest = {
+        pageIndex: currentPage,
+        pageSize,
+        orderBy: 'created',
+        tagName: tagFilter,
+      };
+      const response = await expertService.getAllImage(req);
+      console.log('response222222', response);
+      
+      if (response.statusCode === 200) {
+        setTaggedImages(response.data || []);
+        setTotalImages(response.data?.length || 0); // Giả định API trả về total, nếu không thì cần điều chỉnh
+      }
+    } catch (error) {
+      toast.error('Failed to fetch tagged images.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUntaggedReports = async () => {
+    setLoading(true);
+    try {
+      const response = await expertService.getAllReportsWithPagin(
+        searchKey,
+        'createdDate',
+        'desc',
+        undefined,
+        undefined,
+        currentPage,
+        pageSize
+      );
+      if (response.statusCode === 200) {
+        const untagged = response.data.list.filter(
+          (report) => report.image && !report.isTrainned
+        );
+        setUntaggedReports(untagged);
+        setTotalImages(untagged.length);
+      }
+    } catch (error) {
+      toast.error('Failed to fetch untagged reports.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTags = async () => {
+    try {
+      const response = await expertService.getTags();
+      if (response.statusCode === 200) {
+        setTags(response.data || []);
+      }
+    } catch (error) {
+      toast.error('Failed to fetch tags.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [tagNameFilter, orderBy, pageIndex]);
+    fetchTags();
+  }, []);
 
-  const fetchData = async () => {
-    const prop: GetImageRequest = {
-        tagName: tagNameFilter,
-        orderBy,
-        pageIndex,
-        pageSize,
+  useEffect(() => {
+    if (viewMode === 'tagged') {
+      fetchTaggedImages();
+    } else {
+      fetchUntaggedReports();
     }
-    const imageResponse = await expertService.getAllImage(prop);
-    const tagResponse = await expertService.getTags();
-    if (imageResponse.statusCode === 200 && tagResponse.statusCode === 200) {
-      // Giả định BE không trả tag trong image, thêm tags rỗng
-      const images = imageResponse.data.map(img => ({ ...img, tags: [] }));
-      setTaggedImages(images.filter(img => img.tags.length > 0));
-      setUntaggedImages(images.filter(img => img.tags.length === 0));
-      setTags(tagResponse.data);
-      setTotalImages(imageResponse.data.length); // Giả định BE trả total, cần điều chỉnh nếu có API metadata
-    }
-  };
+  }, [viewMode, currentPage, tagFilter, searchKey]);
 
-  const handleTagImage = (id: string) => {
-    const image = untaggedImages.find(img => img.id === id);
-    if (image) {
-      setSelectedImageId(id);
-      setSelectedReportId(Math.floor(Math.random() * 1000)); // Giả lập, thay bằng logic thật từ BE
-    }
-  };
-
-  const handleTagSelect = async (request: AssignTagRequest) => {
-    if (selectedImageId) {
-      const response = await expertService.assignTag(request);
-      if (response.statusCode === 200) {
-        const tag = tags.find(t => t.id === request.tagId);
-        if (tag) {
-          const image = untaggedImages.find(img => img.id === selectedImageId);
-          if (image) {
-            const updatedImage = { ...image, tags: [...image.tags, tag] };
-            setUntaggedImages(untaggedImages.filter(img => img.id !== selectedImageId));
-            setTaggedImages([...taggedImages, updatedImage]);
-          }
-        }
-      }
+  const handleRetrain = async () => {
+    setLoading(true);
+    try {
+      // Giả định API retrainCustomVision
+      toast.success('Re-training started successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error('Failed to start re-training.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleAddTag = async (name: string) => {
-    const response = await expertService.addTag(name);
-    if (response.statusCode === 200) {
-      setTags([...tags, { id: Date.now().toString(), name, type: 'disease', imageCount: 0 }]);
-    }
-  };
-
-  const handleUpdateTag = async (id: string, name: string) => {
-    const response = await expertService.updateTag(id, name);
-    if (response.statusCode === 200) {
-      setTags(tags.map(tag => (tag.id === id ? { ...tag, name } : tag)));
-    }
-  };
-
-  const handleDeleteTag = async (id: string) => {
-    const response = await expertService.deleteTag(id);
-    if (response.statusCode === 200) {
-      setTags(tags.filter(tag => tag.id !== id));
-    }
-  };
-
-  const handleTrain = async () => {
-    // const response = await expertService.trainModel();
-    // if (response.statusCode === 200) {
-    //   console.log('Model trained successfully');
-    // }
-  };
-
-  const totalPages = Math.ceil(totalImages / pageSize);
 
   return (
-    <div className="custom-vision-management-screen">
-      <div className="filter-section">
-        <h1 className="main-title">Custom Vision Management</h1>
-        <div className="filters">
-          <input
-            type="text"
-            className="filter-input"
-            placeholder="Filter by tag name..."
-            value={tagNameFilter}
-            onChange={(e) => setTagNameFilter(e.target.value)}
+    <div className={style.imageManagementScreen}>
+      <div className={style.header}>
+        <h2>Image Management</h2>
+        <Button
+          type="primary"
+          className={style.retrainButton}
+          onClick={handleRetrain}
+          loading={loading}
+        >
+          <FilterOutlined /> Re-train Custom Vision
+        </Button>
+      </div>
+
+      <Segmented
+        className={style.segmented}
+        value={viewMode}
+        onChange={(value) => setViewMode(value as 'tagged' | 'untagged')}
+        options={[
+          { label: 'Tagged Images', value: 'tagged' },
+          { label: 'Untagged Images', value: 'untagged' },
+        ]}
+      />
+
+      <div className={style.filterSection}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {viewMode === 'tagged' ? (
+            <Select
+              value={tagFilter}
+              onChange={setTagFilter}
+              className={style.filterSelect}
+              placeholder="Filter by Tag"
+              allowClear
+            >
+              {tags.map((tag) => (
+                <Option key={tag.id} value={tag.name}>
+                  {tag.name}
+                </Option>
+              ))}
+            </Select>
+          ) : (
+            <>
+              <Search
+                placeholder="Search reports..."
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
+                className={style.searchInput}
+              />
+              <Button
+                type="primary"
+                onClick={() => setShowTagModal(true)}
+                style={{ borderRadius: '20px' }}
+              >
+                <TagsOutlined /> Manage Tags
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <Spin size="large" className={style.loader} />
+      ) : viewMode === 'tagged' ? (
+        taggedImages.length > 0 ? (
+          <>
+            <div className={style.imageGrid}>
+              {taggedImages.map((image) => (
+                <ImageCard
+                  key={image.id}
+                  image={image}
+                  tagName={tagFilter || 'Unknown Disease'} // Giả định tagName, nếu API trả về tag thì thay thế
+                />
+              ))}
+            </div>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={totalImages}
+              onChange={setCurrentPage}
+              className={style.pagination}
+              showSizeChanger={false}
+            />
+          </>
+        ) : (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="No tagged images found"
+            className={style.emptyState}
           />
-          <select
-            className="filter-select"
-            value={orderBy}
-            onChange={(e) => setOrderBy(e.target.value)}
-          >
-            <option value="created">Sort by Created Date</option>
-            <option value="width">Sort by Width</option>
-            <option value="height">Sort by Height</option>
-          </select>
-        </div>
-      </div>
-
-      <section className="section">
-        <h2 className="title">Tagged Images ({taggedImages.length})</h2>
-        <div className="image-grid">
-          {taggedImages.map(image => (
-            <ImageCard key={image.id} image={image} onTag={handleTagImage} />
-          ))}
-        </div>
-      </section>
-
-      <section className="section">
-        <h2 className="title">Untagged Images ({untaggedImages.length})</h2>
-        <div className="image-grid">
-          {untaggedImages.map(image => (
-            <ImageCard key={image.id} image={image} onTag={handleTagImage} />
-          ))}
-        </div>
-      </section>
-
-      <div className="pagination">
-        <button
-          className="pagination-button"
-          disabled={pageIndex === 1}
-          onClick={() => setPageIndex(pageIndex - 1)}
-        >
-          Previous
-        </button>
-        <span className="pagination-info">Page {pageIndex} of {totalPages}</span>
-        <button
-          className="pagination-button"
-          disabled={pageIndex === totalPages}
-          onClick={() => setPageIndex(pageIndex + 1)}
-        >
-          Next
-        </button>
-      </div>
-
-      {selectedImageId && selectedReportId && (
-        <TagManager
-          tags={tags}
-          selectedTags={untaggedImages.find(img => img.id === selectedImageId)?.tags || []}
-          onTagSelect={handleTagSelect}
-          onAddTag={handleAddTag}
-          onUpdateTag={handleUpdateTag}
-          onDeleteTag={handleDeleteTag}
-          onClose={() => {
-            setSelectedImageId(null);
-            setSelectedReportId(null);
-          }}
-          reportId={selectedReportId}
+        )
+      ) : untaggedReports.length > 0 ? (
+        <>
+          <div className={style.imageGrid}>
+            {untaggedReports.map((report) => (
+              <UntaggedImageCard
+                key={report.reportID}
+                report={report}
+                tags={tags}
+                onTagAssigned={fetchUntaggedReports}
+              />
+            ))}
+          </div>
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={totalImages}
+            onChange={setCurrentPage}
+            className={style.pagination}
+            showSizeChanger={false}
+          />
+        </>
+      ) : (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="No untagged images found"
+          className={style.emptyState}
         />
       )}
-      <TrainingButton onTrain={handleTrain} />
+
+      {showTagModal && (
+        <TagManagementModal
+          tags={tags}
+          onClose={() => setShowTagModal(false)}
+          onTagUpdated={() => {
+            fetchTags();
+            setShowTagModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default ImageManagement;
+export default ImageManagementScreen;

@@ -23,7 +23,14 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, tagName }) => {
           src={image.thumbnailUri || image.originalImageUri}
           alt="Tagged Image"
           className={style.cardImage}
+          crossOrigin='anonymous'
         />
+        {/* <img
+          src={`/blob${image.thumbnailUri.split('irisprodseatraining.blob.core.windows.net')[1]}`}
+          alt="Tagged Image"
+          className={style.cardImage}
+          crossOrigin="anonymous"
+        /> */}
       </div>
       <div className={style.cardContent}>
         <div className={style.tagBadge}>

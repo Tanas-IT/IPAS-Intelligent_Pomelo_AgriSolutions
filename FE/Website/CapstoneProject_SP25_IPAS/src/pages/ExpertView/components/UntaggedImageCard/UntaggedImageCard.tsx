@@ -3,7 +3,7 @@ import { Button, Select, Spin } from 'antd';
 import { GetReportResponse, GetTagResponse, AssignTagRequest } from '@/payloads';
 import { expertService } from '@/services';
 import { toast } from 'react-toastify';
-import style from '../../screens/ImageManagement.module.scss';
+import style from './UntaggedImageCard.module.scss';
 
 const { Option } = Select;
 
@@ -27,27 +27,27 @@ const UntaggedImageCard: React.FC<UntaggedImageCardProps> = ({ report, tags, onT
     }
 
     setLoading(true);
-    try {
-      const data: AssignTagRequest = {
-        imageId: report.image.id,
-        tagId: selectedTag,
-      };
-      const response = await expertService.assignTag(data);
-      if (response.statusCode === 200) {
-        toast.success('Tag assigned successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-        });
-        onTagAssigned();
-      }
-    } catch (error) {
-      toast.error('Failed to assign tag. Please try again.', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   const data: AssignTagRequest = {
+    //     imageId: report.image.id,
+    //     tagId: selectedTag,
+    //   };
+    //   const response = await expertService.assignTag(data);
+    //   if (response.statusCode === 200) {
+    //     toast.success('Tag assigned successfully!', {
+    //       position: 'top-right',
+    //       autoClose: 3000,
+    //     });
+    //     onTagAssigned();
+    //   }
+    // } catch (error) {
+    //   toast.error('Failed to assign tag. Please try again.', {
+    //     position: 'top-right',
+    //     autoClose: 3000,
+    //   });
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

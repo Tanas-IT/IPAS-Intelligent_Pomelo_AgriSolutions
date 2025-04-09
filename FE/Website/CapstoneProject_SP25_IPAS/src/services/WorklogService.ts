@@ -114,4 +114,10 @@ export const addWorklogNote = async (
     const apiResponse = res.data as ApiResponse<Object>;
     return apiResponse;
   }
+
+  export const getWorklogStatus = async (): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.get(`work-log/status-work-log-for-manager`);
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  }
   

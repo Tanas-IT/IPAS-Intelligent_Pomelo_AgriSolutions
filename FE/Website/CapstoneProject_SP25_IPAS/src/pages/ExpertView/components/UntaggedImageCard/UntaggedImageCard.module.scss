@@ -1,0 +1,81 @@
+.untaggedImageCard {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+  
+    .cardImageWrapper {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+  
+      .cardImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+  
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  
+    .cardContent {
+      padding: 16px;
+  
+      .question {
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: 'Inter', sans-serif;
+      }
+  
+      .meta {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 16px;
+        font-family: 'Inter', sans-serif;
+      }
+  
+      .tagSection {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+  
+        .tagSelect {
+          width: 100%;
+          border-radius: 8px;
+        }
+  
+        .assignButton {
+          background: linear-gradient(90deg, #2e7d32, #66bb6a);
+          border: none;
+          border-radius: 20px;
+          padding: 6px 16px;
+          font-weight: 500;
+          color: white;
+          transition: all 0.3s ease;
+  
+          &:hover {
+            background: linear-gradient(90deg, #256428, #4caf50);
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }

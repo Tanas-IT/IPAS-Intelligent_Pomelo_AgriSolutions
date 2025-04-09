@@ -11,6 +11,8 @@ export const getAllImage = async (req: GetImageRequest): Promise<ApiResponse<Get
     );
     const res = await axiosAuth.axiosJsonRequest.get(`ai/get-all-image`, { params });
     const apiResponse = res.data as ApiResponse<GetImageResponse[]>;
+    console.log('Responseeeee555555555555555555:', apiResponse);
+    
     return apiResponse;
 };
 
