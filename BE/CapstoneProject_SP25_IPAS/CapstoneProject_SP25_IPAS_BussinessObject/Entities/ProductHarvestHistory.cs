@@ -14,7 +14,7 @@ public partial class ProductHarvestHistory
 
     public string? Unit { get; set; }
 
-    public double? SellPrice { get; set; }
+    public double? Revenue { get; set; }
     public double? CostPrice { get; set; }
 
     public double? QuantityNeed { get; set; }

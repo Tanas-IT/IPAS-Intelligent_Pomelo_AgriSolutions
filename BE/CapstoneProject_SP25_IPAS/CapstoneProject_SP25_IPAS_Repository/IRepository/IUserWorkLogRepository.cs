@@ -16,5 +16,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<bool> CheckUserConflictByStartDateAndEndDate(int userId, TimeSpan startTime, TimeSpan endTime, DateTime startDate, DateTime endDate);
 
         public Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogId(int workLogId);
+        public Task<List<UserWorkLog>> GetListUserWorkLogToStatistic(int farmId);
     }
 }

@@ -16,10 +16,12 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using MimeKit;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Pkcs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -2394,7 +2396,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var parseEndTime = TimeSpan.TryParse(addNewTaskModel.NewEndTime, out var endTime);
 
 
-                var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getFailedOrRedoWorkLog.Schedule.CarePlanId && x.FarmID == farmId);
+                var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getFailedOrRedoWorkLog.Schedule.CarePlanId && x.FarmID == farmId, "PlanTargets");
                 if(getExistPlan == null)
                 {
                     return new BusinessResult(400, "Plan does not exist");
@@ -2425,6 +2427,50 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                        getExistPlan.MasterTypeId,
                                                                         addNewTaskModel.NewListEmployee.Select(x => x.UserId).ToList()
                                                                    );
+                var createNewPlan = new Plan()
+                {
+                    PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
+                    PlanName = getExistPlan.PlanName,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    IsSample = true,
+                    AssignorId = getExistPlan.AssignorId,
+                    CropId = getExistPlan.CropId,
+                    EndDate = addNewTaskModel?.NewDateWork.Date.Add(endTime),
+                    StartDate = addNewTaskModel?.NewDateWork.Date.Add(startTime),
+                    Frequency = getExistPlan?.Frequency,
+                    IsActive = getExistPlan?.IsActive,
+                    IsDeleted = false,
+                    MasterTypeId = getExistPlan?.MasterTypeId,
+                    MaxVolume = getExistPlan?.MaxVolume,
+                    MinVolume = getExistPlan?.MinVolume,
+                    Notes = getExistPlan?.Notes,
+                    PesticideName = getExistPlan?.PesticideName,
+                    ResponsibleBy = getExistPlan?.ResponsibleBy,
+                    ProcessId = getExistPlan?.ProcessId,
+                    Status = "Active",
+                    FarmID = farmId,
+                    PlanDetail = getExistPlan?.PlanDetail,
+                }; 
+                if(getExistPlan.PlanTargets != null)
+                {
+                    foreach(var planTarget in getExistPlan.PlanTargets)
+                    {
+                        var newPlanTarget = new PlanTarget()
+                        {
+                            LandPlotID = planTarget.LandPlotID,
+                            LandRowID = planTarget.LandRowID,
+                            PlantID = planTarget.PlantID,
+                            PlantLotID = planTarget.PlantLotID,
+                            Unit = planTarget.Unit,
+                            GraftedPlantID = planTarget.GraftedPlantID,
+                        };
+                        createNewPlan.PlanTargets.Add(newPlanTarget);
+                    }
+                }
+                
+                await _unitOfWork.PlanRepository.Insert(createNewPlan);
+                await _unitOfWork.SaveAsync();
                 var newSchedule = new CarePlanSchedule()
                 {
                     Status = "Active",
@@ -2435,8 +2481,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     CustomDates = "[" + JsonConvert.SerializeObject(addNewTaskModel.NewDateWork.ToString("yyyy/MM/dd")) + "]",
                     FarmID = farmId,
                 };
+                createNewPlan.CarePlanSchedule = newSchedule;
 
-               
                 await _unitOfWork.CarePlanScheduleRepository.Insert(newSchedule);
                 await _unitOfWork.SaveAsync();
                 var getStatusRedo = await _unitOfWork.SystemConfigRepository
@@ -2586,6 +2632,118 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); 
+            }
+        }
+
+        public async Task<BusinessResult> StatisticWorkLog(int farmId, int? userId, string? groupBy,DateTime? fromDate,DateTime? toDate)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(groupBy)) groupBy = "day";
+                var getForStatistic = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogToStatistic(farmId);
+                if (userId.HasValue)
+                    getForStatistic = getForStatistic.Where(x => x.UserId == userId.Value).ToList();
+                if (fromDate.HasValue && toDate.HasValue)
+                    getForStatistic = getForStatistic.Where(x => x.WorkLog.Date >= fromDate && x.WorkLog.Date <= toDate).ToList();
+
+                var grouped = groupBy switch
+                {
+                    "day" => getForStatistic.GroupBy(x => new StatisticByDateYear()
+                    {
+                        UserId = x.UserId,
+                        FullName = x.User.FullName,
+                        Date = x.WorkLog.Date!.Value.Date,
+                        Year = x.WorkLog.Date!.Value.Year
+                    }),
+
+                    "month" => getForStatistic.GroupBy(x => new StatisticByDateYear()
+                    {
+                        UserId = x.UserId,
+                        FullName = x.User.FullName,
+                        Month = x.WorkLog.Date!.Value.Month,
+                        Year = x.WorkLog.Date!.Value.Year
+                    }),
+                    _ => getForStatistic.GroupBy(x => new StatisticByDateYear(){
+                        UserId= x.UserId,
+                        FullName = x.User.FullName,
+                        Date = x.WorkLog.Date!.Value.Date
+                    })
+                };
+
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                        .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                var result =  grouped.Select(g => new EmployeeProductivityTimeDto
+                {
+                    UserId = g.Key.UserId.Value,
+                    FullName = g.Key.FullName,
+
+                    Date = groupBy == "day" ? g.Key.Date : null,
+                    Month = groupBy == "month" ? (int?)g.Key.Month : null,
+                    Year = groupBy == "year" ? (int?)g.Key.Year : null,
+
+                    TotalWorkLogs = g.Count(),
+                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == "Done"),
+                    CompletionRate = g.Count(x => x.WorkLog.Status == "Done") * 100.0 / g.Count(),
+
+                    TotalWorkingTime = TimeSpan.FromMinutes(
+            g.Where(x => x.WorkLog.ActualStartTime != null && x.WorkLog.ActualEndTime != null)
+             .Sum(x => (x.WorkLog.ActualEndTime.Value - x.WorkLog.ActualStartTime.Value).TotalMinutes)
+        )
+                }).ToList();
+                var getAllUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetAllNoPaging(includeProperties:"WorkLog");
+                var userReplacements = getAllUserWorkLog.Where(x => x.IsDeleted == false)
+                                .GroupBy(x => x.UserId)
+                                .Select(g => new
+                                {
+                                    UserId = g.Key,
+                                    ReplaceOthersCount = g.Count(x => x.ReplaceUserId == g.Key),
+                                    ReplacedByOthersCount = g.Count(x => x.ReplaceUserId != null)
+                                }).ToList();
+
+                var redoWorkLogIds = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
+                        var checkWorkLog = redoWorkLogIds.Where(x => x.RedoWorkLogID != null && x.IsDeleted == false)
+                                        .Select(x => x.RedoWorkLogID.Value)
+                                        .Distinct()
+                                        .ToList();
+                var redoWorkLogs = getAllUserWorkLog
+                                    .Where(x => x.IsDeleted == false && x.WorkLog.RedoWorkLogID != null && x.ReplaceUserId == null)
+                                    .Where(x => checkWorkLog.Contains(x.WorkLogId))
+                                    .GroupBy(x => x.UserId)
+                                    .Select(g => new
+                                    {
+                                        UserId = g.Key,
+                                        RedoWorkCount = g.Count(),
+                                        RedoWorkCompletionRate = g.Count(x => x.WorkLog.Status == getStatusDone) * 100.0 / g.Count()
+                                    }).ToList();
+
+
+                foreach (var item in result)
+                {
+                    var replace = userReplacements.FirstOrDefault(x => x.UserId == item.UserId);
+                    if (replace != null)
+                    {
+                        item.ReplaceOthersCount = replace.ReplaceOthersCount;
+                        item.ReplacedByOthersCount = replace.ReplacedByOthersCount;
+                    }
+
+                    var redo = redoWorkLogs.FirstOrDefault(x => x.UserId == item.UserId);
+                    if (redo != null)
+                    {
+                        item.RedoWorkCount = redo.RedoWorkCount;
+                        item.RedoWorkCompletionRate = redo.RedoWorkCompletionRate;
+                    }
+                }
+                if(result != null && result.Any())
+                {
+                    return new BusinessResult(200, "Get Statistic Employee Success", result);
+                }
+                return new BusinessResult(400, "Get Statistic Employee Failed");
+                
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

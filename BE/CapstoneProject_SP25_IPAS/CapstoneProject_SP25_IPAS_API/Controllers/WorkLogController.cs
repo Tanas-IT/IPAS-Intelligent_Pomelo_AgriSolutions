@@ -517,5 +517,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.WorkLog.GetStatisticForEmployee, Name = "GetStatisticForEmployee")]
+        public async Task<IActionResult> GetStatisticForEmployee(int? farmId, int? userId, string? groupBy, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.StatisticWorkLog(farmId.Value, userId, groupBy, fromDate, toDate);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

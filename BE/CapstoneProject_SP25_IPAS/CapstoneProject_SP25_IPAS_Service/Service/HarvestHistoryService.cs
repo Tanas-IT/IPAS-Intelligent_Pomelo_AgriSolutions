@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var historyType = new ProductHarvestHistory()
                             {
                                 MasterTypeId = item.MasterTypeId,
-                                SellPrice = item.SellPrice,
+                                Revenue = item.SellPrice,
                                 CostPrice = item.CostPrice,
                                 Unit = item.Unit,
                                 QuantityNeed = item.QuantityNeed,
@@ -228,15 +228,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         HarvestHistoryId = createRequest.HarvestHistoryId.Value,
                         //PlantId = createRequest.PlantId,  // Có thể NULL nếu chưa có cây cụ thể
                         Unit = createRequest.Unit,
-                        SellPrice = createRequest.SellPrice,
+                        Revenue = createRequest.SellPrice,
                         CostPrice = createRequest.CostPrice,
                         QuantityNeed = createRequest.Quantity
                     };
                     await _unitOfWork.ProductHarvestHistoryRepository.Insert(newHarvestEntry);
                     //}
-                    if (existingProductHarvest!.SellPrice.HasValue)
+                    if (existingProductHarvest!.Revenue.HasValue)
                     {
-                        existHarvest.TotalPrice = existHarvest.TotalPrice!.GetValueOrDefault() + newHarvestEntry.SellPrice.Value;
+                        existHarvest.TotalPrice = existHarvest.TotalPrice!.GetValueOrDefault() + newHarvestEntry.Revenue.Value;
                         _unitOfWork.HarvestHistoryRepository.Update(existHarvest);
                     }
                     // 5. Lưu thay đổi vào database
@@ -719,7 +719,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(relatedHarvestHistories);
                         }
                         if (updateRequest.SellPrice.HasValue)
-                            harvestHistory.SellPrice = updateRequest.SellPrice;
+                            harvestHistory.Revenue = updateRequest.SellPrice;
                         if (updateRequest.CostPrice.HasValue)
                             harvestHistory.CostPrice = updateRequest.CostPrice;
                     }
