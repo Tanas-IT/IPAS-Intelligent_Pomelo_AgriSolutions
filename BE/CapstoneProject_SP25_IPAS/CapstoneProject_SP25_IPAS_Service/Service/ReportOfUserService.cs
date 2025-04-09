@@ -197,9 +197,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 else
                 {
                     filter = filter.And(x => x.ReportCode.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.ImageURL.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Answerer.FullName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Questioner.FullName.ToLower().Contains(paginationParameter.Search.ToLower()));
+                                  || x.Description.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.QuestionOfUser.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.AnswerFromExpert.ToLower().Contains(paginationParameter.Search.ToLower()));
                 }
             }
 

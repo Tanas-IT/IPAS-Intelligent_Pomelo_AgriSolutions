@@ -1618,7 +1618,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     IsDeleted = false,
                     FarmID = plan.FarmID,
-                    DayOfWeek = JsonConvert.SerializeObject(createPlanModel.DayOfWeek),
+                    DayOfWeek = null,
                     DayOfMonth = null,
                     CustomDates = null,
                     StartTime = TimeSpan.Parse(createPlanModel.StartTime),
