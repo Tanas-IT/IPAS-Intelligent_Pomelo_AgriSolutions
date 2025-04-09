@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CapstoneProject_SP25_IPAS_Repository.Repository
 {
@@ -84,6 +85,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.UserWorkLogs
                 .Include(x => x.User)
                 .Include(x => x.WorkLog).Where(x => x.WorkLogId == workLogId).ToListAsync();
+            return result;
+        }
+
+        public async Task<List<UserWorkLog>> GetListUserWorkLogToStatistic(int farmId)
+        {
+            var result = await _context.UserWorkLogs
+                .Include(x => x.User)
+                .Include(x => x.WorkLog)
+                .ThenInclude(x => x.Schedule)
+                 .Where(uwl => uwl.IsDeleted == false
+                     && uwl.ReplaceUserId == null
+                     && uwl.WorkLog.IsDeleted == false
+                     && uwl.WorkLog.Schedule.FarmID == farmId
+                     && uwl.WorkLog.RedoWorkLogID == null).ToListAsync();
+           
             return result;
         }
     }
