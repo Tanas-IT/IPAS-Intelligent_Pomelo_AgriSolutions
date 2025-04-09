@@ -12,7 +12,7 @@ import {
   PlantGrowthHistoryRequest,
   PlantRequest,
 } from "@/payloads";
-import { buildParams, getFileFormat, getUserId } from "@/utils";
+import { buildParams, getFarmId, getFileFormat, getUserId } from "@/utils";
 
 export const getPlants = async (landRowId: number): Promise<ApiResponse<GetPlantSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-plant-of-row/${landRowId}`);
@@ -99,6 +99,23 @@ export const getPlantNoPositionSelect = async (): Promise<ApiResponse<GetPlant[]
 
 export const getPlantOfRow = async (landRowId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-for-selected-by-row/${landRowId}`);
+  const apiResponse = res.data as ApiResponse<GetPlantOfRowSelect[]>;
+  return apiResponse;
+};
+
+export const getPlantOfActiveFunction = async (
+  actFunction: string,
+  // plotId?: number,
+  rowId?: number,
+) => {
+  const params = new URLSearchParams();
+  // if (plotId !== undefined) params.append("plotId", plotId.toString());
+  if (rowId !== undefined) params.append("rowId", rowId.toString());
+  params.append("actFunction", actFunction);
+
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `plants/get-for-selected/active-function?${params.toString()}`,
+  );
   const apiResponse = res.data as ApiResponse<GetPlantOfRowSelect[]>;
   return apiResponse;
 };

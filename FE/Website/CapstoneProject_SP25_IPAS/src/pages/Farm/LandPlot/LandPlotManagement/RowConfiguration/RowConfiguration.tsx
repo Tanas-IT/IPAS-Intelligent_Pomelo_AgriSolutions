@@ -55,6 +55,9 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
         <Form form={form} className={style.formContainer}>
           <Flex className={style.formSection}>
             <label className={style.sectionLabel}>Set Up Row</label>
+            <div className={style.unitNote}>
+              <i>Note: Distances are in pixels (px). In this setup, 1 meter ≈ 10 px.</i>
+            </div>
             <Flex className={style.setupSection}>
               <Flex className={style.row}>
                 <InfoField
@@ -130,6 +133,9 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
           {/* Tree Setup Section */}
           <Flex className={style.formSection}>
             <label className={style.sectionLabel}>Set Up Plants in Rows</label>
+            <div className={style.unitNote}>
+              <i>Note: Distances are in pixels (px). In this setup, 1 meter ≈ 10 px.</i>
+            </div>
             <Flex className={style.setupSection}>
               <Flex className={style.row}>
                 <InfoField

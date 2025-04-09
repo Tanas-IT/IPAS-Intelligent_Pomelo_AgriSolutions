@@ -101,7 +101,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
   { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
   { path: PATHS.CROP.CROP_LIST, component: CropList, layout: ManagementLayout },
-  { path: PATHS.CROP.CROP_DETAIL, component: CropDetails, layout: ManagementLayout },
+
   { path: PATHS.CROP.HARVEST_DAYS, component: HarvestDays, layout: ManagementLayout },
   { path: PATHS.CROP.PLANT_YIELD, component: PlantYield, layout: ManagementLayout },
   { path: PATHS.CLASSIFICATION.MASTER_TYPE, component: MasterType, layout: ManagementLayout },
@@ -109,6 +109,12 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.CLASSIFICATION.PRODUCT, component: Product, layout: ManagementLayout },
   {
     path: PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+    component: ProductDetails,
+    layout: ManagementLayout,
+  },
+  { path: PATHS.CROP.CROP_DETAIL, component: CropDetails, layout: ManagementLayout },
+  {
+    path: PATHS.CLASSIFICATION.PRODUCT_DETAIL_FROM_CROP,
     component: ProductDetails,
     layout: ManagementLayout,
   },

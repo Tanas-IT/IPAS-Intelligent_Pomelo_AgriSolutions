@@ -21,8 +21,8 @@ export interface PlantDetailData {
   plantName: string;
   plantIndex: number;
   healthStatus: string;
-  createDate: string;
-  updateDate: string;
+  // createDate: string;
+  // updateDate: string;
   plantingDate: string;
   description: string;
   masterTypeId: number;
@@ -33,12 +33,12 @@ export interface PlantDetailData {
   landPlotName: string;
   masterTypeName: string;
   characteristic: string;
-  growthStageID: number;
+  // growthStageID: number;
   growthStageName: string;
   isDead: boolean;
   isPassed: boolean;
-  passedDate: string | null;
-  criteriaSummary: CriteriaSummary[];
+  // passedDate: string | null;
+  // criteriaSummary: CriteriaSummary[];
   growthHistory: PlantGrowthHistory[];
   graftedPlants: GraftedPlantSummary[];
   harvestHistory: HarvestSummary[];

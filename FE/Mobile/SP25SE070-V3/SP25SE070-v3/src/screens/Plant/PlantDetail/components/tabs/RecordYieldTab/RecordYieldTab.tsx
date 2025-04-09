@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { PlantDetailData } from "@/types/plant";
 import { HarvestRecord, CreateHarvestRecordRequest } from "@/types/harvest";
 import Toast from "react-native-toast-message";
 import DateRangePicker from "../../DateRangePicker";
@@ -15,6 +14,8 @@ import AddRecordModal from "../../AddRecordModal";
 import ConfirmModal from "../../ConfirmModal";
 import { styles } from "./RecordYieldTab.styles";
 import { CustomIcon, TextCustom } from "@/components";
+import { GetPlantDetail } from "@/payloads";
+import { PlantDetailData } from "@/types";
 
 interface RecordYieldTabProps {
   plant: PlantDetailData;

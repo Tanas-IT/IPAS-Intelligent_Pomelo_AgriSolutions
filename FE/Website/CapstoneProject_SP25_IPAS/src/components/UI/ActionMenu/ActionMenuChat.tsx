@@ -23,9 +23,9 @@ const ActionMenuChat: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
   ].filter(Boolean) as ActionMenuItem[];
 
   return (
-    <>
+    <div onClick={(e) => e.stopPropagation()}>
       <ActionMenu title="Chat Manage" items={actionItems} />
-    </>
+    </div>
   );
 };
 

@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { PlantDetailRouteProp } from "@/constants/Types";
 import { useRoute } from "@react-navigation/native";
-import { PlantDetailData } from "@/types/plant";
-import PlantHeader from "./components/PlantHeader";
 import BasicInfoTab from "./components/tabs/BasicInfoTab/BasicInfoTab";
 import GrowthHistoryTab from "./components/tabs/GrowthHistoryTab/GrowthHistoryTab";
 import GraftedPlantsTab from "./components/tabs/GraftedPlantsTab/GraftedPlantsTab";
@@ -11,61 +9,12 @@ import HarvestHistoryTab from "./components/tabs/HarvestHistoryTab/HarvestHistor
 import { styles } from "./PlantDetailScreen.styles";
 import TabButton from "./components/TabButton";
 import RecordYieldTab from "./components/tabs/RecordYieldTab/RecordYieldTab";
-
-const PlantDetailScreen: React.FC = () => {
-  const route = useRoute<PlantDetailRouteProp>();
-  const { plantId } = route.params;
-  const [activeTab, setActiveTab] = useState("basic");
-
-  const tabs = [
-    { iconName: "information", label: "Basic", value: "basic" },
-    { iconName: "chart-line", label: "Growth", value: "growth" },
-    { iconName: "tree", label: "Grafted", value: "grafted" },
-    { iconName: "note-edit", label: "Record", value: "record" },
-    { iconName: "basket", label: "Harvest", value: "harvest" },
-  ];
-
-  const [plant] = useState<PlantDetailData>(mockPlantData);
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "basic":
-        return <BasicInfoTab plant={plant} />;
-      case "growth":
-        return <GrowthHistoryTab plant={plant} />;
-      case "grafted":
-        return <GraftedPlantsTab plant={plant} />;
-      case "record":
-        return <RecordYieldTab plant={plant} />;
-      case "harvest":
-        return <HarvestHistoryTab plant={plant} />;
-      default:
-        return <BasicInfoTab plant={plant} />;
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <PlantHeader plant={plant} />
-      {/* Custom Tab */}
-      <View style={styles.tabBar}>
-        {tabs.map((tab) => (
-          <TabButton
-            key={tab.value}
-            iconName={tab.iconName}
-            label={tab.label}
-            isActive={activeTab === tab.value}
-            onPress={() => setActiveTab(tab.value)}
-          />
-        ))}
-      </View>
-      {/* Tab Content */}
-      <View style={styles.tabContent}>{renderTabContent()}</View>
-    </View>
-  );
-};
-
-export default PlantDetailScreen;
+import { GetPlantDetail } from "@/payloads";
+import { PlantService } from "@/services";
+import { Loading } from "@/components";
+import { usePlantStore } from "@/store";
+import PlantDetailHeader from "../PlantDetailHeader/PlantDetailHeader";
+import { PlantDetailData } from "@/types";
 
 const mockPlantData: PlantDetailData = {
   plantId: 2,
@@ -73,8 +22,6 @@ const mockPlantData: PlantDetailData = {
   plantName: "Green Skin Pomelo Bccc",
   plantIndex: 2,
   healthStatus: "Moderate",
-  createDate: "2024-02-02T00:00:00",
-  updateDate: "2024-02-06T00:00:00",
   plantingDate: "2024-01-20T00:00:00",
   description:
     "Green Skin Pomelo - Type B\nThis plant shows good growth potential with proper care.",
@@ -87,15 +34,10 @@ const mockPlantData: PlantDetailData = {
   landPlotName: "Plot A",
   masterTypeName: "Green Skin Pomelo",
   characteristic: "Green skin, Sweet taste, Medium size fruit",
-  growthStageID: 2,
   growthStageName: "Vegetative Growth",
   isDead: false,
   isPassed: false,
-  passedDate: null,
-  criteriaSummary: [
-    { criteriaId: 1, criteriaName: "Height", value: "1.2", unit: "m" },
-    { criteriaId: 2, criteriaName: "Leaf Count", value: "24", unit: "" },
-  ],
+
   growthHistory: [
     {
       plantGrowthHistoryId: 1,
@@ -160,3 +102,57 @@ const mockPlantData: PlantDetailData = {
     },
   ],
 };
+
+const tabs = [
+  { iconName: "information", label: "Basic", value: "basic" },
+  { iconName: "chart-line", label: "Growth", value: "growth" },
+  { iconName: "tree", label: "Grafted", value: "grafted" },
+  { iconName: "note-edit", label: "Record", value: "record" },
+  { iconName: "basket", label: "Harvest", value: "harvest" },
+];
+
+const PlantDetailScreen: React.FC = () => {
+  const route = useRoute<PlantDetailRouteProp>();
+  const { plantId } = route.params;
+  const [activeTab, setActiveTab] = useState("basic");
+  const [plant, setPlant] = useState(mockPlantData);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "basic":
+        return <BasicInfoTab plantId={Number(plantId)} />;
+      case "growth":
+        return <GrowthHistoryTab />;
+      case "grafted":
+        return <GraftedPlantsTab plant={plant} />;
+      case "record":
+        return <RecordYieldTab plant={plant} />;
+      case "harvest":
+        return <HarvestHistoryTab plant={plant} />;
+      default:
+        return <BasicInfoTab plantId={Number(plantId)} />;
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <PlantDetailHeader />
+      {/* Custom Tab */}
+      <View style={styles.tabBar}>
+        {tabs.map((tab) => (
+          <TabButton
+            key={tab.value}
+            iconName={tab.iconName}
+            label={tab.label}
+            isActive={activeTab === tab.value}
+            onPress={() => setActiveTab(tab.value)}
+          />
+        ))}
+      </View>
+      {/* Tab Content */}
+      <View style={styles.tabContent}>{renderTabContent()}</View>
+    </View>
+  );
+};
+
+export default PlantDetailScreen;

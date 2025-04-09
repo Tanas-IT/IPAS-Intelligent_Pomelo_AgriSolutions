@@ -4,21 +4,21 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffcee',
+    backgroundColor: "#fffcee",
   },
   tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     paddingVertical: 10,
   },
   tabItem: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 8,
     borderRadius: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     minWidth: 60,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -33,8 +33,8 @@ export const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   activeLabel: {
-    color: 'white',
-    fontWeight: '600',
+    color: "white",
+    fontWeight: "600",
   },
   tabContent: {
     flex: 1,

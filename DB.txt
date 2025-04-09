@@ -1352,6 +1352,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 1.2 -- Branch Strength (cm diameter)
         WHEN CriteriaCode = 'CR029' THEN 5   -- Rooting Potential (cm root length)
         WHEN CriteriaCode = 'CR030' THEN 85  -- Disease Resistance (% healthy)
+		WHEN CriteriaCode = 'CR031' THEN 1.0
+        WHEN CriteriaCode = 'CR032' THEN 70
+        WHEN CriteriaCode = 'CR033' THEN 7.0
+        WHEN CriteriaCode = 'CR034' THEN 0.8
+        WHEN CriteriaCode = 'CR035' THEN 60
+        WHEN CriteriaCode = 'CR036' THEN 6.5
+        WHEN CriteriaCode = 'CR037' THEN 1.2
+        WHEN CriteriaCode = 'CR038' THEN 80
+        WHEN CriteriaCode = 'CR039' THEN 8.0
         ELSE MinValue
     END,
     MaxValue = CASE 
@@ -1391,6 +1400,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 2.5 -- Branch Strength (cm diameter)
         WHEN CriteriaCode = 'CR029' THEN 15  -- Rooting Potential (cm root length)
         WHEN CriteriaCode = 'CR030' THEN 100 -- Disease Resistance (% healthy)
+		WHEN CriteriaCode = 'CR031' THEN 1.5
+        WHEN CriteriaCode = 'CR032' THEN 100
+        WHEN CriteriaCode = 'CR033' THEN 10.0
+        WHEN CriteriaCode = 'CR034' THEN 1.2
+        WHEN CriteriaCode = 'CR035' THEN 90
+        WHEN CriteriaCode = 'CR036' THEN 9.0
+        WHEN CriteriaCode = 'CR037' THEN 1.6
+        WHEN CriteriaCode = 'CR038' THEN 100
+        WHEN CriteriaCode = 'CR039' THEN 10.0
         ELSE MaxValue
     END,
     Unit = CASE 
@@ -1430,11 +1448,15 @@ SET
         WHEN CriteriaCode = 'CR028' THEN 'cm'
         WHEN CriteriaCode = 'CR029' THEN 'cm'
         WHEN CriteriaCode = 'CR030' THEN '%'
+		WHEN CriteriaCode IN ('CR031', 'CR034', 'CR037') THEN 'kg'
+        WHEN CriteriaCode IN ('CR032', 'CR035', 'CR038') THEN '%'
+        WHEN CriteriaCode IN ('CR033', 'CR036', 'CR039') THEN 'score'
         ELSE Unit
     END
 WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR007', 'CR008', 'CR009', 'CR010',
                        'CR011', 'CR012', 'CR013', 'CR014', 'CR015', 'CR016', 'CR017', 'CR018', 'CR019', 'CR020',
-                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030');
+                       'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030',
+					   'CR031', 'CR032', 'CR033',  'CR034', 'CR035', 'CR036',  'CR037', 'CR038', 'CR039');
 
 GO
 INSERT INTO ipas.dbo.LandPlot (
@@ -1988,6 +2010,74 @@ INSERT INTO [dbo].[UserWorkLog]
 		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
 
+DECLARE @i INT = 0;
+WHILE @i < 10
+BEGIN
+    INSERT INTO ipas.dbo.ChatRoom (RoomCode, RoomName, CreateDate, AIResponseID, FarmID, UserID, CreateBy)
+    VALUES (
+        CONCAT('ROOM', FORMAT(@i + 1, '000')),
+        CONCAT(N'Phòng Chat ', @i + 1),
+        DATEADD(DAY, -@i, GETDATE()), -- Ngày tạo giảm dần từ hôm nay
+        NULL,
+        1,
+        3,
+        3
+    );
+
+    SET @i = @i + 1;
+END;
+
+DECLARE @roomId INT = 1;
+
+WHILE @roomId <= 10
+BEGIN
+    -- Giả lập câu hỏi - trả lời thứ 1
+    INSERT INTO ipas.dbo.ChatMessage (
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
+    )
+    VALUES (
+        N'Tôi cần thông tin về phân bón cho phòng ' + CAST(@roomId AS NVARCHAR),
+        N'Phân bón NPK là lựa chọn phù hợp với giai đoạn phát triển hiện tại của cây.',
+        DATEADD(MINUTE, 5, GETDATE()),
+        NULL,
+        3,
+        'A',
+        @roomId
+    );
+
+    -- Giả lập câu hỏi - trả lời thứ 2
+    INSERT INTO ipas.dbo.ChatMessage (
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
+    )
+    VALUES (
+        N'Tôi muốn biết độ ẩm đất ở khu vực này.',
+        N'Độ ẩm đất hiện tại là 65%, rất phù hợp để bón phân hữu cơ.',
+        DATEADD(MINUTE, 6, GETDATE()),
+        NULL,
+        3,
+        'A',
+        @roomId
+    );
+
+    -- Giả lập câu hỏi - trả lời thứ 3
+    INSERT INTO ipas.dbo.ChatMessage (
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
+    )
+    VALUES (
+        N'Thời điểm nào là tốt nhất để tưới nước?',
+        N'Tưới vào sáng sớm hoặc chiều mát sẽ giúp cây hấp thu nước hiệu quả hơn.',
+        DATEADD(MINUTE, 7, GETDATE()),
+        NULL,
+        3,
+        'A',
+        @roomId
+    );
+
+    SET @roomId = @roomId + 1;
+END;
 INSERT INTO [dbo].[Report]
     ([ReportCode], [Description], [CreateDate], [QuestionOfUser], [AnswerFromExpert],
      [ImageURL], [IsTrainned], [AnswererID], [QuestionerID])

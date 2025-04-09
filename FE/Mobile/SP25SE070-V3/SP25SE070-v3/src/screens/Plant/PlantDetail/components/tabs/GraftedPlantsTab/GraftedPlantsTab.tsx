@@ -6,10 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { PlantDetailData } from "@/types/plant";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "./GraftedPlantsTab.styles";
 import { CustomIcon, TextCustom } from "@/components";
+import { GetPlantDetail } from "@/payloads";
+import { PlantDetailData } from "@/types";
 
 const GraftedPlantsTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
   return (

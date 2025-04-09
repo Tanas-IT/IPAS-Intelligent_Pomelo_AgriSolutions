@@ -44,6 +44,7 @@ export interface productHarvestHistoryRes {
   sellPrice?: number;
   quantityNeed: number;
   productName?: string;
+  yieldHasRecord: number;
 }
 export interface UserWorkLog {
   userWorklogId: number;

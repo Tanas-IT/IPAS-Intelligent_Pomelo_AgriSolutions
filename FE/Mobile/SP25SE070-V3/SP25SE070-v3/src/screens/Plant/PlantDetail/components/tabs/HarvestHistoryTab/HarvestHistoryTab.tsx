@@ -10,10 +10,11 @@ import {
   Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { PlantDetailData } from "@/types/plant";
 import { styles } from "./HarvestHistoryTab.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
+import { GetPlantDetail } from "@/payloads";
+import { PlantDetailData } from "@/types";
 
 type OptionType = {
   id: number;

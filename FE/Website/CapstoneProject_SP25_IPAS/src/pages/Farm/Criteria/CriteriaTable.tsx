@@ -62,21 +62,12 @@ const columns = [
   },
 ];
 
-const CriteriaTable = ({ criteria, target }: { criteria: GetCriteria[]; target: string }) => {
-  const filteredColumns = columns.filter((col) => {
-    if (
-      target === CRITERIA_TARGETS.Product &&
-      ["minValue", "maxValue", "unit"].includes(col.dataIndex)
-    ) {
-      return false;
-    }
-    return true;
-  });
+const CriteriaTable = ({ criteria }: { criteria: GetCriteria[] }) => {
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
         className={style.criteriaTable}
-        columns={filteredColumns}
+        columns={columns}
         dataSource={criteria.map((c) => ({ ...c, key: c.criteriaId }))}
         pagination={false}
         bordered
