@@ -44,5 +44,6 @@ public partial class PlantLot
     public virtual PlantLot? PlantLotReference { get; set; }
     public virtual ICollection<PlanTarget> PlanTargets { get; set; } = new List<PlanTarget>();
     public virtual ICollection<CriteriaTarget> CriteriaTargets { get; set; } = new List<CriteriaTarget>();
+    public virtual ICollection<Plant> Plants { get; set; } = new List<Plant>();
 
 }

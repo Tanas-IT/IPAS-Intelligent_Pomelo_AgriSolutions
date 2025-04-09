@@ -479,60 +479,6 @@ CREATE TABLE ipas.dbo.Payment (
 );
 
 
--- ipas.dbo.Plant definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.Plant;
-
-CREATE TABLE ipas.dbo.Plant (
-	PlantID int IDENTITY(1,1) NOT NULL,
-	PlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantName nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	PlantIndex int NULL,
-	HealthStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	PlantingDate datetime NULL,
-	IsPassed bit NULL DEFAULT 0,
-        IsDead bit NULL DEFAULT 0,
-        PassedDate datetime NULL,
-	PlantReferenceID int NULL,
-	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MasterTypeID int NULL,
-	ImageURL nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	LandRowID int NULL,
-	IsDeleted bit NULL DEFAULT 0,
-	FarmID int NULL,
-	GrowthStageID int NULL,
-	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
-	CONSTRAINT Plant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
-	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
-	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
-);
-
-
--- ipas.dbo.PlantGrowthHistory definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.PlantGrowthHistory;
-
-CREATE TABLE ipas.dbo.PlantGrowthHistory (
-	PlantGrowthHistoryID int IDENTITY(1,1) NOT NULL,
-	PlantGrowthHistoryCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	-- NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	PlantID int NULL,
-	IssueName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	UserID int NULL,
-	CONSTRAINT PK__PlantGro__8F26DC48C9286D17 PRIMARY KEY (PlantGrowthHistoryID),
-	CONSTRAINT PlantGro_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
-	CONSTRAINT FK__PlantNote__Plant__32AB8735 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
-);
-
 
 -- ipas.dbo.PlantLot definition
 
@@ -568,7 +514,59 @@ CREATE TABLE ipas.dbo.PlantLot (
 	CONSTRAINT PlantLot_MasterType_FK FOREIGN KEY (MasterTypeId) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
 	--CONSTRAINT PlantLot_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID)
 );
+-- ipas.dbo.Plant definition
 
+-- Drop table
+
+-- DROP TABLE ipas.dbo.Plant;
+
+CREATE TABLE ipas.dbo.Plant (
+	PlantID int IDENTITY(1,1) NOT NULL,
+	PlantCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlantName nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	PlantIndex int NULL,
+	HealthStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	PlantingDate datetime NULL,
+	IsPassed bit NULL DEFAULT 0,
+        IsDead bit NULL DEFAULT 0,
+        PassedDate datetime NULL,
+	PlantReferenceID int NULL,
+	Description nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	MasterTypeID int NULL,
+	ImageURL nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LandRowID int NULL,
+	IsDeleted bit NULL DEFAULT 0,
+	FarmID int NULL,
+	GrowthStageID int NULL,
+	PlantLotID int NULL,
+	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
+	CONSTRAINT Plant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
+	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
+	CONSTRAINT Plant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
+);
+-- ipas.dbo.PlantGrowthHistory definition
+
+-- Drop table
+
+-- DROP TABLE ipas.dbo.PlantGrowthHistory;
+
+CREATE TABLE ipas.dbo.PlantGrowthHistory (
+	PlantGrowthHistoryID int IDENTITY(1,1) NOT NULL,
+	PlantGrowthHistoryCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Content nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	-- NoteTaker nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	CreateDate datetime NULL,
+	UpdateDate datetime NULL,
+	PlantID int NULL,
+	IssueName nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	UserID int NULL,
+	CONSTRAINT PK__PlantGro__8F26DC48C9286D17 PRIMARY KEY (PlantGrowthHistoryID),
+	CONSTRAINT PlantGro_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID) ON DELETE CASCADE,
+	CONSTRAINT FK__PlantNote__Plant__32AB8735 FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID) ON DELETE CASCADE
+);
 
 -- ipas.dbo.Process definition
 
@@ -1055,6 +1053,9 @@ CREATE TABLE ipas.dbo.Report (
 	IsTrainned bit NULL,
 	AnswererID int NULL,
 	QuestionerID int NULL,
+	TagID nvarchar(MAX) NULL,
+TagName nvarchar(MAX) NULL,
+ImageID nvarchar(MAX) NULL,
 	CONSTRAINT Report_PK PRIMARY KEY (ReportID),
 	CONSTRAINT Report_User_FK FOREIGN KEY (AnswererID) REFERENCES ipas.dbo.[User](UserID),
 	CONSTRAINT Report_User_FK_1 FOREIGN KEY (QuestionerID) REFERENCES ipas.dbo.[User](UserID)
