@@ -743,7 +743,7 @@ const generationConfig = {
                 {
                     return new BusinessResult(200, "Upload image to Custom Vision success", uploadImageByURL);
                 }
-                return new BusinessResult(400, "Upload image to Custom Vision failed");
+                return new BusinessResult(400, "Image has been assigned to another tag");
 
             }
             catch (Exception ex)
