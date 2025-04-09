@@ -237,10 +237,10 @@ const HarvestModal = ({
                         <FormFieldModal
                           label="Cost Price (VND)"
                           name={[name, "costPrice"]}
-                          rules={RulesManager.getPriceRules("Price")}
+                          // rules={RulesManager.getPriceRules("Price")}
                         />
                         <FormFieldModal
-                          label="Sell Price (VND)"
+                          label="Revenue Price (VND)"
                           name={[name, "sellPrice"]}
                           // rules={RulesManager.getNumberRules("Price")}
                         />

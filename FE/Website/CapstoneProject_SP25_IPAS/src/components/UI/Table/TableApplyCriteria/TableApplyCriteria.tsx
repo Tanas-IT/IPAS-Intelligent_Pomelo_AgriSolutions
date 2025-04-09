@@ -36,19 +36,19 @@ const TableApplyCriteria = ({
       key: "criteriaDescription",
       align: "center" as const,
     },
-    isValueCheck && {
+    {
       title: "Min Value",
       dataIndex: "minValue",
       key: "minValue",
       align: "center" as const,
     },
-    isValueCheck && {
+    {
       title: "Max Value",
       dataIndex: "maxValue",
       key: "maxValue",
       align: "center" as const,
     },
-    isValueCheck && {
+    {
       title: "Unit",
       dataIndex: "unit",
       key: "unit",

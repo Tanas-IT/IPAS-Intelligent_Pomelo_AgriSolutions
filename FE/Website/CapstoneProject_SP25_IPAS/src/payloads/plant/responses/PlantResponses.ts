@@ -24,7 +24,9 @@ export interface GetPlant {
 }
 
 export interface GetPlantDetail extends GetPlant {
+  plantReferenceName: string;
   characteristic: string;
+  passedDate: string;
 }
 
 export interface GetPlantSelect {

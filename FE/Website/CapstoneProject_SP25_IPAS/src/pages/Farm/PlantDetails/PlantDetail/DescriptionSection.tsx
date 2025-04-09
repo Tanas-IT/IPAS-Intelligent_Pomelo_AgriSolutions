@@ -51,12 +51,7 @@ const DescriptionSection = ({}: {}) => {
           </>
         )}
         <Flex vertical gap={10} justify="center">
-          <QRCode
-            id="myqrcode"
-            type="svg"
-            value={`${baseUrl}/farm/plants/${plant.plantId}/details`}
-            size={180}
-          />
+          <QRCode id="myqrcode" type="svg" value={`plantId:${plant.plantId}`} size={180} />
           <CustomButton label="Download" handleOnClick={downloadSvgQRCode} />
         </Flex>
       </Flex>

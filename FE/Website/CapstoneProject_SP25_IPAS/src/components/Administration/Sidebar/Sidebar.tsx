@@ -8,9 +8,10 @@ import { PATHS } from "@/routes";
 import { useFarmStore, useSidebarStore } from "@/stores";
 import { ActiveMenu, MenuItem } from "@/types";
 import { useLogout } from "@/hooks";
-import { LOCAL_STORAGE_KEYS, MESSAGES } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRolesStr } from "@/constants";
 import { toast } from "react-toastify";
 import { authService } from "@/services";
+import { getRoleId } from "@/utils";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -30,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     parentKey: null,
     subItemKey: null,
   });
+  const currentUserRole = getRoleId();
 
   const { isExpanded, toggleSidebar } = useSidebarStore();
 
@@ -70,6 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.DASHBOARD],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "Weather",
@@ -79,6 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.WEATHER.WEATHER],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "User Management",
@@ -88,14 +92,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.USER.USER_LIST, PATHS.USER.USER_DETAIL],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Admin],
     },
     {
       key: "Crop Management",
       label: "Crop Management",
       icon: <Icons.seedling />,
-      activePaths: [],
+      activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL, PATHS.CROP.PLANT_YIELD],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
       subMenuItems: [
         {
           key: "Manage Crop",
@@ -128,14 +134,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.PROCESS.PROCESS_LIST, PATHS.PROCESS.PROCESS_DETAIL],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "Classification Management",
       label: "Classification Management",
       icon: <Icons.folder />,
-      activePaths: [PATHS.CLASSIFICATION.GROWTH_STAGE, PATHS.CLASSIFICATION.MASTER_TYPE],
+      activePaths: [
+        PATHS.CLASSIFICATION.GROWTH_STAGE,
+        PATHS.CLASSIFICATION.MASTER_TYPE,
+        PATHS.CLASSIFICATION.PRODUCT,
+        PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+        PATHS.CLASSIFICATION.PRODUCT_DETAIL_FROM_CROP,
+      ],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
       subMenuItems: [
         {
           key: "Growth Stage",
@@ -156,7 +170,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           label: "Manage Product",
           icon: Images.radius,
           to: PATHS.CLASSIFICATION.PRODUCT,
-          activePaths: [PATHS.CLASSIFICATION.PRODUCT],
+          activePaths: [
+            PATHS.CLASSIFICATION.PRODUCT,
+            PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+            PATHS.CLASSIFICATION.PRODUCT_DETAIL_FROM_CROP,
+          ],
         },
       ],
     },
@@ -164,7 +182,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       key: "Farm Management",
       label: "Farm Management",
       icon: <Icons.farms />,
-      activePaths: [""],
+      activePaths: [
+        PATHS.FARM.FARM_INFO,
+        PATHS.FARM.FARM_PLOT_LIST,
+        PATHS.FARM.FARM_PLOT_CREATE,
+        PATHS.FARM.FARM_ROW_LIST,
+        PATHS.FARM.FARM_PLANT_LIST,
+        PATHS.FARM.FARM_PLANT_DETAIL,
+        PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+        PATHS.FARM.FARM_PLANT_LOT_LIST,
+        PATHS.FARM.FARM_PLANT_LOT_DETAIL,
+        PATHS.FARM.GRAFTED_PLANT_LIST,
+        PATHS.FARM.GRAFTED_PLANT_DETAIL,
+        PATHS.FARM.CRITERIA_LIST,
+      ],
+      roles: [UserRolesStr.Owner],
       subMenuItems: [
         {
           key: "Farm Information",
@@ -192,7 +224,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           label: "Manage Plants",
           icon: Images.radius,
           to: PATHS.FARM.FARM_PLANT_LIST,
-          activePaths: [PATHS.FARM.FARM_PLANT_LIST, PATHS.FARM.FARM_PLANT_DETAIL],
+          activePaths: [
+            PATHS.FARM.FARM_PLANT_LIST,
+            PATHS.FARM.FARM_PLANT_DETAIL,
+            PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+          ],
         },
         {
           key: "Manage Plant Lots",
@@ -227,6 +263,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.PLAN.PLAN_LIST,
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "AI Chatbox",
@@ -236,12 +273,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.CHATBOX.AI_CHATBOX],
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "Staff Management",
       label: "Staff Management",
       icon: <Icons.people />,
-      activePaths: [""],
+      activePaths: [PATHS.HR.EMPLOYEES, PATHS.HR.WORKLOG_CALENDAR],
+      roles: [UserRolesStr.Owner],
       subMenuItems: [
         {
           key: "Manage Employees",
@@ -269,6 +308,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.PARTNERS.PARTNER_LIST,
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Owner],
     },
     {
       key: "Package Management",
@@ -278,6 +318,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.PACKAGE.PACKAGE_LIST,
       category: "Main",
       isView: !isDefault,
+      roles: [UserRolesStr.Admin],
     },
     {
       key: "Setting",
@@ -410,34 +451,47 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           <div
             className={style.subMenuLine}
             style={{
-              height: `${(item.subMenuItems!.length - 1) * 48 + 20}px`,
+              height: `${
+                (item.subMenuItems!.filter((subItem) => {
+                  if (!subItem.roles) return true;
+                  return subItem.roles.includes(currentUserRole);
+                }).length -
+                  1) *
+                  48 +
+                20
+              }px`,
             }}
           />
         )}
 
-        {item.subMenuItems!.map((subItem) => {
-          const isSubItemActive = subItem.key === activeMenu.subItemKey;
-          return isExpanded ? (
-            <Flex key={subItem.key} className={style.subMenuItem}>
-              <img style={{ width: "24px" }} src={subItem.icon} alt={subItem.label} />
-              <Flex
-                className={`${style.item} ${isSubItemActive ? style.active : ""}`}
+        {item
+          .subMenuItems!.filter((subItem) => {
+            if (!subItem.roles) return true;
+            return subItem.roles.includes(currentUserRole);
+          })
+          .map((subItem) => {
+            const isSubItemActive = subItem.key === activeMenu.subItemKey;
+            return isExpanded ? (
+              <Flex key={subItem.key} className={style.subMenuItem}>
+                <img style={{ width: "24px" }} src={subItem.icon} alt={subItem.label} />
+                <Flex
+                  className={`${style.item} ${isSubItemActive ? style.active : ""}`}
+                  onClick={() => handleNavigation(subItem.to)}
+                  data-menu-key={subItem.key}
+                >
+                  {subItem.label}
+                </Flex>
+              </Flex>
+            ) : (
+              <Menu.Item
+                key={subItem.key}
+                className={`${style.menuItem} ${isSubItemActive ? style.active : ""}`}
                 onClick={() => handleNavigation(subItem.to)}
-                data-menu-key={subItem.key}
               >
                 {subItem.label}
-              </Flex>
-            </Flex>
-          ) : (
-            <Menu.Item
-              key={subItem.key}
-              className={`${style.menuItem} ${isSubItemActive ? style.active : ""}`}
-              onClick={() => handleNavigation(subItem.to)}
-            >
-              {subItem.label}
-            </Menu.Item>
-          );
-        })}
+              </Menu.Item>
+            );
+          })}
       </Menu.SubMenu>
     );
   };
@@ -469,7 +523,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         <Flex className={category === "Settings" ? style.menuOverflowHidden : ""}>
           <Menu mode="inline" defaultOpenKeys={defaultOpenKeys} className={style.menuItems}>
             {menuItems
-              .filter((item) => item.category === category && item.isView)
+              .filter(
+                (item) =>
+                  item.category === category &&
+                  item.isView &&
+                  (!item.roles || item.roles.includes(currentUserRole)),
+              )
               .map((item) => renderMenuItem(item))}
           </Menu>
         </Flex>

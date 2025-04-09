@@ -148,3 +148,11 @@ export interface plotOfCrop {
 //   plantSpacing: number;
 //   index: number;
 // }
+
+export interface AnswerData {
+  title: string;
+  summary: string;
+  details: string;
+  note: string;
+  confidence: string;
+}
