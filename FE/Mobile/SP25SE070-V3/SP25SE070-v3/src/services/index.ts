@@ -1,4 +1,4 @@
-export * as AuthService from "./AuthService";
-export * as NotificationService from "./NotificationService";
-export * as PestDetectionService from "./PestDetectionService";
+export * as AuthService from "./authService";
+export * as NotificationService from "./notificationService";
+export * as PestDetectionService from "./pestDetectionService";
 export * as FarmService from "./FarmService";
