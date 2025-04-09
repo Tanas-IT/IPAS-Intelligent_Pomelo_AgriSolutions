@@ -23,11 +23,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         //private readonly IGraftedPlantService _graftedPlantService;
-        public GraftedPlantNoteService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService/*, IGraftedPlantService graftedPlantService*/)
+        private readonly IExcelReaderService _excelReaderService;
+        public GraftedPlantNoteService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService/*, IGraftedPlantService graftedPlantService*/, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _excelReaderService = excelReaderService;
             //_graftedPlantService = graftedPlantService;
         }
 
@@ -300,6 +302,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByGraftedPlantId(int graftedPlantId)
+        {
+            var filter = await _unitOfWork.GraftedPlantNoteRepository
+                .GetAllNoPaging(x => x.GraftedPlantId == graftedPlantId, includeProperties: "Resources,User");
+
+            if (filter == null || !filter.Any())
+            {
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+            }
+
+            var mapped = _mapper.Map<List<GraftedPlantNoteModel>>(filter);
+
+            // Export to CSV and return as byte[], file name, content type
+            var fileName = $"grafted_plant_notes_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            return await _excelReaderService.ExportToCsvAsync(mapped, fileName);
         }
     }
 }

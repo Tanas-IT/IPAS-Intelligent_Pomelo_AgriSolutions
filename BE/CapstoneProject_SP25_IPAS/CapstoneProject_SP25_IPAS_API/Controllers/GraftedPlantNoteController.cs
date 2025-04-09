@@ -4,6 +4,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.Graf
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
@@ -157,6 +158,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        [HttpGet(APIRoutes.GraftedPlant.exportCSV)]
+        public async Task<IActionResult> ExportNotes(int graftedPlantId)
+        {
+            var result = await _graftedNoteService.ExportNotesByGraftedPlantId(graftedPlantId);
+
+            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
         }
     }
 }

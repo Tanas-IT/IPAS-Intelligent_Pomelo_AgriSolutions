@@ -930,26 +930,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getPlantActFuncionForSelected(int plotid, int rowId, string actFunction)
+        public async Task<BusinessResult> getPlantActFuncionForSelected(int farmId, int? plotid, int? rowId, string? actFunction)
         {
             try
             {
-                Expression<Func<Plant, bool>> filter = x => x.LandRow!.LandPlotId == plotid
-                                                        && x.LandRowId == rowId
+                Expression<Func<Plant, bool>> filter = x => x.FarmId == farmId
+                                                        //x.LandRow!.LandPlotId == plotid
+                                                        //&& x.LandRowId == rowId
                                                         && x.IsDead == false
                                                         && x.IsDeleted == false;
+                if (plotid.HasValue && plotid != 0)
+                    filter = filter.And(x => x.LandRow.LandPlotId == plotid);
+                if (rowId.HasValue && rowId != 0)
+                    filter = filter.And(x => x.LandRowId == rowId);
                 Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(x => x.PlantId);
                 var plantInPlot = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (!plantInPlot.Any())
                     return new BusinessResult(Const.SUCCESS_GET_PLANT_IN_PLOT_PAGINATION_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
                 if (!string.IsNullOrEmpty(actFunction))
                 {
-                    var actFunctionLower = actFunction.ToLower();
-                    var actFunctions = Util.SplitByComma(actFunctionLower);
+                    var listFuncRequest = Util.SplitByComma(actFunction);
                     plantInPlot = plantInPlot
                         .Where(x => x.GrowthStage != null && !string.IsNullOrEmpty(x.GrowthStage.ActiveFunction)
                                    && Util.SplitByComma(x.GrowthStage!.ActiveFunction.ToLower()!)
-                                        .Any(f => actFunctions.Contains(f)))
+                                        .Any(f => listFuncRequest.Contains(f)))
                         .ToList();
                 }
                 var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(plantInPlot);
@@ -960,6 +964,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
         private async Task<bool> DeletelanByPlantId(int plantId)
         {
             try

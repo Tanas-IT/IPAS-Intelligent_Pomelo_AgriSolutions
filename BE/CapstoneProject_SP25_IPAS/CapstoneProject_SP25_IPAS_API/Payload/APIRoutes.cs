@@ -451,6 +451,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGraftedNoteById = graftedNotePrefix + "";
             public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
             public const string getAllNoteOfGraftedPagin = graftedNotePrefix + "/pagin";
+            public const string exportCSV = graftedNotePrefix + "/export-csv";
+
         }
 
         public static class AI
