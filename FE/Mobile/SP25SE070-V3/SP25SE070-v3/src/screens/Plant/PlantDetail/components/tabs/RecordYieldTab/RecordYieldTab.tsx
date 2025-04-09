@@ -15,9 +15,10 @@ import ConfirmModal from "../../ConfirmModal";
 import { styles } from "./RecordYieldTab.styles";
 import { CustomIcon, TextCustom } from "@/components";
 import { GetPlantDetail } from "@/payloads";
+import { PlantDetailData } from "@/types";
 
 interface RecordYieldTabProps {
-  plant: GetPlantDetail;
+  plant: PlantDetailData;
 }
 
 const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {

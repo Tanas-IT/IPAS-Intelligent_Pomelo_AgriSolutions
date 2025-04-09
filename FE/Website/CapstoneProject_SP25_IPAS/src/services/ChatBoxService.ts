@@ -25,7 +25,13 @@ export const deleteRoom = async (roomId: number): Promise<ApiResponse<Object>> =
 };
 
 export const newMessage = async (req: MessageRequest): Promise<ApiResponse<ChatMessage>> => {
-  const res = await axiosAuth.axiosJsonRequest.post("ai/chat", { req });
+  const formData = new FormData();
+
+  formData.append("Question", req.question);
+  if (req.roomId !== undefined) formData.append("RoomId", req.roomId.toString());
+  if (req.resource) formData.append("Resource", req.resource);
+
+  const res = await axiosAuth.axiosMultipartForm.post("ai/chat", formData);
   return res.data as ApiResponse<ChatMessage>;
 };
 

@@ -80,7 +80,18 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
     if (res.statusCode === 200) {
       toast.success(res.message);
       formModal.hideModal();
-      await fetchHarvest();
+      setHarvestData((prev) => {
+        if (!prev) return prev;
+
+        const updatedProductHarvestHistory = prev.productHarvestHistory.map((item) =>
+          item.productHarvestHistoryId === res.data?.productHarvestHistoryId ? res.data! : item,
+        );
+
+        return {
+          ...prev,
+          productHarvestHistory: updatedProductHarvestHistory,
+        };
+      });
       resetData();
     } else {
       toast.error(res.message);
@@ -232,11 +243,18 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
                   render: (_: any, record: any) => `${record.quantityNeed} ${record.unit}`,
                 },
                 {
+                  title: "Actual Yield",
+                  dataIndex: "yieldHasRecord",
+                  key: "yieldHasRecord",
+                  align: "center",
+                  render: (_: any, record: any) => `${record.yieldHasRecord} ${record.unit}`,
+                },
+                {
                   title: "Cost Price",
                   dataIndex: "costPrice",
                   key: "costPrice",
                   align: "center",
-                  render: (price, record) => `${formatCurrencyVND(price)}`,
+                  render: (price) => `${price ? formatCurrencyVND(price) : "N/A"}`,
                 },
                 {
                   title: "Revenue Price",

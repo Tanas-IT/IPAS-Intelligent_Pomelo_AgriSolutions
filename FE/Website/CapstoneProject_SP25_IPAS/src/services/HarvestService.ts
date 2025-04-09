@@ -11,6 +11,7 @@ import {
   HarvestRequest,
   HarvestStatisticInYearRequest,
   HarvestStatisticOfPlantRequest,
+  productHarvestHistoryRes,
   RecordHarvestRequest,
   UpdateProductHarvestRequest,
 } from "@/payloads";
@@ -121,9 +122,9 @@ export const importRecordHarvest = async (
 
 export const UpdateProductHarvest = async (
   req: UpdateProductHarvestRequest,
-): Promise<ApiResponse<Object>> => {
+): Promise<ApiResponse<productHarvestHistoryRes>> => {
   const res = await axiosAuth.axiosJsonRequest.put(`harvests/update-product-harvest`, req);
-  const apiResponse = res.data as ApiResponse<Object>;
+  const apiResponse = res.data as ApiResponse<productHarvestHistoryRes>;
   return apiResponse;
 };
 

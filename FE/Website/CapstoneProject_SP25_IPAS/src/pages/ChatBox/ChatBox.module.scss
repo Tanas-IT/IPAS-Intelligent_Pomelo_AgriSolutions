@@ -42,9 +42,6 @@
           font-size: 15px;
           margin-bottom: 8px;
         }
-        span {
-          // max-width: 15rem;
-        }
       }
 
       .chatBoxSidebarListItem {
@@ -65,116 +62,121 @@
     }
   }
 
-  .chatBoxContent {
-    flex: 1;
+  .chatBoxContentWrapper {
+    width: 100%;
     flex-direction: column;
-    background: #fff;
-    border-radius: 8px;
-
     .chatBoxContentHeader {
       align-items: center;
       gap: 10px;
       padding: 16px;
       border-bottom: 1px solid #ddd;
       background: #fafafa;
-      border-radius: 8px;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
     }
 
-    .chatBoxContentMessages {
+    .chatBoxContent {
+      width: 100%;
       flex: 1;
-      justify-content: center;
-      padding: 16px;
       flex-direction: column;
-      gap: 30px;
+      background: #fff;
       overflow-y: auto;
-      position: relative;
 
-      .welcomeMessage {
-        height: 100%;
-        text-align: center;
-        padding: 2rem;
-        font-size: 1.5rem;
-        font-weight: 500;
-        border-radius: 12px;
-        margin: auto;
-        max-width: 600px;
-        line-height: 1.6;
-        color: vars.$color_primary;
-        animation: fadeIn 0.7s ease-in-out, pulse 2.5s ease-in-out infinite;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.02);
-          opacity: 0.95;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-
-      .loadingWrapper {
-        position: absolute;
-        top: 8%;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 10;
-        background-color: rgba(255, 255, 255, 0.7);
-        padding: 10px 20px;
-        border-radius: 8px;
-        align-items: center;
+      .chatBoxContentMessages {
+        flex: 1;
         justify-content: center;
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
-        gap: 8px;
-      }
+        padding: 16px;
+        flex-direction: column;
+        gap: 30px;
+        position: relative;
 
-      .message {
-        align-items: start;
-        justify-content: start;
-        gap: 10px;
-
-        &.messageReceived {
-          justify-content: flex-start;
+        .welcomeMessage {
+          height: 100%;
+          text-align: center;
+          padding: 2rem;
+          font-size: 1.5rem;
+          font-weight: 500;
+          border-radius: 12px;
+          margin: auto;
+          max-width: 600px;
+          line-height: 1.6;
+          color: vars.$color_primary;
+          animation: fadeIn 0.7s ease-in-out, pulse 2.5s ease-in-out infinite;
         }
 
-        &.messageSent {
-          justify-content: flex-end;
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
-        .messageWrapper {
-          max-width: 80%;
-          flex-direction: column;
-          gap: 4px;
-          .messageTimestamp {
-            font-size: 12px;
-            color: #888;
-            margin-left: 8px;
-            &.right {
-              text-align: right;
-              display: block;
-            }
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.02);
+            opacity: 0.95;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .loadingWrapper {
+          position: absolute;
+          top: 8%;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10;
+          background-color: rgba(255, 255, 255, 0.7);
+          padding: 10px 20px;
+          border-radius: 8px;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+          gap: 8px;
+        }
+
+        .message {
+          align-items: start;
+          justify-content: start;
+          gap: 10px;
+
+          &.messageReceived {
+            justify-content: flex-start;
           }
 
-          .messageBubble {
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(vars.$color_second, 0.3);
+          &.messageSent {
+            justify-content: flex-end;
+          }
+
+          .messageWrapper {
+            max-width: 80%;
+            flex-direction: column;
+            gap: 4px;
+            .messageTimestamp {
+              font-size: 12px;
+              color: #888;
+              margin-left: 8px;
+              &.right {
+                text-align: right;
+                display: block;
+              }
+            }
+
+            .messageBubble {
+              padding: 10px;
+              border-radius: 10px;
+              background: rgba(vars.$color_second, 0.3);
+            }
           }
         }
       }
@@ -185,7 +187,8 @@
       padding: 16px;
       border-top: 1px solid #ddd;
       background: #fafafa;
-      border-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
 
       .messageInput {
         flex: 1;
