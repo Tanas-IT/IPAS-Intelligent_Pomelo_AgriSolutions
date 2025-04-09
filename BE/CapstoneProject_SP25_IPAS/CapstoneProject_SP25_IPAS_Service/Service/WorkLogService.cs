@@ -2296,27 +2296,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
-                        .FirstOrDefault(x => x.ReplaceUserId == uwl.UserId && x.IsDeleted != true);
+                        .FirstOrDefault(x => x.UserWorkLogID == uwl.UserWorkLogID && x.ReplaceUserId == null && x.IsDeleted != true);
 
                     // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
                     // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
-                    if (uwl.ReplaceUserId != null)
-                    {
-                        var replacedUser = getListUserWorkLog
-                            .FirstOrDefault(x => x.UserId == uwl.ReplaceUserId && x.WorkLogId == uwl.WorkLogId);
+                    //if (uwl.ReplaceUserId != null)
+                    //{
+                    //    var replacedUser = getListUserWorkLog
+                    //        .FirstOrDefault(x => x.UserId == uwl.ReplaceUserId && x.WorkLogId == uwl.WorkLogId);
 
-                        result.Add(new GetListEmployeeToCheckAttendance
-                        {
-                            UserWorkLogId = uwl.UserWorkLogID,
-                            UserId = uwl.UserId,
-                            FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog,
-                            AvatarURL = uwl.User.AvatarURL,
-                            IsReporter = uwl.IsReporter,
-                        });
+                    //    result.Add(new GetListEmployeeToCheckAttendance
+                    //    {
+                    //        UserWorkLogId = uwl.UserWorkLogID,
+                    //        UserId = uwl.UserId,
+                    //        FullName = uwl.User.FullName,
+                    //        StatusOfUser = uwl.StatusOfUserWorkLog,
+                    //        AvatarURL = uwl.User.AvatarURL,
+                    //        IsReporter = uwl.IsReporter,
+                    //    });
 
-                        continue;
-                    }
+                        
+                    //}
 
                     // Nếu có người thay thế mình sau khi điểm danh => trường hợp 2
                     if (replacement != null)
@@ -2331,18 +2331,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             IsReporter = uwl.IsReporter,
                         });
                     }
-                    else
-                    {
-                        result.Add(new GetListEmployeeToCheckAttendance
-                        {
-                            UserWorkLogId = uwl.UserWorkLogID,
-                            UserId = uwl.UserId,
-                            FullName = uwl.User.FullName,
-                            StatusOfUser = uwl.StatusOfUserWorkLog,
-                            AvatarURL = uwl.User.AvatarURL,
-                            IsReporter = uwl.IsReporter,
-                        });
-                    }
+                   
                 }
                 if (result.Count() > 0)
                 {

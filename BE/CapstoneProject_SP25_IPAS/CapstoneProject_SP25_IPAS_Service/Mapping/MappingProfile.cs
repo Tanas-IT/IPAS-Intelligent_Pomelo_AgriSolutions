@@ -332,6 +332,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.TaskFeedbackId, opt => opt.MapFrom(src => src.TaskFeedbackId))
               .ForMember(dest => dest.TaskFeedbackCode, opt => opt.MapFrom(src => src.TaskFeedbackCode))
               .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+              .ForMember(dest => dest.ReasonDelay, opt => opt.MapFrom(src => src.WorkLog.ReasonDelay))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.WorkLogId, opt => opt.MapFrom(src => src.WorkLogId))
               .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => src.ManagerId))
