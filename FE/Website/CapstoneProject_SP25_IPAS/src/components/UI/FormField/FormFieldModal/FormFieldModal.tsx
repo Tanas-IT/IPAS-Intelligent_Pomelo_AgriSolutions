@@ -190,7 +190,6 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             options={options}
             showSearch={isSearch}
             loading={isLoading}
-            allowClear
             onChange={onChange}
             disabled={disable}
             mode={multiple ? "multiple" : undefined}

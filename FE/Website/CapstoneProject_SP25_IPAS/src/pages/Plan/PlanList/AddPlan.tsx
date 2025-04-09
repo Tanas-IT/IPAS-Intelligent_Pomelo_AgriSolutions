@@ -20,7 +20,7 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useNotifications, useUnsavedChangesWarning } from "@/hooks";
+import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useNotifications, useUnsavedChangesWarning } from "@/hooks";
 import {
   fetchPlantLotsByUnitAndGrowthStage,
   fetchProcessesOfFarm,
@@ -99,10 +99,11 @@ const AddPlan = () => {
   // const { options: plantLotOptions } = usePlantLotOptions();
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
   const { options: cropOptions } = useCropCurrentOption();
+  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
 
   const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
   const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
-  const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
+  // const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
   const [plantLotOptions, setPlantLotOptions] = useState<SelectOption[]>([]);
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -119,21 +120,21 @@ const AddPlan = () => {
     }
   }, [selectedCrop]);
 
-  useEffect(() => {
-    form.setFieldValue("masterTypeId", undefined);
-    if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-      planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
-        setProcessTypeOptions(
-          data.map((item) => ({
-            value: item.masterTypeId,
-            label: item.masterTypeName,
-          }))
-        );
-      });
-    } else {
-      setProcessTypeOptions([]);
-    }
-  }, [selectedGrowthStage]);
+  // useEffect(() => {
+  //   form.setFieldValue("masterTypeId", undefined);
+  //   if (selectedGrowthStage && selectedGrowthStage.length > 0) {
+  //     planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
+  //       setProcessTypeOptions(
+  //         data.map((item) => ({
+  //           value: item.masterTypeId,
+  //           label: item.masterTypeName,
+  //         }))
+  //       );
+  //     });
+  //   } else {
+  //     setProcessTypeOptions([]);
+  //   }
+  // }, [selectedGrowthStage]);
 
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
@@ -207,20 +208,20 @@ const AddPlan = () => {
         setTargetType("graftedPlant");
         form.setFieldValue("planTarget", "graftedPlant");
         form.setFieldValue("growthStageId", undefined);
-        setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("Grafting")).data.map((pt) => ({
-          value: pt.id,
-          label: pt.name
-        })))
+        // setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("Grafting")).data.map((pt) => ({
+        //   value: pt.id,
+        //   label: pt.name
+        // })))
         setIsLockedGrowthStage(true);
       } else if ((await masterTypeService.IsMasterTypeHasTarget(masterTypeId, "PlantLot")).data) {
         setTargetType("plantLot");
         form.setFieldValue("planTarget", "plantLot");
         form.setFieldValue("growthStageId", undefined);
 
-        setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
-          value: pt.id,
-          label: pt.name
-        })))
+        // setProcessTypeOptions((await masterTypeService.getProcessTypeSelect("PlantLot")).data.map((pt) => ({
+        //   value: pt.id,
+        //   label: pt.name
+        // })))
         setIsLockedGrowthStage(true);
       } else {
         form.setFieldValue("growthStageId", [growthStageId]);
@@ -235,7 +236,7 @@ const AddPlan = () => {
       form.setFieldValue("growthStageId", undefined);
       form.setFieldValue("masterTypeId", undefined);
       setIsLockedGrowthStage(false);
-      setProcessTypeOptions([]);
+      // setProcessTypeOptions([]);
     }
   };
   const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
@@ -622,21 +623,20 @@ const AddPlan = () => {
               <InfoField
                 label="Growth Stage"
                 name={addPlanFormFields.growthStageID}
-                // rules={RulesManager.getGrowthStageRules()}
-                rules={[
-                  {
-                    // Chỉ validate khi submit form
-                    validateTrigger: 'onSubmit',
-                    validator: (_: any, value: any) => {
-                      const processId = form.getFieldValue(addPlanFormFields.processId);
-                      // k chọn process && k chọn growth stage
-                      if (!processId && (!value || value.length === 0)) {
-                        return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     // Chỉ validate khi submit form
+                //     validateTrigger: 'onSubmit',
+                //     validator: (_: any, value: any) => {
+                //       const processId = form.getFieldValue(addPlanFormFields.processId);
+                //       // k chọn process && k chọn growth stage
+                //       if (!processId && (!value || value.length === 0)) {
+                //         return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
+                //       }
+                //       return Promise.resolve();
+                //     },
+                //   },
+                // ]}
                 options={growthStageOptions}
                 isEditing={!isLockedGrowthStage}
                 onChange={(value) => {
@@ -788,6 +788,62 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
+        {/* TASK ASSIGNMENT */}
+        <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
+          <InfoField
+            label="Type of Work"
+            name={addPlanFormFields.masterTypeId}
+            options={processTypeOptions}
+            rules={RulesManager.getPlanTypeRules()}
+            isEditing={true}
+            type="select"
+            hasFeedback={false}
+          />
+          <AssignEmployee
+            members={selectedEmployees}
+            onAssign={handleAssignMember}
+            onReporterChange={handleReporterChange}
+            selectedReporter={selectedReporter}
+          />
+          {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
+          <Modal
+            title="Assign Members"
+            open={isModalOpen}
+            onOk={handleConfirmAssign}
+            onCancel={() => setIsModalOpen(false)}
+          >
+            <Select
+              mode="multiple"
+              style={{ width: "100%" }}
+              placeholder="Select employees"
+              value={selectedIds}
+              onChange={setSelectedIds}
+              optionLabelProp="label"
+            >
+              {employee.map((emp) => (
+                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <img
+                      src={emp.avatarURL}
+                      alt={emp.fullName}
+                      style={{ width: 24, height: 24, borderRadius: "50%" }}
+                      crossOrigin="anonymous"
+                    />
+                    <span>{emp.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Modal>
+          <label className={style.createdBy}>
+            {" "}
+            <span>Created by: </span>
+            {authData.fullName}
+          </label>
+        </Section>
+
+        <Divider className={style.divider} />
+
         {/* SCHEDULE */}
         <Section title="Schedule" subtitle="Define the schedule for the care plan.">
           <InfoField
@@ -873,8 +929,8 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
         <PlanTarget
-          landPlotOptions={landPlots}
-          landRows={landRowOptions}
+          // landPlotOptions={landPlots}
+          // landRows={landRowOptions}
           plants={plantsOptions}
           plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}
@@ -885,59 +941,7 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
-        {/* TASK ASSIGNMENT */}
-        <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
-          <InfoField
-            label="Type of Work"
-            name={addPlanFormFields.masterTypeId}
-            options={processTypeOptions}
-            rules={RulesManager.getPlanTypeRules()}
-            isEditing={true}
-            type="select"
-            hasFeedback={false}
-          />
-          <AssignEmployee
-            members={selectedEmployees}
-            onAssign={handleAssignMember}
-            onReporterChange={handleReporterChange}
-            selectedReporter={selectedReporter}
-          />
-          {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
-          <Modal
-            title="Assign Members"
-            open={isModalOpen}
-            onOk={handleConfirmAssign}
-            onCancel={() => setIsModalOpen(false)}
-          >
-            <Select
-              mode="multiple"
-              style={{ width: "100%" }}
-              placeholder="Select employees"
-              value={selectedIds}
-              onChange={setSelectedIds}
-              optionLabelProp="label"
-            >
-              {employee.map((emp) => (
-                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <img
-                      src={emp.avatarURL}
-                      alt={emp.fullName}
-                      style={{ width: 24, height: 24, borderRadius: "50%" }}
-                      crossOrigin="anonymous"
-                    />
-                    <span>{emp.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
-          </Modal>
-          <label className={style.createdBy}>
-            {" "}
-            <span>Created by: </span>
-            {authData.fullName}
-          </label>
-        </Section>
+        
 
         {/* FORM ACTIONS */}
         <Flex gap={10} justify="end" className={style.btnGroup}>

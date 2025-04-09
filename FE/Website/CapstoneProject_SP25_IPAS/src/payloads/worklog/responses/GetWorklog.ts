@@ -66,6 +66,9 @@ export interface TaskFeedback {
   managerId: number;
   workLogName: string;
   reason?: string;
+  status?: string;
+  avatarURL: string;
+  fullName: string;
 }
 
 export interface Resource {
@@ -102,6 +105,19 @@ export interface GetWorklogDetail {
   masterTypeName: string;
   cropName: string;
   replacementEmployee: ReplacementEmployee[];
+  planId: number;
+  planName: string;
+  processId: number;
+  isHarvest: boolean;
+  isTakeAttendance: boolean;
+  redoWorkLog: RedoWorkLog;
+}
+
+interface RedoWorkLog {
+  workLogId: number
+  status: string
+  workLogName: string
+  date: string
 }
 
 export interface ReplacementEmployee {
@@ -119,4 +135,25 @@ export interface GetWorklogNote {
   issue: string;
   userId: string;
   Resources: Resource[];
+}
+
+export interface GetAttendanceList {
+  userWorkLogId: number;
+  userId: number;
+  avatarURL: string;
+  fullName: string;
+  isReporter: boolean;
+}
+
+export interface GetEmpListForUpdate {
+  userWorkLogId: number;
+  userId: number;
+  avatarURL: string;
+  fullName: string;
+  isReporter: boolean;
+  statusOfUser: string;
+}
+
+export interface WorklogStatusResponse {
+  status: string[];
 }

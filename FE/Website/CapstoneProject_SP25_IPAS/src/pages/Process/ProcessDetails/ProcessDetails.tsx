@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import style from "./ProcessDetails.module.scss";
-import { Button, Divider, Flex, Form, Tag, Tree, TreeDataNode, TreeProps } from "antd";
+import { Button, Divider, Flex, Form, Input, Tag, Tree, TreeDataNode, TreeProps } from "antd";
 import { Icons, Images } from "@/assets";
 import { CustomButton, EditActions, InfoField, Loading, Section, Tooltip } from "@/components";
 import { PATHS } from "@/routes";
@@ -80,9 +80,10 @@ function ProcessDetails() {
   const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // lưu task mới tạo
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [processName, setProcessName] = useState(processDetail?.processName || '');
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
-  
+
   const {
     plans,
     planForm,
@@ -117,14 +118,15 @@ function ProcessDetails() {
         ...data,
         masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
         growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
-        planTarget: data.planTargetInProcess
+        planTarget: data.planTargetInProcess,
+        isActive: data.isActive,
       });
       if (data.subProcesses && Array.isArray(data.subProcesses)) {
         setTreeData(mapSubProcessesToTree(data.subProcesses));
       } else {
         setTreeData([]);
       }
-  
+
       if (data.listPlanIsSampleTrue && Array.isArray(data.listPlanIsSampleTrue)) {
         setPlans(data.listPlanIsSampleTrue);
       } else {
@@ -243,14 +245,14 @@ function ProcessDetails() {
     setTreeData(reorderedTreeData);
   };
 
-  const handleCancel = () => {};
+  const handleCancel = () => { };
 
   const handleCancelClick = () => {
     setPlans([...originalData.plans]);
     setTreeData([...originalData.treeData]);
     setIsEditing(false);
   };
-  const handleSaveNode = () => {};
+  const handleSaveNode = () => { };
 
   const handleClickAddPlan = (subProcessKey: number) => {
     setSelectedSubProcessId(subProcessKey);
@@ -320,10 +322,10 @@ function ProcessDetails() {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
       const isNewSubProcess = node.status === "add";
       const status = isNewSubProcess
-      ? "add"
-      : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
-      ? "update"
-      : node.status || "no_change";
+        ? "add"
+        : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
+          ? "update"
+          : node.status || "no_change";
 
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
@@ -359,7 +361,7 @@ function ProcessDetails() {
 
   const handleSaveProcess = async () => {
     console.log("Plans before mapping:", plans);
-  
+
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
       PlanName: plan.planName,
@@ -369,18 +371,18 @@ function ProcessDetails() {
       MasterTypeId: Number(plan.masterTypeId),
       PlanStatus: plan.planStatus || "no_change",
     }));
-  
+
     let ListUpdateSubProcess = [
       ...convertTreeToList(treeData),
       ...convertDeletedNodesToList(deletedNodes),
     ]
       .filter((sub) => sub.Status !== "no_change") // Loại bỏ các node không có thay đổi
       .filter((sub) => !(sub.Status === "delete" && !sub.SubProcessId));
-  
+
     const payload: UpdateProcessRequest = {
       ProcessId: Number(id) || 0,
-      ProcessName: processDetail?.processName || "New Process",
-      IsActive: processDetail?.isActive ?? true,
+      ProcessName: processName || processDetail?.processName,
+      IsActive: form.getFieldValue(processFormFields.isActive),
       IsDefault: processDetail?.isDefault ?? false,
       IsDeleted: processDetail?.isDeleted ?? false,
       MasterTypeId: form.getFieldValue(processFormFields.masterTypeId),
@@ -388,9 +390,9 @@ function ProcessDetails() {
       ListUpdateSubProcess: ListUpdateSubProcess,
       ListPlan: ListPlan,
     };
-  
+
     console.log("Saving Payload without stringify:", payload);
-  
+
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
@@ -481,8 +483,8 @@ function ProcessDetails() {
       });
     });
   }, []);
-  
-  const handleDeletePlanInChildren = (nodes: CustomTreeDataNode[], planId: number, subProcessKey: string): CustomTreeDataNode[]  => {
+
+  const handleDeletePlanInChildren = (nodes: CustomTreeDataNode[], planId: number, subProcessKey: string): CustomTreeDataNode[] => {
     return nodes.map((node) => {
       if (node.key === subProcessKey) {
         return {
@@ -502,7 +504,7 @@ function ProcessDetails() {
       return node;
     });
   };
-  
+
 
   const handleEditSubProcess = (node: CustomTreeDataNode) => {
     setEditingNode(node);
@@ -520,12 +522,12 @@ function ProcessDetails() {
       node.growthStageId = values.growthStageId;
       node.masterTypeId = Number(values.masterTypeId);
       console.log("node when update sub", node);
-      
+
       if (node.status !== "add") {
         node.status = "update";
       } else {
         console.log("ảo z");
-        
+
       }
     }
     setTreeData(updatedData);
@@ -533,17 +535,17 @@ function ProcessDetails() {
   };
 
   const loopNodes = (nodes: any[]): CustomTreeDataNode[] => {
-  return nodes
-    .filter((node) => node.status !== "delete")
-    .map((node) => {
-      console.log("sắp xong r", node);
-      
-      const filteredPlans = node.listPlan?.filter(
-        (plan: PlanType) => plan.planStatus !== "delete"
-      );
+    return nodes
+      .filter((node) => node.status !== "delete")
+      .map((node) => {
+        console.log("sắp xong r", node);
 
-      const planNodes = filteredPlans?.length
-        ? [
+        const filteredPlans = node.listPlan?.filter(
+          (plan: PlanType) => plan.planStatus !== "delete"
+        );
+
+        const planNodes = filteredPlans?.length
+          ? [
             {
               title: (
                 <div className={style.planList}>
@@ -571,47 +573,47 @@ function ProcessDetails() {
               isLeaf: true,
             },
           ]
-        : [];
+          : [];
 
-      return {
-        ...node,
-        title: (
-          <div
-            onMouseEnter={() => setHoveredKey(node.key.toString())}
-            onMouseLeave={() => setHoveredKey(null)}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
-          >
-            <EditableTreeNode
-              isEditing={editingKey === node.key}
-              title={editingKey === node.key ? newTitle : node.title}
-              onChange={(e) => setNewTitle(e)}
-              onBlur={handleSave}
-            />
-
-            {isEditing && hoveredKey === node.key && (
-              <ButtonActions
-                editingKey={editingKey}
-                nodeKey={node.key}
-                onSave={handleSaveNode}
-                onCancel={handleCancel}
-                onEdit={() => handleEditSubProcess(node)}
-                onDelete={() => handleDelete(node.key)}
-                onAdd={() => handleAdd(node.key)}
-                onAddPlan={
-                  !processDetail?.isSample ? () => handleClickAddPlan(node.key) : undefined
-                }
+        return {
+          ...node,
+          title: (
+            <div
+              onMouseEnter={() => setHoveredKey(node.key.toString())}
+              onMouseLeave={() => setHoveredKey(null)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <EditableTreeNode
+                isEditing={editingKey === node.key}
+                title={editingKey === node.key ? newTitle : node.title}
+                onChange={(e) => setNewTitle(e)}
+                onBlur={handleSave}
               />
-            )}
-          </div>
-        ),
-        key: node.key,
-        children: [
-          ...(node.children ? loopNodes(node.children) : []), // Đệ quy để xử lý children
-          ...planNodes, // Thêm các node plan
-        ],
-      };
-    });
-};
+
+              {isEditing && hoveredKey === node.key && (
+                <ButtonActions
+                  editingKey={editingKey}
+                  nodeKey={node.key}
+                  onSave={handleSaveNode}
+                  onCancel={handleCancel}
+                  onEdit={() => handleEditSubProcess(node)}
+                  onDelete={() => handleDelete(node.key)}
+                  onAdd={() => handleAdd(node.key)}
+                  onAddPlan={
+                    !processDetail?.isSample ? () => handleClickAddPlan(node.key) : undefined
+                  }
+                />
+              )}
+            </div>
+          ),
+          key: node.key,
+          children: [
+            ...(node.children ? loopNodes(node.children) : []), // Đệ quy để xử lý children
+            ...planNodes, // Thêm các node plan
+          ],
+        };
+      });
+  };
 
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
@@ -669,11 +671,6 @@ function ProcessDetails() {
   };
 
   const [form] = Form.useForm();
-
-  const handleAddSubProcess = (parentKey: string) => {
-    setSelectedNodeKey(parentKey);
-    setIsSubProcessModalOpen(true);
-  };
 
   const handleSaveSubProcess = (values: any) => {
     const newKey = `${selectedNodeKey}-${Date.now()}`;
@@ -739,7 +736,16 @@ function ProcessDetails() {
         </div>
         <Divider className={style.divider} />
         <Flex className={style.contentSectionTitleLeft}>
-          <p className={style.title}>{processDetail?.processName}</p>
+          {isEditing ? (
+            <Input
+              defaultValue={processDetail?.processName}
+              name={processFormFields.processName}
+              className={style.editInput}
+              onChange={(e) => setProcessName(e.target.value)}
+            />
+          ) : (
+            <p className={style.title}>{processDetail?.processName}</p>
+          )}
           <Tooltip title="Hello">
             <Icons.tag className={style.iconTag} />
           </Tooltip>
@@ -903,10 +909,10 @@ function ProcessDetails() {
           initialValues={
             editingNode
               ? {
-                  processName: editingNode.title,
-                  growthStageId: editingNode.growthStageId,
-                  masterTypeId: editingNode.masterTypeId,
-                }
+                processName: editingNode.title,
+                growthStageId: editingNode.growthStageId,
+                masterTypeId: editingNode.masterTypeId,
+              }
               : undefined
           }
         />

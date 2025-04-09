@@ -19,7 +19,8 @@ import PlanDetailsTable from "./PlanDetailsTable";
 import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
 import usePlantLotOptions from "@/hooks/usePlantLotOptions";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import DaySelector from "./DaySelector";
@@ -517,6 +518,8 @@ const AddPlanByProcess = () => {
             console.log("Payload to submit:", payload);
 
             const response = await planService.createManyPlans(payload, Number(getFarmId()));
+            console.log("Response from API:", response);
+            
             if (response.statusCode === 200) {
                 toast.success(response.message);
                 form.resetFields();
@@ -524,7 +527,10 @@ const AddPlanByProcess = () => {
                 setSelectedProcess(undefined);
                 setGrowthStage([]);
                 setPlanTargetType(undefined);
+                navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
             } else {
+                console.log("phải dô đây");
+                
                 toast.error(response.message);
             }
         } catch (error) {
@@ -675,8 +681,8 @@ const AddPlanByProcess = () => {
                         {
                             (planTargetType === 1 && growthStage && isProcessSelected) && (
                                 <PlanTarget
-                                    landPlotOptions={landPlots}
-                                    landRows={landRowOptions}
+                                    // landPlotOptions={landPlots}
+                                    // landRows={landRowOptions}
                                     plants={plantsOptions}
                                     plantLots={[]}
                                     graftedPlants={[]}
@@ -825,6 +831,7 @@ const AddPlanByProcess = () => {
                     <Flex justify="flex-end">
                         <CustomButton label="Add" handleOnClick={handleSubmit} disabled={!selectedProcess} />
                     </Flex>
+                    <ToastContainer />
                 </Form>
             </div>
         </div>

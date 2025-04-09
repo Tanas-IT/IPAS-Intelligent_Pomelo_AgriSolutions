@@ -3,7 +3,7 @@ import { Tooltip } from "antd";
 import style from "./Tooltip.module.scss";
 
 interface CustomTooltipProps {
-  title: string;
+  title: string | React.ReactNode;
   children: React.ReactNode;
   placement?: "top" | "right" | "bottom" | "left";
   color?: string;

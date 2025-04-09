@@ -199,6 +199,7 @@ export const worklogFormFields = {
   assignorId: "assignorId",
   type: "type",
   planId: "planId",
+  masterTypeId: "masterTypeId",
 };
 
 export const feedbackFormFields = {
