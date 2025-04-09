@@ -894,7 +894,7 @@ const generationConfig = {
                 if (tagIds.Count > 0)
                 {
                     getAllImages = getAllImages
-                               .Where(img => img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
+                               .Where(img =>  img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
                                .ToList();
                 }
 
@@ -1068,6 +1068,43 @@ const generationConfig = {
             }
             catch (Exception ex)
             {
+                return new BusinessResult(500, $"Exception: {ex.Message}");
+            }
+        }
+
+        public async Task<BusinessResult> UpdateTagOfImage(string imageId, string tagId)
+        {
+            try
+            {
+                var listImage = new List<Guid>() { Guid.Parse(imageId) };
+                var existingTags = await trainingClient.GetImagesByIdsAsync(projectId, listImage);
+                var image = existingTags.FirstOrDefault();
+                if (image != null)
+                {
+                    if(image.Tags != null)
+                    {
+                        var oldTagIds = image.Tags.Select(x => x.TagId).ToList();
+                        await trainingClient.DeleteImageTagsAsync(projectId, listImage, oldTagIds);
+                    }
+                }
+
+                var result = trainingClient.CreateImageTags(projectId, new ImageTagCreateBatch
+                {
+                    Tags = new List<ImageTagCreateEntry>
+                    {
+                            new ImageTagCreateEntry
+                            {
+                                ImageId = Guid.Parse(imageId),
+                                TagId = Guid.Parse(tagId)
+                            }
+                    }
+                    
+                });
+                return new BusinessResult(200, "Update Tag Of Image Sucess");
+            }
+            catch (Exception ex)
+            {
+
                 return new BusinessResult(500, $"Exception: {ex.Message}");
             }
         }

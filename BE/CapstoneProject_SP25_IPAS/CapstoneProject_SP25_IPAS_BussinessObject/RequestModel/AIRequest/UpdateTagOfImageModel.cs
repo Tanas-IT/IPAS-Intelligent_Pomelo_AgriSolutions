@@ -8,7 +8,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest
 {
     public class UpdateTagOfImageModel
     {
-        public Guid imageId {  get; set; }
+        public string imageId {  get; set; }
         public string tagId { get; set; }
     }
 }

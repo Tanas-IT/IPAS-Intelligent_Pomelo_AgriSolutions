@@ -35,5 +35,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> ChangeNameOfRoom(int roomId, string newRoomName);
         public Task<BusinessResult> GetAllRoomChat(GetAllRoomModel getAllRoomModel, int? farmId, int? userId);
         public Task<BusinessResult> DeleteRoom(int roomId);
+        public Task<BusinessResult> UpdateTagOfImage(string imageId, string tagId);
+
     }
 }

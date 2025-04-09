@@ -416,11 +416,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var uploadImage =  await _aIService.UploadImageByURLToCustomVision(uploadImageModel);
                     if(uploadImage.StatusCode == 200)
                     {
-                        var getProfessional = await _unitOfWork.UserRepository.GetByID(answerId.Value);
-                        if(getProfessional != null)
-                        {
-                            getReportOfUserByImageURL.AnswererID = answerId;
-                        }
                         getReportOfUserByImageURL.IsTrainned = true;
                         _unitOfWork.ReportRepository.Update(getReportOfUserByImageURL);
                         var result = await _unitOfWork.SaveAsync();

@@ -424,12 +424,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpDelete(APIRoutes.AI.deleteRoom, Name = "deleteRoom")]
-        public async Task<IActionResult> deleteRoom([FromQuery] int roomid)
+        [HttpPut(APIRoutes.AI.updateTagOfImage, Name = "updateTagOfImage")]
+        public async Task<IActionResult> UpdateTagOfImage([FromBody] UpdateTagOfImageModel updateTagOfImageModel)
         {
             try
             {
-                var result = await _aiService.DeleteRoom(roomid);
+                var result = await _aiService.UpdateTagOfImage(updateTagOfImageModel.imageId, updateTagOfImageModel.tagId);
                 return Ok(result);
             }
             catch (Exception ex)
