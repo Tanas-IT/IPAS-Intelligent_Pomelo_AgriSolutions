@@ -66,6 +66,7 @@ export interface TaskFeedback {
   managerId: number;
   workLogName: string;
   reason?: string;
+  status?: string;
 }
 
 export interface Resource {
@@ -141,4 +142,8 @@ export interface GetEmpListForUpdate {
   fullName: string;
   isReporter: boolean;
   statusOfUser: string;
+}
+
+export interface WorklogStatusResponse {
+  status: string[];
 }

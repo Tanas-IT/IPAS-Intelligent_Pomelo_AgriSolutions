@@ -839,7 +839,7 @@ function WorklogDetail() {
                     <div className={style.feedbackName}>{manager?.fullName}</div>
                     <div className={style.feedbackMessage}>{item.content}</div>
                   </Flex>
-                  {worklogDetail?.status === "Redo" && (
+                  {worklogDetail && ["Redo", "Failed"].includes(worklogDetail.status) && (
                     <Flex vertical={false}>
                       <Button
                         className={style.updateButton}
