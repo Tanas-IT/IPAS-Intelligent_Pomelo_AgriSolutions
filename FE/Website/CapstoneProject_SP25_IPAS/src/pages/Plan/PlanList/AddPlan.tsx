@@ -788,6 +788,62 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
+        {/* TASK ASSIGNMENT */}
+        <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
+          <InfoField
+            label="Type of Work"
+            name={addPlanFormFields.masterTypeId}
+            options={processTypeOptions}
+            rules={RulesManager.getPlanTypeRules()}
+            isEditing={true}
+            type="select"
+            hasFeedback={false}
+          />
+          <AssignEmployee
+            members={selectedEmployees}
+            onAssign={handleAssignMember}
+            onReporterChange={handleReporterChange}
+            selectedReporter={selectedReporter}
+          />
+          {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
+          <Modal
+            title="Assign Members"
+            open={isModalOpen}
+            onOk={handleConfirmAssign}
+            onCancel={() => setIsModalOpen(false)}
+          >
+            <Select
+              mode="multiple"
+              style={{ width: "100%" }}
+              placeholder="Select employees"
+              value={selectedIds}
+              onChange={setSelectedIds}
+              optionLabelProp="label"
+            >
+              {employee.map((emp) => (
+                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <img
+                      src={emp.avatarURL}
+                      alt={emp.fullName}
+                      style={{ width: 24, height: 24, borderRadius: "50%" }}
+                      crossOrigin="anonymous"
+                    />
+                    <span>{emp.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Modal>
+          <label className={style.createdBy}>
+            {" "}
+            <span>Created by: </span>
+            {authData.fullName}
+          </label>
+        </Section>
+
+        <Divider className={style.divider} />
+
         {/* SCHEDULE */}
         <Section title="Schedule" subtitle="Define the schedule for the care plan.">
           <InfoField
@@ -885,59 +941,7 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
-        {/* TASK ASSIGNMENT */}
-        <Section title="Task Assignment" subtitle="Assign tasks and define work type.">
-          <InfoField
-            label="Type of Work"
-            name={addPlanFormFields.masterTypeId}
-            options={processTypeOptions}
-            rules={RulesManager.getPlanTypeRules()}
-            isEditing={true}
-            type="select"
-            hasFeedback={false}
-          />
-          <AssignEmployee
-            members={selectedEmployees}
-            onAssign={handleAssignMember}
-            onReporterChange={handleReporterChange}
-            selectedReporter={selectedReporter}
-          />
-          {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
-          <Modal
-            title="Assign Members"
-            open={isModalOpen}
-            onOk={handleConfirmAssign}
-            onCancel={() => setIsModalOpen(false)}
-          >
-            <Select
-              mode="multiple"
-              style={{ width: "100%" }}
-              placeholder="Select employees"
-              value={selectedIds}
-              onChange={setSelectedIds}
-              optionLabelProp="label"
-            >
-              {employee.map((emp) => (
-                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <img
-                      src={emp.avatarURL}
-                      alt={emp.fullName}
-                      style={{ width: 24, height: 24, borderRadius: "50%" }}
-                      crossOrigin="anonymous"
-                    />
-                    <span>{emp.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
-          </Modal>
-          <label className={style.createdBy}>
-            {" "}
-            <span>Created by: </span>
-            {authData.fullName}
-          </label>
-        </Section>
+        
 
         {/* FORM ACTIONS */}
         <Flex gap={10} justify="end" className={style.btnGroup}>

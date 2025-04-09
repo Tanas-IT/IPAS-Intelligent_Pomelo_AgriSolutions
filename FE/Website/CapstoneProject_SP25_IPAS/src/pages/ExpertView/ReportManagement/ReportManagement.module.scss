@@ -1,51 +1,234 @@
+// .reportManagementScreen {
+//   min-height: 100vh;
+
+//   .headerCard {
+//     margin-bottom: 30px;
+//     border-radius: 12px;
+//     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+//     padding: 20px;
+//     background: #fff;
+
+//     .title {
+//       font-size: 28px;
+//       color: #2e7d32;
+//       font-weight: 600;
+//       margin-bottom: 20px;
+//       text-align: center;
+//     }
+
+//     :global(.ant-input-search) {
+//       .searchInput {
+//         border-radius: 25px;
+//         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+//       }
+//     }
+
+//     :global(.ant-select) {
+//       .filterSelect {
+//         width: 100%;
+//         border-radius: 25px;
+//         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+//         .ant-select-selector {
+//           border-radius: 25px !important;
+//           border-color: #ccc !important;
+//           &:focus {
+//             border-color: #2e7d32 !important;
+//             box-shadow: 0 0 8px rgba(46, 125, 50, 0.2) !important;
+//           }
+//         }
+//       }
+//     }
+//   }
+
+//   .reportGrid {
+//     margin-top: 20px;
+//   }
+
+//   .noReports {
+//     margin-top: 50px;
+//   }
+// }
 .reportManagementScreen {
+  padding: 24px;
+  background: #f5f7fa;
   min-height: 100vh;
 
-  .headerCard {
-    margin-bottom: 30px;
+  .overview {
+    margin-bottom: 24px;
+    margin-top: 10px;
+
+    .overviewCard {
+      background: linear-gradient(135deg, #fee9ac 0%, #fff0c2 100%);
+      color: #20461e;
+      border-radius: 12px;
+
+      .iconContainer {
+        display: flex;
+      justify-content: center;
+      align-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .overviewValue {
+        font-size: 32px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .filterCard {
+    background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    background: #fff;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .title {
-      font-size: 28px;
-      color: #2e7d32;
+      font-size: 24px;
       font-weight: 600;
-      margin-bottom: 20px;
-      text-align: center;
+      margin-bottom: 16px;
+      color: #1a1a1a;
     }
 
-    :global(.ant-input-search) {
-      .searchInput {
-        border-radius: 25px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .divider {
+      margin-top: 20;
+    }
+
+    .searchInput {
+      // width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      align-items: flex-end;
+      align-self: flex-end;
+      display: flex;
+    }
+
+    .filterSelect {
+      width: 150px;
+      border-radius: 8px;
+    }
+  }
+
+  .cardContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .reportCard {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .cardHeader {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        color: white;
+        font-size: 20px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
       }
     }
 
-    :global(.ant-select) {
-      .filterSelect {
-        width: 100%;
-        border-radius: 25px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .cardContent {
+      margin-bottom: 16px;
 
-        .ant-select-selector {
-          border-radius: 25px !important;
-          border-color: #ccc !important;
-          &:focus {
-            border-color: #2e7d32 !important;
-            box-shadow: 0 0 8px rgba(46, 125, 50, 0.2) !important;
-          }
+      .question {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 8px;
+      }
+
+      .meta {
+        font-size: 14px;
+        color: #666;
+
+        .metaItem {
+          margin-right: 16px;
+        }
+      }
+    }
+
+    .cardFooter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .status {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 16px;
+
+        &.answered {
+          background: #e6f4ea;
+          color: #2e7d32;
+        }
+
+        &.pending {
+          background: #fff4e5;
+          color: #ff9800;
+        }
+      }
+
+      .actionButton {
+        background: #2e7d32;
+        border-color: #2e7d32;
+        border-radius: 20px;
+        padding: 4px 16px;
+        font-weight: 500;
+
+        &:hover {
+          background: #256428;
+          border-color: #256428;
         }
       }
     }
   }
 
-  .reportGrid {
-    margin-top: 20px;
-  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
 
-  .noReports {
-    margin-top: 50px;
+    .ant-pagination-item {
+      border-radius: 8px;
+    }
+
+    .ant-pagination-item-active {
+      background: #2e7d32;
+      border-color: #2e7d32;
+
+      a {
+        color: white;
+      }
+    }
   }
 }

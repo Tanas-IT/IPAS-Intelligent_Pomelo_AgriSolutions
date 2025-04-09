@@ -1,50 +1,90 @@
-import React from 'react';
-import { Card, Button } from 'antd';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Button, Flex, Image } from 'antd';
 import { GetReportResponse } from '@/payloads';
+import style from './ReportCard.module.scss';
+import AssignTagModal from '../AssignTagModal/AssignTagModal';
 
 interface ReportCardProps {
   report: GetReportResponse;
-  onReply: (id: number) => void;
+  onReply: (report: GetReportResponse) => void;
+  onTagAssigned: () => void;
 }
 
-const ReportCard: React.FC<ReportCardProps> = ({ report, onReply }) => {
-  const status = report.answerFromExpert ? 'answered' : 'pending';
+const ReportCard: React.FC<ReportCardProps> = ({ report, onReply, onTagAssigned }) => {
+  const [showAssignTagModal, setShowAssignTagModal] = useState(false);
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.02 }}
-    >
-      <Card
-        className={`reportCard ${status}`}
-        cover={report.image && <img src={report.image.thumbnailUri} alt="Report" />}
-        style={{ borderLeft: status === 'pending' ? '5px solid #FFB300' : '5px solid #2E7D32' }}
-      >
-        <div className="content">
-          <p className="question">{report.questionOfUser}</p>
-          <p className="questioner">From: {report.questionerName}</p>
-          <div className="statusBar">
-            <span className={`status ${status}`}>
-              {status === 'pending' ? 'Pending' : 'Answered'}
-            </span>
-            <span className="training">
-              {report.isTrainned ? 'Trained' : 'Not Trained'}
-            </span>
+    <div className={style.reportCard}>
+      <Flex justify='space-between' className={style.cardHeader}>
+        <Flex>
+          <div className={style.icon}>
+            <span>📋</span>
           </div>
+          {/* <div className={style.title}>{report.reportCode}</div> */}
+          <Flex vertical className={style.meta} gap={0}>
+            <div className={style.questioner}>{report.questionerName}</div>
+            <div className={style.metaItem}>{formatDate(report.createdDate)}</div>
+          </Flex>
+        </Flex>
+        <Flex>
+          <div>#{report.reportCode}</div>
+        </Flex>
+      </Flex>
+      <div className={style.question}>{report.questionOfUser}</div>
+      {report.imageURL && (
+        <div className={style.imageContainer}>
+          <Image
+            src={report.imageURL}
+            width="100%"
+            height={160}
+            className={style.cardImage}
+            crossOrigin='anonymous'
+          />
+        </div>
+      )}
+      <div className={style.cardFooter}>
+        <span
+          className={`${style.status} ${report.answerFromExpert ? style.answered : style.pending
+            }`}
+        >
+          {report.answerFromExpert ? 'Answered' : 'Pending'}
+        </span>
+        <Flex gap={8}>
           <Button
             type="primary"
-            shape="round"
-            onClick={() => onReply(report.reportID)}
-            style={{ marginTop: 10, background: '#2E7D32', borderColor: '#2E7D32' }}
+            className={style.actionButton}
+            onClick={() => onReply(report)}
           >
-            {status === 'pending' ? 'Reply' : 'View Reply'}
+            {report.answerFromExpert ? 'View Reply' : 'Reply'}
           </Button>
-        </div>
-      </Card>
-    </motion.div>
+          {
+            !report.isTrainned && (
+              <Button
+                className={style.assignTagButton}
+                onClick={() => setShowAssignTagModal(true)}
+              >
+                Assign Tag
+              </Button>
+            )
+          }
+
+        </Flex>
+      </div>
+      {showAssignTagModal && (
+        <AssignTagModal
+          reportId={report.reportID}
+          onClose={() => setShowAssignTagModal(false)}
+          onTagAssigned={onTagAssigned}
+        />
+      )}
+    </div>
   );
 };
 

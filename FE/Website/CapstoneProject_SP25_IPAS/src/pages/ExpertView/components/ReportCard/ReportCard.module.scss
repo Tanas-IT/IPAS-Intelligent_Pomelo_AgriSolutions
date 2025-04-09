@@ -1,60 +1,110 @@
-.report-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+.reportCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .cardHeader {
     display: flex;
     align-items: center;
-    cursor: pointer;
-  
-    &.pending {
-      border-left: 6px solid #FFB300;
+    margin-bottom: 12px;
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+      color: white;
+      font-size: 20px;
     }
-  
-    &.answered {
-      border-left: 6px solid #2E7D32;
-    }
-  
-    .content {
-      flex: 1;
-    }
-  
-    .question {
-      font-size: 16px;
-      color: #333;
-      margin: 0 0 10px;
-    }
-  
-    .questioner {
+
+    .meta {
       font-size: 14px;
       color: #666;
+
+      .metaItem {
+        margin-right: 16px;
+      }
+
+      .questioner {
+        font-size: 16px;
+        color: #000;
+      }
     }
-  
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+  }
+
+  .question {
+    font-size: 16px;
+    color: #000;
+    font-weight: 600;
+  }
+
+  .cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+
     .status {
       font-size: 14px;
-      font-weight: bold;
-  
-      &.pending {
-        color: #FFB300;
-      }
-  
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 16px;
+
       &.answered {
-        color: #2E7D32;
+        background: #e6f4ea;
+        color: #2e7d32;
+      }
+
+      &.pending {
+        background: #fff4e5;
+        color: #ff9800;
       }
     }
-  
-    .reply-button {
-      background: #2E7D32;
-      color: white;
-      border: none;
-      padding: 8px 16px;
+
+    .actionButton {
+      background: #2e7d32;
+      border-color: #2e7d32;
       border-radius: 20px;
-      cursor: pointer;
-      transition: background 0.3s;
-  
+      padding: 4px 16px;
+      font-weight: 500;
+
       &:hover {
-        background: #1B5E20;
+        background: #256428;
+        border-color: #256428;
+      }
+    }
+
+    .assignTagButton {
+      background: #f5f5f5;
+      border: 1px solid #d9d9d9;
+      border-radius: 20px;
+      padding: 6px 20px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #e0e0e0;
+        border-color: #c0c0c0;
+        color: #333;
       }
     }
   }
+}

@@ -20,6 +20,8 @@ export interface GetReportResponse {
     questionOfUser: string
     answerFromExpert: string
     image?: GetImageResponse
+    createdDate: string
+    imageURL: string
 }
 
 export interface GetTagResponse {

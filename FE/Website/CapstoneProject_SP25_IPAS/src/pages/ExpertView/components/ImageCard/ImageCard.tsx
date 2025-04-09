@@ -1,33 +1,39 @@
 import React from 'react';
-import './ImageCard.module.scss';
-import { motion } from 'framer-motion';
-import { GetImageResponse, GetTagResponse } from '@/payloads';
+import { GetImageResponse } from '@/payloads';
+import style from './ImageCard.module.scss';
 
 interface ImageCardProps {
-  image: GetImageResponse & { tags: GetTagResponse[] }; // Bổ sung tags từ BE
-  onTag: (id: string) => void;
+  image: GetImageResponse;
+  tagName?: string;
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({ image, onTag }) => {
+const ImageCard: React.FC<ImageCardProps> = ({ image, tagName }) => {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   return (
-    <motion.div
-      className="image-card"
-      whileHover={{ scale: 1.05 }}
-      transition={{ duration: 0.2 }}
-    >
-      <img src={image.thumbnailUri} alt="Vision" className="image" />
-      <div className="tags">
-        {image.tags && image.tags.length > 0 ? (
-          image.tags.map(tag => (
-            <span key={tag.id} className="tag">{tag.name}</span>
-          ))
-        ) : (
-          <button className="tag-button" onClick={() => onTag(image.id)}>
-            Tag
-          </button>
-        )}
+    <div className={style.imageCard}>
+      <div className={style.cardImageWrapper}>
+        <img
+          src={image.thumbnailUri || image.originalImageUri}
+          alt="Tagged Image"
+          className={style.cardImage}
+        />
       </div>
-    </motion.div>
+      <div className={style.cardContent}>
+        <div className={style.tagBadge}>
+          {tagName || 'No Tag'}
+        </div>
+        <div className={style.meta}>
+          <span>Created: {formatDate(image.created)}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 

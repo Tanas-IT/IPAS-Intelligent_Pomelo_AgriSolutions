@@ -1,215 +1,323 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Flex, Row, Col, Table, Input, Select, Button, Space } from 'antd';
+import {
+    Card,
+    Flex,
+    Row,
+    Col,
+    Input,
+    Select,
+    Space,
+    Pagination,
+    Divider,
+    Segmented,
+    Table,
+    Spin,
+    Tag,
+    Empty
+} from 'antd';
+import {
+    SortAscendingOutlined,
+    SortDescendingOutlined,
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    ClockCircleOutlined,
+    SearchOutlined,
+    TableOutlined,
+    AppstoreOutlined
+} from '@ant-design/icons';
 import style from './ReportManagement.module.scss';
 import { expertService } from '@/services';
 import { AnswerReportRequest, GetReportResponse } from '@/payloads';
+import ReportCard from '../components/ReportCard/ReportCard';
 import ReplyModal from '../components/ReplyModal/ReplyModal';
+import { Icons } from '@/assets';
+import OverviewCard from '../components/OverviewCard/OverviewCard';
+import ReportActionMenu from '../components/ReportActionMenu';
+import { Tooltip } from '@/components';
+import { getReportColumns } from '../components/ReportColumns';
+import AssignTagModal from '../components/AssignTagModal/AssignTagModal';
+import { useStyle } from '@/hooks';
 
 const { Search } = Input;
 const { Option } = Select;
 
 const ReportManagementScreen: React.FC = () => {
-  const [reports, setReports] = useState<GetReportResponse[]>([]);
-  const [selectedReport, setSelectedReport] = useState<GetReportResponse | null>(null);
-  const [totalReports, setTotalReports] = useState<number>(0);
-  const [totalUnanswered, setTotalUnanswered] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
+    const { styles } = useStyle();
+    const [reports, setReports] = useState<GetReportResponse[]>([]);
+    const [selectedReport, setSelectedReport] = useState<GetReportResponse | null>(null);
+    const [totalReports, setTotalReports] = useState<number>(0);
+    const [totalUnanswered, setTotalUnanswered] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+    const [showAssignTagModal, setShowAssignTagModal] = useState(false);
+    const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
 
-  // Filter states
-  const [search, setSearch] = useState<string>('');
-  const [sortBy, setSortBy] = useState<string>('reportID');
-  const [direction, setDirection] = useState<string>('asc');
-  const [isTrainned, setIsTrainned] = useState<boolean | undefined>(undefined);
-  const [isUnanswered, setIsUnanswered] = useState<boolean | undefined>(undefined);
+    const [searchKey, setSearchKey] = useState<string>('');
+    const [sortBy, setSortBy] = useState<string>('reportID');
+    const [direction, setDirection] = useState<string>('asc');
+    const [isTrainned, setIsTrainned] = useState<boolean | undefined>(undefined);
+    const [isUnanswered, setIsUnanswered] = useState<boolean | undefined>(undefined);
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pageSize] = useState<number>(8);
 
-  const fetchReports = async () => {
-    setLoading(true);
-    const response = await expertService.getAllReports(
-      search,
-      sortBy,
-      direction,
-      isTrainned,
-      isUnanswered
+    const fetchReports = async () => {
+        setLoading(true);
+        try {
+            const response = await expertService.getAllReportsWithPagin(
+                searchKey,
+                sortBy,
+                direction,
+                isTrainned,
+                isUnanswered,
+                currentPage,
+                pageSize
+            );
+
+            if (response.statusCode === 200) {
+                setReports(response.data.list);
+                setTotalReports(response.data.totalRecord);
+                setTotalUnanswered(
+                    response.data.list.filter((r: GetReportResponse) => !r.answerFromExpert).length
+                );
+            }
+        } catch (error) {
+            console.error('Error fetching reports:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, [searchKey, sortBy, direction, isTrainned, isUnanswered, currentPage, pageSize]);
+
+    const handleReply = (report: GetReportResponse) => {
+        setSelectedReport(report);
+    };
+
+    const handleSubmitReply = async (data: AnswerReportRequest) => {
+        const response = await expertService.answerReport(data);
+        if (response.statusCode === 200) {
+            fetchReports();
+            setSelectedReport(null);
+        }
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+        if (sorter.field) {
+            setSortBy(sorter.field);
+            setDirection(sorter.order === 'ascend' ? 'asc' : 'desc');
+        }
+    };
+
+    const handleViewDetails = (report: GetReportResponse) => {
+        console.log('View details:', report);
+    };
+
+    const handleAddToTraining = (report: GetReportResponse) => {
+        setSelectedReportId(report.reportID);
+        setShowAssignTagModal(true);
+    };
+
+    const columns = getReportColumns(handleReply, handleViewDetails, handleAddToTraining);
+
+    const filterSelects = [
+        {
+            key: 'direction',
+            placeholder: 'Direction',
+            value: direction,
+            onChange: setDirection,
+            options: [
+                { value: 'asc', label: 'Ascending', icon: <SortAscendingOutlined /> },
+                { value: 'desc', label: 'Descending', icon: <SortDescendingOutlined /> }
+            ],
+            icon: <SortDescendingOutlined />
+        },
+        {
+            key: 'isTrainned',
+            placeholder: 'Training Status',
+            value: isTrainned === undefined ? '' : isTrainned.toString(),
+            onChange: (value: string) => setIsTrainned(value === '' ? undefined : value === 'true'),
+            options: [
+                { value: '', label: 'All', icon: <Icons.box /> },
+                { value: 'true', label: 'Trained', icon: <CheckCircleOutlined /> },
+                { value: 'false', label: 'Not Trained', icon: <CloseCircleOutlined /> }
+            ],
+            icon: <Icons.box />
+        },
+        {
+            key: 'isUnanswered',
+            placeholder: 'Reply Status',
+            value: isUnanswered === undefined ? '' : isUnanswered.toString(),
+            onChange: (value: string) => setIsUnanswered(value === '' ? undefined : value === 'true'),
+            options: [
+                { value: '', label: 'All', icon: <Icons.box /> },
+                { value: 'true', label: 'Unanswered', icon: <ClockCircleOutlined /> },
+                { value: 'false', label: 'Answered', icon: <CheckCircleOutlined /> }
+            ],
+            icon: <Icons.box />
+        }
+    ];
+
+    return (
+        <Flex className={style.reportManagementScreen} vertical gap={16}>
+            <h2>Overview</h2>
+            <Row gutter={[16, 16]} className={style.overview}>
+                <Col xs={24} sm={12} md={8}>
+                    <OverviewCard
+                        icon={<Icons.report size={20} />}
+                        title="Total Reports"
+                        value={totalReports}
+                    />
+                </Col>
+                <Col xs={24} sm={12} md={8}>
+                    <OverviewCard
+                        icon={<Icons.unanswered size={20} />}
+                        title="Total Unanswered"
+                        value={totalUnanswered}
+                    />
+                </Col>
+                <Col xs={24} sm={12} md={8}>
+                    <OverviewCard
+                        icon={<Icons.trainned size={20} />}
+                        title="Total Trained"
+                        value={reports.filter(r => r.isTrainned).length}
+                    />
+                </Col>
+            </Row>
+
+            <Card className={style.filterCard}>
+                <Flex justify="space-between" align="center">
+                    <h1 className={style.title}>Report Management</h1>
+                    <Search
+                        placeholder="Search reports..."
+                        value={searchKey}
+                        onChange={(e) => setSearchKey(e.target.value)}
+                        className={style.searchInput}
+                        style={{ maxWidth: 300 }}
+                        prefix={<SearchOutlined />}
+                        allowClear
+                    />
+                </Flex>
+                <Divider className={style.divider} />
+                <Flex vertical gap="middle" style={{ width: '100%', marginTop: 16 }}>
+                    <Flex justify="space-between" align="center">
+                        <Space wrap>
+                            {filterSelects.map((select) => (
+                                <Select
+                                    key={select.key}
+                                    value={select.value}
+                                    onChange={select.onChange}
+                                    className={style.filterSelect}
+                                    placeholder={
+                                        <Space>
+                                            {select.icon}
+                                            {select.placeholder}
+                                        </Space>
+                                    }
+                                    dropdownClassName={style.customDropdown}
+                                    suffixIcon={<Icons.box />}
+                                >
+                                    {select.options.map((option) => (
+                                        <Option key={option.value} value={option.value}>
+                                            <Space>
+                                                {option.icon}
+                                                {option.label}
+                                            </Space>
+                                        </Option>
+                                    ))}
+                                </Select>
+                            ))}
+                        </Space>
+                        <Segmented
+                            value={viewMode}
+                            onChange={(value) => setViewMode(value as 'card' | 'table')}
+                            options={[
+                                { value: 'card', icon: <AppstoreOutlined /> },
+                                { value: 'table', icon: <TableOutlined /> }
+                            ]}
+                        />
+                    </Flex>
+                </Flex>
+            </Card>
+
+            {loading ? (
+                <Spin size="large" className={style.loader} />
+            ) : viewMode === 'table' ? (
+                <Table
+                    columns={columns}
+                    dataSource={reports}
+                    rowKey="reportID"
+                    loading={loading}
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalReports,
+                        showSizeChanger: false,
+                        onChange: handlePageChange,
+                    }}
+                    onChange={handleTableChange}
+                    scroll={{ x: 'max-content' }}
+                    className={`${style.tbl} ${styles.customeTable2}`}
+                />
+            ) : reports.length > 0 ? (
+                <>
+                    <div className={style.cardContainer}>
+                        {reports.map((report) => (
+                            <ReportCard
+                                key={report.reportID}
+                                report={report}
+                                onReply={handleReply}
+                                onTagAssigned={fetchReports}
+                            />
+                        ))}
+                    </div>
+                    <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={totalReports}
+                        onChange={handlePageChange}
+                        className={style.pagination}
+                        showSizeChanger={false}
+                    />
+                </>
+            ) : (
+                <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="No reports found"
+                    className={style.emptyState}
+                />
+            )}
+
+            {selectedReport && (
+                <ReplyModal
+                    report={selectedReport}
+                    onClose={() => setSelectedReport(null)}
+                    onSubmit={handleSubmitReply}
+                />
+            )}
+
+            {showAssignTagModal && selectedReportId !== null && (
+                <AssignTagModal
+                    reportId={selectedReportId}
+                    onClose={() => {
+                        setShowAssignTagModal(false);
+                        setSelectedReportId(null);
+                    }}
+                    onTagAssigned={() => {
+                        fetchReports();
+                        setShowAssignTagModal(false);
+                        setSelectedReportId(null);
+                    }}
+                />
+            )}
+        </Flex>
     );
-    console.log('Response:', response);
-    
-    if (response.statusCode === 200) {
-      setReports(response.data);
-      setTotalReports(response.data.totalRecord);
-      setTotalUnanswered(
-        response.data.list.filter(r => !r.answerFromExpert).length
-      );
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchReports();
-  }, [search, sortBy, direction, isTrainned, isUnanswered]);
-
-  const handleReply = (report: GetReportResponse) => {
-    setSelectedReport(report);
-  };
-
-  const handleSubmitReply = async (data: AnswerReportRequest) => {
-    const response = await expertService.answerReport(data);
-    if (response.statusCode === 200) {
-      fetchReports(); // Refresh dữ liệu
-      setSelectedReport(null);
-    }
-  };
-
-  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-    setCurrentPage(pagination.current);
-    if (sorter.field && sorter.order) {
-      setSortBy(sorter.field);
-      setDirection(sorter.order === 'ascend' ? 'asc' : 'desc');
-    }
-  };
-
-  const columns = [
-    {
-      title: 'Report Code',
-      dataIndex: 'reportCode',
-      key: 'reportCode',
-      sorter: true,
-    },
-    {
-      title: 'Question',
-      dataIndex: 'questionOfUser',
-      key: 'questionOfUser',
-    },
-    {
-      title: 'From',
-      dataIndex: 'questionerName',
-      key: 'questionerName',
-      sorter: true,
-    },
-    {
-      title: 'Status',
-      key: 'answerFromExpert',
-      render: (_: any, record: GetReportResponse) => (record.answerFromExpert ? 'Answered' : 'Pending'),
-    },
-    {
-      title: 'Trained',
-      dataIndex: 'isTrainned',
-      key: 'isTrainned',
-      render: (isTrainned: boolean) => (isTrainned ? 'Yes' : 'No'),
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_: any, record: GetReportResponse) => (
-        <Button
-          type="primary"
-          shape="round"
-          onClick={() => handleReply(record)}
-          style={{ background: '#2E7D32', borderColor: '#2E7D32' }}
-        >
-          {record.answerFromExpert ? 'View Reply' : 'Reply'}
-        </Button>
-      ),
-    },
-  ];
-
-  return (
-    <Flex className={style.reportManagementScreen} vertical>
-      <Row gutter={[16, 16]} className={style.overview}>
-        <Col xs={24} sm={12}>
-          <Card className={style.overviewCard}>
-            <h3>Total Reports</h3>
-            <p className={style.overviewValue}>{totalReports}</p>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Card className={style.overviewCard}>
-            <h3>Total Unanswered</h3>
-            <p className={style.overviewValue}>{totalUnanswered}</p>
-          </Card>
-        </Col>
-      </Row>
-      <Card className={style.filterCard}>
-        <h1 className={style.title}>Report Management</h1>
-        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-          <Search
-            placeholder="Search reports..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className={style.searchInput}
-          />
-          <Space wrap>
-            <Select
-              value={sortBy}
-              onChange={setSortBy}
-              className={style.filterSelect}
-              placeholder="Sort By"
-            >
-              <Option value="reportID">Sort by ID</Option>
-              <Option value="created">Sort by Date</Option>
-              <Option value="questionerName">Sort by Questioner</Option>
-            </Select>
-            <Select
-              value={direction}
-              onChange={setDirection}
-              className={style.filterSelect}
-              placeholder="Direction"
-            >
-              <Option value="asc">Ascending</Option>
-              <Option value="desc">Descending</Option>
-            </Select>
-            <Select
-              value={isTrainned === undefined ? '' : isTrainned.toString()}
-              onChange={(value) => setIsTrainned(value === '' ? undefined : value === 'true')}
-              className={style.filterSelect}
-              placeholder="Training Status"
-            >
-              <Option value="">All Training Status</Option>
-              <Option value="true">Trained</Option>
-              <Option value="false">Not Trained</Option>
-            </Select>
-            <Select
-              value={isUnanswered === undefined ? '' : isUnanswered.toString()}
-              onChange={(value) => setIsUnanswered(value === '' ? undefined : value === 'true')}
-              className={style.filterSelect}
-              placeholder="Reply Status"
-            >
-              <Option value="">All Reply Status</Option>
-              <Option value="true">Unanswered</Option>
-              <Option value="false">Answered</Option>
-            </Select>
-          </Space>
-        </Space>
-      </Card>
-      <Card className={style.tableCard}>
-        <Table
-          columns={columns}
-          dataSource={reports}
-          rowKey="reportID"
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            total: totalReports,
-            showSizeChanger: false,
-            onChange: (page) => setCurrentPage(page),
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 'max-content' }}
-        />
-      </Card>
-      {selectedReport && (
-        <ReplyModal
-          report={selectedReport}
-          onClose={() => setSelectedReport(null)}
-          onSubmit={handleSubmitReply}
-        />
-      )}
-    </Flex>
-  );
 };
 
 export default ReportManagementScreen;

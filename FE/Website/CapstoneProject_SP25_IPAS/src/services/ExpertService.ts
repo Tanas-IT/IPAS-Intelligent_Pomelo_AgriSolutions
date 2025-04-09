@@ -33,13 +33,38 @@ export const getAllReports = async (
     return res.data as ApiResponse<GetData<GetReportResponse>>;
 };
 
+export const getAllReportsWithPagin = async (
+    search?: string,
+    sortBy?: string,
+    direction?: string,
+    isTrainned?: boolean,
+    isUnanswered?: boolean,
+    pageIndex: number = 1,
+    pageSize: number = 8
+  ): Promise<ApiResponse<GetData<GetReportResponse>>> => {
+    const params = new URLSearchParams();
+    params.append("pageIndex", pageIndex.toString());
+    params.append("pageSize", pageSize.toString());
+    if (search) params.append("searchKey", search);
+    if (sortBy) params.append("sortBy", sortBy);
+    if (direction) params.append("direction", direction);
+    if (isTrainned !== undefined) params.append("isTrainned", isTrainned.toString());
+    if (isUnanswered !== undefined) params.append("isUnanswered", isUnanswered.toString());
+  
+    const res = await axiosAuth.axiosJsonRequest.get(
+      `report-of-user/get-all-with-pagin?${params.toString()}`
+    );
+  
+    return res.data as ApiResponse<GetData<GetReportResponse>>;
+  };
+
 export const getAllReportsOfUser = async (userId: number): Promise<ApiResponse<GetReportResponse[]>> => {
     const res = await axiosAuth.axiosJsonRequest.get(`report-of-user/get-report-of-user?userId=${userId}`);
     return res.data as ApiResponse<GetReportResponse[]>;
 };
 
 export const answerReport = async (data: AnswerReportRequest): Promise<ApiResponse<Object>> => {
-    const res = await axiosAuth.axiosJsonRequest.post('report-of-user/answer-report', data);
+    const res = await axiosAuth.axiosJsonRequest.post(`report-of-user/answer-report`, data);
     return res.data as ApiResponse<Object>;
 };
 
@@ -48,8 +73,8 @@ export const getTags = async (): Promise<ApiResponse<GetTagResponse[]>> => {
     return res.data as ApiResponse<GetTagResponse[]>;
 };
 
-export const assignTag = async (data: AssignTagRequest): Promise<ApiResponse<Object>> => {
-    const res = await axiosAuth.axiosJsonRequest.post('report-of-user/assign-tag-to-image', data);
+export const assignTag = async (data: AssignTagRequest, answererId: number): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(`report-of-user/assign-tag-to-image?answererId=${answererId}`, data);
     return res.data as ApiResponse<Object>;
 };
 
@@ -67,5 +92,3 @@ export const deleteTag = async (tagId: string): Promise<ApiResponse<Object>> => 
     const res = await axiosAuth.axiosJsonRequest.delete(`ai/delete-tag/${tagId}`);
     return res.data as ApiResponse<Object>;
 };
-
-//còn 2 api upload image by file

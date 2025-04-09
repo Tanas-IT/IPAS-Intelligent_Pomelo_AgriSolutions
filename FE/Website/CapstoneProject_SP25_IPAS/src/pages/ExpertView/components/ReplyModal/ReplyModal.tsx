@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import './ReplyModal.module.scss';
-import { motion } from 'framer-motion';
-import { AnswerReportRequest, GetReportResponse } from '@/payloads';
+import { Modal, Input, Button, Form } from 'antd';
+import { GetReportResponse, AnswerReportRequest } from '@/payloads';
+import style from './ReplyModal.module.scss';
+import { toast } from 'react-toastify';
 
 interface ReplyModalProps {
   report: GetReportResponse;
@@ -10,47 +11,76 @@ interface ReplyModalProps {
 }
 
 const ReplyModal: React.FC<ReplyModalProps> = ({ report, onClose, onSubmit }) => {
-  const [answer, setAnswer] = useState(report.answerFromExpert || '');
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    onSubmit({ reportId: report.reportID, answer });
-    onClose();
+  const handleSubmit = async (values: { answer: string }) => {
+    setLoading(true);
+    try {
+      const data: AnswerReportRequest = {
+        reportId: report.reportID,
+        answer: values.answer,
+      };
+      await onSubmit(data);
+      toast.success('Reply submitted successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error('Failed to submit reply. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <motion.div
-      className="modal-overlay"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <Modal
+      title={report.answerFromExpert ? 'View Reply' : 'Reply to Report'}
+      open={true}
+      onCancel={onClose}
+      footer={null}
+      width={600}
+      centered
+      maskClosable={false}
+      destroyOnClose
+      className={style.replyModal}
     >
-      <motion.div
-        className="modal-content"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.8 }}
-      >
-        <h3>Reply to Report #{report.reportCode}</h3>
-        <p>{report.questionOfUser}</p>
-        <textarea
-          className="textarea"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Enter your answer..."
-          disabled={!!report.answerFromExpert}
-        />
-        <div className="button-group">
-          <button className="close-button" onClick={onClose}>
-            Close
-          </button>
-          {!report.answerFromExpert && (
-            <button className="submit-button" onClick={handleSubmit}>
-              Submit
-            </button>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
+      <div className={style.reportDetails}>
+        <h3>Report Details</h3>
+        <p><strong>Report Code:</strong> {report.reportCode}</p>
+        <p><strong>Question:</strong> {report.questionOfUser}</p>
+        <p><strong>From:</strong> {report.questionerName}</p>
+        {report.answerFromExpert && (
+          <p><strong>Current Reply:</strong> {report.answerFromExpert}</p>
+        )}
+      </div>
+
+      {!report.answerFromExpert && (
+        <Form form={form} onFinish={handleSubmit} layout="vertical" className={style.replyForm}>
+          <Form.Item
+            name="answer"
+            label="Your Reply"
+            rules={[{ required: true, message: 'Please enter your reply' }]}
+          >
+            <Input.TextArea rows={4} placeholder="Enter your reply here..." />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              className={style.submitButton}
+            >
+              Submit Reply
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+    </Modal>
   );
 };
 

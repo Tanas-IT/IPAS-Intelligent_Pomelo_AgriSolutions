@@ -74,7 +74,7 @@ const InfoField = ({
 function WorklogDetail() {
   const navigate = useNavigate();
   const formModal = useModal<GetFeedback>();
-  const [feedback, setFeedback] = useState<string>("");
+  const [warning, setWarning] = useState<{ message: string; names: string[] } | null>(null);
   const [manager, setManager] = useState<GetUser | null>(null);
   const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
   const { id } = useParams();
@@ -357,6 +357,31 @@ function WorklogDetail() {
     });
   };
 
+  const checkAndNotifyReassignment = async (workLog: GetWorklogDetail) => {
+    const rejectedEmployees = [
+        ...workLog.listEmployee.filter(emp => emp.statusOfUserWorkLog === "Rejected"),
+        ...workLog.reporter.filter(rep => rep.statusOfUserWorkLog === "Rejected")
+    ];
+
+    const replacedUserIds = workLog.replacementEmployee.map(replacement => replacement.userId);
+
+    const employeesNeedingReassignment = rejectedEmployees.filter(
+        emp => !replacedUserIds.includes(emp.userId)
+    );
+
+    if (employeesNeedingReassignment.length > 0) {
+        const namesNeedingReassignment = employeesNeedingReassignment.map(emp => emp.fullName);
+        const message = "Need to re-assign because there are rejected employees:";
+        setWarning({ message, names: namesNeedingReassignment });
+        return message;
+    } else {
+        setWarning(null);
+        return null;
+    }
+};
+
+
+
   const fetchPlanDetail = async () => {
     try {
       const res = await worklogService.getWorklogDetail(Number(id));
@@ -365,6 +390,7 @@ function WorklogDetail() {
       // console.log("imsotired", imsotired);
 
       setWorklogDetail(res);
+      checkAndNotifyReassignment(res);
       // const initialAttendanceStatus = res.listEmployee.reduce((acc, employee) => {
       //     acc[employee.userId] = employee.statusOfUserWorkLog === "Received" ? "Received" : "Rejected";
       //     return acc;
@@ -462,7 +488,7 @@ function WorklogDetail() {
     try {
       // const canCheck = await worklogService.canTakeAttendance(Number(id));
       // console.log("canCheck", canCheck);
-      
+
       // if (canCheck.statusCode !== 200 || !canCheck.data) {
       //   toast.error(canCheck.message);
       //   return;
@@ -523,13 +549,13 @@ function WorklogDetail() {
     setSelectedDate(selectedDate);
     fetchPlanDetail();
   };
-  
+
   if (isLoading)
-      return (
-        <Flex justify="center" align="center" style={{ width: "100%" }}>
-          <Loading />
-        </Flex>
-      );
+    return (
+      <Flex justify="center" align="center" style={{ width: "100%" }}>
+        <Loading />
+      </Flex>
+    );
 
   return (
     <div className={style.container}>
@@ -588,7 +614,7 @@ function WorklogDetail() {
                         width={25}
                         className={style.avt}
                         crossOrigin="anonymous"
-                        // style={{ border: `2px solid ${borderColor}` }}
+                      // style={{ border: `2px solid ${borderColor}` }}
                       />
                       <label className={style.createdBy} style={{ color: textColor }}>
                         {employee.fullName || "Unknown"}
@@ -662,14 +688,14 @@ function WorklogDetail() {
                     width={25}
                     className={style.avt}
                     crossOrigin="anonymous"
-                    // style={{
-                    //   border:
-                    //     worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
-                    //       ? "2px solid red"
-                    //       : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                    //         ? "2px solid goldenrod"
-                    //         : "none",
-                    // }}
+                  // style={{
+                  //   border:
+                  //     worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
+                  //       ? "2px solid red"
+                  //       : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
+                  //         ? "2px solid goldenrod"
+                  //         : "none",
+                  // }}
                   />
                   <label
                     style={{
@@ -702,7 +728,16 @@ function WorklogDetail() {
             </Flex>
           </Flex>
         </Flex>
-        <Flex justify="flex-end">
+        <Flex justify="flex-end" gap={25}>
+          {warning && (
+            <p style={{ color: 'red', fontWeight: 500 }}>
+              {warning.message}{" "}
+              <span style={{ color: 'blue', fontWeight: 600 }}>
+                {warning.names.join(", ")}
+              </span>
+            </p>
+          )}
+
           <Button onClick={() => setIsEditModalVisible(true)}>Edit</Button>
         </Flex>
       </Flex>
