@@ -74,5 +74,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(x => x.Role.RoleName.ToLower().Equals("manager") && x.FarmId == farmId).ToListAsync();
             return result;
         }
+
+        public async Task<List<User>> GetExpertOffarm()
+        {
+            var result = await _context.Users
+                .Include(x => x.Role)
+                .Where(x => x.Role.RoleName.ToLower().Equals("expert")).ToListAsync();
+            return result;
+        }
     }
 }

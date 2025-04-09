@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -13,6 +14,7 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,13 +30,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IAIService _aIService;
+        private readonly IWebSocketService _webSocketService;
 
-        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IAIService aIService)
+        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IAIService aIService, IWebSocketService webSocketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _aIService = aIService;
+            _webSocketService = webSocketService;
         }
 
         public async Task<BusinessResult> CreateReportOfCustomer(CreateReportOfUserModel createReportOfUserModel)
@@ -60,6 +64,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ImageURL = imageUpload,
                 };
                 await _unitOfWork.ReportRepository.Insert(newReportOfUser);
+                var getListExpert = await _unitOfWork.UserFarmRepository.GetExpertOffarm();
+
+                foreach (var expert in getListExpert)
+                {
+                    var addNotification = new Notification()
+                    {
+                        Content = "Question: " + createReportOfUserModel.QuestionOfUser + " has just been created",
+                        Title = "Validate Information Of AI",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    await _webSocketService.SendToUser(expert.UserId, addNotification);
+                }
+                var addNewNotification = new Notification()
+                {
+                    Content = "Question: " + createReportOfUserModel.QuestionOfUser + " has just been created",
+                    Title = "Validate Information Of AI",
+                    IsRead = false,
+                    MasterTypeId = 36,
+                    CreateDate = DateTime.Now,
+                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                };
+                await _unitOfWork.NotificationRepository.Insert(addNewNotification);
+                await _webSocketService.SendToUser(createReportOfUserModel.QuestionerID.Value, addNewNotification);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                 {
@@ -518,7 +552,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 getReportToAnswer.AnswererID = answerId;
                  _unitOfWork.ReportRepository.Update(getReportToAnswer);
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                var addNotificationForExpert = new Notification()
+                {
+                    Content = "Answer: " + getReportToAnswer.QuestionOfUser + " has been finished",
+                    Title = "Validate Information Of AI",
+                    IsRead = false,
+                    MasterTypeId = 36,
+                    CreateDate = DateTime.Now,
+                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                };
+
+                var addNotificationForUser = new Notification()
+                {
+                    Content = "Expert answered " + getReportToAnswer.QuestionOfUser,
+                    Title = "Validate Information Of AI",
+                    IsRead = false,
+                    MasterTypeId = 36,
+                    CreateDate = DateTime.Now,
+                    NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                };
+                await _unitOfWork.NotificationRepository.Insert(addNotificationForUser);
+                await _unitOfWork.NotificationRepository.Insert(addNotificationForExpert);
+                await _unitOfWork.SaveAsync();
+                await _webSocketService.SendToUser(getReportToAnswer.QuestionerID.Value, addNotificationForUser);
+                await _webSocketService.SendToUser(getReportToAnswer.AnswererID.Value, addNotificationForExpert);
+
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Answer Report Success");
                 }
@@ -530,5 +590,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
     }
 }
