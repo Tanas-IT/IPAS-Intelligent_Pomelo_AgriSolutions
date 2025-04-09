@@ -4,7 +4,7 @@ import style from "./ChatBox.module.scss";
 import { Images } from "@/assets";
 import { ActionMenuChat, ConfirmModal, UserAvatar } from "@/components";
 import { useEffect, useRef, useState } from "react";
-import { chatMessage, GetMessageOfRoom, GetRooms } from "@/payloads";
+import { ChatMessage, GetMessageOfRoom, GetRooms, MessageRequest } from "@/payloads";
 import { ChatBoxService } from "@/services";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
@@ -13,6 +13,7 @@ import { LOCAL_STORAGE_KEYS, ROOM_GROUPS } from "@/constants";
 import { useModal } from "@/hooks";
 import ChangeNameModal from "./ChangeNameModal";
 import { toast } from "react-toastify";
+import { formatDateTimeChat, getUserId } from "@/utils";
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
@@ -20,8 +21,8 @@ dayjs.extend(isYesterday);
 const ChatBox = () => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const [rooms, setRooms] = useState<GetRooms[]>([]);
-  const [activeChatId, setActiveChatId] = useState(0);
-  const [messages, setMessages] = useState<chatMessage[]>([]);
+  const [activeChat, setActiveChat] = useState<GetRooms>();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,12 +47,11 @@ const ChatBox = () => {
   }, []);
 
   const handleGetHistoryMessage = async (roomId: number) => {
+    setIsLoadingMessages(true);
+    await new Promise((resolve) => setTimeout(resolve, 500));
     try {
-      setIsLoadingMessages(true);
       const res = await ChatBoxService.getHistoryChat(roomId);
-      console.log(res);
-      
-      if (res.statusCode === 200) setMessages(res.data.chatMessages || []);
+      if (res.statusCode === 200) setMessages(res.data[0].chatMessages || []);
     } finally {
       setIsLoadingMessages(false);
     }
@@ -91,6 +91,48 @@ const ChatBox = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    if (isWaitingForResponse || !messageInput.trim()) return;
+    const newQuestion = messageInput.trim();
+    const userMessage: ChatMessage = {
+      messageId: Date.now(),
+      question: newQuestion,
+      answer: "",
+      createDate: new Date().toISOString(),
+      senderId: "",
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setMessageInput("");
+    setIsWaitingForResponse(true);
+    try {
+      const messReq: MessageRequest = {
+        question: newQuestion,
+        roomId: activeChat ? activeChat.roomId : undefined,
+      };
+      // const res = await ChatBoxService.newMessage(messReq);
+      // if (res.statusCode === 200) {
+      //   const updatedRoom = res.data;
+      //   const newAnswer = updatedRoom?.ChatMessages?.slice(-1)[0];
+      //   const newAnswer:ChatMessage = {
+      //     messageId: number;
+      //     question: string;
+      //     answer: string;
+      //     createDate: string;
+      //     senderId: string;
+      //   }
+      //   if (newAnswer) {
+      //     setMessages((prev) => [...prev, newAnswer]);
+      //   }
+      // }
+    } catch (err) {
+      toast.error("Failed to send message");
+    } finally {
+      setTimeout(() => {
+        setIsWaitingForResponse(false);
+      }, 3000);
+    }
+  };
+
   const groupRoomsByDate = (rooms: GetRooms[]) => {
     const grouped: Record<(typeof ROOM_GROUPS)[number], GetRooms[]> = {
       Today: [],
@@ -120,6 +162,47 @@ const ChatBox = () => {
 
   const groupedRooms = groupRoomsByDate(rooms);
 
+  const renderAnswerMessage = (answer: string) => {
+    try {
+      const jsonStr = answer
+        .trim()
+        .replace(/^```json\n/, "")
+        .replace(/\n```$/, "");
+      const parsed = JSON.parse(jsonStr);
+
+      return (
+        <div>
+          <h4>{parsed.title}</h4>
+          <p>
+            <strong>Tóm tắt:</strong> {parsed.summary}
+          </p>
+          <div dangerouslySetInnerHTML={{ __html: parsed.details }} style={{ margin: "8px 0" }} />
+          {parsed.note && (
+            <p>
+              <strong>Lưu ý:</strong> {parsed.note}
+            </p>
+          )}
+          {parsed.confidence && (
+            <p style={{ fontStyle: "italic", color: "gray" }}>Độ tin cậy: {parsed.confidence}</p>
+          )}
+        </div>
+      );
+    } catch (err) {
+      // Fallback: nếu không parse được JSON, hiển thị plain text
+      return <pre>{answer}</pre>;
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <Flex className={style.chatBoxContainer}>
       <Flex className={style.chatBoxSidebar}>
@@ -145,10 +228,10 @@ const ChatBox = () => {
                   <Flex
                     key={room.roomId}
                     className={`${style.chatBoxSidebarListItem} ${
-                      activeChatId === room.roomId ? style.active : ""
+                      activeChat?.roomId === room.roomId ? style.active : ""
                     }`}
                     onClick={async () => {
-                      setActiveChatId(room.roomId);
+                      setActiveChat(room);
                       await handleGetHistoryMessage(room.roomId);
                     }}
                     justify="space-between"
@@ -168,7 +251,7 @@ const ChatBox = () => {
 
       <Flex className={style.chatBoxContent}>
         <Flex className={style.chatBoxContentHeader}>
-          <h3>New Chat</h3>
+          <h3> {activeChat?.roomName}</h3>
         </Flex>
         <Flex className={style.chatBoxContentMessages} ref={chatBoxRef}>
           {isLoadingMessages ? (
@@ -187,26 +270,50 @@ const ChatBox = () => {
             messages.map((mess) => {
               const lastMessage = messages[messages.length - 1];
               return (
-                <Flex key={mess.messageId} className={`${style.message} ${style.messageSent}`}>
-                  <UserAvatar avatarURL={localStorage.getItem(LOCAL_STORAGE_KEYS.AVATAR) || ""} />
-                  <Flex className={style.messageWrapper}>
-                    <span className={`${style.messageTimestamp} ${style.right}`}>
-                      {mess.createDate}
-                    </span>
-                    {/* <div className={style.messageBubble}>
-                      {text === "Bot is typing..." && lastMessage.messageId === id ? (
-                        <>
-                          <LoadingOutlined /> Bot is typing...
-                        </>
-                      ) : (
-                        text
-                      )}
-                    </div> */}
+                <div key={mess.messageId}>
+                  {/* User message (sent) */}
+                  <Flex className={`${style.message} ${style.messageSent}`}>
+                    <Flex className={style.messageWrapper}>
+                      <span className={`${style.messageTimestamp} ${style.right}`}>
+                        {formatDateTimeChat(mess.createDate)}
+                      </span>
+                      <div className={style.messageBubble}>{mess.question}</div>
+                    </Flex>
+                    <UserAvatar avatarURL={localStorage.getItem(LOCAL_STORAGE_KEYS.AVATAR) || ""} />
                   </Flex>
-                  {/* {type === "sent" && <Avatar src={avatar} />} */}
-                </Flex>
+
+                  {/* AI message (received) */}
+                  {mess.answer && (
+                    <Flex className={`${style.message} ${style.messageReceived}`}>
+                      <Avatar src={Images.logo} />
+                      <Flex className={style.messageWrapper}>
+                        <span className={style.messageTimestamp}>
+                          {formatDateTimeChat(mess.createDate)}
+                        </span>
+                        <div className={style.messageBubble}>
+                          {renderAnswerMessage(mess.answer)}
+                        </div>
+                      </Flex>
+                    </Flex>
+                  )}
+                </div>
               );
             })
+          )}
+
+          {/* Hiển thị "Bot is typing..." nếu đang chờ phản hồi */}
+          {isWaitingForResponse && (
+            <Flex className={`${style.message} ${style.messageReceived}`}>
+              <Avatar src={Images.logo} />
+              <Flex className={style.messageWrapper}>
+                <span className={style.messageTimestamp}>
+                  {formatDateTimeChat(new Date().toISOString())}
+                </span>
+                <div className={style.messageBubble}>
+                  <LoadingOutlined /> Bot is typing...
+                </div>
+              </Flex>
+            </Flex>
           )}
 
           {isLoading && (
@@ -225,14 +332,14 @@ const ChatBox = () => {
             onChange={(e) => setMessageInput(e.target.value)}
             onPressEnter={(e) => {
               e.preventDefault(); // Tránh xuống dòng
-              // handleSendMessage();
+              handleSendMessage();
             }}
           />
           <Button
             type="primary"
             icon={<SendOutlined />}
             className={style.sendBtn}
-            // onClick={handleSendMessage}
+            onClick={handleSendMessage}
             disabled={isWaitingForResponse}
           />
         </Flex>

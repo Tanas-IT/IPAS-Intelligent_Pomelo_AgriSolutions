@@ -2030,8 +2030,8 @@ WHILE @roomId <= 10
 BEGIN
     -- Giả lập câu hỏi - trả lời thứ 1
     INSERT INTO ipas.dbo.ChatMessage (
-        MessageCode, MessageContent, CreateDate, UpdateDate,
-        SenderID, IsUser, MessageType, RoomID
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
     )
     VALUES (
         N'Tôi cần thông tin về phân bón cho phòng ' + CAST(@roomId AS NVARCHAR),
@@ -2039,15 +2039,14 @@ BEGIN
         DATEADD(MINUTE, 5, GETDATE()),
         NULL,
         3,
-        0,
         'A',
         @roomId
     );
 
     -- Giả lập câu hỏi - trả lời thứ 2
     INSERT INTO ipas.dbo.ChatMessage (
-        MessageCode, MessageContent, CreateDate, UpdateDate,
-        SenderID, IsUser, MessageType, RoomID
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
     )
     VALUES (
         N'Tôi muốn biết độ ẩm đất ở khu vực này.',
@@ -2055,15 +2054,14 @@ BEGIN
         DATEADD(MINUTE, 6, GETDATE()),
         NULL,
         3,
-        0,
         'A',
         @roomId
     );
 
     -- Giả lập câu hỏi - trả lời thứ 3
     INSERT INTO ipas.dbo.ChatMessage (
-        MessageCode, MessageContent, CreateDate, UpdateDate,
-        SenderID, IsUser, MessageType, RoomID
+        Question, MessageContent, CreateDate, UpdateDate,
+        SenderID, MessageType, RoomID
     )
     VALUES (
         N'Thời điểm nào là tốt nhất để tưới nước?',
@@ -2071,7 +2069,6 @@ BEGIN
         DATEADD(MINUTE, 7, GETDATE()),
         NULL,
         3,
-        0,
         'A',
         @roomId
     );

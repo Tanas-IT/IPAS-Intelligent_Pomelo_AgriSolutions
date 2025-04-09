@@ -236,7 +236,7 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
                   dataIndex: "costPrice",
                   key: "costPrice",
                   align: "center",
-                  render: (price, record) => `${formatCurrencyVND(price)}/${record.unit}`,
+                  render: (price, record) => `${formatCurrencyVND(price)}`,
                 },
                 {
                   title: "Revenue Price",

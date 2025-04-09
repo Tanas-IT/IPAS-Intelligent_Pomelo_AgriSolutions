@@ -1,5 +1,5 @@
 import { axiosAuth } from "@/api";
-import { ApiResponse, GetMessageOfRoom, GetRooms } from "@/payloads";
+import { ApiResponse, ChatMessage, GetMessageOfRoom, GetRooms, MessageRequest } from "@/payloads";
 
 export const getRooms = async (search?: string): Promise<ApiResponse<GetRooms[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get("ai/get-all-room", {
@@ -24,18 +24,12 @@ export const deleteRoom = async (roomId: number): Promise<ApiResponse<Object>> =
   return res.data as ApiResponse<Object>;
 };
 
-export const newMessage = async (
-  question: string,
-  roomId?: number,
-): Promise<ApiResponse<GetRooms>> => {
-  const res = await axiosAuth.axiosJsonRequest.post("ai/chat", {
-    question,
-    roomId,
-  });
-  return res.data as ApiResponse<GetRooms>;
+export const newMessage = async (req: MessageRequest): Promise<ApiResponse<ChatMessage>> => {
+  const res = await axiosAuth.axiosJsonRequest.post("ai/chat", { req });
+  return res.data as ApiResponse<ChatMessage>;
 };
 
-export const getHistoryChat = async (roomId: number): Promise<ApiResponse<GetMessageOfRoom>> => {
+export const getHistoryChat = async (roomId: number): Promise<ApiResponse<GetMessageOfRoom[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`ai/history-of-chat?roomId=${roomId}`);
-  return res.data as ApiResponse<GetMessageOfRoom>;
+  return res.data as ApiResponse<GetMessageOfRoom[]>;
 };

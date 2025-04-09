@@ -5,17 +5,16 @@ export interface GetRooms {
   createDate: string;
 }
 
-export interface chatMessage {
+export interface ChatMessage {
   messageId: number;
   question: string;
   answer: string;
   createDate: string;
   senderId: string;
-  isUser: boolean;
 }
 
 export interface GetMessageOfRoom {
   roomId: number;
   roomName: string;
-  chatMessages: chatMessage[];
+  chatMessages: ChatMessage[];
 }

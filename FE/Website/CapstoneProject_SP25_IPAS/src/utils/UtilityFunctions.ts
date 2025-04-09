@@ -174,6 +174,10 @@ export const formatDayMonth = (date: Date | string): string => {
   return moment(date).format("dddd, Do MMMM YYYY");
 };
 
+export const formatDateTimeChat = (dateString: string) => {
+  return dayjs(dateString).format("ddd, MMM DD, YYYY h:mm A");
+};
+
 export const formatDateRange = (startDate: string | Date, endDate?: string | Date): string => {
   const start = moment(startDate);
   const end = endDate ? moment(endDate) : null;
