@@ -174,6 +174,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.Characteristic, opt => opt.MapFrom(src => src.MasterType!.Characteristic))
                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
                 .ForMember(dest => dest.PlantReferenceCode, opt => opt.MapFrom(src => src.PlantReference.PlantCode))
+                .ForMember(dest => dest.PlantReferenceName, opt => opt.MapFrom(src => src.PlantReference.PlantName))
                 .ReverseMap();
 
 
@@ -367,6 +368,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant!.PlantIndex))
                 .ForMember(dest => dest.LandRowIndex, opt => opt.MapFrom(src => src.Plant.LandRow!.RowIndex))
                 .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant!.LandRow.LandPlot!.LandPlotName))
+                .ForMember(dest => dest.SellPrice, opt => opt.MapFrom(src => src.Revenue))
                 //.ForMember(dest => dest.plantLogHarvest, opt => opt.MapFrom(src => src.Ignore()))
                 .ReverseMap();
 

@@ -727,13 +727,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
-                        var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
                         await transaction.CommitAsync();
+                        var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
+                        var productHasUpdate = await _unitOfWork.ProductHarvestHistoryRepository
+                            .GetAllNoPaging(x => x.MasterTypeId == harvestHistory.MasterTypeId && x.HarvestHistoryId == harvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != harvestHistory.ProductHarvestHistoryId);
+                        mappedResult.YieldHasRecord = productHasUpdate.Sum(x => x.ActualQuantity);
                         return new BusinessResult(200, Const.SUCCESS_UPDATE_HARVEST_HISTORY_MSG, mappedResult);
                     }
                     else
                     {
-                        await transaction.CommitAsync();
+                        await transaction.RollbackAsync();
                         return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE, Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
                     }
                 }
