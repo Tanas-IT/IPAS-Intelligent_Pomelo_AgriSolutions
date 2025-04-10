@@ -16,6 +16,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import {
+  CancelWorklogRequest,
   ResourceItem,
   WorklogDetail,
   WorklogNoteFormData,
@@ -30,9 +31,11 @@ import {
   TextCustom,
 } from "@/components";
 import { worklogService } from "@/services";
+import { useAuthStore } from "@/store";
 
 const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const { worklogId } = route.params;
+  const { userId } = useAuthStore();
   const navigation = useNavigation<RootStackNavigationProp>();
   const [worklog, setWorklog] = useState<WorklogDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,20 +44,48 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
     []
   );
   const currentUser = 2;
-  useEffect(() => {
-    const fetchWorklogDetail = async () => {
-      try {
-        const res = await worklogService.getWorklogDetail(Number(worklogId));
-        setWorklog(res);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching mock worklog detail:", error);
-        setLoading(false);
-      }
-    };
 
+  const fetchWorklogDetail = async () => {
+    try {
+      const res = await worklogService.getWorklogDetail(Number(worklogId));
+      setWorklog(res);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching mock worklog detail:", error);
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchWorklogDetail();
   }, [worklogId]);
+
+  const isUserRejected = () => {
+    const isRejectedInEmployee = worklog?.listEmployee.some(
+      (employee) => {
+        const isRejected =
+          employee.userId === Number(userId) &&
+          employee.statusOfUserWorkLog?.toLowerCase() === "rejected";
+        console.log("Employee:", employee, "Rejected:", isRejected);
+        return isRejected;
+      }
+    ) || false;
+    const isRejectedInReporter = worklog?.reporter.some(
+      (reporter) => {
+        const isRejected =
+          reporter.userId === Number(userId) &&
+          reporter.statusOfUserWorkLog?.toLowerCase() === "rejected";
+        console.log("Reporter:", reporter, "Rejected:", isRejected);
+        return isRejected;
+      }
+    ) || false;
+    console.log("Is user rejected:", isRejectedInEmployee || isRejectedInReporter);
+    return isRejectedInEmployee || isRejectedInReporter;
+  };
+
+  // Kiểm tra điều kiện hiển thị nút Redo
+  const canRedoWorklog = () => {
+    return worklog?.status.toLowerCase() !== "rejected" && isUserRejected();
+  };
 
   if (loading) {
     return (
@@ -72,6 +103,50 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
     );
   }
 
+  const handleRedoWorklog = async () => {
+    Alert.alert(
+      "Confirm Redo",
+      "Are you sure you want to redo this worklog?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              console.log("Redoing worklog:", worklogId);
+              const payload = {
+                workLogId: Number(worklogId),
+                userId: Number(userId),
+              };
+              // const res = await worklogService.redoWorklog(payload); // Giả định API
+              // if (res.statusCode === 200) {
+              //   Toast.show({
+              //     type: "success",
+              //     text1: "Worklog redo requested successfully",
+              //   });
+              //   setWorklog((prev) =>
+              //     prev ? { ...prev, status: "redo" } : null
+              //   );
+              // } else {
+              //   Toast.show({
+              //     type: "error",
+              //     text1: "Redo worklog failed",
+              //   });
+              // }
+            } catch (error) {
+              console.error("Error redoing worklog:", error);
+              Alert.alert(
+                "Error",
+                "Failed to redo worklog. Please try again."
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const handleCancelWorklog = () => {
     Alert.alert(
       "Confirm Cancellation",
@@ -86,6 +161,23 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           onPress: async () => {
             try {
               console.log("Cancelling worklog:", worklogId);
+              const payload: CancelWorklogRequest = {
+                workLogId: Number(worklogId),
+                userId: Number(userId)
+              }
+              const res = await worklogService.cancelWorklog(payload);
+              if (res.statusCode === 200) {
+                Toast.show({
+                  type: "success",
+                  text1: "Cancel worklog successfully",
+                });
+                fetchWorklogDetail();
+              } else {
+                Toast.show({
+                  type: "error",
+                  text1: "Cancel worklog failed",
+                });
+              }
 
               setWorklog((prev) =>
                 prev ? { ...prev, status: "Cancelled" } : null
@@ -137,6 +229,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
     });
   };
 
+  const handleMarkAsComplete = async () => {
+
+  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -165,14 +261,34 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           {/* </View> */}
         </View>
 
-        <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
+        {/* <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
           <CustomIcon
             name="delete"
             size={24}
             color="red"
             type="MaterialCommunityIcons"
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        {/* Điều kiện hiển thị nút Delete hoặc Redo */}
+        {!isUserRejected() ? (
+          <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
+            <CustomIcon
+              name="delete"
+              size={24}
+              color="red"
+              type="MaterialCommunityIcons"
+            />
+          </TouchableOpacity>
+        ) : canRedoWorklog() ? (
+          <TouchableOpacity onPress={handleRedoWorklog} style={styles.delBtn}>
+            <CustomIcon
+              name="restore"
+              size={24}
+              color="green"
+              type="MaterialCommunityIcons"
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       <View style={styles.dateTimeFrame}>
@@ -201,7 +317,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         </View>
       </View>
       {/* neu la reporter thi mark */}
-      <TouchableOpacity style={styles.markAsCompleted}>
+      <TouchableOpacity style={styles.markAsCompleted} onPress={() => handleMarkAsComplete()}>
         <CustomIcon
           name="checkmark"
           type="Ionicons"

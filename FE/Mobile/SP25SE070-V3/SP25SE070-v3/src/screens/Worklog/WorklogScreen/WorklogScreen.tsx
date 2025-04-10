@@ -57,13 +57,26 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
 
   const eventDates: string[] = []; // Lưu các ngày có sự kiện
 
+  const defaultResult = {
+    events: [],
+    timelineEvents: {},
+    eventDates: [],
+  };
+
+  if (!workLogs || workLogs.length === 0) {
+    return defaultResult;
+  }
+
   workLogs.forEach((log) => {
     const date = log.date.split("T")[0];
     const time = `${log.startTime.substring(0, 5)} - ${log.endTime.substring(
       0,
       5
     )}`;
+    console.log('log', log);
     const avatars = log.users.map((user) => user.avatarURL);
+    console.log('avatars', avatars);
+    
 
     events.push({
       id: log.workLogId,
@@ -100,13 +113,14 @@ export default function WorklogScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState("Agenda");
-  const [events, setEvents] = useState<AgendaEvent[]>([]); // State cho events
-  const [timelineEvents, setTimelineEvents] = useState<{ [key: string]: CustomEventt[] }>({}); // State cho timelineEvents
-  const [eventDates, setEventDates] = useState<string[]>([]); // State cho eventDates
+  const [events, setEvents] = useState<AgendaEvent[]>([]);
+  const [timelineEvents, setTimelineEvents] = useState<{ [key: string]: CustomEventt[] }>({});
+  const [eventDates, setEventDates] = useState<string[]>([]);
   // const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(data);
   const [selectedDate, setSelectedDate] = useState<string>(
     eventDates[0] || new Date().toISOString().split("T")[0]
   );
+  // const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const calendarHeight = useRef(
     new Animated.Value(MIN_CALENDAR_HEIGHT)
   ).current;
@@ -116,6 +130,8 @@ export default function WorklogScreen() {
 
   useEffect(() => {
     const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(worklogs);
+    console.log('eventtt', events);
+    
     setEvents(events);
     setTimelineEvents(timelineEvents);
     setEventDates(eventDates);
@@ -124,6 +140,8 @@ export default function WorklogScreen() {
       setSelectedDate(eventDates[0]);
     }
   }, [worklogs]);
+  console.log('worklog', worklogs);
+  
 
   const getWeekRange = (selectedDate: string) => {
     const date = new Date(selectedDate);
@@ -262,7 +280,11 @@ export default function WorklogScreen() {
   };
 
   const renderDayItem = ({ item: date }: { item: string }) => {
+    console.log('event', events);
+    
     const eventsForDate = events.filter((event) => event.date === date);
+    console.log("eventsForDate", eventsForDate);
+    
     return (
       <View style={{ marginBottom: 20 }}>
         <View style={styles.dateContainer}>
