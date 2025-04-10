@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { growthStageService, landRowService, plantService } from "@/services";
-import { ApiResponse, GetGrowthStageSelected, GetLandRow, GetPlantOfRowSelect, GetPlantSelect } from "@/payloads";
+import {
+  ApiResponse,
+  GetGrowthStageSelected,
+  GetLandRow,
+  GetPlantOfRowSelect,
+  GetPlantSelect,
+} from "@/payloads";
 import { getFarmId } from "@/utils";
 
 interface SelectOption {
@@ -18,13 +24,11 @@ const usePlantOfRowOptions = (landRowId: number | null) => {
     }
 
     const fetchOptions = async () => {
-      console.log("lại ảo", landRowId);
-      
-      const result: ApiResponse<GetPlantOfRowSelect[]> =
-        await plantService.getPlantOfRow(landRowId);
-      console.log("apiResponse plant", result);
+      const result: ApiResponse<GetPlantOfRowSelect[]> = await plantService.getPlantOfRow(
+        landRowId,
+      );
 
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: item.id,
           label: item.code,

@@ -8,7 +8,7 @@ const DescriptionSection = ({}: {}) => {
   const { plant } = usePlantStore();
   if (!plant) return;
   const description = plant?.description ?? "N/A";
-  const isShortDescription = description.length < 50; // Điều kiện kiểm tra mô tả ngắn
+  const isShortDescription = description.length < 100; // Điều kiện kiểm tra mô tả ngắn
   function doDownload(url: string, fileName: string) {
     const a = document.createElement("a");
     a.download = fileName;
@@ -27,7 +27,6 @@ const DescriptionSection = ({}: {}) => {
 
     doDownload(url, `QRCode-${plant.plantCode}.svg`);
   };
-  const baseUrl = import.meta.env.VITE_APP_BASE_URL;
   return (
     <Flex className={style.descriptionSection}>
       <Flex className={`${style.infoField} ${style.infoFieldColumn}`} gap={20}>

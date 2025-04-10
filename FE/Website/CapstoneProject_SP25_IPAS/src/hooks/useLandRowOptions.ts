@@ -17,7 +17,7 @@ const useLandRowOptions = (landPlotId: number | null) => {
       const result: ApiResponse<GetLandRowSelected[]> = await landRowService.getLandRowsSelected(
         landPlotId,
       );
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: item.id,
           label: item.code,
