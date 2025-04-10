@@ -474,6 +474,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 throw new Exception("Process is running. Can not update");
                             }
                         }
+                        if(updateProcessModel.PlanTargetInProcess != null)
+                        {
+                            checkExistProcess.PlanTargetInProcess = updateProcessModel.PlanTargetInProcess;
+                        }
                         if (updateProcessModel.ProcessName != null)
                         {
                             checkExistProcess.ProcessName = updateProcessModel.ProcessName;

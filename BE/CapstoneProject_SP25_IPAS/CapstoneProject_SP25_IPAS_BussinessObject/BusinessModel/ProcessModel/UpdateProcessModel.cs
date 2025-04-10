@@ -12,6 +12,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
     {
         public int ProcessId { get; set; }
         public string? ProcessName { get; set; }
+        public int? PlanTargetInProcess { get; set; }
 
         public bool? IsActive { get; set; }
         public bool? IsDefault { get; set; }
