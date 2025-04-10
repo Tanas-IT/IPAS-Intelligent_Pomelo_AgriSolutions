@@ -1977,9 +1977,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if(getWorkLogToCancelled.StatusOfUserWorkLog != null)
                     {
-                        if(getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected))
+                        if(getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected) && getWorkLogToCancelled.IsDeleted == true)
                         {
                             getWorkLogToCancelled.StatusOfUserWorkLog = null;
+                            getWorkLogToCancelled.IsDeleted = false;
                         }
                     }
                     else
