@@ -29,133 +29,7 @@ import {
   NoteDetailModal,
   TextCustom,
 } from "@/components";
-
-const mockWorklog = {
-  workLogId: 2,
-  workLogCode: "WL-11",
-  status: "Not Started",
-  workLogName: "Watering on Plot A",
-  planName: "Kế hoạch chăm sóc cây",
-  processName: "Tưới nhỏ giọt",
-  masterTypeName: "Watering",
-  date: "2025-03-25T07:00:00",
-  actualStartTime: "07:00:00",
-  actualEndTime: "08:00:00",
-  isConfirm: false,
-  listEmployee: [
-    {
-      userId: 2,
-      fullName: "Jane Smith",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png",
-      statusOfUserWorkLog: "Replaced",
-    },
-    {
-      userId: 8,
-      fullName: "Charlie Davis",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755864/pw8jyieauzsacwbae9gg.png",
-      statusOfUserWorkLog: "Replaced",
-    },
-  ],
-  reporter: [
-    {
-      userId: 6,
-      fullName: "Ai Giao",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      statusOfUserWorkLog: "Received",
-    },
-  ],
-  planTargetModels: [
-    {
-      landPlotId: 1,
-      landPlotName: "Plot A",
-      rows: [],
-      graftedPlants: [],
-      plantLots: [],
-      plants: [],
-    },
-  ],
-  typeWork: "Tưới nhỏ giọt",
-  listGrowthStageName: ["Seedling Stage"],
-  listTaskFeedback: [],
-  listNoteOfWorkLog: [
-    {
-      userWorklogId: 1,
-      notes: "ooooo",
-      fullName: "Jane Smith",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png",
-      issue: "ppppp",
-      userId: 2,
-      listResources: [
-        {
-          resourceID: 6,
-          resourceCode: "RES-006",
-          resourceURL:
-            "https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg",
-        },
-      ],
-    },
-    {
-      userWorklogId: 2,
-      notes: "kkkkkk",
-      fullName: "The Tam",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755512/gkk4m8onahfl8dacc4qf.png",
-      issue: "llll",
-      userId: 4,
-      listResources: [
-        {
-          resourceID: 7,
-          resourceCode: "RES-007",
-          resourceURL:
-            "https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg",
-        },
-      ],
-    },
-    {
-      userWorklogId: 3,
-      notes: "iiiiiiiii",
-      fullName: "Ai Giao",
-      avatarURL:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      issue: "mmmm",
-      userId: 6,
-      listResources: [
-        {
-          resourceID: 8,
-          resourceCode: "RES-008",
-          resourceURL:
-            "https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg",
-        },
-      ],
-    },
-  ],
-  replacementEmployee: [
-    {
-      userId: 10,
-      fullName: "Ethan Wilson",
-      avatar:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755864/pw8jyieauzsacwbae9gg.png",
-      replaceUserId: 2,
-      replaceUserFullName: "Jane Smith",
-      replaceUserAvatar:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png",
-    },
-    {
-      userId: 2,
-      fullName: "Jane Smith",
-      avatar:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png",
-      replaceUserId: 10,
-      replaceUserFullName: "Ethan Wilson",
-      replaceUserAvatar:
-        "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755864/pw8jyieauzsacwbae9gg.png",
-    },
-  ],
-};
+import { worklogService } from "@/services";
 
 const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const { worklogId } = route.params;
@@ -170,8 +44,8 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   useEffect(() => {
     const fetchWorklogDetail = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setWorklog(mockWorklog);
+        const res = await worklogService.getWorklogDetail(Number(worklogId));
+        setWorklog(res);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching mock worklog detail:", error);

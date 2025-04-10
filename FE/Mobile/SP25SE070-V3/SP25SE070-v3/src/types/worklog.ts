@@ -94,4 +94,20 @@ export interface WorklogDetail {
   listTaskFeedback: any[];
   listNoteOfWorkLog: ListNoteOfWorkLog[];
   replacementEmployee: ReplacementEmployee[];
+  processId: number;
+  isHarvest: boolean;
+  isTakeAttendance: boolean;
+  redoWorkLog: RedoWorkLog;
+}
+
+interface RedoWorkLog {
+  workLogId: number
+  status: string
+  workLogName: string
+  date: string
+}
+
+export interface CancelWorklogRequest {
+  workLogId: number
+  userId: number
 }
