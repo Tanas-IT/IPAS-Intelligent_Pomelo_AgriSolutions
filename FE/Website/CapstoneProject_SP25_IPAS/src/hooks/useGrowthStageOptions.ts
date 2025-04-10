@@ -11,7 +11,7 @@ const useGrowthStageOptions = (isUseValueAsName: boolean = false) => {
     const fetchOptions = async () => {
       const result: ApiResponse<GetGrowthStageSelected[]> =
         await growthStageService.getGrowthStagesSelect(Number(getFarmId()));
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: isUseValueAsName ? item.name : item.id,
           label: item.name,

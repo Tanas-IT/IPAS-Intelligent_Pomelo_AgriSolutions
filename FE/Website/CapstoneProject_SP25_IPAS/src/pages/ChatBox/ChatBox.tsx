@@ -14,9 +14,6 @@ import { useModal } from "@/hooks";
 import ChangeNameModal from "./ChangeNameModal";
 import { toast } from "react-toastify";
 import { formatDateTimeChat, getAnswerParts, getUserId } from "@/utils";
-import { AnswerData } from "@/types";
-import { motion } from "framer-motion";
-import { Typewriter } from "react-simple-typewriter";
 import AnimatedAnswer from "./AnimatedAnswer";
 
 dayjs.extend(isToday);

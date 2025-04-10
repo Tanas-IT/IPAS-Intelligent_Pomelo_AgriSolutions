@@ -6,7 +6,7 @@ import { Icons } from "@/assets";
 import PlotListPopup from "./PlotListPopup";
 import { useNavigate } from "react-router-dom";
 import { landPlotService } from "@/services";
-import { GetLandPlot } from "@/payloads";
+import { GetLandPlot, GetLandPlotOfFarm } from "@/payloads";
 import { useDebounce } from "use-debounce";
 import ColorGuide from "./ColorGuide";
 import { AddNewPlotDrawer } from "@/pages";
@@ -17,7 +17,11 @@ import { useModal } from "@/hooks";
 function LandPlot() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [landPlots, setLandPlots] = useState<GetLandPlot[]>([]);
+  const [landPlots, setLandPlots] = useState<GetLandPlotOfFarm>({
+    longitude: 0,
+    latitude: 0,
+    landPlots: [],
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLandPlotIds, setFilteredLandPlotIds] = useState<string[]>([]);
   const [isPopupVisible, setPopupVisible] = useState(false);
@@ -59,8 +63,8 @@ function LandPlot() {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-
-    const filtered = landPlots
+    const landPlotsRes = landPlots?.landPlots ?? [];
+    const filtered = landPlotsRes
       .filter((plot) =>
         [
           plot.landPlotName,
@@ -111,14 +115,15 @@ function LandPlot() {
       {/* <SectionTitle title="Plant Management" totalRecords={10} /> */}
       <div className={style.mapWrapper}>
         <MapLandPlot
-          longitude={landPlots[0]?.farmLongtitude ?? 0}
-          latitude={landPlots[0]?.farmLatitude ?? 0}
-          landPlots={landPlots}
+          longitude={landPlots.longitude}
+          latitude={landPlots.latitude}
+          landPlots={landPlots.landPlots}
           highlightedPlots={filteredLandPlotIds}
           onDeletePlot={(id) => deleteConfirmModal.showModal({ id: id })}
           onUpdatePlot={handleUpdate}
           onViewRows={handleClick}
         />
+
         <Flex className={style.mapControls}>
           <Input.Search
             placeholder="Input search text"
@@ -145,7 +150,10 @@ function LandPlot() {
             />
             <Popover
               content={
-                <PlotListPopup landPlots={landPlots} onClose={() => setPopupVisible(false)} />
+                <PlotListPopup
+                  landPlots={landPlots.landPlots}
+                  onClose={() => setPopupVisible(false)}
+                />
               }
               trigger="click"
               placement="bottomRight"
@@ -160,7 +168,9 @@ function LandPlot() {
         </Flex>
       </div>
       <AddNewPlotDrawer
-        landPlots={landPlots}
+        longitude={landPlots.longitude}
+        latitude={landPlots.latitude}
+        landPlots={landPlots.landPlots}
         fetchLandPlots={fetchLandPlotData}
         isOpen={isDrawerVisible}
         onClose={closeDrawer}

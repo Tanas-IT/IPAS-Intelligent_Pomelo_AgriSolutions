@@ -11,7 +11,7 @@ const useMasterTypeOptions = (type: string, isUseValueAsName: boolean = false) =
       const result: ApiResponse<GetMasterType[]> = await masterTypeService.getSelectMasterTypes(
         type,
       );
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: isUseValueAsName ? item.masterTypeName : item.masterTypeId,
           label: item.masterTypeName,

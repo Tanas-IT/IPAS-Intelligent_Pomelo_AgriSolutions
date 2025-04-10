@@ -10,7 +10,7 @@ const useCropCurrentOption = () => {
     const fetchOptions = async () => {
       const result: ApiResponse<CropResponse[]> =
         await cropService.getCropsInCurrentTime();
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((plot) => ({
           value: plot.cropId,
           label: `${plot.cropCode} - ${plot.cropName}`,

@@ -10,9 +10,7 @@ const useLandPlotOfCropOption = (cropId: number) => {
     if (!cropId) return;
     const fetchOptions = async () => {
       const result: ApiResponse<GetLandPlotOfCrop[]> = await cropService.getLandPlotOfCrop(cropId);
-      console.log("result", result);
-
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((plot) => ({
           value: plot.landPlotId,
           label: plot.landPlotName,

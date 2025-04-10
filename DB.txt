@@ -271,7 +271,7 @@ CREATE TABLE ipas.dbo.HarvestHistory (
 
 CREATE TABLE ipas.dbo.LandPlot (
 	LandPlotID int IDENTITY(1,1) NOT NULL,
-	LandPlotCode nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	LandPlotCode nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	LandPlotName nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	Area float NULL,
 	[Length] float NULL,
