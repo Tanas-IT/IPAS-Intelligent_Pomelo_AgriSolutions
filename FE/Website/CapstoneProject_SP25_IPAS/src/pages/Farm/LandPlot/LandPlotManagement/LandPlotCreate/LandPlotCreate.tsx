@@ -13,11 +13,13 @@ interface LandPlotCreateProps {
   isOpen: boolean;
   form: FormInstance;
   selectedPlot?: GetLandPlot | null;
+  latitude: number;
+  longitude: number;
   landPlots: GetLandPlot[];
 }
 
 const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
-  ({ isOpen, form, selectedPlot, landPlots }) => {
+  ({ isOpen, form, selectedPlot, latitude, longitude, landPlots }) => {
     const {
       setIsDirty,
       startDrawingPolygon,
@@ -197,8 +199,8 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
             {isPolygonReady && (
               <Flex>
                 <MapNewLandPlot
-                  longitude={landPlots[0]?.farmLongtitude ?? 0}
-                  latitude={landPlots[0]?.farmLatitude ?? 0}
+                  longitude={longitude}
+                  latitude={latitude}
                   landPlots={landPlots}
                   selectedPlot={selectedPlot}
                   addNewPolygon={addNewPolygon}

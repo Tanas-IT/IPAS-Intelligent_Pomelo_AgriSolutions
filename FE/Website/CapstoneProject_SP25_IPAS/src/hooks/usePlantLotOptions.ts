@@ -15,7 +15,7 @@ const usePlantLotOptions = (isFromGrafted?: boolean) => {
       try {
         const result = await plantLotService.getPlantLotSelected(isFromGrafted);
 
-        if (result && Array.isArray(result)) {
+        if (result && Array.isArray(result) && result.length > 0) {
           const mappedOptions = result.map((item) => ({
             value: item.value,
             label: item.label,

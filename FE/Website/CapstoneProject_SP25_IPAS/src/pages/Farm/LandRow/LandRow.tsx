@@ -29,7 +29,7 @@ function LandRow() {
   const addPlantsModal = useModal<{ row: GetLandRow }>();
   const viewPlantsModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
-  const [plotId, setPlotId] = useState<number>(0);
+  const [plotId, setPlotId] = useState<number>();
   const [viewMode, setViewMode] = useState<string>(VIEW_MODE.TABLE);
   const viewOptions = [
     { mode: VIEW_MODE.TABLE, icon: <Icons.table /> },
@@ -44,6 +44,8 @@ function LandRow() {
   }, [location.state]);
 
   useEffect(() => {
+    console.log(plotOptions);
+
     if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
     // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
   }, [plotOptions, location.state]);
@@ -83,7 +85,7 @@ function LandRow() {
   });
 
   useEffect(() => {
-    fetchData();
+    if (plotId) fetchData();
   }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue, plotId]);
 
   const handlePlotChange = (selectedPlotId: number) => {

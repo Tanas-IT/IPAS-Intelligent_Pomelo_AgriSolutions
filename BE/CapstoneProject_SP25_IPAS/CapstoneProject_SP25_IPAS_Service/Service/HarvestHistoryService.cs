@@ -689,7 +689,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Expression<Func<ProductHarvestHistory, bool>> filter = x => x.ProductHarvestHistoryId == updateRequest.ProductHarvestHistoryId;
                     //if (updateRequest.PlantId.HasValue)
                     //    filter.And(x => x.PlantId == updateRequest.PlantId);
-                    string includeProperties = "HarvestHistory,Product";
+                    string includeProperties = "Product";
                     var productHarvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                     if (productHarvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
@@ -739,6 +739,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
 
                             productHarvestHistory.Revenue = updateRequest.SellPrice;
+                            _unitOfWork.HarvestHistoryRepository.Update(harvestHistory);
                         }
                         if (updateRequest.CostPrice.HasValue)
                             productHarvestHistory.CostPrice = updateRequest.CostPrice;

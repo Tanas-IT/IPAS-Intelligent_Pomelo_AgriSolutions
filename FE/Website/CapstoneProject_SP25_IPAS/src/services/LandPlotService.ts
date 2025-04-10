@@ -3,6 +3,7 @@ import {
   ApiResponse,
   GetLandPlot,
   GetLandPlotHaveEmptyPlant,
+  GetLandPlotOfFarm,
   GetLandPlotSelected,
   GetLandPlotSimulate,
   LandPlotRequest,
@@ -27,12 +28,13 @@ export const getLandPlotsSelected = async (): Promise<ApiResponse<GetLandPlotSel
   return apiResponse;
 };
 
-export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetLandPlot[]>> => {
-  const url = searchKey
-    ? `landplots?farmId=${getFarmId()}&searchKey=${searchKey}`
-    : `landplots?farmId=${getFarmId()}`;
+export const getLandPlots = async (searchKey?: string): Promise<ApiResponse<GetLandPlotOfFarm>> => {
+  // const url = searchKey
+  //   ? `landplots?farmId=${getFarmId()}&searchKey=${searchKey}`
+  //   : `landplots?farmId=${getFarmId()}`;
+  const url = searchKey ? `landplots?searchKey=${searchKey}` : `landplots`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
-  const apiResponse = res.data as ApiResponse<GetLandPlot[]>;
+  const apiResponse = res.data as ApiResponse<GetLandPlotOfFarm>;
   return apiResponse;
 };
 

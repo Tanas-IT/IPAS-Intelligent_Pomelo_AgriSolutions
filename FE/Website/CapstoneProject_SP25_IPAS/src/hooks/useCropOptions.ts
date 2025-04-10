@@ -10,7 +10,7 @@ const useCropOptions = () => {
     const fetchOptions = async () => {
       const result: ApiResponse<GetCropSelect[]> = await cropService.getCropsOfFarmSelect();
 
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: item.id,
           label: item.name,

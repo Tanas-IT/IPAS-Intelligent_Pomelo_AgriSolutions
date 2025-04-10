@@ -10,7 +10,7 @@ const useLandPlotOptions = () => {
     const fetchOptions = async () => {
       const result: ApiResponse<GetLandPlotSelected[]> =
         await landPlotService.getLandPlotsSelected();
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((plot) => ({
           value: plot.id,
           label: `${plot.name} - ${plot.code}`,

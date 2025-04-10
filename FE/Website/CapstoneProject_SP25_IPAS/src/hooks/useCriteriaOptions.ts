@@ -11,7 +11,7 @@ const useCriteriaOptions = (target: string) => {
       const result: ApiResponse<GetMasterTypeSelected[]> =
         await masterTypeService.getCriteriaTypeSelect(target);
 
-      if (result.statusCode === 200) {
+      if (result.statusCode === 200 && result.data) {
         const mappedOptions = result.data.map((item) => ({
           value: String(item.id),
           label: item.name,
