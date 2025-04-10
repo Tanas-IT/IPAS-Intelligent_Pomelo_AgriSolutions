@@ -1975,8 +1975,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 if (getWorkLogToCancelled != null)
                 {
-                    getWorkLogToCancelled.StatusOfUserWorkLog = getStatusRejected;
-                    getWorkLogToCancelled.IsDeleted = true;
+                    if(getWorkLogToCancelled.StatusOfUserWorkLog != null)
+                    {
+                        if(getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected) && getWorkLogToCancelled.IsDeleted == true)
+                        {
+                            getWorkLogToCancelled.StatusOfUserWorkLog = null;
+                            getWorkLogToCancelled.IsDeleted = false;
+                        }
+                    }
+                    else
+                    {
+                        getWorkLogToCancelled.StatusOfUserWorkLog = getStatusRejected;
+                        getWorkLogToCancelled.IsDeleted = true;
+                    }
                     _unitOfWork.UserWorkLogRepository.Update(getWorkLogToCancelled);
                 }
                 var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
