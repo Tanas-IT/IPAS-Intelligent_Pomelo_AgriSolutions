@@ -87,9 +87,14 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
           item.productHarvestHistoryId === res.data?.productHarvestHistoryId ? res.data! : item,
         );
 
+        const newTotalPrice = updatedProductHarvestHistory.reduce((total, item) => {
+          return total + (item.sellPrice ?? 0);
+        }, 0);
+
         return {
           ...prev,
           productHarvestHistory: updatedProductHarvestHistory,
+          totalPrice: newTotalPrice,
         };
       });
       resetData();
@@ -102,15 +107,8 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
   if (!harvestData)
     return (
       <>
-        <Flex className={style.detailWrapper} vertical>
-          <Flex gap={12} className={style.modalHeader}>
-            <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
-              Back to Harvest
-            </Button>
-          </Flex>
-          <Flex align="center" justify="center">
-            <Empty description="No harvest data available" />
-          </Flex>
+        <Flex align="center" justify="center" style={{ width: "100%" }}>
+          <Empty description="No harvest data available" />
         </Flex>
       </>
     );

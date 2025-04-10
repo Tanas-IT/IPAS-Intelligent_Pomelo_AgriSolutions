@@ -6,6 +6,7 @@ import { Icons } from "@/assets";
 import { healthStatusColors } from "@/constants";
 import { useModal } from "@/hooks";
 import { usePlantStore } from "@/stores";
+import { formatDate } from "@/utils";
 
 const PlantSectionHeader = ({
   formModal,
@@ -41,7 +42,7 @@ const PlantSectionHeader = ({
           {onCreateGraftedBranch &&
             (plant.isPassed ? (
               <Tag color="green" className={style.passedTag}>
-                ✅ Grafting Eligible
+                ✅ Grafting Eligible ({formatDate(plant.passedDate)})
               </Tag>
             ) : (
               <Tag color="red" className={style.passedTag}>

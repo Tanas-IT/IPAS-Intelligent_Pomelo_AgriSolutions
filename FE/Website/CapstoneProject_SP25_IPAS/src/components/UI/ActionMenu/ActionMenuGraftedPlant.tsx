@@ -77,7 +77,7 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
           onClick: () => onRemoveFromLot(),
         }
       : null,
-    !isDead && isCompleted && !isUsed
+    !isDead && isCompleted && !isUsed && !graftedPlant.plantLotId
       ? {
           icon: <Icons.plant />,
           label: "Convert to Plant",

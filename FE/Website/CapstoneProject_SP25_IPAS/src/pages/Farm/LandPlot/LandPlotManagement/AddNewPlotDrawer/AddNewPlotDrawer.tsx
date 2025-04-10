@@ -22,6 +22,8 @@ import { landPlotService } from "@/services";
 const { Step } = Steps;
 
 interface AddNewPlotDrawerProps {
+  latitude: number;
+  longitude: number;
   selectedPlot?: GetLandPlot | null;
   plotSimulate?: GetLandPlotSimulate;
   landPlots?: GetLandPlot[];
@@ -31,6 +33,8 @@ interface AddNewPlotDrawerProps {
 }
 
 const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
+  latitude,
+  longitude,
   selectedPlot,
   plotSimulate,
   landPlots,
@@ -354,6 +358,8 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
             isOpen={isOpen}
             selectedPlot={selectedPlot}
             landPlots={landPlots ?? []}
+            longitude={longitude}
+            latitude={latitude}
             form={form}
           />
         )}
