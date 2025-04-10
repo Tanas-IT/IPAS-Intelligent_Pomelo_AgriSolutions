@@ -230,6 +230,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<WorkLog> GetWorkLogIncludeById(int workLogId)
         {
             var result = await _context.WorkLogs
+                        .AsNoTrackingWithIdentityResolution()
                         .Include(x => x.Schedule)
                         .Include(x => x.Schedule.HarvestHistory)
                         .Include(x => x.Schedule.CarePlan)

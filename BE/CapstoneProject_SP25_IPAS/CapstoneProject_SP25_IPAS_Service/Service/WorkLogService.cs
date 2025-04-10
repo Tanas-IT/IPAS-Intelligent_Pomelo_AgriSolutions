@@ -329,6 +329,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                       .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                if (getDetailWorkLog.Date != null)
+                {
+                    if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
+                    {
+                        if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                        {
+                            if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
+                            {
+                                getDetailWorkLog.Status = getStatusInProgress;
+                                _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                await _unitOfWork.SaveAsync();
+                            }
+
+                        }
+                    }
+                }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 if (getDetailWorkLog.Schedule != null)
                 {
@@ -341,6 +361,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+               
                 var redoWorkLog = getDetailWorkLog.RedoWorkLogID.HasValue
                     ? await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == getDetailWorkLog.RedoWorkLogID)
                     : null;
@@ -457,6 +478,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
+                foreach(var getDetailWorkLog in calendar)
+                {
+                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                    if (getDetailWorkLog.Date != null)
+                    {
+                        if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
+                        {
+                            if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                            {
+                                if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
+                                {
+                                    getDetailWorkLog.Status = getStatusInProgress;
+                                    _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                            }
+                        }
+                    }
+                }
                 var result = calendar
                         .Where(x => x.IsDeleted == false)
                         .Select(wl => new ScheduleModel()
@@ -597,6 +641,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
+                foreach(var getDetailWorkLog in entities)
+                {
+                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                    if (getDetailWorkLog.Date != null)
+                    {
+                        if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
+                        {
+                            if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                            {
+                                if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
+                                {
+                                    getDetailWorkLog.Status = getStatusInProgress;
+                                    _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                            }
+                        }
+                    }
+                }
                 var getStatusReceived = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
                 var result = entities
@@ -619,6 +686,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                            {
                                UserId = uwl.UserId,
                                FullName = uwl.User.FullName,
+                               AvatarURL = uwl.User.AvatarURL,
                                IsReporter = uwl.IsReporter,
                                Issue = uwl.Issue,
                                Notes = uwl.Notes
@@ -776,10 +844,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         throw new Exception("Update failed because nothing was process");
                     }
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
-                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
-                                        .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
-                    if (findWorkLog.Status.ToLower().Equals(getStatusInProgress.ToLower())) {
-                        throw new Exception("WorkLog is in-progress. Can not update");
+                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower())) {
+                        throw new Exception("WorkLog is happended. Can not update");
                     }
                     if (updateWorkLogModel.DateWork.Value.Date < DateTime.Now.Date)
                     {
@@ -1104,7 +1172,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.WorkLogName = updateWorkLogModel.WorkLogName;
                     findWorkLog.IsConfirm = updateWorkLogModel.IsConfirm;
                     _unitOfWork.WorkLogRepository.Update(findWorkLog);
-
                     if (updateWorkLogModel.listEmployee != null)
                     {
                         foreach (var employee in updateWorkLogModel.listEmployee)
