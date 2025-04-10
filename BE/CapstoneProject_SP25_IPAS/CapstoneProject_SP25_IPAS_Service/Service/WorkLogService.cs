@@ -355,6 +355,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     result.AssignorName = getAssignor.FullName;
                     result.AssignorId = getAssignor.UserId;
+                    result.AssignorAvatarURL = getAssignor.AvatarURL;
                 }
 
                 if (getDetailWorkLog.Schedule != null)
