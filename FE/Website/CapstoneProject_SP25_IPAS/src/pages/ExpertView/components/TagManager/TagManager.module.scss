@@ -1,0 +1,97 @@
+.tagManagementModal {
+  .ant-modal-content {
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .ant-modal-header {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    border-bottom: none;
+    padding: 20px 24px;
+
+    .ant-modal-title {
+      color: white;
+      font-size: 22px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 32px;
+    background: #f9fafb;
+
+    .addTagSection {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+
+      .tagInput {
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .addButton {
+        background: linear-gradient(90deg, #2e7d32, #66bb6a);
+        border: none;
+        border-radius: 20px;
+        padding: 8px 20px;
+        font-weight: 500;
+        color: white;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(90deg, #256428, #4caf50);
+        }
+      }
+    }
+
+    .tagTable {
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+
+      .tagInput {
+        border-radius: 8px;
+      }
+
+      .tagActions {
+        display: flex;
+        gap: 8px;
+
+        .editButton,
+        .deleteButton,
+        .saveButton,
+        .cancelButton {
+          border-radius: 8px;
+        }
+
+        .saveButton {
+          background: linear-gradient(90deg, #2e7d32, #66bb6a);
+          border: none;
+          color: white;
+
+          &:hover {
+            background: linear-gradient(90deg, #256428, #4caf50);
+          }
+        }
+
+        .cancelButton {
+          background: #f5f5f5;
+          border: 1px solid #d9d9d9;
+          color: #666;
+
+          &:hover {
+            background: #e0e0e0;
+            border-color: #c0c0c0;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-modal-close-x {
+    color: white;
+  }
+}

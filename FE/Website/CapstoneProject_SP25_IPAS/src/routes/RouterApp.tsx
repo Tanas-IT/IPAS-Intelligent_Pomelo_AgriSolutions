@@ -58,6 +58,8 @@ import {
   PaymentLayout,
 } from "@/layouts";
 import { PATHS } from "./Paths";
+import ReportManagementScreen from "@/pages/ExpertView/ReportManagement/ReportManagement";
+import ImageManagement from "@/pages/ExpertView/ImageManagement/ImageManagement";
 
 interface RouteItem {
   path: string;
@@ -157,6 +159,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
+  { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
+  { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

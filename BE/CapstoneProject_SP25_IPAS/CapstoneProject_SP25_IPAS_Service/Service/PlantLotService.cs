@@ -767,6 +767,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 MasterTypeId = plantLot.MasterTypeId,  // gán giống của lô đó vào cho cây này (cần kiểm tra xem lô cây đó là chiét ra hay sao nữa)
                                 PlantIndex = availableIndexes[i], // Gán vị trí trống hợp lệ
                                 IsDead = false,
+                                CreateDate = DateTime.Now,
+                                PlantLotID = fillRequest.plantLotId
                             };
                             listPlantInsert.Add(newPlant);
                         }

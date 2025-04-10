@@ -6,16 +6,18 @@ import { planService } from '@/services';
 import { fetchTargetsByUnit, getFarmId, isTargetOverlapping, unitOptions } from '@/utils';
 import { SelectedTarget } from '@/payloads';
 import { useModal } from '@/hooks';
+import { SelectOption } from '@/types';
 
 const { Option } = Select;
 
 type OptionType<T = string | number> = { value: T; label: string };
 
 interface PlanTargetProps {
-  landPlotOptions: OptionType[];
-  landRows: OptionType[];
+  // landPlotOptions: OptionType[];
+  // landRows: OptionType[];
   plants: OptionType[];
-  plantLots: OptionType[];
+  // plantLots: OptionType[];
+  plantLots: SelectOption[];
   graftedPlants: OptionType[];
   selectedGrowthStage: number[];
   onLandPlotChange?: (landPlotId: number) => void;
@@ -25,8 +27,8 @@ interface PlanTargetProps {
 }
 
 const PlanTarget = ({
-  landPlotOptions,
-  landRows,
+  // landPlotOptions,
+  // landRows,
   plants,
   plantLots,
   graftedPlants,
@@ -131,14 +133,14 @@ const PlanTarget = ({
             },
           });
           forceUpdate({});
-          warningModal.hideModal(); // Đóng modal sau khi xử lý
+          warningModal.hideModal();
         },
         onCancel: () => {
           remove(index);
-          warningModal.hideModal(); // Đóng modal khi hủy bỏ
+          warningModal.hideModal();
         },
       });
-      warningModal.showModal(); // Hiển thị modal
+      warningModal.showModal();
       return;
     }
 
@@ -190,14 +192,14 @@ const PlanTarget = ({
           });
 
           forceUpdate({});
-          warningModal.hideModal(); // Đóng modal sau khi xử lý
+          warningModal.hideModal();
         },
         onCancel: () => {
           remove(index);
-          warningModal.hideModal(); // Đóng modal khi hủy bỏ
+          warningModal.hideModal();
         },
       });
-      warningModal.showModal(); // Hiển thị modal
+      warningModal.showModal();
       return;
     }
 

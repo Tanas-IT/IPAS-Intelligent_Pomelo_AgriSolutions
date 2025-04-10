@@ -19,5 +19,12 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "require-corp",
       // "Cross-Origin-Embedder-Policy": "unsafe-none",
     },
+    proxy: {
+      '/blob': {
+        target: 'https://irisprodseatraining.blob.core.windows.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/blob/, ''),
+      },
+    },
   },
 });

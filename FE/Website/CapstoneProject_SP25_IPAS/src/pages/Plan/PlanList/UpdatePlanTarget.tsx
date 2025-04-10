@@ -12,8 +12,8 @@ type OptionType<T = string | number> = { value: T; label: string };
 
 interface UpdatePlanTargetProps {
     form: any;
-    landPlotOptions: OptionType[];
-    landRows: OptionType[];
+    // landPlotOptions: OptionType[];
+    // landRows: OptionType[];
     plants: OptionType[];
     plantLots: OptionType[];
     graftedPlants: OptionType[];
@@ -28,8 +28,8 @@ interface UpdatePlanTargetProps {
 
 const UpdatePlanTarget = ({
     form,
-    landPlotOptions,
-    landRows,
+    // landPlotOptions,
+    // landRows,
     plants,
     plantLots,
     graftedPlants,

@@ -4,6 +4,7 @@ import style from "./PlanDetailsTable.module.scss";
 import { useStyle } from "@/hooks";
 import { GetUser } from "@/payloads";
 import { getUserInfoById } from "@/utils";
+import { SelectOption } from "@/types";
 
 const { Option } = Select;
 
@@ -13,7 +14,8 @@ interface PlanDetailsTableProps {
     onSaveEmployees: (employees: any[], planId: number) => void;
     onScheduleClick: (record: any) => void;
     onTaskAssignmentClick: (record: any) => void;
-    workTypeOptions: { value: number | string; label: string }[];
+    // workTypeOptions: { value: number | string; label: string }[];
+    workTypeOptions: SelectOption[];
 }
 
 const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({

@@ -1,0 +1,90 @@
+.replyModal {
+  .ant-modal-content {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    background: linear-gradient(90deg, #2e7d32, #4caf50);
+    border-bottom: none;
+    padding: 16px 24px;
+
+    .ant-modal-title {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    background: #f9f9f9;
+
+    .reportDetails {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+      }
+
+      p {
+        margin: 8px 0;
+        font-size: 14px;
+        color: #333;
+
+        strong {
+          color: #2e7d32;
+        }
+      }
+    }
+
+    .replyForm {
+      .ant-form-item-label {
+        label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #1a1a1a;
+        }
+      }
+
+      .ant-input-textarea {
+        border-radius: 8px;
+        border: 1px solid #d9d9d9;
+        transition: border-color 0.3s ease;
+
+        &:hover,
+        &:focus {
+          border-color: #2e7d32;
+          box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.1);
+        }
+      }
+
+      .submitButton {
+        background: linear-gradient(90deg, #2e7d32, #4caf50);
+        border: none;
+        border-radius: 20px;
+        padding: 8px 24px;
+        font-weight: 500;
+        color: white;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(90deg, #256428, #388e3c);
+        }
+      }
+    }
+  }
+
+  .ant-modal-close-x {
+    color: white;
+    font-size: 16px;
+  }
+}

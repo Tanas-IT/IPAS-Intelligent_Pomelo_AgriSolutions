@@ -236,23 +236,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string key = $"{CacheKeyConst.LANDPLOT}:{CacheKeyConst.FARM}={farmId}&searchKey={searchKey}";
 
             //await _responseCacheService.RemoveCacheAsync(key);
-            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<IEnumerable<LandPlotModel>>>(key);
+            var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<IEnumerable<FarmModel>>>(key);
             if (cachedData != null)
             {
                 return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
             }
 
-            Expression<Func<LandPlot, bool>> filter = x => x.FarmId == farmId && x.IsDeleted != true;
-            if (!string.IsNullOrEmpty(searchKey))
+            Expression<Func<Farm, bool>> filter = x => x.FarmId == farmId && x.IsDeleted != true;
+            //Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = x => x.OrderBy(x => x.LandPlotId);
+            //string includeProperties = "LandPlotCoordinations,Farm";
+            var landplotInFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId/*filter: filter , includeProperties: includeProperties, orderBy: orderBy*/);
+            //if (!string.IsNullOrEmpty(searchKey))
+            //{
+            //    filter.And(x => x.LandPlots.Where(l => l.LandPlotName!.ToLower().Contains(searchKey.ToLower())));
+            //}
+            if (landplotInFarm != null)
             {
-                filter.And(x => x.LandPlotName!.ToLower().Contains(searchKey.ToLower()));
-            }
-            Func<IQueryable<LandPlot>, IOrderedQueryable<LandPlot>> orderBy = x => x.OrderBy(x => x.LandPlotId);
-            string includeProperties = "LandPlotCoordinations,Farm";
-            var landplotInFarm = await _unitOfWork.LandPlotRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
-            if (landplotInFarm.Any())
-            {
-                var mappedResult = _mapper.Map<IEnumerable<LandPlotModel>>(landplotInFarm);
+                landplotInFarm.UserFarms = null!;
+                landplotInFarm.Orders = null!;
+                var mappedResult = _mapper.Map<FarmModel>(landplotInFarm);
                 var result = new BusinessResult(Const.SUCCESS_GET_FARM_ALL_PAGINATION_CODE, Const.SUCCESS_GET_FARM_ALL_PAGINATION_FARM_MSG, mappedResult);
                 //string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}={farmId}";
                 await _responseCacheService.AddCacheWithGroupAsync(groupKey + farmId.ToString(), key.Trim(), result, TimeSpan.FromMinutes(5));

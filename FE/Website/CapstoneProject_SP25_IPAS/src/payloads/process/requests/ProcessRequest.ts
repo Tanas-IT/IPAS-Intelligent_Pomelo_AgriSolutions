@@ -36,7 +36,7 @@ export interface SubProcess {
 
 export interface UpdateProcessRequest {
     ProcessId: number;
-    ProcessName: string;
+    ProcessName?: string;
     IsActive: boolean;
     IsDefault: boolean;
     IsDeleted: boolean;

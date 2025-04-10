@@ -1,0 +1,35 @@
+.overviewCard {
+    background: linear-gradient(135deg, #48ff57 0%, #00ddeb 100%);
+    color: white;
+    border-radius: 12px;
+    // padding: 20px;
+    // text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    height: 100px;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .overviewValue {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .iconContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 auto;
+    }
+  }

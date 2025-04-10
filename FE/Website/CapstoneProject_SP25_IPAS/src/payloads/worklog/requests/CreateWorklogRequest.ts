@@ -5,6 +5,17 @@ export interface CreateWorklogRequest {
   endTime: string;
   planId: number;
   listEmployee: ListEmployee[];
+  masterTypeId: number;
+}
+
+export interface CreateRedoWorklogRequest {
+  failedOrRedoWorkLogId: number;
+  newWorkLogName: string;
+  newDateWork: string;
+  newStartTime: string;
+  newEndTime: string;
+  newListEmployee: ListEmployee[];
+  newAssignorId: number;
 }
 
 interface ListEmployee {
@@ -36,4 +47,9 @@ export interface UpdateWorklogReq {
   dateWork: string,
   startTime: string,
   endTime: string,
+}
+
+export interface CancelReplacementRequest {
+  worklogId: number;
+  userId: number;
 }

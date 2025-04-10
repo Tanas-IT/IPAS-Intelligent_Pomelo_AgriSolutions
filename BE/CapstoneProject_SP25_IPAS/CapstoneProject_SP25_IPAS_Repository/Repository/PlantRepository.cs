@@ -144,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
              .Include(p => p.MasterType)
              .Include(p => p.GrowthStage)
              .Include(p => p.PlantReference)
+             .Include(p => p.PlantLot)
              .Include(p => p.CriteriaTargets)
                     .ThenInclude(pc => pc.Criteria)
                     .ThenInclude(c => c.MasterType)

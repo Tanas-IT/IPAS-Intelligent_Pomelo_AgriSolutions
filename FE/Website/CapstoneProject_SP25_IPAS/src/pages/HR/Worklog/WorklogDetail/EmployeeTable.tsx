@@ -3,12 +3,13 @@ import { Table, Flex, Image, Tag, Button, Select } from "antd";
 import { GetUser } from "@/payloads";
 import { Images } from "@/assets";
 import { fetchUserInfoByRole } from "@/utils";
+import { GetAttendanceList } from "@/payloads/worklog";
 
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 interface EmployeeTableProps {
-  employees: GetUser[];
-  reporter: GetUser[];
+  employees: GetAttendanceList[];
+  // reporter: GetUser[];
   attendanceStatus: { [key: number]: string | null };
   onReplaceEmployee: (replacedUserId: number, replacementUserId: number) => void;
   onUpdateReporter: (userId: number, isReporter: boolean) => void;
@@ -16,7 +17,7 @@ interface EmployeeTableProps {
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
   employees,
-  reporter,
+  // reporter,
   attendanceStatus,
   onReplaceEmployee,
   onUpdateReporter,
@@ -25,7 +26,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
   console.log("attendanceStatus", attendanceStatus);
   console.log("employees", employees);
-  
+
 
   useEffect(() => {
     const fetchAllEmployees = async () => {
@@ -34,24 +35,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     };
     fetchAllEmployees();
   }, []);
-
-  const combinedEmployees = [
-    ...reporter.map((rep) => ({
-      ...rep,
-      isReporter: true,
-    //   statusOfUserWorkLog: attendanceStatus[rep.userId] || "Rejected",
-    })),
-    ...employees.map((emp) => ({
-      ...emp,
-      isReporter: false,
-    //   statusOfUserWorkLog: attendanceStatus[emp.userId] || "Rejected",
-    })),
-  ];
+  useEffect(() => {
+    setReplacingStates({});
+  }, [employees]);
 
   const handleReplace = (replacedUserId: number, replacementUserId: number) => {
     console.log("replacedUserId", replacedUserId);
     console.log("replacementUserId", replacementUserId);
-    
+
     onReplaceEmployee(replacedUserId, replacementUserId); // Gọi hàm xử lý thay thế
     setReplacingStates((prev) => ({ ...prev, [replacedUserId]: replacementUserId })); // Lưu giá trị được chọn
   };
@@ -86,18 +77,19 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       ),
     },
     {
-        title: "Status",
-        dataIndex: "statusOfUserWorkLog",
-        render: (status: string) => (
-          <Tag color={
-            status === "Received" ? "green" : 
-            status === "Replaced" ? "orange" : 
-            "red"
-          }>
-            {status}
-          </Tag>
-        ),
-      },
+      title: "Status",
+      dataIndex: "statusOfUser",
+      render: (status: string | undefined) => (
+        <Tag color={
+          status === "Received" ? "green" :
+            status === "Replaced" ? "orange" :
+              status ? "red" : "gray"
+        }>
+          {status || "Not Yet"}
+        </Tag>
+      ),
+    },
+
     {
       title: "Role",
       dataIndex: "isReporter",
@@ -110,23 +102,28 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "Replacement",
       render: (_: any, record: GetUser) => {
-        const isReplacing = replacingStates[record.userId] !== undefined; // Kiểm tra trạng thái thay thế
-
+        const isReplacing = replacingStates[record.userId] !== undefined;
+    
+        // Lọc ra những nhân viên KHÔNG có trong danh sách hiện tại (employees)
+        const availableReplacements = employee.filter(
+          (emp) => 
+            emp.userId !== record.userId && // Loại bỏ chính nhân viên đang xét
+            !employees.some(e => e.userId === emp.userId) // Loại bỏ nhân viên đã có trong danh sách edit
+        );
+    
         return isReplacing ? (
           <Flex gap={8}>
             <Select
               style={{ width: 150 }}
               placeholder="Select replacement"
-              value={replacingStates[record.userId] || null} // Hiển thị giá trị được chọn
-              onChange={(value) => handleReplace(record.userId, value)} // Xử lý khi chọn giá trị
+              value={replacingStates[record.userId] || null}
+              onChange={(value) => handleReplace(record.userId, value)}
             >
-              {employee
-                .filter((emp) => emp.userId !== record.userId) // Loại trừ nhân viên đang được thay thế
-                .map((emp) => (
-                  <Select.Option key={emp.userId} value={emp.userId}>
-                    {emp.fullName}
-                  </Select.Option>
-                ))}
+              {availableReplacements.map((emp) => (
+                <Select.Option key={emp.userId} value={emp.userId}>
+                  {emp.fullName}
+                </Select.Option>
+              ))}
             </Select>
             <Button onClick={() => handleCancelReplace(record.userId)}>Cancel</Button>
           </Flex>
@@ -136,10 +133,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           </Button>
         );
       },
-    },
+    }
   ];
 
-  return <Table dataSource={combinedEmployees} columns={columns} rowKey="userId" />;
+  return <Table dataSource={employees} columns={columns} rowKey="userId" />;
 };
 
 export default EmployeeTable;

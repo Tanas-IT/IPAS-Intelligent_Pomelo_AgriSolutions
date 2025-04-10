@@ -5,7 +5,7 @@ export {
   AiOutlineFileAdd as fileAdd
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
-export { CiTimer as timer, CiBoxes as box, CiMail as mail } from "react-icons/ci";
+export { CiTimer as timer, CiBoxes as box, CiMail as mail, CiTimer as pending, CiViewTable as table2 } from "react-icons/ci";
 export {
   RiDeleteBin6Line as delete,
   RiArrowDropDownLine as arrowDropDownLine,
@@ -28,7 +28,9 @@ export {
   MdOutlineTerrain as soil,
   MdAssignmentAdd as addPLan,
   MdOutlinePermMedia as media,
-  MdBarChart as chart
+  MdBarChart as chart,
+  MdOutlineReport as unanswered,
+  MdReportProblem as trainned
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -43,6 +45,7 @@ export {
   LuZoomOut as zoomOut,
   LuLandPlot as plot,
   LuBan as ban,
+  LuTable as table3,
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -80,6 +83,7 @@ export {
   IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
+export { TbReportSearch  as report } from "react-icons/tb";
 export {
   GrOverview as overview,
   GrMapLocation as location,
@@ -87,7 +91,7 @@ export {
   GrPowerReset as reset,
 } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
-export { TiWeatherPartlySunny as weather, TiTick as tick } from "react-icons/ti";
+export { TiWeatherPartlySunny as weather, TiTick as tick, TiUserDelete as delUser } from "react-icons/ti";
 export {
   FaWind as wind,
   FaTableList as table,
@@ -97,7 +101,7 @@ export {
   FaScaleBalanced as scale,
 } from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";
-export { BsCloudRainFill as cloudRain } from "react-icons/bs";
+export { BsCloudRainFill as cloudRain, BsTable as card } from "react-icons/bs";
 export {
   IoIosSunny as sunny,
   IoMdCloseCircleOutline as close,
