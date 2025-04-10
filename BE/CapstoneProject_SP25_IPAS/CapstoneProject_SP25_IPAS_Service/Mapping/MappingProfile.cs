@@ -175,6 +175,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.GrowthStageName, opt => opt.MapFrom(src => src.GrowthStage!.GrowthStageName))
                 .ForMember(dest => dest.PlantReferenceCode, opt => opt.MapFrom(src => src.PlantReference.PlantCode))
                 .ForMember(dest => dest.PlantReferenceName, opt => opt.MapFrom(src => src.PlantReference.PlantName))
+                .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot.PlantLotCode))
+                .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot.PlantLotName))
                 .ReverseMap();
 
 
