@@ -65,4 +65,5 @@ public partial class MasterType
 
     public virtual ICollection<Type_Type> Products { get; set; } = new List<Type_Type>();
     public virtual ICollection<Type_Type> CriteriaSet { get; set; } = new List<Type_Type>();
+    public virtual ICollection<EmployeeSkill> EmployeeSkills { get; set; } = new List<EmployeeSkill>();
 }
