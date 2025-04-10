@@ -50,6 +50,11 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         public bool? IsDead { get; set; }
         public bool? IsPassed { get; set; }
         public DateTime? PassedDate { get; set; }
+        public int PlantLotId { get; set; }
+
+        public string? PlantLotCode { get; set; }
+
+        public string? PlantLotName { get; set; }
 
         //public virtual ICollection<GraftedPlant> GraftedPlants { get; set; } = new List<GraftedPlant>();
 
