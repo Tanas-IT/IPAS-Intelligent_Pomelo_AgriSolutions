@@ -1538,7 +1538,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(updateStatusWorkLogModel.WorkLogId);
+                var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == updateStatusWorkLogModel.WorkLogId, "UserWorkLogs");
                 if (getWorkLogToUpdate == null)
                 {
                     return new BusinessResult(404, "WorkLog does not exist");
@@ -1550,7 +1550,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .GetFields(BindingFlags.Public | BindingFlags.Static)
                     .Select(f => f.GetValue(null)?.ToString().ToLower()) // Chuyển tất cả về chữ thường
                     .ToList();
-                if (!validStatuses.Contains(updateStatusWorkLogModel.Status))
+                if (!validStatuses.Contains(updateStatusWorkLogModel.Status.ToLower()))
                 {
                     return new BusinessResult(400, "Status does not valid");
                 }
@@ -1590,6 +1590,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     };
                     await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
                     var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
 
                     foreach (var employee in getListManagerOfFarm)
