@@ -521,6 +521,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 UserId = uwl.UserId,
                                 FullName = uwl.User.FullName,
+                                AvatarURL = uwl.User.AvatarURL,
                                 IsReporter = uwl.IsReporter,
                                 Notes = uwl.Notes,
                                 Issue = uwl.Issue,
