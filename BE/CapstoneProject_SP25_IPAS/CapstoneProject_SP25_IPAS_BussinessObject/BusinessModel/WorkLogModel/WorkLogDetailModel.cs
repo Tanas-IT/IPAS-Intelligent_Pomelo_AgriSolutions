@@ -25,6 +25,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public int? HarvestHistoryId { get; set; }
         public bool? IsHarvest { get; set; }
         public string? ProcessName { get; set; }
+        public string? AssignorName { get; set; }
+        public int? AssignorId { get; set; }
         public string? MasterTypeName { get; set; }
 
         public bool? IsTakeAttendance { get; set; }
