@@ -183,31 +183,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude(farmId);
 
             var getListHarvestHistory = getListHarvestHistoryTemp.Where(x => x.DateHarvest.HasValue && x.DateHarvest.Value.Year == year)
-                                    .GroupBy(p => p.Crop.HarvestSeason) // Nhóm theo mùa
+                                    .GroupBy(p => p.DateHarvest.Value.ToString("MM-yyyyy")) // Nhóm theo mùa
                                     .Select(g => new MaterialsInStoreModel
                                     {
-                                        Season = g.Key,  // Key là mùa
-                                        Count = g.SelectMany(h => h.ProductHarvestHistories)
-                                                 .Where(x => x.Plant != null
-                                                          && x.Plant.LandRow != null
-                                                          && x.Plant.LandRow.LandPlot != null
-                                                          && x.Plant.LandRow.LandPlot.Farm != null
-                                                          && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                                 .Sum(ht => ht.QuantityNeed),
-                                        TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
-                                        .Where(x => x.Plant != null
-                                                 && x.Plant.LandRow != null
-                                                 && x.Plant.LandRow.LandPlot != null
-                                                 && x.Plant.LandRow.LandPlot.Farm != null
-                                                 && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
-                                        .Select(plantGroup => new TypeOfProduct
+                                        Month = g.Key,  // Key là mùa
+                                        Materials = g.SelectMany(h => h.ProductHarvestHistories)
+                                        .GroupBy(ht => new { ht.MasterTypeId})
+                                        .Select(x => new Materials
                                         {
-                                            PlantName = plantGroup.Key.PlantName, // Tên cây
-                                            MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
-                                            TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
-                                        })
-                                        .ToList()
+                                            ProductType = x.FirstOrDefault().Product.MasterTypeName,
+                                            UnitOfMaterials = new UnitOfMaterials()
+                                            {
+                                                Unit = x.FirstOrDefault().Unit,
+                                                Value = x.FirstOrDefault().ActualQuantity
+                                            }
+                                        }).ToList()
+                                        /*
+                                           ,
+                                                                                Count = g.SelectMany(h => h.ProductHarvestHistories)
+                                                                                         .Where(x => x.Plant != null
+                                                                                                  && x.Plant.LandRow != null
+                                                                                                  && x.Plant.LandRow.LandPlot != null
+                                                                                                  && x.Plant.LandRow.LandPlot.Farm != null
+                                                                                                  && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                                                                         .Sum(ht => ht.QuantityNeed),
+                                                                                TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
+                                                                                .Where(x => x.Plant != null
+                                                                                         && x.Plant.LandRow != null
+                                                                                         && x.Plant.LandRow.LandPlot != null
+                                                                                         && x.Plant.LandRow.LandPlot.Farm != null
+                                                                                         && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                                                                .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
+                                                                                .Select(plantGroup => new TypeOfProduct
+                                                                                {
+                                                                                    PlantName = plantGroup.Key.PlantName, // Tên cây
+                                                                                    MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
+                                                                                    TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
+                                                                                })
+                                                                                .ToList()
+                                         */
                                     }).ToList();
             return getListHarvestHistory;
         }
@@ -255,25 +269,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var rawData = await _unitOfWork.ProductHarvestHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
-            var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
-                .Select(g => new QualityYieldStat
-                {
-                    QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    QuantityYield = g.Sum(ht => ht.QuantityNeed ?? 0) // Tổng số lượng theo loại
-                })
-                .ToList();
+           
 
             // Nhóm dữ liệu theo mùa vụ
-            var result = groupedData
-                .GroupBy(g => g.QualityType)
-                .Select(g => new SeasonalYieldModel
-                {
-                    HarvestSeason = g.First().QualityType, // Mùa vụ
-                    QualityStats = g.ToList()
-                })
-                .OrderBy(s => s.HarvestSeason)
-                .ToList();
+            var result = rawData
+                      .GroupBy(x => x.HarvestHistoryId)
+                      .Select(g => new SeasonalYieldModel
+                      {
+                          HarvestSeason = g.FirstOrDefault()?.HarvestHistory?.Crop?.HarvestSeason ?? "",
+
+                          QualityStats = g
+                              .GroupBy(ht => ht.MasterTypeId)
+                              .Select(q => new QualityYieldStat
+                              {
+                                  QualityType = q.FirstOrDefault()?.Product?.MasterTypeName ?? "",
+                                  QuantityYield = q.Sum(x => x.ActualQuantity ?? 0)
+                              }).ToList()
+                      })
+                      .OrderBy(s => s.HarvestSeason)
+                      .ToList();
             return result;
         }
 
