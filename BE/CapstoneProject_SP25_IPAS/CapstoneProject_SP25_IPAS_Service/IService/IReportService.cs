@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_Service.Base;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> WorkProgressOverview(int year, int month, int? farmId);
         public Task<BusinessResult> GetWeatherOfFarm(int farmId);
         public Task<BusinessResult> StatisticEmployee(int farmID);
+        public Task<BusinessResult> StatisticPlan(int? month, int? year, int? farmID);
+        public Task<BusinessResult> GetWorkPerformanceAsync(WorkPerformanceRequestDto request, int? farmId);
+        public Task<BusinessResult> GetWorkPerformanceCompareAsync(WorkPerFormanceCompareDto request, int? farmId);
     }
 }

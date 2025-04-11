@@ -405,6 +405,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string WorkProgressOverview = prefix + "/dashboard/work-progress-overview";
             public const string GetWeatherOfFarm = prefix + "/dashboard/get-weather-of-farm";
             public const string StatisticEmployee = prefix + "/dashboard/statistic-employee";
+            public const string StatisticPlan = prefix + "/dashboard/statistic-plan";
+            public const string WorkPerformance = prefix + "/dashboard/work-performance";
+            public const string CompareWorkPerformance = prefix + "/dashboard/compare-work-performance";
         }
 
         public static class TaskFeedback

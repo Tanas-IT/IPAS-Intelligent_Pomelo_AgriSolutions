@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
@@ -180,6 +181,75 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var result = await _reportService.StatisticEmployee(farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.StatisticPlan, Name = "StatisticPlan")]
+        public async Task<IActionResult> StatisticPlan([FromQuery] int? farmId, int? month, int? year)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _reportService.StatisticPlan(month, year, farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.WorkPerformance, Name = "WorkPerformance")]
+        public async Task<IActionResult> WorkPerformance([FromQuery] int? farmId, [FromQuery] int? top, [FromQuery] string? search, [FromQuery] double? score )
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var workPerformance = new WorkPerformanceRequestDto()
+                {
+                    Score = score,
+                    Search = search,
+                    Top = top,
+                };
+                var result = await _reportService.GetWorkPerformanceAsync(workPerformance, farmId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPost(APIRoutes.Report.CompareWorkPerformance, Name = "CompareWorkPerformance")]
+        public async Task<IActionResult> CompareWorkPerformance([FromQuery] int? farmId, [FromBody] WorkPerFormanceCompareDto workPerFormanceCompareDto)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _reportService.GetWorkPerformanceCompareAsync(workPerFormanceCompareDto, farmId);
                 return Ok(result);
             }
             catch (Exception ex)

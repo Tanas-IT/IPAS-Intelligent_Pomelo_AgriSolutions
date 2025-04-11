@@ -394,6 +394,11 @@ const generationConfig = {
                         history.Add(new InputContent
                         {
                             Role = "user",
+                            Parts = msg.Question
+                        });
+                        history.Add(new InputContent
+                        {
+                            Role = "model",
                             Parts = msg.MessageContent
                         });
                     }

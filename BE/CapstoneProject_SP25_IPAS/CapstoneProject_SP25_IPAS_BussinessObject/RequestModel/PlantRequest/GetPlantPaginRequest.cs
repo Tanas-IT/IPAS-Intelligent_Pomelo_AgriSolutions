@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_Common.Utils;
+using Org.BouncyCastle.Bcpg.Sig;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,5 +27,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest
         public string? CultivarIds { get; set; }
         public string? GrowthStageIds { get; set; }
         public bool? IsDead { get; set; }
+        public bool? isPassed { get; set; }
+        public DateTime? PassedDateFrom { get; set; }
+        public DateTime? PassedDateTo { get; set; }
+
     }
 }

@@ -704,7 +704,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (growthStageExist == null)
                         return new BusinessResult(Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_CODE, Const.WARNING_GET_GROWTHSTAGE_DOES_NOT_EXIST_MSG);
                     // Kiểm tra số lượng cây có thể trồng
-                    int quantityToPlant = plantLot.LastQuantity - plantLot.UsedQuantity ?? 0;
+                    int quantityToPlant = plantLot.LastQuantity - plantLot.UsedQuantity!.GetValueOrDefault() ?? 0;
                     if (quantityToPlant <= 0)
                     {
                         return new BusinessResult(Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_CODE, Const.WARNING_PLANT_LOT_NOT_REMAIN_ANY_PLANT_MSG);
@@ -784,7 +784,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Cập nhật số lượng cây còn lại trong PlantLot
-                    plantLot.UsedQuantity += (quantityToPlant - remainingPlants);
+                    plantLot.UsedQuantity = plantLot.UsedQuantity.GetValueOrDefault() + (quantityToPlant - remainingPlants);
                     if (plantLot.UsedQuantity >= plantLot.LastQuantity)
                         plantLot.Status = PlantLotStatusConst.USED;
                     _unitOfWork.PlantLotRepository.Update(plantLot);
@@ -793,7 +793,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", plantLot);
+                        var mappedResult = _mapper.Map<PlantLotModel>(plantLot);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_LOT_CODE, "Plant has fill in plot success", mappedResult);
                     }
                     // nếu sai
                     await transaction.RollbackAsync();
@@ -1040,13 +1041,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             Expression<Func<GraftedPlant, bool>> filter = x => x.PlantLotId == plantLotId &&
                                         x.Status.ToLower().Equals(GraftedPlantStatusConst.HEALTHY.ToString().ToLower());
 
-            var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, pageIndex: 1, pageSize: numberOfGraftedPlant);
-            foreach (var grafted in graftedPlant)
+            var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, includeProperties: "", pageIndex: 1, pageSize: numberOfGraftedPlant);
+            if (graftedPlant != null)
             {
-                // dnah dau used cac cay do
-                grafted.Status = GraftedPlantStatusConst.IS_USED.ToString().ToLower();
+                foreach (var grafted in graftedPlant)
+                {
+                    // dnah dau used cac cay do
+                    grafted.Status = GraftedPlantStatusConst.IS_USED;
+                }
+                _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlant);
             }
-            _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlant);
             return;
         }
 

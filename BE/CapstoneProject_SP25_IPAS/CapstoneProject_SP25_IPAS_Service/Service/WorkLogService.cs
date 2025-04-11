@@ -523,10 +523,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             ScheduleId = wl.ScheduleId,
                             StartTime = wl.Schedule.StartTime,
                             EndTime = wl.Schedule.EndTime,
-                            PlanId = wl.Schedule.CarePlan.PlanId,
-                            PlanName = wl.Schedule.CarePlan.PlanName,
-                            StartDate = wl.Schedule.CarePlan.StartDate,
-                            EndDate = wl.Schedule.CarePlan.EndDate,
+                            PlanId = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanId : null,
+                            PlanName = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanName : null,
+                            StartDate = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.StartDate : null,
+                            EndDate = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.EndDate : null,
                             Users = wl.UserWorkLogs.Select(uwl => new UserScheduleModel()
                             {
                                 UserId = uwl.UserId,

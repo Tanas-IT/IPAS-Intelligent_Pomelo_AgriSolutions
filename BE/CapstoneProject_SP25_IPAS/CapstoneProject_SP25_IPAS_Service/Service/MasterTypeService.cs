@@ -72,7 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime < createMasterTypeModel.MaxTime)
                     {
-                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MaxTime.Value, createMasterTypeModel.MinTime.Value);
+                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MinTime.Value, createMasterTypeModel.MaxTime.Value);
                         if (validationResult.StatusCode != 200) return validationResult;
                         newMasterType.MinTime = createMasterTypeModel.MinTime;
                         newMasterType.MaxTime = createMasterTypeModel.MaxTime;
@@ -702,10 +702,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             var minTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_TIME.Trim(), (double)1);
             if (createMinTime < minTime)
-                return new BusinessResult(400, $"Min Time must > {minTime}.");
+                return new BusinessResult(400, $"Min Time must >= {minTime}.");
             var maxTime = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MAX_TIME.Trim(), (double)24);
             if (createMaxTime < maxTime)
-                return new BusinessResult(400, $"Max Time must > {maxTime}.");
+                return new BusinessResult(400, $"Max Time must >= {maxTime}.");
             return new BusinessResult(200, "No error found");
         }
     }

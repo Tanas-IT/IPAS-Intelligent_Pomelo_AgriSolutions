@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,7 +70,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             // Nếu có truyền planId, lọc theo planId
             if (planId.HasValue)
             {
-                query = query.Where(wl => wl.Schedule.CarePlan.PlanId == planId).ToList();
+                query = query.Where(wl => wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanId == planId : false).ToList();
             }
 
             // Nếu có truyền startDate và endDate, lọc theo khoảng ngày
