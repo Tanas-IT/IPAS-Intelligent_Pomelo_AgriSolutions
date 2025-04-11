@@ -62,3 +62,18 @@ interface WeatherPropertyModel {
     workProgressOverviews: WorkProgressOverview[];
   }
   
+  export interface MaterialInstore {
+    month: string
+    materials: Material[]
+  }
+  
+  export interface Material {
+    productType: string
+    unitOfMaterials: UnitOfMaterials
+  }
+  
+  export interface UnitOfMaterials {
+    value: number
+    unit: string
+  }
+  
