@@ -44,6 +44,7 @@ const MaterialChart: React.FC = () => {
                     if (unit === "kg") {
                         if (productType === "Grade 2") dataPoint.grade2 = value;
                         else if (productType === "Grade 3") dataPoint.grade3 = value;
+                        else if (productType === "Grade 1") dataPoint.grade1 = value;
                         else if (productType === "Leaves") dataPoint.leaves = value;
                     } else if (unit === "bundle") {
                         if (productType === "Branches") dataPoint.branches = value;
@@ -119,7 +120,7 @@ const MaterialChart: React.FC = () => {
                     <Legend />
 
                     {/* cho đơn vị Kg */}
-                    <Bar yAxisId="left" dataKey="grade1" fill="#13C2C2" name="Grade 1 (Kg)" />
+                    <Bar yAxisId="left" dataKey="grade1" fill="#13C2C2" name="Grade 1" />
                     <Bar yAxisId="left" dataKey="grade2" fill="#82ca9d" name="Grade 2" />
                     <Bar yAxisId="left" dataKey="grade3" fill="#ffc658" name="Grade 3" />
                     <Bar yAxisId="left" dataKey="leaves" fill="#a4de6c" name="Leaves" />
@@ -147,6 +148,8 @@ const styles = {
         width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
+        // background: "white",
+        // borderRadius: "10px"
     },
     loadingContainer: {
         display: "flex",

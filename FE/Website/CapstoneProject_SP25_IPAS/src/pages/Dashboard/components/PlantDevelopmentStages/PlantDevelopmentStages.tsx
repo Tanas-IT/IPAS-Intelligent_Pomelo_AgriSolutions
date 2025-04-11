@@ -9,7 +9,6 @@ interface PlantDevelopmentStagesProps {
 const PlantDevelopmentStages: React.FC<PlantDevelopmentStagesProps> = ({ data }) => {
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>Plant Development Stages</h3>
       <div className={styles.list}>
         {Object.keys(data).map((stage, index) => (
           <div key={index} className={styles.item}>

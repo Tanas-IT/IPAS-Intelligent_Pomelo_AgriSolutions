@@ -4,12 +4,13 @@
   padding: 20px;
 
   .statBoxContainer {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
   }
 
   .chartContainer {
-    margin-top: 20px;
+    // margin-top: 20px;
 
     .pieChart {
       background-color: white;
@@ -22,10 +23,27 @@
     }
   }
 
+  .pieChart {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+
+    h3 {
+      margin: 20px;
+    }
+  }
+
+  .pomeloQualityBreakdown {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+
   .segmented {
     margin-bottom: 20px;
     margin-top: 20px;
   }
 
-  
+
 }
