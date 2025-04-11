@@ -620,55 +620,59 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var query = _unitOfWork.UserWorkLogRepository
-                                .GetUserWorkLogsByEmployeeIds();
-                
-                if (request.Top != null)
-                {
-                    query = query.Take(request.Top.Value);
-                }
+                var userWorkLogs = await _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds(request.Limit, farmId, request.Search);
 
-               
-                if (farmId.HasValue)
-                {
-                    query = query.Where(uw =>
-                        uw.WorkLog != null &&
-                        uw.WorkLog.Schedule != null &&
-                        uw.WorkLog.Schedule.FarmID == farmId.Value);
-                }
-                if (!string.IsNullOrEmpty(request.Search))
-                {
-                    query = query.Where(uw => uw.User.FullName.Contains(request.Search));
-                }
 
-                var userWorkLogs = await query.ToListAsync();
 
                 var grouped = userWorkLogs
-                    .GroupBy(x => x.UserId)
-                    .Select(g =>
-                    {
-                        var totalTasks = g.Count();
-                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
-                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
-                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+                                 .Where(uw => uw != null && uw.User != null)
+                                 .GroupBy(uw => uw.User.UserId)
+                                 .Select(g =>
+                                 {
+                                     var user = g.First().User;
+                                     var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
 
-                        return new WorkPerformanceResponseDto
-                        {
-                            EmployeeId = g.Key,
-                            Name = g.First().User.FullName ?? "Không rõ",
-                            TaskSuccess = taskSuccess,
-                            TaskFail = taskFail,
-                            TotaTask = totalTasks,
-                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
-                            Score = score
-                        };
-                    })
-                    .OrderByDescending(x => x.Score).ToList();
-                if(request.Score != null)
+                                     var totalTasks = workLogs.Count;
+                                     var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == "Done");
+                                     var taskFail = workLogs.Count(x =>
+                                         x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+
+                                     var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                                     return new WorkPerformanceResponseDto
+                                     {
+                                         EmployeeId = user.UserId,
+                                         Name = user.FullName ?? "Không rõ",
+                                         TaskSuccess = taskSuccess,
+                                         TaskFail = taskFail,
+                                         TotalTask = totalTasks,
+                                         Avatar = user.AvatarURL ?? "Không rõ",
+                                         Score = score
+                                     };
+                                 })
+                                 .OrderByDescending(x => x.Score)
+                                 .ToList();
+                // ✅ Lọc theo khoảng điểm
+                if (request.MinScore.HasValue)
+                    grouped = grouped.Where(x => x.Score >= request.MinScore.Value).ToList();
+
+                if (request.MaxScore.HasValue)
+                    grouped = grouped.Where(x => x.Score <= request.MaxScore.Value).ToList();
+
+                // ✅ Sắp xếp theo loại: top hay bottom
+                if (!string.IsNullOrEmpty(request.Type))
                 {
-                    grouped = grouped.Where(x => x.Score == request.Score).ToList();
+                    if (request.Type.ToLower() == "top")
+                    {
+                        grouped = grouped.OrderByDescending(x => x.Score).ToList();
+                    }
+                    else if (request.Type.ToLower() == "bottom")
+                    {
+                        grouped = grouped.OrderBy(x => x.Score).ToList();
+                    }
                 }
-                if(grouped.Any())
+                if (grouped.Any())
                 {
                     return new BusinessResult(200, "Get Work PerFormance success", grouped);
                 }
@@ -685,46 +689,46 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var query = _unitOfWork.UserWorkLogRepository
-                                .GetUserWorkLogsByEmployeeIds();
+                var query = await _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds(null, farmId, null);
 
                 if(request.ListEmployee != null)
                 {
-                    query = query.Where(x => request.ListEmployee.Contains(x.UserId));
+                    query = query.Where(x => request.ListEmployee.Contains(x.UserId)).ToList();
                 }
 
-                if (farmId.HasValue)
-                {
-                    query = query.Where(uw =>
-                        uw.WorkLog != null &&
-                        uw.WorkLog.Schedule != null &&
-                        uw.WorkLog.Schedule.FarmID == farmId.Value);
-                }
              
 
-                var userWorkLogs = await query.ToListAsync();
+                var userWorkLogs = query;
 
                 var grouped = userWorkLogs
-                    .GroupBy(x => x.UserId)
-                    .Select(g =>
-                    {
-                        var totalTasks = g.Count();
-                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
-                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
-                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+                                .Where(uw => uw != null && uw.User != null)
+                                .GroupBy(uw => uw.User.UserId)
+                                .Select(g =>
+                                {
+                                    var user = g.First().User;
+                                    var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
 
-                        return new WorkPerformanceResponseDto
-                        {
-                            EmployeeId = g.Key,
-                            Name = g.First().User.FullName ?? "Không rõ",
-                            TaskSuccess = taskSuccess,
-                            TaskFail = taskFail,
-                            TotaTask = totalTasks,
-                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
-                            Score = score
-                        };
-                    })
-                    .OrderByDescending(x => x.Score).ToList();
+                                    var totalTasks = workLogs.Count;
+                                    var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == "Done");
+                                    var taskFail = workLogs.Count(x =>
+                                        x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+
+                                    var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                                    return new WorkPerformanceResponseDto
+                                    {
+                                        EmployeeId = user.UserId,
+                                        Name = user.FullName ?? "Không rõ",
+                                        TaskSuccess = taskSuccess,
+                                        TaskFail = taskFail,
+                                        TotalTask = totalTasks,
+                                        Avatar = user.AvatarURL ?? "Không rõ",
+                                        Score = score
+                                    };
+                                })
+                                .OrderByDescending(x => x.Score)
+                                .ToList();
                 if (grouped.Any())
                 {
                     return new BusinessResult(200, "Get Work PerFormance success", grouped);

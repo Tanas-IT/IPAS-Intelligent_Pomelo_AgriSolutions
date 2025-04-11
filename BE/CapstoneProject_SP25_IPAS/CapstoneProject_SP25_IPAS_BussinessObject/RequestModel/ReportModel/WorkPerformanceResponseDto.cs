@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel
         public double Score { get; set; }
         public int TaskSuccess { get; set; }
         public int TaskFail { get; set; }
-        public int TotaTask { get; set; }
+        public int TotalTask { get; set; }
         public string Avatar { get; set; }
     }
 }
