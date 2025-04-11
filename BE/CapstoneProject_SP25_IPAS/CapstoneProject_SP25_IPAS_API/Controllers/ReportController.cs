@@ -216,7 +216,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Report.WorkPerformance, Name = "WorkPerformance")]
-        public async Task<IActionResult> WorkPerformance([FromQuery] int? farmId, [FromQuery] int? top, [FromQuery] string? search, [FromQuery] double? score )
+        public async Task<IActionResult> WorkPerformance([FromQuery] int? farmId, [FromQuery] int? limit, [FromQuery] string? search, [FromQuery] double? minScore, [FromQuery] double? maxScore, [FromQuery] string? type)
         {
             try
             {
@@ -224,9 +224,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
                 var workPerformance = new WorkPerformanceRequestDto()
                 {
-                    Score = score,
+                    MaxScore = maxScore,
+                    MinScore = minScore,
                     Search = search,
-                    Top = top,
+                    Limit = limit,
+                    Type = type
                 };
                 var result = await _reportService.GetWorkPerformanceAsync(workPerformance, farmId);
                 return Ok(result);

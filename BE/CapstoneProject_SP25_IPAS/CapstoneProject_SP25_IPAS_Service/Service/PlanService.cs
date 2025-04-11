@@ -121,6 +121,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
+                        SubProcessId = createPlanModel?.SubProcessId,
                         Status = "Active",
                         FarmID = farmId,
                         PlanDetail = createPlanModel?.PlanDetail,
@@ -1027,6 +1028,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+
+                    var validatePlan = new CreatePlanModel();
+                    var checkProcessId = 0;
+                    if(updatePlanModel.StartDate != null)
+                    {
+                        validatePlan.StartDate = updatePlanModel.StartDate.Value;
+                    }
+                    if(updatePlanModel.EndDate != null)
+                    {
+                        validatePlan.EndDate = updatePlanModel.EndDate.Value;
+                    }
+                    if(updatePlanModel.ProcessId != null)
+                    {
+                        validatePlan.ProcessId = updatePlanModel.ProcessId.Value;
+                        checkProcessId = updatePlanModel.ProcessId.Value;
+                    }
+                    if(updatePlanModel.SubProcessId != null)
+                    {
+                        validatePlan.SubProcessId = updatePlanModel.SubProcessId.Value;
+                        var getProcessBySub = await _unitOfWork.SubProcessRepository.GetProcessBySubProcessId(updatePlanModel.SubProcessId.Value);
+                        checkProcessId = getProcessBySub.ProcessId;
+                    }
+                    var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
+                    if(errors.Any())
+                    {
+                        return new BusinessResult(400, string.Join("\n", errors));
+                    }
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
                     if (updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
                     {
@@ -1074,7 +1102,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
                         }
-
+                        if(updatePlanModel.SubProcessId != null)
+                        {
+                            checkExistPlan.SubProcessId = updatePlanModel.SubProcessId;
+                        }
                         if (updatePlanModel.CropId.HasValue && updatePlanModel.ListLandPlotOfCrop != null && updatePlanModel.PlanTargetModel == null)
                         {
                             var getCropToCheck = await _unitOfWork.CropRepository.GetByID(updatePlanModel.CropId.Value);
@@ -2703,6 +2734,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     int count = 0;
+                    // Bước 1: gom tất cả ProcessId và SubProcessId
+                    var processIds = createPlanModel
+                        .Where(p => p.ProcessId.HasValue)
+                        .Select(p => p.ProcessId != null ? p.ProcessId.Value : 0)
+                        .ToHashSet();
+
+                    var subProcessIds = createPlanModel
+                        .Where(p => p.SubProcessId.HasValue)
+                        .Select(p => p.SubProcessId != null ? p.SubProcessId.Value : 0)
+                        .ToList();
+
+                    // Bước 2: truy về các SubProcess để biết ProcessId cha
+                    if (subProcessIds.Any())
+                    {
+                        foreach (var sp in subProcessIds)
+                        {
+                            var getProcess = await _unitOfWork.SubProcessRepository.GetProcessBySubProcessId(sp);
+                            processIds.Add(getProcess.ProcessId); // lấy ProcessId từ SubProcess
+                        }
+                    }
+                    var processId = processIds.FirstOrDefault();
+                    var errors = await ValidatePlansAgainstTemplate(processId, createPlanModel);
+                    if(errors.Any())
+                    {
+                        return new BusinessResult(400, string.Join("\n", errors));
+                    }
                     foreach (var createPlan in createPlanModel)
                     {
                         var result = await CreatePlan(createPlan, farmId, false);
@@ -2960,6 +3017,91 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        private async Task<List<string>> ValidatePlansAgainstTemplate(int processId, List<CreatePlanModel> newPlans)
+        {
+            var errors = new List<string>();
+            var templateProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "Plans,SubProcesses");
+            if(templateProcess == null) return new List<string>() { "Process does not exist" };
+            // Map SubProcessID -> SubProcess từ template
+            var subProcessMap = templateProcess.SubProcesses.ToDictionary(sp => sp.SubProcessID, sp => sp);
+
+            // Gom kế hoạch theo từng vùng (Process hoặc SubProcess)
+            var planGroups = newPlans.GroupBy(p => p.SubProcessId ?? 0).ToList();
+
+            // Xây map Order cho từng nhóm
+            var groupOrders = planGroups.ToDictionary(
+                g => g.Key,
+                g =>
+                {
+                    if (g.Key == 0) return templateProcess.Order ?? 0;
+                    return subProcessMap.TryGetValue(g.Key, out var sp) ? sp.Order ?? 0 : int.MaxValue;
+                });
+
+            // 1. Validate ngày nằm trong vùng Process hoặc SubProcess
+            foreach (var plan in newPlans)
+            {
+                var parentName = "Process";
+                DateTime? parentStart = templateProcess.StartDate;
+                DateTime? parentEnd = templateProcess.EndDate;
+
+                if (plan.SubProcessId.HasValue && subProcessMap.TryGetValue(plan.SubProcessId.Value, out var sub))
+                {
+                    parentName = $"SubProcess \"{sub.SubProcessName}\"";
+                    parentStart = sub.StartDate;
+                    parentEnd = sub.EndDate;
+                }
+
+                if (plan.StartDate == null || plan.EndDate == null)
+                {
+                    errors.Add($"- Plan \"{plan.PlanName ?? "Unknown"}\" does not have startDate and endDate.");
+                    continue;
+                }
+
+                if (parentStart.HasValue && plan.StartDate < parentStart)
+                {
+                    errors.Add($"- Plan \"{plan.PlanName}\" has startDate before startDate of {parentName}.");
+                }
+
+                if (parentEnd.HasValue && plan.EndDate > parentEnd)
+                {
+                    errors.Add($"- Plan \"{plan.PlanName}\" has endDate after endDate of {parentName}.");
+                }
+
+                if (plan.StartDate > plan.EndDate)
+                {
+                    errors.Add($"- Plan \"{plan.PlanName}\" has startDate after endDate.");
+                }
+            }
+
+            // 2. Validate thứ tự theo Order
+            var orderedGroups = planGroups.OrderBy(g => groupOrders[g.Key]).ToList();
+
+            for (int i = 0; i < orderedGroups.Count - 1; i++)
+            {
+                var currentGroup = orderedGroups[i];
+                var nextGroup = orderedGroups[i + 1];
+
+                var maxCurrentEnd = currentGroup
+                    .Where(p => p.EndDate != null)
+                    .Max(p => p.EndDate);
+
+                var minNextStart = nextGroup
+                    .Where(p => p.StartDate != null)
+                    .Min(p => p.StartDate);
+
+                var currentGroupName = currentGroup.Key == 0 ? templateProcess.ProcessName : subProcessMap.GetValueOrDefault(currentGroup.Key)?.SubProcessName;
+                var nextGroupName = nextGroup.Key == 0 ? templateProcess.ProcessName : subProcessMap.GetValueOrDefault(nextGroup.Key)?.SubProcessName;
+
+                if (maxCurrentEnd > minNextStart)
+                {
+                    errors.Add($"- Các kế hoạch trong \"{currentGroupName}\" phải kết thúc trước khi \"{nextGroupName}\" bắt đầu.");
+                }
+            }
+
+            return errors;
+        }
+
 
     }
 }
