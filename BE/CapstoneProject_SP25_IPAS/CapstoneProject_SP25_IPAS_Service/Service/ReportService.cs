@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -276,7 +277,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                       .GroupBy(x => x.HarvestHistoryId)
                       .Select(g => new SeasonalYieldModel
                       {
-                          HarvestSeason = g.FirstOrDefault()?.HarvestHistory?.Crop?.HarvestSeason ?? "",
+                          HarvestSeason = g.FirstOrDefault()?.HarvestHistory?.Crop?.CropName ?? "",
 
                           QualityStats = g
                               .GroupBy(ht => ht.MasterTypeId)
@@ -306,8 +307,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     FullName = uwl.User.FullName,
                     IsReporter = uwl.IsReporter,
                     AvatarURL = uwl.User.AvatarURL
-                }).ToList()
+                })
+                .Take(5)
+                .ToList()
             })
+            .OrderBy(x => x.DueDate)
             .ToList();
             return result;
         }
@@ -534,7 +538,204 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> StatisticPlan(int? month, int? year, int? farmID)
+        {
+            try
+            {
+                var query =  _unitOfWork.PlanRepository.GetAllPlans();
 
-        
+                if (farmID.HasValue)
+                {
+                    query = query.Where(p => p.FarmID == farmID.Value);
+                }
+
+                if (year.HasValue)
+                {
+                    query = query.Where(p => p.StartDate.HasValue && p.StartDate.Value.Year == year.Value);
+
+                    if (month.HasValue)
+                    {
+                        query = query.Where(p => p.StartDate.Value.Month == month.Value);
+                    }
+                }
+                var plans = await query
+                    .ToListAsync();
+
+                var plansByMonth = plans
+                    .GroupBy(p => p.CreateDate!.Value.Month)
+                    .Select(g => new MonthlyPlanStatsDto
+                    {
+                        Month = g.Key,
+                        TotalPlans = g.Count()
+                    })
+                    .ToList();
+
+                var statusDistribution = plans
+                    .GroupBy(p => p.IsActive == true ? "Active" : "InActive")
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var planByType = plans
+                                 .Where(p => p.MasterTypeId.HasValue)
+                                 .GroupBy(p => p.MasterTypeId!.Value)
+                                 .Select(g => new
+                                 {
+                                     TypeName = g.First().MasterType?.Target,
+                                     Count = g.Count()
+                                 })
+                                 .GroupBy(x => x.TypeName ?? "Không xác định")
+                                 .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
+
+                var groupedStatuses = plans
+                                        .Where(p => !string.IsNullOrEmpty(p.Status))
+                                        .GroupBy(p => p.Status!)
+                                        .ToDictionary(g => g.Key, g => g.Count());
+
+                var statusSummary = new PlanStatusSummaryDto
+                {
+                    Total = groupedStatuses.Values.Sum(),
+                    Status = groupedStatuses
+                };
+
+                var result =  new PlanStatisticsDto
+                {
+                    PlansByMonth = plansByMonth,
+                    StatusDistribution = statusDistribution,
+                    PlanByWorkType = planByType,
+                    StatusSummary = statusSummary
+                };
+                if(result != null)
+                {
+                    return new BusinessResult(200, "Statistic plan success", result);
+                }
+                return new BusinessResult(400, "Statistic plan failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetWorkPerformanceAsync(WorkPerformanceRequestDto request, int? farmId)
+        {
+            try
+            {
+                var query = _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds();
+                
+                if (request.Top != null)
+                {
+                    query = query.Take(request.Top.Value);
+                }
+
+               
+                if (farmId.HasValue)
+                {
+                    query = query.Where(uw =>
+                        uw.WorkLog != null &&
+                        uw.WorkLog.Schedule != null &&
+                        uw.WorkLog.Schedule.FarmID == farmId.Value);
+                }
+                if (!string.IsNullOrEmpty(request.Search))
+                {
+                    query = query.Where(uw => uw.User.FullName.Contains(request.Search));
+                }
+
+                var userWorkLogs = await query.ToListAsync();
+
+                var grouped = userWorkLogs
+                    .GroupBy(x => x.UserId)
+                    .Select(g =>
+                    {
+                        var totalTasks = g.Count();
+                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
+                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                        return new WorkPerformanceResponseDto
+                        {
+                            EmployeeId = g.Key,
+                            Name = g.First().User.FullName ?? "Không rõ",
+                            TaskSuccess = taskSuccess,
+                            TaskFail = taskFail,
+                            TotaTask = totalTasks,
+                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
+                            Score = score
+                        };
+                    })
+                    .OrderByDescending(x => x.Score).ToList();
+                if(request.Score != null)
+                {
+                    grouped = grouped.Where(x => x.Score == request.Score).ToList();
+                }
+                if(grouped.Any())
+                {
+                    return new BusinessResult(200, "Get Work PerFormance success", grouped);
+                }
+                return new BusinessResult(400, "Get Work Performance failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetWorkPerformanceCompareAsync(WorkPerFormanceCompareDto request, int? farmId)
+        {
+            try
+            {
+                var query = _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds();
+
+                if(request.ListEmployee != null)
+                {
+                    query = query.Where(x => request.ListEmployee.Contains(x.UserId));
+                }
+
+                if (farmId.HasValue)
+                {
+                    query = query.Where(uw =>
+                        uw.WorkLog != null &&
+                        uw.WorkLog.Schedule != null &&
+                        uw.WorkLog.Schedule.FarmID == farmId.Value);
+                }
+             
+
+                var userWorkLogs = await query.ToListAsync();
+
+                var grouped = userWorkLogs
+                    .GroupBy(x => x.UserId)
+                    .Select(g =>
+                    {
+                        var totalTasks = g.Count();
+                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
+                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                        return new WorkPerformanceResponseDto
+                        {
+                            EmployeeId = g.Key,
+                            Name = g.First().User.FullName ?? "Không rõ",
+                            TaskSuccess = taskSuccess,
+                            TaskFail = taskFail,
+                            TotaTask = totalTasks,
+                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
+                            Score = score
+                        };
+                    })
+                    .OrderByDescending(x => x.Score).ToList();
+                if (grouped.Any())
+                {
+                    return new BusinessResult(200, "Get Work PerFormance success", grouped);
+                }
+                return new BusinessResult(400, "Get Work Performance failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }
