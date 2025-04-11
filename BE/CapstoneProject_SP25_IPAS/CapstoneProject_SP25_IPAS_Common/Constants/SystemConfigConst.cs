@@ -11,11 +11,12 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
     {
         #region CONFIG GROUP NAME
         public const string VALIDATION_VARIABLE = "Validation Variable";
-        public const string MASTER_TYPE = "Master Type";
-        public const string CRITERIA_APPLY = "Criteria Apply";
+        public const string MASTER_TYPE = "MasterType";
+        public const string CRITERIA_APPLY = "CriteriaApply";
         public const string WORKLOG = "WorkLog";
-        public const string WORKLOGFORMANAGER = "WorkLog For Manager";
+        public const string WORKLOGFORMANAGER = "WorkLogForManager";
         public const string AI = "AI";
+        public const string FARM = "Farm";
         #endregion
 
         #region CONFIG FOR PLANT IN GRAFTED
@@ -87,6 +88,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MIN_TIME = "MinTime";
         public const string MAX_TIME = "MaxTime";
         public const string RECORD_AFTER_DATE = "RecordAfterDate";
+        public const string SOIL_TYPE = "SoilType";
+        public const string CLIMATE_ZONE = "ClimateZone";
 
         #endregion
 
@@ -94,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         {
             PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
             GRAFTED_CRITERIA, GRAFTED_CONDITION_APPLY, GRAFTED_EVALUATION_APPLY,
-            PLANT_CRITERIA, PRODUCT_CRITERIA
+            PLANT_CRITERIA, PRODUCT_CRITERIA, SOIL_TYPE, CLIMATE_ZONE
         };
     }
 }

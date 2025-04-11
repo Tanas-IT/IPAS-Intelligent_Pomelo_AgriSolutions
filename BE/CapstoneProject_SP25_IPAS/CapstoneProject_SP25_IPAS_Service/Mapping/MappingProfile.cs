@@ -177,19 +177,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.PlantReferenceName, opt => opt.MapFrom(src => src.PlantReference.PlantName))
                 .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot.PlantLotCode))
                 .ForMember(dest => dest.PlantLotName, opt => opt.MapFrom(src => src.PlantLot.PlantLotName))
+            //.ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src => src.CriteriaTargets))
+               .ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
+                    src.CriteriaTargets
+                        .Where(pc => pc.Criteria != null && pc.Criteria.MasterType != null)
+                        .GroupBy(pc => pc.Criteria.MasterType.MasterTypeName)
+                        .Select(g => new CriteriaSummaryModel
+                        {
+                            CriteriaType = g.Key,
+                            CheckedCount = g.Count(pc => pc.IsPassed == true),
+                            TotalCount = g.Count()
+                        })
+                        .ToList()
+                ))
+
                 .ReverseMap();
 
-
-            //.ForMember(dest => dest.CriteriaSummary, opt => opt.MapFrom(src =>
-            //    src.PlantCriterias.GroupBy(pc => pc.Criteria.MasterType)
-            //    .Select(g => new
-            //    {
-            //        CriteriaType = g.Key!.MasterTypeName,
-            //        CheckedCount = g.Count(pc => pc.IsChecked == true),
-            //        TotalCount = g.Count()
-            //    })
-            //    .ToList())
-            //);
 
             //CreateMap<PlantCriteria, PlantCriteriaModel>()
             //    .ForMember(dest => dest.CriteriaName, opt => opt.MapFrom(src => src.Criteria.CriteriaName))
@@ -469,6 +472,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.PlantLotCode, opt => opt.MapFrom(src => src.PlantLot!.PlantLotCode))
                .ForMember(dest => dest.CultivarId, opt => opt.MapFrom(src => src.Plant!.MasterTypeId))
                .ForMember(dest => dest.CultivarName, opt => opt.MapFrom(src => src.Plant!.MasterType!.MasterTypeName))
+               .ForMember(dest => dest.MortherPlant, opt => opt.MapFrom(src => src.Plant))
                .ReverseMap();
 
             CreateMap<ChatMessage, ChatMessageModel>()
