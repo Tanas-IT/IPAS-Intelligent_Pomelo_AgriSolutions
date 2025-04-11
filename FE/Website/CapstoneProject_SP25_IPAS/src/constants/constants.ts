@@ -9,6 +9,7 @@ export const UserRolesStr = {
   Owner: UserRole.Owner.toString(),
   Manager: UserRole.Manager.toString(),
   Employee: UserRole.Employee.toString(),
+  Expert: UserRole.Expert.toString(),
 };
 
 export const MASTER_TYPE_SHOW_TABLE = {
