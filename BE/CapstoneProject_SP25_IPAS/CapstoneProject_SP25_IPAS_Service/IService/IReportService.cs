@@ -17,5 +17,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> PomeloQualityBreakDown(int year, int? farmId);
         public Task<BusinessResult> WorkProgressOverview(int year, int month, int? farmId);
         public Task<BusinessResult> GetWeatherOfFarm(int farmId);
+        public Task<BusinessResult> StatisticEmployee(int farmID);
     }
 }
