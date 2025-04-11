@@ -11,6 +11,14 @@ export const UserRolesStr = {
   Employee: UserRole.Employee.toString(),
 };
 
+export const SYSTEM_CONFIG_KEY = {
+  TYPE_NAME: "TypeName",
+  GROWTH_ACTION_TYPE: "GrowthActionType",
+  WORK_TYPE: "WorkType"
+};
+
+
+
 export const MASTER_TYPE_SHOW_TABLE = {
   PROCESS: "Process",
   DOCUMENT: "Document",

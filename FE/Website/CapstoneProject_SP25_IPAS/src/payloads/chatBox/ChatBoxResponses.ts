@@ -1,3 +1,5 @@
+import { FileResource } from "@/types";
+
 export interface GetRooms {
   roomId: number;
   roomCode: string;
@@ -11,6 +13,7 @@ export interface ChatMessage {
   answer: string;
   createDate: string;
   senderId: string;
+  resources: FileResource[];
 }
 
 export interface GetMessageOfRoom {

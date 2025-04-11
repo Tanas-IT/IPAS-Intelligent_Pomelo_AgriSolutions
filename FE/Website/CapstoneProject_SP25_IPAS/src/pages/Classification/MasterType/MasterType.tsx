@@ -18,6 +18,7 @@ import {
   useTableAdd,
   useFilters,
   useHasChanges,
+  useSystemConfigOptions,
 } from "@/hooks";
 import { useEffect, useState } from "react";
 import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
@@ -25,18 +26,19 @@ import { masterTypeService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
 import { masterTypeColumns } from "./MasterTypeColumns";
 import MasterTypeFilter from "./MasterTypeFilter";
-import { MASTER_TYPE_SHOW_TABLE } from "@/constants";
+import { SYSTEM_CONFIG_KEY } from "@/constants";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
-  const typeOptions = Object.keys(MASTER_TYPE_SHOW_TABLE).map((key) => ({
-    value: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
-    label: MASTER_TYPE_SHOW_TABLE[key as keyof typeof MASTER_TYPE_SHOW_TABLE],
-  }));
-  const [typeName, setTypeName] = useState<string>(MASTER_TYPE_SHOW_TABLE.PROCESS);
+  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.TYPE_NAME);
+  const [typeName, setTypeName] = useState<string>("");
+
+  useEffect(() => {
+    if (typeOptions.length > 0 && !typeName) setTypeName(String(typeOptions[0].value));
+  }, [typeOptions]);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
@@ -73,7 +75,7 @@ function MasterType() {
   });
 
   useEffect(() => {
-    fetchData();
+    if (typeName) fetchData();
   }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue, typeName]);
 
   const handleTypeChange = (type: string) => {
@@ -164,6 +166,7 @@ function MasterType() {
                   placeholder="Select Type"
                   value={typeName}
                   style={{ width: "20rem" }}
+                  loading={loading}
                   options={typeOptions}
                   onChange={(value) => handleTypeChange(value)}
                 />

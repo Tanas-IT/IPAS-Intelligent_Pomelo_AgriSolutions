@@ -9,6 +9,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Label,
+  ReferenceArea,
+  ReferenceLine,
 } from "recharts";
 import { Select, Divider, Flex, Empty, Typography, DatePicker } from "antd";
 import style from "./PlantOverview.module.scss";
@@ -127,7 +129,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
         <div className={style.chartContainer}>
           {chartData && chartData.length > 0 ? (
             <ResponsiveContainer width="100%" minHeight={380}>
-              <LineChart data={chartData}>
+              <LineChart data={chartData} margin={{ right: 100 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="monthYear"
@@ -135,9 +137,38 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
                   textAnchor={shouldRotateLabels ? "end" : "middle"}
                   height={shouldRotateLabels ? 50 : 30}
                 />
-                <YAxis>
+                <YAxis domain={[0, "auto"]}>
                   <Label value="Yield (Kg)" angle={-90} position="insideLeft" />
                 </YAxis>
+
+                {/* Reference areas cho từng mức */}
+                <ReferenceArea y1={0} y2={50} fill="#d96b6b" fillOpacity={0.1} />
+                <ReferenceArea y1={50} y2={200} fill="#c9b458" fillOpacity={0.1} />
+                <ReferenceArea y1={200} y2={1000} fill="#76b947" fillOpacity={0.1} />
+
+                {/* Reference lines với nhãn */}
+                <ReferenceLine
+                  y={0}
+                  stroke="#d96b6b"
+                  label={{
+                    value: "Below Standard",
+                    position: "right",
+                    fill: "#d96b6b",
+                    fontSize: 12,
+                  }}
+                />
+                <ReferenceLine
+                  y={50}
+                  stroke="#c9b458"
+                  label={{ value: "Acceptable", position: "right", fill: "#c9b458", fontSize: 12 }}
+                />
+                <ReferenceLine
+                  y={200}
+                  stroke="#76b947"
+                  ifOverflow="extendDomain"
+                  label={{ value: "Outstanding", position: "right", fill: "#76b947", fontSize: 12 }}
+                />
+
                 <Tooltip
                   formatter={(value, _, { payload }) => [`${value} Kg`, `Year ${payload.year}`]}
                 />

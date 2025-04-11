@@ -2,9 +2,10 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { GROWTH_ACTIONS, growthStageFormFields } from "@/constants";
+import { GROWTH_ACTIONS, growthStageFormFields, SYSTEM_CONFIG_KEY } from "@/constants";
 import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
 import { useGrowthStageStore } from "@/stores";
+import { useSystemConfigOptions } from "@/hooks";
 
 type GrowthStageModalProps = {
   isOpen: boolean;
@@ -23,6 +24,9 @@ const GrowthStageModal = ({
 }: GrowthStageModalProps) => {
   const [form] = Form.useForm();
   const isUpdate = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
+  const { options: actionOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_KEY.GROWTH_ACTION_TYPE,
+  );
   const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
 
   const resetForm = () => form.resetFields();
@@ -34,11 +38,8 @@ const GrowthStageModal = ({
         form.setFieldsValue({
           ...growthStageData,
           [growthStageFormFields.activeFunction]: growthStageData.activeFunction
-            ? growthStageData.activeFunction.replace(/\s/g, "") ===
-              `${GROWTH_ACTIONS.GRAFTED},${GROWTH_ACTIONS.HARVEST}`.replace(/\s/g, "")
-              ? "Both"
-              : growthStageData.activeFunction
-            : undefined, // Nếu không có giá trị, set undefined hoặc "" tùy vào form
+            ? growthStageData.activeFunction.split(",").map((s) => s.trim())
+            : [],
         });
       } else {
         form.setFieldsValue({
@@ -48,10 +49,21 @@ const GrowthStageModal = ({
     }
   }, [isOpen, growthStageData]);
 
-  const getFormData = (): GrowthStageRequest =>
-    Object.fromEntries(
-      Object.values(growthStageFormFields).map((field) => [field, form.getFieldValue(field)]),
-    ) as GrowthStageRequest;
+  const getFormData = (): GrowthStageRequest => {
+    const raw = form.getFieldsValue([
+      growthStageFormFields.growthStageId,
+      growthStageFormFields.growthStageName,
+      growthStageFormFields.description,
+      growthStageFormFields.monthAgeStart,
+      growthStageFormFields.monthAgeEnd,
+      growthStageFormFields.activeFunction,
+    ]);
+
+    const value = raw[growthStageFormFields.activeFunction];
+    raw[growthStageFormFields.activeFunction] = Array.isArray(value) ? value.join(", ") : value;
+
+    return raw as GrowthStageRequest;
+  };
 
   const handleOk = async () => {
     await form.validateFields();
@@ -113,13 +125,9 @@ const GrowthStageModal = ({
           type="select"
           label="Stage Actions"
           name={growthStageFormFields.activeFunction}
-          options={Object.keys(GROWTH_ACTIONS).map((key) => ({
-            value:
-              key === "BOTH"
-                ? `${GROWTH_ACTIONS.GRAFTED}, ${GROWTH_ACTIONS.HARVEST}`
-                : GROWTH_ACTIONS[key as keyof typeof GROWTH_ACTIONS],
-            label: GROWTH_ACTIONS[key as keyof typeof GROWTH_ACTIONS],
-          }))}
+          isLoading={loading}
+          options={actionOptions}
+          multiple
         />
         <FormFieldModal
           label="Description"
