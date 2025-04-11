@@ -183,7 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude(farmId);
 
             var getListHarvestHistory = getListHarvestHistoryTemp.Where(x => x.DateHarvest.HasValue && x.DateHarvest.Value.Year == year)
-                                    .GroupBy(p => p.DateHarvest.Value.ToString("MM-yyyyy")) // Nhóm theo mùa
+                                    .GroupBy(p => p.DateHarvest.Value.ToString("MM-yyyy")) // Nhóm theo mùa
                                     .Select(g => new MaterialsInStoreModel
                                     {
                                         Month = g.Key,  // Key là mùa
@@ -533,6 +533,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
 
         
     }
