@@ -36,9 +36,21 @@ interface WeatherPropertyModel {
   
   interface PomeloQualityBreakDown {
   }
-  
-  interface ProductivityByPlot {
+
+  export interface ProductivityByPlot {
+    harvestSeason: string
+    year: number
+    landPlots: LandPlot[]
   }
+  
+  export interface LandPlot {
+    landPlotId: number
+    landPlotName: string
+    totalPlantOfLandPlot: number
+    quantity: number
+    status: string
+  }
+  
   
   interface SeasonalYield {
   }

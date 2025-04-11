@@ -12,7 +12,7 @@ export const getDashboardData = async (year: number = 2023, month: number = 3) =
 
 export const getMaterialInStore = async (year: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`report/dashboard/materials-in-store?year=${year}`);
-  const apiResponse = res.data as ApiResponse<MaterialInstore>;
+  const apiResponse = res.data as ApiResponse<MaterialInstore[]>;
   console.log("MaterialInStore Data: ", apiResponse);
   return apiResponse.data;
 };
