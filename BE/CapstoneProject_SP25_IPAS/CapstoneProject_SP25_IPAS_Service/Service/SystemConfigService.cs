@@ -558,10 +558,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Truy vấn danh sách config theo ConfigKey
                 if (!string.IsNullOrWhiteSpace(configKey))
                 {
-                    filter = filter.And(x => x.ConfigKey.ToLower().Equals(configKey.ToLower()));
+                    List<string> filterList = Util.SplitByComma(configKey);
+                    filter = filter.And(x => filterList.Contains(x.ConfigKey.ToLower()));
                 }
                 var configs = await _unitOfWork.SystemConfigRepository
-                    .GetAllNoPaging(filter, orderBy: q => q.OrderBy(c => c.ConfigKey).ThenBy(x => x.ConfigId));
+                    .GetAllNoPaging(filter, orderBy: q => q.OrderBy(c => c.ConfigKey).ThenByDescending(x => x.ConfigId));
 
                 if (configs == null || !configs.Any())
                 {
