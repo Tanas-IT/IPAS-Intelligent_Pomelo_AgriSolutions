@@ -497,5 +497,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> StatisticEmployee(int farmID)
+        {
+            try
+            {
+                var toltalTask = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
+                var filteredTask = toltalTask
+                               .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
+                               .Where(p => p.Schedule != null && p.Schedule.CarePlan != null)
+                               .Where(x => x.Schedule.FarmID == farmID || x.Schedule.CarePlan.FarmID == farmID )// Lọc trước khi gọi thuộc tính bên trong
+                               .ToList();
+                var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
+
+                var listTaskStatusDistribution = filteredTask
+                    .GroupBy(x => x.Status)
+                    .ToDictionary(
+                        g => g.Key!,
+                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                    );
+                var taskStatusDistribution = new TaskStatusDistribution()
+                {
+                    TotalTask = toltalTask.Count(),
+                    TaskStatus = listTaskStatusDistribution
+                };
+                if(taskStatusDistribution != null)
+                {
+                    return new BusinessResult(200, "Statistic Employee Success", taskStatusDistribution);
+                }
+                return new BusinessResult(400, "Statistic Employee Failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        
     }
 }
