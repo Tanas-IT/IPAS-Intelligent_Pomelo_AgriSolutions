@@ -53,10 +53,7 @@ public partial class Plan
 
     public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
-
-
     public virtual MasterType? MasterType { get; set; }
-
 
     public virtual Process? Process { get; set; }
     public virtual User? User { get; set; }
