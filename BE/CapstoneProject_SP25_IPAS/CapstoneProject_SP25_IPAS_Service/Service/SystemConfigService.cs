@@ -121,7 +121,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<SystemConfiguration, bool>> filter = x => true;
+                Expression<Func<SystemConfiguration, bool>> filter = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
                     filter = filter.And(x => x.ConfigKey.ToLower().Contains(paginationParameter.Search.ToLower()) ||
@@ -296,18 +296,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> GetSystemConfigsForSelected(string configKey)
+        public async Task<BusinessResult> GetSystemConfigsForSelected(string configGroup)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(configKey))
+                if (string.IsNullOrWhiteSpace(configGroup))
                 {
                     return new BusinessResult(500, "ConfigKey cannot be empty.");
                 }
 
                 // Truy vấn danh sách config theo ConfigKey
                 var configs = await _unitOfWork.SystemConfigRepository
-                    .GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(configKey.ToLower()) && x.IsActive == true , orderBy: q => q.OrderBy(c => c.ConfigKey));
+                    .GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(configGroup.ToLower()) && x.IsActive == true , orderBy: q => q.OrderBy(c => c.ConfigKey));
 
                 if (configs == null || !configs.Any())
                 {
@@ -545,5 +545,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> getAllSystemConfigForSelected(string configGroup, string? configKey)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(configGroup))
+                {
+                    return new BusinessResult(500, "ConfigKey cannot be empty.");
+                }
+
+                Expression<Func<SystemConfiguration, bool>> filter = x => x.ConfigGroup!.ToLower().Equals(configGroup.ToLower()) && x.IsActive == true;
+                // Truy vấn danh sách config theo ConfigKey
+                if (!string.IsNullOrWhiteSpace(configKey))
+                {
+                    filter = filter.And(x => x.ConfigKey.ToLower().Equals(configKey.ToLower()));
+                }
+                var configs = await _unitOfWork.SystemConfigRepository
+                    .GetAllNoPaging(filter, orderBy: q => q.OrderBy(c => c.ConfigKey).ThenBy(x => x.ConfigId));
+
+                if (configs == null || !configs.Any())
+                {
+                    return new BusinessResult(200, $"No configurations found .");
+                }
+                var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(configs);
+                // Trả về danh sách config
+                return new BusinessResult(200, "Successfully retrieved configurations.", mappedResult);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(500, ex.Message);
+            }
+        }
     }
 }

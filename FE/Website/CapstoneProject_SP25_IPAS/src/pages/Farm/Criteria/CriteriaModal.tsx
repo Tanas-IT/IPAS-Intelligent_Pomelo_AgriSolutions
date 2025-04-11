@@ -1,15 +1,15 @@
-import { Button, Flex, Form, Input, InputNumber, Space, Table } from "antd";
+import { Button, Flex, Form, Space, Table } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS, masterTypeFormFields, MESSAGES } from "@/constants";
+import { masterTypeFormFields, MESSAGES, SYSTEM_CONFIG_KEY } from "@/constants";
 import { CriteriaMasterRequest, GetCriteriaByMasterType, CriteriaRequest } from "@/payloads";
 import { Icons } from "@/assets";
 import style from "./Criteria.module.scss";
 import { toast } from "react-toastify";
 import { useDirtyStore } from "@/stores";
 import { CriteriaColModal } from "./CriteriaColModal";
-import { ColumnsType } from "antd/es/table";
+import { useSystemConfigOptions } from "@/hooks";
 
 type CriteriaModelProps = {
   isOpen: boolean;
@@ -30,12 +30,11 @@ const CriteriaModel = ({
   const [checked, setChecked] = useState<boolean>(false);
   const [_, setForceUpdate] = useState(false);
   const isUpdate = criteriaData !== undefined && Object.keys(criteriaData).length > 0;
-  const criteriaTargetOptions = Object.keys(CRITERIA_TARGETS).map((key) => ({
-    value: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-    label: CRITERIA_TARGETS[key as keyof typeof CRITERIA_TARGETS],
-  }));
+  const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_KEY.CRITERIA_TYPE,
+  );
+
   const { setIsDirty } = useDirtyStore();
-  const [target, setTarget] = useState<string | undefined>();
 
   const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);
   const toggleForm = () => setForceUpdate((prev) => !prev);
@@ -44,7 +43,6 @@ const CriteriaModel = ({
     form.resetFields();
     setChecked(false);
     setIsDirty(false);
-    setTarget(undefined);
   };
 
   useEffect(() => {
@@ -195,11 +193,7 @@ const CriteriaModel = ({
 
   const handleCancel = () => onClose(getFormData(), isUpdate);
 
-  const columns = CriteriaColModal(
-    form,
-    () => {},
-    () => {},
-  );
+  const columns = CriteriaColModal(form, handleInputChange, deleteCriteria);
 
   return (
     <ModalForm
@@ -224,8 +218,8 @@ const CriteriaModel = ({
             label="Target"
             name={masterTypeFormFields.target}
             rules={RulesManager.getTargetRules()}
+            isLoading={loading}
             options={criteriaTargetOptions}
-            onChange={(value) => setTarget(value)}
           />
         </Flex>
         <Flex gap={20}>

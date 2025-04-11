@@ -1076,17 +1076,6 @@ CREATE TABLE SystemConfiguration (
     UpdateDate DATETIME NULL               
 );
 GO
-CREATE TABLE EmployeeSkill (
-    EmployeeSkillID INT IDENTITY(1,1) PRIMARY KEY,
-    EmployeeID INT NULL,  
-	FarmID INT NULL,
-    WorkTypeID INT NULL,      
-    ScoreOfSkill float NULL,    
-    CONSTRAINT EmployeeSkill_Employee_FK FOREIGN KEY (EmployeeID,FarmID) REFERENCES ipas.dbo.[UserFarm](UserID, FarmID),
-    CONSTRAINT  EmployeeSkill_WorkType_FK_1 FOREIGN KEY (WorkTypeID) REFERENCES ipas.dbo.[MasterType](MasterTypeID)    
-);
-GO
-
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
@@ -1911,47 +1900,49 @@ VALUES
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Master Type', 'TypeName', 'Process', 'string', N'Process'),
-('Master Type', 'TypeName', 'Cultivar', 'string', N'Cultivar'),
-('Master Type', 'TypeName', 'Document', 'string', N'Document'),
-('Master Type', 'TypeName', 'Work', 'string', N'Work');
+('MasterType', 'Process', 'Process', 'string', N'Process'),
+('MasterType', 'Cultivar', 'Cultivar', 'string', N'Cultivar'),
+('MasterType', 'Document', 'Document', 'string', N'Document'),
+('MasterType', 'Work', 'Work', 'string', N'Work');
 
 -- Danh sách StageActions
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Growth Stage Action', 'GrowthActionType', 'Harvest', 'string', N'Harvest'),
-('Growth Stage Action', 'GrowthActionType', 'Grafted', 'string', N'Grafted');
+('GrowthStageAction', 'Harvest', 'Harvest', 'string', N'Harvest'),
+('GrowthStageAction', 'Grafted', 'Grafted', 'string', N'Grafted');
 
 -- Danh sách WorkTargets
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Work Target','WorkType', 'Watering', 'string', N'Watering'),
-('Work Target','WorkType', 'Fertilizer', 'string', N'Fertilizer'),
-('Work Target','WorkType', 'Spraying Pesticides', 'string', N'Spraying Pesticides'),
-('Work Target','WorkType', 'Pruning-Shaping', 'string', N'Pruning-Shaping'),
-('Work Target','WorkType', 'Weeding', 'string', N'Weeding'),
-('Work Target','WorkType', 'Pest Control', 'string', N'Pest Control'),
-('Work Target','WorkType', 'Others', 'string', N'Others');
+('WorkTarget','Watering', 'Watering', 'string', 'Watering'),
+('WorkTarget','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
+('WorkTarget','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
+('WorkTarget','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),
+('WorkTarget','Weeding', 'Weeding', 'string', 'Weeding'),
+('WorkTarget','PestControl', 'Pest Control', 'string', 'Pest Control'),
+('WorkTarget','Others', 'Others', 'string', 'Others');
 
--- Danh sách Validation
+-- Validation List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-( 'Validation Variable','GrowthExponent', '1.4', 'int', N'Số mũ tăng trưởng'),
-( 'Validation Variable','InitialBranching Coefficient', '5', N'int', 'Hệ số phân nhánh ban đầu'),
-('Validation Variable','MinTime', '1', 'double', N'Thời gian tối thiểu'),
-( 'Validation Variable','MaxTime', '35', 'double', N'Thời gian tối đa'),
-( 'Validation Variable','MaximumGraftingLimit', '100', 'int', N'Giới hạn chiết cành tối đa');
+('ValidationVariable', 'GrowthExponent', '1.4', 'int', 'Growth Exponent'),
+('ValidationVariable', 'InitialBranchingCoefficient', '5', 'int', 'Initial Branching Coefficient'),
+('ValidationVariable', 'MinTime', '1', 'double', 'Minimum Time'),
+('ValidationVariable', 'MaxTime', '35', 'double', 'Maximum Time'),
+('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
 
 GO
--- Danh sách Criteria
+
+-- Criteria List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Master Type', 'CriteriaType', 'Grafted Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
-('Master Type', 'CriteriaType', 'Grafted Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
-('Master Type', 'CriteriaType', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá lô giống nhập vào'),
-('Master Type', 'CriteriaType', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Master Type', 'CriteriaType', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
-('Master Type', 'CriteriaType', 'Others', 'string', N'Các loại tiêu chí khác');
+('Criteria', 'GraftedCondition', 'Grafted Condition', 'string', 'Grafted Condition'),
+('Criteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string', 'Grafted Evaluation'),
+('Criteria', 'PlantlotCondition', 'Plantlot Condition', 'string', 'Plantlot Condition'),
+('Criteria', 'PlantlotEvaluation', 'Plantlot Evaluation', 'string', 'Plantlot Evaluation'),
+('Criteria', 'Product', 'Product', 'string', 'Product'),
+('Criteria', 'Others', 'Others', 'string', 'Others');
+
 GO
 -- Danh sách Criteria
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
@@ -2005,27 +1996,6 @@ VALUES
 ('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Trạng thái của employee khi không bận mà bị thay bởi employee khác'),
 ('WorkLog For Manager', 'Failed', 'Failed', 'string', N'Trạng thái của worklog khi thực hiện công việc thất bại'),
 ('AI', 'PredictPercent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');
-GO
--- Climate Zones for Vietnam
-INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description) VALUES 
-('Farm', 'ClimateZone', 'Tropical Monsoon', 'string', 'High temperature and rainfall, typical in Southern Vietnam'),
-('Farm', 'ClimateZone', 'Tropical Wet and Dry', 'string', 'Distinct wet and dry seasons, typical in Central Highlands'),
-('Farm', 'ClimateZone', 'Subtropical Humid', 'string', 'Hot and humid summers, cool winters, common in Northern Vietnam'),
-('Farm', 'ClimateZone', 'Temperate Highland', 'string', 'Cool mountainous climate, found in areas like Da Lat and Sa Pa'),
-('Farm', 'ClimateZone', 'Coastal Climate', 'string', 'Moderate temperature and high rainfall, affected by ocean influence');
-GO
-INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description) VALUES 
-('Farm', 'SoilType', N'Alluvial Soil', 'string', N'Suitable for crops in river deltas'),
-('Farm', 'SoilType', N'Basalt Soil', 'string', N'Rich volcanic soil, ideal for fruit trees'),
-('Farm', 'SoilType', N'Light Loam', 'string', N'Light and well-drained soil'),
-('Farm', 'SoilType', N'Sandy Loam', 'string', N'Mixture of sand and silt, good for root vegetables'),
-('Farm', 'SoilType', N'Saline Soil', 'string', N'High salt content, usually found in coastal areas'),
-('Farm', 'SoilType', N'Acid Sulfate Soil', 'string', N'Common in Mekong Delta, needs treatment before farming'),
-('Farm', 'SoilType', N'Grey Degraded Soil', 'string', N'Low fertility, requires soil improvement'),
-('Farm', 'SoilType', N'Medium Loam', 'string', N'Balanced texture, good for general crops'),
-('Farm', 'SoilType', N'Heavy Clay', 'string', N'Poor drainage, suitable for rice cultivation'),
-('Farm', 'SoilType', N'Clay Soil', 'string', N'Dense and nutrient-rich but retains water');
-GO
 -- Insert WorkLog
 INSERT INTO [dbo].[WorkLog]
            ([WorkLogCode]
