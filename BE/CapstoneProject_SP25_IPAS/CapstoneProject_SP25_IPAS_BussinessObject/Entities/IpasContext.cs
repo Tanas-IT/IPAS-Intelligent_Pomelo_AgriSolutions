@@ -104,6 +104,7 @@ public partial class IpasContext : DbContext
     //public virtual DbSet<GrowthStageMasterType> GrowthStageMasterTypes { get; set; }
     public virtual DbSet<Report> Reports { get; set; }
     public virtual DbSet<SystemConfiguration> SystemConfigurations { get; set; }
+    public virtual DbSet<EmployeeSkill> EmployeeSkills { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -1546,6 +1547,25 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK_Report_Questioner__3231267C52");
 
 
+        });
+
+        modelBuilder.Entity<EmployeeSkill>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeSkillID).HasName("PK__EmployeeSkillID__2343GHYRT5");
+            entity.ToTable("EmployeeSkill");
+
+            entity.Property(e => e.EmployeeID).HasColumnName("EmployeeID");
+            entity.Property(e => e.WorkTypeID).HasColumnName("WorkTypeID");
+            entity.Property(e => e.ScoreOfSkill).HasColumnName("ScoreOfSkill");
+          
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeSkills)
+                .HasForeignKey(d => new { d.EmployeeID, d.FarmID })
+                .HasConstraintName("FK_EmployeeSkill_Employee__3124T52");
+
+            entity.HasOne(d => d.WorkType).WithMany(p => p.EmployeeSkills)
+                .HasForeignKey(d => d.WorkTypeID)
+                .HasConstraintName("FK_EmployeeSkill_WorkType__32367B52");
         });
 
         modelBuilder.Entity<SystemConfiguration>(entity =>

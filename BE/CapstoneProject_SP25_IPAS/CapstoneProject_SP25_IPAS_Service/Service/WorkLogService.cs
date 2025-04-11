@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
@@ -1975,8 +1977,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 if (getWorkLogToCancelled != null)
                 {
-                    getWorkLogToCancelled.StatusOfUserWorkLog = getStatusRejected;
-                    getWorkLogToCancelled.IsDeleted = true;
+                    if(getWorkLogToCancelled.StatusOfUserWorkLog != null)
+                    {
+                        if(getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected) && getWorkLogToCancelled.IsDeleted == true)
+                        {
+                            getWorkLogToCancelled.StatusOfUserWorkLog = null;
+                            getWorkLogToCancelled.IsDeleted = false;
+                        }
+                    }
+                    else
+                    {
+                        getWorkLogToCancelled.StatusOfUserWorkLog = getStatusRejected;
+                        getWorkLogToCancelled.IsDeleted = true;
+                    }
                     _unitOfWork.UserWorkLogRepository.Update(getWorkLogToCancelled);
                 }
                 var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
@@ -2456,7 +2469,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var workStart = getWorkLog.Date.Value.Date + getWorkLog.ActualStartTime.Value;
 
                 var minCheckIn = workStart.AddMinutes(-timeToTakeAttendance);
-                var result = DateTime.Now >= minCheckIn && DateTime.Now <= workStart;
+                var result = DateTime.Now >= minCheckIn;
                 if(result)
                 {
                     return new BusinessResult(200, "Can check attendance", true);
@@ -2828,6 +2841,38 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 return new BusinessResult(400, "Get Statistic Employee Failed");
                 
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterEmployeeByWorkSkill(int workTypeId, int farmId)
+        {
+            try
+            {
+                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId, farmId);
+                var result = getEmployeeSkill.Select(u => new EmployeeSkillModel
+                {
+                    UserId = u.User.UserId,
+                    FullName = u.User.FullName,
+                    AvatarURL = u.User.AvatarURL,
+                    WorkSkillName = u.EmployeeSkills
+                        .Where(s => s.WorkTypeID == workTypeId)
+                        .Select(s => s.WorkType.Target) // hoặc s.WorkType.Name nếu tên khác
+                        .FirstOrDefault() ?? "",
+                    ScoreOfSkill = u.EmployeeSkills
+                     .Where(s => s.WorkTypeID == workTypeId)
+                     .Select(s => (double?)s.ScoreOfSkill)
+                     .FirstOrDefault() ?? 0
+                 }).ToList();
+                if (getEmployeeSkill.Count() > 0)
+                {
+                    return new BusinessResult(200, "Filter Employee By Work Skill", result);
+                }
+                return new BusinessResult(404, "Do not have any employee");
             }
             catch (Exception ex)
             {

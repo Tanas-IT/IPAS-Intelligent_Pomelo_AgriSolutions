@@ -15,5 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Use
         //[Required]
         public string? RoleName { get; set; }
         public bool? IsActive { get; set; }
+        public int? SkillID { get; set; }
+        public double? ScoreOfSkill { get; set; }
     }
 }
