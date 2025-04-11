@@ -40,7 +40,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
 
         //public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
 
-        //public virtual Plant? Plant { get; set; }
+        public virtual PlantModel? MortherPlant { get; set; }
 
         //public virtual PlantLot? PlantLot { get; set; }
 
