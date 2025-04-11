@@ -114,9 +114,9 @@ export interface CancelWorklogRequest {
 
 export interface UpdateStatusWorklogRequest {
   workLogId: number
-  status: string
-  startTime: string
-  endTime: string
-  dateWork: string
-  userId: number
+  status?: string
+  startTime?: string
+  endTime?: string
+  dateWork?: string
+  userId?: number
 }

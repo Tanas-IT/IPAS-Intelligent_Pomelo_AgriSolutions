@@ -18,6 +18,7 @@ import { ROUTE_NAMES } from "@/constants/RouteNames";
 import {
   CancelWorklogRequest,
   ResourceItem,
+  UpdateStatusWorklogRequest,
   WorklogDetail,
   WorklogNoteFormData,
 } from "@/types/worklog";
@@ -82,7 +83,12 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
     return isRejectedInEmployee || isRejectedInReporter;
   };
 
-  // Kiểm tra điều kiện hiển thị nút Redo
+  const isUserReporter = () => {
+    return worklog?.reporter.some(
+      (reporter) => reporter.userId === Number(userId)
+    ) || false;
+  };
+
   const canRedoWorklog = () => {
     return worklog?.status.toLowerCase() !== "rejected" && isUserRejected();
   };
@@ -118,21 +124,19 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 workLogId: Number(worklogId),
                 userId: Number(userId),
               };
-              // const res = await worklogService.redoWorklog(payload); // Giả định API
-              // if (res.statusCode === 200) {
-              //   Toast.show({
-              //     type: "success",
-              //     text1: "Worklog redo requested successfully",
-              //   });
-              //   setWorklog((prev) =>
-              //     prev ? { ...prev, status: "redo" } : null
-              //   );
-              // } else {
-              //   Toast.show({
-              //     type: "error",
-              //     text1: "Redo worklog failed",
-              //   });
-              // }
+              const res = await worklogService.cancelWorklog(payload);
+              if (res.statusCode === 200) {
+                Toast.show({
+                  type: "success",
+                  text1: "Worklog redo requested successfully",
+                });
+                fetchWorklogDetail();
+              } else {
+                Toast.show({
+                  type: "error",
+                  text1: "Redo worklog failed",
+                });
+              }
             } catch (error) {
               console.error("Error redoing worklog:", error);
               Alert.alert(
@@ -230,8 +234,46 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   };
 
   const handleMarkAsComplete = async () => {
-
-  }
+    Alert.alert(
+      "Confirm Completion",
+      "Are you sure you want to mark this worklog as completed?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              console.log("Marking worklog as complete:", worklogId);
+              const payload: UpdateStatusWorklogRequest = {
+                workLogId: Number(worklogId),
+                status: "Reviewing",
+              };
+              const res = await worklogService.updateStatusWorklog(payload);
+              if (res.statusCode === 200) {
+                Toast.show({
+                  type: "success",
+                  text1: "Worklog marked as completed successfully",
+                });
+                fetchWorklogDetail();
+              } else {
+                Toast.show({
+                  type: "error",
+                  text1: "Failed to mark worklog as completed",
+                });
+              }
+            } catch (error) {
+              console.error("Error marking worklog as complete:", error);
+              Alert.alert(
+                "Error",
+                "Failed to mark worklog as completed. Please try again."
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -317,7 +359,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         </View>
       </View>
       {/* neu la reporter thi mark */}
-      <TouchableOpacity style={styles.markAsCompleted} onPress={() => handleMarkAsComplete()}>
+      {/* <TouchableOpacity style={styles.markAsCompleted} onPress={() => handleMarkAsComplete()}>
         <CustomIcon
           name="checkmark"
           type="Ionicons"
@@ -327,7 +369,36 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         <TextCustom style={styles.markAsCompletedText}>
           Mark As Completed
         </TextCustom>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      {/* Nếu là reporter thì hiển thị nút Mark as Complete, disable nếu status là Reviewing */}
+      {isUserReporter() && (
+          <TouchableOpacity
+            style={[
+              styles.markAsCompleted,
+            ]}
+            onPress={() => handleMarkAsComplete()}
+            disabled={worklog.status.toLowerCase() === "reviewing"} // Disable nút
+          >
+            <CustomIcon
+              name="checkmark"
+              type="Ionicons"
+              size={20}
+              color={
+                worklog.status.toLowerCase() === "reviewing"
+                  ? theme.colors.gray // Màu xám khi disable
+                  : theme.colors.secondary
+              }
+            />
+            <TextCustom
+              style={[
+                styles.markAsCompletedText,
+                worklog.status.toLowerCase() === "reviewing" && { color: theme.colors.gray }, // Màu xám khi disable
+              ]}
+            >
+              Mark As Completed
+            </TextCustom>
+          </TouchableOpacity>
+        )}
 
       {/* Assign Information */}
       <View style={styles.section}>
