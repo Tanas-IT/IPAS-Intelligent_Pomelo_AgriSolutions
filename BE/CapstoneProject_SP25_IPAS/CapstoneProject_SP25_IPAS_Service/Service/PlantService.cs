@@ -356,14 +356,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);
                 }
-
+                if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue)
+                {
+                    filter = filter.And(x => x.PassedDate >= request.PassedDateFrom && x.PassedDate <= request.PassedDateTo);
+                }
                 if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
                 {
                     filter = filter.And(x => x.PlantIndex >= request.PlantIndexFrom && x.PlantIndex <= request.PlantIndexTo);
                 }
-                if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                if (request.isPassed.HasValue)
                 {
-                    filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
+                    filter = filter.And(x => x.IsPassed == request.isPassed);
+                    if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                    {
+                        filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
+                    }
                 }
 
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
@@ -417,7 +424,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId)) : x => x.OrderBy(x => x.GrowthStageID).ThenBy(x => x.PlantId);
                         break;
                     default:
-                        orderBy = x => x.OrderByDescending(x => x.PlantId);
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.PlantId)
+                                   : x => x.OrderBy(x => x.PlantId)) : x => x.OrderBy(x => x.PlantId);
                         break;
                 }
                 string includeProperties = "LandRow,PlantReference";
@@ -783,6 +793,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return (false, "Plant index 'From' in row must smaller or equal than plant index 'To' ");
             if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue && request.PlantingDateFrom.Value > request.PlantingDateTo.Value)
                 return (false, "Planting date 'From' must smaller or equal than planting date 'To' ");
+            if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue && request.PassedDateFrom.Value > request.PassedDateTo.Value)
+                return (false, "Passed date 'From' must smaller or equal than passed date 'To' ");
             return (true, null!);
         }
 

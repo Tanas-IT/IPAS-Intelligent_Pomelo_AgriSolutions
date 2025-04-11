@@ -229,5 +229,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return getListPlant;
 
         }
+        public IQueryable<Plan> GetAllPlans()
+        {
+            return _context.Plans
+                .Include(p => p.MasterType)
+                .Where(p => p.IsDeleted != true);
+        }
     }
 }

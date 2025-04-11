@@ -539,5 +539,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.WorkLog.FilterEmployeeByWorkLogId, Name = "FilterEmployeeByWorkLogId")]
+        public async Task<IActionResult> FilterEmployeeByWorkLogId([FromQuery] int workTypeId, int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.FilterEmployeeByWorkSkill(workTypeId, farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

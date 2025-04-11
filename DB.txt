@@ -1076,6 +1076,17 @@ CREATE TABLE SystemConfiguration (
     UpdateDate DATETIME NULL               
 );
 GO
+CREATE TABLE EmployeeSkill (
+    EmployeeSkillID INT IDENTITY(1,1) PRIMARY KEY,
+    EmployeeID INT NULL,  
+	FarmID INT NULL,
+    WorkTypeID INT NULL,      
+    ScoreOfSkill float NULL,    
+    CONSTRAINT EmployeeSkill_Employee_FK FOREIGN KEY (EmployeeID,FarmID) REFERENCES ipas.dbo.[UserFarm](UserID, FarmID),
+    CONSTRAINT  EmployeeSkill_WorkType_FK_1 FOREIGN KEY (WorkTypeID) REFERENCES ipas.dbo.[MasterType](MasterTypeID)    
+);
+GO
+
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
@@ -1994,6 +2005,27 @@ VALUES
 ('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Trạng thái của employee khi không bận mà bị thay bởi employee khác'),
 ('WorkLog For Manager', 'Failed', 'Failed', 'string', N'Trạng thái của worklog khi thực hiện công việc thất bại'),
 ('AI', 'PredictPercent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác');
+GO
+-- Climate Zones for Vietnam
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description) VALUES 
+('Farm', 'ClimateZone', 'Tropical Monsoon', 'string', 'High temperature and rainfall, typical in Southern Vietnam'),
+('Farm', 'ClimateZone', 'Tropical Wet and Dry', 'string', 'Distinct wet and dry seasons, typical in Central Highlands'),
+('Farm', 'ClimateZone', 'Subtropical Humid', 'string', 'Hot and humid summers, cool winters, common in Northern Vietnam'),
+('Farm', 'ClimateZone', 'Temperate Highland', 'string', 'Cool mountainous climate, found in areas like Da Lat and Sa Pa'),
+('Farm', 'ClimateZone', 'Coastal Climate', 'string', 'Moderate temperature and high rainfall, affected by ocean influence');
+GO
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description) VALUES 
+('Farm', 'SoilType', N'Alluvial Soil', 'string', N'Suitable for crops in river deltas'),
+('Farm', 'SoilType', N'Basalt Soil', 'string', N'Rich volcanic soil, ideal for fruit trees'),
+('Farm', 'SoilType', N'Light Loam', 'string', N'Light and well-drained soil'),
+('Farm', 'SoilType', N'Sandy Loam', 'string', N'Mixture of sand and silt, good for root vegetables'),
+('Farm', 'SoilType', N'Saline Soil', 'string', N'High salt content, usually found in coastal areas'),
+('Farm', 'SoilType', N'Acid Sulfate Soil', 'string', N'Common in Mekong Delta, needs treatment before farming'),
+('Farm', 'SoilType', N'Grey Degraded Soil', 'string', N'Low fertility, requires soil improvement'),
+('Farm', 'SoilType', N'Medium Loam', 'string', N'Balanced texture, good for general crops'),
+('Farm', 'SoilType', N'Heavy Clay', 'string', N'Poor drainage, suitable for rice cultivation'),
+('Farm', 'SoilType', N'Clay Soil', 'string', N'Dense and nutrient-rich but retains water');
+GO
 -- Insert WorkLog
 INSERT INTO [dbo].[WorkLog]
            ([WorkLogCode]

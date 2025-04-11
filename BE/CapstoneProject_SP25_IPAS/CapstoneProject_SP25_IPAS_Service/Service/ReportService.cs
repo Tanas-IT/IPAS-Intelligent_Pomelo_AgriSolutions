@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -183,31 +184,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var getListHarvestHistoryTemp = await _unitOfWork.HarvestHistoryRepository.GetHarvestHistoryInclude(farmId);
 
             var getListHarvestHistory = getListHarvestHistoryTemp.Where(x => x.DateHarvest.HasValue && x.DateHarvest.Value.Year == year)
-                                    .GroupBy(p => p.Crop.HarvestSeason) // Nhóm theo mùa
+                                    .GroupBy(p => p.DateHarvest.Value.ToString("MM-yyyy")) // Nhóm theo mùa
                                     .Select(g => new MaterialsInStoreModel
                                     {
-                                        Season = g.Key,  // Key là mùa
-                                        Count = g.SelectMany(h => h.ProductHarvestHistories)
-                                                 .Where(x => x.Plant != null
-                                                          && x.Plant.LandRow != null
-                                                          && x.Plant.LandRow.LandPlot != null
-                                                          && x.Plant.LandRow.LandPlot.Farm != null
-                                                          && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                                 .Sum(ht => ht.QuantityNeed),
-                                        TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
-                                        .Where(x => x.Plant != null
-                                                 && x.Plant.LandRow != null
-                                                 && x.Plant.LandRow.LandPlot != null
-                                                 && x.Plant.LandRow.LandPlot.Farm != null
-                                                 && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                        .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
-                                        .Select(plantGroup => new TypeOfProduct
+                                        Month = g.Key,  // Key là mùa
+                                        Materials = g.SelectMany(h => h.ProductHarvestHistories)
+                                        .GroupBy(ht => new { ht.MasterTypeId})
+                                        .Select(x => new Materials
                                         {
-                                            PlantName = plantGroup.Key.PlantName, // Tên cây
-                                            MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
-                                            TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
-                                        })
-                                        .ToList()
+                                            ProductType = x.FirstOrDefault().Product.MasterTypeName,
+                                            UnitOfMaterials = new UnitOfMaterials()
+                                            {
+                                                Unit = x.FirstOrDefault().Unit,
+                                                Value = x.FirstOrDefault().ActualQuantity
+                                            }
+                                        }).ToList()
+                                        /*
+                                           ,
+                                                                                Count = g.SelectMany(h => h.ProductHarvestHistories)
+                                                                                         .Where(x => x.Plant != null
+                                                                                                  && x.Plant.LandRow != null
+                                                                                                  && x.Plant.LandRow.LandPlot != null
+                                                                                                  && x.Plant.LandRow.LandPlot.Farm != null
+                                                                                                  && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                                                                         .Sum(ht => ht.QuantityNeed),
+                                                                                TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
+                                                                                .Where(x => x.Plant != null
+                                                                                         && x.Plant.LandRow != null
+                                                                                         && x.Plant.LandRow.LandPlot != null
+                                                                                         && x.Plant.LandRow.LandPlot.Farm != null
+                                                                                         && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
+                                                                                .GroupBy(ht => new { ht.Plant.PlantName, ht.Product.MasterTypeName }) // Nhóm theo tên cây và loại cây
+                                                                                .Select(plantGroup => new TypeOfProduct
+                                                                                {
+                                                                                    PlantName = plantGroup.Key.PlantName, // Tên cây
+                                                                                    MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
+                                                                                    TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
+                                                                                })
+                                                                                .ToList()
+                                         */
                                     }).ToList();
             return getListHarvestHistory;
         }
@@ -255,25 +270,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var rawData = await _unitOfWork.ProductHarvestHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
-            var groupedData = rawData
-                .GroupBy(ht => new { ht.HarvestHistory.Crop.HarvestSeason, ht.Product.MasterTypeName })
-                .Select(g => new QualityYieldStat
-                {
-                    QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    QuantityYield = g.Sum(ht => ht.QuantityNeed ?? 0) // Tổng số lượng theo loại
-                })
-                .ToList();
+           
 
             // Nhóm dữ liệu theo mùa vụ
-            var result = groupedData
-                .GroupBy(g => g.QualityType)
-                .Select(g => new SeasonalYieldModel
-                {
-                    HarvestSeason = g.First().QualityType, // Mùa vụ
-                    QualityStats = g.ToList()
-                })
-                .OrderBy(s => s.HarvestSeason)
-                .ToList();
+            var result = rawData
+                      .GroupBy(x => x.HarvestHistoryId)
+                      .Select(g => new SeasonalYieldModel
+                      {
+                          HarvestSeason = g.FirstOrDefault()?.HarvestHistory?.Crop?.CropName ?? "",
+
+                          QualityStats = g
+                              .GroupBy(ht => ht.MasterTypeId)
+                              .Select(q => new QualityYieldStat
+                              {
+                                  QualityType = q.FirstOrDefault()?.Product?.MasterTypeName ?? "",
+                                  QuantityYield = q.Sum(x => x.ActualQuantity ?? 0)
+                              }).ToList()
+                      })
+                      .OrderBy(s => s.HarvestSeason)
+                      .ToList();
             return result;
         }
 
@@ -292,8 +307,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     FullName = uwl.User.FullName,
                     IsReporter = uwl.IsReporter,
                     AvatarURL = uwl.User.AvatarURL
-                }).ToList()
+                })
+                .Take(5)
+                .ToList()
             })
+            .OrderBy(x => x.DueDate)
             .ToList();
             return result;
         }
@@ -476,6 +494,242 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 JObject weatherData = JObject.Parse(responseBody);
 
                 return new BusinessResult(200, "Get Weather Of Farm Success", weatherData);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> StatisticEmployee(int farmID)
+        {
+            try
+            {
+                var toltalTask = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
+                var filteredTask = toltalTask
+                               .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
+                               .Where(p => p.Schedule != null && p.Schedule.CarePlan != null)
+                               .Where(x => x.Schedule.FarmID == farmID || x.Schedule.CarePlan.FarmID == farmID )// Lọc trước khi gọi thuộc tính bên trong
+                               .ToList();
+                var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
+
+                var listTaskStatusDistribution = filteredTask
+                    .GroupBy(x => x.Status)
+                    .ToDictionary(
+                        g => g.Key!,
+                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                    );
+                var taskStatusDistribution = new TaskStatusDistribution()
+                {
+                    TotalTask = toltalTask.Count(),
+                    TaskStatus = listTaskStatusDistribution
+                };
+                if(taskStatusDistribution != null)
+                {
+                    return new BusinessResult(200, "Statistic Employee Success", taskStatusDistribution);
+                }
+                return new BusinessResult(400, "Statistic Employee Failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> StatisticPlan(int? month, int? year, int? farmID)
+        {
+            try
+            {
+                var query =  _unitOfWork.PlanRepository.GetAllPlans();
+
+                if (farmID.HasValue)
+                {
+                    query = query.Where(p => p.FarmID == farmID.Value);
+                }
+
+                if (year.HasValue)
+                {
+                    query = query.Where(p => p.StartDate.HasValue && p.StartDate.Value.Year == year.Value);
+
+                    if (month.HasValue)
+                    {
+                        query = query.Where(p => p.StartDate.Value.Month == month.Value);
+                    }
+                }
+                var plans = await query
+                    .ToListAsync();
+
+                var plansByMonth = plans
+                    .GroupBy(p => p.CreateDate!.Value.Month)
+                    .Select(g => new MonthlyPlanStatsDto
+                    {
+                        Month = g.Key,
+                        TotalPlans = g.Count()
+                    })
+                    .ToList();
+
+                var statusDistribution = plans
+                    .GroupBy(p => p.IsActive == true ? "Active" : "InActive")
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var planByType = plans
+                                 .Where(p => p.MasterTypeId.HasValue)
+                                 .GroupBy(p => p.MasterTypeId!.Value)
+                                 .Select(g => new
+                                 {
+                                     TypeName = g.First().MasterType?.Target,
+                                     Count = g.Count()
+                                 })
+                                 .GroupBy(x => x.TypeName ?? "Không xác định")
+                                 .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
+
+                var groupedStatuses = plans
+                                        .Where(p => !string.IsNullOrEmpty(p.Status))
+                                        .GroupBy(p => p.Status!)
+                                        .ToDictionary(g => g.Key, g => g.Count());
+
+                var statusSummary = new PlanStatusSummaryDto
+                {
+                    Total = groupedStatuses.Values.Sum(),
+                    Status = groupedStatuses
+                };
+
+                var result =  new PlanStatisticsDto
+                {
+                    PlansByMonth = plansByMonth,
+                    StatusDistribution = statusDistribution,
+                    PlanByWorkType = planByType,
+                    StatusSummary = statusSummary
+                };
+                if(result != null)
+                {
+                    return new BusinessResult(200, "Statistic plan success", result);
+                }
+                return new BusinessResult(400, "Statistic plan failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetWorkPerformanceAsync(WorkPerformanceRequestDto request, int? farmId)
+        {
+            try
+            {
+                var query = _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds();
+                
+                if (request.Top != null)
+                {
+                    query = query.Take(request.Top.Value);
+                }
+
+               
+                if (farmId.HasValue)
+                {
+                    query = query.Where(uw =>
+                        uw.WorkLog != null &&
+                        uw.WorkLog.Schedule != null &&
+                        uw.WorkLog.Schedule.FarmID == farmId.Value);
+                }
+                if (!string.IsNullOrEmpty(request.Search))
+                {
+                    query = query.Where(uw => uw.User.FullName.Contains(request.Search));
+                }
+
+                var userWorkLogs = await query.ToListAsync();
+
+                var grouped = userWorkLogs
+                    .GroupBy(x => x.UserId)
+                    .Select(g =>
+                    {
+                        var totalTasks = g.Count();
+                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
+                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                        return new WorkPerformanceResponseDto
+                        {
+                            EmployeeId = g.Key,
+                            Name = g.First().User.FullName ?? "Không rõ",
+                            TaskSuccess = taskSuccess,
+                            TaskFail = taskFail,
+                            TotaTask = totalTasks,
+                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
+                            Score = score
+                        };
+                    })
+                    .OrderByDescending(x => x.Score).ToList();
+                if(request.Score != null)
+                {
+                    grouped = grouped.Where(x => x.Score == request.Score).ToList();
+                }
+                if(grouped.Any())
+                {
+                    return new BusinessResult(200, "Get Work PerFormance success", grouped);
+                }
+                return new BusinessResult(400, "Get Work Performance failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetWorkPerformanceCompareAsync(WorkPerFormanceCompareDto request, int? farmId)
+        {
+            try
+            {
+                var query = _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds();
+
+                if(request.ListEmployee != null)
+                {
+                    query = query.Where(x => request.ListEmployee.Contains(x.UserId));
+                }
+
+                if (farmId.HasValue)
+                {
+                    query = query.Where(uw =>
+                        uw.WorkLog != null &&
+                        uw.WorkLog.Schedule != null &&
+                        uw.WorkLog.Schedule.FarmID == farmId.Value);
+                }
+             
+
+                var userWorkLogs = await query.ToListAsync();
+
+                var grouped = userWorkLogs
+                    .GroupBy(x => x.UserId)
+                    .Select(g =>
+                    {
+                        var totalTasks = g.Count();
+                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
+                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                        return new WorkPerformanceResponseDto
+                        {
+                            EmployeeId = g.Key,
+                            Name = g.First().User.FullName ?? "Không rõ",
+                            TaskSuccess = taskSuccess,
+                            TaskFail = taskFail,
+                            TotaTask = totalTasks,
+                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
+                            Score = score
+                        };
+                    })
+                    .OrderByDescending(x => x.Score).ToList();
+                if (grouped.Any())
+                {
+                    return new BusinessResult(200, "Get Work PerFormance success", grouped);
+                }
+                return new BusinessResult(400, "Get Work Performance failed");
             }
             catch (Exception ex)
             {

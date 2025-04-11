@@ -61,5 +61,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public ChatMessageRepository ChatMessageRepository { get; }
         public ReportRepository ReportRepository { get; }
         public SystemConfigRepository SystemConfigRepository { get; }
+        public EmployeeSkillRepository EmployeeSkillRepository { get; }
     }
 }

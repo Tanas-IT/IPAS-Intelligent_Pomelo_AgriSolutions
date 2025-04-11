@@ -102,5 +102,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
            
             return result;
         }
+
+        public IQueryable<UserWorkLog> GetUserWorkLogsByEmployeeIds()
+        {
+            return _context.UserWorkLogs
+                .Include(uw => uw.User)
+                .Include(uw => uw.WorkLog)
+                .Where(uw => uw.IsDeleted != null ? uw.IsDeleted == false : true);
+        }
     }
 }
