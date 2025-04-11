@@ -19,4 +19,6 @@ public partial class UserFarm
     public virtual Role? Role { get; set; }
 
     public virtual User User { get; set; } = null!;
+    public virtual ICollection<EmployeeSkill> EmployeeSkills { get; set; } = new List<EmployeeSkill>();
+
 }

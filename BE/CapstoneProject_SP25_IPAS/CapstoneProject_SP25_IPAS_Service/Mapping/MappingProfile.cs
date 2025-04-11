@@ -26,6 +26,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.CarePlanScheduleModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {

@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
@@ -38,5 +39,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> RedoAssignWorkLog(RedoWorkLogModel addNewTaskModel, int? farmId);
         public Task<BusinessResult> GetStatusOfWorkLogForManager();
         public Task<BusinessResult> StatisticWorkLog(int farmId, int? userId, string? groupBy, DateTime? fromDate, DateTime? toDate);
+        public Task<BusinessResult> FilterEmployeeByWorkSkill(int workTypeId, int farmId);
     }
 }

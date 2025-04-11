@@ -61,6 +61,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public ChatMessageRepository _chatMessageRepo;
         public ReportRepository _reportRepository;
         public SystemConfigRepository _systemConfigRepo;
+        public EmployeeSkillRepository _employeeSkillRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -107,6 +108,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _paymentRepo = new PaymentRepository(context);
             _reportRepository = new ReportRepository(context);
             _systemConfigRepo = new SystemConfigRepository(context);
+            _employeeSkillRepo = new EmployeeSkillRepository(context);
         }
 
         private bool disposed = false;
@@ -679,6 +681,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._systemConfigRepo = new SystemConfigRepository(_context);
                 }
                 return _systemConfigRepo;
+            }
+        }
+
+        public EmployeeSkillRepository EmployeeSkillRepository
+        {
+            get
+            {
+                if (_employeeSkillRepo == null)
+                {
+                    this._employeeSkillRepo = new EmployeeSkillRepository(_context);
+                }
+                return _employeeSkillRepo;
             }
         }
     }
