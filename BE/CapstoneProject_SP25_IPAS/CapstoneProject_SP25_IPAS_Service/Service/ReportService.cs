@@ -628,7 +628,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     query = query.Take(request.Top.Value);
                 }
 
-
+               
                 if (farmId.HasValue)
                 {
                     query = query.Where(uw =>
@@ -664,6 +664,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         };
                     })
                     .OrderByDescending(x => x.Score).ToList();
+                if(request.Score != null)
+                {
+                    grouped = grouped.Where(x => x.Score == request.Score).ToList();
+                }
                 if(grouped.Any())
                 {
                     return new BusinessResult(200, "Get Work PerFormance success", grouped);
