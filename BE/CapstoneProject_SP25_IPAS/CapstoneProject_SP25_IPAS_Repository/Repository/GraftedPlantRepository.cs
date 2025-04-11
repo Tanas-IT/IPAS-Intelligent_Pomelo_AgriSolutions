@@ -77,6 +77,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.GraftedPlants
                 .Include(x => x.PlantLot)
                 .Include(x => x.Plant)
+                .ThenInclude(x => x.LandRow)
+                .ThenInclude(x => x.LandPlot)
                 .Include(x => x.Plant.MasterType)
                 .FirstOrDefaultAsync(x => x.GraftedPlantId == graftedPlantId && x.IsDeleted == false);
             return result;
