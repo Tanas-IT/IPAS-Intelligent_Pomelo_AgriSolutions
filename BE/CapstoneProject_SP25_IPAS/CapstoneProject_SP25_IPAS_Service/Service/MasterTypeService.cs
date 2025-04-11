@@ -72,7 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     else if (createMasterTypeModel.MaxTime.HasValue && createMasterTypeModel.MinTime.HasValue && createMasterTypeModel.MinTime < createMasterTypeModel.MaxTime)
                     {
-                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MaxTime.Value, createMasterTypeModel.MinTime.Value);
+                        var validationResult = await ValidateMinTimeAndMaxTime(createMasterTypeModel.MinTime.Value, createMasterTypeModel.MaxTime.Value);
                         if (validationResult.StatusCode != 200) return validationResult;
                         newMasterType.MinTime = createMasterTypeModel.MinTime;
                         newMasterType.MaxTime = createMasterTypeModel.MaxTime;
