@@ -11,6 +11,25 @@ export const UserRolesStr = {
   Employee: UserRole.Employee.toString(),
 };
 
+export const SYSTEM_CONFIG_GROUP = {
+  MASTER_TYPE: "MasterType",
+  GROWTH_STAGE_ACTION: "GrowthStageAction",
+  WORK_TARGET: "WorkTarget",
+  CRITERIA: "Criteria",
+  CRITERIA_APPLY: "CriteriaApply",
+  SOIL_TYPE: "SoilType",
+  CLIMATE_ZONE: "ClimateZone",
+  HARVEST_SEASON: "HarvestSeason",
+  YIELD_THRESHOLD: "YieldThreshold",
+};
+
+export const SYSTEM_CONFIG_KEY = {
+  PLANT_CRITERIA: "PlantCriteria",
+  GRAFTED_CRITERIA: "GraftedCriteria",
+  PLANT_LOT_CRITERIA: "PlantLotCriteria",
+  PRODUCT_CRITERIA: "ProductCriteria",
+};
+
 export const MASTER_TYPE_SHOW_TABLE = {
   PROCESS: "Process",
   DOCUMENT: "Document",
@@ -92,8 +111,8 @@ export const CRITERIA_TARGETS = {
   Product: "Product",
   "Grafted Condition": "Grafted Condition",
   "Grafted Evaluation": "Grafted Evaluation",
-  "Plantlot Condition": "Plantlot Condition",
-  "Plantlot Evaluation": "Plantlot Evaluation",
+  "Plantlot Condition": "PlantLot Condition",
+  "Plantlot Evaluation": "PlantLot Evaluation",
   Others: "Others",
 } as const;
 

@@ -1,12 +1,12 @@
 import { Flex, Form, Typography, Upload } from "antd";
 import style from "./CreateFarm.module.scss";
 import { useEffect, useState } from "react";
-import { farmFormFields } from "@/constants";
+import { farmFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { defaultCoordsFarm, RulesManager } from "@/utils";
 import { EditActions, InfoField, MapAddress } from "@/components";
 import { toast } from "react-toastify";
 import { CoordsState } from "@/types";
-import { useAddressLocation } from "@/hooks";
+import { useAddressLocation, useSystemConfigOptions } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { farmService } from "@/services";
@@ -31,6 +31,12 @@ function CreateFarm() {
     markerPosition,
     setMarkerPosition,
   } = useAddressLocation(form, setFarmLocation);
+  const { options: soilOptions, loading: soilLoading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.SOIL_TYPE,
+  );
+  const { options: climateOptions, loading: climateLoading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.CLIMATE_ZONE,
+  );
 
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
@@ -110,16 +116,22 @@ function CreateFarm() {
               />
 
               <InfoField
+                type="select"
                 label="Soil Type"
                 name={farmFormFields.soilType}
                 rules={RulesManager.getSoilTypeRules()}
                 placeholder="Enter soil type"
+                isLoading={soilLoading}
+                options={soilOptions}
               />
               <InfoField
+                type="select"
                 label="Climate Zone"
                 name={farmFormFields.climateZone}
                 rules={RulesManager.getClimateZoneRules()}
                 placeholder="Enter climate zone"
+                isLoading={climateLoading}
+                options={climateOptions}
               />
             </Form>
           </Flex>

@@ -26,6 +26,8 @@ export * as orderService from "./OrderService";
 export * as productService from "./ProductService";
 export * as expertService from "./ExpertService";
 export * as ChatBoxService from "./ChatBoxService";
+export * as systemConfigService from "./SystemConfigService";
+
 
 
 

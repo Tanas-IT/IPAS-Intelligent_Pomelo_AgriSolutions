@@ -14,6 +14,7 @@ import {
   Radio,
 } from "antd";
 import style from "./FormFieldModal.module.scss";
+import { TagRender } from "@/components";
 import { DATE_FORMAT } from "@/utils";
 import { ReactNode, useEffect, useState } from "react";
 import { Icons } from "@/assets";
@@ -187,6 +188,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
           <Select
             placeholder={placeholder ?? `Select ${label.toLowerCase()}`}
             className={`${style.select} ${styles.customSelect}`}
+            tagRender={TagRender}
             options={options}
             showSearch={isSearch}
             loading={isLoading}
