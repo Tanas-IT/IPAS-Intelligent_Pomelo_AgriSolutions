@@ -12,7 +12,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.SystemConfigReq
         public string ConfigKey { get; set; }
         public string? ConfigGroup { get; set; }
 
-        public string ConfigValue { get; set; } 
+        public string? ConfigValue { get; set; } 
 
         //public string ValueType { get; set; } = null!;
 
@@ -21,6 +21,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.SystemConfigReq
         public DateTime? EffectedDateTo { get; set; }
 
         public string? Description { get; set; }
+
+        public int? ReferenceKeyId { get; set; }
 
     }
 }

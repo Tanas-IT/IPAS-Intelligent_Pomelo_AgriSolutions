@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -63,6 +64,72 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(c => c.ConfigGroup.Trim().ToLower().Equals(groupName.Trim().ToLower()))
                 .Where(c => c.IsActive)
                 .ToListAsync();
+        }
+
+        public virtual async Task<IEnumerable<SystemConfiguration>> Get(
+            Expression<Func<SystemConfiguration, bool>> filter = null!,
+            Func<IQueryable<SystemConfiguration>, IOrderedQueryable<SystemConfiguration>> orderBy = null!,
+            int? pageIndex = null, // Optional parameter for pagination (page number)
+            int? pageSize = null)  // Optional parameter for pagination (number of records per page)
+        {
+            IQueryable<SystemConfiguration> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(x => x.ReferenceConfig);
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
+
+        public virtual async Task<SystemConfiguration> GetByCondition(Expression<Func<SystemConfiguration, bool>> filter)
+        {
+            IQueryable<SystemConfiguration> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query.Include(x => x.ReferenceConfig)
+                .Include(x => x.DependentConfigurations);
+
+            return await query.AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<IEnumerable<SystemConfiguration>> getAllSystemConfigNoPagin(
+            Expression<Func<SystemConfiguration, bool>> filter = null!,
+            Func<IQueryable<SystemConfiguration>, IOrderedQueryable<SystemConfiguration>> orderBy = null!
+            )
+        {
+            IQueryable<SystemConfiguration> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+            query = query.Include(x => x.ReferenceConfig);
+            return await query.AsNoTracking().ToListAsync();
+
         }
     }
 }

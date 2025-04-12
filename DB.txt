@@ -1073,8 +1073,14 @@ CREATE TABLE SystemConfiguration (
     EffectedDateTo DATETIME NULL,          
     Description NVARCHAR(500) NULL,        
     CreateDate DATETIME DEFAULT GETDATE(), 
-    UpdateDate DATETIME NULL               
+    UpdateDate DATETIME NULL,
+	ReferenceConfigId INT NULL
 );
+ALTER TABLE SystemConfiguration
+ADD CONSTRAINT FK_SystemConfiguration_Reference
+FOREIGN KEY (ReferenceConfigId)
+REFERENCES SystemConfiguration(ConfigID);
+GO
 GO
 CREATE TABLE EmployeeSkill (
     EmployeeSkillID INT IDENTITY(1,1) PRIMARY KEY,
@@ -1913,67 +1919,67 @@ VALUES
 -- Danh sách WorkTargets
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Master Type','WorkType', 'Watering', 'string', N'Tưới nước'),
-('Master Type','WorkType', 'Fertilizer', 'string', N'Bón phân'),
-('Master Type','WorkType', 'Pruning-Shaping', 'string', N'Cắt tỉa - tạo táng'),
-('Master Type','WorkType', 'Grafted', 'string', N'Chiết cành'),
-('Master Type','WorkType', 'Pest Control', 'string', N'Kiểm soát sâu bệnh'),
-('Master Type','WorkType', 'Others', 'string', N'Các loại công việc khác');
+('MasterType','WorkType', 'Watering', 'string', N'Tưới nước'),
+('MasterType','WorkType', 'Fertilizer', 'string', N'Bón phân'),
+('MasterType','WorkType', 'Pruning-Shaping', 'string', N'Cắt tỉa - tạo táng'),
+('MasterType','WorkType', 'Grafted', 'string', N'Chiết cành'),
+('MasterType','WorkType', 'Pest Control', 'string', N'Kiểm soát sâu bệnh'),
+('MasterType','WorkType', 'Others', 'string', N'Các loại công việc khác');
 GO
 -- Danh sách Criteria
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Master Type', 'CriteriaType', 'Grafted Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
-('Master Type', 'CriteriaType', 'Grafted Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
-('Master Type', 'CriteriaType', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá lô giống nhập vào'),
-('Master Type', 'CriteriaType', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Master Type', 'CriteriaType', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
-('Master Type', 'CriteriaType', 'Others', 'string', N'Các loại tiêu chí khác');
+('MasterType', 'CriteriaType', 'Grafted Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
+('MasterType', 'CriteriaType', 'Grafted Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('MasterType', 'CriteriaType', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá lô giống nhập vào'),
+('MasterType', 'CriteriaType', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+('MasterType', 'CriteriaType', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
+('MasterType', 'CriteriaType', 'Others', 'string', N'Các loại tiêu chí khác');
 GO
 -- Danh sách Criteria
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Criteria Apply', 'GraftedConditionApply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
-('Criteria Apply', 'GraftedEvaluationApply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
+('CriteriaApply', 'GraftedConditionApply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('CriteriaApply', 'GraftedEvaluationApply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
 
-('Criteria Apply', 'PlantLotConditionApply', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
-('Criteria Apply', 'PlantLotEvaluationApply', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+('CriteriaApply', 'PlantLotConditionApply', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
+('CriteriaApply', 'PlantLotEvaluationApply', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
 
-('Criteria Apply', 'GraftedCriteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Criteria Apply', 'GraftedCriteria', 'Others', 'string', N'Bộ tiêu chí khác'),
+('CriteriaApply', 'GraftedCriteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
+('CriteriaApply', 'GraftedCriteria', 'Others', 'string', N'Bộ tiêu chí khác'),
 
-('Criteria Apply', 'PlantLotCriteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
-('Criteria Apply', 'PlantLotCriteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
-('Criteria Apply', 'PlantLotCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
+('CriteriaApply', 'PlantLotCriteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
+('CriteriaApply', 'PlantLotCriteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
+('CriteriaApply', 'PlantLotCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Criteria Apply', 'PlantCriteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
-('Criteria Apply', 'PlantCriteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
-('Criteria Apply', 'PlantCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
+('CriteriaApply', 'PlantCriteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
+('CriteriaApply', 'PlantCriteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
+('CriteriaApply', 'PlantCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Criteria Apply', 'ProductCriteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
-('Criteria Apply', 'ProductCriteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
+('CriteriaApply', 'ProductCriteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
+('CriteriaApply', 'ProductCriteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
 GO
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Validation Variable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
-('Validation Variable','MinWidth', '1', 'double', N'Độ dài tối đa'),
-('Validation Variable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
-('Validation Variable','MinRowOfLandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
-('Validation Variable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của plantLot'),
-('Validation Variable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
-('Validation Variable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
-('Validation Variable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
+('ValidationVariable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
+('ValidationVariable','MinWidth', '1', 'double', N'Độ dài tối đa'),
+('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
+('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của plantLot'),
+('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
+('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
 GO
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Master Type', 'TypeName', 'Document', 'string', N'Quy trình'),
-('Master Type', 'TypeName', 'Criteria', 'string', N'Tiêu chí'),
-('Master Type', 'TypeName', 'Product', 'string', N'Sản phẩm'),
-('Master Type', 'TypeName', 'Cultivar', 'string', N'Giống cây'),
-('Master Type', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
-('Master Type', 'TypeName', 'Work', 'string', N'Công việc'),
+('MasteType', 'TypeName', 'Document', 'string', N'Quy trình'),
+('MasterType', 'TypeName', 'Criteria', 'string', N'Tiêu chí'),
+('MasterType', 'TypeName', 'Product', 'string', N'Sản phẩm'),
+('MasterType', 'TypeName', 'Cultivar', 'string', N'Giống cây'),
+('MasterType', 'TypeName', 'Document', 'string', N'Các loại tài liệu'),
+('MasterType', 'TypeName', 'Work', 'string', N'Công việc'),
 ('WorkLog For Manager', 'Done', 'Done', 'string', N'Trạng thái hoàn thành công việc'),
 ('WorkLog', 'NotStarted', 'Not Started', 'string', N'Trạng thái của worklog trước khi bắt đầu'),
 ('WorkLog', 'InProgress', 'In Progress', 'string', N'Trạng thái của worklog khi diễn ra'),
