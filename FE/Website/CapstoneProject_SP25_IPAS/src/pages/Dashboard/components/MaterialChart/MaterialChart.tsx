@@ -10,7 +10,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
-import { Select } from "antd";
+import { Empty, Flex, Select } from "antd";
 import { dashboardService, worklogService } from "@/services";
 import { MaterialInstore } from "@/payloads/dashboard";
 import { Loading } from "@/components";
@@ -78,7 +78,10 @@ const MaterialChart: React.FC = () => {
     return (
         <div style={styles.container}>
             <div style={styles.pickerContainer}>
-                <span style={styles.pickerLabel}>Select Year: </span>
+                <Flex style={{ justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+                    <h3>Materials in Store</h3>
+                    <span style={styles.pickerLabel}>Select Year: </span>
+                </Flex>
                 <Select
                     value={selectedYear}
                     onChange={handleYearChange}
@@ -94,49 +97,46 @@ const MaterialChart: React.FC = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                {chartData.length > 0 ? (
+                    <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
 
-                    <YAxis
-                        yAxisId="left"
-                        label={{ value: "Kg", angle: -90, position: "insideLeft" }}
-                        domain={[0, "auto"]}
-                    />
-                    <YAxis
-                        yAxisId="right"
-                        orientation="right"
-                        label={{ value: "Bundle", angle: -90, position: "insideRight" }}
-                        domain={[0, 50]}
-                        allowDecimals={false}
-                    />
-                    <Tooltip
-                        formatter={(value, name) => {
-                            const unit = name === "Branches" ? "bundle" : "kg";
-                            console.log(`Name: ${name}, Unit: ${unit}, Value: ${value}`);
-                            return [`${value} ${unit}`, name];
-                        }}
-                    />
-                    <Legend />
+                        <YAxis
+                            yAxisId="left"
+                            label={{ value: "Kg", angle: -90, position: "insideLeft" }}
+                            domain={[0, "auto"]}
+                        />
+                        <YAxis
+                            yAxisId="right"
+                            orientation="right"
+                            label={{ value: "Bundle", angle: -90, position: "insideRight" }}
+                            domain={[0, 50]}
+                            allowDecimals={false}
+                        />
+                        <Tooltip
+                            formatter={(value, name) => {
+                                const unit = name === "Branches" ? "bundle" : "kg";
+                                console.log(`Name: ${name}, Unit: ${unit}, Value: ${value}`);
+                                return [`${value} ${unit}`, name];
+                            }}
+                        />
+                        <Legend />
 
-                    {/* cho đơn vị Kg */}
-                    <Bar yAxisId="left" dataKey="grade1" fill="#13C2C2" name="Grade 1" />
-                    <Bar yAxisId="left" dataKey="grade2" fill="#82ca9d" name="Grade 2" />
-                    <Bar yAxisId="left" dataKey="grade3" fill="#ffc658" name="Grade 3" />
-                    <Bar yAxisId="left" dataKey="leaves" fill="#a4de6c" name="Leaves" />
+                        {/* cho đơn vị Kg */}
+                        <Bar yAxisId="left" dataKey="grade1" fill="#13C2C2" name="Grade 1" />
+                        <Bar yAxisId="left" dataKey="grade2" fill="#82ca9d" name="Grade 2" />
+                        <Bar yAxisId="left" dataKey="grade3" fill="#ffc658" name="Grade 3" />
+                        <Bar yAxisId="left" dataKey="leaves" fill="#a4de6c" name="Leaves" />
 
-                    {/* cho đơn vị Bundle */}
-                    {/* <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="branches"
-                        stroke="#ff7300"
-                        name="Branches"
-                        strokeWidth={3}
-                        dot={{ r: 10 }}
-                    /> */}
-                    <Bar yAxisId="right" dataKey="branches" fill="#ff7300" name="Branches" />
-                </BarChart>
+                        <Bar yAxisId="right" dataKey="branches" fill="#ff7300" name="Branches" />
+                    </BarChart>
+                ) : (
+                    <Flex justify="center" align="center" style={{ width: "100%" }}>
+                        <Empty description="No data available" />
+                    </Flex>
+                )}
+
             </ResponsiveContainer>
         </div>
     );

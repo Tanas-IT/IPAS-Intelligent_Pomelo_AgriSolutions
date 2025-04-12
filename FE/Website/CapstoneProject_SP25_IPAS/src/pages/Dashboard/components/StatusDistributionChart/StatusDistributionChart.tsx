@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import { Select } from "antd";
+import { Flex, Select } from "antd";
 import { dashboardService } from "@/services";
 import { StatisticPlanData } from "@/payloads/dashboard";
 import { Loading } from "@/components";
@@ -40,7 +40,10 @@ const StatusDistributionChart: React.FC = () => {
   return (
     <div style={chartContainerStyle}>
       <div style={pickerContainerStyle}>
-        <span style={pickerLabelStyle}>Select Year: </span>
+        <Flex style={{ justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+          <h3>Status Distribution</h3>
+          <span style={pickerLabelStyle}>Select Year: </span>
+        </Flex>
         <Select value={selectedYear} onChange={setSelectedYear} style={selectStyle}>
           {years.map((year) => (
             <Option key={year} value={year}>

@@ -11,8 +11,8 @@ const PlanOverview: React.FC<PlanOverviewProps> = ({ data }) => {
   const { statusSummary } = data;
   const activePlans = statusSummary.status.active || 0;
   const pendingPlans = statusSummary.status.pending || 0;
-  const completedPlans = statusSummary.status.completed || 0; // Giả định BE sẽ thêm sau
-  const cancelledPlans = statusSummary.status.cancelled || 0; // Giả định BE sẽ thêm sau
+  const completedPlans = statusSummary.status.completed || 0;
+  const cancelledPlans = statusSummary.status.cancelled || 0;
   const totalPlans = statusSummary.total;
 
   return (
@@ -22,7 +22,7 @@ const PlanOverview: React.FC<PlanOverviewProps> = ({ data }) => {
           <Statistic
             title="Active Plans"
             value={activePlans}
-            prefix={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
+            prefix={<CheckCircleOutlined style={{ color: "#52c41a", marginRight: '10px' }} />}
             valueStyle={{ color: "#52c41a" }}
           />
         </Card>
@@ -32,7 +32,7 @@ const PlanOverview: React.FC<PlanOverviewProps> = ({ data }) => {
           <Statistic
             title="Cancelled Plans"
             value={cancelledPlans}
-            prefix={<CloseCircleOutlined style={{ color: "#f5222d" }} />}
+            prefix={<CloseCircleOutlined style={{ color: "#f5222d", marginRight: '10px' }} />}
             valueStyle={{ color: "#f5222d" }}
           />
         </Card>
@@ -42,7 +42,7 @@ const PlanOverview: React.FC<PlanOverviewProps> = ({ data }) => {
           <Statistic
             title="Total Plans"
             value={totalPlans}
-            prefix={<FileTextOutlined style={{ color: "#1890ff" }} />}
+            prefix={<FileTextOutlined style={{ color: "#1890ff", marginRight: '10px' }} />}
             valueStyle={{ color: "#1890ff" }}
           />
         </Card>
@@ -52,7 +52,7 @@ const PlanOverview: React.FC<PlanOverviewProps> = ({ data }) => {
           <Statistic
             title="Completed Plans"
             value={completedPlans}
-            prefix={<ClockCircleOutlined style={{ color: "#fa8c16" }} />}
+            prefix={<ClockCircleOutlined style={{ color: "#fa8c16", marginRight: '10px' }} />}
             valueStyle={{ color: "#fa8c16" }}
           />
         </Card>

@@ -73,33 +73,46 @@ function Dashboard() {
   const { farmExpiredDate } = useFarmStore();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("Plant");
+  const [loading, setLoading] = useState({
+    plant: true,
+    harvest: true,
+    plan: true,
+    employee: true
+  });
 
   const fetchDashboard = async () => {
     try {
+      setLoading(prev => ({ ...prev, plant: true }));
       const res = await dashboardService.getDashboardData();
-      console.log("db", res);
       setData(res);
     } catch (error) {
       console.error("error", error);
+    } finally {
+      setLoading(prev => ({ ...prev, plant: false }));
     }
   };
 
   const fetchPlanDashboard = async () => {
     try {
+      setLoading(prev => ({ ...prev, plan: true }));
       const res = await dashboardService.getStatisticPlan(2025);
-      console.log("plan db", res);
       setPlanData(res);
     } catch (error) {
       console.error("error", error);
+    } finally {
+      setLoading(prev => ({ ...prev, plan: false }));
     }
   };
 
   const handleCompare = async (employeeIds: number[]) => {
     try {
+      setLoading(prev => ({ ...prev, employee: true }));
       const res = await dashboardService.compareWorkPerformance(employeeIds);
       setCompareData(res);
     } catch (error) {
       console.error("Error comparing work performance:", error);
+    } finally {
+      setLoading(prev => ({ ...prev, employee: false }));
     }
   };
 
@@ -120,24 +133,23 @@ function Dashboard() {
       case "Plant":
         return (
           <Flex gap={20} className={style.chartContainer} vertical>
-            <Flex gap={20}>
-              <Col span={8} className={style.pieChart}>
+            <div className={style.threeChartGrid}>
+              <div className={style.pieChart}>
                 <h3>Plant Development Distribution</h3>
                 <PlantDevelopmentChart data={data?.plantDevelopmentDistribution || {}} />
-              </Col>
-              <Col span={8} className={style.pieChart}>
+              </div>
+              <div className={style.pieChart}>
                 <h3>Plant Development Stages</h3>
                 <PlantDevelopmentStages data={data?.plantDevelopmentStages || {}} />
-              </Col>
-              <Col span={8} className={style.pieChart}>
+              </div>
+              <div className={style.pieChart}>
                 <h3>Plant Health Status</h3>
                 <PlantHealthStatus data={data?.plantHealthStatus || {}} />
-              </Col>
-            </Flex>
+              </div>
+            </div>
             <Flex>
               <Col span={24} className={style.pieChart}>
-                <h3>Productivity by Plot</h3>
-                <ProductivityByPlot data={data?.productivityByPlots || []} />
+                <ProductivityByPlot />
               </Col>
             </Flex>
           </Flex>
@@ -147,11 +159,9 @@ function Dashboard() {
           <Flex vertical gap={20}>
             <Flex vertical={false} gap={20}>
               <Col span={12} className={style.pieChart}>
-                <h3>Materials in Store</h3>
                 <MaterialChart />
               </Col>
               <Col span={12} className={style.pieChart}>
-                <h3>Seasonal Yield</h3>
                 <SeasonalYieldChart />
               </Col>
             </Flex>
@@ -177,21 +187,18 @@ function Dashboard() {
                 </Col>
                 <Flex gap={20}>
                   <Col span={12} className={style.pieChart}>
-                    <h3>Plans by Month</h3>
                     <PlansByMonthChart />
                   </Col>
                   <Col span={12} className={style.pieChart}>
-                    <h3>Status Distribution</h3>
                     <StatusDistributionChart />
                   </Col>
                 </Flex>
                 <Col span={24} className={style.pieChart}>
-                  <h3>Plans by Work Type</h3>
                   <PlansByWorkTypeChart />
                 </Col>
               </>
             ) : (
-              <Loading/>
+              <Loading />
             )}
           </Flex>
         );

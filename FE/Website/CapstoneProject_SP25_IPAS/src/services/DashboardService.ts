@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { CompareWorkPerformanceRequest, CompareWorkPerformanceResponse, DashboardResponses, EmployeeListItem, MaterialInstore, PomeloQualityBreakdownResponse, SeasonalYieldResponse, StatisticPlanData } from "@/payloads/dashboard";
+import { CompareWorkPerformanceRequest, CompareWorkPerformanceResponse, DashboardResponses, EmployeeListItem, MaterialInstore, PomeloQualityBreakdownResponse, ProductivityByPlotResponse, SeasonalYieldResponse, StatisticPlanData } from "@/payloads/dashboard";
 import { getFarmId } from "@/utils";
 
 export const getDashboardData = async (year: number = 2023, month: number = 3) => {
@@ -9,6 +9,14 @@ export const getDashboardData = async (year: number = 2023, month: number = 3) =
   console.log("Dashboard Data: ", apiResponse);
   return apiResponse.data;
 };
+
+export const getProductivityByPlot = async (year: number) => {
+  const url = `report/dashboard/productivity-by-plot?year=${year}`;
+  const res = await axiosAuth.axiosJsonRequest.get(url);
+  const apiResponse = res.data as ApiResponse<ProductivityByPlotResponse[]>;
+  console.log("Productivity By Plot Data: ", apiResponse);
+  return apiResponse.data;
+}
 
 export const getMaterialInStore = async (year: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`report/dashboard/materials-in-store?year=${year}`);

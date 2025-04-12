@@ -9,7 +9,7 @@ import {
     Legend,
     ResponsiveContainer,
 } from "recharts";
-import { Flex, Select } from "antd";
+import { Empty, Flex, Select } from "antd";
 import { dashboardService } from "@/services";
 import { SeasonalYield } from "@/payloads/dashboard";
 import { Loading } from "@/components";
@@ -26,22 +26,31 @@ const SeasonalYieldChart: React.FC = () => {
     const fetchSeasonalYieldData = async (year: number) => {
         try {
             const seasonalData = await dashboardService.getSeasonalYield(year);
+            console.log("seasonalData", seasonalData);
 
-            // Chuyển đổi dữ liệu thành định dạng cho Stacked Bar Chart
-            const processedData = seasonalData.map((item: SeasonalYield) => {
-                const dataPoint: any = { harvestSeason: item.harvestSeason };
+            if (seasonalData) {
 
-                item.qualityStats.forEach((stat) => {
-                    // Chuẩn hóa key để tránh lỗi (thay khoảng trắng bằng "_")
-                    const key = stat.qualityType.toLowerCase().replace(" ", "_");
-                    dataPoint[key] = stat.quantityYield;
+
+                // Chuyển đổi dữ liệu thành định dạng cho Stacked Bar Chart
+                const processedData = seasonalData.map((item: SeasonalYield) => {
+                    const dataPoint: any = { harvestSeason: item.harvestSeason };
+
+                    item.qualityStats.forEach((stat) => {
+                        // Chuẩn hóa key để tránh lỗi (thay khoảng trắng bằng "_")
+                        const key = stat.qualityType.toLowerCase().replace(" ", "_");
+                        dataPoint[key] = stat.quantityYield;
+                    });
+
+                    return dataPoint;
                 });
+                console.log(processedData);
 
-                return dataPoint;
-            });
 
-            setChartData(processedData);
-            setLoading(false);
+                setChartData(processedData);
+                setLoading(false);
+            } else {
+                setChartData([]);
+            }
         } catch (error) {
             console.error("Error fetching seasonal yield data:", error);
             setLoading(false);
@@ -54,7 +63,7 @@ const SeasonalYieldChart: React.FC = () => {
 
     const handleYearChange = (year: number) => {
         setSelectedYear(year);
-        setLoading(true);
+        // setLoading(true);
     };
 
     if (loading) {
@@ -64,7 +73,10 @@ const SeasonalYieldChart: React.FC = () => {
     return (
         <div style={styles.container}>
             <Flex style={styles.pickerContainer}>
-                <div style={styles.pickerLabel}>Select Year: </div>
+                <Flex style={{ justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+                    <h3>Seasonal Yield</h3>
+                    <div style={styles.pickerLabel}>Select Year: </div>
+                </Flex>
                 <Select
                     value={selectedYear}
                     onChange={handleYearChange}
@@ -80,7 +92,8 @@ const SeasonalYieldChart: React.FC = () => {
             </Flex>
 
             <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={chartData}>
+                {chartData.length > 0 ? (
+                    <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="harvestSeason" />
                     <YAxis
@@ -90,11 +103,11 @@ const SeasonalYieldChart: React.FC = () => {
                     <Tooltip
                         formatter={(value, name) => {
                             const displayName = (name as string)
-                              .replace("_", " ")
-                              .replace(/\b\w/g, (char) => char.toUpperCase());
+                                .replace("_", " ")
+                                .replace(/\b\w/g, (char) => char.toUpperCase());
                             const unit = displayName === "Branches" ? "bundle" : "kg";
                             return [`${value} ${unit}`, displayName];
-                          }}
+                        }}
                     />
                     <Legend />
 
@@ -105,6 +118,12 @@ const SeasonalYieldChart: React.FC = () => {
                     <Bar dataKey="leaves" stackId="a" fill="#a4de6c" name="Leaves" />
                     <Bar dataKey="branches" stackId="a" fill="#ff7300" name="Branches" />
                 </BarChart>
+                ) : (
+                    <Flex justify="center" align="center" style={{ width: "100%" }}>
+                    <Empty description="No data available" />
+                </Flex>
+                )}
+                
             </ResponsiveContainer>
         </div>
     );

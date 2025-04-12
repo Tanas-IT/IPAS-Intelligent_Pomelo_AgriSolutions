@@ -37,7 +37,7 @@ interface MaterialInStoreModel {
 interface PomeloQualityBreakDown {
 }
 
-export interface ProductivityByPlot {
+export interface ProductivityByPlotResponse {
   harvestSeason: string
   year: number
   landPlots: LandPlot[]
@@ -66,7 +66,7 @@ export interface DashboardResponses {
   taskStatusDistribution: TaskStatusDistribution;
   materialsInStoreModels: MaterialInStoreModel[];
   pomeloQualityBreakDowns: PomeloQualityBreakDown[];
-  productivityByPlots: ProductivityByPlot[];
+  productivityByPlots: ProductivityByPlotResponse[];
   seasonalYields: SeasonalYield[];
   workProgressOverviews: WorkProgressOverview[];
 }

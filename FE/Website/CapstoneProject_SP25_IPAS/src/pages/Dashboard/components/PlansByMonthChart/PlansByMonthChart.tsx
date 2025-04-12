@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Select } from "antd";
+import { Flex, Select } from "antd";
 import { dashboardService } from "@/services";
 import { StatisticPlanData } from "@/payloads/dashboard";
 import { Loading } from "@/components";
@@ -18,7 +18,7 @@ const PlansByMonthChart: React.FC = () => {
     try {
       const statisticData = await dashboardService.getStatisticPlan(year);
       const processedData = statisticData.plansByMonth.map((item) => ({
-        month: new Date(0, item.month - 1).toLocaleString("default", { month: "short" }),
+        month: new Date(0, item.month - 1).toLocaleString("en-US", { month: "short" }),
         totalPlans: item.totalPlans,
       }));
       setData(processedData);
@@ -38,7 +38,10 @@ const PlansByMonthChart: React.FC = () => {
   return (
     <div style={chartContainerStyle}>
       <div style={pickerContainerStyle}>
+      <Flex style={{justifyContent: 'center', alignItems: 'center', gap: '20px'}}>
+      <h3>Plans by Month</h3>
         <span style={pickerLabelStyle}>Select Year: </span>
+        </Flex>
         <Select value={selectedYear} onChange={setSelectedYear} style={selectStyle}>
           {years.map((year) => (
             <Option key={year} value={year}>
