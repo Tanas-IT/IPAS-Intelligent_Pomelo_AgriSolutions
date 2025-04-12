@@ -29,7 +29,6 @@ const PlantHealthStatus: React.FC<PlantHealthStatusProps> = ({ data }) => {
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>Plant Health Status</h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
           barSize={10}

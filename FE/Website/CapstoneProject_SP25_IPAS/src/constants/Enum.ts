@@ -4,4 +4,5 @@ export enum UserRole {
   Owner = 3,
   Manager = 4,
   Employee = 5,
+  Expert = 6,
 }

@@ -27,6 +27,9 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackNavigationProp } from "@/constants/Types";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { SegmentedControl, TextCustom } from "@/components";
+import { worklogService } from "@/services";
+import { getUserId } from "@/utils";
+import { useAuthStore } from "@/store";
 
 interface CustomEventt {
   id?: string;
@@ -54,13 +57,26 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
 
   const eventDates: string[] = []; // Lưu các ngày có sự kiện
 
+  const defaultResult = {
+    events: [],
+    timelineEvents: {},
+    eventDates: [],
+  };
+
+  if (!workLogs || workLogs.length === 0) {
+    return defaultResult;
+  }
+
   workLogs.forEach((log) => {
     const date = log.date.split("T")[0];
     const time = `${log.startTime.substring(0, 5)} - ${log.endTime.substring(
       0,
       5
     )}`;
+    console.log('log', log);
     const avatars = log.users.map((user) => user.avatarURL);
+    console.log('avatars', avatars);
+    
 
     events.push({
       id: log.workLogId,
@@ -87,126 +103,45 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
 
   return { events, timelineEvents, eventDates };
 };
-const data: GetWorklog[] = [
-  {
-    workLogId: 2,
-    workLogName: "Watering on _Plot A",
-    workLogCode: "WL-11-638782972525775380",
-    date: "2025-03-25T07:00:00",
-    status: "Not Started",
-    scheduleId: 11,
-    startTime: "07:00:00",
-    endTime: "08:00:00",
-    planId: 11,
-    planName: "kế hoạch chăm sóc cây",
-    startDate: "2025-03-24T00:00:00",
-    endDate: "2025-03-31T00:00:00",
-    users: [
-      {
-        userId: 2,
-        fullName: "Jane Smith",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 4,
-        fullName: "The Tam",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 6,
-        fullName: "Ai Giao",
-        isReporter: true,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 10,
-        fullName: "Ethan Wilson",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 2,
-        fullName: "Jane Smith",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 8,
-        fullName: "Charlie Davis",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-    ],
-  },
-  {
-    workLogId: 3,
-    workLogName: "Watering on _Plot A",
-    workLogCode: "WL-11-638782972525999666",
-    date: "2025-03-25T07:00:00",
-    status: "Not Started",
-    scheduleId: 11,
-    startTime: "08:00:00",
-    endTime: "09:00:00",
-    planId: 11,
-    planName: "kế hoạch chăm sóc cây",
-    startDate: "2025-03-24T00:00:00",
-    endDate: "2025-03-31T00:00:00",
-    users: [
-      {
-        userId: 2,
-        fullName: "Jane Smith",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 4,
-        fullName: "The Tam",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 6,
-        fullName: "Ai Giao",
-        isReporter: true,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-      {
-        userId: 5,
-        fullName: "Phuoc Tan",
-        isReporter: false,
-        avatarURL:
-          "https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg",
-      },
-    ],
-  },
-];
 
 const MIN_CALENDAR_HEIGHT = 90;
 const MAX_CALENDAR_HEIGHT = 350;
 
 export default function WorklogScreen() {
+  const { userId } = useAuthStore();
+  const [worklogs, setWorklogs] = useState<GetWorklog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState("Agenda");
-  const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(data);
+  const [events, setEvents] = useState<AgendaEvent[]>([]);
+  const [timelineEvents, setTimelineEvents] = useState<{ [key: string]: CustomEventt[] }>({});
+  const [eventDates, setEventDates] = useState<string[]>([]);
+  // const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(data);
   const [selectedDate, setSelectedDate] = useState<string>(
     eventDates[0] || new Date().toISOString().split("T")[0]
   );
+  // const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const calendarHeight = useRef(
     new Animated.Value(MIN_CALENDAR_HEIGHT)
   ).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation<RootStackNavigationProp>();
+
+  useEffect(() => {
+    const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(worklogs);
+    console.log('eventtt', events);
+    
+    setEvents(events);
+    setTimelineEvents(timelineEvents);
+    setEventDates(eventDates);
+    // Cập nhật selectedDate nếu chưa có sự kiện nào cho ngày hiện tại
+    if (eventDates.length > 0 && !eventDates.includes(selectedDate)) {
+      setSelectedDate(eventDates[0]);
+    }
+  }, [worklogs]);
+  console.log('worklog', worklogs);
+  
 
   const getWeekRange = (selectedDate: string) => {
     const date = new Date(selectedDate);
@@ -227,6 +162,37 @@ export default function WorklogScreen() {
   };
 
   const weekDates = getWeekRange(selectedDate);
+
+  const [filters, setFilters] = useState({
+    workDateFrom: "",
+    workDateTo: "",
+    growthStage: [],
+    status: [],
+    employees: [],
+    typePlan: [],
+  });
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      console.log('user---------------------------------------------------------------', userId);
+      
+      const response = await worklogService.getWorklogByUserId(Number(userId));
+      setWorklogs(response);
+      console.log("Data fetched successfully:", response);
+    } catch (error) {
+      console.error("Error fetching worklogs:", error);
+      setError("Failed to fetch worklogs. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [filters]);
 
   const statusStyles = {
     notStarted: {
@@ -314,7 +280,11 @@ export default function WorklogScreen() {
   };
 
   const renderDayItem = ({ item: date }: { item: string }) => {
+    console.log('event', events);
+    
     const eventsForDate = events.filter((event) => event.date === date);
+    console.log("eventsForDate", eventsForDate);
+    
     return (
       <View style={{ marginBottom: 20 }}>
         <View style={styles.dateContainer}>
@@ -430,7 +400,7 @@ export default function WorklogScreen() {
                             style={[
                               styles.weekDateText,
                               date === selectedDate &&
-                                styles.selectedWeekDateText,
+                              styles.selectedWeekDateText,
                             ]}
                           >
                             {new Date(date).getDate()}

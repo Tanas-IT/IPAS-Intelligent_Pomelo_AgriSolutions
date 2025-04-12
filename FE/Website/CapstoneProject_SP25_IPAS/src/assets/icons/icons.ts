@@ -5,7 +5,7 @@ export {
   AiOutlineFileAdd as fileAdd
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
-export { CiTimer as timer, CiBoxes as box, CiMail as mail, CiTimer as pending, CiViewTable as table2 } from "react-icons/ci";
+export { CiTimer as timer, CiBoxes as box, CiMail as mail, CiTimer as pending, CiViewTable as table2, CiCircleCheck as checkCircle } from "react-icons/ci";
 export {
   RiDeleteBin6Line as delete,
   RiArrowDropDownLine as arrowDropDownLine,

@@ -45,6 +45,8 @@ export const LoginScreen = () => {
     setIsLoading(true);
     try {
       const res = await AuthService.login(data);
+      console.log("Login response:", res);
+      
       if (res.statusCode === 200) {
         const roleId = getRoleId(res.data.authenModel.accessToken);
         const userId = getUserId(res.data.authenModel.accessToken);
