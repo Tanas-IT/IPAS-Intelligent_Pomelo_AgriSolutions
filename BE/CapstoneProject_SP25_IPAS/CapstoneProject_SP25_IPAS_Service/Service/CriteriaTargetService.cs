@@ -680,8 +680,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 #region kiem tra xem neu co cai nao la condition check pass thi update IsPass cua Plant lai
                 // kiem tra xem neu co bat ki critera nao la condition grafted thi Tra ve not pass hết
                 var flag = false;
-                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
-                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigGroup.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigKey.ToLower()!).ToList() : new List<string>();
                 var insertedCriteriaID = request.CriteriaData.Select(x => x.CriteriaId);
                 Expression<Func<Criteria, bool>> filter = x => insertedCriteriaID.Contains(x.CriteriaId) &&
                                                             ConditionList.Contains(x.MasterType!.Target!.ToLower());
@@ -769,8 +769,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 _unitOfWork.CriteriaTargetRepository.UpdateRange(criteriaTargetList);
 
-                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
-                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue.ToLower()!).ToList() : new List<string>();
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigGroup.ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.ToLower()));
+                var ConditionList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigKey.ToLower()!).ToList() : new List<string>();
                 bool isGraftedConditionReset = ConditionList.Contains(checkMsTypeExist.Target!.ToLower());
                 if (isGraftedConditionReset)
                 {
@@ -846,8 +846,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.CriteriaTargetRepository.UpdateRange(CriteriaTargetList);
                 int result = await _unitOfWork.SaveAsync();
                 #region update plant pass
-                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.Trim().ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.Trim().ToLower()));
-                var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigValue).ToList() : new List<string>();
+                var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigGroup.Trim().ToLower().Equals(SystemConfigConst.GRAFTED_CONDITION_APPLY.Trim().ToLower()));
+                var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigKey).ToList() : new List<string>();
                 var plants = await _unitOfWork.PlantRepository.GetAllNoPaging(x => request.PlantIds.Contains(x.PlantId) && x.IsDead == false, includeProperties: null!);
                 foreach (var pl in plants)
                 {
