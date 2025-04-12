@@ -29,14 +29,10 @@ const SeasonalYieldChart: React.FC = () => {
             console.log("seasonalData", seasonalData);
 
             if (seasonalData) {
-
-
-                // Chuyển đổi dữ liệu thành định dạng cho Stacked Bar Chart
                 const processedData = seasonalData.map((item: SeasonalYield) => {
                     const dataPoint: any = { harvestSeason: item.harvestSeason };
 
                     item.qualityStats.forEach((stat) => {
-                        // Chuẩn hóa key để tránh lỗi (thay khoảng trắng bằng "_")
                         const key = stat.qualityType.toLowerCase().replace(" ", "_");
                         dataPoint[key] = stat.quantityYield;
                     });
@@ -111,7 +107,6 @@ const SeasonalYieldChart: React.FC = () => {
                     />
                     <Legend />
 
-                    {/* Stacked Bars cho các qualityType */}
                     <Bar dataKey="grade_1" stackId="a" fill="#13C2C2" name="Grade 1" />
                     <Bar dataKey="grade_2" stackId="a" fill="#82ca9d" name="Grade 2" />
                     <Bar dataKey="grade_3" stackId="a" fill="#ffc658" name="Grade 3" />

@@ -17,12 +17,13 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest
 
     public class SubProcessDto
     {
-        public int? SubProcessID { get; set; }
+        public int SubProcessID { get; set; }
         public string? SubProcessName { get; set; }
         public int? Order { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public List<PlanDto>? Plans { get; set; }
+        public List<SubProcessDto> Children { get; set; } = new();
     }
 
     public class ProcessDto

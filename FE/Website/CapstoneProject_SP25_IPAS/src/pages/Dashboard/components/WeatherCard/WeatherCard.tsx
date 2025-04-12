@@ -50,7 +50,6 @@ const WeatherCard: FC<WeatherCardProps> = ({ weather }: WeatherCardProps) => {
   return (
     <Card className={style.weatherCard} style={{
       backgroundImage: `url(${backgroundImage})`,
-      // backgroundImage: `linear-gradient(to bottom right, #a0cfff, #4facfe), url(${backgroundImage})`,
       backgroundSize: "cover",
       backgroundPosition: "60px -20px",
       backgroundColor: "#4facfe"

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Flex, Select } from "antd";
 import { dashboardService } from "@/services";
-import { StatisticPlanData } from "@/payloads/dashboard";
 import { Loading } from "@/components";
 
 const { Option } = Select;
@@ -36,13 +35,13 @@ const PlansByMonthChart: React.FC = () => {
   if (loading) return <Loading />;
 
   return (
-    <div style={chartContainerStyle}>
-      <div style={pickerContainerStyle}>
+    <div style={{ padding: "10px" }}>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
       <Flex style={{justifyContent: 'center', alignItems: 'center', gap: '20px'}}>
       <h3>Plans by Month</h3>
-        <span style={pickerLabelStyle}>Select Year: </span>
+        <span style={{ fontSize: "16px", marginRight: "10px", color: "#666" }}>Select Year: </span>
         </Flex>
-        <Select value={selectedYear} onChange={setSelectedYear} style={selectStyle}>
+        <Select value={selectedYear} onChange={setSelectedYear} style={{ width: "150px" }}>
           {years.map((year) => (
             <Option key={year} value={year}>
               {year}
@@ -65,10 +64,5 @@ const PlansByMonthChart: React.FC = () => {
     </div>
   );
 };
-
-const chartContainerStyle = { padding: "10px" };
-const pickerContainerStyle = { display: "flex", alignItems: "center", marginBottom: "20px" };
-const pickerLabelStyle = { fontSize: "16px", marginRight: "10px", color: "#666" };
-const selectStyle = { width: "150px" };
 
 export default PlansByMonthChart;

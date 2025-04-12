@@ -23,7 +23,6 @@ import EmployeeOverview from "./components/EmployeeOverview/EmployeeOverview";
 import CompareWorkPerformance from "./components/CompareWorkPerformance/CompareWorkPerformance";
 import { Loading } from "@/components";
 
-
 const weatherData = {
   currentTemp: 29.04,
   tempMax: 29.04,
@@ -47,42 +46,42 @@ function Dashboard() {
     plant: true,
     harvest: true,
     plan: true,
-    employee: true
+    // employee: true,
   });
 
   const fetchDashboard = async () => {
     try {
-      setLoading(prev => ({ ...prev, plant: true }));
+      setLoading((prev) => ({ ...prev, plant: true, harvest: true }));
       const res = await dashboardService.getDashboardData();
       setData(res);
     } catch (error) {
       console.error("error", error);
     } finally {
-      setLoading(prev => ({ ...prev, plant: false }));
+      setLoading((prev) => ({ ...prev, plant: false, harvest: false }));
     }
   };
 
   const fetchPlanDashboard = async () => {
     try {
-      setLoading(prev => ({ ...prev, plan: true }));
+      setLoading((prev) => ({ ...prev, plan: true }));
       const res = await dashboardService.getStatisticPlan(2025);
       setPlanData(res);
     } catch (error) {
       console.error("error", error);
     } finally {
-      setLoading(prev => ({ ...prev, plan: false }));
+      setLoading((prev) => ({ ...prev, plan: false }));
     }
   };
 
   const handleCompare = async (employeeIds: number[]) => {
     try {
-      setLoading(prev => ({ ...prev, employee: true }));
+      setLoading((prev) => ({ ...prev, employee: true }));
       const res = await dashboardService.compareWorkPerformance(employeeIds);
       setCompareData(res);
     } catch (error) {
       console.error("Error comparing work performance:", error);
     } finally {
-      setLoading(prev => ({ ...prev, employee: false }));
+      setLoading((prev) => ({ ...prev, employee: false }));
     }
   };
 
@@ -107,7 +106,6 @@ function Dashboard() {
       title: "Active Tasks",
       subtitle: data?.totalTask?.toString() || "0",
       icon: <Icons.plan style={{ fontSize: 24, color: "#faad14" }} />,
-      progress: data?.totalTask ? Math.min(data.totalTask / 10, 1) : 0, // Ví dụ tính progress
     },
     {
       title: "Completed Tasks",
@@ -127,7 +125,9 @@ function Dashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Plant":
-        return (
+        return loading.plant ? (
+          <Loading />
+        ) : (
           <Flex gap={20} className={style.chartContainer} vertical>
             <div className={style.threeChartGrid}>
               <div className={style.pieChart}>
@@ -151,7 +151,9 @@ function Dashboard() {
           </Flex>
         );
       case "Harvest":
-        return (
+        return loading.harvest ? (
+          <Loading />
+        ) : (
           <Flex vertical gap={20}>
             <Flex vertical={false} gap={20}>
               <Col span={12} className={style.pieChart}>
@@ -173,7 +175,9 @@ function Dashboard() {
           </Flex>
         );
       case "Plan":
-        return (
+        return loading.plan ? (
+          <Loading />
+        ) : (
           <Flex gap={20} className={style.chartContainer} vertical>
             {planData ? (
               <>
@@ -194,7 +198,7 @@ function Dashboard() {
                 </Col>
               </>
             ) : (
-              <Loading />
+              <div>No plan data available</div>
             )}
           </Flex>
         );

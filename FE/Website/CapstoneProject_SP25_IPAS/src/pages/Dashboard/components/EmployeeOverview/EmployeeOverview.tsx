@@ -31,6 +31,8 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
         minScore ?? undefined,
         maxScore ?? undefined
       );
+      console.log("employeeList", employeeList);
+
       setData(employeeList);
       setLoading(false);
     } catch (error) {

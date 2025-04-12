@@ -78,7 +78,7 @@ const ProductivityByPlot: React.FC = () => {
       seasonData[plot.landPlotName] = plot.quantity;
     });
     return seasonData;
-  }) || []; // Thêm fallback value là mảng rỗng
+  }) || [];
 
   const uniquePlots = useMemo(() => {
     if (!data) return [];

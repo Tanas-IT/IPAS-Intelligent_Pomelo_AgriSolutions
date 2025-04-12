@@ -53,16 +53,6 @@ export const getStatisticPlan = async (year: number, month?: number) => {
   return apiResponse.data;
 }
 
-// export const getEmployeeList = async (type: "top" | "bottom" = "top", limit: number = 10, search?: string) => {
-//   let url = `report/dashboard/work-performance?top=${limit}`; // API hiện tại dùng "top"
-//   if (search) url += `&search=${encodeURIComponent(search)}`;
-//   // Nếu BE sửa API, thay bằng: `?type=${type}&limit=${limit}&search=...`
-//   const res = await axiosAuth.axiosJsonRequest.get(url);
-//   const apiResponse = res.data as ApiResponse<EmployeeListItem[]>;
-//   console.log("Employee List Data: ", apiResponse);
-//   return apiResponse.data;
-// }
-
 export const getEmployeeList = async (
   type: "top" | "bottom" = "top",
   limit: number = 10,
@@ -70,10 +60,10 @@ export const getEmployeeList = async (
   minScore?: number,
   maxScore?: number
 ) => {
-  let url = `report/dashboard/work-performance?limit=${limit}`; // API hiện tại
+  let url = `report/dashboard/work-performance?limit=${limit}&type=${type}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (minScore !== undefined && maxScore !== undefined) {
-    url += `&minScore=${minScore}&maxScore=${maxScore}`; // Giả sử BE sẽ thêm
+    url += `&minScore=${minScore}&maxScore=${maxScore}`;
   }
   const res = await axiosAuth.axiosJsonRequest.get(url);
   const apiResponse = res.data as ApiResponse<EmployeeListItem[]>;
