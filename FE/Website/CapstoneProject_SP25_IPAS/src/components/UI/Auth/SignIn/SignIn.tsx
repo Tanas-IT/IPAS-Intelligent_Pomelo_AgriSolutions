@@ -51,6 +51,8 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
           navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
         if (roleId === UserRole.Admin.toString())
           navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+        if (roleId === UserRole.Expert.toString())
+          navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
       } else if (result.statusCode === 400 || result.statusCode === 500) {
         toast.error(toastMessage);
       }

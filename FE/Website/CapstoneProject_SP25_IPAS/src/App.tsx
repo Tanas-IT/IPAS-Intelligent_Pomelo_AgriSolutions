@@ -9,6 +9,7 @@ import { ScrollToTop } from "./components";
 import { ConfigProvider } from "antd";
 import { themeColors } from "./styles";
 import { NotFoundPage } from "./pages";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (

@@ -25,11 +25,11 @@ interface WeatherCardProps {
 }
 
 const weatherBackgrounds: Record<string, string> = {
-    Clouds: cloudy,
-    Rain: rainy,
-    Snow: snowy,
-    Sunny: sunny
-  };
+  Clouds: cloudy,
+  Rain: rainy,
+  Snow: snowy,
+  Sunny: sunny
+};
 
 const getWeatherIcon = (status: string) => {
   switch (status.toLowerCase()) {
@@ -44,22 +44,27 @@ const getWeatherIcon = (status: string) => {
   }
 };
 
-const WeatherCard: FC<WeatherCardProps> = ({ weather }) => {
-    const backgroundImage = weatherBackgrounds[weather.status] || cloudy;
+const WeatherCard: FC<WeatherCardProps> = ({ weather }: WeatherCardProps) => {
+  const backgroundImage = weatherBackgrounds[weather.status] || cloudy;
 
   return (
     <Card className={style.weatherCard} style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}>
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "60px -20px",
+      backgroundColor: "#4facfe"
+    }}>
       <div className={style.weatherHeader}>
         <Flex justify="space-between">
-          <Title level={5} className={style.tempText}>{weather.currentTemp}°C</Title>
-          <p className={style.weatherDescription}>{weather.description}</p>
+          <Flex vertical>
+            <Title level={5} className={style.tempText}>{weather.currentTemp}°C</Title>
+            <p className={style.weatherDescription}>{weather.description}</p>
           </Flex>
-          <p className={style.weatherWindSpeed}>Wind: {weather.windSpeed}</p>
-          <p className={style.weatherWindSpeed}>Humidity: {weather.humidity}</p>
+        </Flex>
+        <Flex className={style.info} gap={0} vertical>
+        <p className={style.weatherWindSpeed}>Wind: {weather.windSpeed}</p>
+        <p className={style.weatherWindSpeed}>Humidity: {weather.humidity}</p>
+        </Flex>
       </div>
     </Card>
   );

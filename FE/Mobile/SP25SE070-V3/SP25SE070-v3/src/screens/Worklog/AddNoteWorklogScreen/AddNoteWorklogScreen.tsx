@@ -18,6 +18,9 @@ import { addNoteWorklogSchema } from "@/validations/noteWorklogSchema";
 import { styles } from "./AddNoteWorklogScreen.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
+import { useAuthStore } from "@/store";
+import { worklogService } from "@/services";
+import Toast from "react-native-toast-message";
 
 const AddNoteWorklogScreen: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -27,6 +30,7 @@ const AddNoteWorklogScreen: React.FC = () => {
     historyId?: string;
     initialData?: WorklogNoteFormData;
   };
+  const { userId } = useAuthStore();
 
   const isEditMode = !!historyId;
 
@@ -73,7 +77,7 @@ const AddNoteWorklogScreen: React.FC = () => {
         resourceID: 0,
         description: "",
         resourceURL: result.assets[0].uri,
-        fileFormat: "image/jpeg",
+        fileFormat: result.assets[0].type || "image/jpeg", // Lấy type từ ImagePicker
         file: "",
       };
       const newResources = [...currentResources, newResource];
@@ -92,25 +96,40 @@ const AddNoteWorklogScreen: React.FC = () => {
     setIsSubmitting(true);
 
     const payload: WorklogNoteFormData = {
-      userId: 0,
+      userId: Number(userId),
       workLogId: worklogId,
       note: data.note,
       issue: data.issue || "",
       resources: data.resources || [],
     };
 
-    console.log(
-      isEditMode ? "Updating Worklog Note:" : "Adding Worklog Note:",
-      payload
-    );
-
-    // fake
-    setTimeout(() => {
+    try {
+      console.log(
+        isEditMode ? "Updating Worklog Note:" : "Adding Worklog Note:",
+        payload
+      );
+      const res = await worklogService.addWorklogNote(payload);
+      if (res.statusCode === 200) {
+        Toast.show({
+          type: "success",
+          text1: isEditMode ? "Note updated successfully" : "Note added successfully",
+        });
+        navigation.goBack();
+      } else {
+        Toast.show({
+          type: "error",
+          text1: isEditMode ? "Failed to update note" : "Failed to add note",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting worklog note:", error);
+      Toast.show({
+        type: "error",
+        text1: "An error occurred. Please try again.",
+      });
+    } finally {
       setIsSubmitting(false);
-      navigation.goBack();
-    }, 1500);
-
-    // call api
+    }
   };
 
   const handlePress = () => {
