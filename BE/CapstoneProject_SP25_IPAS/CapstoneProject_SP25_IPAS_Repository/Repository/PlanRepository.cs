@@ -260,5 +260,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return process;
         }
 
+        public async Task<List<Plan>> GetListPlanByProcessId (int processId)
+        {
+            return await _context.Plans
+                    .Include(p => p.SubProcess)
+                    .Where(p => (p.ProcessId == processId || p.SubProcess!.ProcessId == processId) && p.IsDeleted == false)
+                    .ToListAsync();
+        }
+
     }
 }
