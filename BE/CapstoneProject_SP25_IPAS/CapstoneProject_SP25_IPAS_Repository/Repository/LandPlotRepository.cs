@@ -106,6 +106,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
            var result = await _context.LandPlots
                                 .Include(x => x.Farm)
+                                .Include(x => x.LandRows)
+                                .ThenInclude(x => x.Plants)
                                 .Include(x => x.LandPlotCrops)
                                 .ThenInclude(x => x.Crop)
                                 .ThenInclude(x => x.HarvestHistories)
