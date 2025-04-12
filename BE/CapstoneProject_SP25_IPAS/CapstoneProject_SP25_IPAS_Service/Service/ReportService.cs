@@ -94,14 +94,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                .GroupBy(p => p.GrowthStage.GrowthStageName)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round(((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count()) * 100, 2) // Làm tròn 2 số thập phân
                                                );
                 var plantHeathStatus = totalPlant
                                                .Where(p => p.FarmId == farmId && !string.IsNullOrEmpty(p.HealthStatus)) // Bỏ cây không có Status
                                                .GroupBy(p => p.HealthStatus)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round(((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count()) * 100, 2) // Làm tròn 2 số thập phân
                                                );
 
                 var filteredTask = toltalTask
@@ -120,7 +120,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .GroupBy(x => x.Status)
                     .ToDictionary(
                         g => g.Key!,
-                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                        g => Math.Round(((double)g.Count() / totalFilteredTask) * 100, 2)
                     );
                 var taskStatusDistribution = new TaskStatusDistribution()
                 {
@@ -257,7 +257,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     QualityStats = g.Select(q => new QualityStat
                     {
                         QualityType = q.QualityType,
-                        Percentage = Math.Round(totalBySeason[g.Key] == 0 ? 0 : (double)q.Quantity / totalBySeason[g.Key] * 100, 2)
+                        Percentage = Math.Round(totalBySeason[g.Key] == 0 ? 0 : ((double)q.Quantity / totalBySeason[g.Key]) * 100, 2)
                     }).ToList()
                 })
                 .OrderBy(s => s.HarvestSeason)
@@ -542,7 +542,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .GroupBy(x => x.Status)
                     .ToDictionary(
                         g => g.Key!,
-                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                        g => Math.Round(((double)g.Count() / totalFilteredTask) * 100, 2)
                     );
                 var taskStatusDistribution = new TaskStatusDistribution()
                 {
@@ -662,7 +662,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                      var taskFail = workLogs.Count(x =>
                                          x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
 
-                                     var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+                                     var score = taskSuccess;
 
                                      return new WorkPerformanceResponseDto
                                      {

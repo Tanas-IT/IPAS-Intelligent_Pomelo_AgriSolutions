@@ -2651,6 +2651,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+                    var currentOrder = getExistPlan.SubProcess?.Order ?? 0;
+                    var currentEndDate = addNewTaskModel.NewDateWork.Date.Add(endTime);
+                    var originalEndDate = getExistPlan.EndDate;
+
+                    // Nếu thời gian làm bù kết thúc trễ hơn kế hoạch gốc
+                    if (originalEndDate != null && currentEndDate > originalEndDate)
+                    {
+                        // Tính số ngày cần dời
+                        var shiftDays = (currentEndDate.Date - originalEndDate.Value.Date).Days;
+
+                        // Lấy tất cả kế hoạch trong process hiện tại có Order > WorkLog hiện tại
+                        var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(getExistPlan.ProcessId.Value);
+                        var dependentPlans = allPlans.Where(p => p.SubProcess?.Order > currentOrder).ToList();
+                        var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+
+                        // Lấy toàn bộ WorkLog thuộc các Plan phụ thuộc
+                        var allDependentWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+
+                        foreach (var workLog in allDependentWorkLogs)
+                        {
+                            if (workLog.Date != null)
+                            {
+                                workLog.Date = workLog.Date.Value.AddDays(shiftDays);
+                                // Giữ nguyên giờ bắt đầu/kết thúc
+                            }
+
+                            if (workLog.Schedule != null)
+                            {
+                                // Cập nhật Schedule luôn nếu cần
+                                workLog.Schedule.CustomDates = "[" + JsonConvert.SerializeObject(workLog.Date?.ToString("yyyy/MM/dd")) + "]";
+                            }
+
+                            _unitOfWork.WorkLogRepository.Update(workLog);
+                        }
+
+                        await _unitOfWork.SaveAsync();
+                    }
+
 
                     var addNotification = new Notification()
                     {
@@ -2785,8 +2823,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Year = groupBy == "year" ? (int?)g.Key.Year : null,
 
                     TotalWorkLogs = g.Count(),
-                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == "Done"),
-                    CompletionRate = g.Count(x => x.WorkLog.Status == "Done") * 100.0 / g.Count(),
+                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == getStatusDone),
+                    CompletionRate = g.Count(x => x.WorkLog.Status == getStatusDone) * 100.0 / g.Count(),
 
                     TotalWorkingTime = TimeSpan.FromMinutes(
             g.Where(x => x.WorkLog.ActualStartTime != null && x.WorkLog.ActualEndTime != null)
@@ -2898,6 +2936,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var subProcess = plan.SubProcess;
 
                 // Lấy processId từ Plan hoặc SubProcess
+                if(plan.ProcessId != null)
+                {
+                    return new BusinessResult(200, "No workLog dependency.");
+                }
                 int? processId = plan.ProcessId ?? subProcess?.ProcessId;
 
                 if (processId == null)
