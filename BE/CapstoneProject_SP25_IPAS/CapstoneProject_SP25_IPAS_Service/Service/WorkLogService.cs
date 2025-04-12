@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CsvHelper.Configuration;
+using GenerativeAI.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -562,7 +563,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false || x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x =>  x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -2873,6 +2874,73 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(200, "Filter Employee By Work Skill", result);
                 }
                 return new BusinessResult(404, "Do not have any employee");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetDependentWorkLog(int workLogID)
+        {
+            try
+            {
+                var targetWorkLog = await _unitOfWork.WorkLogRepository.GetCurrentWorkLog(workLogID);
+                if (targetWorkLog == null)
+                    return new BusinessResult(400, "WorkLog does not exist.");
+                if(targetWorkLog.Schedule.CarePlan == null)
+                {
+                    return new BusinessResult(200, "WorkLog does not have process.");
+                }
+
+                var plan = targetWorkLog.Schedule.CarePlan;
+                var subProcess = plan.SubProcess;
+
+                // Lấy processId từ Plan hoặc SubProcess
+                int? processId = plan.ProcessId ?? subProcess?.ProcessId;
+
+                if (processId == null)
+                    return new BusinessResult(200, "WorkLog does not have process");
+
+                // Lấy tất cả SubProcess và Plan trong cùng process
+                var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(processId.Value);
+
+                // Lấy tất cả WorkLogs trong các Plan liên quan
+                var planIds = allPlans.Select(p => p.PlanId).ToList();
+                var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(planIds);
+
+                // Lấy Order của WorkLog hiện tại
+                int currentOrder = plan.SubProcess?.Order ?? 0;
+
+                // Lọc các WorkLog có Order < currentOrder và khác workLog hiện tại
+                var dependentWorkLogs = allWorkLogs
+                    .Where(w => w.WorkLogId != workLogID)
+                    .Select(w =>
+                    {
+                        var planOfWorkLog = allPlans.FirstOrDefault(p => p.PlanId == w.Schedule?.CarePlanId);
+                        int order = planOfWorkLog?.SubProcess?.Order ?? 0;
+
+                        return new
+                        {
+                            WorkLogId = w.WorkLogId,
+                            PlanId = planOfWorkLog?.PlanId,
+                            PlanName = planOfWorkLog?.PlanName ?? "Chưa đặt tên",
+                            StartTime = w.ActualStartTime,
+                            EndTime = w.ActualEndTime,
+                            Status = w.Status,
+                            Order = order,
+                            Date = w.Date?.ToString("yyyy-MM-dd")
+                        };
+                    })
+                    .Where(x => x.Order > currentOrder)
+                    .OrderBy(x => x.Order)
+                    .ThenBy(x => x.StartTime)
+                    .ToList();
+
+                return dependentWorkLogs.Any()
+                    ? new BusinessResult(200, "Get Dependency WorkLog Success", dependentWorkLogs)
+                    : new BusinessResult(200, "No workLog dependency.");
             }
             catch (Exception ex)
             {

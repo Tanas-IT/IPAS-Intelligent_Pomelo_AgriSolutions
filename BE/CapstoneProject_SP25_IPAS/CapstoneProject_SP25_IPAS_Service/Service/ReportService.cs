@@ -388,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG, result);
                     }
-                    return new BusinessResult(Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG);
+                    return new BusinessResult(Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG, new List<MaterialsInStoreModel>());
 
                 }
                 return new BusinessResult(Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE, Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG);

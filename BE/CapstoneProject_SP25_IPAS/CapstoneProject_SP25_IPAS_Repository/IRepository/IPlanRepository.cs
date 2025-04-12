@@ -31,5 +31,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public IQueryable<Plan> GetAllPlans();
         public Task<Plan> GetPlanByIdAsync(int planId, int farmId);
         public Task<Process> GetProcessByPlan(Plan plan);
+        public Task<List<Plan>> GetListPlanByProcessId(int processId);
     }
 }

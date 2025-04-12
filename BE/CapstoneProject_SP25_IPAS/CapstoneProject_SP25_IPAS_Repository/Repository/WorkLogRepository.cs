@@ -471,5 +471,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return getWorkLog;
         }
+
+        public async Task<WorkLog> GetCurrentWorkLog(int workLogId)
+        {
+            var currentWorkLog = await _context.WorkLogs
+                                    .Include(w => w.Schedule.CarePlan)
+                                        .ThenInclude(p => p.SubProcess)
+                                    .FirstOrDefaultAsync(w => w.WorkLogId == workLogId);
+            return currentWorkLog;
+        }
+
+        public async Task<List<WorkLog>> GetWorkLogsByPlanIdsAsync(List<int> planIds)
+        {
+            return await _context.WorkLogs
+                .Include(x => x.Schedule.CarePlan)
+                .Where(w => planIds.Contains(w.Schedule.CarePlanId.Value))
+                .ToListAsync();
+        }
     }
 }
