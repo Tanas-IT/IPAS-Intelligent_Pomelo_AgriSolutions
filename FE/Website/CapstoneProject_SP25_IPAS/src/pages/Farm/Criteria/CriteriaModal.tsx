@@ -31,7 +31,7 @@ const CriteriaModel = ({
   const [_, setForceUpdate] = useState(false);
   const isUpdate = criteriaData !== undefined && Object.keys(criteriaData).length > 0;
   const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.CRITERIA_TYPE,
+    SYSTEM_CONFIG_KEY.Criteria,
   );
 
   const { setIsDirty } = useDirtyStore();

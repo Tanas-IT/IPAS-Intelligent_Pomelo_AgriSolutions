@@ -33,7 +33,7 @@ function MasterType() {
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
-  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.TYPE_NAME);
+  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.MasterType);
   const [typeName, setTypeName] = useState<string>("");
 
   useEffect(() => {

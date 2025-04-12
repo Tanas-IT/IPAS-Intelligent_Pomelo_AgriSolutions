@@ -25,7 +25,7 @@ const GrowthStageModal = ({
   const [form] = Form.useForm();
   const isUpdate = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
   const { options: actionOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.GROWTH_ACTION_TYPE,
+    SYSTEM_CONFIG_KEY.GrowthStageAction,
   );
   const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
 

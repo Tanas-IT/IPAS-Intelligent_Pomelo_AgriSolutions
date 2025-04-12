@@ -1938,8 +1938,8 @@ INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType,
 VALUES 
 ('Criteria', 'GraftedCondition', 'Grafted Condition', 'string', 'Grafted Condition'),
 ('Criteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string', 'Grafted Evaluation'),
-('Criteria', 'PlantlotCondition', 'Plantlot Condition', 'string', 'Plantlot Condition'),
-('Criteria', 'PlantlotEvaluation', 'Plantlot Evaluation', 'string', 'Plantlot Evaluation'),
+('Criteria', 'PlantLotCondition', 'Plantlot Condition', 'string', 'Plantlot Condition'),
+('Criteria', 'PlantLotEvaluation', 'Plantlot Evaluation', 'string', 'Plantlot Evaluation'),
 ('Criteria', 'Product', 'Product', 'string', 'Product'),
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
@@ -1947,11 +1947,11 @@ GO
 -- Danh sách Criteria
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Criteria Apply', 'GraftedConditionApply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
-('Criteria Apply', 'GraftedEvaluationApply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
-
 ('Criteria Apply', 'PlantLotConditionApply', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
 ('Criteria Apply', 'PlantLotEvaluationApply', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+
+('Criteria Apply', 'GraftedConditionApply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('Criteria Apply', 'GraftedEvaluationApply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
 
 ('Criteria Apply', 'GraftedCriteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
 ('Criteria Apply', 'GraftedCriteria', 'Others', 'string', N'Bộ tiêu chí khác'),

@@ -2,9 +2,15 @@ import { axiosAuth } from "@/api";
 import { ApiResponse, GetSystemConfigSelected } from "@/payloads";
 
 export const getSystemConfigSelect = async (
-  key: string,
+  group: string,
+  key?: string,
 ): Promise<ApiResponse<GetSystemConfigSelected[]>> => {
-  const res = await axiosAuth.axiosJsonRequest.get(`system-config/for-selected?configKey=${key}`);
-  const apiResponse = res.data as ApiResponse<GetSystemConfigSelected[]>;
-  return apiResponse;
+  const params = new URLSearchParams({ configGroup: group });
+  if (key) params.append("configKey", key);
+
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `system-config/for-selected?${params.toString()}`,
+  );
+
+  return res.data as ApiResponse<GetSystemConfigSelected[]>;
 };

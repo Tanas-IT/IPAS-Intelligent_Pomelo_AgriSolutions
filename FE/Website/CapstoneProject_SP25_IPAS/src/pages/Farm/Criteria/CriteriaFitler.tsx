@@ -14,7 +14,7 @@ type FilterProps = {
 };
 const CriteriaFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const { options } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.CRITERIA_TYPE);
+  const { options } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.Criteria);
 
   const isFilterEmpty = !(
     filters.createDateFrom ||

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { systemConfigService } from "@/services";
 import { SelectOption } from "@/types";
 
-const useSystemConfigOptions = (key: string) => {
+const useSystemConfigOptions = (group: string, key?: string) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -10,7 +10,7 @@ const useSystemConfigOptions = (key: string) => {
     const fetchOptions = async () => {
       setLoading(true);
       try {
-        const result = await systemConfigService.getSystemConfigSelect(key);
+        const result = await systemConfigService.getSystemConfigSelect(group, key);
         if (result.statusCode === 200 && result.data) {
           const mappedOptions = result.data.map((item) => ({
             value: item.name,

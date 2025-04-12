@@ -2,12 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import {
-  MASTER_TYPE_SHOW_TABLE,
-  masterTypeFormFields,
-  SYSTEM_CONFIG_KEY,
-  WORK_TARGETS,
-} from "@/constants";
+import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, SYSTEM_CONFIG_KEY } from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 import { useSystemConfigOptions } from "@/hooks";
 
@@ -33,12 +28,8 @@ const MasterTypeModel = ({
   const [form] = Form.useForm();
   const [checked, setChecked] = useState<boolean>(false);
   const isUpdate = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
-  // const workTargetOptions = Object.keys(WORK_TARGETS).map((key) => ({
-  //   value: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
-  //   label: WORK_TARGETS[key as keyof typeof WORK_TARGETS],
-  // }));
   const { options: workTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.WORK_TYPE,
+    SYSTEM_CONFIG_KEY.WorkTarget,
   );
 
   const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);

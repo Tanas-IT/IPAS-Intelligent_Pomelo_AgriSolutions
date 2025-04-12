@@ -12,10 +12,10 @@ export const UserRolesStr = {
 };
 
 export const SYSTEM_CONFIG_KEY = {
-  TYPE_NAME: "TypeName",
-  GROWTH_ACTION_TYPE: "GrowthActionType",
-  WORK_TYPE: "WorkType",
-  CRITERIA_TYPE: "CriteriaType",
+  MasterType: "MasterType",
+  GrowthStageAction: "GrowthStageAction",
+  WorkTarget: "WorkTarget",
+  Criteria: "Criteria",
 };
 
 export const MASTER_TYPE_SHOW_TABLE = {
