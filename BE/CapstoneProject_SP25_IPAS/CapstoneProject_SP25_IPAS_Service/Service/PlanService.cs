@@ -2793,6 +2793,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getListPlan = await _unitOfWork.PlanRepository.GetPlanIncludeByProcessId(processId);
+                /*
+                  var process = await _unitOfWork.ProcessRepository.GetProcessByIdAsync(processId);
+                if (process == null)
+                    return new BusinessResult(400, "Do not find any process.");
+
+                var result = new ProcessWithDetailsDto
+                {
+                    ProcessId = process.ProcessId,
+                    ProcessName = process.ProcessName,
+                    StartDate = process.StartDate,
+                    EndDate = process.EndDate,
+                    Order = process.Order,
+                    Plans = process.Plans.Select(p => new PlanDto
+                    {
+                        PlanId = p.PlanId,
+                        PlanName = p.PlanName,
+                        StartDate = p.StartDate,
+                        EndDate = p.EndDate
+                    }).ToList(),
+                    SubProcesses = process.SubProcesses.Select(sp => new SubProcessDto
+                    {
+                        SubProcessID = sp.SubProcessID,
+                        SubProcessName = sp.SubProcessName,
+                        Order = sp.Order,
+                        StartDate = sp.StartDate,
+                        EndDate = sp.EndDate,
+                        Plans = sp.Plans.Select(p => new PlanDto
+                        {
+                            PlanId = p.PlanId,
+                            PlanName = p.PlanName,
+                            StartDate = p.StartDate,
+                            EndDate = p.EndDate
+                        }).ToList()
+                    }).ToList()
+                };
+                 
+                 */
                 if (getListPlan != null && getListPlan.Count() > 0)
                 {
                     var result = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
@@ -3095,11 +3132,72 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (maxCurrentEnd > minNextStart)
                 {
-                    errors.Add($"- Các kế hoạch trong \"{currentGroupName}\" phải kết thúc trước khi \"{nextGroupName}\" bắt đầu.");
+                    errors.Add($"- Plans in \"{currentGroupName}\" must be finished before \"{nextGroupName}\" start.");
                 }
             }
 
             return errors;
+        }
+
+        public async Task<BusinessResult> GetProcessByPlanId(int planId, int farmId)
+        {
+            try
+            {
+                var plan = await _unitOfWork.PlanRepository.GetPlanByIdAsync(planId, farmId);
+                if(plan == null)
+                {
+                    return new BusinessResult(400, $"Not found Plan with ID = {planId}");
+                }
+
+                var process = await _unitOfWork.PlanRepository.GetProcessByPlan(plan);
+                if (process == null)
+                {
+                    return new BusinessResult(400, "Do not find any process.");
+                }
+                var processDto = new ProcessDto
+                {
+                    ProcessId = process.ProcessId,
+                    ProcessName = process.ProcessName,
+                    StartDate = process.StartDate,
+                    EndDate = process.EndDate,
+                    Order = process.Order,
+                    Plans = process.Plans.Select(p => new PlanDto
+                    {
+                        PlanId = p.PlanId,
+                        PlanName = p.PlanName,
+                        StartDate = p.StartDate,
+                        EndDate = p.EndDate,
+                        IsSelected = p.PlanId == planId
+                    }).ToList(),
+                    SubProcesses = process.SubProcesses.Select(sp => new SubProcessDto
+                    {
+                        SubProcessID = sp.SubProcessID,
+                        SubProcessName = sp.SubProcessName,
+                        Order = sp.Order,
+                        StartDate = sp.StartDate,
+                        EndDate = sp.EndDate,
+                        Plans = sp.Plans.Select(p => new PlanDto
+                        {
+                            PlanId = p.PlanId,
+                            PlanName = p.PlanName,
+                            StartDate = p.StartDate,
+                            EndDate = p.EndDate,
+                            IsSelected = p.PlanId == planId
+                        }).ToList()
+                    }).ToList()
+                };
+
+                if(processDto != null)
+                {
+                    return new BusinessResult(200, "Get Process by PlanId", processDto);
+                }
+                return new BusinessResult(400, "Get Process By PlanId failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
 
 

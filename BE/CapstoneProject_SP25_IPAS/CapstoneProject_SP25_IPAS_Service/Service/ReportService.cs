@@ -207,7 +207,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                                                   && x.Plant.LandRow.LandPlot != null
                                                                                                   && x.Plant.LandRow.LandPlot.Farm != null
                                                                                                   && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                                                                         .Sum(ht => ht.QuantityNeed),
+                                                                                         .Sum(ht => ht.ActualQuantity),
                                                                                 TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
                                                                                 .Where(x => x.Plant != null
                                                                                          && x.Plant.LandRow != null
@@ -219,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                                 {
                                                                                     PlantName = plantGroup.Key.PlantName, // Tên cây
                                                                                     MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
-                                                                                    TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
+                                                                                    TotalQuantity = plantGroup.Sum(p => p.ActualQuantity) // Tổng số lượng
                                                                                 })
                                                                                 .ToList()
                                          */
@@ -239,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    Quantity = g.Sum(ht => ht.QuantityNeed ?? 0)
+                    Quantity = g.Sum(ht => ht.ActualQuantity ?? 0)
                 })
                 .ToList();
 
@@ -320,19 +320,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
 
             var getListLandPlot = await _unitOfWork.LandPlotRepository.GetLandPlotInclude();
+           
             var result = getListLandPlot
                                     .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.StartDate.Value.Year == year))
                                     .SelectMany(lp => lp.LandPlotCrops, (lp, lpc) => new
                                     {
                                         //Year = lpc.Crop.Year ?? 0,
                                         Year = lpc.Crop.StartDate.Value.Year,
-                                        HarvestSeason = lpc.Crop.HarvestSeason ?? "Không xác định",
+                                        HarvestSeason = lpc.Crop.CropName ?? "Không xác định",
                                         LandPlotId = lp.LandPlotId,
                                         LandPlotName = lp.LandPlotName,
                                         Status = lp.Status,
                                         Quantity = lpc.Crop.HarvestHistories
-                                            .SelectMany(hh => hh.ProductHarvestHistories)
-                                            .Sum(hth => hth.QuantityNeed ?? 0)
+                                                    .SelectMany(hh => hh.ProductHarvestHistories)
+                                                    .Where(phh => phh.Plant != null && phh.Plant.LandRow.LandPlotId == lp.LandPlotId)
+                                                    .Sum(hth => hth.ActualQuantity ?? 0)
                                     })
                                      .GroupBy(x => new { x.Year, x.HarvestSeason })
                                     .Select(group => new ProductivityByPlotModel
@@ -340,14 +342,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         Year = group.Key.Year,
                                         HarvestSeason = group.Key.HarvestSeason,
                                         LandPlots = group.GroupBy(lp => lp.LandPlotId)
-                                                         .Select(g => new LandPlotResult
-                                                         {
-                                                             LandPlotId = g.Key,
-                                                             LandPlotName = g.First().LandPlotName,
-                                                             TotalPlantOfLandPlot = g.Count(),
-                                                             Quantity = g.Sum(lp => lp.Quantity),
-                                                             Status = g.First().Status
-                                                         }).ToList()
+                                                        .Select(g =>
+                                                        {
+                                                            var landPlot = getListLandPlot.FirstOrDefault(p => p.LandPlotId == g.Key);
+
+                                                            var allPlants = landPlot?.LandRows.SelectMany(r => r.Plants).ToList() ?? new List<Plant>();
+
+                                                            // Lấy toàn bộ PlantId đã có trong ProductHarvestHistory qua các Crop của LandPlot
+                                                            var harvestedPlantIds = landPlot?.LandPlotCrops
+                                                                .SelectMany(crop => crop.Crop.HarvestHistories)
+                                                                .SelectMany(hh => hh.ProductHarvestHistories)
+                                                                .Where(phh => phh.PlantId != null)
+                                                                .Select(phh => phh.PlantId.Value)
+                                                                .Distinct()
+                                                                .ToHashSet() ?? new HashSet<int>();
+
+                                                            var harvestedCount = allPlants.Count(p => harvestedPlantIds.Contains(p.PlantId));
+                                                            var notHarvestedCount = allPlants.Count - harvestedCount;
+
+                                                            return new LandPlotResult
+                                                            {
+                                                                LandPlotId = g.Key,
+                                                                LandPlotName = g.First().LandPlotName,
+                                                                Status = g.First().Status,
+                                                                TotalPlantOfLandPlot = allPlants.Count,
+                                                                HarvestedPlantCount = harvestedCount,
+                                                                NotHarvestedPlantCount = notHarvestedCount,
+                                                                Quantity = g.Sum(lp => lp.Quantity)
+                                                            };
+                                                        })
+                                                        .ToList()
                                     })
                                     .ToList();
             return result;
@@ -575,14 +599,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .ToDictionary(g => g.Key, g => g.Count());
 
                 var planByType = plans
-                                 .Where(p => p.MasterTypeId.HasValue)
+                                 .Where(p => p.MasterTypeId.HasValue && p.IsSample == false)
                                  .GroupBy(p => p.MasterTypeId!.Value)
                                  .Select(g => new
                                  {
                                      TypeName = g.First().MasterType?.Target,
                                      Count = g.Count()
                                  })
-                                 .GroupBy(x => x.TypeName ?? "Không xác định")
+                                 .GroupBy(x => x.TypeName ?? "Others")
                                  .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
 
                 var groupedStatuses = plans

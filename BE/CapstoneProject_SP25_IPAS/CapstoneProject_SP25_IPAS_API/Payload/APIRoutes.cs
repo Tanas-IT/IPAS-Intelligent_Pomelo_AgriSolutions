@@ -287,7 +287,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string filterTypeWorkByGrowthStage = prefix + "/type-work/filter-by-growth-stage";
             public const string filterTypeNameByGrowthStage = prefix + "/type-name/filter-by-growth-stage";
             public const string getPlanOfTarget = prefix + "/get-plan-of-target";
-
+            public const string getProcessByPlanId = prefix + "/get-process-by-plan-id/{id}";
         }
 
         public static class UserWorkLog

@@ -44,5 +44,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ToListAsync();
             return result;
         }
+
+        public async Task<Process> GetProcessByIdAsync(int processId)
+        {
+            var process = await _context.Processes
+                                   .AsNoTracking()
+                                   .Include(p => p.Plans.Where(p => p.IsDeleted == false))
+                                   .Include(p => p.SubProcesses.Where(sp => sp.IsDeleted == false))
+                                       .ThenInclude(sp => sp.Plans.Where(p => p.IsDeleted == false))
+                                   .FirstOrDefaultAsync(p => p.ProcessId == processId);
+            return process;
+        }
     }
 }

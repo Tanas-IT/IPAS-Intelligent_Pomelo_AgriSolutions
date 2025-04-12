@@ -35,5 +35,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId);
         public Task<BusinessResult> GetPlanByProcessID(int processId);
         public Task<BusinessResult> GetPlanOfTarget(GetPlanOfTargetRequest getRequest, PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetProcessByPlanId(int planId, int farmId);
     }
 }

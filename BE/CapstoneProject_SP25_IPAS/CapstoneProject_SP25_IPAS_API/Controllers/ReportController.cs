@@ -5,6 +5,8 @@ using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -201,6 +203,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+
+               
                 var result = await _reportService.StatisticPlan(month, year, farmId);
                 return Ok(result);
             }
