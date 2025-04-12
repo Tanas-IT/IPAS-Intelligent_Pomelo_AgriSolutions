@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -127,6 +128,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TotalTask = toltalTask.Count(),
                     TaskStatus = listTaskStatusDistribution
                 };
+
+                var totalQuantity = await _unitOfWork.ProductHarvestHistoryRepository.GetAllProductHarvestHistory(farmId.Value);
+                var getTotalQuantity = totalQuantity.Sum(x => x.ActualQuantity);
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
                 string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
 
@@ -153,6 +157,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TotalPlant = totalPlant.Where(p => p.FarmId == farmId).ToList().Count(),
                     TotalEmployee = totalEmployee,
                     TotalTask = totalFilteredTask,
+                    TotalQuantity = getTotalQuantity ?? 0,
                     PlantDevelopmentDistribution = growthStagePercentage,
                     PlantDevelopmentStages = growthStagePercentage,
                     PlantHealthStatus = plantHeathStatus,
@@ -586,7 +591,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .ToListAsync();
 
                 var plansByMonth = plans
-                    .GroupBy(p => p.CreateDate!.Value.Month)
+                    .GroupBy(p => p.StartDate!.Value.Month)
                     .Select(g => new MonthlyPlanStatsDto
                     {
                         Month = g.Key,
@@ -721,8 +726,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     query = query.Where(x => request.ListEmployee.Contains(x.UserId)).ToList();
                 }
 
-             
 
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                   .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                var getStatusRedo = await _unitOfWork.SystemConfigRepository
+                                   .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
+                var getStatusFailed = await _unitOfWork.SystemConfigRepository
+                                   .GetConfigValue(SystemConfigConst.FAILED.Trim(), "Failed");
                 var userWorkLogs = query;
 
                 var grouped = userWorkLogs
@@ -732,22 +742,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     var user = g.First().User;
                                     var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
-
+                                   
                                     var totalTasks = workLogs.Count;
-                                    var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == "Done");
+                                    var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == getStatusDone);
                                     var taskFail = workLogs.Count(x =>
-                                        x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+                                        x.WorkLog?.Status == getStatusFailed || x.StatusOfUserWorkLog == getStatusRedo);
 
                                     var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
 
                                     return new WorkPerformanceResponseDto
                                     {
                                         EmployeeId = user.UserId,
-                                        Name = user.FullName ?? "Không rõ",
+                                        Name = user.FullName ?? "N/A",
                                         TaskSuccess = taskSuccess,
                                         TaskFail = taskFail,
                                         TotalTask = totalTasks,
-                                        Avatar = user.AvatarURL ?? "Không rõ",
+                                        Avatar = user.AvatarURL ?? "N/A",
                                         Score = score
                                     };
                                 })
