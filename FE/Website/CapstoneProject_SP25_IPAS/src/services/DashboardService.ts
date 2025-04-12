@@ -70,7 +70,7 @@ export const getEmployeeList = async (
   minScore?: number,
   maxScore?: number
 ) => {
-  let url = `report/dashboard/employee-list?top=${limit}`; // API hiện tại
+  let url = `report/dashboard/work-performance?limit=${limit}`; // API hiện tại
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (minScore !== undefined && maxScore !== undefined) {
     url += `&minScore=${minScore}&maxScore=${maxScore}`; // Giả sử BE sẽ thêm

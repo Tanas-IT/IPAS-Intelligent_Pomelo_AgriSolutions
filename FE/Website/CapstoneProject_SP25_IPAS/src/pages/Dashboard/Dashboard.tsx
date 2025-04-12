@@ -23,36 +23,6 @@ import EmployeeOverview from "./components/EmployeeOverview/EmployeeOverview";
 import CompareWorkPerformance from "./components/CompareWorkPerformance/CompareWorkPerformance";
 import { Loading } from "@/components";
 
-const statsData = [
-  {
-    title: "Plants",
-    subtitle: "1,250",
-    icon: <Icons.plantFill style={{ fontSize: 24, color: "#52c41a" }} />,
-    progress: 0.75,
-    increase: "+5%",
-  },
-  {
-    title: "Users",
-    subtitle: "340",
-    icon: <Icons.users style={{ fontSize: 24, color: "#1890ff" }} />,
-    progress: 0.6,
-    increase: "+2%",
-  },
-  {
-    title: "Active Plans",
-    subtitle: "15",
-    icon: <Icons.plan style={{ fontSize: 24, color: "#faad14" }} />,
-    progress: 0.9,
-    increase: "+10%",
-  },
-  {
-    title: "Land Plots",
-    subtitle: "50",
-    icon: <Icons.plot style={{ fontSize: 24, color: "#722ed1" }} />,
-    progress: 0.7,
-    increase: "+2",
-  },
-];
 
 const weatherData = {
   currentTemp: 29.04,
@@ -120,6 +90,32 @@ function Dashboard() {
     fetchDashboard();
     fetchPlanDashboard();
   }, []);
+
+  const statsData = [
+    {
+      title: "Plants",
+      subtitle: data?.totalPlant?.toString() || "0",
+      icon: <Icons.plantFill style={{ fontSize: 24, color: "#52c41a" }} />,
+    },
+    {
+      title: "Employees",
+      subtitle: data?.totalEmployee?.toString() || "0",
+      icon: <Icons.users style={{ fontSize: 24, color: "#1890ff" }} />,
+      progress: 0.6,
+    },
+    {
+      title: "Active Tasks",
+      subtitle: data?.totalTask?.toString() || "0",
+      icon: <Icons.plan style={{ fontSize: 24, color: "#faad14" }} />,
+      progress: data?.totalTask ? Math.min(data.totalTask / 10, 1) : 0, // Ví dụ tính progress
+    },
+    {
+      title: "Completed Tasks",
+      subtitle: `${data?.taskStatusDistribution?.taskStatus?.["Completed"] || 0}%`,
+      icon: <Icons.checkCircle style={{ fontSize: 24, color: "#722ed1" }} />,
+      progress: (data?.taskStatusDistribution?.taskStatus?.["Completed"] || 0) / 100,
+    },
+  ];
 
   useEffect(() => {
     console.log(farmExpiredDate);
@@ -231,11 +227,11 @@ function Dashboard() {
                 title={stat.title}
                 subtitle={stat.subtitle}
                 icon={stat.icon}
-                increase={stat.increase}
+                // increase={stat.increase}
               />
             </Flex>
           ))}
-          <WeatherCard weather={weatherData} />
+          <WeatherCard weather={data?.weatherPropertyModel || weatherData} />
         </Flex>
 
         <Flex vertical gap={20} style={{ width: "100%" }}>

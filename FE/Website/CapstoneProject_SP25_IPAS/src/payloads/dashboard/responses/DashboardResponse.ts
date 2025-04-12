@@ -1,4 +1,4 @@
-interface WeatherPropertyModel {
+export interface WeatherPropertyModel {
   currentTemp: number;
   tempMax: number;
   tempMin: number;
