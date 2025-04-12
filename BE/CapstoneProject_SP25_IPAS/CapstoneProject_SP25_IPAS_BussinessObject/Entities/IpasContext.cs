@@ -916,9 +916,9 @@ public partial class IpasContext : DbContext
                     .HasForeignKey(p => p.PlantReferenceId)   // Khóa ngoại
                     .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(p => p.PlantLot)   
-                   .WithMany(p => p.Plants)    
-                   .HasForeignKey(p => p.PlantLotID)   
+            entity.HasOne(p => p.PlantLot)
+                   .WithMany(p => p.Plants)
+                   .HasForeignKey(p => p.PlantLotID)
                    .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -1557,7 +1557,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.EmployeeID).HasColumnName("EmployeeID");
             entity.Property(e => e.WorkTypeID).HasColumnName("WorkTypeID");
             entity.Property(e => e.ScoreOfSkill).HasColumnName("ScoreOfSkill");
-          
+
 
             entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeSkills)
                 .HasForeignKey(d => new { d.EmployeeID, d.FarmID })
@@ -1597,6 +1597,11 @@ public partial class IpasContext : DbContext
 
             entity.Property(e => e.UpdateDate)
                 .IsRequired(false);
+
+            entity.HasOne(d => d.ReferenceConfig).WithMany(p => p.DependentConfigurations)
+               .HasForeignKey(d => d.ReferenceConfigID)
+                .OnDelete(DeleteBehavior.Restrict)
+               .HasConstraintName("FK_SystemConfiguration_Reference");
         });
 
         OnModelCreatingPartial(modelBuilder);

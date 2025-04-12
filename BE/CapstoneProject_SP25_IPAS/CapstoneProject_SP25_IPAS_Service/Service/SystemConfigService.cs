@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.SystemConfigRequest;
+using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -41,10 +42,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, "This ConfigKey is not allowed to be added.");
                 }
+                if (!string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
+                    return new BusinessResult(400, "You must fill reference key or input value for this config");
+                string finalConfigValue = ""; // Mặc định là ConfigValue từ request
+
+                // Nếu ReferenceKeyId được truyền, lấy ConfigValue từ cấu hình tham chiếu
+                if (request.ReferenceKeyId.HasValue)
+                {
+                    var referenceConfig = await _unitOfWork.SystemConfigRepository.GetByID(request.ReferenceKeyId.Value);
+                    if (referenceConfig == null)
+                    {
+                        return new BusinessResult(400, "Reference Config not found.");
+                    }
+                    finalConfigValue = referenceConfig.ConfigValue; // Lấy giá trị ConfigValue từ cấu hình tham chiếu
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(request.ConfigValue))
+                        return new BusinessResult(400, "Config Value is empty");
+                    finalConfigValue = request.ConfigValue;
+                }
 
                 // Kiểm tra ConfigKey đã tồn tại chưa (tránh trùng lặp)
                 var existingConfig = await _unitOfWork.SystemConfigRepository
-                    .GetByCondition(x => x.ConfigKey == request.ConfigKey && x.ConfigValue == request.ConfigValue);
+                    .GetByCondition(x => x.ConfigKey == request.ConfigKey && x.ConfigValue.ToLower().Equals(finalConfigValue.ToLower()));
                 if (existingConfig != null)
                 {
                     return new BusinessResult(400, "This configuration already exists.");
@@ -54,14 +75,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     ConfigGroup = request.ConfigGroup,
                     ConfigKey = request.ConfigKey,
-                    ConfigValue = request.ConfigValue,
+                    ConfigValue = finalConfigValue,
                     ValueType = "string", // cac gia tri them duoc deu la kieu string 
                     EffectedDateFrom = request.EffectedDateFrom,
                     EffectedDateTo = request.EffectedDateTo,
                     Description = request.Description,
                     IsActive = true,
                     IsDeleteable = true, // Các Config có thể xóa
-                    CreateDate = DateTime.Now
+                    CreateDate = DateTime.Now,
+                    ReferenceConfigID = request.ReferenceKeyId ?? null!,
                 };
 
                 await _unitOfWork.SystemConfigRepository.Insert(newConfig);
@@ -98,7 +120,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, "This configuration is not allowed to be deleted.");
                 }
-
+                bool isUsed = await _unitOfWork.SystemConfigRepository.AnyAsync(x => x.ReferenceConfigID == configId);
+                if (isUsed == true)
+                {
+                    return new BusinessResult(400, "This configuration is currently being used.");
+                }
                 _unitOfWork.SystemConfigRepository.Delete(config);
                 int result = await _unitOfWork.SaveAsync();
 
@@ -113,7 +139,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -187,7 +213,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             EffectedDateFrom = x.EffectedDateFrom,
                             EffectedDateTo = x.EffectedDateTo,
                             Description = x.Description,
-                            CreateDate = x.CreateDate
+                            CreateDate = x.CreateDate,
+                            IsDeleteable = x.IsDeleteable,
+                            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null, 
+                            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null, 
+                            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
+                            ReferenceConfig = x.ReferenceConfig != null ?
+                            new SystemConfigModel
+                            {
+                                ConfigId = x.ReferenceConfigID,
+                                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
+                                ConfigKey = x.ReferenceConfig.ConfigKey,
+                                ConfigValue = x.ReferenceConfig.ConfigValue,
+                                ValueType = x.ReferenceConfig.ValueType,
+                                IsActive = x.ReferenceConfig.IsActive,
+                                IsDeleteable = x.ReferenceConfig.IsDeleteable,
+                                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
+                                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
+                                Description = x.ReferenceConfig.Description
+                            } : null,
                         }).ToList()
                     }).ToList();
 
@@ -206,7 +250,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -215,7 +259,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 //  Lấy cấu hình theo ID
-                var config = await _unitOfWork.SystemConfigRepository.GetByID(configId);
+                var config = await _unitOfWork.SystemConfigRepository.GetByCondition(x => x.ConfigId == configId);
                 if (config == null)
                 {
                     return new BusinessResult(404, "Configuration not found.");
@@ -225,7 +269,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -243,7 +287,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var config = await _unitOfWork.SystemConfigRepository.GetByID(updateRequest.ConfigId.Value);
                 if (config == null)
                 {
-                    return new BusinessResult(404, "Configuration not found.");
+                    return new BusinessResult(500, "Configuration not found.");
                 }
 
                 //  Cập nhật giá trị nếu có
@@ -277,8 +321,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     config.Description = updateRequest.Description;
                 }
 
+                var dependentConfigs = (await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ReferenceConfigID == config.ConfigId)).ToList();
+
+                // Cập nhật tất cả các cấu hình phụ thuộc
+                foreach (var dependentConfig in dependentConfigs)
+                {
+                    // Nếu cấu hình phụ thuộc thay đổi giá trị, thì cũng cập nhật nó
+                    if (!string.IsNullOrEmpty(updateRequest.ConfigValue))
+                    {
+                        dependentConfig.ConfigValue = updateRequest.ConfigValue;
+                    }
+                }
                 //  Cập nhật config vào DB
-                _unitOfWork.SystemConfigRepository.Update(config);
+                dependentConfigs.Add(config);
+                _unitOfWork.SystemConfigRepository.UpdateRange(dependentConfigs);
                 int result = await _unitOfWork.SaveAsync();
 
                 if (result > 0)
@@ -292,7 +348,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -307,7 +363,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Truy vấn danh sách config theo ConfigKey
                 var configs = await _unitOfWork.SystemConfigRepository
-                    .GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(configGroup.ToLower()) && x.IsActive == true , orderBy: q => q.OrderBy(c => c.ConfigKey));
+                    .GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(configGroup.ToLower()) && x.IsActive == true, orderBy: q => q.OrderBy(c => c.ConfigKey));
 
                 if (configs == null || !configs.Any())
                 {
@@ -319,7 +375,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -345,7 +401,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     //Id = index + 1, 
                     //Code = group,     
-                    Name = g     
+                    Name = g
                 }).ToList();
                 //var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(configs);
                 // Trả về danh sách config
@@ -353,7 +409,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -430,7 +486,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Gọi hàm ApplySorting để cập nhật orderBy
                 ApplySorting(ref orderBy, filterRequest.SortBy, filterRequest.Direction);
 
-                var configList = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(filter, orderBy);
+                var configList = await _unitOfWork.SystemConfigRepository.getAllSystemConfigNoPagin(filter, orderBy);
 
                 if (!configList.Any())
                     return new BusinessResult(200, "No system configurations found.");
@@ -451,7 +507,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             EffectedDateFrom = x.EffectedDateFrom,
                             EffectedDateTo = x.EffectedDateTo,
                             Description = x.Description,
-                            CreateDate = x.CreateDate
+                            CreateDate = x.CreateDate,
+                            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null,
+                            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null,
+                            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
+                            ReferenceConfig = x.ReferenceConfig != null ?
+                            new SystemConfigModel
+                            {
+                                ConfigId = x.ReferenceConfigID,
+                                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
+                                ConfigKey = x.ReferenceConfig.ConfigKey,
+                                ConfigValue = x.ReferenceConfig.ConfigValue,
+                                ValueType = x.ReferenceConfig.ValueType,
+                                IsActive = x.ReferenceConfig.IsActive,
+                                IsDeleteable = x.ReferenceConfig.IsDeleteable,
+                                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
+                                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
+                                Description = x.ReferenceConfig.Description
+                            } : null,
                         }).ToList()
                     }).ToList();
 
@@ -470,7 +543,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
         private bool IsValidConfigValue(string value, string valueType)
@@ -480,18 +553,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 switch (valueType.ToLower())
                 {
                     case "int":
-                        return int.TryParse(value, out _); 
+                        return int.TryParse(value, out _);
                     case "double":
                     case "float":
-                        return double.TryParse(value, out _); 
+                        return double.TryParse(value, out _);
                     case "bool":
-                        return bool.TryParse(value, out _); 
+                        return bool.TryParse(value, out _);
                     case "datetime":
                         return DateTime.TryParse(value, out _);
                     case "string":
-                        return true; 
+                        return true;
                     default:
-                        return false; 
+                        return false;
                 }
             }
             catch
@@ -574,7 +647,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
     }
