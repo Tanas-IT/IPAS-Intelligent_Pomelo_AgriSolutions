@@ -3058,31 +3058,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private async Task<List<string>> ValidatePlansAgainstTemplate(int processId, List<CreatePlanModel> newPlans)
         {
             var errors = new List<string>();
-            var templateProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "Plans,SubProcesses");
-            if(templateProcess == null) return new List<string>() { "Process does not exist" };
-            // Map SubProcessID -> SubProcess từ template
-            var subProcessMap = templateProcess.SubProcesses.ToDictionary(sp => sp.SubProcessID, sp => sp);
+            var templateProcess = await _unitOfWork.ProcessRepository.GetByCondition(
+                x => x.ProcessId == processId, "Plans,SubProcesses");
 
-            // Gom kế hoạch theo từng vùng (Process hoặc SubProcess)
+            if (templateProcess == null)
+                return new List<string> { "Process does not exist" };
+
+            // Build tree of SubProcess
+            var allSubProcesses = templateProcess.SubProcesses.ToList();
+            var subProcessDict = allSubProcesses.ToDictionary(sp => sp.SubProcessID);
+            var rootSubProcesses = allSubProcesses.Where(sp => sp.ParentSubProcessId == null).ToList();
+
+            foreach (var sp in allSubProcesses)
+            {
+                if (sp.ParentSubProcessId.HasValue && subProcessDict.TryGetValue(sp.ParentSubProcessId.Value, out var parent))
+                {
+                    parent.ChildSubProcesses ??= new List<SubProcess>();
+                    parent.ChildSubProcesses.Add(sp);
+                }
+            }
+
+            // Build order map by DFS
+            var groupOrders = new Dictionary<int, int>();
+            int currentOrder = 0;
+            void AssignOrder(SubProcess sp)
+            {
+                groupOrders[sp.SubProcessID] = currentOrder++;
+                foreach (var child in sp.ChildSubProcesses ?? new List<SubProcess>())
+                {
+                    AssignOrder(child);
+                }
+            }
+
+            foreach (var root in rootSubProcesses)
+                AssignOrder(root);
+
+            groupOrders[0] = -1; // Process root
+
+            // Group plans by SubProcessId (or 0 = root process)
             var planGroups = newPlans.GroupBy(p => p.SubProcessId ?? 0).ToList();
 
-            // Xây map Order cho từng nhóm
-            var groupOrders = planGroups.ToDictionary(
-                g => g.Key,
-                g =>
-                {
-                    if (g.Key == 0) return templateProcess.Order ?? 0;
-                    return subProcessMap.TryGetValue(g.Key, out var sp) ? sp.Order ?? 0 : int.MaxValue;
-                });
-
-            // 1. Validate ngày nằm trong vùng Process hoặc SubProcess
+            // 1. Validate ngày nằm trong Process/SubProcess
             foreach (var plan in newPlans)
             {
                 var parentName = "Process";
                 DateTime? parentStart = templateProcess.StartDate;
                 DateTime? parentEnd = templateProcess.EndDate;
 
-                if (plan.SubProcessId.HasValue && subProcessMap.TryGetValue(plan.SubProcessId.Value, out var sub))
+                if (plan.SubProcessId.HasValue && subProcessDict.TryGetValue(plan.SubProcessId.Value, out var sub))
                 {
                     parentName = $"SubProcess \"{sub.SubProcessName}\"";
                     parentStart = sub.StartDate;
@@ -3111,24 +3134,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
 
-            // 2. Validate thứ tự theo Order
-            var orderedGroups = planGroups.OrderBy(g => groupOrders[g.Key]).ToList();
+            // 2. Validate thứ tự giữa các nhóm Plan
+            var orderedGroups = planGroups.OrderBy(g =>
+            {
+                return groupOrders.TryGetValue(g.Key, out var ord) ? ord : int.MaxValue;
+            }).ToList();
 
             for (int i = 0; i < orderedGroups.Count - 1; i++)
             {
                 var currentGroup = orderedGroups[i];
                 var nextGroup = orderedGroups[i + 1];
 
-                var maxCurrentEnd = currentGroup
-                    .Where(p => p.EndDate != null)
-                    .Max(p => p.EndDate);
+                var maxCurrentEnd = currentGroup.Where(p => p.EndDate != null).Max(p => p.EndDate);
+                var minNextStart = nextGroup.Where(p => p.StartDate != null).Min(p => p.StartDate);
 
-                var minNextStart = nextGroup
-                    .Where(p => p.StartDate != null)
-                    .Min(p => p.StartDate);
+                string? currentGroupName = currentGroup.Key == 0
+                    ? templateProcess.ProcessName
+                    : subProcessDict.GetValueOrDefault(currentGroup.Key)?.SubProcessName ?? $"SubProcess {currentGroup.Key}";
 
-                var currentGroupName = currentGroup.Key == 0 ? templateProcess.ProcessName : subProcessMap.GetValueOrDefault(currentGroup.Key)?.SubProcessName;
-                var nextGroupName = nextGroup.Key == 0 ? templateProcess.ProcessName : subProcessMap.GetValueOrDefault(nextGroup.Key)?.SubProcessName;
+                string? nextGroupName = nextGroup.Key == 0
+                    ? templateProcess.ProcessName
+                    : subProcessDict.GetValueOrDefault(nextGroup.Key)?.SubProcessName ?? $"SubProcess {nextGroup.Key}";
 
                 if (maxCurrentEnd > minNextStart)
                 {
@@ -3144,7 +3170,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var plan = await _unitOfWork.PlanRepository.GetPlanByIdAsync(planId, farmId);
-                if(plan == null)
+                if (plan == null)
                 {
                     return new BusinessResult(400, $"Not found Plan with ID = {planId}");
                 }
@@ -3154,6 +3180,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, "Do not find any process.");
                 }
+
+                // Dto cho Process
                 var processDto = new ProcessDto
                 {
                     ProcessId = process.ProcessId,
@@ -3168,8 +3196,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = p.StartDate,
                         EndDate = p.EndDate,
                         IsSelected = p.PlanId == planId
-                    }).ToList(),
-                    SubProcesses = process.SubProcesses.Select(sp => new SubProcessDto
+                    }).ToList()
+                };
+
+                // Map SubProcessId -> SubProcessDto
+                var subProcessDtoMap = process.SubProcesses
+                    .Select(sp => new SubProcessDto
                     {
                         SubProcessID = sp.SubProcessID,
                         SubProcessName = sp.SubProcessName,
@@ -3183,19 +3215,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             StartDate = p.StartDate,
                             EndDate = p.EndDate,
                             IsSelected = p.PlanId == planId
-                        }).ToList()
-                    }).ToList()
-                };
+                        }).ToList(),
+                        Children = new List<SubProcessDto>()
+                    })
+                    .ToDictionary(dto => dto.SubProcessID);
 
-                if(processDto != null)
+                // Gắn SubProcess con vào SubProcess cha
+                foreach (var sp in process.SubProcesses)
                 {
-                    return new BusinessResult(200, "Get Process by PlanId", processDto);
+                    if (sp.ParentSubProcessId.HasValue && subProcessDtoMap.ContainsKey(sp.ParentSubProcessId.Value))
+                    {
+                        subProcessDtoMap[sp.ParentSubProcessId.Value].Children.Add(subProcessDtoMap[sp.SubProcessID]);
+                    }
                 }
-                return new BusinessResult(400, "Get Process By PlanId failed");
+
+                // Sắp xếp đệ quy Children theo Order
+                void SortChildrenByOrder(SubProcessDto node)
+                {
+                    node.Children = node.Children
+                        .OrderBy(child => child.Order ?? int.MaxValue)
+                        .ToList();
+
+                    foreach (var child in node.Children)
+                    {
+                        SortChildrenByOrder(child);
+                    }
+                }
+
+                // Lấy danh sách SubProcess gốc và sắp xếp theo Order
+                var rootSubProcesses = process.SubProcesses
+                    .Where(sp => sp.ParentSubProcessId == null)
+                    .Select(sp => subProcessDtoMap[sp.SubProcessID])
+                    .OrderBy(sp => sp.Order ?? int.MaxValue)
+                    .ToList();
+
+                // Gọi đệ quy sắp xếp con
+                foreach (var root in rootSubProcesses)
+                {
+                    SortChildrenByOrder(root);
+                }
+
+                processDto.SubProcesses = rootSubProcesses;
+
+                return new BusinessResult(200, "Get Process by PlanId", processDto);
             }
             catch (Exception ex)
             {
-
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
