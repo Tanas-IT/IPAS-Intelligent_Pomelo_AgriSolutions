@@ -28,7 +28,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.Entities
 
         public DateTime CreateDate { get; set; }
 
-        public DateTime? UpdateDate { get; set; } 
+        public DateTime? UpdateDate { get; set; }
+        public int? ReferenceConfigID { get; set; }
+        public virtual ICollection<SystemConfiguration> DependentConfigurations { get; set; } = new List<SystemConfiguration>();
+        public virtual SystemConfiguration? ReferenceConfig { get; set; }
     }
 
 }

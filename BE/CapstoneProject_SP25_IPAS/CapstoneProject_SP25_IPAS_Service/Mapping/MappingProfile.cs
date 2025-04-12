@@ -612,8 +612,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
             CreateMap<SystemConfiguration, ForSelectedModels>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ConfigId))
-               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ConfigValue))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ValueType))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ConfigKey))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ConfigValue))
                 .ReverseMap();
 
             CreateMap<Report, ReportOfUserModel>()

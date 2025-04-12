@@ -64,9 +64,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigForSelected, Name = "getSystemConfigForSelected")]
-        public async Task<IActionResult> getSystemConfigForSelected(string configKey)
+        public async Task<IActionResult> getSystemConfigForSelected(string configGroup,string? configKey)
         {
-            var result = await _systemConfigService.GetSystemConfigsForSelected(configKey: configKey);
+            var result = await _systemConfigService.getAllSystemConfigForSelected(configGroup: configGroup,configKey: configKey);
             return Ok(result);
         }
 

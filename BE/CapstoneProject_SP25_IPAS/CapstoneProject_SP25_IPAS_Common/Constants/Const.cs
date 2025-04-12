@@ -17,6 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Common
 
         public static int ERROR_EXCEPTION = 500;
         public static string FAIL_TO_SAVE_TO_DATABASE = "Save to database fail";
+        public static string ERROR_MESSAGE = "Something is error";
         #endregion
 
         #region SUCCESS

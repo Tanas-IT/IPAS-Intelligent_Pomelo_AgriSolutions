@@ -94,10 +94,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<double> CalculatePlanProgress(int planId)
         {
-            var listAllWorkLog = await _context.WorkLogs.Where(x => x.Schedule.CarePlan.PlanId == planId).ToListAsync();
-            var listWorkLogDone = await _context.WorkLogs.Where(x => x.Schedule.CarePlan.PlanId == planId && x.Status.ToLower().Equals("done")).ToListAsync();
-            var result = ((double)listWorkLogDone.Count / (double)listAllWorkLog.Count) * 100;
-            return result;
+            var total = await _context.WorkLogs
+                                    .CountAsync(x => x.Schedule.CarePlan.PlanId == planId);
+
+            if (total == 0)
+                return 0;
+
+            var done = await _context.WorkLogs
+                .CountAsync(x => x.Schedule.CarePlan.PlanId == planId && x.Status.ToLower() == "done");
+
+            return (double)done / total * 100;
         }
 
         public async Task<List<WorkLog>> GetListWorkLogByScheduelId(int scheduleId)
@@ -464,6 +470,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ThenInclude(x => x.CarePlan)
                                 .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return getWorkLog;
+        }
+
+        public async Task<WorkLog> GetCurrentWorkLog(int workLogId)
+        {
+            var currentWorkLog = await _context.WorkLogs
+                                    .Include(w => w.Schedule.CarePlan)
+                                        .ThenInclude(p => p.SubProcess)
+                                    .FirstOrDefaultAsync(w => w.WorkLogId == workLogId);
+            return currentWorkLog;
+        }
+
+        public async Task<List<WorkLog>> GetWorkLogsByPlanIdsAsync(List<int> planIds)
+        {
+            return await _context.WorkLogs
+                .Include(x => x.Schedule.CarePlan)
+                .Where(w => planIds.Contains(w.Schedule.CarePlanId.Value))
+                .ToListAsync();
         }
     }
 }

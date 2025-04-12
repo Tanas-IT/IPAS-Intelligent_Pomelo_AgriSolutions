@@ -15,6 +15,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetSystemConfigsAddable();
         public Task<BusinessResult> GetSystemConfigGroupsForSelected();
         public Task<BusinessResult> getAllSystemConfigNoPagin(GetConfigNoPaginRequest filterRequest);
+        public Task<BusinessResult> getAllSystemConfigForSelected(string configGroup, string? configKey);
 
 
     }

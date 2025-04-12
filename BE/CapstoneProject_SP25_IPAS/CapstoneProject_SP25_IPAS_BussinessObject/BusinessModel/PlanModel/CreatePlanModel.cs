@@ -28,6 +28,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public double? MinVolume { get; set; }
 
         public int? ProcessId { get; set; }
+        public int? SubProcessId { get; set; }
 
         public int? CropId { get; set; }
 
