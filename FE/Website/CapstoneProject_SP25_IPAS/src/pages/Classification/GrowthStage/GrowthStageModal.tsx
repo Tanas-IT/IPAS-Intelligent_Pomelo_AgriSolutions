@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { GROWTH_ACTIONS, growthStageFormFields, SYSTEM_CONFIG_KEY } from "@/constants";
+import { GROWTH_ACTIONS, growthStageFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { GetGrowthStage, GrowthStageRequest } from "@/payloads";
 import { useGrowthStageStore } from "@/stores";
 import { useSystemConfigOptions } from "@/hooks";
@@ -25,7 +25,7 @@ const GrowthStageModal = ({
   const [form] = Form.useForm();
   const isUpdate = growthStageData !== undefined && Object.keys(growthStageData).length > 0;
   const { options: actionOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.GrowthStageAction,
+    SYSTEM_CONFIG_GROUP.GROWTH_STAGE_ACTION,
   );
   const maxAgeStart = useGrowthStageStore((state) => state.maxAgeStart);
 

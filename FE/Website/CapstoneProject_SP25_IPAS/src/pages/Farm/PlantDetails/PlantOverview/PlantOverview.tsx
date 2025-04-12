@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -15,8 +15,8 @@ import {
 import { Select, Divider, Flex, Empty, Typography, DatePicker } from "antd";
 import style from "./PlantOverview.module.scss";
 import dayjs from "dayjs";
-import { useMasterTypeOptions } from "@/hooks";
-import { MASTER_TYPE } from "@/constants";
+import { useMasterTypeOptions, useSystemConfigOptions } from "@/hooks";
+import { MASTER_TYPE, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { harvestService } from "@/services";
 import { GetHarvestStatisticOfPlant } from "@/payloads";
 import { usePlantStore } from "@/stores";
@@ -39,6 +39,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
   const [selectedProduct, setSelectedProduct] = useState<number | string>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticOfPlant | null>(null);
   const { plant, plantId } = usePlantStore();
+  const { options, loading } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.YIELD_THRESHOLD);
 
   useEffect(() => {
     if (productType !== undefined && timeline?.length === 2) {
@@ -142,12 +143,12 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
                 </YAxis>
 
                 {/* Reference areas cho từng mức */}
-                <ReferenceArea y1={0} y2={50} fill="#d96b6b" fillOpacity={0.1} />
+                {/* <ReferenceArea y1={0} y2={50} fill="#d96b6b" fillOpacity={0.1} />
                 <ReferenceArea y1={50} y2={200} fill="#c9b458" fillOpacity={0.1} />
-                <ReferenceArea y1={200} y2={1000} fill="#76b947" fillOpacity={0.1} />
+                <ReferenceArea y1={200} y2={1000} fill="#76b947" fillOpacity={0.1} /> */}
 
                 {/* Reference lines với nhãn */}
-                <ReferenceLine
+                {/* <ReferenceLine
                   y={0}
                   stroke="#d96b6b"
                   label={{
@@ -167,7 +168,42 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
                   stroke="#76b947"
                   ifOverflow="extendDomain"
                   label={{ value: "Outstanding", position: "right", fill: "#76b947", fontSize: 12 }}
-                />
+                /> */}
+                {(() => {
+                  const thresholdColors = ["#d96b6b", "#c9b458", "#76b947", "#4aa96c"];
+                  const sortedOptions = [...options].sort(
+                    (a, b) => Number(a.value) - Number(b.value),
+                  );
+                  const allThresholds = [0, ...sortedOptions.map((opt) => Number(opt.value)), 1000];
+                  const allLabels = [
+                    "Below Standard",
+                    ...sortedOptions.map((opt) => String(opt.label)),
+                    "Above Standard",
+                  ];
+
+                  return allThresholds.slice(0, -1).map((y, index) => {
+                    const nextY = allThresholds[index + 1];
+                    const color = thresholdColors[index] ?? "#ccc";
+                    const label = allLabels[index] ?? `Level ${index + 1}`;
+
+                    return (
+                      <React.Fragment key={y}>
+                        <ReferenceArea y1={y} y2={nextY} fill={color} fillOpacity={0.1} />
+                        <ReferenceLine
+                          y={y}
+                          stroke={color}
+                          ifOverflow="extendDomain"
+                          label={{
+                            value: label,
+                            position: "right",
+                            fill: color,
+                            fontSize: 12,
+                          }}
+                        />
+                      </React.Fragment>
+                    );
+                  });
+                })()}
 
                 <Tooltip
                   formatter={(value, _, { payload }) => [`${value} Kg`, `Year ${payload.year}`]}

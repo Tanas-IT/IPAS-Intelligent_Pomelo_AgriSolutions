@@ -1230,12 +1230,12 @@ VALUES
     ('MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
     ('MT022', 'Grafted Branch Market Evaluation', 'Criteria', 'Evaluation of grafted branches to determine their quality for sale or commercial use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
     ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest', NULL, NULL),
-	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
-    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
-	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
-    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
-	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Condition', NULL, NULL),
-	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Plantlot Evaluation', NULL, NULL),
+	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
+    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
+	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
+    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
+	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
+	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
 
     ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
@@ -1944,34 +1944,33 @@ INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType,
 VALUES 
 ('Criteria', 'GraftedCondition', 'Grafted Condition', 'string', 'Grafted Condition'),
 ('Criteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string', 'Grafted Evaluation'),
-('Criteria', 'PlantLotCondition', 'Plantlot Condition', 'string', 'Plantlot Condition'),
-('Criteria', 'PlantLotEvaluation', 'Plantlot Evaluation', 'string', 'Plantlot Evaluation'),
+('Criteria', 'PlantLotCondition', 'PlantLot Condition', 'string', 'Plantlot Condition'),
+('Criteria', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', 'Plantlot Evaluation'),
 ('Criteria', 'Product', 'Product', 'string', 'Product'),
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
 GO
--- Danh sách Criteria
-INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
-VALUES 
-('Criteria Apply', 'PlantLotConditionApply', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
-('Criteria Apply', 'PlantLotEvaluationApply', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá Cây mẹ trước khi chiết'),
+-- Criteria Apply
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
+SELECT 
+    'CriteriaApply',
+    v.ConfigKey,
+    v.ConfigValue,
+    'string',
+    v.Description,
+    c.ConfigID
+FROM 
+    (VALUES 
+        ('GraftedCriteria', 'Grafted Evaluation', N'Bộ tiêu chí đánh giá cây mẹ trước khi chiết'),
+        ('PlantLotCriteria', 'PlantLot Condition', N'Tiêu chí đánh giá lô giống nhập vào'),
+        ('PlantLotCriteria', 'PlantLot Evaluation', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+        ('PlantCriteria', 'Grafted Condition', N'Bộ tiêu chí đánh giá cành chiết'),
+        ('PlantCriteria', 'Others', N'Các loại tiêu chí khác'),
+        ('ProductCriteria', 'Product', N'Tiêu chí đánh giá sản phẩm')
+    ) AS v(ConfigKey, ConfigValue, Description)
+JOIN SystemConfiguration c
+    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
 
-('Criteria Apply', 'GraftedConditionApply', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
-('Criteria Apply', 'GraftedEvaluationApply', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
-
-('Criteria Apply', 'GraftedCriteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
-('Criteria Apply', 'GraftedCriteria', 'Others', 'string', N'Bộ tiêu chí khác'),
-
-('CriteriaApply', 'PlantLotCriteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
-('CriteriaApply', 'PlantLotCriteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
-('CriteriaApply', 'PlantLotCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
-
-('CriteriaApply', 'PlantCriteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
-('CriteriaApply', 'PlantCriteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
-('CriteriaApply', 'PlantCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
-
-('CriteriaApply', 'ProductCriteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
-('CriteriaApply', 'ProductCriteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
 GO
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
@@ -1985,6 +1984,38 @@ VALUES
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
 GO
+
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('SoilType', 'Alluvial', 'Alluvial Soil', 'string', 'Fertile soil found in river deltas and valleys'),
+('SoilType', 'Laterite', 'Laterite Soil', 'string', 'Iron-rich soil, common in tropical areas'),
+('SoilType', 'Sandy', 'Sandy Soil', 'string', 'Well-drained soil with low water retention'),
+('SoilType', 'Clay', 'Clay Soil', 'string', 'Heavy soil with high water-holding capacity'),
+('SoilType', 'Peaty', 'Peaty Soil', 'string', 'Organic-rich, acidic soil, common in wetlands'),
+('SoilType', 'Saline', 'Saline Soil', 'string', 'Soil with high salt concentration, found in coastal areas');
+
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('ClimateZone', 'TropicalMonsoon', 'Tropical Monsoon', 'string', 'Hot, humid climate with distinct rainy seasons'),
+('ClimateZone', 'TropicalSavanna', 'Tropical Savanna', 'string', 'Hot climate with dry and wet seasons'),
+('ClimateZone', 'SubtropicalHumid', 'Subtropical Humid', 'string', 'Warm and humid throughout the year'),
+('ClimateZone', 'Highland', 'Highland Climate', 'string', 'Cooler climate found in mountainous regions');
+
+-- Harvest Season (System Configuration)
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('HarvestSeason', 'Spring', 'Spring Harvest', 'string', 'Spring harvest season'),
+('HarvestSeason', 'Summer', 'Summer Harvest', 'string', 'Summer harvest season'),
+('HarvestSeason', 'Autumn', 'Autumn Harvest', 'string', 'Autumn harvest season'),
+('HarvestSeason', 'Winter', 'Winter Harvest', 'string', 'Winter harvest season');
+
+-- Yield Threshold Levels
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('YieldThreshold', 'BelowStandard', '50', 'int', 'Maximum yield (kg) considered below standard'),
+('YieldThreshold', 'Acceptable', '200', 'int', 'Maximum yield (kg) considered acceptable'),
+('YieldThreshold', 'Outstanding', '1000', 'int', 'Maximum yield (kg) considered outstanding');
+
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 

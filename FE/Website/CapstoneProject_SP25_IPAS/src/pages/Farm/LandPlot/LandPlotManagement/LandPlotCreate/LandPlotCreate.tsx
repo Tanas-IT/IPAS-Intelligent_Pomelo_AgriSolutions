@@ -7,7 +7,8 @@ import { GetLandPlot } from "@/payloads";
 import { PolygonInit } from "@/types";
 import { useMapStore } from "@/stores";
 import { Icons } from "@/assets";
-import { createPlotFormFields } from "@/constants";
+import { createPlotFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
+import { useSystemConfigOptions } from "@/hooks";
 
 interface LandPlotCreateProps {
   isOpen: boolean;
@@ -33,6 +34,9 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
       isPolygonReady,
       setPolygonReady,
     } = useMapStore();
+    const { options: soilOptions, loading: soilLoading } = useSystemConfigOptions(
+      SYSTEM_CONFIG_GROUP.SOIL_TYPE,
+    );
 
     useEffect(() => {
       if (!isOpen) return;
@@ -135,11 +139,14 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
               />
               <Flex gap={20}>
                 <FormFieldModal
+                  type="select"
                   label="Soil Type"
                   name={createPlotFormFields.soilType}
                   rules={RulesManager.getSoilTypeRules()}
                   placeholder="Enter soil type"
                   onChange={(e) => handleInputChange(e.target.value)}
+                  isLoading={soilLoading}
+                  options={soilOptions}
                 />
                 <FormFieldModal
                   label="Target Market"

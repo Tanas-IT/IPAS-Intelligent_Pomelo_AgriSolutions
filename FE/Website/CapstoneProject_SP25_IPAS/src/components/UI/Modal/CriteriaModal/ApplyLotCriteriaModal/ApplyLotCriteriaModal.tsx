@@ -2,12 +2,13 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS } from "@/constants";
+import { CRITERIA_TARGETS, SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 import { CriteriaApplyRequest } from "@/payloads";
 import { criteriaService } from "@/services";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
+import { useSystemConfigOptions } from "@/hooks";
 
 type ApplyCriteriaLotModalProps = {
   lotId?: number;
@@ -37,10 +38,12 @@ const ApplyCriteriaLotModal = ({
     handlePriorityChange,
     isCriteriaListValid,
   } = useCriteriaManagement();
+  const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.CRITERIA_APPLY,
+    SYSTEM_CONFIG_KEY.PLANT_LOT_CRITERIA,
+  );
   const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
   const { setIsDirty } = useDirtyStore();
-
-  //   const isUpdate = lotData !== undefined && Object.keys(lotData).length > 0;
 
   const resetForm = () => {
     form.resetFields();
@@ -102,18 +105,20 @@ const ApplyCriteriaLotModal = ({
             placeholder="Select criteria type"
             name={"criteriaType"}
             rules={RulesManager.getTypeRules()}
-            options={Object.values(CRITERIA_TARGETS)
-              .filter((value) => {
-                if (hasInputQuantity && value === CRITERIA_TARGETS["Plantlot Condition"])
-                  return false;
-                if (hasLastQuantity && value === CRITERIA_TARGETS["Plantlot Evaluation"])
-                  return false;
-                return (
-                  value === CRITERIA_TARGETS["Plantlot Condition"] ||
-                  value === CRITERIA_TARGETS["Plantlot Evaluation"]
-                );
-              })
-              .map((value) => ({ label: value, value }))}
+            isLoading={loading}
+            options={criteriaTargetOptions}
+            // options={Object.values(CRITERIA_TARGETS)
+            //   .filter((value) => {
+            //     if (hasInputQuantity && value === CRITERIA_TARGETS["Plantlot Condition"])
+            //       return false;
+            //     if (hasLastQuantity && value === CRITERIA_TARGETS["Plantlot Evaluation"])
+            //       return false;
+            //     return (
+            //       value === CRITERIA_TARGETS["Plantlot Condition"] ||
+            //       value === CRITERIA_TARGETS["Plantlot Evaluation"]
+            //     );
+            //   })
+            //   .map((value) => ({ label: value, value }))}
             onChange={handleCriteriaTypeChange}
           />
           <FormFieldModal

@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, SYSTEM_CONFIG_KEY } from "@/constants";
+import { MASTER_TYPE_SHOW_TABLE, masterTypeFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { GetMasterType, MasterTypeRequest } from "@/payloads";
 import { useSystemConfigOptions } from "@/hooks";
 
@@ -29,7 +29,7 @@ const MasterTypeModel = ({
   const [checked, setChecked] = useState<boolean>(false);
   const isUpdate = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
   const { options: workTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.WorkTarget,
+    SYSTEM_CONFIG_GROUP.MASTER_TYPE,
   );
 
   const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);

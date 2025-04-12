@@ -26,14 +26,14 @@ import { masterTypeService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
 import { masterTypeColumns } from "./MasterTypeColumns";
 import MasterTypeFilter from "./MasterTypeFilter";
-import { SYSTEM_CONFIG_KEY } from "@/constants";
+import { SYSTEM_CONFIG_GROUP } from "@/constants";
 
 function MasterType() {
   const formModal = useModal<GetMasterType>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
-  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.MasterType);
+  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.MASTER_TYPE);
   const [typeName, setTypeName] = useState<string>("");
 
   useEffect(() => {

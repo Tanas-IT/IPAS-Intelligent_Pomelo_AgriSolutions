@@ -2,7 +2,7 @@ import { Button, Flex, Form, Space, Table } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { masterTypeFormFields, MESSAGES, SYSTEM_CONFIG_KEY } from "@/constants";
+import { masterTypeFormFields, MESSAGES, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { CriteriaMasterRequest, GetCriteriaByMasterType, CriteriaRequest } from "@/payloads";
 import { Icons } from "@/assets";
 import style from "./Criteria.module.scss";
@@ -31,7 +31,7 @@ const CriteriaModel = ({
   const [_, setForceUpdate] = useState(false);
   const isUpdate = criteriaData !== undefined && Object.keys(criteriaData).length > 0;
   const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_KEY.Criteria,
+    SYSTEM_CONFIG_GROUP.CRITERIA,
   );
 
   const { setIsDirty } = useDirtyStore();

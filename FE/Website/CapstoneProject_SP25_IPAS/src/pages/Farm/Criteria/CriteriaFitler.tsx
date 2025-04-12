@@ -3,7 +3,7 @@ import { useState } from "react";
 import style from "./Criteria.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { FilterCriteriaState } from "@/types";
-import { SYSTEM_CONFIG_KEY } from "@/constants";
+import { SYSTEM_CONFIG_GROUP } from "@/constants";
 import { useSystemConfigOptions } from "@/hooks";
 
 type FilterProps = {
@@ -14,7 +14,7 @@ type FilterProps = {
 };
 const CriteriaFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [prevFilters, setPrevFilters] = useState(filters);
-  const { options } = useSystemConfigOptions(SYSTEM_CONFIG_KEY.Criteria);
+  const { options } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.CRITERIA);
 
   const isFilterEmpty = !(
     filters.createDateFrom ||
