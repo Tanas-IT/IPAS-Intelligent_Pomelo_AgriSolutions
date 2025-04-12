@@ -1073,8 +1073,14 @@ CREATE TABLE SystemConfiguration (
     EffectedDateTo DATETIME NULL,          
     Description NVARCHAR(500) NULL,        
     CreateDate DATETIME DEFAULT GETDATE(), 
-    UpdateDate DATETIME NULL               
+    UpdateDate DATETIME NULL,
+	ReferenceConfigId INT NULL
 );
+ALTER TABLE SystemConfiguration
+ADD CONSTRAINT FK_SystemConfiguration_Reference
+FOREIGN KEY (ReferenceConfigId)
+REFERENCES SystemConfiguration(ConfigID);
+GO
 GO
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
@@ -1956,28 +1962,28 @@ VALUES
 ('Criteria Apply', 'GraftedCriteria', 'Grafted Evaluation', 'string', N'Bộ tiêu chí đánh giá lô giống sau khi nhập vào'),
 ('Criteria Apply', 'GraftedCriteria', 'Others', 'string', N'Bộ tiêu chí khác'),
 
-('Criteria Apply', 'PlantLotCriteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
-('Criteria Apply', 'PlantLotCriteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
-('Criteria Apply', 'PlantLotCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
+('CriteriaApply', 'PlantLotCriteria', 'Plantlot Condition', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống nhập vào'),
+('CriteriaApply', 'PlantLotCriteria', 'Plantlot Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho lô giống sau khi nhập vào'),
+('CriteriaApply', 'PlantLotCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Criteria Apply', 'PlantCriteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
-('Criteria Apply', 'PlantCriteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
-('Criteria Apply', 'PlantCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
+('CriteriaApply', 'PlantCriteria', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ'),
+('CriteriaApply', 'PlantCriteria', 'Plant Evaluation', 'string', N'Tiêu chí đánh giá có thể chọn cho cây'),
+('CriteriaApply', 'PlantCriteria', 'Others', 'string', N'Các loại tiêu chí có thể chọn cho khác'), 
 
-('Criteria Apply', 'ProductCriteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
-('Criteria Apply', 'ProductCriteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
+('CriteriaApply', 'ProductCriteria', 'Product', 'string', N'Tiêu chí đánh giá sản phẩm'),
+('CriteriaApply', 'ProductCriteria', 'Orther', 'string', N'Tiêu chí đánh giá sản phẩm');
 GO
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('Validation Variable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
-('Validation Variable','MinWidth', '1', 'double', N'Độ dài tối đa'),
-('Validation Variable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
-('Validation Variable','MinRowOfLandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
-('Validation Variable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của plantLot'),
-('Validation Variable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
-('Validation Variable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
-('Validation Variable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
+('ValidationVariable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
+('ValidationVariable','MinWidth', '1', 'double', N'Độ dài tối đa'),
+('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
+('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tối thiểu của 1 LandPlot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của plantLot'),
+('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu của 1 Hàng'),
+('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
 GO
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)

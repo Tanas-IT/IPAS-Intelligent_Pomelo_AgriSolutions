@@ -1,7 +1,9 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels
@@ -22,6 +24,14 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels
         public DateTime? EffectedDateTo { get; set; }
         public string? Description { get; set; }
         public DateTime CreateDate { get; set; }
+        public bool? IsDeleteable { get; set; } = false;
+
+        //public virtual ICollection<SystemConfiguration> DependentConfigurations { get; set; } = new List<SystemConfiguration>();
+        public string? ReferenceConfigGroup { get; set; }
+        public string? ReferenceConfigKey { get; set; }
+        public string? ReferenceConfigValue { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public virtual SystemConfigModel? ReferenceConfig { get; set; }
     }
 
 }

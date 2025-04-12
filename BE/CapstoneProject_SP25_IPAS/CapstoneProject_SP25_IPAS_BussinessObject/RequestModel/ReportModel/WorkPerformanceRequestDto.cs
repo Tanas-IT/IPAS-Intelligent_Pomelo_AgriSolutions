@@ -8,8 +8,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel
 {
     public class WorkPerformanceRequestDto
     {
-        public int? Top { get; set; }
-        public double? Score { get; set; }
+        public int? Limit { get; set; }
+        public double? MinScore { get; set; }
+        public double? MaxScore { get; set; }
+        public string? Type { get; set; }
         public string? Search {  get; set; }
     }
     public class WorkPerFormanceCompareDto

@@ -18,6 +18,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
         public int LandPlotId { get; set; }
         public string LandPlotName { get; set; } = string.Empty;
         public int TotalPlantOfLandPlot { get; set; }
+        public int HarvestedPlantCount { get; set; }
+        public int NotHarvestedPlantCount { get; set; }
         public double Quantity { get; set; }
         public string Status { get; set; } = string.Empty;
     }
