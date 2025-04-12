@@ -1,20 +1,29 @@
-import { Input, Avatar, Button, Flex, Empty } from "antd";
-import { SendOutlined, PlusOutlined, SearchOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Input, Avatar, Button, Flex, Upload } from "antd";
+import {
+  SendOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  LoadingOutlined,
+  PictureOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import style from "./ChatBox.module.scss";
 import { Images } from "@/assets";
-import { ActionMenuChat, ConfirmModal, UserAvatar } from "@/components";
+import { ActionMenuChat, ConfirmModal, ImageCustom, UserAvatar } from "@/components";
 import { useEffect, useRef, useState } from "react";
-import { ChatMessage, GetMessageOfRoom, GetRooms, MessageRequest } from "@/payloads";
+import { ChatMessage, GetRooms, MessageRequest } from "@/payloads";
 import { ChatBoxService } from "@/services";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import isYesterday from "dayjs/plugin/isYesterday";
-import { LOCAL_STORAGE_KEYS, ROOM_GROUPS } from "@/constants";
+import { FILE_FORMAT, LOCAL_STORAGE_KEYS, ROOM_GROUPS } from "@/constants";
 import { useModal } from "@/hooks";
 import ChangeNameModal from "./ChangeNameModal";
 import { toast } from "react-toastify";
-import { formatDateTimeChat, getAnswerParts, getUserId } from "@/utils";
+import { formatDateTimeChat, getAnswerParts } from "@/utils";
 import AnimatedAnswer from "./AnimatedAnswer";
+import { useDebounce } from "use-debounce";
+import { AttachedImage } from "@/types";
 
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
@@ -22,22 +31,30 @@ dayjs.extend(isYesterday);
 const ChatBox = () => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const [rooms, setRooms] = useState<GetRooms[]>([]);
-  const [activeChat, setActiveChat] = useState<GetRooms>();
+  const [activeChat, setActiveChat] = useState<GetRooms | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [lastSentMessageId, setLastSentMessageId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [attachedImage, setAttachedImage] = useState<AttachedImage | null>(null);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
   const changeNameModal = useModal<{ roomId: number }>();
   const deleteConfirmModal = useModal<{ id: number }>();
+  const editableRef = useRef<HTMLDivElement>(null);
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (search?: string, isNewChat = false) => {
     try {
       setIsLoading(true);
-      const res = await ChatBoxService.getRooms();
+      const res = await ChatBoxService.getRooms(search);
       if (res.statusCode === 200) {
-        setRooms(res.data ?? []);
+        const roomList = res.data ?? [];
+        setRooms(roomList);
+        if (isNewChat && roomList.length > 0) {
+          setActiveChat(roomList[0]); // ✅ set active room nếu là new chat
+        }
       }
     } finally {
       setIsLoading(false);
@@ -45,8 +62,8 @@ const ChatBox = () => {
   };
 
   useEffect(() => {
-    fetchRooms();
-  }, []);
+    fetchRooms(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
 
   const handleGetHistoryMessage = async (roomId: number) => {
     setIsLoadingMessages(true);
@@ -93,9 +110,25 @@ const ChatBox = () => {
     }
   };
 
+  const resetMessageInput = () => {
+    setAttachedImage(null);
+    setMessageInput("");
+    if (editableRef.current) {
+      editableRef.current.innerText = "";
+    }
+  };
+
+  const resetRoomChat = () => {
+    setActiveChat(null);
+    setMessages([]);
+    resetMessageInput();
+  };
+
   const handleSendMessage = async () => {
     if (isWaitingForResponse || !messageInput.trim() || lastSentMessageId) return;
     const newQuestion = messageInput.trim();
+    const imageFile = attachedImage?.file;
+
     const messageId = Date.now();
     const userMessage: ChatMessage = {
       messageId: messageId,
@@ -103,21 +136,35 @@ const ChatBox = () => {
       answer: "",
       createDate: new Date().toISOString(),
       senderId: "",
+      resources: imageFile
+        ? [
+            {
+              resourceID: 0,
+              resourceCode: "",
+              resourceType: "image",
+              resourceURL: attachedImage.url,
+              fileFormat: FILE_FORMAT.IMAGE,
+              createDate: new Date().toISOString(),
+            },
+          ]
+        : [],
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setMessageInput("");
+    resetMessageInput();
     setIsWaitingForResponse(true);
     try {
+      const roomId = activeChat ? activeChat.roomId : undefined;
       const messReq: MessageRequest = {
         question: newQuestion,
-        roomId: activeChat ? activeChat.roomId : undefined,
+        roomId: roomId,
+        resource: imageFile,
       };
       const res = await ChatBoxService.newMessage(messReq);
 
       if (res.statusCode === 200) {
         const updatedMessages = res.data;
-
+        if (!roomId) await fetchRooms(undefined, true);
         if (updatedMessages) {
           setLastSentMessageId(updatedMessages.messageId);
           setMessages((prev) =>
@@ -195,6 +242,20 @@ const ChatBox = () => {
     }
   };
 
+  const handleUploadImage = async (file: File) => {
+    // try {
+    // const res = await ChatBoxService.uploadImage(file);
+    //   if (res.statusCode === 200 && res.data?.url) {
+    //     const imageMarkdown = `![image](${res.data.url})`;
+    //     setMessageInput((prev) => `${prev}\n${imageMarkdown}`);
+    //   } else {
+    //     toast.error("Tải ảnh thất bại");
+    //   }
+    // } catch (error) {
+    //   toast.error("Có lỗi khi tải ảnh");
+    // }
+  };
+
   const scrollToBottom = () => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
@@ -211,12 +272,18 @@ const ChatBox = () => {
         <Flex className={style.chatBoxSidebarHeader}>
           <Flex align="center" gap={10}>
             <Avatar src={Images.logo} size={40} />
-            <h2>ChatBox Ai</h2>
+            <h2>ChatBox AI</h2>
           </Flex>
-          <Button icon={<PlusOutlined />} className={style.newChatBtn}>
+          <Button icon={<PlusOutlined />} className={style.newChatBtn} onClick={resetRoomChat}>
             New Chat
           </Button>
-          <Input prefix={<SearchOutlined />} placeholder="Search.." className={style.searchInput} />
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search.."
+            className={style.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </Flex>
         <Flex className={style.chatBoxSidebarList}>
           {ROOM_GROUPS.map((label) => {
@@ -234,6 +301,7 @@ const ChatBox = () => {
                     }`}
                     onClick={async () => {
                       if (activeChat?.roomId === room.roomId) return;
+                      resetRoomChat();
                       setActiveChat(room);
                       await handleGetHistoryMessage(room.roomId);
                     }}
@@ -254,7 +322,7 @@ const ChatBox = () => {
 
       <Flex className={style.chatBoxContentWrapper}>
         <Flex className={style.chatBoxContentHeader}>
-          <h3> {activeChat?.roomName}</h3>
+          <h3> {activeChat?.roomName ?? "New Chat"}</h3>
         </Flex>
         <Flex className={style.chatBoxContent} ref={chatBoxRef}>
           <Flex className={style.chatBoxContentMessages}>
@@ -271,17 +339,27 @@ const ChatBox = () => {
                 </span>
               </Flex>
             ) : (
-              messages.map((mess, index) => {
+              messages.map((mess) => {
                 const isTyping = mess.messageId === lastSentMessageId;
                 return (
                   <div key={mess.messageId}>
                     {/* User message (sent) */}
                     <Flex className={`${style.message} ${style.messageSent}`}>
-                      <Flex className={style.messageWrapper}>
+                      <Flex className={`${style.messageWrapper} ${style.messageSent}`}>
                         <span className={`${style.messageTimestamp} ${style.right}`}>
                           {formatDateTimeChat(mess.createDate)}
                         </span>
                         <div className={style.messageBubble}>{mess.question}</div>
+                        {/* Hiển thị hình ảnh đính kèm nếu có */}
+                        {mess.resources?.length > 0 && (
+                          <Flex className={style.messageImageWrapper}>
+                            {mess.resources.map((res) =>
+                              res.fileFormat == FILE_FORMAT.IMAGE ? (
+                                <ImageCustom src={res.resourceURL} maxWidth={160} />
+                              ) : null,
+                            )}
+                          </Flex>
+                        )}
                       </Flex>
                       <UserAvatar
                         avatarURL={localStorage.getItem(LOCAL_STORAGE_KEYS.AVATAR) || ""}
@@ -324,24 +402,58 @@ const ChatBox = () => {
           </Flex>
         </Flex>
         <Flex className={style.chatBoxContentFooter}>
-          <Input.TextArea
-            placeholder="Send a message"
-            className={style.messageInput}
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onPressEnter={(e) => {
-              e.preventDefault(); // Tránh xuống dòng
-              handleSendMessage();
-            }}
-            readOnly={!!lastSentMessageId}
-          />
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            className={style.sendBtn}
-            onClick={handleSendMessage}
-            disabled={isWaitingForResponse || !!lastSentMessageId}
-          />
+          <Flex className={style.customTextAreaWrapper}>
+            <Flex className={style.editableInput}>
+              {attachedImage && (
+                <div className={style.imageInInput}>
+                  <img src={attachedImage.url} alt="preview" className={style.previewImage} />
+                  <CloseOutlined
+                    className={style.removeImageIcon}
+                    onClick={() => setAttachedImage(null)}
+                  />
+                </div>
+              )}
+
+              <div
+                ref={editableRef}
+                className={style.messageInputEditable}
+                contentEditable={!lastSentMessageId}
+                suppressContentEditableWarning
+                onInput={(e) => {
+                  const text = e.currentTarget.textContent || "";
+                  setMessageInput(text);
+                  if (text.trim() === "") e.currentTarget.innerHTML = "";
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                data-placeholder="Send a message"
+              />
+            </Flex>
+
+            <Flex className={style.btnActionWrapper}>
+              <Upload
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  const previewUrl = URL.createObjectURL(file);
+                  setAttachedImage({ url: previewUrl, file });
+                  return false;
+                }}
+                accept="image/*"
+              >
+                <Button icon={<PictureOutlined />} />
+              </Upload>
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                onClick={handleSendMessage}
+                disabled={isWaitingForResponse || !!lastSentMessageId}
+              />
+            </Flex>
+          </Flex>
         </Flex>
       </Flex>
 

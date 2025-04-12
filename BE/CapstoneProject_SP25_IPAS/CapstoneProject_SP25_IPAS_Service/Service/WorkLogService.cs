@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CsvHelper.Configuration;
+using GenerativeAI.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -562,7 +563,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.CarePlan.IsDeleted == false || x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x =>  x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -2650,6 +2651,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+                    var currentOrder = getExistPlan.SubProcess?.Order ?? 0;
+                    var currentEndDate = addNewTaskModel.NewDateWork.Date.Add(endTime);
+                    var originalEndDate = getExistPlan.EndDate;
+
+                    // Nếu thời gian làm bù kết thúc trễ hơn kế hoạch gốc
+                    if (originalEndDate != null && currentEndDate > originalEndDate)
+                    {
+                        // Tính số ngày cần dời
+                        var shiftDays = (currentEndDate.Date - originalEndDate.Value.Date).Days;
+
+                        // Lấy tất cả kế hoạch trong process hiện tại có Order > WorkLog hiện tại
+                        var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(getExistPlan.ProcessId.Value);
+                        var dependentPlans = allPlans.Where(p => p.SubProcess?.Order > currentOrder).ToList();
+                        var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+
+                        // Lấy toàn bộ WorkLog thuộc các Plan phụ thuộc
+                        var allDependentWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+
+                        foreach (var workLog in allDependentWorkLogs)
+                        {
+                            if (workLog.Date != null)
+                            {
+                                workLog.Date = workLog.Date.Value.AddDays(shiftDays);
+                                // Giữ nguyên giờ bắt đầu/kết thúc
+                            }
+
+                            if (workLog.Schedule != null)
+                            {
+                                // Cập nhật Schedule luôn nếu cần
+                                workLog.Schedule.CustomDates = "[" + JsonConvert.SerializeObject(workLog.Date?.ToString("yyyy/MM/dd")) + "]";
+                            }
+
+                            _unitOfWork.WorkLogRepository.Update(workLog);
+                        }
+
+                        await _unitOfWork.SaveAsync();
+                    }
+
 
                     var addNotification = new Notification()
                     {
@@ -2784,8 +2823,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Year = groupBy == "year" ? (int?)g.Key.Year : null,
 
                     TotalWorkLogs = g.Count(),
-                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == "Done"),
-                    CompletionRate = g.Count(x => x.WorkLog.Status == "Done") * 100.0 / g.Count(),
+                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == getStatusDone),
+                    CompletionRate = g.Count(x => x.WorkLog.Status == getStatusDone) * 100.0 / g.Count(),
 
                     TotalWorkingTime = TimeSpan.FromMinutes(
             g.Where(x => x.WorkLog.ActualStartTime != null && x.WorkLog.ActualEndTime != null)
@@ -2873,6 +2912,77 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(200, "Filter Employee By Work Skill", result);
                 }
                 return new BusinessResult(404, "Do not have any employee");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetDependentWorkLog(int workLogID)
+        {
+            try
+            {
+                var targetWorkLog = await _unitOfWork.WorkLogRepository.GetCurrentWorkLog(workLogID);
+                if (targetWorkLog == null)
+                    return new BusinessResult(400, "WorkLog does not exist.");
+                if(targetWorkLog.Schedule.CarePlan == null)
+                {
+                    return new BusinessResult(200, "WorkLog does not have process.");
+                }
+
+                var plan = targetWorkLog.Schedule.CarePlan;
+                var subProcess = plan.SubProcess;
+
+                // Lấy processId từ Plan hoặc SubProcess
+                if(plan.ProcessId != null)
+                {
+                    return new BusinessResult(200, "No workLog dependency.");
+                }
+                int? processId = plan.ProcessId ?? subProcess?.ProcessId;
+
+                if (processId == null)
+                    return new BusinessResult(200, "WorkLog does not have process");
+
+                // Lấy tất cả SubProcess và Plan trong cùng process
+                var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(processId.Value);
+
+                // Lấy tất cả WorkLogs trong các Plan liên quan
+                var planIds = allPlans.Select(p => p.PlanId).ToList();
+                var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(planIds);
+
+                // Lấy Order của WorkLog hiện tại
+                int currentOrder = plan.SubProcess?.Order ?? 0;
+
+                // Lọc các WorkLog có Order < currentOrder và khác workLog hiện tại
+                var dependentWorkLogs = allWorkLogs
+                    .Where(w => w.WorkLogId != workLogID)
+                    .Select(w =>
+                    {
+                        var planOfWorkLog = allPlans.FirstOrDefault(p => p.PlanId == w.Schedule?.CarePlanId);
+                        int order = planOfWorkLog?.SubProcess?.Order ?? 0;
+
+                        return new
+                        {
+                            WorkLogId = w.WorkLogId,
+                            PlanId = planOfWorkLog?.PlanId,
+                            PlanName = planOfWorkLog?.PlanName ?? "Chưa đặt tên",
+                            StartTime = w.ActualStartTime,
+                            EndTime = w.ActualEndTime,
+                            Status = w.Status,
+                            Order = order,
+                            Date = w.Date?.ToString("yyyy-MM-dd")
+                        };
+                    })
+                    .Where(x => x.Order > currentOrder)
+                    .OrderBy(x => x.Order)
+                    .ThenBy(x => x.StartTime)
+                    .ToList();
+
+                return dependentWorkLogs.Any()
+                    ? new BusinessResult(200, "Get Dependency WorkLog Success", dependentWorkLogs)
+                    : new BusinessResult(200, "No workLog dependency.");
             }
             catch (Exception ex)
             {

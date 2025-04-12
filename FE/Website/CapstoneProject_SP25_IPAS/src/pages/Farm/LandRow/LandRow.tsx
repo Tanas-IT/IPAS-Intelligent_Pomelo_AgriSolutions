@@ -30,10 +30,10 @@ function LandRow() {
   const viewPlantsModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const [plotId, setPlotId] = useState<number>();
-  const [viewMode, setViewMode] = useState<string>(VIEW_MODE.TABLE);
+  const [viewMode, setViewMode] = useState<string>(VIEW_MODE.SIMULATION);
   const viewOptions = [
-    { mode: VIEW_MODE.TABLE, icon: <Icons.table /> },
     { mode: VIEW_MODE.SIMULATION, icon: <Icons.map /> },
+    { mode: VIEW_MODE.TABLE, icon: <Icons.table /> },
   ];
 
   useEffect(() => {
@@ -44,8 +44,6 @@ function LandRow() {
   }, [location.state]);
 
   useEffect(() => {
-    console.log(plotOptions);
-
     if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
     // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
   }, [plotOptions, location.state]);

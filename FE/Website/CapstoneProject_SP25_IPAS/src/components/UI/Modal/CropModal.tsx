@@ -2,9 +2,9 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, RulesManager } from "@/utils";
-import { cropFormFields, HARVEST_SEASON_OPTIONS } from "@/constants";
+import { cropFormFields, HARVEST_SEASON_OPTIONS, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { CropRequest, GetCrop2 } from "@/payloads";
-import { useLandPlotOptions } from "@/hooks";
+import { useLandPlotOptions, useSystemConfigOptions } from "@/hooks";
 import dayjs from "dayjs";
 
 type CropModalProps = {
@@ -19,6 +19,7 @@ const CropModal = ({ isOpen, onClose, onSave, cropData, isLoadingAction }: CropM
   const [form] = Form.useForm();
   const isUpdate = Boolean(cropData);
   const { options: plotOptions } = useLandPlotOptions();
+  const { options, loading } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.HARVEST_SEASON);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -98,10 +99,8 @@ const CropModal = ({ isOpen, onClose, onSave, cropData, isLoadingAction }: CropM
             label="Harvest Season"
             name={cropFormFields.harvestSeason}
             rules={RulesManager.getRequiredRules("Harvest Season")}
-            options={Object.values(HARVEST_SEASON_OPTIONS).map((value) => ({
-              value,
-              label: value,
-            }))}
+            isLoading={loading}
+            options={options}
           />
         </Flex>
         <Flex gap={20}>

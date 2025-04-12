@@ -102,7 +102,7 @@ function WorklogDetail() {
 
   const rawStatus = worklogDetail?.status || 'Not Started';
   const normalizedStatus = rawStatus.toLowerCase();
-  const classKey = normalizedStatus.replace(/\s+/g, ''); // dùng cho SCSS
+  const classKey = normalizedStatus.replace(/\s+/g, '');
   const statusClass = style[classKey] || style.default;
   const icon = statusIconMap[normalizedStatus] || '❓';
 
@@ -167,7 +167,7 @@ function WorklogDetail() {
       replacementEmployee: updatedReplacementEmployees,
     });
 
-    // await fetchWorklogDetail(); // Gọi lại API để đồng bộ
+    // await fetchWorklogDetail();
   };
 
   const handleSaveEdit = async () => {
@@ -189,13 +189,11 @@ function WorklogDetail() {
           oldUserId: replacedReporter.replaceUserId,
           newUserId: replacedReporter.userId,
           isReporter: true,
-          status: isRejected ? "add" : "update", // Xử lý theo status
+          status: isRejected ? "add" : "update",
         });
       }
 
-      // 2. Xử lý thay thế các nhân viên khác
       worklogDetail.replacementEmployee?.forEach((replacement) => {
-        // Bỏ qua nếu đã xử lý reporter ở trên
         if (replacement.replaceUserId === worklogDetail.reporter[0]?.userId) return;
 
         const originalEmployee = worklogDetail.listEmployee.find(
@@ -212,12 +210,11 @@ function WorklogDetail() {
             oldUserId: replacement.replaceUserId,
             newUserId: replacement.userId,
             isReporter: isReporterReplacement,
-            status: isRejected ? "add" : "update", // Xử lý theo status
+            status: isRejected ? "add" : "update",
           });
         }
       });
 
-      // 3. Gửi payload
       const payload: UpdateWorklogReq = {
         workLogId: Number(id),
         listEmployeeUpdate: listEmployeeUpdate,
@@ -273,7 +270,6 @@ function WorklogDetail() {
   };
 
   const handleAdd = () => {
-    // Handle add feedback
   };
 
   const determineUnit = (planTargetModels: PlanTargetModel) => {
@@ -436,7 +432,7 @@ function WorklogDetail() {
         { label: "Process Name", value: res.processName || "None", icon: Icons.process },
         {
           label: "Type",
-          value: res.masterTypeName || "Watering",
+          value: res.masterTypeName || "Harvest",
           icon: Icons.category,
           isTag: true,
         },

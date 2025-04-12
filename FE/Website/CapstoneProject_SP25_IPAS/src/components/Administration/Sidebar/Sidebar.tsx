@@ -63,6 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.FARM_PICKER, PATHS.FARM.CREATE_FARM],
       category: "Main",
       isView: isDefault,
+      roles: [UserRolesStr.User],
     },
     {
       key: "Dashboard",
@@ -328,6 +329,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.EXPERT.REPORT_LIST],
       category: "Main",
       isView: isDefault,
+      // roles: [UserRolesStr.Expert],
     },
     // {
     //   key: "Dataset Management",

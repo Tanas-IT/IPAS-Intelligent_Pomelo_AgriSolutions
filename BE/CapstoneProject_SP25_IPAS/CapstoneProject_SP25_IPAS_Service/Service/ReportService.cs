@@ -94,14 +94,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                .GroupBy(p => p.GrowthStage.GrowthStageName)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round(((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count()) * 100, 2) // Làm tròn 2 số thập phân
                                                );
                 var plantHeathStatus = totalPlant
                                                .Where(p => p.FarmId == farmId && !string.IsNullOrEmpty(p.HealthStatus)) // Bỏ cây không có Status
                                                .GroupBy(p => p.HealthStatus)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count() * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => Math.Round(((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count()) * 100, 2) // Làm tròn 2 số thập phân
                                                );
 
                 var filteredTask = toltalTask
@@ -120,7 +120,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .GroupBy(x => x.Status)
                     .ToDictionary(
                         g => g.Key!,
-                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                        g => Math.Round(((double)g.Count() / totalFilteredTask) * 100, 2)
                     );
                 var taskStatusDistribution = new TaskStatusDistribution()
                 {
@@ -207,7 +207,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                                                   && x.Plant.LandRow.LandPlot != null
                                                                                                   && x.Plant.LandRow.LandPlot.Farm != null
                                                                                                   && x.Plant.LandRow.LandPlot.Farm.FarmId == farmId)
-                                                                                         .Sum(ht => ht.QuantityNeed),
+                                                                                         .Sum(ht => ht.ActualQuantity),
                                                                                 TypeOfProduct = g.SelectMany(h => h.ProductHarvestHistories)
                                                                                 .Where(x => x.Plant != null
                                                                                          && x.Plant.LandRow != null
@@ -219,7 +219,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                                 {
                                                                                     PlantName = plantGroup.Key.PlantName, // Tên cây
                                                                                     MasterTypeName = plantGroup.Key.MasterTypeName, // Loại cây
-                                                                                    TotalQuantity = plantGroup.Sum(p => p.QuantityNeed) // Tổng số lượng
+                                                                                    TotalQuantity = plantGroup.Sum(p => p.ActualQuantity) // Tổng số lượng
                                                                                 })
                                                                                 .ToList()
                                          */
@@ -239,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     HarvestSeason = g.Key.HarvestSeason ?? "Không xác định",
                     QualityType = g.Key.MasterTypeName ?? "Không xác định",
-                    Quantity = g.Sum(ht => ht.QuantityNeed ?? 0)
+                    Quantity = g.Sum(ht => ht.ActualQuantity ?? 0)
                 })
                 .ToList();
 
@@ -257,7 +257,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     QualityStats = g.Select(q => new QualityStat
                     {
                         QualityType = q.QualityType,
-                        Percentage = Math.Round(totalBySeason[g.Key] == 0 ? 0 : (double)q.Quantity / totalBySeason[g.Key] * 100, 2)
+                        Percentage = Math.Round(totalBySeason[g.Key] == 0 ? 0 : ((double)q.Quantity / totalBySeason[g.Key]) * 100, 2)
                     }).ToList()
                 })
                 .OrderBy(s => s.HarvestSeason)
@@ -320,19 +320,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
 
             var getListLandPlot = await _unitOfWork.LandPlotRepository.GetLandPlotInclude();
+           
             var result = getListLandPlot
                                     .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.StartDate.Value.Year == year))
                                     .SelectMany(lp => lp.LandPlotCrops, (lp, lpc) => new
                                     {
                                         //Year = lpc.Crop.Year ?? 0,
                                         Year = lpc.Crop.StartDate.Value.Year,
-                                        HarvestSeason = lpc.Crop.HarvestSeason ?? "Không xác định",
+                                        HarvestSeason = lpc.Crop.CropName ?? "Không xác định",
                                         LandPlotId = lp.LandPlotId,
                                         LandPlotName = lp.LandPlotName,
                                         Status = lp.Status,
                                         Quantity = lpc.Crop.HarvestHistories
-                                            .SelectMany(hh => hh.ProductHarvestHistories)
-                                            .Sum(hth => hth.QuantityNeed ?? 0)
+                                                    .SelectMany(hh => hh.ProductHarvestHistories)
+                                                    .Where(phh => phh.Plant != null && phh.Plant.LandRow.LandPlotId == lp.LandPlotId)
+                                                    .Sum(hth => hth.ActualQuantity ?? 0)
                                     })
                                      .GroupBy(x => new { x.Year, x.HarvestSeason })
                                     .Select(group => new ProductivityByPlotModel
@@ -340,14 +342,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         Year = group.Key.Year,
                                         HarvestSeason = group.Key.HarvestSeason,
                                         LandPlots = group.GroupBy(lp => lp.LandPlotId)
-                                                         .Select(g => new LandPlotResult
-                                                         {
-                                                             LandPlotId = g.Key,
-                                                             LandPlotName = g.First().LandPlotName,
-                                                             TotalPlantOfLandPlot = g.Count(),
-                                                             Quantity = g.Sum(lp => lp.Quantity),
-                                                             Status = g.First().Status
-                                                         }).ToList()
+                                                        .Select(g =>
+                                                        {
+                                                            var landPlot = getListLandPlot.FirstOrDefault(p => p.LandPlotId == g.Key);
+
+                                                            var allPlants = landPlot?.LandRows.SelectMany(r => r.Plants).ToList() ?? new List<Plant>();
+
+                                                            // Lấy toàn bộ PlantId đã có trong ProductHarvestHistory qua các Crop của LandPlot
+                                                            var harvestedPlantIds = landPlot?.LandPlotCrops
+                                                                .SelectMany(crop => crop.Crop.HarvestHistories)
+                                                                .SelectMany(hh => hh.ProductHarvestHistories)
+                                                                .Where(phh => phh.PlantId != null)
+                                                                .Select(phh => phh.PlantId.Value)
+                                                                .Distinct()
+                                                                .ToHashSet() ?? new HashSet<int>();
+
+                                                            var harvestedCount = allPlants.Count(p => harvestedPlantIds.Contains(p.PlantId));
+                                                            var notHarvestedCount = allPlants.Count - harvestedCount;
+
+                                                            return new LandPlotResult
+                                                            {
+                                                                LandPlotId = g.Key,
+                                                                LandPlotName = g.First().LandPlotName,
+                                                                Status = g.First().Status,
+                                                                TotalPlantOfLandPlot = allPlants.Count,
+                                                                HarvestedPlantCount = harvestedCount,
+                                                                NotHarvestedPlantCount = notHarvestedCount,
+                                                                Quantity = g.Sum(lp => lp.Quantity)
+                                                            };
+                                                        })
+                                                        .ToList()
                                     })
                                     .ToList();
             return result;
@@ -364,7 +388,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG, result);
                     }
-                    return new BusinessResult(Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG);
+                    return new BusinessResult(Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_CODE, Const.WARNING_GET_MATERIALS_IN_STORE_REPORT_MSG, new List<MaterialsInStoreModel>());
 
                 }
                 return new BusinessResult(Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_REPORT_CODE, Const.FAIL_GET_MATERIALS_IN_STORE_REPORT_MSG);
@@ -518,7 +542,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .GroupBy(x => x.Status)
                     .ToDictionary(
                         g => g.Key!,
-                        g => Math.Round((double)g.Count() / totalFilteredTask * 100, 2)
+                        g => Math.Round(((double)g.Count() / totalFilteredTask) * 100, 2)
                     );
                 var taskStatusDistribution = new TaskStatusDistribution()
                 {
@@ -575,14 +599,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .ToDictionary(g => g.Key, g => g.Count());
 
                 var planByType = plans
-                                 .Where(p => p.MasterTypeId.HasValue)
+                                 .Where(p => p.MasterTypeId.HasValue && p.IsSample == false)
                                  .GroupBy(p => p.MasterTypeId!.Value)
                                  .Select(g => new
                                  {
                                      TypeName = g.First().MasterType?.Target,
                                      Count = g.Count()
                                  })
-                                 .GroupBy(x => x.TypeName ?? "Không xác định")
+                                 .GroupBy(x => x.TypeName ?? "Others")
                                  .ToDictionary(g => g.Key, g => g.Sum(x => x.Count));
 
                 var groupedStatuses = plans
@@ -620,55 +644,59 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var query = _unitOfWork.UserWorkLogRepository
-                                .GetUserWorkLogsByEmployeeIds();
-                
-                if (request.Top != null)
-                {
-                    query = query.Take(request.Top.Value);
-                }
+                var userWorkLogs = await _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds(request.Limit, farmId, request.Search);
 
-               
-                if (farmId.HasValue)
-                {
-                    query = query.Where(uw =>
-                        uw.WorkLog != null &&
-                        uw.WorkLog.Schedule != null &&
-                        uw.WorkLog.Schedule.FarmID == farmId.Value);
-                }
-                if (!string.IsNullOrEmpty(request.Search))
-                {
-                    query = query.Where(uw => uw.User.FullName.Contains(request.Search));
-                }
 
-                var userWorkLogs = await query.ToListAsync();
 
                 var grouped = userWorkLogs
-                    .GroupBy(x => x.UserId)
-                    .Select(g =>
-                    {
-                        var totalTasks = g.Count();
-                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
-                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
-                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+                                 .Where(uw => uw != null && uw.User != null)
+                                 .GroupBy(uw => uw.User.UserId)
+                                 .Select(g =>
+                                 {
+                                     var user = g.First().User;
+                                     var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
 
-                        return new WorkPerformanceResponseDto
-                        {
-                            EmployeeId = g.Key,
-                            Name = g.First().User.FullName ?? "Không rõ",
-                            TaskSuccess = taskSuccess,
-                            TaskFail = taskFail,
-                            TotaTask = totalTasks,
-                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
-                            Score = score
-                        };
-                    })
-                    .OrderByDescending(x => x.Score).ToList();
-                if(request.Score != null)
+                                     var totalTasks = workLogs.Count;
+                                     var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == "Done");
+                                     var taskFail = workLogs.Count(x =>
+                                         x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+
+                                     var score = taskSuccess;
+
+                                     return new WorkPerformanceResponseDto
+                                     {
+                                         EmployeeId = user.UserId,
+                                         Name = user.FullName ?? "Không rõ",
+                                         TaskSuccess = taskSuccess,
+                                         TaskFail = taskFail,
+                                         TotalTask = totalTasks,
+                                         Avatar = user.AvatarURL ?? "Không rõ",
+                                         Score = score
+                                     };
+                                 })
+                                 .OrderByDescending(x => x.Score)
+                                 .ToList();
+                // ✅ Lọc theo khoảng điểm
+                if (request.MinScore.HasValue)
+                    grouped = grouped.Where(x => x.Score >= request.MinScore.Value).ToList();
+
+                if (request.MaxScore.HasValue)
+                    grouped = grouped.Where(x => x.Score <= request.MaxScore.Value).ToList();
+
+                // ✅ Sắp xếp theo loại: top hay bottom
+                if (!string.IsNullOrEmpty(request.Type))
                 {
-                    grouped = grouped.Where(x => x.Score == request.Score).ToList();
+                    if (request.Type.ToLower() == "top")
+                    {
+                        grouped = grouped.OrderByDescending(x => x.Score).ToList();
+                    }
+                    else if (request.Type.ToLower() == "bottom")
+                    {
+                        grouped = grouped.OrderBy(x => x.Score).ToList();
+                    }
                 }
-                if(grouped.Any())
+                if (grouped.Any())
                 {
                     return new BusinessResult(200, "Get Work PerFormance success", grouped);
                 }
@@ -685,46 +713,46 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var query = _unitOfWork.UserWorkLogRepository
-                                .GetUserWorkLogsByEmployeeIds();
+                var query = await _unitOfWork.UserWorkLogRepository
+                                .GetUserWorkLogsByEmployeeIds(null, farmId, null);
 
                 if(request.ListEmployee != null)
                 {
-                    query = query.Where(x => request.ListEmployee.Contains(x.UserId));
+                    query = query.Where(x => request.ListEmployee.Contains(x.UserId)).ToList();
                 }
 
-                if (farmId.HasValue)
-                {
-                    query = query.Where(uw =>
-                        uw.WorkLog != null &&
-                        uw.WorkLog.Schedule != null &&
-                        uw.WorkLog.Schedule.FarmID == farmId.Value);
-                }
              
 
-                var userWorkLogs = await query.ToListAsync();
+                var userWorkLogs = query;
 
                 var grouped = userWorkLogs
-                    .GroupBy(x => x.UserId)
-                    .Select(g =>
-                    {
-                        var totalTasks = g.Count();
-                        var taskSuccess = g.Count(x => x.WorkLog?.Status == "Done");
-                        var taskFail = g.Count(x => x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
-                        var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+                                .Where(uw => uw != null && uw.User != null)
+                                .GroupBy(uw => uw.User.UserId)
+                                .Select(g =>
+                                {
+                                    var user = g.First().User;
+                                    var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
 
-                        return new WorkPerformanceResponseDto
-                        {
-                            EmployeeId = g.Key,
-                            Name = g.First().User.FullName ?? "Không rõ",
-                            TaskSuccess = taskSuccess,
-                            TaskFail = taskFail,
-                            TotaTask = totalTasks,
-                            Avatar = g.First().User.AvatarURL ?? "Không rõ",
-                            Score = score
-                        };
-                    })
-                    .OrderByDescending(x => x.Score).ToList();
+                                    var totalTasks = workLogs.Count;
+                                    var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == "Done");
+                                    var taskFail = workLogs.Count(x =>
+                                        x.WorkLog?.Status == "Failed" || x.StatusOfUserWorkLog == "Redo");
+
+                                    var score = totalTasks > 0 ? Math.Round((double)taskSuccess / totalTasks * 10, 2) : 0;
+
+                                    return new WorkPerformanceResponseDto
+                                    {
+                                        EmployeeId = user.UserId,
+                                        Name = user.FullName ?? "Không rõ",
+                                        TaskSuccess = taskSuccess,
+                                        TaskFail = taskFail,
+                                        TotalTask = totalTasks,
+                                        Avatar = user.AvatarURL ?? "Không rõ",
+                                        Score = score
+                                    };
+                                })
+                                .OrderByDescending(x => x.Score)
+                                .ToList();
                 if (grouped.Any())
                 {
                     return new BusinessResult(200, "Get Work PerFormance success", grouped);

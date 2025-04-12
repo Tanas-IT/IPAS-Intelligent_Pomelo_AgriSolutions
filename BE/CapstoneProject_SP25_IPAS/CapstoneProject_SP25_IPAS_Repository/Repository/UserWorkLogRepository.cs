@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
+using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -103,12 +104,32 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
-        public IQueryable<UserWorkLog> GetUserWorkLogsByEmployeeIds()
+        public async Task<List<UserFarm>> GetUserWorkLogsByEmployeeIds(int? top, int? farmId, string? search)
         {
-            return _context.UserWorkLogs
-                .Include(uw => uw.User)
-                .Include(uw => uw.WorkLog)
-                .Where(uw => uw.IsDeleted != null ? uw.IsDeleted == false : true);
+            var query = _context.UserFarms
+        .Include(uf => uf.User)
+            .ThenInclude(u => u.UserWorkLogs.Where(uw => uw.IsDeleted != true))
+            .ThenInclude(x => x.WorkLog)
+        .Include(uf => uf.Farm)
+            .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(uf => uf.User.FullName.Contains(search));
+            }
+
+            if (farmId.HasValue)
+            {
+                query = query.Where(uf =>
+                    uf.FarmId == farmId);
+            }
+
+            if (top.HasValue)
+            {
+                query = query.Take(top.Value);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

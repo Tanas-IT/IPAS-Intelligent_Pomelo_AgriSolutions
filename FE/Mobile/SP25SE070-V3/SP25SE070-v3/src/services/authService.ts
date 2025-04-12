@@ -12,7 +12,11 @@ import {
 export const login = async (
   payload: LoginRequest
 ): Promise<ApiResponse<LoginResponse>> => {
+  console.log("Login payload:", payload);
+  
   const res = await axiosNoAuth.post("login", payload);
+  console.log("Login responseeeeeeeee:", res.data);
+  
   const apiResponse = res.data as ApiResponse<LoginResponse>;
   return apiResponse;
 };

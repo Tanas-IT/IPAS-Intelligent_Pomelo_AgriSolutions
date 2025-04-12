@@ -29,6 +29,11 @@ export interface LogoState {
   logoUrl: string;
 }
 
+export interface AttachedImage {
+  url: string;
+  file: File;
+}
+
 export interface CoordsState {
   longitude: number;
   latitude: number;
