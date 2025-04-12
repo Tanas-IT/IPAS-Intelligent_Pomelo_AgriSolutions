@@ -855,7 +855,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         throw new Exception("Update failed because nothing was process");
                     }
-                    var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
+                    var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogForUpdateById(updateWorkLogModel.WorkLogId);
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                     if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower())) {
@@ -1184,26 +1184,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.WorkLogName = updateWorkLogModel.WorkLogName;
                     findWorkLog.IsConfirm = updateWorkLogModel.IsConfirm;
                     _unitOfWork.WorkLogRepository.Update(findWorkLog);
+                    await _unitOfWork.SaveAsync();
                     if (updateWorkLogModel.listEmployee != null)
                     {
-                        foreach (var employee in updateWorkLogModel.listEmployee)
+                        var deleteUserWorkLog = await _unitOfWork.UserWorkLogRepository.DeleteUserWorkLogByWorkLogId(updateWorkLogModel.WorkLogId);
+                        if(deleteUserWorkLog)
                         {
-                            var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(updateWorkLogModel.WorkLogId);
-                            if (getListUserWorkLog != null)
+                            foreach (var employee in updateWorkLogModel.listEmployee)
                             {
-                                _unitOfWork.UserWorkLogRepository.RemoveRange(getListUserWorkLog);
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    WorkLogId = findWorkLog.WorkLogId,
+                                    UserId = employee.UserId,
+                                    IsReporter = employee.isReporter,
+                                    IsDeleted = false
+                                };
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                             }
-                            var newUserWorkLog = new UserWorkLog()
-                            {
-                                WorkLogId = findWorkLog.WorkLogId,
-                                UserId = employee.UserId,
-                                IsReporter = employee.isReporter,
-                                IsDeleted = false
-                            };
-                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
-
-
                         await _unitOfWork.SaveAsync();
                         foreach (var employeeModel in updateWorkLogModel.listEmployee)
                         {
@@ -1246,9 +1244,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
+                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, "Update WorkLog Success", result);
                     }
-                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
+                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, "Update WorkLog Failed", false);
 
                 }
                 catch (Exception ex)
@@ -1850,6 +1848,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
                     var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.OldUserId);
+                    if (getUserToUpdate == null)
+                        return new BusinessResult(400, "WorkLog does not exist");
                     if (changeEmployee.OldUserId == changeEmployee.NewUserId)
                     {
                         return new BusinessResult(400, "Old UserId must be different New UserId");
