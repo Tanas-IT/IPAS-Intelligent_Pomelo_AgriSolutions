@@ -287,9 +287,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var config = await _unitOfWork.SystemConfigRepository.GetByID(updateRequest.ConfigId.Value);
                 if (config == null)
                 {
-                    return new BusinessResult(500, "Configuration not found.");
+                    return new BusinessResult(400, "Configuration not found.");
                 }
-
+                if (config.ReferenceConfigID != null)
+                    return new BusinessResult(400, "This config is reference from another one, can not update this value");
                 //  Cập nhật giá trị nếu có
                 // Kiểm tra kiểu dữ liệu của ConfigValue (nếu có cập nhật)
                 if (!string.IsNullOrEmpty(updateRequest.ConfigValue))
