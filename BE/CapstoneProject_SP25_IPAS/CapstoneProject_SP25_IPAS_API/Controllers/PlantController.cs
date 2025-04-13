@@ -442,5 +442,17 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpGet(APIRoutes.Plant.exportCSV)]
+        public async Task<IActionResult> ExportNotes([FromQuery]GetPlantPaginRequest exportRequest)
+        {
+            var result = await _plantService.ExportExcel(exportRequest);
+
+            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
+        }
     }
 }

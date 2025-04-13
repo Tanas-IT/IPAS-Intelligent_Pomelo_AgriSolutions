@@ -170,6 +170,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<Plant, PlantModel>()
                 .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.MasterType!.MasterTypeName))
                 .ForMember(dest => dest.RowIndex, opt => opt.MapFrom(src => src.LandRow!.RowIndex))
+                .ForMember(dest => dest.RowCode, opt => opt.MapFrom(src => src.LandRow!.LandRowCode))
                 .ForMember(dest => dest.LandPlotId, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotId))
                 .ForMember(dest => dest.LandPlotName, opt => opt.MapFrom(src => src.LandRow!.LandPlot!.LandPlotName))
                 .ForMember(dest => dest.Characteristic, opt => opt.MapFrom(src => src.MasterType!.Characteristic))

@@ -445,5 +445,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
 
         }
+
+        [HttpGet(APIRoutes.Criteria.exportCSV)]
+        public async Task<IActionResult> ExportPartner([FromQuery] int farmId)
+        {
+            var result = await _criteriaService.ExportExcel(farmId);
+
+            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
+        }
     }
 }

@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PartnerRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PartnerModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -207,6 +208,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        [HttpGet(APIRoutes.Partner.exportCSV)]
+        public async Task<IActionResult> ExportPartner([FromQuery] int farmId)
+        {
+            var result = await _partnerService.ExportExcel(farmId);
+
+            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
         }
     }
 }

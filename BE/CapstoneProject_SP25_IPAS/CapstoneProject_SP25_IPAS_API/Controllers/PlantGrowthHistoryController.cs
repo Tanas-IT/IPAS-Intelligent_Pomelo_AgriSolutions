@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHistoryR
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -161,6 +162,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+        [HttpGet(APIRoutes.PlantGrowthHistory.exportCSV)]
+        public async Task<IActionResult> ExportNotes([FromQuery] int plantId)
+        {
+            var result = await _plantGrowthHistoryService.ExportNotesByPlantId(plantId);
+
+            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
         }
     }
 }

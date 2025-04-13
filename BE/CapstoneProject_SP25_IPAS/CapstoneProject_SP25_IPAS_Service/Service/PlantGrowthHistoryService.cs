@@ -20,6 +20,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using Org.BouncyCastle.Ocsp;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -28,11 +29,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public PlantGrowthHistoryService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IExcelReaderService _excelReaderService;
+        public PlantGrowthHistoryService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createPlantGrowthHistory(CreatePlantGrowthHistoryRequest historyCreateRequest)
@@ -303,6 +306,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByPlantId(int plantId)
+        {
+            try
+            {
+
+                var filter = await _unitOfWork.PlantGrowthHistoryRepository
+                    .GetAllNoPaging(x => x.PlantId == plantId, includeProperties: "Resources,User");
+                var checkPlantExist = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plantId && x.IsDeleted == false);
+                if(checkPlantExist == null)
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                if (filter == null || !filter.Any())
+                {
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                }
+
+                var mapped = _mapper.Map<List<PlantGrowthHistoryModel>>(filter);
+
+                // Export to CSV and return as byte[], file name, content type
+                var fileName = $"plant_{checkPlantExist.PlantCode}_notes_{DateTime.Now:yyyyMMdd}.csv";
+                return await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+            }
+            catch (Exception ex)
+            {
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
             }
         }
     }
