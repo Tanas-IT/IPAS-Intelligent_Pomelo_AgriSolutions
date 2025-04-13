@@ -28,7 +28,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetCriteriaSetGraftedNotApply(int graftedId, int farmId, string target);
         public Task<BusinessResult> GetCriteriaSetPlantNotApply(int plantId, int farmId, string target);
         public Task<BusinessResult> GetCriteriaSetProductNotApply(int productId, int farmId, string target);
-        public Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(int FarmId);
+        public Task<BusinessResult> ExportExcel(int FarmId);
+        public Task<BusinessResult> ExportExcelForObject(GetCriteriaOfTargetRequest request);
 
     }
 }

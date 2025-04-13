@@ -486,34 +486,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(int FarmId)
+        public async Task<BusinessResult> ExportExcel(int farmId)
         {
             try
             {
-                var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == FarmId && x.IsDeleted == false);
+                var checkFarmExist = await _unitOfWork.FarmRepository
+                    .GetByCondition(x => x.FarmId == farmId && x.IsDeleted == false);
+
                 if (checkFarmExist == null)
-                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
-                Expression<Func<Partner, bool>> filter = x => x.FarmId == FarmId && x.IsDeleted == false;
+                {
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                }
+
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
                 Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
 
                 var entities = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 var mappedResult = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
 
-                if (mappedResult.Any())
+                if (!mappedResult.Any())
                 {
-                    var fileName = $"plant_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
-                    return await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
                 }
-                else
+
+                var fileName = $"partner_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
+                var csvExport = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
                 {
-                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
-                }
+                    FileBytes = csvExport.FileBytes,
+                    FileName = csvExport.FileName,
+                    ContentType = csvExport.ContentType
+                });
             }
             catch (Exception ex)
             {
-
-                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
+
     }
 }

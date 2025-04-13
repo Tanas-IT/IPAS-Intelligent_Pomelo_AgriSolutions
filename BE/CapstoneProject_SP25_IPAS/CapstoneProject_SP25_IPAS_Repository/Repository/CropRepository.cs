@@ -329,5 +329,28 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return await query.AsNoTracking().ToListAsync();
         }
+        public virtual async Task<IEnumerable<Crop>> GetForExport(
+           Expression<Func<Crop, bool>> filter = null!,
+           Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = null!)
+        {
+            IQueryable<Crop> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(x => x.LandPlotCrops)
+                .ThenInclude(x => x.LandPlot)
+                .Include(x => x.HarvestHistories);
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
+
     }
 }

@@ -21,6 +21,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region SUCCESS
+        public static int EXPORT_CSV_SUCCESS_CODE = 200;
+        public static string EXPORT_CSV_SUCCESS_MSG = "Export csv success.";
 
         #region UserService
         public static int SUCCESS_LOGIN_CODE = 200;
@@ -510,6 +512,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #endregion
 
         #region FAIL
+        public static int EXPORT_CSV_FAIL_CODE = 400;
+        public static string EXPORT_CSV_FAIL_MSG = "Export csv fail.";
         #region User fail code
         public static int FAIL_CREATE_CODE = -1;
         public static int FAIL_LOGOUT_CODE = 500;
@@ -1143,7 +1147,7 @@ namespace CapstoneProject_SP25_IPAS_Common
 
         #region Grafted Plant Note
         public static int WARNING_GRAFTED_NOTE_NOT_EXIST_CODE = 400;
-        public static string WARNING_GRAFTED_NOTE_NOT_EXIST_MSG = "Grafted notenot exist.";
+        public static string WARNING_GRAFTED_NOTE_NOT_EXIST_MSG = "Grafted note not exist.";
         public static int WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_CODE = 200;
         public static string WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG = "Get Grafted note history empty.";
         #endregion

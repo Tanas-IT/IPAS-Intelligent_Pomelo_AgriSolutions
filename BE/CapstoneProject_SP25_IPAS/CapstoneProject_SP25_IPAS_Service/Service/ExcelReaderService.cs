@@ -1,5 +1,6 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Attributes;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -129,9 +130,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportToCsvAsync<T>(List<T> data, string fileName = "export.csv")
         {
-            if (!fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            if (!fileName.EndsWith(FileFormatConst.CSV_EXPAND, StringComparison.OrdinalIgnoreCase))
             {
-                fileName += ".csv";
+                fileName += FileFormatConst.CSV_EXPAND;
             }
             using var memoryStream = new MemoryStream();
             using var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8);

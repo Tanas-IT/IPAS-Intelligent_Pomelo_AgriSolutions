@@ -24,6 +24,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -31,11 +32,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public CropService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IExcelReaderService _excelReaderService;
+        public CropService(IUnitOfWork unitOfWork, IMapper mapper, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createCrop(CropCreateRequest cropCreateRequest)
@@ -684,6 +686,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //"numberplot" => isDescending ? x => x.OrderByDescending(c => c.NumberPlot) : x => x.OrderBy(c => c.NumberPlot),
                 _ => isDescending ? x => x.OrderByDescending(c => c.CropId) : x => x.OrderBy(c => c.CropId),
             };
+        }
+
+        public async Task<BusinessResult> ExportCrop(int farmId)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == farmId && x.IsDeleted == false);
+                if (checkFarmExist == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                }
+
+                Expression<Func<Crop, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                Func<IQueryable<Crop>, IOrderedQueryable<Crop>> orderBy = x => x.OrderByDescending(x => x.CropId);
+
+                var landPlotCrops = await _unitOfWork.CropRepository.GetForExport(filter: filter, orderBy: orderBy);
+                var exportCrop = _mapper.Map<IEnumerable<CropModel>>(landPlotCrops).ToList();
+
+                if (exportCrop.Any())
+                {
+                    var fileName = $"Crop_{checkFarmExist.FarmName}_{DateTime.Now:yyyyMMdd}{FileFormatConst.CSV_EXPAND}";
+                    var csvExport = await _excelReaderService.ExportToCsvAsync(exportCrop, fileName);
+
+                    return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                    {
+                        FileBytes = csvExport.FileBytes,
+                        FileName = csvExport.FileName,
+                        ContentType = csvExport.ContentType
+                    });
+                }
+
+                return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.SUCCESS_GET_ALL_CROP_EMPTY_MSG);
+            }
+            catch (Exception ex)
+            {
+                // Ghi log nếu cần
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
         }
     }
 }
