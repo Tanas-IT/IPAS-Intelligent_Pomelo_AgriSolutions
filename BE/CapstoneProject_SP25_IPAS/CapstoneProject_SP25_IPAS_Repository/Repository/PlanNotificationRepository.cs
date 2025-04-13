@@ -38,7 +38,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             // Hợp 2 danh sách ID
             var allNotificationIdsDistinct = notificationIdsFromPlan
-                .Union(allNotificationIds);
+                .Union(allNotificationIds).ToList();
 
             // Truy vấn lại Notification với đầy đủ Include
             var result = await _context.Notifications

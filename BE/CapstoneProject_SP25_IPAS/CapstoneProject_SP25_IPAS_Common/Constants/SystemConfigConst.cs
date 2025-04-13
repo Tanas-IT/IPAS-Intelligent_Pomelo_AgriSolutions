@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
     public class SystemConfigConst
     {
         #region CONFIG GROUP NAME
-        public const string VALIDATION_VARIABLE = "Validation Variable";
+        public const string VALIDATION_VARIABLE = "ValidationVariable";
         public const string MASTER_TYPE = "MasterType";
         public const string CRITERIA_APPLY = "CriteriaApply";
         public const string WORKLOG = "WorkLog";
@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         // Target for work
         public const string WORK_TARGET = "WorkType";
         // Target for criteria
-        public const string CRITERIA_TARGET = "CriteriaType";
+        public const string CRITERIA_TARGET = "Criteria";
         #endregion
 
         #region CONFIG CRITERIA APPLY FOR OBJECTS

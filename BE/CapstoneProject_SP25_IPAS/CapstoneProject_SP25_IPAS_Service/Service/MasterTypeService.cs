@@ -316,6 +316,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (pagin.List.Any())
                 {
                     pagin.List.GroupBy(x => x.TypeName);
+                    if (pagin.List.Any())
+                    {
+                        pagin.List = pagin.List.OrderBy(x => x.Target);
+                        foreach (var item in pagin.List)
+                        {
+                            if (!string.IsNullOrEmpty(item.Target))
+                            {
+                                var key = await _unitOfWork.SystemConfigRepository
+                                    .GetByCondition(x => x.ConfigGroup.ToLower().Equals(item.TypeName.ToLower())
+                                                        && x.ConfigKey.ToLower().Equals(item.Target.ToLower()));
+                                if (key != null)
+                                    item.TargetDisplay = key.ConfigValue;
+                            }
+                        }
+                        return new BusinessResult(Const.SUCCESS_GET_ALL_MASTER_TYPE_CODE, Const.SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE, pagin);
+                    }
                     return new BusinessResult(Const.SUCCESS_GET_ALL_MASTER_TYPE_CODE, Const.SUCCESS_GET_ALL_MASTER_TYPE_MESSAGE, pagin);
                 }
                 else

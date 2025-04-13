@@ -11,6 +11,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.C
         public int MasterTypeId { get; set; }
         public string? MasterTypeName { get; set; }
         public string? Target { get; set; }
+        public string? TargetDisplay { get; set; }
         public List<CriteriaInfoModel> CriteriaList { get; set; } = new();
     }
 
