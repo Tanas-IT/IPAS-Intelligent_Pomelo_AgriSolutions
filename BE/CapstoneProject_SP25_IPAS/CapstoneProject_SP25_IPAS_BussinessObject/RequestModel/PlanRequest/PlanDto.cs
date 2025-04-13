@@ -20,6 +20,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest
         public int SubProcessID { get; set; }
         public string? SubProcessName { get; set; }
         public int? Order { get; set; }
+        public int? ParentSubProcessID { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public List<PlanDto>? Plans { get; set; }

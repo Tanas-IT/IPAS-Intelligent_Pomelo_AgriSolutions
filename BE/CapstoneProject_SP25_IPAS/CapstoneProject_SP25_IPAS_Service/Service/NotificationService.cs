@@ -182,27 +182,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (markNotificationIsReadModel.Status.ToLower().Equals("once") && markNotificationIsReadModel.NotificationId != null)
             {
-                var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(markNotificationIsReadModel.NotificationId.Value);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(markNotificationIsReadModel.NotificationId.Value);
 
-                if (getNotificationById != null)
-                {
-                    getNotificationById.IsRead = true;
-                    if (getPlanNotificationById != null)
-                    {
-                        foreach (var getPlanNoti in getPlanNotificationById)
-                        {
-                            if (getPlanNoti.PlanNotificationID <= 0) // Kiểm tra ID hợp lệ
-                            {
-                                return new BusinessResult(400, "Invalid PlanNotificationID");
-                            }
 
+                if (getPlanNotificationById != null)
+                {
+                    foreach (var getPlanNoti in getPlanNotificationById)
+                    {
+                        if (getPlanNoti.PlanNotificationID < 0) // Kiểm tra ID hợp lệ
+                        {
+                            return new BusinessResult(400, "Invalid PlanNotificationID");
+                        }
+
+                        if (getPlanNoti.UserID == userId)
+                        {
                             getPlanNoti.isRead = true;
                             _unitOfWork.PlanNotificationRepository.Update(getPlanNoti);
                         }
+
                     }
-                    _unitOfWork.NotificationRepository.Update(getNotificationById);
                 }
+
             }
             else
             {
@@ -211,8 +211,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var getListNotificationByUserId = await _unitOfWork.NotificationRepository.GetListNotificationUnReadByUserId(userId.Value);
                     foreach (var noti in getListNotificationByUserId)
                     {
-                        noti.IsRead = true;
-                        _unitOfWork.NotificationRepository.Update(noti);
+                        noti.isRead = true;
+                        _unitOfWork.PlanNotificationRepository.Update(noti);
                     }
                 }
             }
