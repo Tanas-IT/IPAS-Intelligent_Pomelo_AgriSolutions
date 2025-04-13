@@ -8,6 +8,7 @@ import { CommonActions } from "@react-navigation/native";
 import { GetNotification } from "@/types/notification";
 import { NotificationService } from "@/services";
 import { useAuthStore } from "@/store";
+// import { PushNotificationService } from "@/services/pushNotificationService";
 
 const WS_URL = process.env.EXPO_PUBLIC_PUBLIC_WS_URL;
 console.log("WS_URL", WS_URL);
@@ -76,11 +77,16 @@ const useNotifications = () => {
         console.log("Connected to WebSocket!");
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
           const message = JSON.parse(event.data);
           console.log("Parsed Message:", message);
-          fetchNotifications();
+          await fetchNotifications();
+
+          // await PushNotificationService.displayNotification(
+          //   message.title || 'New Notification',
+          //   message.content || 'You have a new message'
+          // );
         } catch (error) {
           console.error("Error parsing JSON:", error);
         }

@@ -62,7 +62,10 @@ const createAxiosInstance = (contentType: string, skipResponseInterceptor: boole
   if (!skipResponseInterceptor) {
     instance.interceptors.response.use(
       (response) => response,
-      (error) => handleApiError(error)
+      (error) => {
+        console.error("Response error:", error);
+        return handleApiError(error);
+      }
     );
   }
 
@@ -71,5 +74,6 @@ const createAxiosInstance = (contentType: string, skipResponseInterceptor: boole
 const axiosJsonRequest = createAxiosInstance("application/json");
 const axiosMultipartForm = createAxiosInstance("multipart/form-data");
 const axiosJsonNoErrorHandler = createAxiosInstance("application/json", true);
+const axiosMultipartNoErrorHandler = createAxiosInstance("multipart/form-data", true);
 
-export default { axiosJsonRequest, axiosMultipartForm, axiosJsonNoErrorHandler };
+export default { axiosJsonRequest, axiosMultipartForm, axiosJsonNoErrorHandler, axiosMultipartNoErrorHandler };
