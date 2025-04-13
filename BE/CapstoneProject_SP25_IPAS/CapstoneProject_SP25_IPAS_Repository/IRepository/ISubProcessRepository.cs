@@ -12,5 +12,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<Process> GetProcessBySubProcessId(int subProcessId);
         public Task<List<SubProcess>> GetSubProcessByProcessId(int processId);
         public Task<List<SubProcess>> GetAllByProcessOrParentAsync(int processId);
+        public Task<List<SubProcess>> GetAllByProcessOrParentForRedoAsync(int? processId, int? subProcessId);
     }
 }
