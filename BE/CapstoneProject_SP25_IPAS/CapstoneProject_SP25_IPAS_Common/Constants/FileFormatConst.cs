@@ -14,5 +14,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string IMAGE = "image";
         public static string VIDEO = "video";
 
+        public static string CSV_EXPAND = ".csv";
+        public static string CSV_FILENAME_EMPTY = "empty.csv";
+        public static string CSV_CONTENT_TYPE = "text/csv";
     }
 }

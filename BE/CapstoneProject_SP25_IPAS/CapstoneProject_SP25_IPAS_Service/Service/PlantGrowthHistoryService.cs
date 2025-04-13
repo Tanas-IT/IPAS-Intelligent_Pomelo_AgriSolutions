@@ -309,31 +309,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByPlantId(int plantId)
+        public async Task<BusinessResult> ExportNotesByPlantId(int plantId)
         {
             try
             {
+                var checkPlantExist = await _unitOfWork.PlantRepository
+                    .GetByCondition(x => x.PlantId == plantId && x.IsDeleted == false);
+
+                if (checkPlantExist == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
+                }
 
                 var filter = await _unitOfWork.PlantGrowthHistoryRepository
                     .GetAllNoPaging(x => x.PlantId == plantId, includeProperties: "Resources,User");
-                var checkPlantExist = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == plantId && x.IsDeleted == false);
-                if(checkPlantExist == null)
-                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+
                 if (filter == null || !filter.Any())
                 {
-                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                 }
 
                 var mapped = _mapper.Map<List<PlantGrowthHistoryModel>>(filter);
-
-                // Export to CSV and return as byte[], file name, content type
                 var fileName = $"plant_{checkPlantExist.PlantCode}_notes_{DateTime.Now:yyyyMMdd}.csv";
-                return await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+
+                var export = await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = export.FileBytes,
+                    FileName = export.FileName,
+                    ContentType = export.ContentType
+                });
             }
             catch (Exception ex)
             {
-                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
+
     }
 }

@@ -1,10 +1,13 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CropRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -278,6 +281,37 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        [HttpGet(APIRoutes.Crop.exportCSV)]
+        public async Task<IActionResult> ExportCriteriaObject([FromQuery] int? farmId)
+        {
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm Id is required"
+                });
+            }
+
+            var result = await _cropService.ExportCrop(farmId.Value);
+
+            if (result.StatusCode != 200 || result.Data == null)
+            {
+                return Ok(result);
+            }
+
+            var fileResult = result.Data as ExportFileResult;
+            if (fileResult?.FileBytes == null || fileResult.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(fileResult.FileBytes, fileResult.ContentType, fileResult.FileName);
         }
     }
 }

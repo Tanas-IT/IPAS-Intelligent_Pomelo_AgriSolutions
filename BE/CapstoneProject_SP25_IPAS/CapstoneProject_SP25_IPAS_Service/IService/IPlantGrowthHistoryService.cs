@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> getAllHistoryOfPlantById(int plantId);
         public Task<BusinessResult> getAllHistoryOfPlantPagin(GetPlantGrowtRequest getRequest, PaginationParameter paginationParameter);
         public Task<BusinessResult> deleteGrowthHistory(int plantGrowthHistoryId);
-        public Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByPlantId(int plantId);
+        public Task<BusinessResult> ExportNotesByPlantId(int plantId);
 
     }
 }
