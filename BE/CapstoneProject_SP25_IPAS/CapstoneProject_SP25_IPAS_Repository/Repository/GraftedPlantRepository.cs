@@ -83,5 +83,27 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .FirstOrDefaultAsync(x => x.GraftedPlantId == graftedPlantId && x.IsDeleted == false);
             return result;
         }
+
+        public virtual async Task<IEnumerable<GraftedPlant>> GetForExport(
+           Expression<Func<GraftedPlant, bool>> filter = null!,
+           Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = null!)
+        {
+            IQueryable<GraftedPlant> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            query = query.Include(x => x.Plant)
+                .ThenInclude(x => x.MasterType)
+                .Include(x => x.PlantLot);
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
     }
 }

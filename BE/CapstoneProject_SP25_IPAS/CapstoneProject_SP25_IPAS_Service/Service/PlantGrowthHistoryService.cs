@@ -20,6 +20,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using Org.BouncyCastle.Ocsp;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -28,11 +29,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        public PlantGrowthHistoryService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IExcelReaderService _excelReaderService;
+        public PlantGrowthHistoryService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createPlantGrowthHistory(CreatePlantGrowthHistoryRequest historyCreateRequest)
@@ -305,5 +308,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> ExportNotesByPlantId(int plantId)
+        {
+            try
+            {
+                var checkPlantExist = await _unitOfWork.PlantRepository
+                    .GetByCondition(x => x.PlantId == plantId && x.IsDeleted == false);
+
+                if (checkPlantExist == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
+                }
+
+                var filter = await _unitOfWork.PlantGrowthHistoryRepository
+                    .GetAllNoPaging(x => x.PlantId == plantId, includeProperties: "Resources,User");
+
+                if (filter == null || !filter.Any())
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
+                }
+
+                var mapped = _mapper.Map<List<PlantGrowthHistoryModel>>(filter);
+                var fileName = $"plant_{checkPlantExist.PlantCode}_notes_{DateTime.Now:yyyyMMdd}.csv";
+
+                var export = await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = export.FileBytes,
+                    FileName = export.FileName,
+                    ContentType = export.ContentType
+                });
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
     }
 }

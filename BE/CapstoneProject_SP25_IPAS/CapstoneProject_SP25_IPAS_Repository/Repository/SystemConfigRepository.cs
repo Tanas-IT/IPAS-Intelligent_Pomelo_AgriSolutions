@@ -127,7 +127,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             {
                 query = orderBy(query);
             }
-            query = query.Include(x => x.ReferenceConfig);
+            query = query
+                .Include(x => x.ReferenceConfig)
+                .Include(x => x.DependentConfigurations);
             return await query.AsNoTracking().ToListAsync();
 
         }

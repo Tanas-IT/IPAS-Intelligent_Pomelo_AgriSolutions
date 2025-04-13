@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using FluentValidation;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_Service.Base;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -440,6 +441,20 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 };
                 return BadRequest(response);
             }
+        }
+
+        [HttpGet(APIRoutes.Plant.exportCSV)]
+        public async Task<IActionResult> ExportNotes([FromQuery] GetPlantPaginRequest exportRequest)
+        {
+            var result = await _plantService.ExportExcel(exportRequest);
+            if (result.StatusCode != 200)
+                return Ok(result);
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
+            {
+                return File(file.FileBytes, file.ContentType, file.FileName);
+            }
+
+            return NotFound(result.Message);
         }
 
     }

@@ -25,11 +25,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public PartnerService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IExcelReaderService _excelReaderService;
+        public PartnerService(IUnitOfWork unitOfWork, IMapper mapper, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> CreatePartner(CreatePartnerModel createPartnerModel)
@@ -118,7 +119,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //else
                     //{
 
-                    
+
                     filter = x => x.PartnerCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
@@ -238,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.PartnerId);
                         break;
                 }
-                var entities = await _unitOfWork.PartnerRepository.Get(filter:filter, orderBy:orderBy, pageIndex :paginationParameter.PageIndex, pageSize:paginationParameter.PageSize);
+                var entities = await _unitOfWork.PartnerRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PartnerModel>();
                 pagin.List = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.PartnerRepository.Count(filter);
@@ -484,5 +485,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> ExportExcel(int farmId)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.FarmRepository
+                    .GetByCondition(x => x.FarmId == farmId && x.IsDeleted == false);
+
+                if (checkFarmExist == null)
+                {
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                }
+
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
+
+                var entities = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                var mappedResult = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
+
+                if (!mappedResult.Any())
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_PARTNER_DOES_NOT_EXIST_MSG);
+                }
+
+                var fileName = $"partner_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
+                var csvExport = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = csvExport.FileBytes,
+                    FileName = csvExport.FileName,
+                    ContentType = csvExport.ContentType
+                });
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
     }
 }

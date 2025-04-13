@@ -26,6 +26,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
+using FluentValidation.Results;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -36,13 +37,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         //private readonly IPlantService _plantService;
         private readonly ProgramDefaultConfig _masterTypeConfig;
         private readonly ICriteriaTargetService _criteriaTargetService;
-        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, ProgramDefaultConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService)
+        private readonly IExcelReaderService _excelReaderService;
+        public GraftedPlantService(IUnitOfWork unitOfWork, IMapper mapper, ProgramDefaultConfig masterTypeConfig, ICriteriaTargetService criteriaTargetService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             //_plantService = plantService;
             _masterTypeConfig = masterTypeConfig;
             _criteriaTargetService = criteriaTargetService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> createGraftedPlantAsync(CreateGraftedPlantRequest createRequest)
@@ -985,7 +988,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var growthStage = (await _unitOfWork.GrowthStageRepository
                     .GetGrowthStagesByFarmId(request.FarmId))
                     .OrderBy(x => x.MonthAgeStart)
-                    .FirstOrDefault() ;
+                    .FirstOrDefault();
                     if (graftedPlant.PlantLotId.HasValue)
                     {
                         var plantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == graftedPlant.PlantLotId);
@@ -1017,7 +1020,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsPassed = false,
                         IsDead = false,
                         PlantIndex = request.PlantIndex,
-                        GrowthStageID = growthStage != null ? growthStage!.GrowthStageID  : null
+                        GrowthStageID = growthStage != null ? growthStage!.GrowthStageID : null
                     };
                     newPlant.PlantName = $"Plant {newPlant.PlantIndex} - {landrowExist.RowIndex} - {landrowExist.LandPlot!.LandPlotName}";
                     //  5️ Cập nhật trạng thái của GraftedPlant thành IS_USED
@@ -1174,5 +1177,93 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
         }
+
+        public async Task<BusinessResult> ExportGrafted(GetGraftedPaginRequest getRequest)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.FarmRepository.GetByID(getRequest.FarmId!.Value);
+                if (checkFarmExist == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+
+                Expression<Func<GraftedPlant, bool>> filter = x => !x.IsDeleted!.Value && x.FarmId == getRequest.FarmId;
+
+                if (!string.IsNullOrEmpty(getRequest.PlantIds))
+                {
+                    var filterList = Util.SplitByComma(getRequest.PlantIds);
+                    filter = filter.And(x => filterList.Contains(x.MotherPlantId.ToString()!));
+                }
+
+                //if (!string.IsNullOrEmpty(getRequest.GrowthStage))
+                //    filter = filter.And(x => x.GrowthStage!.ToLower().Contains(getRequest.GrowthStage.ToLower()));
+
+                if (!string.IsNullOrEmpty(getRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(getRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+
+                    //filter = filter.And(x => x.Status!.ToLower().Contains(getRequest.Status.ToLower()));
+                }
+
+                if (getRequest.SeparatedDateFrom.HasValue && getRequest.SeparatedDateTo.HasValue)
+                {
+                    if (getRequest.SeparatedDateFrom > getRequest.SeparatedDateTo)
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+
+                    filter = filter.And(x => x.SeparatedDate >= getRequest.SeparatedDateFrom && x.SeparatedDate <= getRequest.SeparatedDateTo);
+                }
+
+                if (getRequest.GraftedDateFrom.HasValue && getRequest.GraftedDateTo.HasValue)
+                {
+                    if (getRequest.GraftedDateFrom > getRequest.GraftedDateTo)
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+
+                    filter = filter.And(x => x.GraftedDate >= getRequest.GraftedDateFrom && x.GraftedDate <= getRequest.GraftedDateTo);
+                }
+
+                if (!string.IsNullOrEmpty(getRequest.PlantLotIds))
+                {
+                    List<string> filterList = Util.SplitByComma(getRequest.PlantLotIds);
+                    filter = filter.And(x => filterList.Contains(x.PlantLotId.ToString()!));
+                }
+
+                if (getRequest.IsCompleted.HasValue)
+                    filter = filter.And(x => x.IsCompleted == getRequest.IsCompleted);
+                if (getRequest.IsDead.HasValue)
+                    filter = filter.And(x => x.IsDead == getRequest.IsDead);
+                if (!string.IsNullOrEmpty(getRequest.CultivarIds))
+                {
+                    List<string> filterList = Util.SplitByComma(getRequest.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.Plant!.MasterTypeId.ToString()!));
+                }
+
+                Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
+
+
+                //string includeProperties = "PlantLot,Plant";
+                var entities = await _unitOfWork.GraftedPlantRepository.GetForExport(filter, orderBy);
+
+                var exportGrafted = _mapper.Map<IEnumerable<GraftedPlantModels>>(entities).ToList();
+
+                if (exportGrafted.Any())
+                {
+                    var fileName = $"Grafted_{checkFarmExist.FarmName}_{DateTime.Now:yyyyMMdd}{FileFormatConst.CSV_EXPAND}";
+                    var csvExport = await _excelReaderService.ExportToCsvAsync(exportGrafted, fileName);
+                    return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                    {
+                        FileBytes = csvExport.FileBytes,
+                        FileName = csvExport.FileName,
+                        ContentType = csvExport.ContentType
+                    });
+                }
+                return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
+
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
     }
 }
