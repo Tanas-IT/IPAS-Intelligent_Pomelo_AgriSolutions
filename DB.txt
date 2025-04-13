@@ -1156,7 +1156,7 @@ VALUES
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
-('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
+('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 6),
 ('admin@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Admin', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 1);
 
 GO
@@ -1952,27 +1952,118 @@ VALUES
 
 GO
 -- Criteria Apply
-INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
-SELECT 
-    'CriteriaApply',
-    v.ConfigKey,
-    v.ConfigValue,
-    'string',
-    v.Description,
-    c.ConfigID
-FROM 
-    (VALUES 
-        ('GraftedCriteria', 'Grafted Evaluation', N'Bộ tiêu chí đánh giá cây mẹ trước khi chiết'),
-        ('PlantLotCriteria', 'PlantLot Condition', N'Tiêu chí đánh giá lô giống nhập vào'),
-        ('PlantLotCriteria', 'PlantLot Evaluation', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
-        ('PlantCriteria', 'Grafted Condition', N'Bộ tiêu chí đánh giá cành chiết'),
-        ('PlantCriteria', 'Others', N'Các loại tiêu chí khác'),
-        ('ProductCriteria', 'Product', N'Tiêu chí đánh giá sản phẩm')
-    ) AS v(ConfigKey, ConfigValue, Description)
-JOIN SystemConfiguration c
-    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
+--INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
+--SELECT 
+--    'CriteriaApply',
+--    v.ConfigKey,
+--    v.ConfigValue,
+--    'string',
+--    v.Description,
+--    c.ConfigID
+--FROM 
+--    (VALUES 
+--        ('GraftedCriteria', 'Grafted Evaluation', N'Bộ tiêu chí đánh giá cây mẹ trước khi chiết'),
+--        ('PlantLotCriteria', 'PlantLot Condition', N'Tiêu chí đánh giá lô giống nhập vào'),
+--        ('PlantLotCriteria', 'PlantLot Evaluation', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+--       ('PlantCriteria', 'Grafted Condition', N'Bộ tiêu chí đánh giá cành chiết'),
+--        ('PlantCriteria', 'Others', N'Các loại tiêu chí khác'),
+--        ('ProductCriteria', 'Product', N'Tiêu chí đánh giá sản phẩm')
+--    ) AS v(ConfigKey, ConfigValue, Description)
+--JOIN SystemConfiguration c
+--    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
 
 GO
+INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('PlantCriteria', 'GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí đánh giá cây mẹ đạt điều kiện chiết cành'),
+('PlantCriteria', 'Others', 'Others', 'string', 'Các tiêu chí khác'),
+
+('GraftedCriteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string',  N'Bộ tiêu chí đánh giá cành chiết'),
+('GraftedCriteria', 'Others', 'Others', 'string', 'Các tiêu chí khác'),
+
+('PlantLotCriteria', 'PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá lô giống nhập vào'),
+('PlantLotCriteria', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
+
+('ProductCriteria', 'Others', 'Others', 'string', 'Others'),
+('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí đánh giá sản phẩm'),
+
+('GraftedConditionApply','GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để đánh giá cành chiết'),
+('GraftedEvaluationApply','GraftedEvaluation', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để đánh giá Cây mẹ trước khi chiết'),
+('PlantLotConditionApply','PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí đánh giá cành chiết'),
+('PlantLotEvaluationApply','PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí đánh giá lô giống sau khi nhập vào');
+GO
+-- Update ReferenceConfigId cho GraftedConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'PlantCriteria'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+	-- Update ReferenceConfigId cho GraftedConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'GraftedCriteria'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+	-- Update ReferenceConfigId cho GraftedConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'PlantLotCriteria'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+	-- Update ReferenceConfigId cho GraftedConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'ProductCriteria'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+-- Update ReferenceConfigId cho GraftedConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'GraftedConditionApply'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+-- Update ReferenceConfigId cho GraftedEvaluationApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'GraftedEvaluationApply'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+-- Update ReferenceConfigId cho PlantLotConditionApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'PlantLotConditionApply'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
+-- Update ReferenceConfigId cho PlantLotEvaluationApply
+UPDATE a
+SET a.ReferenceConfigId = b.ConfigId
+FROM SystemConfiguration a
+JOIN SystemConfiguration b
+    ON a.ConfigGroup = 'PlantLotEvaluationApply'
+    AND b.ConfigGroup = 'Criteria'
+    AND a.ConfigKey = b.ConfigKey;
+	GO
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
@@ -2020,13 +2111,13 @@ VALUES
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('WorkLog For Manager', 'Done', 'Done', 'string', N'Trạng thái hoàn thành công việc'),
+('WorkLogForManager', 'Done', 'Done', 'string', N'Trạng thái hoàn thành công việc'),
 ('WorkLog', 'NotStarted', 'Not Started', 'string', N'Trạng thái của worklog trước khi bắt đầu'),
 ('WorkLog', 'InProgress', 'In Progress', 'string', N'Trạng thái của worklog khi diễn ra'),
 ('WorkLog', 'Cancelled', 'Cancelled', 'string', N'Trạng thái của worklog khi employee chủ động hủy'),
 ('WorkLog', 'Overdue', 'Overdue', 'string', N'Trạng thái của worklog khi quá thời hạn kết thúc nhưng chưa xong công việc'),
 ('WorkLog', 'Reviewing', 'Reviewing', 'string', N'Trạng thái của worklog khi reporter báo cáo hoàn thành và đợi manager xác nhận'),
-('WorkLog For Manager', 'Redo', 'Redo', 'string', N'Trạng thái của worklog khi công việc cần phải làm lại'),
+('WorkLogForManager', 'Redo', 'Redo', 'string', N'Trạng thái của worklog khi công việc cần phải làm lại'),
 ('WorkLog', 'OnRedo', 'OnRedo', 'string', N'Trạng thái của worklog khi employee làm lại workLog đó'),
 ('WorkLog', 'Rejected', 'Rejected', 'string', N'Trạng thái của employee khi không làm workLog'),
 ('WorkLog', 'Received', 'Received', 'string', N'Trạng thái của employee khi làm workLog'),
@@ -2159,4 +2250,3 @@ VALUES
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
     ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 0, 1, 11);
-

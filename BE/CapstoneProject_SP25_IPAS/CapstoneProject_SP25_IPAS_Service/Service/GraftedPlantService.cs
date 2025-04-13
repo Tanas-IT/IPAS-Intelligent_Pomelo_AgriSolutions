@@ -594,8 +594,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkGraftedExist.PlantLotId.HasValue)
                         return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
                     //var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
-                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigKey.ToLower().Equals(SystemConfigConst.GRAFTED_EVALUATION_APPLY));
-                    var requiredList = requiredCondition.Select(x => x.ConfigValue).ToList() ?? new List<string>();
+                    var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigGroup.ToLower().Equals(SystemConfigConst.GRAFTED_EVALUATION_APPLY));
+                    var requiredList = requiredCondition.Select(x => x.ConfigKey).ToList() ?? new List<string>();
                     var checkCriteriaBefore = await _criteriaTargetService.CheckCriteriaComplete(PlantId: null, PlantLotId: null, GraftedId: request.GraftedPlantId, TargetsList: requiredList);
                     if (checkCriteriaBefore.enable == false)
                         return new BusinessResult(400, checkCriteriaBefore.ErrorMessage);

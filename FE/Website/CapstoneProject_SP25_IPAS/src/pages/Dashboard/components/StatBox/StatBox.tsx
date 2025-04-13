@@ -30,6 +30,4 @@ const StatBox: FC<StatBoxProps> = ({ title, subtitle, icon, increase, variant = 
   );
 };
 
-
-
 export default StatBox;

@@ -30,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeMode
         public string? TypeName { get; set; }
 
         public string? Target { get; set; }
+        public string? TargetDisplay { get; set; }
         //public bool? IsDelete { get; set; }
         public bool? IsConflict { get; set; }
 

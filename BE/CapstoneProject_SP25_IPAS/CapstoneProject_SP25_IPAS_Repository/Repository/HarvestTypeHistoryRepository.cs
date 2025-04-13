@@ -93,5 +93,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
             return await query.AsNoTracking().ToListAsync();
         }
+
+        public async Task<List<ProductHarvestHistory>> GetAllProductHarvestHistory(int farmId)
+        {
+            var result = await _context.ProductHarvestHistories
+                                    .Include(x => x.Plant)
+                                    .ThenInclude(x => x.LandRow)
+                                    .ThenInclude(x => x.LandPlot)
+                                    .Where(x => x.Plant.LandRow.LandPlot.FarmId == farmId).ToListAsync();
+            return result;
+
+        }
     }
 }

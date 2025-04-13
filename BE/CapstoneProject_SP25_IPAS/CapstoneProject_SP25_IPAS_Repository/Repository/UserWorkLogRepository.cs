@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
@@ -130,6 +131,21 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<bool> DeleteUserWorkLogByWorkLogId(int workLogId)
+        {
+            var getListUserWorkLog = await _context.UserWorkLogs.Where(x => x.WorkLogId == workLogId).AsNoTracking().ToListAsync();
+            if (getListUserWorkLog != null)
+            {
+                foreach (var deleteUserWorkLog in getListUserWorkLog)
+                {
+                    _context.UserWorkLogs.Attach(deleteUserWorkLog);
+                    _context.UserWorkLogs.Remove(deleteUserWorkLog);
+                }
+            }
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
     }
 }

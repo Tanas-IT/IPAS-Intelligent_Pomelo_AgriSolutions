@@ -855,7 +855,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         throw new Exception("Update failed because nothing was process");
                     }
-                    var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(updateWorkLogModel.WorkLogId);
+                    var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogForUpdateById(updateWorkLogModel.WorkLogId);
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                     if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower())) {
@@ -1184,26 +1184,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.WorkLogName = updateWorkLogModel.WorkLogName;
                     findWorkLog.IsConfirm = updateWorkLogModel.IsConfirm;
                     _unitOfWork.WorkLogRepository.Update(findWorkLog);
+                    await _unitOfWork.SaveAsync();
                     if (updateWorkLogModel.listEmployee != null)
                     {
-                        foreach (var employee in updateWorkLogModel.listEmployee)
+                        var deleteUserWorkLog = await _unitOfWork.UserWorkLogRepository.DeleteUserWorkLogByWorkLogId(updateWorkLogModel.WorkLogId);
+                        if(deleteUserWorkLog)
                         {
-                            var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(updateWorkLogModel.WorkLogId);
-                            if (getListUserWorkLog != null)
+                            foreach (var employee in updateWorkLogModel.listEmployee)
                             {
-                                _unitOfWork.UserWorkLogRepository.RemoveRange(getListUserWorkLog);
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    WorkLogId = findWorkLog.WorkLogId,
+                                    UserId = employee.UserId,
+                                    IsReporter = employee.isReporter,
+                                    IsDeleted = false
+                                };
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                             }
-                            var newUserWorkLog = new UserWorkLog()
-                            {
-                                WorkLogId = findWorkLog.WorkLogId,
-                                UserId = employee.UserId,
-                                IsReporter = employee.isReporter,
-                                IsDeleted = false
-                            };
-                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                         }
-
-
                         await _unitOfWork.SaveAsync();
                         foreach (var employeeModel in updateWorkLogModel.listEmployee)
                         {
@@ -1246,9 +1244,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (result > 0)
                     {
                         await transaction.CommitAsync();
-                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, Const.SUCCESS_ADD_NEW_TASK_MSG, result);
+                        return new BusinessResult(Const.SUCCESS_ADD_NEW_TASK_CODE, "Update WorkLog Success", result);
                     }
-                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, Const.FAIL_ADD_NEW_TASK_MESSAGE, false);
+                    return new BusinessResult(Const.FAIL_ADD_NEW_TASK_CODE, "Update WorkLog Failed", false);
 
                 }
                 catch (Exception ex)
@@ -1850,6 +1848,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
                     var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.OldUserId);
+                    if (getUserToUpdate == null)
+                        return new BusinessResult(400, "WorkLog does not exist");
                     if (changeEmployee.OldUserId == changeEmployee.NewUserId)
                     {
                         return new BusinessResult(400, "Old UserId must be different New UserId");
@@ -2651,6 +2651,44 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
+                    var currentOrder = getExistPlan.SubProcess?.Order ?? 0;
+                    var currentEndDate = addNewTaskModel.NewDateWork.Date.Add(endTime);
+                    var originalEndDate = getExistPlan.EndDate;
+
+                    // Nếu thời gian làm bù kết thúc trễ hơn kế hoạch gốc
+                    if (originalEndDate != null && currentEndDate > originalEndDate)
+                    {
+                        // Tính số ngày cần dời
+                        var shiftDays = (currentEndDate.Date - originalEndDate.Value.Date).Days;
+
+                        // Lấy tất cả kế hoạch trong process hiện tại có Order > WorkLog hiện tại
+                        var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(getExistPlan.ProcessId.Value);
+                        var dependentPlans = allPlans.Where(p => p.SubProcess?.Order > currentOrder).ToList();
+                        var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+
+                        // Lấy toàn bộ WorkLog thuộc các Plan phụ thuộc
+                        var allDependentWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+
+                        foreach (var workLog in allDependentWorkLogs)
+                        {
+                            if (workLog.Date != null)
+                            {
+                                workLog.Date = workLog.Date.Value.AddDays(shiftDays);
+                                // Giữ nguyên giờ bắt đầu/kết thúc
+                            }
+
+                            if (workLog.Schedule != null)
+                            {
+                                // Cập nhật Schedule luôn nếu cần
+                                workLog.Schedule.CustomDates = "[" + JsonConvert.SerializeObject(workLog.Date?.ToString("yyyy/MM/dd")) + "]";
+                            }
+
+                            _unitOfWork.WorkLogRepository.Update(workLog);
+                        }
+
+                        await _unitOfWork.SaveAsync();
+                    }
+
 
                     var addNotification = new Notification()
                     {
@@ -2785,8 +2823,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Year = groupBy == "year" ? (int?)g.Key.Year : null,
 
                     TotalWorkLogs = g.Count(),
-                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == "Done"),
-                    CompletionRate = g.Count(x => x.WorkLog.Status == "Done") * 100.0 / g.Count(),
+                    CompletedWorkLogs = g.Count(x => x.WorkLog.Status == getStatusDone),
+                    CompletionRate = g.Count(x => x.WorkLog.Status == getStatusDone) * 100.0 / g.Count(),
 
                     TotalWorkingTime = TimeSpan.FromMinutes(
             g.Where(x => x.WorkLog.ActualStartTime != null && x.WorkLog.ActualEndTime != null)
@@ -2898,6 +2936,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var subProcess = plan.SubProcess;
 
                 // Lấy processId từ Plan hoặc SubProcess
+                if(plan.ProcessId != null)
+                {
+                    return new BusinessResult(200, "No workLog dependency.");
+                }
                 int? processId = plan.ProcessId ?? subProcess?.ProcessId;
 
                 if (processId == null)
