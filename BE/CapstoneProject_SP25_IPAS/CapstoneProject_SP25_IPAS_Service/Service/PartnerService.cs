@@ -25,11 +25,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public PartnerService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IExcelReaderService _excelReaderService;
+        public PartnerService(IUnitOfWork unitOfWork, IMapper mapper, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> CreatePartner(CreatePartnerModel createPartnerModel)
@@ -118,7 +119,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //else
                     //{
 
-                    
+
                     filter = x => x.PartnerCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.PartnerName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
@@ -238,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.PartnerId);
                         break;
                 }
-                var entities = await _unitOfWork.PartnerRepository.Get(filter:filter, orderBy:orderBy, pageIndex :paginationParameter.PageIndex, pageSize:paginationParameter.PageSize);
+                var entities = await _unitOfWork.PartnerRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PartnerModel>();
                 pagin.List = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.PartnerRepository.Count(filter);
@@ -482,6 +483,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await transaction.RollbackAsync();
                     return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
                 }
+            }
+        }
+
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(int FarmId)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == FarmId && x.IsDeleted == false);
+                if (checkFarmExist == null)
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                Expression<Func<Partner, bool>> filter = x => x.FarmId == FarmId && x.IsDeleted == false;
+                Func<IQueryable<Partner>, IOrderedQueryable<Partner>> orderBy = x => x.OrderByDescending(x => x.PartnerId);
+
+                var entities = await _unitOfWork.PartnerRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                var mappedResult = _mapper.Map<IEnumerable<PartnerModel>>(entities).ToList();
+
+                if (mappedResult.Any())
+                {
+                    var fileName = $"plant_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
+                    return await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+                }
+                else
+                {
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
             }
         }
     }

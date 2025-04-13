@@ -130,6 +130,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
             public const string applyCriteriaForPlant = prefixCriteriaTarget + "/plant/apply-criteria";
             public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
+            public const string exportCSV = prefix + "/export-csv";
+
         }
 
         public static class Authentication
@@ -158,7 +160,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPartnerByRoleName = Base + "/partners/get-partner-by-role-name/{roleName}";
             public const string getForSelected = Base + "/partners/get-for-selected";
             public const string softedDeletePartner = Base + "/partners/softed-delete";
-
+            public const string exportCSV = Base + "/partners/export-csv";
         }
 
         public static class GrowthStage
@@ -255,6 +257,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
             public const string getPlantByGrowthFunc = prefix + "/get-for-selected/growth-stage-function";
             public const string PlantDeadMark = prefix + "/dead-mark";
+            public const string exportCSV = prefix + "/export-csv";
+
         }
 
         public static class PlantGrowthHistory
@@ -266,6 +270,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantGrowthHistoryById = prefix + "";
             public const string getAllHistoryOfPlantPagin = prefix + "/pagin";
             public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
+            public const string exportCSV = prefix + "/export-csv";
+
         }
 
         public static class Plan

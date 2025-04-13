@@ -927,7 +927,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mapResult = _mapper.Map<PlantModel>(plantUpdate);
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE, Const.SUCCESS_UPDATE_PLANT_MSG, mapResult);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE, "Mark plant Dead success, all of action will stop", mapResult);
                     }
                     else
                     {
@@ -937,7 +937,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 catch (Exception ex)
                 {
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
                 }
             }
         }
@@ -1023,6 +1023,103 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);
                 //await _unitOfWork.SaveAsync();
+            }
+        }
+
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(GetPlantPaginRequest request)
+        {
+            try
+            {
+                var checkParam = checkParamGetRequest(request);
+                if (checkParam.Success == false)
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
+                if (request.IsDead.HasValue)
+                {
+                    filter = filter.And(x => x.IsDead == request.IsDead);
+                }
+                // neu filter theo cay chua trong thi bo qua cai hang thua do luon
+                if (request.IsLocated.HasValue && request.IsLocated == false)
+                {
+                    filter = filter.And(x => !x.LandRowId.HasValue);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(request.LandPlotIds))
+                    {
+                        List<string> filterList = Util.SplitByComma(request.LandPlotIds!);
+                        filter = filter.And(x => filterList.Contains(x.LandRow!.LandPlotId.ToString()!));
+                    }
+                    if (!string.IsNullOrEmpty(request.LandRowIds))
+                    {
+                        List<string> filterList = Util.SplitByComma(request.LandRowIds);
+                        filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
+                        //filter = filter.And(x => request.LandRowIds!.Contains(x.LandRowId!.Value));
+                    }
+                }
+                //if (string.IsNullOrEmpty(request.LandPlotIds) && string.IsNullOrEmpty(request.LandRowIds) && request.IsLocated.HasValue && request.IsLocated == false)
+                //filter = filter.And(x => !x.LandRowId.HasValue);
+                //if (!string.IsNullOrEmpty(request.LandPlotIds) || !string.IsNullOrEmpty(request.LandRowIds!) && request.IsLocated.HasValue && request.IsLocated == true)
+                if (request.IsLocated.HasValue && request.IsLocated == true)
+                    filter = filter.And(x => x.LandRowId.HasValue);
+
+                if (!string.IsNullOrEmpty(request.HealthStatus))
+                {
+                    List<string> filterList = Util.SplitByComma(request.HealthStatus);
+                    filter = filter.And(x => filterList.Contains(x.HealthStatus!.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(request.CultivarIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()!));
+                    //filter = filter.And(x => request.CultivarIds.Contains(x.MasterTypeId!.Value));
+                }
+                if (!string.IsNullOrEmpty(request.GrowthStageIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.GrowthStageIds!);
+                    filter = filter.And(x => filterList.Contains(x.GrowthStageID!.ToString()!));
+                    //filter = filter.And(x => request.GrowthStageIds.Contains(x.GrowthStageID!.Value));
+                }
+                if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
+                {
+                    filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);
+                }
+                if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue)
+                {
+                    filter = filter.And(x => x.PassedDate >= request.PassedDateFrom && x.PassedDate <= request.PassedDateTo);
+                }
+                if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
+                {
+                    filter = filter.And(x => x.PlantIndex >= request.PlantIndexFrom && x.PlantIndex <= request.PlantIndexTo);
+                }
+                if (request.isPassed.HasValue)
+                {
+                    filter = filter.And(x => x.IsPassed == request.isPassed);
+                    if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                    {
+                        filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
+                    }
+                }
+
+                var entities = await _unitOfWork.PlantRepository.GetAllNoPaging(filter: filter);
+                var mappedResult = _mapper.Map<IEnumerable<PlantModel>>(entities).ToList();
+                //Expression<Func<Farm, bool>> filterCount = x => x.IsDeleted != true;
+                if (mappedResult.Any())
+                {
+                    var fileName = $"plant_{DateTime.Now:yyyyMMdd}.csv";
+                    return await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+                }
+                else
+                {
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
             }
         }
     }
