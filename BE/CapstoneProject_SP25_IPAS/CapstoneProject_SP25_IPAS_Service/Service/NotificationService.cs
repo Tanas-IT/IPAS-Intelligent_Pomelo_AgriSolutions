@@ -139,23 +139,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var notifcationPlanModel = new NotificationModel()
                     {
-                        NotificationId = notificationPlan.NotificationId,
-                        Title = notificationPlan.Title,
-                        Content = notificationPlan.Content,
-                        CreateDate = notificationPlan.CreateDate,
-                        IsRead = notificationPlan.IsRead,
-                        Link = notificationPlan.Link,
-                        Color = notificationPlan.MasterType?.BackgroundColor,
+                        NotificationId = notificationPlan.Notification.NotificationId,
+                        Title = notificationPlan.Notification.Title,
+                        Content = notificationPlan.Notification.Content,
+                        CreateDate = notificationPlan.Notification.CreateDate,
+                        IsRead = notificationPlan.isRead,
+                        Link = notificationPlan.Notification.Link,
+                        Color = notificationPlan.Notification.MasterType?.BackgroundColor,
                         MasterType = new MasterTypeNotification()
                         {
-                            MasterTypeId = notificationPlan.MasterTypeId,
-                            MasterTypeName = notificationPlan.MasterType != null ? notificationPlan.MasterType.MasterTypeName : null
+                            MasterTypeId = notificationPlan.Notification.MasterTypeId,
+                            MasterTypeName = notificationPlan.Notification.MasterType != null ? notificationPlan.Notification.MasterType.MasterTypeName : null
                         },
                         Sender = new SenderNotification()
                         {
-                            SenderId = notificationPlan.SenderID,
-                            SenderName = notificationPlan.Sender != null ? notificationPlan.Sender.FullName : null,
-                            SenderAvatar = notificationPlan.Sender != null ? notificationPlan.Sender.AvatarURL : null
+                            SenderId = notificationPlan.Notification.SenderID,
+                            SenderName = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.FullName : null,
+                            SenderAvatar = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.AvatarURL : null
                         }
                     };
                     listNotificationResponse.Add(notifcationPlanModel);
@@ -182,27 +182,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             if (markNotificationIsReadModel.Status.ToLower().Equals("once") && markNotificationIsReadModel.NotificationId != null)
             {
-                var getNotificationById = await _unitOfWork.NotificationRepository.GetByID(markNotificationIsReadModel.NotificationId.Value);
                 var getPlanNotificationById = await _unitOfWork.PlanNotificationRepository.GetListPlanNotificationByNotificationId(markNotificationIsReadModel.NotificationId.Value);
 
-                if (getNotificationById != null)
-                {
-                    getNotificationById.IsRead = true;
-                    if (getPlanNotificationById != null)
-                    {
-                        foreach (var getPlanNoti in getPlanNotificationById)
-                        {
-                            if (getPlanNoti.PlanNotificationID <= 0) // Kiểm tra ID hợp lệ
-                            {
-                                return new BusinessResult(400, "Invalid PlanNotificationID");
-                            }
 
+                if (getPlanNotificationById != null)
+                {
+                    foreach (var getPlanNoti in getPlanNotificationById)
+                    {
+                        if (getPlanNoti.PlanNotificationID < 0) // Kiểm tra ID hợp lệ
+                        {
+                            return new BusinessResult(400, "Invalid PlanNotificationID");
+                        }
+
+                        if (getPlanNoti.UserID == userId)
+                        {
                             getPlanNoti.isRead = true;
                             _unitOfWork.PlanNotificationRepository.Update(getPlanNoti);
                         }
+
                     }
-                    _unitOfWork.NotificationRepository.Update(getNotificationById);
                 }
+
             }
             else
             {
@@ -211,8 +211,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var getListNotificationByUserId = await _unitOfWork.NotificationRepository.GetListNotificationUnReadByUserId(userId.Value);
                     foreach (var noti in getListNotificationByUserId)
                     {
-                        noti.IsRead = true;
-                        _unitOfWork.NotificationRepository.Update(noti);
+                        noti.isRead = true;
+                        _unitOfWork.PlanNotificationRepository.Update(noti);
                     }
                 }
             }

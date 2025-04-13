@@ -17,18 +17,21 @@ using System.Linq.Expressions;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.TaskFeedbackModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.TaskFeedbackRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
     public class TaskFeedbackService : ITaskFeedbackService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebSocketService _webSocketService;
         private readonly IMapper _mapper;
 
-        public TaskFeedbackService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TaskFeedbackService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _webSocketService = webSocketService;
         }
 
         public async Task<BusinessResult> CreateTaskFeedback(CreateTaskFeedbackModel createTaskFeedbackModel)
@@ -45,7 +48,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ManagerId = createTaskFeedbackModel.ManagerId,
                         WorkLogId = createTaskFeedbackModel.WorkLogId
                     };
-                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(createTaskFeedbackModel.WorkLogId != null ? createTaskFeedbackModel.WorkLogId.Value : -1);
+                    var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition( x=> x.WorkLogId == createTaskFeedbackModel.WorkLogId, "UserWorkLogs");
                     if(createTaskFeedbackModel.Status != null && getWorkLog != null)
                     {
                         if(createTaskFeedbackModel.Status.ToLower().Equals("redo") || createTaskFeedbackModel.Status.ToLower().Equals("failed"))
@@ -63,6 +66,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.TaskFeedbackRepository.Insert(newTaskFeedback);
 
                     var checkInsertTaskFeedback = await _unitOfWork.SaveAsync();
+                    var newNotification = new Notification()
+                    {
+                        Content = "WorkLog " + getWorkLog.WorkLogName + " has been feedback",
+                        Title = "WorkLog",
+                        MasterTypeId = 38,
+                        IsRead = false,
+                        SenderID = createTaskFeedbackModel.ManagerId,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(newNotification);
+                    await _unitOfWork.SaveAsync();
+                    var newNotificationForManager = new PlanNotification()
+                    {
+                        NotificationID = newNotification.NotificationId,
+                        CreatedDate = DateTime.Now,
+                        isRead = false,
+                        UserID = createTaskFeedbackModel.ManagerId
+                    };
+                    await _unitOfWork.PlanNotificationRepository.Insert(newNotificationForManager);
+                    await _webSocketService.SendToUser(createTaskFeedbackModel.ManagerId.Value, newNotificationForManager);
+                    foreach (var userWorkLog in getWorkLog.UserWorkLogs)
+                    {
+                        var planNotification = new PlanNotification()
+                        {
+                            NotificationID = newNotification.NotificationId,
+                            CreatedDate = DateTime.Now,
+                            isRead = false,
+                            UserID = userWorkLog.UserId
+                        };
+                        await _unitOfWork.PlanNotificationRepository.Insert(planNotification);
+                        await _webSocketService.SendToUser(userWorkLog.UserId, newNotification);
+                    }
+                    await _unitOfWork.SaveAsync();
                     await transaction.CommitAsync();
                     if (checkInsertTaskFeedback > 0)
                     {

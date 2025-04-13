@@ -1489,7 +1489,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     Content = "Plan " + updatePlanModel.PlanName + " has just been created",
                                     Title = "Plan",
-                                    MasterTypeId = updatePlanModel?.MasterTypeId,
+                                    MasterTypeId = 36,
                                     IsRead = false,
                                     CreateDate = DateTime.Now,
                                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
@@ -1498,16 +1498,26 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _unitOfWork.NotificationRepository.Insert(addNotification);
                                 await _unitOfWork.PlanRepository.UpdatePlan(checkExistPlan);
                                 await _unitOfWork.SaveAsync();
-                                await transaction.CommitAsync();
-                                await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{checkExistPlan.FarmID}");
-                                await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + checkExistPlan.PlanId.ToString());
                                 if (updatePlanModel.ListEmployee != null)
                                 {
                                     foreach (var employeeModel in updatePlanModel.ListEmployee)
                                     {
+                                        var addEmployeeNotification = new PlanNotification()
+                                        {
+                                            NotificationID = addNotification.NotificationId,
+                                            CreatedDate = DateTime.Now,
+                                            isRead = false,
+                                            UserID = employeeModel.UserId
+                                        };
+                                        await _unitOfWork.PlanNotificationRepository.Insert(addEmployeeNotification);
                                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                                     }
                                 }
+                                await _unitOfWork.SaveAsync();
+                                await transaction.CommitAsync();
+                                await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{checkExistPlan.FarmID}");
+                                await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + checkExistPlan.PlanId.ToString());
+                                
                                 if (!string.IsNullOrEmpty(warningUpdateMessage))
                                 {
                                     return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, warningUpdateMessage, result);
@@ -2792,11 +2802,57 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getListPlan = await _unitOfWork.PlanRepository.GetPlanIncludeByProcessId(processId);
-                /*
-                  var process = await _unitOfWork.ProcessRepository.GetProcessByIdAsync(processId);
+                var process = await _unitOfWork.ProcessRepository.GetProcessByIdAsync(processId);
                 if (process == null)
                     return new BusinessResult(400, "Do not find any process.");
+
+                // Tạo map SubProcessID -> SubProcessDto
+                var allSubProcessDtos = process.SubProcesses.Select(sp => new SubProcessDto
+                {
+                    SubProcessID = sp.SubProcessID,
+                    SubProcessName = sp.SubProcessName,
+                    Order = sp.Order,
+                    StartDate = sp.StartDate,
+                    EndDate = sp.EndDate,
+                    ParentSubProcessID = sp.ParentSubProcessId,
+                    Plans = sp.Plans.Select(p => new PlanDto
+                    {
+                        PlanId = p.PlanId,
+                        PlanName = p.PlanName,
+                        StartDate = p.StartDate,
+                        EndDate = p.EndDate
+                    }).ToList(),
+                    Children = new List<SubProcessDto>()
+                }).ToDictionary(x => x.SubProcessID);
+
+                // Gắn cây SubProcess con
+                foreach (var sp in allSubProcessDtos.Values)
+                {
+                    if (sp.ParentSubProcessID.HasValue && allSubProcessDtos.TryGetValue(sp.ParentSubProcessID.Value, out var parent))
+                    {
+                        parent.Children.Add(sp);
+                    }
+                }
+
+                // Lọc các SubProcess gốc (root)
+                var rootSubProcesses = allSubProcessDtos.Values
+                    .Where(sp => sp.ParentSubProcessID == null)
+                    .OrderBy(sp => sp.Order ?? int.MaxValue)
+                    .ToList();
+
+                // Đệ quy sắp xếp cây theo Order
+                void SortSubProcessTree(List<SubProcessDto> subProcesses)
+                {
+                    foreach (var sp in subProcesses)
+                    {
+                        if (sp.Children?.Any() == true)
+                        {
+                            sp.Children = sp.Children.OrderBy(x => x.Order ?? int.MaxValue).ToList();
+                            SortSubProcessTree(sp.Children);
+                        }
+                    }
+                }
+                SortSubProcessTree(rootSubProcesses);
 
                 var result = new ProcessWithDetailsDto
                 {
@@ -2812,28 +2868,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = p.StartDate,
                         EndDate = p.EndDate
                     }).ToList(),
-                    SubProcesses = process.SubProcesses.Select(sp => new SubProcessDto
-                    {
-                        SubProcessID = sp.SubProcessID,
-                        SubProcessName = sp.SubProcessName,
-                        Order = sp.Order,
-                        StartDate = sp.StartDate,
-                        EndDate = sp.EndDate,
-                        Plans = sp.Plans.Select(p => new PlanDto
-                        {
-                            PlanId = p.PlanId,
-                            PlanName = p.PlanName,
-                            StartDate = p.StartDate,
-                            EndDate = p.EndDate
-                        }).ToList()
-                    }).ToList()
+                    SubProcesses = rootSubProcesses
                 };
-                 
-                 */
-                if (getListPlan != null && getListPlan.Count() > 0)
+               
+                if (result != null)
                 {
-                    var result = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, getListPlan);
-                    return result;
+                    return new BusinessResult(200, "Get Process with tree structure", result);
                 }
                 return new BusinessResult(Const.WARNING_GET_PLAN_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLAN_DOES_NOT_EXIST_MSG);
             }

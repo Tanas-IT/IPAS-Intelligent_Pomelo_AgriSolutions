@@ -835,7 +835,7 @@ CREATE TABLE ipas.dbo.RefreshToken (
 );
 
 CREATE TABLE ipas.dbo.PlanNotification (
-	PlanNotificationID int IDENTITY(0,1) NOT NULL,
+	PlanNotificationID int IDENTITY(1,1) NOT NULL,
 	PlanID int NULL,
 	NotificationID int NULL,
 	UserID int NULL,
@@ -1243,11 +1243,11 @@ VALUES
     ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', '#E1BEE7', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
 	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
 	('MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     ('MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
