@@ -471,7 +471,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                     style={styles.avatarSmall}
                   />
                   <TextCustom style={styles.userNameSmallHorizontal}>
-                    {replacement.fullName}
+                    {replacement.replaceUserFullName}
                   </TextCustom>
                 </View>
               ))}

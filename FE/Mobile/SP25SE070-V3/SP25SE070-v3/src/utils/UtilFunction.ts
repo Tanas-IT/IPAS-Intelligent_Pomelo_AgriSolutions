@@ -53,3 +53,22 @@ export const getRoleName = (roleId: number): string => {
   }
   return UserRole[roleId] ? `Role: ${UserRole[roleId]}` : "undefined";
 };
+
+export const darkenColor = (hex: string, amount = 80): string => {
+  hex = hex.replace('#', '');
+
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('');
+  }
+
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) & 0xff;
+  let g = (num >> 8) & 0xff;
+  let b = num & 0xff;
+
+  r = Math.max(0, r - amount);
+  g = Math.max(0, g - amount);
+  b = Math.max(0, b - amount);
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};

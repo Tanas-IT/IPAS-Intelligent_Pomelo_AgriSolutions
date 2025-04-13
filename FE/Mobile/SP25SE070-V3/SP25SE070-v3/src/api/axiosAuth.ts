@@ -8,7 +8,36 @@ const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 
 const BASE_URL = `${API_HOST}:${API_PORT}/ipas`;
 
-const createAxiosInstance = (contentType: string): AxiosInstance => {
+// const createAxiosInstance = (contentType: string): AxiosInstance => {
+//   const instance = axios.create({
+//     baseURL: BASE_URL,
+//     headers: {
+//       "Content-Type": contentType,
+//     },
+//   });
+
+//   instance.interceptors.request.use(
+//     async (config: InternalAxiosRequestConfig) => {
+//       const accessToken = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+//       if (accessToken) {
+//         config.headers.Authorization = `Bearer ${accessToken}`;
+//       }
+//       return config;
+//     },
+//     (error) => {
+//       console.error("Request error:", error);
+//       return Promise.reject(error);
+//     }
+//   );
+
+//   instance.interceptors.response.use(
+//     (response) => response,
+//     (error) => handleApiError(error)
+//   );
+
+//   return instance;
+// };
+const createAxiosInstance = (contentType: string, skipResponseInterceptor: boolean = false): AxiosInstance => {
   const instance = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -30,15 +59,17 @@ const createAxiosInstance = (contentType: string): AxiosInstance => {
     }
   );
 
-  instance.interceptors.response.use(
-    (response) => response,
-    (error) => handleApiError(error)
-  );
+  if (!skipResponseInterceptor) {
+    instance.interceptors.response.use(
+      (response) => response,
+      (error) => handleApiError(error)
+    );
+  }
 
   return instance;
 };
-
 const axiosJsonRequest = createAxiosInstance("application/json");
 const axiosMultipartForm = createAxiosInstance("multipart/form-data");
+const axiosJsonNoErrorHandler = createAxiosInstance("application/json", true);
 
-export default { axiosJsonRequest, axiosMultipartForm };
+export default { axiosJsonRequest, axiosMultipartForm, axiosJsonNoErrorHandler };
