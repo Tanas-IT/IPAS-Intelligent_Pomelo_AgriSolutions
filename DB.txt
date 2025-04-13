@@ -835,7 +835,7 @@ CREATE TABLE ipas.dbo.RefreshToken (
 );
 
 CREATE TABLE ipas.dbo.PlanNotification (
-	PlanNotificationID int IDENTITY(0,1) NOT NULL,
+	PlanNotificationID int IDENTITY(1,1) NOT NULL,
 	PlanID int NULL,
 	NotificationID int NULL,
 	UserID int NULL,

@@ -223,39 +223,63 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(200, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
                 }
+                // Lọc những bản ghi có MasterType hợp lệ
+                var valid = criteriaByType
+                .Where(x => x.Criteria?.MasterType != null && !x.Criteria.IsDeleted.GetValueOrDefault())
+                .ToList();
+
+                // Lấy tất cả config cần thiết
+                var allConfigs = (await _unitOfWork.SystemConfigRepository.GetAllNoPaging()).ToList();
 
                 var groupedData = criteriaByType
-                    .Where(pc => /*pc.Criteria?.MasterType != null &&*/ pc.Criteria!.IsDeleted == false) // Lọc các tiêu chí có MasterType
-                    .GroupBy(pc => pc.Criteria!.MasterType!.MasterTypeId) // Nhóm theo MasterTypeId
-                    .Select(group => new GroupedCriteriaModel
+            .Where(pc => pc.Criteria != null && pc.Criteria.IsDeleted == false && pc.Criteria.MasterType != null)
+            .GroupBy(pc => pc.Criteria!.MasterType!.MasterTypeId)
+            .Select(group =>
+            {
+                var first = group.First();
+                var masterType = first.Criteria!.MasterType!;
+
+                var target = masterType.Target;
+                var typeName = masterType.TypeName;
+
+                var targetDisplay = allConfigs
+                    .FirstOrDefault(x =>
+                        !string.IsNullOrEmpty(target) &&
+                        !string.IsNullOrEmpty(typeName) &&
+                        x.ConfigGroup.Equals(typeName, StringComparison.OrdinalIgnoreCase) &&
+                        x.ConfigKey.Equals(target, StringComparison.OrdinalIgnoreCase))
+                    ?.ConfigValue;
+
+                return new GroupedCriteriaModel
+                {
+                    MasterTypeId = masterType.MasterTypeId,
+                    MasterTypeName = masterType.MasterTypeName!,
+                    Target = target,
+                    TargetDisplay = targetDisplay,
+                    CriteriaList = group.OrderBy(pc => pc.Priority).Select(pc => new CriteriaInfoModel
                     {
-                        MasterTypeId = group.Key,
-                        MasterTypeName = group.First().Criteria!.MasterType!.MasterTypeName!,
-                        Target = group.First().Criteria!.MasterType!.Target,
-                        CriteriaList = group.OrderBy(pc => pc.Priority).Select(pc => new CriteriaInfoModel
-                        {
-                            CriteriaTargetId = pc.CriteriaTargetId,
-                            PlantId = pc.PlantID,
-                            GraftedPlantId = pc.GraftedPlantID,
-                            PlantLotId = pc.PlantLotID,
-                            Priority = pc.Priority,
-                            CriteriaId = pc.Criteria!.CriteriaId,
-                            CriteriaName = pc.Criteria!.CriteriaName!,
-                            Description = pc.Criteria!.CriteriaDescription!,
-                            //IsChecked = pc.IsChecked,
-                            MinValue = pc.Criteria.MinValue,
-                            MaxValue = pc.Criteria.MaxValue,
-                            Unit = pc.Criteria.Unit,
-                            ValueChecked = pc.ValueChecked,
-                            CreateDate = pc.CreateDate,
-                            CheckedDate = pc.CheckedDate,
-                            IsPassed = pc.IsPassed,
-                            FrequencyDate = pc.Criteria.FrequencyDate
-                        }).ToList()
-                    })
-                    .OrderBy(x => x.Target)
-                    .ThenBy(x => x.MasterTypeId)
-                    .ToList();
+                        CriteriaTargetId = pc.CriteriaTargetId,
+                        PlantId = pc.PlantID,
+                        GraftedPlantId = pc.GraftedPlantID,
+                        PlantLotId = pc.PlantLotID,
+                        Priority = pc.Priority,
+                        CriteriaId = pc.Criteria.CriteriaId,
+                        CriteriaName = pc.Criteria.CriteriaName!,
+                        Description = pc.Criteria.CriteriaDescription!,
+                        MinValue = pc.Criteria.MinValue,
+                        MaxValue = pc.Criteria.MaxValue,
+                        Unit = pc.Criteria.Unit,
+                        ValueChecked = pc.ValueChecked,
+                        CreateDate = pc.CreateDate,
+                        CheckedDate = pc.CheckedDate,
+                        IsPassed = pc.IsPassed,
+                        FrequencyDate = pc.Criteria.FrequencyDate
+                    }).ToList()
+                };
+            })
+            .OrderBy(x => x.Target)
+            .ThenBy(x => x.MasterTypeId)
+            .ToList();
 
                 return new BusinessResult(Const.SUCCES_GET_PLANT_CRITERIA_CODE, Const.SUCCES_GET_PLANT_CRITERIA_MSG, groupedData);
             }
