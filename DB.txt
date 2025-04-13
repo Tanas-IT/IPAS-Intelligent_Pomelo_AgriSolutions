@@ -1156,7 +1156,8 @@ VALUES
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
-('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2);
+('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 2),
+('admin@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Admin', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 1);
 
 GO
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])

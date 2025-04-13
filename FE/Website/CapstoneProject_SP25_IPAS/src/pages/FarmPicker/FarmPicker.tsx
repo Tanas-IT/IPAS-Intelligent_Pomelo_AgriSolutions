@@ -6,7 +6,7 @@ import { PATHS } from "@/routes";
 import { CustomButton, Loading } from "@/components";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
-import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole, UserRolesStr } from "@/constants";
 import { formatDate, getRoleId, getUserId } from "@/utils";
 import { toast } from "react-toastify";
 import { GetFarmPicker } from "@/payloads";
@@ -58,16 +58,16 @@ function FarmPicker() {
 
         const roleId = getRoleId();
 
-        if (isExpired && roleId !== UserRole.Owner.toString()) {
+        if (isExpired && roleId !== UserRolesStr.Owner) {
           toast.warning("This farm's package has expired. Please contact the owner to renew.");
           navigate(PATHS.FARM_PICKER);
         } else {
           switch (roleId) {
-            case UserRole.Owner.toString():
-            case UserRole.Manager.toString():
+            case UserRolesStr.Owner:
+            case UserRolesStr.Manager:
               navigate(PATHS.DASHBOARD);
               break;
-            case UserRole.Employee.toString():
+            case UserRolesStr.Employee:
               navigate(PATHS.EMPLOYEE.DASHBOARD);
               break;
             default:
@@ -200,7 +200,7 @@ function FarmPicker() {
                       <Flex className={style.roleTagWrapper}>
                         <Tag
                           className={`${style.statusTag} ${
-                            farm.roleId == UserRole.Owner.toString() ? style.owner : style.other
+                            farm.roleId == UserRolesStr.Owner ? style.owner : style.other
                           }`}
                         >
                           {farm.roleName}

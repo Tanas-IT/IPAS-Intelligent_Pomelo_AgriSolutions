@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 
-import { UserRole } from "@/constants";
+import { UserRole, UserRolesStr } from "@/constants";
 
 interface Props {
   toggleForm: () => void;
@@ -47,10 +47,12 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         saveAuthData(loginResponse);
         const roleId = getRoleId();
 
-        if (roleId === UserRole.User.toString())
+        if (roleId === UserRolesStr.User)
           navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
-        if (roleId === UserRole.Admin.toString())
+        if (roleId === UserRolesStr.Admin)
           navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+        // if (roleId === UserRole..toString())
+        //   navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
       } else if (result.statusCode === 400 || result.statusCode === 500) {
         toast.error(toastMessage);
       }

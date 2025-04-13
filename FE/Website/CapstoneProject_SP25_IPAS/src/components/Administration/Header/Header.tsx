@@ -1,4 +1,4 @@
-import { Avatar, Button, Col, Flex, Popover, Row, Typography } from "antd";
+import { Avatar, Flex, Popover, Typography } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 

@@ -574,8 +574,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     >
       <Flex className={style.sidebar}>
         {/* Header */}
-        <Flex className={`${style.profileWrapper} ${!isDefault && style.cursor}`}>
-          {!isDefault && (
+        <Flex
+          className={`${style.profileWrapper} ${
+            !isDefault && currentUserRole !== UserRolesStr.Admin && style.cursor
+          }`}
+        >
+          {!isDefault && currentUserRole !== UserRolesStr.Admin ? (
             <Popover content={profileContent} trigger="click" placement="bottom" color="#f0f0f0">
               <Flex
                 className={style.logo}
@@ -588,8 +592,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
                 <Icons.arrowDropDownLine className={style.dropdownIcon} />
               </Flex>
             </Popover>
-          )}
-          {isDefault && (
+          ) : (
             <Flex
               className={style.logo}
               style={{
@@ -598,7 +601,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
             >
               <Avatar crossOrigin="anonymous" src={Images.logo} className={style.avatar} />
               {isExpanded && (
-                <Text className={style.logoText}>{"Intelligent Pomelo AgriSolutions"}</Text>
+                <Text className={style.logoText}>Intelligent Pomelo AgriSolutions</Text>
               )}
             </Flex>
           )}

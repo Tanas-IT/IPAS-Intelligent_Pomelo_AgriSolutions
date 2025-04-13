@@ -11,7 +11,7 @@ import {
   useToastFromLocalStorage,
   useToastMessage,
 } from "@/hooks";
-import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole, UserRolesStr } from "@/constants";
 import { PATHS } from "@/routes";
 const { Header, Content } = Layout;
 
@@ -31,7 +31,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     const roleId = getRoleId();
-    if (roleId === UserRole.User.toString()) {
+    if (roleId === UserRolesStr.User) {
       setIsUser(true);
       localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, MESSAGES.NO_PERMISSION);
       navigate(PATHS.FARM_PICKER);
