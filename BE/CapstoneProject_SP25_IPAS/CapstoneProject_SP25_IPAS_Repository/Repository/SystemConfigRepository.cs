@@ -19,10 +19,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             _context = context;
         }
 
-        public async Task<List<SystemConfiguration>> GetAllActiveConfigsAsync(string key)
+        public async Task<List<SystemConfiguration>> GetAllActiveConfigsAsync(string group)
         {
             return await _context.SystemConfigurations
-                .Where(c => c.ConfigKey.Trim().ToLower().Equals(key.Trim().ToLower()))
+                .Where(c => c.ConfigGroup.Trim().ToLower().Equals(group.Trim().ToLower()))
                 .Where(c => c.IsActive)
                 .ToListAsync();
         }
