@@ -988,7 +988,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         continue;
                     planDelete.IsActive = false;
                     planDelete.IsDeleted = false;
-                    planDelete.Status = "Stopped";
+                    planDelete.Status = PlanStatusConst.STOPPED;
                     var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
                     if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
                     {
