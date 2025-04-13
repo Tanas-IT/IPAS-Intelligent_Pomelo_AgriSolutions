@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #region CONFIG MASTER TYPE
         // Target for work
-        public const string WORK_TARGET = "WorkType";
+        public const string WORK_TARGET = "Work";
         // Target for criteria
         public const string CRITERIA_TARGET = "Criteria";
         #endregion
@@ -93,7 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
 
         #endregion
 
-        public static readonly HashSet<string> ADDABLE_CONFIG_KEYS = new HashSet<string>
+        public static readonly HashSet<string> ADDABLE_CONFIG_GROUP = new HashSet<string>
         {
             PLANT_LOT_CRITERIA, PLANT_LOT_CONDITION_APPLY, PLANT_LOT_EVALUATION_APPLY,
             GRAFTED_CRITERIA, GRAFTED_CONDITION_APPLY, GRAFTED_EVALUATION_APPLY,
