@@ -3,6 +3,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.CriteriaModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.MasterTypeModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PartnerModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest;
@@ -28,14 +29,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IFarmService _farmService;
-        private readonly ProgramDefaultConfig _masterTypeConfig
-            ;
-        public CriteriaService(IUnitOfWork unitOfWork, IMapper mapper, IFarmService farmService, ProgramDefaultConfig programDefaultConfig)
+        private readonly ProgramDefaultConfig _masterTypeConfig;
+        private readonly IExcelReaderService _excelReaderService;
+        public CriteriaService(IUnitOfWork unitOfWork, IMapper mapper, IFarmService farmService, ProgramDefaultConfig programDefaultConfig, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _farmService = farmService;
             _masterTypeConfig = programDefaultConfig;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> UpdateListCriteriaInType(ListCriteriaUpdateRequest listUpdate)
@@ -834,6 +836,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(int FarmId)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == FarmId && x.IsDeleted == false);
+                if (checkFarmExist == null)
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                Expression<Func<Criteria, bool>> filter = x => x.MasterType.FarmID == FarmId && x.IsDeleted == false;
+                Func<IQueryable<Criteria>, IOrderedQueryable<Criteria>> orderBy = x => x.OrderByDescending(x => x.CriteriaId).ThenByDescending(x => x.MasterTypeID);
+
+                var entities = await _unitOfWork.CriteriaRepository.GetForExport(filter: filter, orderBy: orderBy);
+                var mappedResult = _mapper.Map<IEnumerable<CriteriaModel>>(entities).ToList();
+
+                if (mappedResult.Any())
+                {
+                    var fileName = $"Criteria_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
+                    return await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+                }
+                else
+                {
+                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return (Array.Empty<byte>(), "empty.csv", "text/csv");
             }
         }
     }

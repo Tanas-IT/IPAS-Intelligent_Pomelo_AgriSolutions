@@ -27,7 +27,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
         public DateTime? CreateDate { get; set; }
         [CsvExport("Update Date")]
         public DateTime? UpdateDate { get; set; }
-        [CsvExport("Note Take")]
+        [CsvExport("Note Taker")]
         public string? NoteTakerName { get; set; }
         public string? NoteTakerAvatar { get; set; }
         [CsvExport("Number Images")]

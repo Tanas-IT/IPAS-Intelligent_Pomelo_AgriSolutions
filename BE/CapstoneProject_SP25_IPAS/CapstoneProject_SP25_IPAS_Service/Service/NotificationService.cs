@@ -139,23 +139,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var notifcationPlanModel = new NotificationModel()
                     {
-                        NotificationId = notificationPlan.NotificationId,
-                        Title = notificationPlan.Title,
-                        Content = notificationPlan.Content,
-                        CreateDate = notificationPlan.CreateDate,
-                        IsRead = notificationPlan.IsRead,
-                        Link = notificationPlan.Link,
-                        Color = notificationPlan.MasterType?.BackgroundColor,
+                        NotificationId = notificationPlan.Notification.NotificationId,
+                        Title = notificationPlan.Notification.Title,
+                        Content = notificationPlan.Notification.Content,
+                        CreateDate = notificationPlan.Notification.CreateDate,
+                        IsRead = notificationPlan.isRead,
+                        Link = notificationPlan.Notification.Link,
+                        Color = notificationPlan.Notification.MasterType?.BackgroundColor,
                         MasterType = new MasterTypeNotification()
                         {
-                            MasterTypeId = notificationPlan.MasterTypeId,
-                            MasterTypeName = notificationPlan.MasterType != null ? notificationPlan.MasterType.MasterTypeName : null
+                            MasterTypeId = notificationPlan.Notification.MasterTypeId,
+                            MasterTypeName = notificationPlan.Notification.MasterType != null ? notificationPlan.Notification.MasterType.MasterTypeName : null
                         },
                         Sender = new SenderNotification()
                         {
-                            SenderId = notificationPlan.SenderID,
-                            SenderName = notificationPlan.Sender != null ? notificationPlan.Sender.FullName : null,
-                            SenderAvatar = notificationPlan.Sender != null ? notificationPlan.Sender.AvatarURL : null
+                            SenderId = notificationPlan.Notification.SenderID,
+                            SenderName = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.FullName : null,
+                            SenderAvatar = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.AvatarURL : null
                         }
                     };
                     listNotificationResponse.Add(notifcationPlanModel);
