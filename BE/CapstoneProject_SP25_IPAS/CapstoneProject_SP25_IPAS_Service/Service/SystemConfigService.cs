@@ -38,13 +38,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // Kiểm tra ConfigKey có nằm trong danh sách được phép thêm không
-                if (!SystemConfigConst.ADDABLE_CONFIG_KEYS.Contains(request.ConfigKey, StringComparer.OrdinalIgnoreCase))
+                if (!SystemConfigConst.ADDABLE_CONFIG_GROUP.Contains(request.ConfigGroup, StringComparer.OrdinalIgnoreCase))
                 {
                     return new BusinessResult(400, "This ConfigKey is not allowed to be added.");
                 }
                 if (!string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
                     return new BusinessResult(400, "You must fill reference key or input value for this config");
                 string finalConfigValue = ""; // Mặc định là ConfigValue từ request
+                string finalConfigKey = ""; // Mặc định là ConfigValue từ request
 
                 // Nếu ReferenceKeyId được truyền, lấy ConfigValue từ cấu hình tham chiếu
                 if (request.ReferenceKeyId.HasValue)
@@ -55,12 +56,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Reference Config not found.");
                     }
                     finalConfigValue = referenceConfig.ConfigValue; // Lấy giá trị ConfigValue từ cấu hình tham chiếu
+                    finalConfigKey = referenceConfig.ConfigKey; // Lấy giá trị ConfigValue từ cấu hình tham chiếu
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(request.ConfigValue))
                         return new BusinessResult(400, "Config Value is empty");
                     finalConfigValue = request.ConfigValue;
+                    finalConfigKey = request.ConfigKey;
                 }
 
                 // Kiểm tra ConfigKey đã tồn tại chưa (tránh trùng lặp)
@@ -74,7 +77,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var newConfig = new SystemConfiguration
                 {
                     ConfigGroup = request.ConfigGroup,
-                    ConfigKey = request.ConfigKey,
+                    ConfigKey = finalConfigKey,
                     ConfigValue = finalConfigValue,
                     ValueType = "string", // cac gia tri them duoc deu la kieu string 
                     EffectedDateFrom = request.EffectedDateFrom,
@@ -430,7 +433,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 //var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(configs);
                 // Trả về danh sách config
-                return new BusinessResult(200, "Successfully retrieved configurations.", SystemConfigConst.ADDABLE_CONFIG_KEYS);
+                return new BusinessResult(200, "Successfully retrieved configurations.", SystemConfigConst.ADDABLE_CONFIG_GROUP);
             }
             catch (Exception ex)
             {
