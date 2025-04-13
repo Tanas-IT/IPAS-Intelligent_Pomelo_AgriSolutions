@@ -839,13 +839,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportExcel(int FarmId)
+        public async Task<BusinessResult> ExportExcel(int FarmId)
         {
             try
             {
                 var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == FarmId && x.IsDeleted == false);
                 if (checkFarmExist == null)
-                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                {
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                }
+
                 Expression<Func<Criteria, bool>> filter = x => x.MasterType.FarmID == FarmId && x.IsDeleted == false;
                 Func<IQueryable<Criteria>, IOrderedQueryable<Criteria>> orderBy = x => x.OrderByDescending(x => x.CriteriaId).ThenByDescending(x => x.MasterTypeID);
 
@@ -855,17 +858,122 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (mappedResult.Any())
                 {
                     var fileName = $"Criteria_{checkFarmExist.FarmName}_notes_{DateTime.Now:yyyyMMdd}.csv";
-                    return await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+                    var exportResult = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                    return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                    {
+                        FileBytes = exportResult.FileBytes,
+                        FileName = exportResult.FileName,
+                        ContentType = exportResult.ContentType
+                    });
                 }
-                else
-                {
-                    return (Array.Empty<byte>(), "empty.csv", "text/csv");
-                }
+
+                return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
             }
             catch (Exception ex)
             {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
 
-                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+        public async Task<BusinessResult> ExportExcelForObject(GetCriteriaOfTargetRequest request)
+        {
+            try
+            {
+                if (!(request.PlantID.HasValue || request.GraftedPlantID.HasValue || request.PlantLotID.HasValue))
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                }
+
+                var criteriaByType = await _unitOfWork.CriteriaTargetRepository
+                    .GetAllCriteriaOfTargetNoPaging(request.PlantID, request.GraftedPlantID, request.PlantLotID);
+
+                if (!criteriaByType.Any())
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
+                }
+
+                var valid = criteriaByType
+                    .Where(x => x.Criteria?.MasterType != null && !x.Criteria.IsDeleted.GetValueOrDefault())
+                    .ToList();
+
+                var allConfigs = (await _unitOfWork.SystemConfigRepository.GetAllNoPaging()).ToList();
+                string code = "";
+
+                if (request.PlantID.HasValue)
+                {
+                    var checkPlantExist = await _unitOfWork.PlantRepository.GetByCondition(x => x.PlantId == request.PlantID);
+                    if (checkPlantExist != null)
+                        code = checkPlantExist.PlantCode;
+                }
+                else if (request.PlantLotID.HasValue)
+                {
+                    var checkPlantLotExist = await _unitOfWork.PlantLotRepository.GetByCondition(x => x.PlantLotId == request.PlantLotID);
+                    if (checkPlantLotExist != null)
+                        code = checkPlantLotExist.PlantLotCode;
+                }
+                else if (request.GraftedPlantID.HasValue)
+                {
+                    var checkGraftedExist = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.GraftedPlantID);
+                    if (checkGraftedExist != null)
+                        code = checkGraftedExist.GraftedPlantCode;
+                }
+
+                var exportRows = criteriaByType
+                    .Where(pc => pc.Criteria != null && pc.Criteria.IsDeleted == false && pc.Criteria.MasterType != null)
+                    .Select(pc =>
+                    {
+                        var masterType = pc.Criteria!.MasterType!;
+                        var targetDisplay = allConfigs.FirstOrDefault(x =>
+                            !string.IsNullOrEmpty(masterType.TypeName) &&
+                            !string.IsNullOrEmpty(masterType.Target) &&
+                            x.ConfigGroup.Equals(masterType.TypeName, StringComparison.OrdinalIgnoreCase) &&
+                            x.ConfigKey.Equals(masterType.Target, StringComparison.OrdinalIgnoreCase))?.ConfigValue;
+
+                        return new ExportCriteria
+                        {
+                            MasterTypeCode = masterType.MasterTypeCode,
+                            MasterTypeName = masterType.MasterTypeName,
+                            Target = targetDisplay,
+                            PlantCode = request.PlantID.HasValue ? code : null,
+                            GraftedPlantCode = request.GraftedPlantID.HasValue ? code : null,
+                            PlantLotCode = request.PlantLotID.HasValue ? code : null,
+                            CriteriaCode = pc.Criteria.CriteriaCode,
+                            CriteriaName = pc.Criteria.CriteriaName,
+                            Description = pc.Criteria.CriteriaDescription,
+                            MinValue = pc.Criteria.MinValue,
+                            MaxValue = pc.Criteria.MaxValue,
+                            Unit = pc.Criteria.Unit,
+                            ValueChecked = pc.ValueChecked,
+                            CreateDate = pc.CreateDate,
+                            CheckedDate = pc.CheckedDate,
+                            IsPassed = pc.IsPassed,
+                            Note = pc.Note,
+                            FrequencyDate = pc.Criteria.FrequencyDate
+                        };
+                    })
+                    .OrderBy(x => x.Target)
+                    .ThenBy(x => x.MasterTypeCode)
+                    .ToList();
+
+                if (exportRows.Any())
+                {
+                    var fileName = $"Criteria_{code}_{DateTime.Now:yyyyMMdd}{FileFormatConst.CSV_EXPAND}";
+                    var csvExport = await _excelReaderService.ExportToCsvAsync(exportRows, fileName);
+
+                    return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                    {
+                        FileBytes = csvExport.FileBytes,
+                        FileName = csvExport.FileName,
+                        ContentType = csvExport.ContentType
+                    });
+                }
+
+                return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_CRITERIA_OF_PLANT_EMPTY_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
     }

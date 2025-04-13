@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using FluentValidation;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_Service.Base;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -443,16 +444,18 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Plant.exportCSV)]
-        public async Task<IActionResult> ExportNotes([FromQuery]GetPlantPaginRequest exportRequest)
+        public async Task<IActionResult> ExportNotes([FromQuery] GetPlantPaginRequest exportRequest)
         {
             var result = await _plantService.ExportExcel(exportRequest);
-
-            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            if (result.StatusCode != 200)
+                return Ok(result);
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
             {
-                return NotFound("No data found to export.");
+                return File(file.FileBytes, file.ContentType, file.FileName);
             }
 
-            return File(result.FileBytes, result.ContentType, result.FileName);
+            return NotFound(result.Message);
         }
+
     }
 }

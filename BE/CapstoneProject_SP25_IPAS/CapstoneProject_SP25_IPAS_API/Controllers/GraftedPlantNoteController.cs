@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 //{
                 //    return BadRequest(ModelState);
                 //}
-                if(!request.UserId.HasValue)
+                if (!request.UserId.HasValue)
                     request.UserId = _jwtTokenService.GetUserIdFromToken();
                 if (!request.UserId.HasValue)
                 {
@@ -160,17 +160,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpGet(APIRoutes.GraftedPlant.exportCSV)]
+        [HttpGet(APIRoutes.GraftedPlant.exportGraftedNoteCSV)]
         public async Task<IActionResult> ExportNotes(int graftedPlantId)
         {
             var result = await _graftedNoteService.ExportNotesByGraftedPlantId(graftedPlantId);
-
-            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            if (result.StatusCode != 200)
+                return Ok(result);
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
             {
-                return NotFound("No data found to export.");
+                return File(file.FileBytes, file.ContentType, file.FileName);
             }
 
-            return File(result.FileBytes, result.ContentType, result.FileName);
+            return NotFound(result.Message);
         }
+
     }
 }

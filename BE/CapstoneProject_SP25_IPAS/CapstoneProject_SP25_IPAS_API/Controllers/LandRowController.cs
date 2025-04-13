@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandRowRequest;
+using CapstoneProject_SP25_IPAS_Service.Base;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -224,5 +225,20 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.LandRow.exportCSV)]
+        public async Task<IActionResult> ExportRowCsv([FromQuery] GetPlantRowPaginRequest request)
+        {
+            var result = await _landRowService.ExportExcelByPlot(request);
+
+            if (result.StatusCode != 200 || result.Data == null)
+            {
+                return Ok(result);
+            }
+
+            var file = result.Data as ExportFileResult;
+            return File(file!.FileBytes, file.ContentType, file.FileName);
+        }
+
     }
 }

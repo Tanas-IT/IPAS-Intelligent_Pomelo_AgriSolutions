@@ -4,7 +4,9 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -317,6 +319,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             var result = await _graftedPlantService.markDeadGraftedAsync(graftPlantsId);
             return Ok(result);
+        }
+
+        [HttpGet(APIRoutes.GraftedPlant.exportCSV)]
+        public async Task<IActionResult> ExportCriteriaObject([FromQuery] GetGraftedPaginRequest getRequest)
+        {
+            if (!getRequest.FarmId.HasValue)
+            {
+                getRequest.FarmId = _jwtTokenService.GetFarmIdFromToken();
+            }
+            if (!getRequest.FarmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm Id is required"
+                });
+            }
+            var result = await _graftedPlantService.ExportGrafted(getRequest);
+
+            if (result.StatusCode != 200)
+            {
+                return Ok(result);
+            }
+            var fileResult = result.Data as ExportFileResult;
+            return File(fileResult.FileBytes, fileResult.ContentType, fileResult.FileName);
         }
     }
 }

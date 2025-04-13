@@ -447,16 +447,53 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.Criteria.exportCSV)]
-        public async Task<IActionResult> ExportPartner([FromQuery] int farmId)
+        public async Task<IActionResult> ExportCriteriaSet([FromQuery] int? farmId)
         {
-            var result = await _criteriaService.ExportExcel(farmId);
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
 
-            if (result.FileBytes == null || result.FileBytes.Length == 0)
+            if (!farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm Id is required"
+                });
+            }
+
+            var result = await _criteriaService.ExportExcel(farmId.Value);
+
+            if (result.StatusCode != 200 || result.Data == null)
+            {
+                return Ok(result);
+            }
+
+            var fileResult = result.Data as ExportFileResult;
+            if (fileResult?.FileBytes == null || fileResult.FileBytes.Length == 0)
             {
                 return NotFound("No data found to export.");
             }
 
-            return File(result.FileBytes, result.ContentType, result.FileName);
+            return File(fileResult.FileBytes, fileResult.ContentType, fileResult.FileName);
+        }
+
+        [HttpGet(APIRoutes.Criteria.exportCSVObject)]
+        public async Task<IActionResult> ExportCriteriaObject([FromQuery] GetCriteriaOfTargetRequest request)
+        {
+            var result = await _criteriaService.ExportExcelForObject(request);
+
+            if (result.StatusCode != 200 || result.Data == null)
+            {
+                return Ok(result);
+            }
+
+            var fileResult = result.Data as ExportFileResult;
+            if (fileResult?.FileBytes == null || fileResult.FileBytes.Length == 0)
+            {
+                return NotFound("No data found to export.");
+            }
+
+            return File(fileResult.FileBytes, fileResult.ContentType, fileResult.FileName);
         }
     }
 }
