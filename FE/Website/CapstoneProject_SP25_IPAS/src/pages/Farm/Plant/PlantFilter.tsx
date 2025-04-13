@@ -98,7 +98,8 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     (filters.growthStageIds && filters.growthStageIds.length > 0) ||
     (filters.healthStatus && filters.healthStatus.length > 0) ||
     filters.isLocated !== undefined ||
-    filters.isDead !== undefined
+    filters.isDead !== undefined ||
+    filters.isPassed !== undefined
   );
 
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
@@ -135,9 +136,9 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           label="Health Status"
           fieldType="select"
           value={filters.healthStatus}
-          options={Object.entries(HEALTH_STATUS).map(([key, value]) => ({
-            value: key,
-            label: value,
+          options={Object.values(HEALTH_STATUS).map((status) => ({
+            value: status,
+            label: status,
           }))}
           onChange={(value) => updateFilters("healthStatus", value)}
         />
@@ -160,20 +161,17 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
           />
         </Flex>
 
-        {/* <Flex className={style.row}> */}
-        {/* <FormFieldFilter
-          label="Is Assigned"
+        <FormFieldFilter
+          label="Passed for Grafting"
           fieldType="radio"
-          value={filters.isLocated}
+          value={filters.isPassed}
           options={[
-            { value: true, label: "Assigned" },
-            { value: false, label: "Not Assigned" },
+            { value: true, label: "Passed" },
+            { value: false, label: "Not Passed" },
           ]}
-          onChange={(value) => updateFilters("isLocated", value)}
+          onChange={(value) => updateFilters("isPassed", value)}
           direction="row"
-        /> */}
-
-        {/* </Flex> */}
+        />
 
         <FormFieldFilter
           label="Life Status"

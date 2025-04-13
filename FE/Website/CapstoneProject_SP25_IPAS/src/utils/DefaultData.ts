@@ -148,6 +148,7 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   healthStatus: [] as string[],
   isLocated: null,
   isDead: null,
+  isPassed: null,
 };
 
 export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
@@ -231,4 +232,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   isPassed: false,
   plantReferenceCode: "",
   plantReferenceId: 0,
+  passedDate: "",
+  plantLotName: "",
+  plantReferenceName: "",
 };

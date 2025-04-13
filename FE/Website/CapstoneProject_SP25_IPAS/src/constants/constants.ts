@@ -15,9 +15,10 @@ export const UserRolesStr = {
 export const SYSTEM_CONFIG_GROUP = {
   MASTER_TYPE: "MasterType",
   GROWTH_STAGE_ACTION: "GrowthStageAction",
-  WORK_TARGET: "WorkTarget",
+  WORK: "Work",
   CRITERIA: "Criteria",
   CRITERIA_APPLY: "CriteriaApply",
+  PLANT_LOT_CRITERIA: "PlantLotCriteria",
   SOIL_TYPE: "SoilType",
   CLIMATE_ZONE: "ClimateZone",
   HARVEST_SEASON: "HarvestSeason",
@@ -110,10 +111,10 @@ export const WORK_TARGETS = {
 
 export const CRITERIA_TARGETS = {
   Product: "Product",
-  "Grafted Condition": "Grafted Condition",
-  "Grafted Evaluation": "Grafted Evaluation",
-  "Plantlot Condition": "PlantLot Condition",
-  "Plantlot Evaluation": "PlantLot Evaluation",
+  "Grafted Condition": "GraftedCondition",
+  "Grafted Evaluation": "GraftedEvaluation",
+  "Plantlot Condition": "PlantLotCondition",
+  "Plantlot Evaluation": "PlantLotEvaluation",
   Others: "Others",
 } as const;
 

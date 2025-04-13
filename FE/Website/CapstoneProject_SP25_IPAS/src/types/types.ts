@@ -105,6 +105,7 @@ export type FilterPlantState = {
   healthStatus: string[];
   isLocated: boolean | null;
   isDead: boolean | null;
+  isPassed: boolean | null;
 };
 
 export type FilterGraftedPlantState = {

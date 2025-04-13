@@ -37,7 +37,7 @@ function CropList() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterCropState>(
     DEFAULT_CROP_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

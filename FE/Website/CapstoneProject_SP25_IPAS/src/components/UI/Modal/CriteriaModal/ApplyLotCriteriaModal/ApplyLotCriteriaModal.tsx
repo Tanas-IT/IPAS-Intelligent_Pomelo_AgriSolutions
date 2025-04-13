@@ -39,8 +39,9 @@ const ApplyCriteriaLotModal = ({
     isCriteriaListValid,
   } = useCriteriaManagement();
   const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_GROUP.CRITERIA_APPLY,
-    SYSTEM_CONFIG_KEY.PLANT_LOT_CRITERIA,
+    SYSTEM_CONFIG_GROUP.PLANT_LOT_CRITERIA,
+    undefined,
+    true,
   );
   const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
   const { setIsDirty } = useDirtyStore();

@@ -34,42 +34,49 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
   const [rotation, setRotation] = useState<number>(360);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  const fetchData = useCallback(
+    async (currentPageReset?: number) => {
+      if (currentPageReset && currentPageReset !== currentPage) {
+        setCurrentPage(currentPageReset);
+        return;
+      }
+      try {
+        setIsLoading(true);
 
-      setTimeout(async () => {
-        try {
-          const result = await fetchFunction(
-            currentPage,
-            rowsPerPage,
-            sortField,
-            sortDirection,
-            searchValue,
-            additionalParams,
-          );
-          setData(result.list ?? []);
-          setTotalPages(result.totalPage);
-          setTotalRecords(result.totalRecord);
-        } catch (error) {
-          toast.error("Error fetching data");
-        } finally {
-          setIsLoading(false);
-        }
-      }, 500);
-    } catch (error) {
-      toast.error("Unexpected error occurred");
-      setIsLoading(false);
-    }
-  }, [
-    currentPage,
-    rowsPerPage,
-    searchValue,
-    sortField,
-    sortDirection,
-    fetchFunction,
-    additionalParams,
-  ]);
+        setTimeout(async () => {
+          try {
+            const result = await fetchFunction(
+              currentPage,
+              rowsPerPage,
+              sortField,
+              sortDirection,
+              searchValue,
+              additionalParams,
+            );
+            setData(result.list ?? []);
+            setTotalPages(result.totalPage);
+            setTotalRecords(result.totalRecord);
+          } catch (error) {
+            toast.error("Error fetching data");
+          } finally {
+            setIsLoading(false);
+          }
+        }, 500);
+      } catch (error) {
+        toast.error("Unexpected error occurred");
+        setIsLoading(false);
+      }
+    },
+    [
+      currentPage,
+      rowsPerPage,
+      searchValue,
+      sortField,
+      sortDirection,
+      fetchFunction,
+      additionalParams,
+    ],
+  );
 
   // Lấy tham số từ URL khi trang được tải
   useEffect(() => {

@@ -16,6 +16,7 @@ export interface GetCriteriaByMasterType {
   masterTypeName: string;
   masterTypeDescription: string;
   target: string;
+  targetDisplay: string;
   createDate: Date;
   isActive: boolean;
   criterias: GetCriteria[];

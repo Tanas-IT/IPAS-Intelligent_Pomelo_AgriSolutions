@@ -104,7 +104,7 @@ function PackageList() {
           isLoading={false}
           caption="Package Management Table"
           notifyNoData="No data to display"
-          renderAction={(packagee: GetPackage) => <ActionMenuPlan id={packagee.packageId} />}
+          // renderAction={(packagee: GetPackage) => <ActionMenuPlan id={packagee.packageId} />}
         />
 
         <NavigationDot
