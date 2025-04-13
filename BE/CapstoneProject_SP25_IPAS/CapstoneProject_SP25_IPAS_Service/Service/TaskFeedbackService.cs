@@ -24,12 +24,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     public class TaskFeedbackService : ITaskFeedbackService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebSocketService _webSocketService;
         private readonly IMapper _mapper;
 
-        public TaskFeedbackService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TaskFeedbackService(IUnitOfWork unitOfWork, IMapper mapper, IWebSocketService webSocketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _webSocketService = webSocketService;
         }
 
         public async Task<BusinessResult> CreateTaskFeedback(CreateTaskFeedbackModel createTaskFeedbackModel)
@@ -76,7 +78,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     await _unitOfWork.NotificationRepository.Insert(newNotification);
                     await _unitOfWork.SaveAsync();
-                    foreach(var userWorkLog in getWorkLog.UserWorkLogs)
+                    var newNotificationForManager = new PlanNotification()
+                    {
+                        NotificationID = newNotification.NotificationId,
+                        CreatedDate = DateTime.Now,
+                        isRead = false,
+                        UserID = createTaskFeedbackModel.ManagerId
+                    };
+                    await _unitOfWork.PlanNotificationRepository.Insert(newNotificationForManager);
+                    await _webSocketService.SendToUser(createTaskFeedbackModel.ManagerId.Value, newNotificationForManager);
+                    foreach (var userWorkLog in getWorkLog.UserWorkLogs)
                     {
                         var planNotification = new PlanNotification()
                         {
@@ -86,6 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = userWorkLog.UserId
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(planNotification);
+                        await _webSocketService.SendToUser(userWorkLog.UserId, newNotification);
                     }
                     await _unitOfWork.SaveAsync();
                     await transaction.CommitAsync();

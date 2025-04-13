@@ -1860,7 +1860,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
                     Title = "WorkLog",
                     IsRead = false,
-                    MasterTypeId = 36,
+                    MasterTypeId = 37,
                     CreateDate = DateTime.Now,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                 };
@@ -2696,42 +2696,78 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
-                    //var currentOrder = getExistPlan.SubProcess?.Order ?? 0;
-                    //var currentEndDate = addNewTaskModel.NewDateWork.Date.Add(endTime);
-                    //var originalEndDate = getExistPlan.EndDate;
-
-                    //// Nếu thời gian làm bù kết thúc trễ hơn kế hoạch gốc
-                    //if (originalEndDate != null && currentEndDate > originalEndDate)
+                    //if (createNewPlan.EndDate > getExistPlan.EndDate)
                     //{
-                    //    // Tính số ngày cần dời
-                    //    var shiftDays = (currentEndDate.Date - originalEndDate.Value.Date).Days;
+                    //    var newEndDate = createNewPlan.EndDate.Value;
 
-                    //    // Lấy tất cả kế hoạch trong process hiện tại có Order > WorkLog hiện tại
-                    //    var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(getExistPlan.ProcessId.Value);
-                    //    var dependentPlans = allPlans.Where(p => p.SubProcess?.Order > currentOrder).ToList();
-                    //    var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+                    //    // Lấy danh sách toàn bộ SubProcess liên quan theo cây
+                    //    var relatedSubProcessIds = await _unitOfWork.SubProcessRepository.GetAllByProcessOrParentAsync(getExistPlan.ProcessId.Value);
 
-                    //    // Lấy toàn bộ WorkLog thuộc các Plan phụ thuộc
-                    //    var allDependentWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+                    //    // Lấy tất cả Plan thuộc các SubProcess này
+                    //    var allPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(relatedSubProcessIds.ToList());
 
-                    //    foreach (var workLog in allDependentWorkLogs)
+                    //    // Lấy tất cả WorkLog thuộc các Plan này
+                    //    var planIds = allPlans.Select(p => p.PlanId).ToList();
+                    //    var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(planIds);
+
+                    //    // Tạo hàm GetFullOrder để biết thứ tự trong cây
+                    //    int GetFullOrder(SubProcess sp)
                     //    {
-                    //        if (workLog.Date != null)
+                    //        var orderList = new List<int>();
+                    //        while (sp != null)
                     //        {
-                    //            workLog.Date = workLog.Date.Value.AddDays(shiftDays);
-                    //            // Giữ nguyên giờ bắt đầu/kết thúc
+                    //            orderList.Insert(0, sp.Order ?? 0);
+                    //            sp = sp.ParentSubProcessId.HasValue && relatedSubProcessIds.Contains(sp.ParentSubProcessId.Value) &&
+                    //                await _unitOfWork.SubProcessRepository.GetByIdAsync(sp.ParentSubProcessId.Value) is SubProcess parent
+                    //                ? parent
+                    //                : null;
                     //        }
 
-                    //        if (workLog.Schedule != null)
-                    //        {
-                    //            // Cập nhật Schedule luôn nếu cần
-                    //            workLog.Schedule.CustomDates = "[" + JsonConvert.SerializeObject(workLog.Date?.ToString("yyyy/MM/dd")) + "]";
-                    //        }
-
-                    //        _unitOfWork.WorkLogRepository.Update(workLog);
+                    //        return Convert.ToInt32(string.Join("", orderList.Select(o => o.ToString("D2"))));
                     //    }
 
-                    //    await _unitOfWork.SaveAsync();
+                    //    // Tính order của plan hiện tại (có WorkLog làm bù)
+                    //    int currentOrder = 0;
+                    //    if (getExistPlan.SubProcessId.HasValue)
+                    //    {
+                    //        var sp = await _unitOfWork.SubProcessRepository.GetByIdAsync(getExistPlan.SubProcessId.Value);
+                    //        currentOrder = GetFullOrder(sp);
+                    //    }
+
+                    //    // Tìm các WorkLog thuộc các Plan có SubProcess thứ tự sau
+                    //    var dependentWorkLogs = new List<WorkLog>();
+
+                    //    foreach (var workLog in allWorkLogs)
+                    //    {
+                    //        if (workLog.WorkLogId == addNewWorkLog.WorkLogId) continue;
+
+                    //        var plan = allPlans.FirstOrDefault(p => p.PlanId == workLog.Schedule?.CarePlanId);
+                    //        if (plan?.SubProcessId == null) continue;
+
+                    //        var subProcess = await _unitOfWork.SubProcessRepository.GetByIdAsync(plan.SubProcessId.Value);
+                    //        var order = GetFullOrder(subProcess);
+
+                    //        if (order > currentOrder)
+                    //        {
+                    //            dependentWorkLogs.Add(workLog);
+                    //        }
+                    //    }
+
+                    //    // ✅ Dời các WorkLog phụ thuộc
+                    //    var offset = (createNewPlan.EndDate.Value - getExistPlan.EndDate.Value).TotalMinutes;
+
+                    //    foreach (var depWorkLog in dependentWorkLogs)
+                    //    {
+                    //        if (depWorkLog.ActualStartTime.HasValue)
+                    //            depWorkLog.ActualStartTime = depWorkLog.ActualStartTime.Value.Add(TimeSpan.FromMinutes(offset));
+                    //        if (depWorkLog.ActualEndTime.HasValue)
+                    //            depWorkLog.ActualEndTime = depWorkLog.ActualEndTime.Value.Add(TimeSpan.FromMinutes(offset));
+
+                    //        if (depWorkLog.Date.HasValue)
+                    //            depWorkLog.Date = depWorkLog.Date.Value.Add(TimeSpan.FromMinutes(offset));
+
+                    //        _unitOfWork.WorkLogRepository.Update(depWorkLog);
+                    //    }
                     //}
 
 

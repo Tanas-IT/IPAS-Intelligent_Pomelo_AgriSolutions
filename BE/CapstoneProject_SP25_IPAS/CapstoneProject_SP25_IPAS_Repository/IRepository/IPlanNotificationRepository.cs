@@ -10,7 +10,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IPlanNotificationRepository
     {
-        public Task<List<Notification>> GetListPlanNotificationByUserId(int userId,bool? isRead);
+        public Task<List<PlanNotification>> GetListPlanNotificationByUserId(int userId, bool? isRead);
         public Task<List<PlanNotification>> GetListPlanNotificationByNotificationId(int notificationId);
     }
 }
