@@ -19,5 +19,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<UserWorkLog>> GetListUserWorkLogToStatistic(int farmId);
         public Task<List<UserFarm>> GetUserWorkLogsByEmployeeIds(int? top, int? farmId, string? search);
         public Task<bool> DeleteUserWorkLogByWorkLogId(int workLogId);
+        public Task<List<UserWorkLog>> GetUserWorkLogByUserId(int userId);
     }
 }
