@@ -513,5 +513,16 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return result;
         }
+
+        public async Task<WorkLog> GetWorkLogByIdForDelete(int workLogId)
+        {
+            var getWorkLog = await _context.WorkLogs
+                                .Include(x => x.TaskFeedbacks)
+                                .Include(x => x.UserWorkLogs)
+                                .Include(x => x.Schedule)
+                                .ThenInclude(x => x.CarePlan)
+                                .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
+            return getWorkLog;
+        }
     }
 }
