@@ -118,7 +118,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPut(APIRoutes.User.bannedUser, Name = "bannedUser")]
-        public async Task<IActionResult> BannedUser([FromQuery] List<int> userId)
+        public async Task<IActionResult> BannedUser([FromBody] List<int> userId)
         {
             try
             {
@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.User.unBannedUser, Name = "UnbannedUser")]
-        public async Task<IActionResult> UnBannedUser([FromQuery] List<int> userId)
+        public async Task<IActionResult> UnBannedUser([FromBody] List<int> userId)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
-        public async Task<IActionResult> SoftDeleteUser([FromQuery] List<int> userIds)
+        public async Task<IActionResult> SoftDeleteUser([FromBody] List<int> userIds)
         {
             try
             {
