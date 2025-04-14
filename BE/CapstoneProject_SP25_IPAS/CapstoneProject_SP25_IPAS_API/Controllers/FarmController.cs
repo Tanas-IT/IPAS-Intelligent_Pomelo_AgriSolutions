@@ -27,11 +27,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[HybridAuthorize("Admin,User", "Manager")]
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpGet(APIRoutes.Farm.getFarmWithPagination, Name = "getAllFarmPaginationAsync")]
-        public async Task<IActionResult> GetAllFarmWithPaginationAsync(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllFarmWithPaginationAsync([FromQuery] GetFarmFilterRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _farmService.GetAllFarmPagination(paginationParameter);
+                var result = await _farmService.GetAllFarmPagination(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
