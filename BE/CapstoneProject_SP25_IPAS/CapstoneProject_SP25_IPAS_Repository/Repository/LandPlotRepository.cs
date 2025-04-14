@@ -112,6 +112,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ThenInclude(x => x.Crop)
                                 .ThenInclude(x => x.HarvestHistories)
                                 .ThenInclude(x => x.ProductHarvestHistories)
+                                .ThenInclude(x => x.Plant)
+                                .ThenInclude(x => x.LandRow)
                                 .ToListAsync();
             return result;
         }
