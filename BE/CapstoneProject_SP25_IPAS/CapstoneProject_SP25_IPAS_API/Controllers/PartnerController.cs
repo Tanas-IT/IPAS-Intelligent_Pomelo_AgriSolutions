@@ -10,6 +10,8 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PartnerRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PartnerModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_Service.Base;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -27,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.Partner.getPartnerWithPagination, Name = "getPartnerWithPagination")]
-        public async Task<IActionResult> GetAllPartner([FromQuery] GetPartnerFilterRequest filterRequest, [FromQuery]PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllPartner([FromQuery] GetPartnerFilterRequest filterRequest, [FromQuery] PaginationParameter paginationParameter)
         {
             try
             {
@@ -148,7 +150,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             try
             {
                 var result = await _partnerService.GetPartnerByRoleName(roleName);
-                return Ok(result);  
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -167,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
-                if(!farmId.HasValue)
+                if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 if (!farmId.HasValue)
                     return BadRequest(new BaseResponse()
@@ -208,5 +210,20 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Partner.exportCSV)]
+        public async Task<IActionResult> ExportPartner([FromQuery] int farmId)
+        {
+            var result = await _partnerService.ExportExcel(farmId);
+            if (result.StatusCode != 200)
+                return Ok(result);
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
+            {
+                return File(file.FileBytes, file.ContentType, file.FileName);
+            }
+
+            return NotFound(result.Message);
+        }
+
     }
 }

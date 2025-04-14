@@ -29,12 +29,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IResponseCacheService _responseCacheService;
-        public LandRowService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IResponseCacheService responseCacheService)
+        private readonly IExcelReaderService _excelReaderService;
+        public LandRowService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IResponseCacheService responseCacheService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _configuration = configuration;
             _responseCacheService = responseCacheService;
+            _excelReaderService = excelReaderService;
         }
 
         public async Task<BusinessResult> CreateLandRow(CreateLandRowRequest createRequest)
@@ -219,6 +221,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (updateLandRowRequest.TreeAmount.HasValue)
                     {
+                        var curPlantInRow = await _unitOfWork.PlantRepository.GetAllNoPaging(x => x.LandRowId == updateLandRowRequest.LandRowId && x.IsDead == false && x.IsDeleted == false);
+                        if (updateLandRowRequest.TreeAmount < curPlantInRow.Count())
+                            return new BusinessResult(400, $"Tree amount in row can not smaller than curent plant has exist.");
                         var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
                         if (updateLandRowRequest.TreeAmount < minPlant)
                             return new BusinessResult(400, $"Plant of Row must >= {minPlant}.");
@@ -454,6 +459,75 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var emptyIndexes = allIndexes.Except(usedIndexes).ToList();
                 //var mapReturn = _mapper.Map<IEnumerable<ForSelectedModels>>(landRow);
                 return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, Const.SUCCESS_GET_ROWS_SUCCESS_MSG, emptyIndexes);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> ExportExcelByPlot(GetPlantRowPaginRequest request)
+        {
+            try
+            {
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId;
+
+                if (!string.IsNullOrEmpty(request.Direction))
+                {
+                    List<string> filterList = Util.SplitByComma(request.Direction!);
+                    filter = filter.And(x => filterList.Contains(x.Direction!.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(request.Status))
+                {
+                    List<string> filterList = Util.SplitByComma(request.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+
+                if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
+                {
+                    if (request.RowIndexFrom > request.RowIndexTo)
+                    {
+                        return new BusinessResult(Const.WARNING_INVALID_FILTER_VALUE_CODE, Const.WARNING_INVALID_ROW_INDEX_FILTER_MSG);
+                    }
+
+                    filter = filter.And(x => x.RowIndex >= request.RowIndexFrom && x.RowIndex <= request.RowIndexTo);
+                }
+
+                if (request.TreeAmountFrom.HasValue && request.TreeAmountTo.HasValue)
+                {
+                    if (request.TreeAmountFrom > request.TreeAmountTo)
+                    {
+                        return new BusinessResult(Const.WARNING_INVALID_FILTER_VALUE_CODE, Const.WARNING_INVALID_TREE_AMOUNT_FILTER_MSG);
+                    }
+
+                    filter = filter.And(x => x.TreeAmount >= request.TreeAmountFrom && x.TreeAmount <= request.TreeAmountTo);
+                }
+
+                var entities = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter);
+                var mappedResult = _mapper.Map<IEnumerable<LandRowModel>>(entities).ToList();
+
+                foreach (var item in mappedResult)
+                {
+                    item.Plants = null!;
+                }
+
+                if (mappedResult.Any())
+                {
+                    var fileName = $"landrow_{DateTime.Now:yyyyMMdd}{FileFormatConst.CSV_EXPAND}";
+                    var exportLandRow = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                    return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                    {
+                        FileBytes = exportLandRow.FileBytes,
+                        FileName = fileName,
+                        ContentType = exportLandRow.ContentType,
+                    });
+                }
+                else
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_EMPTY_LAND_ROWS_MSG);
+                }
             }
             catch (Exception ex)
             {

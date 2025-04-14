@@ -38,13 +38,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // Kiểm tra ConfigKey có nằm trong danh sách được phép thêm không
-                if (!SystemConfigConst.ADDABLE_CONFIG_KEYS.Contains(request.ConfigKey, StringComparer.OrdinalIgnoreCase))
+                if (!SystemConfigConst.ADDABLE_CONFIG_GROUP.Contains(request.ConfigGroup, StringComparer.OrdinalIgnoreCase))
                 {
                     return new BusinessResult(400, "This ConfigKey is not allowed to be added.");
                 }
-                if (!string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
+                if (string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
                     return new BusinessResult(400, "You must fill reference key or input value for this config");
                 string finalConfigValue = ""; // Mặc định là ConfigValue từ request
+                string finalConfigKey = ""; // Mặc định là ConfigValue từ request
 
                 // Nếu ReferenceKeyId được truyền, lấy ConfigValue từ cấu hình tham chiếu
                 if (request.ReferenceKeyId.HasValue)
@@ -55,12 +56,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "Reference Config not found.");
                     }
                     finalConfigValue = referenceConfig.ConfigValue; // Lấy giá trị ConfigValue từ cấu hình tham chiếu
+                    finalConfigKey = referenceConfig.ConfigKey; // Lấy giá trị ConfigValue từ cấu hình tham chiếu
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(request.ConfigValue))
                         return new BusinessResult(400, "Config Value is empty");
                     finalConfigValue = request.ConfigValue;
+                    finalConfigKey = request.ConfigKey;
                 }
 
                 // Kiểm tra ConfigKey đã tồn tại chưa (tránh trùng lặp)
@@ -74,7 +77,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var newConfig = new SystemConfiguration
                 {
                     ConfigGroup = request.ConfigGroup,
-                    ConfigKey = request.ConfigKey,
+                    ConfigKey = finalConfigKey,
                     ConfigValue = finalConfigValue,
                     ValueType = "string", // cac gia tri them duoc deu la kieu string 
                     EffectedDateFrom = request.EffectedDateFrom,
@@ -197,51 +200,52 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (!configList.Any())
                     return new BusinessResult(200, "No system configurations found.");
+                var mappedResult = _mapper.Map<IEnumerable<SystemConfigModel>>(configList);
 
                 //  Nhóm theo `ConfigKey` và map vào Model
-                var groupedConfig = configList
-                    .GroupBy(c => c.ConfigKey)
-                    .Select(group => new SystemConfigGroupedModel
-                    {
-                        ConfigKey = group.Key,
-                        ConfigValues = group.Select(x => new SystemConfigItemModel
-                        {
-                            ConfigId = x.ConfigId,
-                            ConfigValue = x.ConfigValue,
-                            ValueType = x.ValueType,
-                            IsActive = x.IsActive,
-                            EffectedDateFrom = x.EffectedDateFrom,
-                            EffectedDateTo = x.EffectedDateTo,
-                            Description = x.Description,
-                            CreateDate = x.CreateDate,
-                            IsDeleteable = x.IsDeleteable,
-                            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null, 
-                            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null, 
-                            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
-                            ReferenceConfig = x.ReferenceConfig != null ?
-                            new SystemConfigModel
-                            {
-                                ConfigId = x.ReferenceConfigID,
-                                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
-                                ConfigKey = x.ReferenceConfig.ConfigKey,
-                                ConfigValue = x.ReferenceConfig.ConfigValue,
-                                ValueType = x.ReferenceConfig.ValueType,
-                                IsActive = x.ReferenceConfig.IsActive,
-                                IsDeleteable = x.ReferenceConfig.IsDeleteable,
-                                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
-                                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
-                                Description = x.ReferenceConfig.Description
-                            } : null,
-                        }).ToList()
-                    }).ToList();
+                //var groupedConfig = configList
+                //    .GroupBy(c => c.ConfigKey)
+                //    .Select(group => new SystemConfigGroupedModel
+                //    {
+                //        ConfigKey = group.Select(x => new SystemConfigItemModel
+                //        {
+                //            ConfigId = x.ConfigId,
+                //            ConfigKey = x.ConfigKey,
+                //            ConfigValue = x.ConfigValue,
+                //            ValueType = x.ValueType,
+                //            IsActive = x.IsActive,
+                //            EffectedDateFrom = x.EffectedDateFrom,
+                //            EffectedDateTo = x.EffectedDateTo,
+                //            Description = x.Description,
+                //            CreateDate = x.CreateDate,
+                //            IsDeleteable = x.IsDeleteable,
+                //            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null, 
+                //            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null, 
+                //            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
+                //            ReferenceConfig = x.ReferenceConfig != null ?
+                //            new SystemConfigModel
+                //            {
+                //                ConfigId = x.ReferenceConfigID,
+                //                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
+                //                ConfigKey = x.ReferenceConfig.ConfigKey,
+                //                ConfigValue = x.ReferenceConfig.ConfigValue,
+                //                ValueType = x.ReferenceConfig.ValueType,
+                //                IsActive = x.ReferenceConfig.IsActive,
+                //                IsDeleteable = x.ReferenceConfig.IsDeleteable,
+                //                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
+                //                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
+                //                Description = x.ReferenceConfig.Description
+                //            } : null,
+                //        }).ToList()
+                //    }).ToList();
 
                 //  Tổng số bản ghi và tổng số trang
                 var totalRecords = await _unitOfWork.SystemConfigRepository.Count(filter);
                 var totalPages = PaginHelper.PageCount(totalRecords, paginationParameter.PageSize);
 
-                var paginatedResult = new PageEntity<object>
+                var paginatedResult = new PageEntity<SystemConfigModel>
                 {
-                    List = groupedConfig,
+                    List = mappedResult,
                     TotalRecord = totalRecords,
                     TotalPage = totalPages
                 };
@@ -429,7 +433,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 //var mappedResult = _mapper.Map<IEnumerable<ForSelectedModels>>(configs);
                 // Trả về danh sách config
-                return new BusinessResult(200, "Successfully retrieved configurations.", SystemConfigConst.ADDABLE_CONFIG_KEYS);
+                return new BusinessResult(200, "Successfully retrieved configurations.", SystemConfigConst.ADDABLE_CONFIG_GROUP);
             }
             catch (Exception ex)
             {
@@ -491,43 +495,45 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (!configList.Any())
                     return new BusinessResult(200, "No system configurations found.");
-
+                var mappedResult = _mapper.Map<IEnumerable<SystemConfigModel>>(configList);
                 //  Nhóm theo `ConfigKey` và map vào Model
-                var groupedConfig = configList
-                    .GroupBy(c => c.ConfigKey)
-                    .Select(group => new SystemConfigGroupedModel
-                    {
-                        ConfigKey = group.Key,
-                        ConfigGroup = group.First().ConfigGroup,
-                        ConfigValues = group.Select(x => new SystemConfigItemModel
-                        {
-                            ConfigId = x.ConfigId,
-                            ConfigValue = x.ConfigValue,
-                            ValueType = x.ValueType,
-                            IsActive = x.IsActive,
-                            EffectedDateFrom = x.EffectedDateFrom,
-                            EffectedDateTo = x.EffectedDateTo,
-                            Description = x.Description,
-                            CreateDate = x.CreateDate,
-                            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null,
-                            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null,
-                            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
-                            ReferenceConfig = x.ReferenceConfig != null ?
-                            new SystemConfigModel
-                            {
-                                ConfigId = x.ReferenceConfigID,
-                                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
-                                ConfigKey = x.ReferenceConfig.ConfigKey,
-                                ConfigValue = x.ReferenceConfig.ConfigValue,
-                                ValueType = x.ReferenceConfig.ValueType,
-                                IsActive = x.ReferenceConfig.IsActive,
-                                IsDeleteable = x.ReferenceConfig.IsDeleteable,
-                                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
-                                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
-                                Description = x.ReferenceConfig.Description
-                            } : null,
-                        }).ToList()
-                    }).ToList();
+                //var groupedConfig = configList
+                //    .GroupBy(c => c.ConfigKey)
+                //    .Select(group => new SystemConfigGroupedModel
+                //    {
+                //        //ConfigKey = group.Key,
+                //        ConfigGroup = group.First().ConfigGroup,
+                //        ConfigKey = group.Select(x => new SystemConfigItemModel
+                //        {
+                //            ConfigId = x.ConfigId,
+                //            ConfigGroup = x.ConfigGroup,
+                //            ConfigKey = x.ConfigKey,
+                //            ConfigValue = x.ConfigValue,
+                //            ValueType = x.ValueType,
+                //            IsActive = x.IsActive,
+                //            EffectedDateFrom = x.EffectedDateFrom,
+                //            EffectedDateTo = x.EffectedDateTo,
+                //            Description = x.Description,
+                //            CreateDate = x.CreateDate,
+                //            ReferenceConfigGroup = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigGroup : null,
+                //            ReferenceConfigKey = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigKey : null,
+                //            ReferenceConfigValue = x.ReferenceConfig != null ? x.ReferenceConfig.ConfigValue : null,
+                //            ReferenceConfig = x.ReferenceConfig != null ?
+                //            new SystemConfigModel
+                //            {
+                //                ConfigId = x.ReferenceConfigID,
+                //                ConfigGroup = x.ReferenceConfig!.ConfigGroup,
+                //                ConfigKey = x.ReferenceConfig.ConfigKey,
+                //                ConfigValue = x.ReferenceConfig.ConfigValue,
+                //                ValueType = x.ReferenceConfig.ValueType,
+                //                IsActive = x.ReferenceConfig.IsActive,
+                //                IsDeleteable = x.ReferenceConfig.IsDeleteable,
+                //                EffectedDateFrom = x.ReferenceConfig.EffectedDateFrom,
+                //                EffectedDateTo = x.ReferenceConfig.EffectedDateTo,
+                //                Description = x.ReferenceConfig.Description
+                //            } : null,
+                //        }).ToList()
+                //    }).ToList();
 
                 //  Tổng số bản ghi và tổng số trang
                 //var totalRecords = await _unitOfWork.SystemConfigRepository.Count(filter);
@@ -540,7 +546,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    TotalPage = totalPages
                 //};
 
-                return new BusinessResult(200, "Successfully retrieved system configurations.", groupedConfig);
+                return new BusinessResult(200, "Successfully retrieved system configurations.", configList);
             }
             catch (Exception ex)
             {

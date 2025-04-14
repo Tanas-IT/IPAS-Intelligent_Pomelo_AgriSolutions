@@ -286,7 +286,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, "Create From must before create to");
                     }
-                    filter = filter.And(x => x.CreateDate >= filterRequest.CreateFrom&&
+                    filter = filter.And(x => x.CreateDate >= filterRequest.CreateFrom &&
                                             x.CreateDate <= filterRequest.CreateTo);
                 }
                 string includeProperties = "Resources,User";
@@ -304,21 +304,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<(byte[] FileBytes, string FileName, string ContentType)> ExportNotesByGraftedPlantId(int graftedPlantId)
+        public async Task<BusinessResult> ExportNotesByGraftedPlantId(int graftedPlantId)
         {
-            var filter = await _unitOfWork.GraftedPlantNoteRepository
-                .GetAllNoPaging(x => x.GraftedPlantId == graftedPlantId, includeProperties: "Resources,User");
-
-            if (filter == null || !filter.Any())
+            try
             {
-                return (Array.Empty<byte>(), "empty.csv", "text/csv");
+                var checkGraftedExist = await _unitOfWork.GraftedPlantRepository
+                    .GetByCondition(x => x.IsDeleted == false && x.GraftedPlantId == graftedPlantId);
+                if (checkGraftedExist == null)
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
+                }
+
+                var filter = await _unitOfWork.GraftedPlantNoteRepository
+                    .GetAllNoPaging(x => x.GraftedPlantId == graftedPlantId, includeProperties: "Resources,User");
+
+                if (filter == null || !filter.Any())
+                {
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, Const.WARNING_GET_GRAFTED_NOTE_BY_ID_EMPTY_MSG);
+                }
+
+                var mapped = _mapper.Map<List<GraftedPlantNoteModel>>(filter);
+
+                var fileName = $"grafted_{checkGraftedExist.GraftedPlantCode}_notes_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                var csvExport = await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = csvExport.FileBytes,
+                    FileName = csvExport.FileName,
+                    ContentType = csvExport.ContentType
+                });
             }
-
-            var mapped = _mapper.Map<List<GraftedPlantNoteModel>>(filter);
-
-            // Export to CSV and return as byte[], file name, content type
-            var fileName = $"grafted_plant_notes_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-            return await _excelReaderService.ExportToCsvAsync(mapped, fileName);
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
         }
+
     }
 }

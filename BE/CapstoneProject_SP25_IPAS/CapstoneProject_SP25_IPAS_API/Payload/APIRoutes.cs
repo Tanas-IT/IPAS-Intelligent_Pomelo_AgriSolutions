@@ -56,10 +56,11 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getUserByEmail = Base + "/users/get-user-by-email/{email}";
             public const string getAllUser = Base + "/users/get-all-user";
             public const string getAllUserByRole = Base + "/users/get-all-user-by-role/{roleName}";
-            public const string bannedUser = Base + "/users/banned-user/{userId}";
+            public const string bannedUser = Base + "/users/banned-user";
+            public const string unBannedUser = Base + "/users/un-banned-user";
             public const string getUserWithPagination = Base + "/users";
             public const string permanenlyDelete = Base + "/users/delete-permanenly/{userId}";
-            public const string softedDeleteUser = Base + "/users/softed-delete-user/{userId}";
+            public const string softedDeleteUser = Base + "/users/softed-delete-user";
             public const string updateUserInfo = Base + "/users/update-user-info";
             public const string updateUserAvatar = Base + "/users/update-user-avatar/{userId}";
             public const string searchUserByEmail = Base + "/users/search-by-email/";
@@ -130,6 +131,9 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteCriteriaMultipleTarger = prefixCriteriaTarget + "/delete-for-multiple-target";
             public const string applyCriteriaForPlant = prefixCriteriaTarget + "/plant/apply-criteria";
             public const string resetPlantCriteria = prefixCriteriaTarget + "/plant/reset-criteria";
+            public const string exportCSV = prefix + "/export-csv";
+            public const string exportCSVObject = prefix + "/export-csv/object";
+
         }
 
         public static class Authentication
@@ -158,7 +162,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPartnerByRoleName = Base + "/partners/get-partner-by-role-name/{roleName}";
             public const string getForSelected = Base + "/partners/get-for-selected";
             public const string softedDeletePartner = Base + "/partners/softed-delete";
-
+            public const string exportCSV = Base + "/partners/export-csv";
         }
 
         public static class GrowthStage
@@ -232,6 +236,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getLandRowOfPlotPagin = prefix + "/get-land-rows-of-plot-pagin";
             public const string softedDeleteMultipleRow = prefix + "/softed-delete";
             public const string getSelectedIndexEmptyInRow = prefix + "/get-for-selected/index-empty";
+            public const string exportCSV = prefix + "/export-csv";
 
         }
 
@@ -255,6 +260,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantNotLocate = prefix + "/get-for-selected/not-yet-plant";
             public const string getPlantByGrowthFunc = prefix + "/get-for-selected/growth-stage-function";
             public const string PlantDeadMark = prefix + "/dead-mark";
+            public const string exportCSV = prefix + "/export-csv";
+
         }
 
         public static class PlantGrowthHistory
@@ -266,6 +273,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getPlantGrowthHistoryById = prefix + "";
             public const string getAllHistoryOfPlantPagin = prefix + "/pagin";
             public const string getAllHistoryOfPlantById = prefix + "/get-growth-history-of-plant";
+            public const string exportCSV = prefix + "/export-csv";
+
         }
 
         public static class Plan
@@ -327,6 +336,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getCropInCurrentTime = prefix + "/get-crop-in-current-time";
             public const string getLandPlotOfCrop = prefix + "/get-landPlot-of-crop/{cropId}";
             public const string getAllCropOfFarmSelected = prefix + "/for-selected/crop-of-farm";
+            public const string exportCSV = prefix + "/export-csv";
         }
 
         public static class Harvest
@@ -442,6 +452,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
             public const string getAllGraftedByPlantPagin = prefix + "/get-by-plant";
+            public const string exportCSV = prefix + "/export-csv";
 
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
             public const string CompleteGraftedPlant = prefix + "/completed-and-cutting";
@@ -457,7 +468,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getGraftedNoteById = graftedNotePrefix + "";
             public const string getAllNoteOfGraftedById = graftedNotePrefix + "/get-note-of-grafted";
             public const string getAllNoteOfGraftedPagin = graftedNotePrefix + "/pagin";
-            public const string exportCSV = graftedNotePrefix + "/export-csv";
+            public const string exportGraftedNoteCSV = graftedNotePrefix + "/export-csv";
 
         }
 

@@ -927,7 +927,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         await transaction.CommitAsync();
                         var mapResult = _mapper.Map<PlantModel>(plantUpdate);
-                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE, Const.SUCCESS_UPDATE_PLANT_MSG, mapResult);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_PLANT_CODE, "Mark plant Dead success, all of action will stop", mapResult);
                     }
                     else
                     {
@@ -937,7 +937,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 catch (Exception ex)
                 {
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
                 }
             }
         }
@@ -988,7 +988,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         continue;
                     planDelete.IsActive = false;
                     planDelete.IsDeleted = false;
-                    planDelete.Status = "Stopped";
+                    planDelete.Status = PlanStatusConst.STOPPED;
                     var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
                     if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
                     {
@@ -1025,5 +1025,108 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //await _unitOfWork.SaveAsync();
             }
         }
+
+        public async Task<BusinessResult> ExportExcel(GetPlantPaginRequest request)
+        {
+            try
+            {
+                var checkParam = checkParamGetRequest(request);
+                if (!checkParam.Success)
+                    return new BusinessResult(Const.EXPORT_CSV_FAIL_CODE, checkParam.ErorrMessage);
+
+                Expression<Func<Plant, bool>> filter = x => x.IsDeleted == false && x.FarmId == request.farmId;
+                Func<IQueryable<Plant>, IOrderedQueryable<Plant>> orderBy = x => x.OrderByDescending(od => od.LandRowId).ThenByDescending(x => x.PlantId);
+
+                if (request.IsDead.HasValue)
+                    filter = filter.And(x => x.IsDead == request.IsDead);
+
+                if (request.IsLocated.HasValue && request.IsLocated == false)
+                {
+                    filter = filter.And(x => !x.LandRowId.HasValue);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(request.LandPlotIds))
+                    {
+                        var filterList = Util.SplitByComma(request.LandPlotIds);
+                        filter = filter.And(x => filterList.Contains(x.LandRow!.LandPlotId.ToString()!));
+                    }
+
+                    if (!string.IsNullOrEmpty(request.LandRowIds))
+                    {
+                        var filterList = Util.SplitByComma(request.LandRowIds);
+                        filter = filter.And(x => filterList.Contains(x.LandRowId.ToString()!));
+                    }
+                }
+
+                if (request.IsLocated.HasValue && request.IsLocated == true)
+                    filter = filter.And(x => x.LandRowId.HasValue);
+
+                if (!string.IsNullOrEmpty(request.HealthStatus))
+                {
+                    var filterList = Util.SplitByComma(request.HealthStatus);
+                    filter = filter.And(x => filterList.Contains(x.HealthStatus!.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(request.CultivarIds))
+                {
+                    var filterList = Util.SplitByComma(request.CultivarIds);
+                    filter = filter.And(x => filterList.Contains(x.MasterTypeId.ToString()!));
+                }
+
+                if (!string.IsNullOrEmpty(request.GrowthStageIds))
+                {
+                    var filterList = Util.SplitByComma(request.GrowthStageIds);
+                    filter = filter.And(x => filterList.Contains(x.GrowthStageID.ToString()!));
+                }
+
+                if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
+                {
+                    filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);
+                }
+
+                if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue)
+                {
+                    filter = filter.And(x => x.PassedDate >= request.PassedDateFrom && x.PassedDate <= request.PassedDateTo);
+                }
+
+                if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
+                {
+                    filter = filter.And(x => x.PlantIndex >= request.PlantIndexFrom && x.PlantIndex <= request.PlantIndexTo);
+                }
+
+                if (request.isPassed.HasValue)
+                {
+                    filter = filter.And(x => x.IsPassed == request.isPassed);
+                    if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                    {
+                        filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
+                    }
+                }
+
+                var entities = await _unitOfWork.PlantRepository.GetAllNoPaging(filter);
+                var mappedResult = _mapper.Map<List<PlantModel>>(entities);
+
+                if (!mappedResult.Any())
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLANTS_NOT_EXIST_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+                }
+
+                var fileName = $"plant_{DateTime.Now:yyyyMMdd}.csv";
+                var export = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = export.FileBytes,
+                    FileName = export.FileName,
+                    ContentType = export.ContentType
+                });
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
     }
 }

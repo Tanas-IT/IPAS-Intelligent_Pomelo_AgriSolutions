@@ -5,6 +5,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -21,11 +22,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
 
         [HttpGet(APIRoutes.User.getUserWithPagination, Name = "getAllUserPaginationAsync")]
-        public async Task<IActionResult> GetAllUser(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllUser([FromQuery] FilterUserRequest filterRequest,PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _userService.GetAllUsers(paginationParameter);
+                var result = await _userService.GetAllUsers(filterRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -117,7 +118,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPut(APIRoutes.User.bannedUser, Name = "bannedUser")]
-        public async Task<IActionResult> BannedUser([FromRoute] int userId)
+        public async Task<IActionResult> BannedUser([FromBody] List<int> userId)
         {
             try
             {
@@ -135,12 +136,31 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPatch(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
-        public async Task<IActionResult> SoftDeleteUser([FromRoute] int userId)
+        [HttpPut(APIRoutes.User.unBannedUser, Name = "UnbannedUser")]
+        public async Task<IActionResult> UnBannedUser([FromBody] List<int> userId)
         {
             try
             {
-                var result = await _userService.SoftDeleteUser(userId);
+                var result = await _userService.UnBannedUser(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPatch(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
+        public async Task<IActionResult> SoftDeleteUser([FromBody] List<int> userIds)
+        {
+            try
+            {
+                var result = await _userService.SoftDeleteUser(userIds);
                 return Ok(result);
             }
             catch (Exception ex)

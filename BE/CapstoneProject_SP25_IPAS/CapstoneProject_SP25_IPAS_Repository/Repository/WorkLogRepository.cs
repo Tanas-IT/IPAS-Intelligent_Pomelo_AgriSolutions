@@ -362,8 +362,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 {
                     uwl.User.FullName,  // Lấy tên nhân viên nếu có
                     uwl.UserId,
-                    StartTime = uwl.WorkLog.Schedule.StartTime,
-                    EndTime = uwl.WorkLog.Schedule.EndTime
+                    StartTime = uwl.WorkLog.ActualStartTime,
+                    EndTime = uwl.WorkLog.ActualEndTime
                 })
                 .ToListAsync();
 
@@ -372,7 +372,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
                     $"{uwl.FullName}"
                 ));
-                throw new Exception($"{conflictDetails} have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")} from {newStartTime} to {newEndTime}");
+                throw new Exception($"{conflictDetails} have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")} from {userConflicts.First().StartTime} to {userConflicts.First().EndTime}");
             }
         }
 
@@ -393,17 +393,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
               {
                   uwl.User.FullName,  // Lấy tên nhân viên nếu có
                   uwl.UserId,
-                  StartTime = uwl.WorkLog.Schedule.StartTime,
-                  EndTime = uwl.WorkLog.Schedule.EndTime
+                  StartTime = uwl.WorkLog.ActualStartTime,
+                  EndTime = uwl.WorkLog.ActualEndTime
               })
               .ToListAsync();
 
             if (userConflicts.Any())
             {
                 var conflictDetails = string.Join(", ", userConflicts.Select(uwl =>
-                    $"{uwl.FullName} - {uwl.StartTime} to {uwl.EndTime}"
+                    $"{uwl.FullName}"
                 ));
-                throw new Exception($"The following employees have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")}: {conflictDetails}");
+                throw new Exception($"{conflictDetails} have scheduling conflicts on {dayCheck.Date.ToString("dd/MM/yyyy")} from {userConflicts.First().StartTime} to {userConflicts.First().EndTime}");
             }
         }
 
@@ -512,6 +512,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .ThenInclude(x => x.Farm)
                         .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return result;
+        }
+
+        public async Task<WorkLog> GetWorkLogByIdForDelete(int workLogId)
+        {
+            var getWorkLog = await _context.WorkLogs
+                                .Include(x => x.TaskFeedbacks)
+                                .Include(x => x.UserWorkLogs)
+                                .Include(x => x.Schedule)
+                                .ThenInclude(x => x.CarePlan)
+                                .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
+            return getWorkLog;
         }
     }
 }

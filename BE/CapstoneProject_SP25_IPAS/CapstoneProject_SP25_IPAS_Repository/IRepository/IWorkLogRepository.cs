@@ -42,5 +42,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<WorkLog> GetCurrentWorkLog(int workLogId);
         public Task<List<WorkLog>> GetWorkLogsByPlanIdsAsync(List<int> planIds);
         public Task<WorkLog> GetWorkLogForUpdateById(int workLogId);
+        public Task<WorkLog> GetWorkLogByIdForDelete(int workLogId);
     }
 }

@@ -98,7 +98,8 @@ builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
     policy.WithOrigins("http://localhost:5173")
           .AllowAnyHeader()
           .AllowAnyMethod()
-          .AllowCredentials();
+          .AllowCredentials()
+          .WithExposedHeaders("Content-Disposition");
 }));
 // add  json option to avoid cycle when return
 //builder.Services.AddControllers().AddJsonOptions(options =>

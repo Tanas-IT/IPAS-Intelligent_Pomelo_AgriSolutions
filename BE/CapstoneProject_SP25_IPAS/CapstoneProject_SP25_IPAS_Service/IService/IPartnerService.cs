@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetPartnerForSelected(int farmId, string? Major);
 
         public Task<BusinessResult> SoftedMultipleDelete(List<int> partnerList);
+        public Task<BusinessResult> ExportExcel(int FarmId);
 
     }
 }

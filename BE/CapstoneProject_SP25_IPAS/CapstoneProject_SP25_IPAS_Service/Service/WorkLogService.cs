@@ -299,10 +299,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var addNotificationForManager = new PlanNotification()
                     {
-                       NotificationID = addNotification.NotificationId,
-                       CreatedDate = DateTime.Now,
-                       isRead = false,
-                       UserID = employee.UserId
+                        NotificationID = addNotification.NotificationId,
+                        CreatedDate = DateTime.Now,
+                        isRead = false,
+                        UserID = employee.UserId
                     };
                     await _unitOfWork.PlanNotificationRepository.Insert(addNotificationForManager);
                     await _webSocketService.SendToUser(employee.UserId, addNotification);
@@ -355,8 +355,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
-                var getAssignor = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId ==  getDetailWorkLog.Schedule.CarePlan.AssignorId);
-                if(getAssignor != null)
+                var getAssignor = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == getDetailWorkLog.Schedule.CarePlan.AssignorId);
+                if (getAssignor != null)
                 {
                     result.AssignorName = getAssignor.FullName;
                     result.AssignorId = getAssignor.UserId;
@@ -374,7 +374,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-               
+
                 var redoWorkLog = getDetailWorkLog.RedoWorkLogID.HasValue
                     ? await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == getDetailWorkLog.RedoWorkLogID)
                     : null;
@@ -491,7 +491,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var calendar = await _unitOfWork.WorkLogRepository.GetCalendarEvents(paramCalendarModel.UserId, paramCalendarModel.PlanId, paramCalendarModel.StartDate, paramCalendarModel.EndDate, paramCalendarModel.FarmId.Value);
-                foreach(var getDetailWorkLog in calendar)
+                foreach (var getDetailWorkLog in calendar)
                 {
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
@@ -565,7 +565,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
-                Expression<Func<WorkLog, bool>> filter = x =>  x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -655,7 +655,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
-                foreach(var getDetailWorkLog in entities)
+                foreach (var getDetailWorkLog in entities)
                 {
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
@@ -865,7 +865,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogForUpdateById(updateWorkLogModel.WorkLogId);
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
-                    if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower())) {
+                    if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower()))
+                    {
                         throw new Exception("WorkLog is happended. Can not update");
                     }
                     if (updateWorkLogModel.DateWork.Value.Date < DateTime.Now.Date)
@@ -873,7 +874,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         throw new Exception("Date Work must be today or a future date");
                     }
 
-                   
+
                     if (updateWorkLogModel.StartTime != null && updateWorkLogModel.EndTime != null)
                     {
                         if (TimeSpan.Parse(updateWorkLogModel.StartTime) >= TimeSpan.Parse(updateWorkLogModel.EndTime))
@@ -897,7 +898,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var parseStartTime = TimeSpan.Parse(updateWorkLogModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(updateWorkLogModel.EndTime);
-                        
+
                         var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
@@ -1195,7 +1196,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateWorkLogModel.listEmployee != null)
                     {
                         var deleteUserWorkLog = await _unitOfWork.UserWorkLogRepository.DeleteUserWorkLogByWorkLogId(updateWorkLogModel.WorkLogId);
-                        if(deleteUserWorkLog)
+                        if (deleteUserWorkLog)
                         {
                             foreach (var employee in updateWorkLogModel.listEmployee)
                             {
@@ -1226,10 +1227,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             var addEmployeeNotification = new PlanNotification()
                             {
-                               NotificationID = addNotification.NotificationId,
-                               CreatedDate = DateTime.Now,
-                               isRead = false,
-                               UserID = employeeModel.UserId,
+                                NotificationID = addNotification.NotificationId,
+                                CreatedDate = DateTime.Now,
+                                isRead = false,
+                                UserID = employeeModel.UserId,
                             };
                             await _unitOfWork.PlanNotificationRepository.Insert(addEmployeeNotification);
                             await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
@@ -1323,9 +1324,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 // Lấy WorkLog và include các bảng liên quan
-                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(
-                    x => x.WorkLogId == workLogId,
-                    "UserWorkLogs,TaskFeedbacks"
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogByIdForDelete(
+                    workLogId
                 );
 
                 if (getWorkLog == null)
@@ -1347,15 +1347,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getWorkLog.UserWorkLogs?.Any() == true)
                 {
                     _unitOfWork.UserWorkLogRepository.RemoveRange(getWorkLog.UserWorkLogs);
+                    await _unitOfWork.SaveAsync();
                 }
 
                 // Xóa danh sách TaskFeedbacks (nếu có)
                 if (getWorkLog.TaskFeedbacks?.Any() == true)
                 {
                     _unitOfWork.TaskFeedbackRepository.RemoveRange(getWorkLog.TaskFeedbacks);
+                    await _unitOfWork.SaveAsync();
                 }
 
-
+                if (getWorkLog.Date.HasValue)
+                {
+                    if (getWorkLog.Schedule.CarePlan != null)
+                    {
+                        var getPlanOfWorkLog = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getWorkLog.Schedule.CarePlan.PlanId);
+                        if (getPlanOfWorkLog != null && getWorkLog.Date.Value.Date == getPlanOfWorkLog.EndDate.Value.Date)
+                        {
+                            getPlanOfWorkLog.EndDate = getPlanOfWorkLog.EndDate.Value.AddDays(-1);
+                            await _unitOfWork.SaveAsync();
+                        }
+                    }
+                }
                 // Xóa chính WorkLog
                 _unitOfWork.WorkLogRepository.Delete(getWorkLog);
 
@@ -1566,7 +1579,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
 
-               
+
                 var validStatuses = typeof(WorkLogStatusConst)
                     .GetFields(BindingFlags.Public | BindingFlags.Static)
                     .Select(f => f.GetValue(null)?.ToString().ToLower()) // Chuyển tất cả về chữ thường
@@ -1834,7 +1847,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
                 }
-                if(changeEmployeeOfWorkLog.DateWork != null && changeEmployeeOfWorkLog.StartTime != null && changeEmployeeOfWorkLog.EndTime != null)
+                if (changeEmployeeOfWorkLog.DateWork != null && changeEmployeeOfWorkLog.StartTime != null && changeEmployeeOfWorkLog.EndTime != null)
                 {
                     if (TimeSpan.Parse(changeEmployeeOfWorkLog.StartTime) >= TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime))
                     {
@@ -1860,7 +1873,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
                     Title = "WorkLog",
                     IsRead = false,
-                    MasterTypeId = 36,
+                    MasterTypeId = 37,
                     CreateDate = DateTime.Now,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                 };
@@ -1915,7 +1928,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 IsDeleted = false,
                                 StatusOfUserWorkLog = getStatusReplaced,
                             };
-                            
+
                             var addNewUserNotification = new PlanNotification()
                             {
                                 NotificationID = addNotification.NotificationId,
@@ -2014,9 +2027,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 if (getWorkLogToCancelled != null)
                 {
-                    if(getWorkLogToCancelled.StatusOfUserWorkLog != null)
+                    if (getWorkLogToCancelled.StatusOfUserWorkLog != null)
                     {
-                        if(getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected) && getWorkLogToCancelled.IsDeleted == true)
+                        if (getWorkLogToCancelled.StatusOfUserWorkLog.Equals(getStatusRejected) && getWorkLogToCancelled.IsDeleted == true)
                         {
                             getWorkLogToCancelled.StatusOfUserWorkLog = null;
                             getWorkLogToCancelled.IsDeleted = false;
@@ -2405,9 +2418,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
       .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
                 if (getUserWorkLog != null)
                 {
-                    if(getUserWorkLog.StatusOfUserWorkLog != null)
+                    if (getUserWorkLog.StatusOfUserWorkLog != null)
                     {
-                        if(getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusFailed) || getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusRedo))
+                        if (getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusFailed) || getUserWorkLog.StatusOfUserWorkLog.Equals(getStatusRedo))
                         {
                             return new BusinessResult(400, "WorkLog has status failed or redo. Can not cancelled");
                         }
@@ -2418,13 +2431,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         _unitOfWork.UserWorkLogRepository.Delete(getReplacementWorkLog);
                     }
                     getUserWorkLog.ReplaceUserId = null;
-                    if(getUserWorkLog.IsDeleted == true)
+                    if (getUserWorkLog.IsDeleted == true)
                     {
                         getUserWorkLog.StatusOfUserWorkLog = getStatusReceived;
                     }
                     else
                     {
-                       getUserWorkLog.StatusOfUserWorkLog = getStatusRejected;
+                        getUserWorkLog.StatusOfUserWorkLog = getStatusRejected;
                     }
                     getUserWorkLog.IsDeleted = false;
                     _unitOfWork.UserWorkLogRepository.Update(getUserWorkLog);
@@ -2474,7 +2487,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     //        IsReporter = uwl.IsReporter,
                     //    });
 
-                        
+
                     //}
 
                     // Nếu có người thay thế mình sau khi điểm danh => trường hợp 2
@@ -2490,7 +2503,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             IsReporter = uwl.IsReporter,
                         });
                     }
-                   
+
                 }
                 if (result.Count() > 0)
                 {
@@ -2516,7 +2529,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var minCheckIn = workStart.AddMinutes(-timeToTakeAttendance);
                 var result = DateTime.Now >= minCheckIn;
-                if(result)
+                if (result)
                 {
                     return new BusinessResult(200, "Can check attendance", true);
                 }
@@ -2534,7 +2547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getFailedOrRedoWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogByIdWithPlan(addNewTaskModel.FailedOrRedoWorkLogId);
-                if(getFailedOrRedoWorkLog == null)
+                if (getFailedOrRedoWorkLog == null)
                 {
                     return new BusinessResult(400, "Do not find any workLog");
                 }
@@ -2545,7 +2558,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
 
                 var getExistPlan = await _unitOfWork.PlanRepository.GetByCondition(x => x.PlanId == getFailedOrRedoWorkLog.Schedule.CarePlanId && x.FarmID == farmId, "PlanTargets");
-                if(getExistPlan == null)
+                if (getExistPlan == null)
                 {
                     return new BusinessResult(400, "Plan does not exist");
                 }
@@ -2599,10 +2612,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = "Active",
                     FarmID = farmId,
                     PlanDetail = getExistPlan?.PlanDetail,
-                }; 
-                if(getExistPlan.PlanTargets != null)
+                };
+                if (getExistPlan.PlanTargets != null)
                 {
-                    foreach(var planTarget in getExistPlan.PlanTargets)
+                    foreach (var planTarget in getExistPlan.PlanTargets)
                     {
                         var newPlanTarget = new PlanTarget()
                         {
@@ -2616,7 +2629,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         createNewPlan.PlanTargets.Add(newPlanTarget);
                     }
                 }
-                
+
                 await _unitOfWork.PlanRepository.Insert(createNewPlan);
                 await _unitOfWork.SaveAsync();
                 var newSchedule = new CarePlanSchedule()
@@ -2658,28 +2671,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (addNewTaskModel.NewListEmployee != null)
                 {
                     List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
-                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(addNewWorkLog);
-
-                    foreach (var workLog in savedWorkLogs)
-                    {
-                        var conflictedUsers = new List<string>();
-                        foreach (EmployeeModel user in addNewTaskModel.NewListEmployee)
-                        {
-                            // Kiểm tra User có bị trùng lịch không?
-                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
-                            if (conflictedUser != null)
-                            {
-                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
-                            }
-                        }
-
-                        if (conflictedUsers.Any())
-                        {
-                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
-                        }
-                    }
-
 
                     foreach (EmployeeModel user in addNewTaskModel.NewListEmployee)
                     {
@@ -2688,6 +2679,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             WorkLogId = addNewWorkLog.WorkLogId,
                             UserId = user.UserId,
                             IsReporter = user.isReporter,
+                            CreateDate = DateTime.Now,
                             IsDeleted = false
                         });
 
@@ -2696,43 +2688,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
-                    //var currentOrder = getExistPlan.SubProcess?.Order ?? 0;
-                    //var currentEndDate = addNewTaskModel.NewDateWork.Date.Add(endTime);
-                    //var originalEndDate = getExistPlan.EndDate;
+                    await _unitOfWork.SaveAsync();
+                    //  Nếu thời gian làm bù vượt quá EndDate cũ của kế hoạch => dời các worklog phụ thuộc
+                    if (getExistPlan.EndDate.HasValue && addNewTaskModel.NewDateWork.Date > getExistPlan.EndDate.Value.Date)
+                    {
+                        var subProcesses = await _unitOfWork.SubProcessRepository
+                            .GetAllByProcessOrParentForRedoAsync(getExistPlan.ProcessId, getExistPlan.SubProcessId);
 
-                    //// Nếu thời gian làm bù kết thúc trễ hơn kế hoạch gốc
-                    //if (originalEndDate != null && currentEndDate > originalEndDate)
-                    //{
-                    //    // Tính số ngày cần dời
-                    //    var shiftDays = (currentEndDate.Date - originalEndDate.Value.Date).Days;
+                        var subProcessMap = subProcesses.ToDictionary(x => x.SubProcessID);
 
-                    //    // Lấy tất cả kế hoạch trong process hiện tại có Order > WorkLog hiện tại
-                    //    var allPlans = await _unitOfWork.PlanRepository.GetListPlanByProcessId(getExistPlan.ProcessId.Value);
-                    //    var dependentPlans = allPlans.Where(p => p.SubProcess?.Order > currentOrder).ToList();
-                    //    var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
-
-                    //    // Lấy toàn bộ WorkLog thuộc các Plan phụ thuộc
-                    //    var allDependentWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
-
-                    //    foreach (var workLog in allDependentWorkLogs)
-                    //    {
-                    //        if (workLog.Date != null)
-                    //        {
-                    //            workLog.Date = workLog.Date.Value.AddDays(shiftDays);
-                    //            // Giữ nguyên giờ bắt đầu/kết thúc
-                    //        }
-
-                    //        if (workLog.Schedule != null)
-                    //        {
-                    //            // Cập nhật Schedule luôn nếu cần
-                    //            workLog.Schedule.CustomDates = "[" + JsonConvert.SerializeObject(workLog.Date?.ToString("yyyy/MM/dd")) + "]";
-                    //        }
-
-                    //        _unitOfWork.WorkLogRepository.Update(workLog);
-                    //    }
-
-                    //    await _unitOfWork.SaveAsync();
-                    //}
+                        await ShiftDependentWorkLogsAsync(
+                            getExistPlan.PlanId,
+                            getExistPlan.SubProcessId,
+                            getExistPlan.EndDate.Value,
+                            addNewTaskModel.NewDateWork.Date,
+                            subProcessMap);
+                    }
 
 
                     var addNotification = new Notification()
@@ -2796,7 +2767,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
 
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); 
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
@@ -2806,22 +2777,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getStatusOfWorkLogForManager = await _unitOfWork.SystemConfigRepository
                         .GetAllConfigsByGroupNameAsync(SystemConfigConst.WORKLOGFORMANAGER.Trim());
-                if(getStatusOfWorkLogForManager != null)
+                if (getStatusOfWorkLogForManager != null)
                 {
-                    var result = new GetStatusOfWorkLogForManagerModel() {
+                    var result = new GetStatusOfWorkLogForManagerModel()
+                    {
                         Status = getStatusOfWorkLogForManager.Select(x => x.ConfigValue).ToList()
-                    }; 
+                    };
                     return new BusinessResult(200, "Get status of workLog for manager success", result);
                 }
                 return new BusinessResult(404, "Do not have any status of worklog for manager");
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message); 
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
-        public async Task<BusinessResult> StatisticWorkLog(int farmId, int? userId, string? groupBy,DateTime? fromDate,DateTime? toDate)
+        public async Task<BusinessResult> StatisticWorkLog(int farmId, int? userId, string? groupBy, DateTime? fromDate, DateTime? toDate)
         {
             try
             {
@@ -2849,8 +2821,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Month = x.WorkLog.Date!.Value.Month,
                         Year = x.WorkLog.Date!.Value.Year
                     }),
-                    _ => getForStatistic.GroupBy(x => new StatisticByDateYear(){
-                        UserId= x.UserId,
+                    _ => getForStatistic.GroupBy(x => new StatisticByDateYear()
+                    {
+                        UserId = x.UserId,
                         FullName = x.User.FullName,
                         Date = x.WorkLog.Date!.Value.Date
                     })
@@ -2858,7 +2831,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getStatusDone = await _unitOfWork.SystemConfigRepository
                         .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
-                var result =  grouped.Select(g => new EmployeeProductivityTimeDto
+                var result = grouped.Select(g => new EmployeeProductivityTimeDto
                 {
                     UserId = g.Key.UserId.Value,
                     FullName = g.Key.FullName,
@@ -2876,7 +2849,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
              .Sum(x => (x.WorkLog.ActualEndTime.Value - x.WorkLog.ActualStartTime.Value).TotalMinutes)
         )
                 }).ToList();
-                var getAllUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetAllNoPaging(includeProperties:"WorkLog");
+                var getAllUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetAllNoPaging(includeProperties: "WorkLog");
                 var userReplacements = getAllUserWorkLog.Where(x => x.IsDeleted == false)
                                 .GroupBy(x => x.UserId)
                                 .Select(g => new
@@ -2887,10 +2860,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }).ToList();
 
                 var redoWorkLogIds = await _unitOfWork.WorkLogRepository.GetWorkLogInclude();
-                        var checkWorkLog = redoWorkLogIds.Where(x => x.RedoWorkLogID != null && x.IsDeleted == false)
-                                        .Select(x => x.RedoWorkLogID.Value)
-                                        .Distinct()
-                                        .ToList();
+                var checkWorkLog = redoWorkLogIds.Where(x => x.RedoWorkLogID != null && x.IsDeleted == false)
+                                .Select(x => x.RedoWorkLogID.Value)
+                                .Distinct()
+                                .ToList();
                 var redoWorkLogs = getAllUserWorkLog
                                     .Where(x => x.IsDeleted == false && x.WorkLog.RedoWorkLogID != null && x.ReplaceUserId == null)
                                     .Where(x => checkWorkLog.Contains(x.WorkLogId))
@@ -2919,12 +2892,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         item.RedoWorkCompletionRate = redo.RedoWorkCompletionRate;
                     }
                 }
-                if(result != null && result.Any())
+                if (result != null && result.Any())
                 {
                     return new BusinessResult(200, "Get Statistic Employee Success", result);
                 }
                 return new BusinessResult(400, "Get Statistic Employee Failed");
-                
+
             }
             catch (Exception ex)
             {
@@ -2951,7 +2924,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                      .Where(s => s.WorkTypeID == workTypeId)
                      .Select(s => (double?)s.ScoreOfSkill)
                      .FirstOrDefault() ?? 0
-                 }).ToList();
+                }).ToList();
                 if (getEmployeeSkill.Count() > 0)
                 {
                     return new BusinessResult(200, "Filter Employee By Work Skill", result);
@@ -3063,6 +3036,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             WorkLogId = w.WorkLogId,
                             PlanId = planOfWorkLog?.PlanId,
                             PlanName = planOfWorkLog?.PlanName ?? "N/A",
+                            StartDate = planOfWorkLog?.StartDate,
+                            EndDate = planOfWorkLog?.EndDate,
                             StartTime = w.ActualStartTime,
                             EndTime = w.ActualEndTime,
                             Status = w.Status,
@@ -3083,6 +3058,195 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        private async Task ShiftDependentWorkLogsAsync(
+                                    int currentPlanId,
+                                    int? currentSubProcessId,
+                                    DateTime originalEndDate,
+                                    DateTime newWorkDate,
+                                    Dictionary<int, SubProcess> subProcessMap)
+        {
+            if (currentSubProcessId == null) return;
+
+            int shiftDays = (newWorkDate.Date - originalEndDate.Date).Days;
+            if (shiftDays <= 0) return;
+            var getOriginalPlan = await _unitOfWork.PlanRepository.GetByID(currentPlanId);
+            if (getOriginalPlan.EndDate.HasValue == true)
+            {
+                getOriginalPlan.EndDate = getOriginalPlan.EndDate.Value.AddDays(shiftDays);
+                await _unitOfWork.SaveAsync();
+            }
+
+            // Tính chuỗi Order đầy đủ dạng "1.2.3"
+            string GetFullOrderString(SubProcess sp)
+            {
+                var orderParts = new List<string>();
+                while (sp != null)
+                {
+                    orderParts.Insert(0, (sp.Order ?? 0).ToString());
+                    sp = sp.ParentSubProcessId.HasValue && subProcessMap.TryGetValue(sp.ParentSubProcessId.Value, out var parent)
+                        ? parent
+                        : null;
+                }
+
+                return string.Join(".", orderParts);
+            }
+
+            // Lấy toàn bộ SubProcess con/cháu
+            List<int> GetAllChildSubProcessIds(int parentId)
+            {
+                var result = new List<int>();
+                var stack = new Stack<int>();
+                stack.Push(parentId);
+
+                while (stack.Any())
+                {
+                    var current = stack.Pop();
+                    var children = subProcessMap.Values
+                        .Where(sp => sp.ParentSubProcessId == current)
+                        .Select(sp => sp.SubProcessID);
+
+                    foreach (var childId in children)
+                    {
+                        result.Add(childId);
+                        stack.Push(childId);
+                    }
+                }
+
+                return result;
+            }
+
+            // Các subprocess theo thứ tự phía sau
+            var currentSubProcess = subProcessMap[currentSubProcessId.Value];
+            var currentOrderValue = currentSubProcess.Order ?? 0;
+            var currentParentId = currentSubProcess.ParentSubProcessId;
+            var currentProcessId = currentSubProcess.ProcessId;
+            var currentOrder = GetFullOrderString(currentSubProcess);
+
+            // 1. SubProcess cùng parent → so sánh theo Order
+            var sameParentHigherOrder = subProcessMap.Values
+                .Where(sp =>
+                    sp.SubProcessID != currentSubProcess.SubProcessID &&
+                    sp.ParentSubProcessId == currentParentId &&
+                    (sp.Order ?? 0) > currentOrderValue)
+                .Select(sp => sp.SubProcessID);
+
+            // 2. Cùng Process và cả hai không có parent (top-level) → so sánh Order
+            var sameProcessTopLevel = subProcessMap.Values
+                .Where(sp =>
+                    sp.SubProcessID != currentSubProcess.SubProcessID &&
+                    sp.ParentSubProcessId == null &&
+                    currentParentId == null &&
+                    sp.ProcessId == currentProcessId &&
+                    (sp.Order ?? 0) > currentOrderValue)
+                .Select(sp => sp.SubProcessID);
+
+            // 3. Các subprocess có FullOrderString đứng sau → để xử lý trường hợp con cháu sâu hơn
+            var deeperOrder = subProcessMap.Values
+                .Where(sp =>
+                    sp.SubProcessID != currentSubProcess.SubProcessID &&
+                    string.Compare(GetFullOrderString(sp), currentOrder, StringComparison.Ordinal) > 0)
+                .Select(sp => sp.SubProcessID);
+
+            // Gộp tất cả
+            var subprocessByOrder = sameParentHigherOrder
+                .Union(sameProcessTopLevel)
+                .Union(deeperOrder)
+                .Distinct()
+                .ToList();
+            // Các subprocess con/cháu
+            var subprocessByHierarchy = GetAllChildSubProcessIds(currentSubProcessId.Value);
+
+            // Gộp cả 2 loại và loại trùng
+            var allDependentSubProcessIds = subprocessByOrder
+                .Union(subprocessByHierarchy)
+                .Distinct()
+                .ToList();
+
+            if (!allDependentSubProcessIds.Any()) return;
+
+            var dependentSubProcessList = subProcessMap.Values
+                .Where(sp => allDependentSubProcessIds.Contains(sp.SubProcessID))
+                .ToList();
+
+            var dependentPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(allDependentSubProcessIds);
+            var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+            var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+
+            // Dời các WorkLog
+            foreach (var workLog in allWorkLogs)
+            {
+                if (workLog.Date.HasValue)
+                    workLog.Date = workLog.Date.Value.AddDays(shiftDays);
+
+                if (workLog.ActualStartTime.HasValue)
+                    workLog.ActualStartTime = workLog.ActualStartTime.Value;
+
+                if (workLog.ActualEndTime.HasValue)
+                    workLog.ActualEndTime = workLog.ActualEndTime.Value;
+
+                _unitOfWork.WorkLogRepository.Update(workLog);
+            }
+
+            // Cập nhật StartDate, EndDate cho Plan
+            foreach (var plan in dependentPlans)
+            {
+                var existing = await _unitOfWork.PlanRepository.GetByID(plan.PlanId);
+                if (existing != null)
+                {
+                    if (existing.StartDate.HasValue == true)
+                    {
+                        existing.StartDate = existing.StartDate.Value.AddDays(shiftDays);
+                    }
+                    if (existing.EndDate.HasValue == true)
+                    {
+                        existing.EndDate = existing.EndDate.Value.AddDays(shiftDays);
+                    }
+                    _unitOfWork.PlanRepository.Update(existing);
+                }
+            }
+
+            // Cập nhật EndDate cho SubProcess
+            foreach (var subprocess in dependentSubProcessList)
+            {
+                var existing = await _unitOfWork.SubProcessRepository.GetByID(subprocess.SubProcessID);
+                if (existing != null)
+                {
+                    if (existing.StartDate.HasValue == true)
+                    {
+                        existing.StartDate = existing.StartDate.Value.AddDays(shiftDays);
+                    }
+                    if (existing.EndDate.HasValue == true)
+                    {
+                        existing.EndDate = existing.EndDate.Value.AddDays(shiftDays);
+                    }
+                    _unitOfWork.SubProcessRepository.Update(existing);
+                }
+
+            }
+
+            // Cập nhật EndDate cho Process nếu có
+            var processId = subProcessMap[currentSubProcessId.Value].ProcessId;
+            if (processId.HasValue)
+            {
+                var process = await _unitOfWork.ProcessRepository.GetByID(processId.Value);
+                if (process != null)
+                {
+                    if (process.StartDate.HasValue == true)
+                    {
+                        process.StartDate = process.StartDate.Value.AddDays(shiftDays);
+                    }
+                    if (process.EndDate.HasValue == true)
+                    {
+                        process.EndDate = process.EndDate.Value.AddDays(shiftDays);
+                    }
+                    _unitOfWork.ProcessRepository.Update(process);
+                }
+
+            }
+
+            await _unitOfWork.SaveAsync();
         }
     }
 }
