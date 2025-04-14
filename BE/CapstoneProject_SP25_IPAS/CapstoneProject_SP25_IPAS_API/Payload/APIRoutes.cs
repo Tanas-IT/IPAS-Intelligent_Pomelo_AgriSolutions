@@ -56,10 +56,11 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getUserByEmail = Base + "/users/get-user-by-email/{email}";
             public const string getAllUser = Base + "/users/get-all-user";
             public const string getAllUserByRole = Base + "/users/get-all-user-by-role/{roleName}";
-            public const string bannedUser = Base + "/users/banned-user/{userId}";
+            public const string bannedUser = Base + "/users/banned-user";
+            public const string unBannedUser = Base + "/users/un-banned-user";
             public const string getUserWithPagination = Base + "/users";
             public const string permanenlyDelete = Base + "/users/delete-permanenly/{userId}";
-            public const string softedDeleteUser = Base + "/users/softed-delete-user/{userId}";
+            public const string softedDeleteUser = Base + "/users/softed-delete-user";
             public const string updateUserInfo = Base + "/users/update-user-info";
             public const string updateUserAvatar = Base + "/users/update-user-avatar/{userId}";
             public const string searchUserByEmail = Base + "/users/search-by-email/";
