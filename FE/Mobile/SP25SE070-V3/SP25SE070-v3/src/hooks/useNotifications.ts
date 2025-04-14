@@ -7,33 +7,37 @@ import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { CommonActions } from "@react-navigation/native";
 import { GetNotification } from "@/types/notification";
 import { NotificationService } from "@/services";
+import { useAuthStore } from "@/store";
+// import { PushNotificationService } from "@/services/pushNotificationService";
 
-const WS_URL = Config.WS_URL;
+const WS_URL = process.env.EXPO_PUBLIC_PUBLIC_WS_URL;
+console.log("WS_URL", WS_URL);
+
 
 const useNotifications = () => {
   const [notifications, setNotifications] = useState<GetNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const navigation = useNavigation();
-
-  const fetchUserId = async () => {
-    const userId = await AsyncStorage.getItem("userId");
-    return userId ? Number(userId) : null;
-  };
+  const { userId } = useAuthStore();
 
   const fetchNotifications = useCallback(async () => {
-    const userId = await fetchUserId();
     if (!userId) {
       Toast.show({ type: "error", text1: "userId not found" });
       return;
     }
 
     try {
-      const response = await NotificationService.getNotificationByUser(userId);
+      console.log("ảo z", userId);
+      
+      const response = await NotificationService.getNotificationByUser(Number(userId));
+      console.log("noti", response);
+      
       if (response.statusCode === 200) {
         setNotifications(response.data);
       }
     } catch (error: any) {
+      console.error("Fetch error:", error);
       Toast.show({
         type: "error",
         text1: "error fethcing notifications",
@@ -41,13 +45,17 @@ const useNotifications = () => {
       });
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: ROUTE_NAMES.AUTH.LOGIN }],
-          })
-        );
+        return { error: "Unauthorized" }; // Trả về lỗi để component xử lý
       }
+      // if (error.response?.status === 401) {
+      //   await AsyncStorage.clear();
+      //   navigation.dispatch(
+      //     CommonActions.reset({
+      //       index: 0,
+      //       routes: [{ name: ROUTE_NAMES.AUTH.LOGIN }],
+      //     })
+      //   );
+      // }
     }
   }, []);
 
@@ -61,7 +69,6 @@ const useNotifications = () => {
 
   useEffect(() => {
     const setupWebSocket = async () => {
-      const userId = await fetchUserId();
       if (!userId) return;
 
       const ws = new WebSocket(`${WS_URL}?userId=${userId}`);
@@ -70,11 +77,16 @@ const useNotifications = () => {
         console.log("Connected to WebSocket!");
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
           const message = JSON.parse(event.data);
           console.log("Parsed Message:", message);
-          fetchNotifications();
+          await fetchNotifications();
+
+          // await PushNotificationService.displayNotification(
+          //   message.title || 'New Notification',
+          //   message.content || 'You have a new message'
+          // );
         } catch (error) {
           console.error("Error parsing JSON:", error);
         }
@@ -99,7 +111,6 @@ const useNotifications = () => {
   }, []);
 
   const markAsRead = useCallback(async (notificationId: number) => {
-    const userId = await fetchUserId();
     if (!userId) return;
 
     setNotifications((prev) =>
@@ -110,7 +121,7 @@ const useNotifications = () => {
 
     try {
       const response = await NotificationService.markAsRead(
-        userId,
+        Number(userId),
         "once",
         notificationId
       );
@@ -128,24 +139,18 @@ const useNotifications = () => {
       );
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: ROUTE_NAMES.AUTH.LOGIN }],
-          })
-        );
+        return { error: "Unauthorized" }; // Trả về lỗi để component xử lý
       }
     }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    const userId = await fetchUserId();
     if (!userId) return;
 
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
     try {
-      const response = await NotificationService.markAsRead(userId);
+      const response = await NotificationService.markAsRead(Number(userId));
       if (response.statusCode !== 200)
         throw new Error("Failed to mark all as read");
     } catch (error: any) {
@@ -156,17 +161,12 @@ const useNotifications = () => {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: false })));
       if (error.response?.status === 401) {
         await AsyncStorage.clear();
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: ROUTE_NAMES.AUTH.LOGIN }],
-          })
-        );
+        return { error: "Unauthorized" }; // Trả về lỗi để component xử lý
       }
     }
   }, []);
 
-  return { notifications, unreadCount, markAsRead, fetchNotifications, socket };
+  return { notifications, unreadCount, markAsRead, fetchNotifications, socket, markAllAsRead };
 };
 
 export default useNotifications;

@@ -14,9 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.laggg.SP25SE070",
       "infoPlist": {
         "NSCameraUsageDescription": "We need access to your camera to take photos or record video.",
-        "NSMicrophoneUsageDescription": "We need access to your microphone to record audio."
+        "NSMicrophoneUsageDescription": "We need access to your microphone to record audio.",
+        "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {

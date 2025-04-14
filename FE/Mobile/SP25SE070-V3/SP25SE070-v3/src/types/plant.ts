@@ -86,5 +86,6 @@ interface HarvestSummary {
 export interface NoteFormData {
   content: string;
   issueName?: string | undefined;
-  images?: string[];
+  // images?: string[];
+  images: { uri: string; type: string; name: string }[];
 }

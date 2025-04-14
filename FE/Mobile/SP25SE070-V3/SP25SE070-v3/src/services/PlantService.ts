@@ -4,6 +4,7 @@ import {
   GetData,
   GetPlantDetail,
   GetPlantGrowthHistory,
+  PlantGrowthHistoryRequest,
 } from "@/payloads";
 
 export const getPlant = async (
@@ -34,5 +35,38 @@ export const getPlantGrowthHistory = async (
     }
   );
   const apiResponse = res.data as ApiResponse<GetData<GetPlantGrowthHistory>>;
+  return apiResponse;
+};
+
+export const createPlantGrowthHistory = async (
+  req: PlantGrowthHistoryRequest
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("PlantId", req.plantId.toString());
+  formData.append("UserId", req.userId || "");
+  formData.append("IssueName", req.issueName || "");
+  formData.append("Content", req.content);
+
+  if (req.images && req.images.length > 0) {
+    req.images.forEach((fileResource, index) => {
+      const format = fileResource.type.split("/")[1] || "jpeg";
+      formData.append(`PlantResources[${index}].fileFormat`, format);
+      formData.append(
+        `PlantResources[${index}].file`,
+        {
+          uri: fileResource.uri,
+          type: fileResource.type,
+          name: fileResource.name,
+        } as any,
+        fileResource.name
+      );
+    });
+  }
+
+  const res = await axiosAuth.axiosMultipartNoErrorHandler.post(
+    "plant-growth-history",
+    formData
+  );
+  const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
