@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, "This ConfigKey is not allowed to be added.");
                 }
-                if (!string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
+                if (string.IsNullOrEmpty(request.ConfigValue) && !request.ReferenceKeyId.HasValue)
                     return new BusinessResult(400, "You must fill reference key or input value for this config");
                 string finalConfigValue = ""; // Mặc định là ConfigValue từ request
                 string finalConfigKey = ""; // Mặc định là ConfigValue từ request
