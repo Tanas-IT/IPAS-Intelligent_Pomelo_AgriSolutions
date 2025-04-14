@@ -399,6 +399,7 @@ const PestDetectionScreen = () => {
           visible={isReportModalVisible}
           onClose={() => setIsReportModalVisible(false)}
           onSubmit={handleSubmitReport}
+          imageUrl={selectedImageUrl}
         />
       </ScrollView>
     );

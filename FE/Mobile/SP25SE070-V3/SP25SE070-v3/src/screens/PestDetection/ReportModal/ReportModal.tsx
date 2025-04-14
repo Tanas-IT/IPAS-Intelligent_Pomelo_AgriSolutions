@@ -6,11 +6,13 @@ import { PestReportRequest } from "@/types/pestDetection";
 import { styles } from "../PestDetection.styles";
 import { reportSchema } from "@/validations/reportSchema";
 import { TextCustom } from "@/components";
+import { useAuthStore } from "@/store";
 
 interface ReportModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (data: PestReportRequest) => void;
+  imageUrl: string | null;
 }
 
 interface FormData {
@@ -22,6 +24,7 @@ const ReportModal: React.FC<ReportModalProps> = ({
   visible,
   onClose,
   onSubmit,
+  imageUrl
 }) => {
   const {
     control,
@@ -35,12 +38,13 @@ const ReportModal: React.FC<ReportModalProps> = ({
       questionOfUser: "",
     },
   });
+  const {userId} = useAuthStore();
 
   const handleFormSubmit = (data: FormData) => {
     const reportData: PestReportRequest = {
       description: data.description,
-      imageFile: "",
-      questionerID: 0,
+      imageFile: imageUrl || "",
+      questionerID: Number(userId),
       questionOfUser: data.questionOfUser,
     };
     onSubmit(reportData);
