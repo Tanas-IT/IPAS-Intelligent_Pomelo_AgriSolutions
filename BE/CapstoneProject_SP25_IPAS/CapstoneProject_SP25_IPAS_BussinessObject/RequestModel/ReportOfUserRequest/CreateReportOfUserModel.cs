@@ -11,7 +11,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserReq
     {
         public string? QuestionOfUser { get; set; }
         public string? Description { get; set; }
-        public IFormFile? ImageFile { get; set; }
+        public string? ImageFile { get; set; }
         public int? QuestionerID { get; set; }
     }
 }

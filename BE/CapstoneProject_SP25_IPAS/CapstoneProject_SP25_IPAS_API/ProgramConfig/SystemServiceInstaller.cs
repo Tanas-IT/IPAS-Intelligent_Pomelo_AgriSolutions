@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Mapping;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using CapstoneProject_SP25_IPAS_Service.Service.CompareImage;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 
@@ -153,6 +154,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<INotificationService, NotificationService>();
             //services.AddScoped<IGrowthStageMasterTypeService, GrowthStageMasterTypeService>();
             services.AddScoped<IReportOfUserService, ReportOfUserService>();
+            services.AddScoped<IImageHashCompareService, ImageHashComparerService>();
             services.AddScoped<ISoftDeleteCommon, SoftDeleteCommon>();
             services.AddScoped<IScheduleService, ScheduleService>();
             services.AddHostedService<WorkLogStatusUpdaterService>();
