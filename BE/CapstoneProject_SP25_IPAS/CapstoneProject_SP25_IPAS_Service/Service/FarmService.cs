@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
@@ -724,6 +725,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
                     }
+                    await DeleteReferneceOfUser(userId, farmId);
                     _unitOfWork.UserFarmRepository.Delete(userInfarm);
 
                     int result = await _unitOfWork.SaveAsync();
@@ -824,6 +826,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // neu khong null return ve mapper
             var result = _mapper.Map<FarmModel>(farm);
             return result;
+        }
+
+        private async Task DeleteReferneceOfUser(int userId, int farmId)
+        {
+            var getUserWorkLogByUserId = await _unitOfWork.UserWorkLogRepository.GetUserWorkLogByUserId(userId);
+            var getUserSkillInFarm = await _unitOfWork.EmployeeSkillRepository.GetEmployeeSkillByUserIdAndFarmId(userId, farmId);
+            if(getUserWorkLogByUserId.Any())
+            {
+                 _unitOfWork.UserWorkLogRepository.RemoveRange(getUserWorkLogByUserId);
+            }
+            if(getUserSkillInFarm.Any())
+            {
+                _unitOfWork.EmployeeSkillRepository.RemoveRange(getUserSkillInFarm);
+            }
         }
     }
 }
