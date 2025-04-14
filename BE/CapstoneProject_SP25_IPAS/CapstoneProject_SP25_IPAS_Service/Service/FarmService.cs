@@ -158,7 +158,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> GetAllFarmPagination(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllFarmPagination(GetFarmFilterRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -168,9 +168,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDeleted != true);
+                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) 
+                                  || x.Province!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Ward!.ToLower().Contains(paginationParameter.Search.ToLower()) 
+                                  || x.District!.ToLower().Contains(paginationParameter.Search.ToLower()) 
+                                  || x.FarmCode!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  && x.IsDeleted != true);
                 }
-
+                if (filterRequest.CreateDateTo.HasValue && filterRequest.CreateDateFrom.HasValue && filterRequest.CreateDateFrom <= filterRequest.CreateDateTo)
+                {
+                    filter = filter.And(x => x.CreateDate <= filterRequest.CreateDateTo && x.CreateDate >= filterRequest.CreateDateTo);
+                }
+                if (filterRequest.AreaFrom.HasValue && filterRequest.AreaTo.HasValue && filterRequest.AreaFrom <= filterRequest.AreaTo)
+                {
+                    filter = filter.And(x => x.Area >= filterRequest.AreaFrom && x.Area <= filterRequest.AreaTo);
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.ClimateZone))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.ClimateZone);
+                    filter = filter.And(x => filterList.Contains(x.ClimateZone!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.SoilType))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.SoilType);
+                    filter = filter.And(x => filterList.Contains(x.SoilType!.ToLower()));
+                }
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     //case "farmId":

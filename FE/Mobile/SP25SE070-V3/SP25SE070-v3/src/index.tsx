@@ -2,7 +2,7 @@ import "react-native-gesture-handler";
 import AppNavigation from "@/navigation/AppNavigation";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { extendTheme, NativeBaseProvider, theme } from "native-base";
 import Toast from "react-native-toast-message";
@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import { DefaultTheme, PaperProvider } from "react-native-paper";
 import { Keyboard } from "react-native";
+// import { PushNotificationService } from "./services/pushNotificationService";
 
 const themeCustome = {
   ...DefaultTheme,
@@ -28,6 +29,10 @@ const themeCustome = {
 
 export default function MainApp() {
   const [isAppReady, setIsAppReady] = React.useState(false);
+
+  // useEffect(() => {
+  //   PushNotificationService.initialize();
+  // }, []);
 
   const [fontsLoaded, fontError] = useFonts({
     "BalsamiqSans-Regular": require("@/assets/fonts/BalsamiqSans-Regular.ttf"),

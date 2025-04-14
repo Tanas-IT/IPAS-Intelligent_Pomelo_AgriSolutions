@@ -1,4 +1,11 @@
-import { FileResource } from "@/types";
+export interface FileResource {
+  resourceID: number;
+  resourceCode: string;
+  resourceType: string;
+  resourceURL: string;
+  fileFormat: string;
+  createDate: string;
+}
 
 export interface PlantRequest {
   plantId?: number;
@@ -14,9 +21,18 @@ export interface PlantRequest {
   plantIndex?: number;
 }
 
+// export interface PlantGrowthHistoryRequest {
+//   plantId: number;
+//   issueName: string;
+//   content: string;
+//   resources: File[] | FileResource[];
+//   userId: number;
+// }
+
 export interface PlantGrowthHistoryRequest {
   plantId: number;
-  issueName: string;
+  userId: string | null;
+  issueName?: string;
   content: string;
-  resources: File[] | FileResource[];
+  images?: { uri: string; type: string; name: string }[];
 }

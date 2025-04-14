@@ -25,5 +25,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels
         public string? AvatarUrl { get; set; }
 
         public RoleEnum Role { get; set; }
+        public DateTime? Dob {  get; set; }
     }
 }

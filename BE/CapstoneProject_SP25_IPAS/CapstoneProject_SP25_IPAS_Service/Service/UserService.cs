@@ -158,8 +158,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDeleted = false,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        AvatarURL = createAccountModel.AvatarUrl ?? "",
-                        Gender = createAccountModel.Gender
+                        AvatarURL = createAccountModel.AvatarUrl ?? _configuration["SystemDefault:AvatarDefault"],
+                        Gender = createAccountModel.Gender,
+                        Dob = createAccountModel.Dob,
                     };
 
                     var existUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(createAccountModel.Email);
@@ -182,7 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     await _unitOfWork.UserRepository.AddUserAsync(user);
                     await transaction.CommitAsync();
-                    return new BusinessResult(Const.SUCCESS_REGISTER_CODE, Const.SUCCESS_REGISTER_MSG);
+                    return new BusinessResult(Const.SUCCESS_CREATE_USER_CODE, Const.SUCCESS_CREATE_USER_MSG);
 
                 }
                 catch (Exception ex)
@@ -647,27 +648,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (existUser != null)
                 {
                     // update account
-                    if (updateUserRequestModel.FullName != null)
+                    if (!string.IsNullOrEmpty(updateUserRequestModel.FullName))
                     {
                         existUser.FullName = updateUserRequestModel.FullName;
                     }
-                    if (updateUserRequestModel.Address != null)
+                    if (!string.IsNullOrEmpty(updateUserRequestModel.Address))
                     {
                         existUser.Address = updateUserRequestModel.Address;
                     }
-                    if (updateUserRequestModel.PhoneNumber != null)
+                    if (!string.IsNullOrEmpty(updateUserRequestModel.PhoneNumber))
                     {
                         existUser.PhoneNumber = updateUserRequestModel.PhoneNumber;
                     }
-                    if (updateUserRequestModel.Dob != null)
+                    if (updateUserRequestModel.Dob.HasValue)
                     {
                         existUser.Dob = updateUserRequestModel.Dob;
                     }
-                    if (updateUserRequestModel.Gender != null)
+                    if (!string.IsNullOrEmpty(updateUserRequestModel.Gender))
                     {
                         existUser.Gender = updateUserRequestModel.Gender;
                     }
-                    if (updateUserRequestModel.AvatarURL != null)
+                    if (!string.IsNullOrEmpty(updateUserRequestModel.AvatarURL))
                     {
                         existUser.AvatarURL = updateUserRequestModel.AvatarURL;
                     }
@@ -683,10 +684,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_ROLE_IS_NOT_EXISTED_CODE, Const.WARNING_ROLE_IS_NOT_EXISTED_MSG, false);
                         }
                     }
-                    if (existUser.IsDeleted != null)
-                    {
-                        existUser.IsDeleted = updateUserRequestModel.IsDeleted;
-                    }
+                    //if (existUser.IsDeleted != null)
+                    //{
+                    //    existUser.IsDeleted = updateUserRequestModel.IsDeleted;
+                    //}
                     existUser.UpdateDate = DateTime.Now;
 
                     if (!string.IsNullOrEmpty(updateUserRequestModel.Password))
@@ -701,7 +702,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var result = await _unitOfWork.UserRepository.UpdateUserAsync(existUser);
                     if (result > 0)
                     {
-                        return new BusinessResult(Const.SUCCESS_UPDATE_USER_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, existUser);
+                        return new BusinessResult(Const.SUCCESS_UPDATE_USER_CODE, Const.SUCCESS_UPDATE_USER_MESSAGE, existUser);
                     }
                     else
                     {
@@ -947,11 +948,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (filterRequest.CreateDateTo.HasValue && filterRequest.CreateDateFrom.HasValue)
                 {
-                    filter = filter.And(x => x.CreateDate <= filterRequest.CreateDateTo && x.CreateDate >= filterRequest.CreateDateTo);
+                    filter = filter.And(x => x.CreateDate >= filterRequest.CreateDateTo && x.CreateDate <= filterRequest.CreateDateTo);
                 }
                 if (filterRequest.DobFrom.HasValue && filterRequest.DobTo.HasValue)
                 {
-                    filter = filter.And(x => x.Dob <= filterRequest.DobTo && x.Dob >= filterRequest.DobFrom);
+                    filter = filter.And(x => x.Dob >= filterRequest.DobTo && x.Dob <= filterRequest.DobFrom);
                 }
                 if (!string.IsNullOrEmpty(filterRequest.Status))
                 {
