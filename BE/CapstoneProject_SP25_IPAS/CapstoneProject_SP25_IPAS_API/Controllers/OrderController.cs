@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_API.Payload;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -73,6 +74,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 var result = await _orderService.GetOrdersOfFarm(farmId: farmId.Value, paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Order.getOrders, Name = "getOrders")]
+        public async Task<IActionResult> FarmOrder([FromQuery] GetOrderFilterRequest filterRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _orderService.GetOrdersOfSystem(filterRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)

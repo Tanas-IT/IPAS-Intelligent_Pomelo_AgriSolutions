@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using MimeKit.Tnef;
@@ -124,7 +125,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Order, bool>> filter = x => x.FarmId == farmId && x.ExpiredDate >= DateTime.Now;
+                Expression<Func<Order, bool>> filter = x => x.FarmId == farmId /*&& x.ExpiredDate >= DateTime.Now*/;
                 string includeProperties = "Package,Farm";
                 Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(x => x.EnrolledDate);
 
@@ -237,6 +238,121 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception)
             {
                 return DateTime.Now;
+            }
+        }
+
+        public async Task<BusinessResult> GetOrdersOfSystem(GetOrderFilterRequest filterRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                Expression<Func<Order, bool>> filter = null!;
+                Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(x => x.OrderDate);
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+
+                    filter = x => (x.OrderName!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.OrderCode!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Payment!.TransactionId!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Notes!.ToLower().Contains(paginationParameter.Search.ToLower()));
+                }
+                if (filterRequest.OrderDateFrom.HasValue && filterRequest.OrderDateTo.HasValue && filterRequest.OrderDateFrom <= filterRequest.OrderDateTo)
+                {
+                    filter = filter.And(x => x.OrderDate >= filterRequest.OrderDateFrom && x.OrderDate <= filterRequest.OrderDateTo);
+                }
+                if (filterRequest.EnrolledDateFrom.HasValue && filterRequest.EnrolledDateTo.HasValue && filterRequest.EnrolledDateFrom <= filterRequest.EnrolledDateTo)
+                {
+                    filter = filter.And(x => x.EnrolledDate <= filterRequest.EnrolledDateFrom && x.EnrolledDate >= filterRequest.EnrolledDateTo);
+                }
+                if (filterRequest.ExpiredDateFrom.HasValue && filterRequest.ExpiredDateTo.HasValue && filterRequest.ExpiredDateFrom <= filterRequest.ExpiredDateTo)
+                {
+                    filter = filter.And(x => x.ExpiredDate <= filterRequest.ExpiredDateFrom && x.ExpiredDate >= filterRequest.ExpiredDateTo);
+                }
+                if (filterRequest.TotalPriceFrom.HasValue && filterRequest.TotalPriceTo.HasValue && filterRequest.TotalPriceFrom <= filterRequest.TotalPriceTo)
+                {
+                    filter = filter.And(x => x.TotalPrice >= filterRequest.TotalPriceFrom && x.TotalPrice <= filterRequest.TotalPriceTo);
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.FarmIds))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.FarmIds);
+                    filter = filter.And(x => filterList.Contains(x.FarmId.ToString()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.PackageIds))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.PackageIds);
+                    filter = filter.And(x => filterList.Contains(x.PackageId!.ToString()));
+                }
+                switch (paginationParameter.SortBy)
+                {
+                    case "ordercode":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderCode)
+                                   : x => x.OrderBy(x => x.OrderCode)) : x => x.OrderBy(x => x.OrderCode);
+                        break;
+                    case "ordername":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderName)
+                                   : x => x.OrderBy(x => x.OrderName)) : x => x.OrderBy(x => x.OrderName);
+                        break;
+                    case "totalprice":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.TotalPrice)
+                                   : x => x.OrderBy(x => x.TotalPrice)) : x => x.OrderBy(x => x.TotalPrice);
+                        break;
+                    case "orderdate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.OrderDate)
+                                   : x => x.OrderBy(x => x.OrderDate)) : x => x.OrderBy(x => x.OrderDate);
+                        break;
+                    case "enrolleddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.EnrolledDate)
+                                   : x => x.OrderBy(x => x.EnrolledDate)) : x => x.OrderBy(x => x.EnrolledDate);
+                        break;
+                    case "expireddate":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.ExpiredDate)
+                                   : x => x.OrderBy(x => x.ExpiredDate)) : x => x.OrderBy(x => x.ExpiredDate);
+                        break;
+                    case "packagename":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Package!.PackageName)
+                                   : x => x.OrderBy(x => x.Package!.PackageName)) : x => x.OrderBy(x => x.Package!.PackageName);
+                        break;
+                    case "farmname":
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                   ? x => x.OrderByDescending(x => x.Farm!.FarmName)
+                                   : x => x.OrderBy(x => x.Farm.FarmName)) : x => x.OrderBy(x => x.Farm!.FarmName);
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.EnrolledDate);
+                        break;
+                }
+                string includeProperties = "Package,Farm,Payment";
+                var entities = await _unitOfWork.OrdersRepository.Get(filter: filter,includeProperties: includeProperties ,orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var pagin = new PageEntity<OrderModel>();
+                pagin.List = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
+                pagin.TotalRecord = await _unitOfWork.OrdersRepository.Count(filter: filter);
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin == null)
+                    return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
+                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, pagin);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

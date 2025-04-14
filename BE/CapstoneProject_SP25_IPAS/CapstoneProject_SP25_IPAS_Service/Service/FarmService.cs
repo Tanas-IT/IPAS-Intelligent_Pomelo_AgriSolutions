@@ -168,10 +168,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) 
+                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Province!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Ward!.ToLower().Contains(paginationParameter.Search.ToLower()) 
-                                  || x.District!.ToLower().Contains(paginationParameter.Search.ToLower()) 
+                                  || x.Ward!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.District!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.FarmCode!.ToLower().Contains(paginationParameter.Search.ToLower())
                                   && x.IsDeleted != true);
                 }
@@ -813,7 +813,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -841,5 +841,40 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.EmployeeSkillRepository.RemoveRange(getUserSkillInFarm);
             }
         }
+
+        public async Task<BusinessResult> ActivateFarm(List<int> FarmIds)
+        {
+            try
+            {
+                if (!FarmIds.Any())
+                    return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                var farmExist = await _unitOfWork.FarmRepository.GetAllNoPaging(x => FarmIds.Contains(x.FarmId) && x.IsDeleted == false);
+                if (!farmExist.Any())
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                foreach (var farm in farmExist)
+                {
+                    if (farm.Status.Equals(FarmStatusEnum.Active.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        farm.Status = FarmStatusEnum.Inactive.ToString();
+                        continue;
+                    }
+                    if (farm.Status.Equals(FarmStatusEnum.Inactive.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        farm.Status = FarmStatusEnum.Active.ToString();
+                    }
+                }
+                _unitOfWork.FarmRepository.UpdateRange(farmExist);
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                    return new BusinessResult(Const.SUCCESS_UPDATE_FARM_CODE, $"Activate {farmExist.Count()} farm success");
+                return new BusinessResult(Const.FAIL_UPDATE_FARM_CODE, $"Activate {farmExist.Count()} farm fail");
+            }
+            catch
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+
+            }
+        }
+
     }
 }
