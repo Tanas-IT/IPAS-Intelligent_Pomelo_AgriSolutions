@@ -221,6 +221,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (updateLandRowRequest.TreeAmount.HasValue)
                     {
+                        var curPlantInRow = await _unitOfWork.PlantRepository.GetAllNoPaging(x => x.LandRowId == updateLandRowRequest.LandRowId && x.IsDead == false && x.IsDeleted == false);
+                        if (updateLandRowRequest.TreeAmount < curPlantInRow.Count())
+                            return new BusinessResult(400, $"Tree amount in row can not smaller than curent plant has exist.");
                         var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
                         if (updateLandRowRequest.TreeAmount < minPlant)
                             return new BusinessResult(400, $"Plant of Row must >= {minPlant}.");

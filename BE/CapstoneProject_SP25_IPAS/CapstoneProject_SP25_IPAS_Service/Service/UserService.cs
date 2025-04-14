@@ -36,6 +36,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AuthensModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -59,36 +61,63 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _httpClient = httpClient;
         }
 
-        public async Task<BusinessResult> BannedUser(int userId)
+        public async Task<BusinessResult> BannedUser(List<int> userId)
         {
-            var existUser = await _unitOfWork.UserRepository.GetUserByIdAsync(userId);
-            if (existUser != null)
+            if (userId == null)
+                return new BusinessResult(400, "You must select user before");
+            var existUser = await _unitOfWork.UserRepository.GetAllNoPaging(x => userId.Contains(x.UserId) && x.RoleId != (int)RoleEnum.ADMIN);
+            foreach (var user in existUser)
             {
-                if (!existUser.Status.ToLower().Equals("banned"))
+                if (!user.Status.ToLower().Equals(UserStatusEnum.Banned.ToString().ToLower()))
                 {
-                    existUser.Status = "Banned";
+                    user.Status = UserStatusEnum.Banned.ToString();
 
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_BANNED_USER_MSG);
-                    }
+                    //if (result > 0)
+                    //{
+                    //    return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_BANNED_USER_MSG);
+                    //}
                 }
-                else
-                {
-                    existUser.Status = "Active";
+                //else
+                //{
+                //    user.Status = UserStatusEnum.Active.ToString();
 
-                    var result = await _unitOfWork.SaveAsync();
-                    if (result > 0)
-                    {
-                        return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_UNBANNED_USER_MSG);
-                    }
-                }
+                    //if (result > 0)
+                    //{
+                    //    return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_UNBANNED_USER_MSG);
+                    //}
+                //}
 
-                return new BusinessResult(Const.FAIL_BANNED_USER_CODE, Const.FAIL_BANNED_USER_MSG);
+                //return new BusinessResult(Const.FAIL_BANNED_USER_CODE, Const.FAIL_BANNED_USER_MSG);
+            }
+            _unitOfWork.UserRepository.UpdateRange(existUser);
+            var result = await _unitOfWork.SaveAsync();
+            if (result > 0)
+            {
+                return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, $"Ban {existUser.Count()} success");
             }
             return new BusinessResult(Const.WARNING_BANNED_USER_CODE, Const.WARNING_BANNED_USER_MSG);
+        }
 
+        public async Task<BusinessResult> UnBannedUser(List<int> userId)
+        {
+            if (userId == null)
+                return new BusinessResult(400,"You must select user before");
+            var existUser = await _unitOfWork.UserRepository.GetAllNoPaging(x => userId.Contains(x.UserId) && x.RoleId != (int)RoleEnum.ADMIN);
+            foreach (var user in existUser)
+            {
+                if (user.Status.ToLower().Equals(UserStatusEnum.Banned.ToString().ToLower()))
+                {
+                    user.Status = UserStatusEnum.Active.ToString();
+                }
+                
+            }
+            _unitOfWork.UserRepository.UpdateRange(existUser);
+            var result = await _unitOfWork.SaveAsync();
+            if (result > 0)
+            {
+                return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, $"UnBan {existUser.Count()} success");
+            }
+            return new BusinessResult(Const.WARNING_BANNED_USER_CODE, "Have error when Unban user");
         }
 
         public async Task<BusinessResult> ConfirmResetPassword(ConfirmOtpModel confirmOtpModel)
@@ -440,7 +469,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
                                         AuthenModel = new AuthenModel
                                         {
-                                            AccessToken = newAccessToken,   
+                                            AccessToken = newAccessToken,
                                             RefreshToken = newRefreshToken
                                         },
                                         Avartar = existUser.AvatarURL,
@@ -555,20 +584,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new BusinessResult(Const.WARNING_SIGN_IN_CODE, Const.WARNING_SIGN_IN_MSG, false);
         }
 
-        public async Task<BusinessResult> SoftDeleteUser(int userId)
+        public async Task<BusinessResult> SoftDeleteUser(List<int> userIds)
         {
             try
             {
-                var softDeleteUser = await _unitOfWork.UserRepository.SoftDeleteUserAsync(userId);
-                if (softDeleteUser > 0)
+                //var softDeleteUser = await _unitOfWork.UserRepository.SoftDeleteUserAsync(userId);
+                //if (softDeleteUser > 0)
+                //{
+                //    return new BusinessResult(Const.SUCCESS_SOFT_DELETE_USER_CODE, Const.SUCCESS_SOFT_DELETE_USER_MSG);
+                //}
+                //return new BusinessResult(Const.FAIL_SOFT_DELETE_USER_CODE, Const.FAIL_SOFT_DELETE_USER_MSG);
+                var userInSystem = await _unitOfWork.UserRepository.GetAllNoPaging(x => userIds.Contains(x.UserId));
+                foreach (var item in userInSystem)
                 {
-                    return new BusinessResult(Const.SUCCESS_SOFT_DELETE_USER_CODE, Const.SUCCESS_SOFT_DELETE_USER_MSG);
+                    item.IsDeleted = true;
+                    item.DeleteDate = DateTime.Now;
                 }
-                return new BusinessResult(Const.FAIL_SOFT_DELETE_USER_CODE, Const.FAIL_SOFT_DELETE_USER_MSG);
+                _unitOfWork.UserRepository.UpdateRange(userInSystem);
+                var result = await _unitOfWork.SaveAsync();
+                return new BusinessResult(Const.SUCCESS_UPLOAD_IMAGE_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, result > 0);
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -872,12 +910,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return true;
         }
 
-        public async Task<BusinessResult> GetAllUsers(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllUsers(FilterUserRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                Expression<Func<User, bool>> filter = x => x.IsDeleted == false!;
+                Expression<Func<User, bool>> filter = x => x.IsDeleted == false! && !x.Role!.RoleName!.ToLower().Equals(RoleEnum.ADMIN.ToString().ToLower());
                 Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null!;
+                var validationFilter = ValidationFilterRequest(filterRequest);
+                if (validationFilter.StatusCode != 200)
+                    return validationFilter;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
                     int validInt = 0;
@@ -897,12 +938,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         filter = x => x.UserCode.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.FullName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Email.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.Gender.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      //|| x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
+                                      //|| x.Gender.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.PhoneNumber.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Address.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Status.ToLower().Contains(paginationParameter.Search.ToLower());
                     }
+                }
+                if (filterRequest.CreateDateTo.HasValue && filterRequest.CreateDateFrom.HasValue)
+                {
+                    filter = filter.And(x => x.CreateDate <= filterRequest.CreateDateTo && x.CreateDate >= filterRequest.CreateDateTo);
+                }
+                if (filterRequest.DobFrom.HasValue && filterRequest.DobTo.HasValue)
+                {
+                    filter = filter.And(x => x.Dob <= filterRequest.DobTo && x.Dob >= filterRequest.DobFrom);
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Genders))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Genders);
+                    filter = filter.And(x => filterList.Contains(x.Gender!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.RoleIds))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.RoleIds);
+                    filter = filter.And(x => filterList.Contains(x.RoleId!.ToString()));
                 }
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
@@ -979,7 +1043,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    : x => x.OrderBy(x => x.Dob)) : x => x.OrderBy(x => x.Dob);
                         break;
                     default:
-                        orderBy = x => x.OrderBy(x => x.UserId);
+                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
+                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
+                                     ? x => x.OrderByDescending(x => x.UserId)
+                                   : x => x.OrderBy(x => x.UserId)) : x => x.OrderBy(x => x.UserId);
                         break;
                 }
                 string includeProperties = "Role";
@@ -1410,5 +1477,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new BusinessResult(Const.FAIL_GET_USER_CODE, Const.FAIL_GET_USER_BY_EMAIL_MSG, null);
         }
 
+        private BusinessResult ValidationFilterRequest(FilterUserRequest request)
+        {
+            if (request.CreateDateFrom.HasValue && request.CreateDateTo.HasValue && request.CreateDateFrom > request.CreateDateTo)
+                return new BusinessResult(400, "Filter CreateDate from must before CreateDate to");
+            if (request.DobFrom.HasValue && request.DobTo.HasValue && request.DobFrom > request.DobTo)
+                return new BusinessResult(400, "Filter CreateDate from must before CreateDate to");
+            return new BusinessResult(200, "No error found");
+        }
     }
 }
