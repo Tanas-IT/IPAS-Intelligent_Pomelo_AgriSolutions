@@ -27,12 +27,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
-        public async Task<List<Notification>> GetListNotificationUnReadByUserId(int userId)
+        public async Task<List<PlanNotification>> GetListNotificationUnReadByUserId(int userId)
         {
-            var result = await _context.Notifications
-                .Include(x => x.Sender)
-                .Include(x => x.MasterType)
-                .Where(x => x.SenderID == userId && x.IsRead == false).ToListAsync();
+            var result = await _context.PlanNotifications
+                .Include(x => x.Notification)
+                .ThenInclude(x => x.MasterType)
+                .Where(x => x.UserID == userId && x.isRead == false).ToListAsync();
             return result;
         }
     }
