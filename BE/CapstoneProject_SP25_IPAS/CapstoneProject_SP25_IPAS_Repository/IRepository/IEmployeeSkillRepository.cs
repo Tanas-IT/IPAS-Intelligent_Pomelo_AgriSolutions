@@ -10,5 +10,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     public interface IEmployeeSkillRepository
     {
         public Task<List<UserFarm>> GetListEmployeeByWorkTypeId(int workTypeId, int farmId);
+        public Task<List<EmployeeSkill>> GetEmployeeSkillByUserIdAndFarmId(int userId, int farmId);
     }
 }

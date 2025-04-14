@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -10,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackNavigationProp } from "@/constants/Types";
+import { RootStackNavigationProp } from "@/constants";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { Controller, useForm } from "react-hook-form";
@@ -19,7 +18,15 @@ import { addNoteSchema } from "@/validations/noteSchemas";
 import { styles } from "./NoteFormScreen.styles";
 import theme from "@/theme";
 import { CustomIcon } from "@/components";
-import { NoteFormData } from "@/types";
+import { PlantService } from "@/services";
+import { useAuthStore } from "@/store";
+import Toast from "react-native-toast-message";
+
+export interface NoteFormData {
+  content: string;
+  issueName?: string;
+  images?: { uri: string; type: string; name: string }[];
+}
 
 const NoteFormScreen: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -39,7 +46,7 @@ const NoteFormScreen: React.FC = () => {
     watch,
     setValue,
   } = useForm<NoteFormData>({
-    resolver: yupResolver(addNoteSchema),
+    resolver: yupResolver(isEditMode ? addNoteSchema : addNoteSchema),
     defaultValues:
       isEditMode && initialData
         ? initialData
@@ -52,6 +59,7 @@ const NoteFormScreen: React.FC = () => {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { userId } = useAuthStore();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -70,8 +78,14 @@ const NoteFormScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets) {
+      const asset = result.assets[0];
       const currentImages = watch("images") || [];
-      const newImages = [...currentImages, result.assets[0].uri];
+      const newImage = {
+        uri: asset.uri,
+        type: asset.mimeType || "image/jpeg",
+        name: asset.fileName || `photo_${Date.now()}.jpg`,
+      };
+      const newImages = [...currentImages, newImage];
       setValue("images", newImages, { shouldValidate: true });
     }
   };
@@ -86,18 +100,38 @@ const NoteFormScreen: React.FC = () => {
   const onSubmit = async (data: NoteFormData) => {
     setIsSubmitting(true);
 
-    const payload = {
-      ...data,
-      plantId,
-      noteTaker: "Current User", // tạm
-    };
+    try {
+      const payload = {
+        plantId,
+        userId,
+        issueName: data.issueName,
+        content: data.content,
+        images: data.images,
+      };
 
-    console.log(isEditMode ? "Updating Note:" : "Adding Note:", payload);
+      console.log(isEditMode ? "Updating Note:" : "Adding Note:", payload);
 
-    setTimeout(() => {
+      const response = await PlantService.createPlantGrowthHistory(payload);
+      if (response.statusCode === 200) {
+        Toast.show({
+          type: "success",
+          text1: isEditMode ? "Note updated successfully" : "Note added successfully",
+        });
+        navigation.goBack();
+      } else {
+        throw new Error(response.message || "API error");
+      }
+    } catch (error: any) {
+      console.error("Error submitting note:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+
+    } finally {
       setIsSubmitting(false);
-      navigation.goBack();
-    }, 1500);
+    }
   };
 
   const handlePress = () => {
@@ -198,9 +232,9 @@ const NoteFormScreen: React.FC = () => {
 
                 {(value || []).length > 0 && (
                   <View style={styles.imageGrid}>
-                    {value?.map((uri, index) => (
+                    {value?.map((img, index) => (
                       <View key={index} style={styles.imageContainer}>
-                        <Image source={{ uri }} style={styles.image} />
+                        <Image source={{ uri: img.uri }} style={styles.image} />
                         <TouchableOpacity
                           style={styles.removeImageButton}
                           onPress={() => removeImage(index)}

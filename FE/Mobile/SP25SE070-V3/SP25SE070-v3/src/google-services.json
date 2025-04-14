@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "592618914081",
+    "project_id": "ipas---capstoneproject",
+    "storage_bucket": "ipas---capstoneproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592618914081:android:bb5df799251cf35e68fe60",
+        "android_client_info": {
+          "package_name": "com.laggg.SP25SE070"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "592618914081-tdr61rb6mbuhssb7cslgtiphh8tea28b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWhP76S1HuTUDhJVEhVRCGVYgy9FwARhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "592618914081-tdr61rb6mbuhssb7cslgtiphh8tea28b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "592618914081-poni0ss7j9l5ds0558grn47o7niq8f77.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laggg.SP25SE070"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

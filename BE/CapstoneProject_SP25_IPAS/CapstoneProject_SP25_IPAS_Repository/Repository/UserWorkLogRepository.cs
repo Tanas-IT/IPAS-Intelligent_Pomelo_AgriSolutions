@@ -147,5 +147,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.SaveChangesAsync();
             return result > 0;
         }
+
+        public async Task<List<UserWorkLog>> GetUserWorkLogByUserId(int userId)
+        {
+            var result = await _context.UserWorkLogs
+                            .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date > DateTime.Now)
+                            .ToListAsync();
+            return result;
+        }
     }
 }
