@@ -387,6 +387,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string addNewTask = prefix + "/add-new-task";
             public const string getDetailTask = prefix + "/detail/{workLogId}";
             public const string NoteForWorkLog = prefix + "/take-note";
+            public const string NoteForWorkLogUseFile = prefix + "/take-note-with-file";
             public const string ReAssignTask = prefix + "/re-assign";
             public const string ChangeEmployeeOfWorkLog = prefix + "/change-employee";
             public const string CanceledWorkLogByEmployee = prefix + "/cancelled-workLog";

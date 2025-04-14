@@ -665,7 +665,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
                         {
-                            if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                            if (getDetailWorkLog.Status != null && getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                             {
                                 if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
                                 {
@@ -826,7 +826,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                     }
-                    await _unitOfWork.SaveAsync();
                     await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
@@ -3247,6 +3246,118 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
 
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<BusinessResult> NoteForWorkLogUseResourceFile(CreateNoteModelUseFile createNoteModel, int farmId)
+        {
+            try
+            {
+                var findWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == createNoteModel.WorkLogId && x.UserId == createNoteModel.UserId);
+                var getWorklog = await _unitOfWork.WorkLogRepository.GetByID(createNoteModel.WorkLogId);
+                var getUser = await _unitOfWork.UserRepository.GetByID(createNoteModel.UserId.Value);
+                if (findWorkLog != null)
+                {
+                    findWorkLog.Notes = createNoteModel.Note;
+                    findWorkLog.Issue = createNoteModel.Issue;
+                    findWorkLog.CreateDate = DateTime.Now;
+                    if (createNoteModel.Resources != null)
+                    {
+                        foreach (var fileNote in createNoteModel.Resources)
+                        {
+                            var getLink = "";
+                            if (fileNote.Length > 0)
+                            {
+                                if (IsImageFile(fileNote))
+                                {
+                                    getLink = await _cloudinaryService.UploadImageAsync(fileNote, "worklog/note");
+                                    var newResource = new Resource()
+                                    {
+                                        CreateDate = DateTime.Now,
+                                        FileFormat = "image",
+                                        ResourceURL = getLink,
+                                        Description = "note for worklog",
+                                        UpdateDate = DateTime.Now,
+                                        UserWorkLogID = findWorkLog.UserWorkLogID
+                                    };
+                                    await _unitOfWork.ResourceRepository.Insert(newResource);
+
+                                }
+                                else
+                                {
+                                    getLink = await _cloudinaryService.UploadVideoAsync(fileNote, "worklog/note");
+                                    var newResourceVideo = new Resource()
+                                    {
+                                        CreateDate = DateTime.Now,
+                                        FileFormat = "image",
+                                        ResourceURL = getLink,
+                                        Description = "note for worklog",
+                                        UpdateDate = DateTime.Now,
+                                        UserWorkLogID = findWorkLog.UserWorkLogID
+                                    };
+                                    await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
+                                }
+                            }
+                        }
+                    }
+                    var addNotification = new Notification()
+                    {
+                        Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check it",
+                        Title = "WorkLog",
+                        IsRead = false,
+                        MasterTypeId = 36,
+                        CreateDate = DateTime.Now,
+                        NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
+
+                    };
+                    await _unitOfWork.NotificationRepository.Insert(addNotification);
+                    await _unitOfWork.SaveAsync();
+                    var addNotificationForNote = new PlanNotification()
+                    {
+                        CreatedDate = DateTime.Now,
+                        isRead = false,
+                        NotificationID = addNotification.NotificationId,
+                        UserID = createNoteModel.UserId
+                    };
+                    await _unitOfWork.PlanNotificationRepository.Insert(addNotificationForNote);
+                    await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
+                    var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
+
+                    foreach (var employee in getListManagerOfFarm)
+                    {
+                        var addNotificationManagerForNote = new PlanNotification()
+                        {
+                            CreatedDate = DateTime.Now,
+                            isRead = false,
+                            NotificationID = addNotification.NotificationId,
+                            UserID = employee.UserId
+                        };
+                        await _unitOfWork.PlanNotificationRepository.Insert(addNotificationManagerForNote);
+                        await _webSocketService.SendToUser(employee.UserId, addNotification);
+
+                    }
+                    await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
+                    var result = await _unitOfWork.SaveAsync();
+                    if (result > 0)
+                    {
+                        return new BusinessResult(200, "Take note success", findWorkLog);
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Take note failed");
+                    }
+
+                }
+                else
+                {
+                    return new BusinessResult(404, "Can not find any workLog for take note");
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }
