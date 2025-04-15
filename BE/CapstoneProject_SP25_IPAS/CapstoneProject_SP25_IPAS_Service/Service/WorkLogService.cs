@@ -739,17 +739,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
                     findWorkLog.CreateDate = DateTime.Now;
-
+                   
                     // Khởi tạo đối tượng Resource
-                    var newResource = new Resource()
-                    {
-                        ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
-                        CreateDate = DateTime.Now,
-                        Description = "note for worklog",
-                        UpdateDate = DateTime.Now,
-                        ResourceType = ResourceTypeConst.WORK_LOG,
-                        UserWorkLogID = findWorkLog.UserWorkLogID
-                    };
+                   
 
                     // Xử lý tài nguyên (hình ảnh/video) nếu có
                     if (createNoteModel.Resources?.Any() == true)
@@ -763,12 +755,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
                                     resource.FileFormat = FileFormatConst.VIDEO.ToLower();
                                 else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
-                                newResource.ResourceURL = (string)cloudinaryUrl.Data;
-                                newResource.FileFormat = resource.FileFormat;
+                                var newResource = new Resource()
+                                {
+                                    ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
+                                    ResourceURL = (string)cloudinaryUrl.Data,
+                                    ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
+                                    FileFormat = resource.FileFormat,
+                                    CreateDate = DateTime.Now,
+                                    Description = resource.Description,
+                                };
+                                findWorkLog.Resources.Add(newResource);
                             }
                         }
                     }
-                    await _unitOfWork.ResourceRepository.Insert(newResource);
+                    _unitOfWork.UserWorkLogRepository.Update(findWorkLog);
+                    await _unitOfWork.SaveAsync();
                     var addNotification = new Notification()
                     {
                         Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check it",
