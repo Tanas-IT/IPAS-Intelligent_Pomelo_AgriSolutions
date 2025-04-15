@@ -177,18 +177,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.EnrolledDate);
                         break;
                 }
-                var entities = await _unitOfWork.OrdersRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
-                var pagin = new PageEntity<OrderModel>();
-                pagin.List = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
-                Expression<Func<Order, bool>> filterCount = null!;
-                pagin.TotalRecord = await _unitOfWork.OrdersRepository.Count(filter: filterCount);
-                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                //var entities = await _unitOfWork.OrdersRepository.Get(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                //var pagin = new PageEntity<OrderModel>();
+                //pagin.List = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
+                //Expression<Func<Order, bool>> filterCount = null!;
+                //pagin.TotalRecord = await _unitOfWork.OrdersRepository.Count(filter: filterCount);
+                //pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
 
                 var order = await _unitOfWork.OrdersRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
                 if (order == null)
-                    return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
+                    return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, "Farm Order is empty");
                 var mappedResult = _mapper.Map<IEnumerable<OrderModel>>(order);
-                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
+                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, "Get farm order succes", mappedResult);
             }
             catch (Exception ex)
             {

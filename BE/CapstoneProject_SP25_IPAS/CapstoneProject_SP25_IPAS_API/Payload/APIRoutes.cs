@@ -440,8 +440,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Package
         {
             public const string prefix = Base + "/packages";
-            public const string getAllPackage = prefix + "";
+            public const string getPackageToBuy = prefix + "";
             public const string getPackageById = prefix + "";
+            public const string getPackage = prefix + "/all";
+            public const string updatePackage = prefix + "";
+            public const string createPackage = prefix + "";
+            public const string deletePackage = prefix + "";
         }
 
         public static class GraftedPlant
