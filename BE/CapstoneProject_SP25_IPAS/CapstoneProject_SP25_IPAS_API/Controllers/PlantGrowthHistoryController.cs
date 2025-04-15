@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_API.Middleware;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -25,8 +26,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.PlantGrowthHistory.createPlantGrowthHistory, Name = "createPlantGrowthHistoryAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CreatePlantGrowthHistoryAsync([FromForm] CreatePlantGrowthHistoryRequest request)
         {
             try
@@ -59,8 +62,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.PlantGrowthHistory.updatePlantGrowthHistoryInfo, Name = "updatePlantGrowthHistoryAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromForm] UpdatePlantGrowthHistoryRequest request)
         {
             try
@@ -84,8 +89,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantGrowthHistory.getPlantGrowthHistoryById + "/{plant-growth-history-id}", Name = "getPlantGrowthByIdAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetPlantGrowthByIdAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
         {
             try
@@ -106,6 +113,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantGrowthHistory.getAllHistoryOfPlantById + "/{plant-id}", Name = "getAllHistoryOfPlantByIdAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetAllHistoryOfPlantByIdAsync([FromRoute(Name = "plant-id")] int plantId)
         {
             try
@@ -126,6 +136,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.PlantGrowthHistory.getAllHistoryOfPlantPagin , Name = "getAllHistoryOfPlantPagin")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getAllHistoryOfPlantPagin([FromQuery] GetPlantGrowtRequest getRequest, PaginationParameter paginationParameter)
         {
             try
@@ -144,8 +157,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpDelete(APIRoutes.PlantGrowthHistory.deletePlantGrowthHistory + "/{plant-growth-history-id}", Name = "deleteGrowthHistoryAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
         {
             try
@@ -165,6 +180,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.PlantGrowthHistory.exportCSV)]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> ExportNotes([FromQuery] int plantId)
         {
             var result = await _plantGrowthHistoryService.ExportNotesByPlantId(plantId);

@@ -8,6 +8,7 @@ using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandRowRequest;
 using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_API.Middleware;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -22,8 +23,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _landRowService = landRowService;
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowById + "/{id}", Name = "getLandRowByIdAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetLandRowByIdAsync([FromRoute(Name = "id")] int landRowId)
         {
             try
@@ -42,8 +45,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotNoPagin + "/{plotId}", Name = "getAllLandRowOfLandPlotNoPaginAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetAllLandRowOfLandPlotNoPaginAsync([FromRoute(Name = "plotId")] int plotId)
         {
             try
@@ -62,8 +67,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.LandRow.createLandRow, Name = "createLandRowAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CreateLandRowAsync([FromBody] CreateLandRowRequest createRequest)
         {
             try
@@ -86,8 +93,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.LandRow.updateLandRowInfo, Name = "updateLandRowInfoAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> UpdateLandRowInfoAsync([FromBody] UpdateLandRowRequest updateRequest)
         {
             try
@@ -110,8 +119,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.LandRow.deleteLandRow + "/{id}", Name = "deleteLandRowOfFarmAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> DeleteLandRowOfFarmAsync([FromRoute(Name = "id")] int rowId)
         {
             try
@@ -130,8 +141,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowForSelected + "/{plot-id}", Name = "getLandRowForSelectedAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getLandRowForSelectedAsync([FromRoute(Name = "plot-id")] int plotId)
         {
             try
@@ -150,8 +163,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.LandRow.getLandRowOfPlotPagin, Name = "getLandRowOfPlotPaginAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getLandRowOfPlotPaginAsync([FromQuery] GetPlantRowPaginRequest request, PaginationParameter paginationParameter)
         {
             try
@@ -183,8 +198,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.LandRow.softedDeleteMultipleRow, Name = "softedDeleteMultipleRow")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> softedDeleteMultipleRow([FromBody] List<int> rowIds)
         {
             try
@@ -206,8 +223,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// <summary>
         /// lấy ra những index chưa có cây trồng theo hàng
         /// </summary>
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.LandRow.getSelectedIndexEmptyInRow + "/{row-id}", Name = "getSelectedIndexEmptyInRowAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getSelectedIndexEmptyInRowAsync([FromRoute(Name = "row-id")] int rowId)
         {
             try
@@ -227,6 +246,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.LandRow.exportCSV)]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> ExportRowCsv([FromQuery] GetPlantRowPaginRequest request)
         {
             var result = await _landRowService.ExportExcelByPlot(request);

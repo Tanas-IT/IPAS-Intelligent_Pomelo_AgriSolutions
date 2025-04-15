@@ -764,11 +764,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 authClaims = new List<Claim>
               {
-                     new Claim("email", email),
-                     new Claim("role", role.RoleName),
-                     new Claim("roleId", role.RoleId.ToString()),
-                     new Claim("UserId", user.UserId.ToString()),
-                     new Claim("Status", user.Status.ToString()),
+                     new Claim(TokenClaimKeyConst.EMAIL_KEY, email),
+                     new Claim(TokenClaimKeyConst.ROLE_KEY, role.RoleName),
+                     new Claim(TokenClaimKeyConst.ROLEID_KEY, role.RoleId.ToString()),
+                     new Claim(TokenClaimKeyConst.USERID_KEY, user.UserId.ToString()),
+                     new Claim(TokenClaimKeyConst.STATUS, user.Status.ToString()),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
               };
             }
@@ -776,12 +776,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 authClaims = new List<Claim>
                 {
-                     new Claim("email", email),
-                     new Claim("role", getRoleInFarm.RoleName),
-                     new Claim("roleId", getRoleInFarm.RoleId.ToString()),
-                     new Claim("farmId", farmId.ToString()),
-                     new Claim("UserId", user.UserId.ToString()),
-                     new Claim("Status", user.Status.ToString()),
+                     new Claim(TokenClaimKeyConst.EMAIL_KEY, email),
+                     new Claim(TokenClaimKeyConst.ROLE_KEY, getRoleInFarm.RoleName),
+                     new Claim(TokenClaimKeyConst.ROLEID_KEY, getRoleInFarm.RoleId.ToString()),
+                     new Claim(TokenClaimKeyConst.FARMID_KEY, farmId.ToString()),
+                     new Claim(TokenClaimKeyConst.USERID_KEY, user.UserId.ToString()),
+                     new Claim(TokenClaimKeyConst.STATUS, user.Status.ToString()),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
             }
