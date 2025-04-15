@@ -31,6 +31,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string GRAFTED_PLANT_NOTE = "GRAPN.";
         public static string ORDER = "ORDER.";
         public static string PACKAGE = "PKG.";
+        public static string PACKAGE_DETAIL = "PKD.";
         public static string PAYMENT = "PAY.";
         public static string RESOURCE = "RES.";
         public static string WORKLOG = "WLG.";
