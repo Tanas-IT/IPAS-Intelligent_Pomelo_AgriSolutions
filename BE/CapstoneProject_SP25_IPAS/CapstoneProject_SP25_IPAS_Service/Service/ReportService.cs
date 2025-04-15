@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                .GroupBy(p => p.HealthStatus)
                                                .ToDictionary(
                                                    g => g.Key!,
-                                                   g => Math.Round(((double)g.Count() / totalPlant.Where(p => p.FarmId == farmId).Count()) * 100, 2) // Làm tròn 2 số thập phân
+                                                   g => g.Count() // Làm tròn 2 số thập phân
                                                );
 
                 var filteredTask = toltalTask
