@@ -19,12 +19,17 @@ export interface HarvestRecord {
     totalPage: number;
     totalRecord: number;
   }
+
+  export interface PlantHarvestRecord {
+    plantId: number;
+    quantity: number;
+  }
   
   export interface CreateHarvestRecordRequest {
     masterTypeId: number;
-    plantId: number;
-    quantity: number;
     harvestHistoryId: number;
+    userId: number;
+    plantHarvestRecords: PlantHarvestRecord[];
   }
   
   export interface MasterTypeOption {
@@ -35,4 +40,31 @@ export interface HarvestRecord {
   export interface HarvestHistoryOption {
     id: number;
     code: string;
+  }
+
+  export interface ProductHarvest {
+    productHarvestHistoryId: number;
+    masterTypeId: number;
+    unit: string;
+    sellPrice: number;
+    costPrice: number;
+    quantityNeed?: number;
+    actualQuantity?: number;
+    recordDate?: string;
+    harvestHistoryId: number;
+    productName: string;
+    harvestHistoryCode: string;
+    plantLogHarvest: any[];
+  }
+  
+  export interface AvailableHarvest {
+    harvestHistoryId: number;
+    harvestHistoryCode: string;
+    dateHarvest: string;
+    harvestHistoryNote?: string;
+    totalPrice?: number;
+    cropId: number;
+    cropName: string;
+    yieldHasRecord: number;
+    productHarvestHistory: ProductHarvest[];
   }

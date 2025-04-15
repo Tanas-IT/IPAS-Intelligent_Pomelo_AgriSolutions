@@ -66,7 +66,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         const isRejected =
           employee.userId === Number(userId) &&
           employee.statusOfUserWorkLog?.toLowerCase() === "rejected";
-        console.log("Employee:", employee, "Rejected:", isRejected);
         return isRejected;
       }
     ) || false;
@@ -75,7 +74,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         const isRejected =
           reporter.userId === Number(userId) &&
           reporter.statusOfUserWorkLog?.toLowerCase() === "rejected";
-        console.log("Reporter:", reporter, "Rejected:", isRejected);
         return isRejected;
       }
     ) || false;

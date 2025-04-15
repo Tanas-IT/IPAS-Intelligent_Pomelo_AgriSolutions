@@ -54,7 +54,7 @@ export const updateStatusWorklog = async (payload: UpdateStatusWorklogRequest): 
 
 export const addWorklogNote = async (
   payload: WorklogNoteFormData
-): Promise<ApiResponse<object>> => {
+): Promise<ApiResponse<Object>> => {
     const formData = new FormData();
     formData.append("UserId", payload.userId?.toString() || "");
     formData.append("WorkLogId", payload.workLogId?.toString() || "");
@@ -63,19 +63,20 @@ export const addWorklogNote = async (
 
     if (payload.resources && payload.resources.length > 0) {
       payload.resources.forEach((resource, index) => {
-        const format = resource.fileFormat?.split("/")[1] || "jpg";
+        const format = resource.type?.split("/")[1] || "jpg";
         formData.append(`Resources[${index}].fileFormat`, format);
         formData.append(
           `Resources[${index}].file`,
           {
-            uri: resource.resourceURL,
-            type: resource.fileFormat || "image/jpeg",
+            uri: resource.uri,
+            type: resource.type || "image/jpeg",
             name: `resource_${index}.${format}`,
           } as any,
           `resource_${index}.${format}`
         );
       });
     }
+    console.log("payload add wl note", formData);
 
     const res = await axiosAuth.axiosMultipartForm.post(
       `/work-log/take-note`,

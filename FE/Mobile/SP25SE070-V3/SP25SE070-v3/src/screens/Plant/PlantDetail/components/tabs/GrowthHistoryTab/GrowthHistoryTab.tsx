@@ -172,7 +172,6 @@ const GrowthHistoryTab: React.FC = () => {
   const fetchData = useCallback(
     async (page: number, reset: boolean = false) => {
       if (isLoading || (!reset && data.length >= totalIssues)) return;
-      console.log("Fetching page:", page, "Reset:", reset);
       setIsLoading(true);
       try {
         const start = dateRange[0];
@@ -187,12 +186,7 @@ const GrowthHistoryTab: React.FC = () => {
           startDateParam,
           endDateParam
         );
-        console.log("Fetch data:", {
-          page,
-          totalRecord: res.data.totalRecord,
-          listLength: res.data.list.length,
-          pageSize,
-        });
+        
         if (res.statusCode === 200) {
           setData((prevData) => (reset ? res.data.list : [...prevData, ...res.data.list]));
           setTotalIssues(res.data.totalRecord);

@@ -73,10 +73,7 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
       0,
       5
     )}`;
-    console.log('log', log);
     const avatars = log.users.map((user) => user.avatarURL);
-    console.log('avatars', avatars);
-    
 
     events.push({
       id: log.workLogId,
@@ -130,7 +127,6 @@ export default function WorklogScreen() {
 
   useEffect(() => {
     const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(worklogs);
-    console.log('eventtt', events);
     
     setEvents(events);
     setTimelineEvents(timelineEvents);
@@ -140,7 +136,6 @@ export default function WorklogScreen() {
       setSelectedDate(eventDates[0]);
     }
   }, [worklogs]);
-  console.log('worklog', worklogs);
   
 
   const getWeekRange = (selectedDate: string) => {
@@ -177,8 +172,6 @@ export default function WorklogScreen() {
     setError(null);
     
     try {
-      console.log('user---------------------------------------------------------------', userId);
-      
       const response = await worklogService.getWorklogByUserId(Number(userId));
       setWorklogs(response);
       console.log("Data fetched successfully:", response);
