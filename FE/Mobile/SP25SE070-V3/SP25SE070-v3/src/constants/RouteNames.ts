@@ -24,4 +24,5 @@ export const ROUTE_NAMES = {
     PEST_DETECTION: "PestDetection",
     SPLASH_SCREEN: "SplashScreen",
   },
+  EXPERT_RESPONSE: "ExpertResponse"
 } as const;

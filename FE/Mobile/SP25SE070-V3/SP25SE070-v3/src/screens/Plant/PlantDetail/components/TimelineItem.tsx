@@ -27,9 +27,9 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
         <View style={[styles.card, theme.shadow.default]}>
           <View style={styles.cardHeader}>
             <View style={styles.dateContainer}>
-              <Image source={avt} style={styles.avatar} />
+              <Image source={{ uri: record.avartarRecord }} style={styles.avatar} crossOrigin="anonymous" />
               <View>
-                <TextCustom style={styles.recordDate}>Recorder</TextCustom>
+                <TextCustom style={styles.recordDate}>{record.recordBy}</TextCustom>
               </View>
             </View>
             <TouchableOpacity

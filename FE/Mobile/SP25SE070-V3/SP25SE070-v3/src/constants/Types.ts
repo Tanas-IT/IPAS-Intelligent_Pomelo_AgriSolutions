@@ -27,6 +27,7 @@ export type RootStackParamList = {
     initialData?: WorklogNoteFormData;
   };
   [ROUTE_NAMES.PEST_DETECTION.PEST_DETECTION]: undefined;
+  [ROUTE_NAMES.EXPERT_RESPONSE]: undefined;
 };
 
 export type MainTabParamList = {

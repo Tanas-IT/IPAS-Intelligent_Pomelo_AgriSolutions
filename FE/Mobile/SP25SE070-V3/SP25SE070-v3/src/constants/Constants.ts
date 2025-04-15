@@ -6,3 +6,13 @@ export const HEALTH_STATUS = {
   SERIOUS_ISSUE: "Serious Issues",
   DEAD: "Dead",
 } as const;
+
+export const MASTER_TYPE = {
+  DOCUMENT: "Document",
+  CULTIVAR: "Cultivar",
+  PROCESS: "Process",
+  WORK: "Work",
+  CRITERIA: "Criteria",
+  PRODUCT: "Product",
+  NOTIFICATION: "Notification",
+};

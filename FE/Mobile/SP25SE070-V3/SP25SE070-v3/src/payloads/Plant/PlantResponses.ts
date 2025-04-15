@@ -86,6 +86,7 @@ export interface GetPlantGrowthHistory {
   numberImage: number;
   numberVideos: number;
   resources: FileResource[];
+  userId: number;
 }
 
 export interface GetPlantRecord {

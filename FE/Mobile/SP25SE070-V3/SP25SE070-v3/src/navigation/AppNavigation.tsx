@@ -13,6 +13,7 @@ import AddNoteWorklogScreen from "@/screens/Worklog/AddNoteWorklogScreen/AddNote
 import PestDetectionScreen from "@/screens/PestDetection/PestDetection";
 import { useNavigation } from "@react-navigation/native";
 import { UserRole } from "@/constants";
+import ReportResponseScreen from "@/screens/ReportResponse/ReportResponseScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -96,6 +97,11 @@ export default function AppNavigation() {
       <Stack.Screen
         name={ROUTE_NAMES.PEST_DETECTION.PEST_DETECTION}
         component={PestDetectionScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={ROUTE_NAMES.EXPERT_RESPONSE}
+        component={ReportResponseScreen}
         options={{ headerShown: false }}
       />
       {/* {!accessToken ? (

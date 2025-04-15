@@ -10,13 +10,18 @@ import {
 } from "react-native";
 import CustomIcon from "./CustomIcon";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { ResourceItem } from "@/types/worklog";
 import TextCustom from "./TextCustom";
 import theme from "@/theme";
 
+interface CommonResource {
+  resourceID: number;
+  resourceURL: string;
+  fileFormat: string;
+}
+
 interface NoteDetailModalProps {
   visible: boolean;
-  resources: ResourceItem[] | string[];
+  resources: CommonResource[] | null;
   onClose: () => void;
 }
 
@@ -58,15 +63,43 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
+  const getFormat = (res: CommonResource): string => {
+    if (res.fileFormat) {
+      return res.fileFormat.toLowerCase();
+    }
+    const url = res.resourceURL.toLowerCase();
+    const match = url.match(/\.([a-z0-9]+)(?:[\?#]|$)/i);
+    return match && match[1] ? match[1] : "unknown";
+  };
   // Phân loại resources thành images và videos
-  const processResources = (resources: ResourceItem[] | string[]) => {
-    if (!resources) return { images: [], videos: [] };
-    const urls = resources.map((resource) =>
-      typeof resource === "string" ? resource : resource.resourceURL
-    );
+  const processResources = (resources: CommonResource[] | null) => {
+    if (!resources || resources.length === 0) return { images: [], videos: [] };
 
-    const images = urls.filter((url) => /\.(jpg|jpeg|png|gif)$/i.test(url));
-    const videos = urls.filter((url) => /\.(mp4|mov|avi)$/i.test(url));
+    const images: string[] = [];
+    const videos: string[] = [];
+    console.log("resources",resources);
+    
+
+    resources.forEach((res) => {
+      // const format = res.fileFormat.toLowerCase();
+      const format = getFormat(res);
+      const url = res.resourceURL.toLowerCase();
+
+      // Kiểm tra fileFormat cụ thể
+      if (["jpg", "jpeg", "png", "gif"].includes(format)) {
+        images.push(res.resourceURL);
+      } else if (["mp4", "mov", "avi"].includes(format)) {
+        videos.push(res.resourceURL);
+      }
+      // Kiểm tra fileFormat chung ("image", "video") và xác nhận bằng URL
+      else if (format === "image" && /\.(jpg|jpeg|png|gif)$/i.test(url)) {
+        images.push(res.resourceURL);
+      } else if (format === "video" && /\.(mp4|mov|avi)$/i.test(url)) {
+        videos.push(res.resourceURL);
+      }
+    });
+
+    console.log("Processed resources:", { images, videos });
     return { images, videos };
   };
 
@@ -296,12 +329,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 60,
     borderRadius: 8,
-  },
-  playIcon: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -15 }, { translateY: -15 }],
   },
   noMediaText: {
     color: "#999",
