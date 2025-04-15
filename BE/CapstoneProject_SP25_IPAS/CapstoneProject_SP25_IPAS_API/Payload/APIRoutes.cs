@@ -23,6 +23,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateFarmInfo = prefix + "/update-farm-info";
             public const string updateFarmLogo = prefix + "/update-farm-logo";
             public const string activateFarm = prefix + "/activate";
+            public const string getFarmForSelected = prefix + "/for-selected";
 
             public const string updateFarmCoordination = prefix + "/update-farm-coordination";
             public const string getUserOfFarmByRole = prefix + "/get-users-farm-by-role";
@@ -439,8 +440,12 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
         public static class Package
         {
             public const string prefix = Base + "/packages";
-            public const string getAllPackage = prefix + "";
+            public const string getPackageToBuy = prefix + "";
             public const string getPackageById = prefix + "";
+            public const string getPackage = prefix + "/all";
+            public const string updatePackage = prefix + "";
+            public const string createPackage = prefix + "";
+            public const string deletePackage = prefix + "";
         }
 
         public static class GraftedPlant

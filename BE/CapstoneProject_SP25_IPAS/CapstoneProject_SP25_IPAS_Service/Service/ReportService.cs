@@ -129,8 +129,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TaskStatus = listTaskStatusDistribution
                 };
 
-                var totalQuantity = await _unitOfWork.ProductHarvestHistoryRepository.GetAllProductHarvestHistory(farmId.Value);
-                var getTotalQuantity = totalQuantity.Sum(x => x.ActualQuantity);
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                var totalCount = filteredTask.Count();
+                var doneCount = filteredTask.Count(x => x.Status == getStatusDone);
+                var percentComplete = totalCount == 0 ? 0 : Math.Round((double)doneCount / totalCount * 100, 2);
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
                 string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
 
@@ -157,7 +160,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TotalPlant = totalPlant.Where(p => p.FarmId == farmId).ToList().Count(),
                     TotalEmployee = totalEmployee,
                     TotalTask = totalFilteredTask,
-                    TotalQuantity = getTotalQuantity ?? 0,
+                    TaskComplete = percentComplete,
                     PlantDevelopmentDistribution = growthStagePercentage,
                     PlantDevelopmentStages = growthStagePercentage,
                     PlantHealthStatus = plantHeathStatus,
