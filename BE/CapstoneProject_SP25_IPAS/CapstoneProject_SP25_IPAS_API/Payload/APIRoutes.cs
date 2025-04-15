@@ -22,6 +22,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string softedDeleteFarm = prefix + "/softed-delete-farm";
             public const string updateFarmInfo = prefix + "/update-farm-info";
             public const string updateFarmLogo = prefix + "/update-farm-logo";
+            public const string activateFarm = prefix + "/activate";
+
             public const string updateFarmCoordination = prefix + "/update-farm-coordination";
             public const string getUserOfFarmByRole = prefix + "/get-users-farm-by-role";
             public const string getUsersOfFarmById = prefix + "/user-farm/get-by-id";
@@ -385,6 +387,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string addNewTask = prefix + "/add-new-task";
             public const string getDetailTask = prefix + "/detail/{workLogId}";
             public const string NoteForWorkLog = prefix + "/take-note";
+            public const string NoteForWorkLogUseFile = prefix + "/take-note-with-file";
             public const string ReAssignTask = prefix + "/re-assign";
             public const string ChangeEmployeeOfWorkLog = prefix + "/change-employee";
             public const string CanceledWorkLogByEmployee = prefix + "/cancelled-workLog";
@@ -503,6 +506,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string prefix = Base + "/order";
             public const string createOrder = prefix + "";
             public const string FarmOrder = prefix + "/farm";
+            public const string GetOrder = prefix + "";
             public const string deletePermanentlyOrder = prefix + "";
             public const string updateOrderInfo = prefix + "";
             public const string deleteSoftedOrder = prefix + "/softed-delete";

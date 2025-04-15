@@ -41,5 +41,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> StatisticWorkLog(int farmId, int? userId, string? groupBy, DateTime? fromDate, DateTime? toDate);
         public Task<BusinessResult> FilterEmployeeByWorkSkill(int workTypeId, int farmId);
         public Task<BusinessResult> GetDependentWorkLog(int workLogID);
+        public Task<BusinessResult> NoteForWorkLogUseResourceFile(CreateNoteModelUseFile createNoteModel, int farmId);
     }
 }

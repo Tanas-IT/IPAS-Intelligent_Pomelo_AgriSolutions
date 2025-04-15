@@ -27,11 +27,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[HybridAuthorize("Admin,User", "Manager")]
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         [HttpGet(APIRoutes.Farm.getFarmWithPagination, Name = "getAllFarmPaginationAsync")]
-        public async Task<IActionResult> GetAllFarmWithPaginationAsync(PaginationParameter paginationParameter)
+        public async Task<IActionResult> GetAllFarmWithPaginationAsync([FromQuery] GetFarmFilterRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _farmService.GetAllFarmPagination(paginationParameter);
+                var result = await _farmService.GetAllFarmPagination(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -146,6 +146,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     return BadRequest(ModelState);
                 }
                 var result = await _farmService.UpdateFarmInfo(farmUpdateRequest, farmId: farmUpdateRequest.FarmId!.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.Farm.activateFarm, Name = "activateFarm")]
+        public async Task<IActionResult> activateFarm([FromBody] List<int> farmIds)
+        {
+            try
+            {
+                var result = await _farmService.ActivateFarm(farmIds);
                 return Ok(result);
             }
             catch (Exception ex)
