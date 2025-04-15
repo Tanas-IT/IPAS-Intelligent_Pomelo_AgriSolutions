@@ -464,5 +464,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Farm.getFarmForSelected , Name = "getFarmForSelected")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        public async Task<IActionResult> getFarmForSelected()
+        {
+            try
+            {
+                var result = await _farmService.GetAllFarmForSelected();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
