@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
@@ -156,7 +157,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             });
             return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG, result);
         }
-
+        public async Task<BusinessResult> GetAllFarmForSelected()
+        {
+            Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = x => x.OrderByDescending(f => f.FarmId);
+            var userFarm = await _unitOfWork.FarmRepository.GetAllNoPaging(x => x.IsDeleted == false, orderBy: orderBy);
+            if (!userFarm.Any())
+                return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_EMPTY_MSG);
+            var result = _mapper.Map<List<ForSelectedModels>>(userFarm);
+            return new BusinessResult(Const.SUCCESS_GET_ALL_FARM_OF_USER_CODE, Const.SUCCESS_GET_ALL_FARM_OF_USER_FOUND_MSG, result);
+        }
 
         public async Task<BusinessResult> GetAllFarmPagination(GetFarmFilterRequest filterRequest, PaginationParameter paginationParameter)
         {
