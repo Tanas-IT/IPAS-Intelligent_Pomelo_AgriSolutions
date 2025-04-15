@@ -9,6 +9,7 @@ import {
 import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
+  FilterConfigTypeState,
   FilterCriteriaState,
   FilterCropState,
   FilterEmployeeState,
@@ -19,6 +20,7 @@ import {
   FilterPartnerState,
   FilterPlantLotState,
   FilterPlantState,
+  FilterUserState,
   LogoState,
 } from "@/types";
 
@@ -99,6 +101,20 @@ export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
   createDateFrom: "",
   createDateTo: "",
   isActive: null,
+};
+
+export const DEFAULT_CONFIG_FILTERS: FilterConfigTypeState = {
+  isActive: null,
+};
+
+export const DEFAULT_USER_FILTERS: FilterUserState = {
+  createDateFrom: "",
+  createDateTo: "",
+  dobFrom: "",
+  dobTo: "",
+  genders: "",
+  status: "",
+  roleIds: [] as string[],
 };
 
 export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {

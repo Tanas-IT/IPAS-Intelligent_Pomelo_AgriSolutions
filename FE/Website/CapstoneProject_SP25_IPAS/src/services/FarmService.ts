@@ -3,13 +3,35 @@ import {
   ApiResponse,
   FarmDocumentRequest,
   FarmRequest,
+  GetData,
   GetFarmDocuments,
   GetFarmInfo,
   GetFarmPicker,
   GetUser,
   GetUserInFarm,
 } from "@/payloads";
-import { getFileFormat, getUserId } from "@/utils";
+import { buildParams, getFileFormat, getUserId } from "@/utils";
+
+export const getFarms = async (
+  currentPage?: number,
+  rowsPerPage?: number,
+  sortField?: string,
+  sortDirection?: string,
+  searchValue?: string,
+  additionalParams?: Record<string, any>,
+): Promise<GetData<GetFarmInfo>> => {
+  const params = buildParams(
+    currentPage,
+    rowsPerPage,
+    sortField,
+    sortDirection,
+    searchValue,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get("farms", { params });
+  const apiResponse = res.data as ApiResponse<GetData<GetFarmInfo>>;
+  return apiResponse.data as GetData<GetFarmInfo>;
+};
 
 export const getFarmsOfUser = async (): Promise<ApiResponse<GetFarmPicker[]>> => {
   const userId = getUserId();

@@ -131,7 +131,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Lấy danh sách ảnh cũ
                     var existingResources = plantGrowthHistory.Resources.ToList();
-                    var newResources = historyUpdateRequest.PlantResource?.Select(r => new Resource
+                    var newResources = historyUpdateRequest.Resource?.Select(r => new Resource
                     {
                         ResourceID = r.ResourceID!.Value,
                         ResourceURL = r.ResourceURL,
@@ -154,19 +154,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     // Thêm ảnh mới từ request
-                    foreach (var resource in newResources.Where(newImg => newImg.ResourceID == null))
+                    foreach (var resource in historyUpdateRequest.Resource?.Where(newImg => !newImg.ResourceID.HasValue)!)
                     {
-                        if (!string.IsNullOrEmpty(resource.ResourceURL))
+                        if (resource.File != null)
                         {
-                            var newImg = new Resource
+                            var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                            var newRes = new Resource
                             {
-                                ResourceURL = resource.ResourceURL,
+                                ResourceCode = "",
+                                ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                 ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
-                                FileFormat = resource.FileFormat,
+                                FileFormat = FileFormatConst.IMAGE,
                                 CreateDate = DateTime.UtcNow,
                                 PlantGrowthHistoryID = plantGrowthHistory.PlantGrowthHistoryId
                             };
-                            plantGrowthHistory.Resources.Add(newImg);
+                            plantGrowthHistory.Resources.Add(newRes);
                         }
                     }
 

@@ -47,10 +47,9 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         saveAuthData(loginResponse);
         const roleId = getRoleId();
 
-        if (roleId === UserRolesStr.User)
-          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        if (roleId === UserRolesStr.User) navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
         if (roleId === UserRolesStr.Admin)
-          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+          navigate(PATHS.ADMIN.USER_LIST, { state: { toastMessage } });
         // if (roleId === UserRole..toString())
         //   navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
         if (roleId === UserRole.Expert.toString())

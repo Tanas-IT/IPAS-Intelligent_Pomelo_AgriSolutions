@@ -56,6 +56,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
         return (
           <Select
             className={`${styles.customSelect}`}
+            style={{ width: "100%" }}
             mode="multiple"
             placeholder="Please select"
             tagRender={TagRender}
@@ -122,6 +123,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
         return (
           <Select
             className={`${styles.customSelect}`}
+            style={{ width: "100%" }}
             mode="multiple"
             placeholder="Please select"
             tagRender={TagRender}

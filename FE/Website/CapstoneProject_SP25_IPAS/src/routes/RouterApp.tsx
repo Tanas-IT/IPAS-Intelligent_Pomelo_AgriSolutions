@@ -48,6 +48,8 @@ import {
   HarvestDays,
   Product,
   ProductDetails,
+  SystemConfiguration,
+  Farm,
 } from "@/pages";
 import {
   EmployeeLayout,
@@ -101,7 +103,9 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
-  { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.ADMIN.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.ADMIN.FARM_LIST, component: Farm, layout: ManagementLayout },
+  { path: PATHS.ADMIN.SYSTEM_CONFIG, component: SystemConfiguration, layout: ManagementLayout },
   { path: PATHS.CROP.CROP_LIST, component: CropList, layout: ManagementLayout },
 
   { path: PATHS.CROP.HARVEST_DAYS, component: HarvestDays, layout: ManagementLayout },
@@ -159,8 +163,8 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
-  { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
-  { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
+  // { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
+  // { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

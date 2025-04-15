@@ -16,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> GetFarmByID(int farmId);
 
-        public Task<BusinessResult> GetAllFarmPagination(PaginationParameter paginationParameter);
+        public Task<BusinessResult> GetAllFarmPagination(GetFarmFilterRequest getRequest, PaginationParameter paginationParameter);
 
         public Task<BusinessResult> CreateFarm(FarmCreateRequest farmCreateModel, int userId);
 
@@ -48,6 +48,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<FarmModel> CheckFarmExist(int farmId);
 
+        public Task<BusinessResult> ActivateFarm(List<int> FarmIds);
 
     }
 }

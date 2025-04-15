@@ -59,9 +59,12 @@ const ApplyCriteriaLotModal = ({
     }
   }, [isOpen]);
 
-  const handleOk = () => {
+  const handleOk = async () => {
+    setDataSource([]);
+    setCriteriaOptions([]);
     if (!isCriteriaListValid()) return;
     if (!lotId) return;
+    await form.validateFields();
     const requestData: CriteriaApplyRequest = {
       plantLotId: [lotId],
       criteriaData: dataSource.map((item) => ({

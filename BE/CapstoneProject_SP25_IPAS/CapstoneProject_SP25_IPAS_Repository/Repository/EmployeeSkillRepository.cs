@@ -38,5 +38,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
           
             return result;
         }
+
+        public async Task<List<EmployeeSkill>> GetEmployeeSkillByUserIdAndFarmId(int userId, int farmId)
+        {
+            var getEmployeeSkill = await _context.EmployeeSkills.Where(x => x.EmployeeID == userId && x.FarmID == farmId).ToListAsync();
+            return getEmployeeSkill;
+        }
     }
 }

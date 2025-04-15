@@ -36,7 +36,8 @@ interface FormFieldModalProps {
     | "colorPicker"
     | "image"
     | "time"
-    | "radio";
+    | "radio"
+    | "password";
   options?: { value: string | number; label: string | ReactNode }[];
   value?: string | string[] | number | undefined;
   image?: File | string;
@@ -223,6 +224,16 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             onChange={(time) => onChange?.(time)}
             defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")}
             className={style.timePicker}
+          />
+        );
+      case "password":
+        return (
+          <Input.Password
+            placeholder={placeholder}
+            onChange={onChange}
+            value={value}
+            readOnly={readonly}
+            maxLength={255}
           />
         );
       default:

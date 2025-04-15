@@ -40,6 +40,7 @@ export interface GetCriteriaObject {
   masterTypeId: number;
   masterTypeName: string;
   target: string;
+  targetDisplay: string;
   criteriaList: GetCriteriaCheck[];
 }
 

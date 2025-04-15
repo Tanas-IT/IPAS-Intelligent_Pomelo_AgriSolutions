@@ -33,6 +33,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_RFT_MSG = "Refresh Token successfully";
         public static int SUCCESS_REGISTER_CODE = 200;
         public static string SUCCESS_REGISTER_MSG = "You have successfully registered! Welcome aboard";
+        public static int SUCCESS_CREATE_USER_CODE = 200;
+        public static string SUCCESS_CREATE_USER_MSG = "You have successfully registered! Welcome aboard";
         public static int SUCCESS_SOFT_DELETE_USER_CODE = 200;
         public static string SUCCESS_SOFT_DELETE_USER_MSG = "Soft Delete User Success";
         public static int SUCCESS_BANNED_USER_CODE = 200;
@@ -72,7 +74,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_ALL_USER_BY_ROLE_CODE = 200;
         public static string SUCCESS_GET_ALL_USER_BY_ROLE_MESSAGE = "Get all user by role success";
         public static int SUCCESS_UPDATE_USER_CODE = 200;
-        public static string SUCCESS_UPDATE_MESSAGE = "Update user success";
+        public static string SUCCESS_UPDATE_USER_MESSAGE = "Update user success";
         public static int SUCCESS_UPDATE_TOKEN_CODE = 200;
         public static string SUCCESS_UPDATE_TOKEN_MESSAGE = "Update token success";
         #endregion

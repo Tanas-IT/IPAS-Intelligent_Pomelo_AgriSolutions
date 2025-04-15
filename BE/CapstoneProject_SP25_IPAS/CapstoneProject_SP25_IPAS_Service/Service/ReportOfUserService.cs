@@ -13,9 +13,12 @@ using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CapstoneProject_SP25_IPAS_Service.Service.CompareImage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -31,27 +34,46 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IAIService _aIService;
         private readonly IWebSocketService _webSocketService;
+        private readonly IImageHashCompareService _imageHashCompareService;
 
-        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IAIService aIService, IWebSocketService webSocketService)
+        public ReportOfUserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IAIService aIService, IWebSocketService webSocketService, IImageHashCompareService imageHashCompareService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
             _aIService = aIService;
             _webSocketService = webSocketService;
+            _imageHashCompareService = imageHashCompareService;
         }
 
         public async Task<BusinessResult> CreateReportOfCustomer(CreateReportOfUserModel createReportOfUserModel)
         {
             try
             {
-                var imageUpload = "";
-                if(createReportOfUserModel.ImageFile != null && createReportOfUserModel.ImageFile.Length > 0)
+                if (createReportOfUserModel.ImageFile != null && createReportOfUserModel.ImageFile.Length > 0)
                 {
-                    if(IsImageFile(createReportOfUserModel.ImageFile))
+                    if(!IsImageLink(createReportOfUserModel.ImageFile))
                     {
-                        imageUpload = await _cloudinaryService.UploadImageAsync(createReportOfUserModel.ImageFile, "reportOfUser");
+                        return new BusinessResult(400, "Image does not valid. Please use .png, .jpeg, .bmp");
                     }
+                }
+                var getAllReport = await _unitOfWork.ReportRepository.GetAllNoPaging();
+                var newImageHash = await _imageHashCompareService.GetHashFromUrlAsync(createReportOfUserModel.ImageFile);
+                foreach (var report in getAllReport)
+                {
+                    ulong existingHash;
+
+                    if (!string.IsNullOrEmpty(report.ImageURL))
+                    {
+                        existingHash = await _imageHashCompareService.GetHashFromUrlAsync(report.ImageURL);
+                        report.ImageURL = existingHash.ToString(); 
+                        var distance = _imageHashCompareService.CalculateDistance(newImageHash, existingHash);
+                        if(distance >= 90)
+                        {
+                            return new BusinessResult(400, "This image appears to be a duplicate of an existing image in the system.");
+                        }
+                    }
+
                 }
                 var newReportOfUser = new Report()
                 {
@@ -61,7 +83,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     QuestionerID = createReportOfUserModel.QuestionerID,
                     Description = createReportOfUserModel.Description,
                     IsTrainned = false,
-                    ImageURL = imageUpload,
+                    ImageURL = createReportOfUserModel.ImageFile,
                 };
                 await _unitOfWork.ReportRepository.Insert(newReportOfUser);
                 var getListExpert = await _unitOfWork.UserFarmRepository.GetExpertOffarm();
@@ -398,6 +420,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             string extension = Path.GetExtension(file.FileName)?.ToLower();
 
             return validImageTypes.Contains(contentType) && validImageExtensions.Contains(extension);
+        }
+
+        public bool IsImageLink(string url)
+        {
+            string[] validImageExtensions = { ".jpg", ".jpeg", ".bmp" };
+            return url.Contains("/image/") || validImageExtensions.Contains(Path.GetExtension(url).ToLower());
         }
 
         public async Task<BusinessResult> AssignTagToImage(string tagId, int reportId, int? answerId)

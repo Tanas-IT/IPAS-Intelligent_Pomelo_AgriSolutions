@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
@@ -157,7 +158,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> GetAllFarmPagination(PaginationParameter paginationParameter)
+        public async Task<BusinessResult> GetAllFarmPagination(GetFarmFilterRequest filterRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -167,9 +168,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
 
                     filter = x => (x.FarmName!.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower()) && x.IsDeleted != true);
+                                  || x.Address!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Province!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.Ward!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.District!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  || x.FarmCode!.ToLower().Contains(paginationParameter.Search.ToLower())
+                                  && x.IsDeleted != true);
                 }
-
+                if (filterRequest.CreateDateTo.HasValue && filterRequest.CreateDateFrom.HasValue && filterRequest.CreateDateFrom <= filterRequest.CreateDateTo)
+                {
+                    filter = filter.And(x => x.CreateDate <= filterRequest.CreateDateTo && x.CreateDate >= filterRequest.CreateDateTo);
+                }
+                if (filterRequest.AreaFrom.HasValue && filterRequest.AreaTo.HasValue && filterRequest.AreaFrom <= filterRequest.AreaTo)
+                {
+                    filter = filter.And(x => x.Area >= filterRequest.AreaFrom && x.Area <= filterRequest.AreaTo);
+                }
+                if (!string.IsNullOrEmpty(filterRequest.Status))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.Status);
+                    filter = filter.And(x => filterList.Contains(x.Status!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.ClimateZone))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.ClimateZone);
+                    filter = filter.And(x => filterList.Contains(x.ClimateZone!.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(filterRequest.SoilType))
+                {
+                    var filterList = Util.SplitByComma(filterRequest.SoilType);
+                    filter = filter.And(x => filterList.Contains(x.SoilType!.ToLower()));
+                }
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "defaultSortBy")
                 {
                     //case "farmId":
@@ -697,6 +725,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_USER_OF_FARM_EXIST_CODE, Const.WARNING_GET_USER_OF_FARM_EXIST_MSG);
                     }
+                    await DeleteReferneceOfUser(userId, farmId);
                     _unitOfWork.UserFarmRepository.Delete(userInfarm);
 
                     int result = await _unitOfWork.SaveAsync();
@@ -784,7 +813,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -798,5 +827,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var result = _mapper.Map<FarmModel>(farm);
             return result;
         }
+
+        private async Task DeleteReferneceOfUser(int userId, int farmId)
+        {
+            var getUserWorkLogByUserId = await _unitOfWork.UserWorkLogRepository.GetUserWorkLogByUserId(userId);
+            var getUserSkillInFarm = await _unitOfWork.EmployeeSkillRepository.GetEmployeeSkillByUserIdAndFarmId(userId, farmId);
+            if(getUserWorkLogByUserId.Any())
+            {
+                 _unitOfWork.UserWorkLogRepository.RemoveRange(getUserWorkLogByUserId);
+            }
+            if(getUserSkillInFarm.Any())
+            {
+                _unitOfWork.EmployeeSkillRepository.RemoveRange(getUserSkillInFarm);
+            }
+        }
+
+        public async Task<BusinessResult> ActivateFarm(List<int> FarmIds)
+        {
+            try
+            {
+                if (!FarmIds.Any())
+                    return new BusinessResult(500, Const.WARNING_OBJECT_REQUEST_EMPTY_MSG);
+                var farmExist = await _unitOfWork.FarmRepository.GetAllNoPaging(x => FarmIds.Contains(x.FarmId) && x.IsDeleted == false);
+                if (!farmExist.Any())
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
+                foreach (var farm in farmExist)
+                {
+                    if (farm.Status.Equals(FarmStatusEnum.Active.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        farm.Status = FarmStatusEnum.Inactive.ToString();
+                        continue;
+                    }
+                    if (farm.Status.Equals(FarmStatusEnum.Inactive.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        farm.Status = FarmStatusEnum.Active.ToString();
+                    }
+                }
+                _unitOfWork.FarmRepository.UpdateRange(farmExist);
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                    return new BusinessResult(Const.SUCCESS_UPDATE_FARM_CODE, $"Activate {farmExist.Count()} farm success");
+                return new BusinessResult(Const.FAIL_UPDATE_FARM_CODE, $"Activate {farmExist.Count()} farm fail");
+            }
+            catch
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+
+            }
+        }
+
     }
 }

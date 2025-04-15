@@ -40,32 +40,32 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
         setCurrentPage(currentPageReset);
         return;
       }
-      try {
-        setIsLoading(true);
 
-        setTimeout(async () => {
-          try {
-            const result = await fetchFunction(
-              currentPage,
-              rowsPerPage,
-              sortField,
-              sortDirection,
-              searchValue,
-              additionalParams,
-            );
-            setData(result.list ?? []);
+      setIsLoading(true);
+
+      setTimeout(async () => {
+        try {
+          const result = await fetchFunction(
+            currentPage,
+            rowsPerPage,
+            sortField,
+            sortDirection,
+            searchValue,
+            additionalParams,
+          );
+          if (result && Array.isArray(result.list)) {
+            setData(result.list);
             setTotalPages(result.totalPage);
             setTotalRecords(result.totalRecord);
-          } catch (error) {
-            toast.error("Error fetching data");
-          } finally {
-            setIsLoading(false);
+          } else {
+            setData([]);
+            setTotalPages(0);
+            setTotalRecords(0);
           }
-        }, 500);
-      } catch (error) {
-        toast.error("Unexpected error occurred");
-        setIsLoading(false);
-      }
+        } finally {
+          setIsLoading(false);
+        }
+      }, 500);
     },
     [
       currentPage,

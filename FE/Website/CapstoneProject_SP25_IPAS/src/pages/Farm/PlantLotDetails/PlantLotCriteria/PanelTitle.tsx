@@ -11,6 +11,7 @@ import { useEffect } from "react";
 interface PanelTitleProps {
   title: string;
   target: string;
+  targetDisplay: string;
   criteriaSetId: number;
   data: GetCriteriaCheck[];
   isAllConditionChecked: boolean;
@@ -29,6 +30,7 @@ interface PanelTitleProps {
 const PanelTitle = ({
   title,
   target,
+  targetDisplay,
   criteriaSetId,
   data,
   isAllConditionChecked,
@@ -69,7 +71,7 @@ const PanelTitle = ({
   return (
     <Flex className={style.headerWrapper} gap={24}>
       <span className={style.panelTitle}>
-        {title} - <span className={style.targetText}>{target}</span>
+        {title} - <span className={style.targetText}>{targetDisplay}</span>
         <span className={style.date}>{formatDateRange(startDate, endDate || undefined)}</span>
         <span className={style.completedCount}>
           ({completedCount}/{data.length})

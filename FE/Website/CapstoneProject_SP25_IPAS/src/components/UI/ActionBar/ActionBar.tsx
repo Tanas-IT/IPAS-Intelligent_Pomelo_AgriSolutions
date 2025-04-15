@@ -11,6 +11,8 @@ interface ActionBarProps {
   onApplyCriteria?: () => void;
   onGroupGraftedPlant?: () => void;
   onUnGroupGraftedPlant?: () => void;
+  onBanUsers?: () => void;
+  onUnBanUsers?: () => void;
 }
 
 const ActionBar: React.FC<ActionBarProps> = ({
@@ -19,10 +21,14 @@ const ActionBar: React.FC<ActionBarProps> = ({
   onApplyCriteria,
   onGroupGraftedPlant,
   onUnGroupGraftedPlant,
+  onBanUsers,
+  onUnBanUsers,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const deleteConfirmModal = useModal();
   const unGroupConfirmModal = useModal();
+  const banConfirmModal = useModal();
+  const unBanConfirmModal = useModal();
 
   useEffect(() => {
     setIsVisible(selectedCount > 0);
@@ -38,6 +44,16 @@ const ActionBar: React.FC<ActionBarProps> = ({
   const handleUnGroupSelectedItems = () => {
     onUnGroupGraftedPlant?.();
     unGroupConfirmModal.hideModal();
+  };
+
+  const handleBanUsers = () => {
+    onBanUsers?.();
+    banConfirmModal.hideModal();
+  };
+
+  const handleUnBanUsers = () => {
+    onUnBanUsers?.();
+    unBanConfirmModal.hideModal();
   };
 
   const showModal = () => deleteConfirmModal.showModal();
@@ -62,6 +78,18 @@ const ActionBar: React.FC<ActionBarProps> = ({
       label: "UnGroup Grafted Plant from Lot",
       icon: <Icons.delete />,
       onClick: showUnGroupModal,
+    },
+    onBanUsers && {
+      key: "ban",
+      label: "Ban Users",
+      icon: <Icons.ban />,
+      onClick: () => banConfirmModal.showModal(),
+    },
+    onUnBanUsers && {
+      key: "unban",
+      label: "Unban Users",
+      icon: <Icons.checkSuccuss />,
+      onClick: () => unBanConfirmModal.showModal(),
     },
   ].filter(Boolean) as MenuProps["items"];
 
@@ -89,7 +117,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
             </Button>
 
             {/* More Actions - Dropdown */}
-            {(onApplyCriteria || onGroupGraftedPlant || onUnGroupGraftedPlant) && (
+            {moreActionsItems && moreActionsItems.length > 0 && (
               <Dropdown
                 menu={{ items: moreActionsItems, className: style.customDropdownMenu }}
                 trigger={["click"]}
@@ -124,6 +152,29 @@ const ActionBar: React.FC<ActionBarProps> = ({
         confirmText="UnGroup"
         cancelText="Cancel"
         isDanger={true}
+      />
+      {/* Confirm Ban Users */}
+      <ConfirmModal
+        visible={banConfirmModal.modalState.visible}
+        onConfirm={handleBanUsers}
+        onCancel={banConfirmModal.hideModal}
+        title="Ban Selected Users?"
+        description={`Are you sure you want to ban the ${selectedCount} selected user(s)? They will not be able to access the system.`}
+        confirmText="Ban"
+        cancelText="Cancel"
+        isDanger
+      />
+
+      {/* Confirm Unban Users */}
+      <ConfirmModal
+        visible={unBanConfirmModal.modalState.visible}
+        onConfirm={handleUnBanUsers}
+        onCancel={unBanConfirmModal.hideModal}
+        title="Unban Selected Users?"
+        description={`Are you sure you want to unban the ${selectedCount} selected user(s)? They will regain access to the system.`}
+        confirmText="Unban"
+        cancelText="Cancel"
+        isDanger={false}
       />
     </>
   );

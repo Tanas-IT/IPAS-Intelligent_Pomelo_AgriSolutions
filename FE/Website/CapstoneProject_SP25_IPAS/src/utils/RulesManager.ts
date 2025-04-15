@@ -81,6 +81,15 @@ export class RulesManager {
     ];
   }
 
+  static getPhoneNumberNotRequiredRules() {
+    return [
+      {
+        pattern: /^[0-9]{10,11}$/,
+        message: "Phone number must be 10 or 11 digits!",
+      },
+    ];
+  }
+
   static getRequiredIfSelectedRules(dependentField: string, fieldName: string) {
     return [
       ({ getFieldValue }: any) => ({

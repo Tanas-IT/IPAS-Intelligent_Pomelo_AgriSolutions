@@ -191,3 +191,18 @@ export const deleteGraftedPlantGrowthHistory = async (id: number): Promise<ApiRe
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
+
+export const exportGraftedPlantGrowthHistory = async (
+  id: number,
+): Promise<{ blob: Blob; filename: string }> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `grafted-plant/note/export-csv?graftedPlantId=${id}`,
+    { responseType: "blob" },
+  );
+
+  const disposition = res.headers["content-disposition"] || "";
+  const match = disposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i);
+  const filename = match ? decodeURIComponent(match[1]) : "export.csv";
+
+  return { blob: res.data, filename };
+};

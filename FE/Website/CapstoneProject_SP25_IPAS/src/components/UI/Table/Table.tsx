@@ -28,6 +28,8 @@ interface TableProps<T, E = T> {
   onApplyCriteria?: (ids: number[]) => void;
   onGroupGraftedPlant?: (ids: number[]) => void;
   onUnGroupGraftedPlant?: (ids: number[]) => void;
+  onBanUsers?: (ids: number[]) => void;
+  onUnBanUsers?: (ids: number[]) => void;
   isLoading: boolean;
   caption: string;
   notifyNoData: string;
@@ -57,6 +59,8 @@ const TableComponent = <T, E = T>({
   onApplyCriteria,
   onGroupGraftedPlant,
   onUnGroupGraftedPlant,
+  onBanUsers,
+  onUnBanUsers,
   isLoading,
   caption,
   notifyNoData,
@@ -165,6 +169,8 @@ const TableComponent = <T, E = T>({
   const applyCriteriaSelectedItems = () => handleSelectionAction(onApplyCriteria);
   const groupSelectedItemsToLot = () => handleSelectionAction(onGroupGraftedPlant);
   const unGroupSelectedItemsFromLot = () => handleSelectionAction(onUnGroupGraftedPlant);
+  const onBanSelectedUsers = () => handleSelectionAction(onBanUsers);
+  const onUnBanSelectedUsers = () => handleSelectionAction(onUnBanUsers);
 
   const antColumns = [
     isViewCheckbox && {
@@ -334,6 +340,8 @@ const TableComponent = <T, E = T>({
         {...(onApplyCriteria && { onApplyCriteria: applyCriteriaSelectedItems })}
         {...(onGroupGraftedPlant && { onGroupGraftedPlant: groupSelectedItemsToLot })}
         {...(onUnGroupGraftedPlant && { onUnGroupGraftedPlant: unGroupSelectedItemsFromLot })}
+        {...(onBanUsers && { onBanUsers: onBanSelectedUsers })}
+        {...(onUnBanUsers && { onUnBanUsers: onUnBanSelectedUsers })}
       />
     </>
   );

@@ -5,7 +5,6 @@ export { default as ResetPassword } from "@/pages/Auth/ResetPassword/ResetPasswo
 export { default as OTP } from "@/pages/Auth/OTP/OTP";
 export { default as FarmPicker } from "@/pages/FarmPicker/FarmPicker";
 export { default as Dashboard } from "@/pages/Dashboard/Dashboard";
-export { default as User } from "@/pages/User/User";
 export { default as PlantYield } from "@/pages/Crop/PlantYield/PlantYield";
 export { default as MasterType } from "@/pages/Classification/MasterType/MasterType";
 export { default as GrowthStage } from "@/pages/Classification/GrowthStage/GrowthStage";
@@ -71,3 +70,6 @@ export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashb
 export { default as CropList } from "@/pages/Crop/CropList/CropList";
 export { default as HarvestDays } from "@/pages/Crop/CropDetails/HarvestDays/HarvestDays";
 export { default as ChatBox } from "@/pages/ChatBox/ChatBox";
+export { default as User } from "@/pages/Admin/User/User";
+export { default as Farm } from "@/pages/Admin/Farm/Farm";
+export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";

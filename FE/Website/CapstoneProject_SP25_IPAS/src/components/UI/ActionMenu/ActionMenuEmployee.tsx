@@ -108,6 +108,10 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate, on
         onCancel={() => setConfirmVisible(false)}
         itemName={confirmType === "role" ? "Role" : "User Status"}
         actionType="update"
+        confirmText={
+          confirmType === "status" ? (employee.isActive ? "Deactivate" : "Activate") : "Update"
+        }
+        isDanger={confirmType === "status" && employee.isActive}
       />
     </>
   );

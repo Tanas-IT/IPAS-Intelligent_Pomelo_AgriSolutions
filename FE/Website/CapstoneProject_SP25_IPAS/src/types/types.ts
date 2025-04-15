@@ -52,6 +52,20 @@ export interface SelectOption {
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
+export type FilterConfigTypeState = {
+  isActive: boolean | null;
+};
+
+export type FilterUserState = {
+  createDateFrom: string;
+  createDateTo: string;
+  dobFrom: string;
+  dobTo: string;
+  roleIds: string[];
+  genders: string;
+  status: string;
+};
+
 export type FilterMasterTypeState = {
   createDateFrom: string;
   createDateTo: string;

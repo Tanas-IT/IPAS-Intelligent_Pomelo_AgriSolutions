@@ -32,6 +32,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         [CsvExport("Number Video")]
 
         public int? NumberVideos { get; set; }
+        public int UserId { get; set; }
+
         //public virtual PlantModel? Plant { get; set; }
 
         public ICollection<ResourceModel> Resources { get; set; } = new List<ResourceModel>();

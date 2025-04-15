@@ -17,13 +17,22 @@ export const SYSTEM_CONFIG_GROUP = {
   GROWTH_STAGE_ACTION: "GrowthStageAction",
   WORK: "Work",
   CRITERIA: "Criteria",
-  CRITERIA_APPLY: "CriteriaApply",
   PLANT_LOT_CRITERIA: "PlantLotCriteria",
+  PLANT_CRITERIA: "PlantCriteria",
+  GRAFTED_CRITERIA: "GraftedCriteria",
+  PRODUCT_CRITERIA: "ProductCriteria",
   SOIL_TYPE: "SoilType",
   CLIMATE_ZONE: "ClimateZone",
   HARVEST_SEASON: "HarvestSeason",
   YIELD_THRESHOLD: "YieldThreshold",
 };
+
+export const criteriaGroupsHasReference = [
+  "PlantLotCriteria",
+  "PlantCriteria",
+  "GraftedCriteria",
+  "ProductCriteria",
+];
 
 export const SYSTEM_CONFIG_KEY = {
   PLANT_CRITERIA: "PlantCriteria",
@@ -205,3 +214,8 @@ export const ROOM_GROUPS = [
   "Previous 30 Days",
   "Earlier",
 ] as const;
+
+export const USER_ROLE_OPTIONS = [
+  { label: "User", value: 2 },
+  { label: "Expert", value: 6 },
+];

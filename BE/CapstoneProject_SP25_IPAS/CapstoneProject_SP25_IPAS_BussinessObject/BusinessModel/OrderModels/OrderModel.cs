@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels
 {
@@ -35,8 +36,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels
         //public FarmModel? Farm { get; set; }
 
         //public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public PackageModel? Package { get; set; }
-
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public PaymentModel? Payments { get; set; } = new PaymentModel();
     }
 }

@@ -1178,7 +1178,6 @@ VALUES
 (1, 15, 5), 
 (1, 16, 4), -- Olivia Martinez (Manager)
 (1, 17, 4), -- Daniel Brown (Manager)
-(1, 24, 6),
 (1, 23, 5);
 GO
 -- Fake data for GrowthStage table with FarmID = 1
@@ -1951,26 +1950,6 @@ VALUES
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
 GO
--- Criteria Apply
---INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
---SELECT 
---    'CriteriaApply',
---    v.ConfigKey,
---    v.ConfigValue,
---    'string',
---    v.Description,
---    c.ConfigID
---FROM 
---    (VALUES 
---        ('GraftedCriteria', 'Grafted Evaluation', N'Bộ tiêu chí đánh giá cây mẹ trước khi chiết'),
---        ('PlantLotCriteria', 'PlantLot Condition', N'Tiêu chí đánh giá lô giống nhập vào'),
---        ('PlantLotCriteria', 'PlantLot Evaluation', N'Tiêu chí đánh giá lô giống sau khi nhập vào'),
---       ('PlantCriteria', 'Grafted Condition', N'Bộ tiêu chí đánh giá cành chiết'),
---        ('PlantCriteria', 'Others', N'Các loại tiêu chí khác'),
---        ('ProductCriteria', 'Product', N'Tiêu chí đánh giá sản phẩm')
---    ) AS v(ConfigKey, ConfigValue, Description)
---JOIN SystemConfiguration c
---    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
 
 GO
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)

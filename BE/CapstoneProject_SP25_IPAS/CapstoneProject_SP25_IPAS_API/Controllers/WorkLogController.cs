@@ -581,5 +581,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPost(APIRoutes.WorkLog.NoteForWorkLogUseFile, Name = "NoteForWorkLogUseFile")]
+        public async Task<IActionResult> NoteForWorkLogUseFile([FromForm] CreateNoteModelUseFile createNoteModelUseFile, [FromQuery] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _workLogService.NoteForWorkLogUseResourceFile(createNoteModelUseFile, farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
