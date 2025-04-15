@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -71,8 +74,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string includeProperties = "PackageDetails";
                 var packages = await _unitOfWork.PackageRepository.Get(filter: filter, includeProperties:
 includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
-//                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties:
-//includeProperties, orderBy: orderBy);
+                //                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties:
+                //includeProperties, orderBy: orderBy);
                 if (packages == null)
                     return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
                 var mappedResult = _mapper.Map<IEnumerable<PackageModel>>(packages);
@@ -83,6 +86,26 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        //        public async Task<BusinessResult> GetListPackage()
+        //        {
+        //            try
+        //            {
+        //                Expression<Func<Package, bool>> filter = null!;
+        //                Func<IQueryable<Package>, IOrderedQueryable<Package>> orderBy = x => x.OrderByDescending(x => x.PackageId);
+        //                string includeProperties = "PackageDetails";
+        //                var packages = await _unitOfWork.PackageRepository.GetAllNoPaging(filter: filter, includeProperties:
+        //includeProperties, orderBy: orderBy);
+        //                if (packages == null)
+        //                    return new BusinessResult(Const.WARNING_GET_PACKAGES_EMPTY_CODE, Const.WARNING_GET_PACKAGES_EMPTY_MSG);
+        //                var mappedResult = _mapper.Map<IEnumerable<PackageModel>>(packages);
+        //                return new BusinessResult(Const.SUCCESS_GET_PACKAGES_CODE, Const.SUCCESS_GET_PACKAGES_MSG, mappedResult);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+        //            }
+        //        }
 
         public async Task<BusinessResult> GetPackageById(int packageId)
         {
@@ -121,5 +144,162 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
         //        return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
         //    }
         //}
+
+        public async Task<BusinessResult> UpdatePackageAsync(UpdatePackageRequest request)
+        {
+            try
+            {
+
+                var package = await _unitOfWork.PackageRepository
+                    .GetByCondition(p => p.PackageId == request.PackageId, includeProperties: "PackageDetails");
+
+                if (package == null)
+                    return new BusinessResult(400, "Package not found");
+
+                // Cập nhật thông tin chính
+                if (!string.IsNullOrEmpty(request.PackageName))
+                    package.PackageName = request.PackageName;
+                if (request.PackagePrice.HasValue)
+                    package.PackagePrice = request.PackagePrice;
+                if (request.PackagePrice.HasValue)
+                    package.Duration = request.Duration;
+                if (!string.IsNullOrEmpty(request.PackageName))
+                    package.Status = request.Status;
+                if (request.IsActive.HasValue)
+                    package.IsActive = request.IsActive;
+                package.UpdateDate = DateTime.Now;
+
+                // Danh sách detail cũ
+                var existingDetails = package.PackageDetails.ToList();
+
+                // Xử lý thêm/sửa
+                foreach (var detailDto in request.PackageDetails)
+                {
+                    if (detailDto.PackageDetailId.HasValue)
+                    {
+                        // Sửa
+                        var existingDetail = existingDetails
+                            .FirstOrDefault(d => d.PackageDetailId == detailDto.PackageDetailId.Value);
+
+                        if (existingDetail != null)
+                        {
+                            //existingDetail.PackageDetailCode = detailDto.PackageDetailCode;
+                            existingDetail.FeatureName = detailDto.FeatureName;
+                            existingDetail.FeatureDescription = detailDto.FeatureDescription;
+                        }
+                    }
+                    else
+                    {
+                        // Thêm mới
+                        var newDetail = new PackageDetail
+                        {
+                            PackageDetailCode = CodeAliasEntityConst.PACKAGE_DETAIL + CodeHelper.GenerateCode(),
+                            FeatureName = detailDto.FeatureName,
+                            FeatureDescription = detailDto.FeatureDescription,
+                            PackageId = package.PackageId
+                        };
+                        package.PackageDetails.Add(newDetail);
+                    }
+                }
+
+                // Xử lý xóa các detail không còn trong request
+                var requestDetailIds = request.PackageDetails
+                    .Where(d => d.PackageDetailId.HasValue)
+                    .Select(d => d.PackageDetailId.Value)
+                    .ToHashSet();
+
+                var toRemove = existingDetails
+                    .Where(d => !requestDetailIds.Contains(d.PackageDetailId))
+                    .ToList();
+
+                _unitOfWork.PackageDetailRepository.RemoveRange(toRemove);
+
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                    return new BusinessResult(200, "Package updated successfully");
+                return new BusinessResult(400, "Package updated fail");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> CreatePackageAsync(CreatePackageRequest request)
+        {
+            try
+            {
+                // Tạo mới package entity
+                var package = new Package
+                {
+                    PackageName = request.PackageName,
+                    PackagePrice = request.PackagePrice,
+                    Duration = request.Duration,
+                    Status = PackageStatusConst.IN_ACTIVE,
+                    IsActive = false,
+                    CreateDate = DateTime.Now,
+                    PackageCode = CodeAliasEntityConst.PACKAGE + CodeHelper.GenerateCode()
+                };
+
+                // Tạo danh sách PackageDetails nếu có
+                if (request.PackageDetails != null && request.PackageDetails.Any())
+                {
+                    foreach (var detailDto in request.PackageDetails)
+                    {
+                        var detail = new PackageDetail
+                        {
+                            PackageDetailCode = CodeAliasEntityConst.PACKAGE_DETAIL + CodeHelper.GenerateCode(), // bạn có thể tạo cách khác
+                            FeatureName = detailDto.FeatureName,
+                            FeatureDescription = detailDto.FeatureDescription
+                        };
+
+                        package.PackageDetails.Add(detail);
+                    }
+                }
+
+                await _unitOfWork.PackageRepository.Insert(package);
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    var mappedResult = _mapper.Map<PackageModel>(package);
+                    return new BusinessResult(200, "Package Create successfully", package);
+                }
+                return new BusinessResult(400, "Package Create fail");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> DeletePackageAsync(int packageId)
+        {
+            try
+            {
+
+                var package = await _unitOfWork.PackageRepository
+                    .GetByCondition(p => p.PackageId == packageId, includeProperties: "PackageDetails");
+
+                if (package == null)
+                    return new BusinessResult(400, "Package not found");
+
+                // Xóa các package detail trước
+                _unitOfWork.PackageDetailRepository.RemoveRange(package.PackageDetails.ToList());
+
+                // Xóa package
+                _unitOfWork.PackageRepository.Delete(package);
+
+                var result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    return new BusinessResult(200, "Package deleted successfully");
+                }
+                return new BusinessResult(400, "Package delete fail");
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
     }
 }

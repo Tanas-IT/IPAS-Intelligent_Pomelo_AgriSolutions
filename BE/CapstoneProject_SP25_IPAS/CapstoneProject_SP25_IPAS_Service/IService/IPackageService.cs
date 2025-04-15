@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,11 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         //public Task<BusinessResult> GetPackageExpiredOfFarm(int farmId);
         public Task<BusinessResult> GetAllPackage();
         public Task<PackageModel> CheckPackageExistAndActive(int packageId);
+        //public Task<BusinessResult> GetListPackage();
+        public Task<BusinessResult> UpdatePackageAsync(UpdatePackageRequest request);
+        public Task<BusinessResult> CreatePackageAsync(CreatePackageRequest request);
+        public Task<BusinessResult> DeletePackageAsync(int packageId);
+
+
     }
 }
