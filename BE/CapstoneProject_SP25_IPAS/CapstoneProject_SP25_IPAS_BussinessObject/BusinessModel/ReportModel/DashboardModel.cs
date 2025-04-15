@@ -15,7 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
         public WeatherPropertyModel? WeatherPropertyModel { get; set; }
         public Dictionary<string, double>? PlantDevelopmentDistribution { get; set; }
         public Dictionary<string, double>? PlantDevelopmentStages { get; set; }
-        public Dictionary<string, double>? PlantHealthStatus { get; set; }
+        public Dictionary<string, int>? PlantHealthStatus { get; set; }
         public TaskStatusDistribution? TaskStatusDistribution { get; set; }
         public List<MaterialsInStoreModel>? MaterialsInStoreModels { get; set; }
         public List<PomeloQualityBreakDown>? PomeloQualityBreakDowns { get; set; }
