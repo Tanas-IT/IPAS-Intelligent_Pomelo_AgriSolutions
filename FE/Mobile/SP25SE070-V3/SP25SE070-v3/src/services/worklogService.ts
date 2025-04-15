@@ -53,33 +53,35 @@ export const updateStatusWorklog = async (payload: UpdateStatusWorklogRequest): 
 }
 
 export const addWorklogNote = async (
-    payload: WorklogNoteFormData
-  ): Promise<ApiResponse<object>> => {
-    try {
-      const formData = new FormData();
-      formData.append("UserId", payload.userId?.toString() || "");
-      formData.append("WorkLogId", payload.workLogId?.toString() || "");
-      formData.append("Note", payload.note || "");
-      formData.append("Issue", payload.issue || "");
-  
-      if (payload.resources && payload.resources.length > 0) {
-        payload.resources.forEach((resource, index) => {
-          const file = {
+  payload: WorklogNoteFormData
+): Promise<ApiResponse<object>> => {
+    const formData = new FormData();
+    formData.append("UserId", payload.userId?.toString() || "");
+    formData.append("WorkLogId", payload.workLogId?.toString() || "");
+    formData.append("Note", payload.note || "");
+    formData.append("Issue", payload.issue || "");
+
+    if (payload.resources && payload.resources.length > 0) {
+      payload.resources.forEach((resource, index) => {
+        const format = resource.fileFormat?.split("/")[1] || "jpg";
+        formData.append(`Resources[${index}].fileFormat`, format);
+        formData.append(
+          `Resources[${index}].file`,
+          {
             uri: resource.resourceURL,
             type: resource.fileFormat || "image/jpeg",
-            name: `resource_${index}.${resource.fileFormat?.split("/")[1] || "jpg"}`,
-          };
-          formData.append("Resources", file as any);
-        });
-      }
-  
-      const res = await axiosAuth.axiosMultipartForm.post(
-        `/work-log/take-note`,
-        formData,
-      );
-      const apiResponse = res.data as ApiResponse<object>;
-      return apiResponse;
-    } catch (error) {
-      throw error;
+            name: `resource_${index}.${format}`,
+          } as any,
+          `resource_${index}.${format}`
+        );
+      });
     }
-  };
+
+    const res = await axiosAuth.axiosMultipartForm.post(
+      `/work-log/take-note`,
+      formData
+    );
+
+    const apiResponse = res.data as ApiResponse<object>;
+    return apiResponse;
+};

@@ -102,6 +102,8 @@ const AddNoteWorklogScreen: React.FC = () => {
       issue: data.issue || "",
       resources: data.resources || [],
     };
+    console.log("add worklog note", payload);
+    
 
     try {
       console.log(
@@ -109,7 +111,7 @@ const AddNoteWorklogScreen: React.FC = () => {
         payload
       );
       const res = await worklogService.addWorklogNote(payload);
-      console.log("kì", res);
+      console.log("kìiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", res);
       
       if (res.statusCode === 200) {
         Toast.show({

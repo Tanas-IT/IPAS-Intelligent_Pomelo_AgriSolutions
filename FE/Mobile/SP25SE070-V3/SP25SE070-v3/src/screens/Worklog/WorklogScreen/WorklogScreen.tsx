@@ -233,8 +233,6 @@ export default function WorklogScreen() {
   }, {} as Record<string, any>);
 
   const renderItem = ({ item }: { item: AgendaEvent }) => {
-    console.log("item", item);
-
     const status = item.status.toLowerCase() as keyof typeof statusStyles;
     const style = statusStyles[status] || statusStyles.notStarted;
     const startTime = item.time.split(" - ")[0];
@@ -280,10 +278,8 @@ export default function WorklogScreen() {
   };
 
   const renderDayItem = ({ item: date }: { item: string }) => {
-    console.log('event', events);
     
     const eventsForDate = events.filter((event) => event.date === date);
-    console.log("eventsForDate", eventsForDate);
     
     return (
       <View style={{ marginBottom: 20 }}>
