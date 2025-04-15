@@ -12,6 +12,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserMo
         public string? ReportCode { get; set; }
         public string? Description { get; set; }
         public string? ImageURL { get; set; }
+        public string? AvatarOfQuestioner { get; set; }
+        public string? AvatarOfAnswer { get; set; }
         public DateTime? CreatedDate { get; set; }
         public bool? IsTrainned { get; set; }
         public int? AnswererID { get; set; }
